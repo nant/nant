@@ -67,18 +67,9 @@ namespace Tests.NAnt.Core {
 
         [Test]
         public void Test_ToString() {
-            // NOTE: This regular expression will fail on file systems that do not use '\' as the directory seperator.
-            Assertion.AssertEquals('\\', Path.DirectorySeparatorChar);
-
-            // This expression will extract the name, line and column from the location ToString result.
-            // Created using RegEx http://www.organicbit.com/regex/
-            string expression = @"(?<fileName>^.*\\[.\w]+)\((?<line>[0-9]+),(?<column>[0-9]+)\)";
-
             Location location = new Location(_tempFileName, 2, 5);
-            Match match = Regex.Match(location.ToString(), expression);
-            Assertion.Assert("match should have been successful", match.Success);
-            string expected = _tempFileName + " 2 5";
-            string actual = match.Result("${fileName} ${line} ${column}");
+            string expected = _tempFileName + "(2,5):";
+            string actual = location.ToString();
             Assertion.AssertEquals(expected, actual);
         }
 
