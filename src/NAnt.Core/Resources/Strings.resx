@@ -33,11 +33,11 @@
     <resheader name="Writer">
         <value>System.Resources.ResXResourceWriter</value>
     </resheader> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/AssemblyInfo.cs  -->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/BuildException.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/CommandLineOptions.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ConfigurationSection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ConsoleDriver.cs-->
+    <!--Messages From: \NAnt.Core/AssemblyInfo.cs  -->
+    <!--Messages From: \NAnt.Core/BuildException.cs-->
+    <!--Messages From: \NAnt.Core/CommandLineOptions.cs-->
+    <!--Messages From: \NAnt.Core/ConfigurationSection.cs-->
+    <!--Messages From: \NAnt.Core/ConsoleDriver.cs-->
     <data name="NA1001">
         <value>More than one '{0}' file found in '{1}' and no default.build exists.</value>
         <comment>More than one '{0}' file found in '{1}' and no default.build exists.</comment>
@@ -65,7 +65,7 @@
         <value>Could not find a '{0}' file in directory tree.</value>
         <comment>Could not find a '{0}' file in directory tree.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/DataTypeBase.cs-->
+    <!--Messages From: \NAnt.Core/DataTypeBase.cs-->
     <data name="NA1008">
         <value>'id' is an invalid attribute for a &lt;{0}&gt; tag. Datatypes</value>
         <comment>'id' is an invalid attribute for a &lt;{0}&gt; tag. Datatypes</comment>
@@ -78,11 +78,11 @@
         <value>'id' is a required attribute for a &lt;{0}&gt; datatype declaration.</value>
         <comment>'id' is a required attribute for a &lt;{0}&gt; datatype declaration.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/DataTypeBaseBuilder.cs--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/DataTypeBaseBuilderCollection.cs-->  
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/DataTypeBaseDictionary.cs-->  
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/DirectoryScanner.cs--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Element.cs-->   
+    <!--Messages From: \NAnt.Core/DataTypeBaseBuilder.cs--> 
+    <!--Messages From: \NAnt.Core/DataTypeBaseBuilderCollection.cs-->  
+    <!--Messages From: \NAnt.Core/DataTypeBaseDictionary.cs-->  
+    <!--Messages From: \NAnt.Core/DirectoryScanner.cs--> 
+    <!--Messages From: \NAnt.Core/Element.cs-->   
     <data name="NA1012">
         <value>Child element type {0} is not assignable to the type of the underlying array ({1} for property {2} for &lt;{3} ... /&gt;.</value>
         <comment>Child element type {0} is not assignable to the type</comment>
@@ -159,7 +159,7 @@
         <value>Element Required! There must be a least one '{0}' element for &lt;{1} ... /&gt;.</value>
         <comment>Element Required! There must be a least one '{0}' element for &lt;{1} ... /&gt;.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ExpressionEvalBase.cs--> 
+    <!--Messages From: \NAnt.Core/ExpressionEvalBase.cs--> 
     <!-- Group all these together with different pattern. -->
     <data name="NA1036">
         <value>Operator '*' cannot be applied to arguments of type '{0}' and '{1}'.</value>
@@ -225,7 +225,7 @@
         <value>Operator '&lt;' cannot be applied to arguments of type '{0}' and '{1}'.</value>
         <comment>Operator '&lt;' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ExpressionEvaluator.cs-->
+    <!--Messages From: \NAnt.Core/ExpressionEvaluator.cs-->
     <data name="NA1052">
         <value>Unknown function '{0}'.</value>
         <comment>Unknown function '{0}'.</comment>
@@ -234,9 +234,9 @@
         <value>Property '{0}' has not been set.</value>
         <comment>Property '{0}' has not been set.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ExpressionParseException.cs-->  
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ExpressionTokenizer.cs--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/FrameworkInfo.cs-->
+    <!--Messages From: \NAnt.Core/ExpressionParseException.cs-->  
+    <!--Messages From: \NAnt.Core/ExpressionTokenizer.cs--> 
+    <!--Messages From: \NAnt.Core/FrameworkInfo.cs-->
     <data name="NA1054">
         <value>The 'System.dll' assembly does not exist in framework assembly directory '{0}'.</value>
         <comment> does not exist in framework assembly directory</comment>
@@ -245,13 +245,13 @@
         <value>There is no version of Visual Studio .NET that corresponds with {0}.</value>
         <comment>There is no version of Visual Studio .NET that corresponds</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/FrameworkInfoDictionary.cs-->  
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/FunctionSetBase.cs--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Location.cs--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/LocationMap.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/PathScanner.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/PlatformHelper.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Project.cs-->
+    <!--Messages From: \NAnt.Core/FrameworkInfoDictionary.cs-->  
+    <!--Messages From: \NAnt.Core/FunctionSetBase.cs--> 
+    <!--Messages From: \NAnt.Core/Location.cs--> 
+    <!--Messages From: \NAnt.Core/LocationMap.cs-->
+    <!--Messages From: \NAnt.Core/PathScanner.cs-->
+    <!--Messages From: \NAnt.Core/PlatformHelper.cs-->
+    <!--Messages From: \NAnt.Core/Project.cs-->
     <data name="NA1059">
         <value>Root element in '{0}' must be named '{1}'.</value>
         <comment>Root element in '{0}' must be named '{1}'.</comment>
@@ -264,7 +264,7 @@
         <value>Invalid path '{0}'. The '{1}' scheme is not supported for paths.</value>
         <comment>Invalid path '{0}'. The '{1}' scheme is not supported for paths.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ProjectSettingsLoader.cs-->
+    <!--Messages From: \NAnt.Core/ProjectSettingsLoader.cs-->
     <data name="NA1062">
         <value>The NAnt configuration file does not contain a framework definition for the current runtime framework (family '{0}' clrversion '{1}').</value>        
     </data>
@@ -293,7 +293,7 @@
         <comment>Read-only property \"{0}\" cannot be overwritten.</comment>
     </data> 
     <!-- also a bunch of deprecated property warnings.　--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Target.cs-->
+    <!--Messages From: \NAnt.Core/Target.cs-->
     <data name="NA1069">
         <value>Cannot resolve expanded value '{0}' of 'unless' attribute to a Boolean value.</value>        
     </data>
@@ -304,12 +304,12 @@
         <value>Invalid element &lt;{0}&gt;. Unknown task or datatype.</value>
         <comment>Invalid element &lt;{0}&gt;. Unknown task or datatype.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/TargetCollection.cs-->
+    <!--Messages From: \NAnt.Core/TargetCollection.cs-->
     <data name="NA1073">
         <value>Duplicate target named '{0}'!</value>
         <comment>Duplicate target named '{0}'!</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Task.cs-->
+    <!--Messages From: \NAnt.Core/Task.cs-->
     <data name="NA1074">
         <value>Configuration value {0} for task {1} was not considered valid by {2}.</value>
         <comment>Configuration value {0} for task {1} was not considered valid by {2}.</comment>
@@ -326,10 +326,10 @@
         <value>'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.</value>
         <comment>'{0}' is a required framework configuration setting for the '{1}'</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/TaskBuilder.cs--> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/TaskBuilderCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/TaskContainer.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/TypeFactory.cs-->
+    <!--Messages From: \NAnt.Core/TaskBuilder.cs--> 
+    <!--Messages From: \NAnt.Core/TaskBuilderCollection.cs-->
+    <!--Messages From: \NAnt.Core/TaskContainer.cs-->
+    <!--Messages From: \NAnt.Core/TypeFactory.cs-->
     <data name="NA1079">
         <value>Filter &lt;{0}&gt; is deprecated.  {1}</value>
         <comment>Filter &lt;{0}&gt; is deprecated.  {1}</comment>
@@ -358,26 +358,31 @@
         <value>Function {0} is deprecated.  {1}</value>
         <comment>Function {0} is deprecated.  {1}</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/ValidationException.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/VolumeInfo.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/XmlLogger.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/BooleanValidatorAttribute.cs-->
+    <!--Messages From: \NAnt.Core/ValidationException.cs-->
+    <!--Messages From: \NAnt.Core/VolumeInfo.cs-->
+    <!--Messages From: \NAnt.Core/XmlLogger.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/BooleanValidatorAttribute.cs-->
     <data name="NA1088">
         <value>Cannot resolve '{0}' to boolean value.</value>
         <comment>Cannot resolve '{0}' to boolean value.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/BuildAttributeAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/BuildElementArrayAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/BuildElementAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/BuildElementCollectionAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/DateTimeValidatorAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/BuildAttributeAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/BuildElementArrayAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/BuildElementAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/BuildElementCollectionAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/DateTimeValidatorAttribute.cs-->
     <data name="NA1089">
         <value>Cannot resolve '{0}' to DateTime value.</value>
         <comment>Cannot resolve '{0}' to DateTime value.</comment>
     </data> 
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/ElementNameAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/FrameworkConfigurableAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/FunctionAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/FunctionSetAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/Int32ValidatorAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/FunctionAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/FunctionSetAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/Int32ValidatorAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/ElementNameAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/FrameworkConfigurableAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/FunctionAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/FunctionSetAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/Int32ValidatorAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/FunctionAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/FunctionSetAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/Int32ValidatorAttribute.cs-->
     <data name="NA1090">
         <value>Cannot resolve '{0}' to integer between '{1}' and '{2}'.</value>
         <comment>Cannot resolve '{0}' to integer between '{1}' and '{2}'.</comment>
@@ -385,34 +390,61 @@
     <data name="NA1091">
         <value>Cannot resolve '{0}' to integer value.</value>
         <comment>Cannot resolve '{0}' to integer value.</comment>
-    </data> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/ProgramLocationAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/StringValidatorAttribute.cs-->
+    </data> <!--Messages From: \NAnt.Core/Attributes/ProgramLocationAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/StringValidatorAttribute.cs-->
     <data name="NA1092">
         <value>Cannot resolve '{0}' to a string value.</value>
         <comment>Cannot resolve '{0}' to a string value.</comment>
-    </data> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/TaskAttributeAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/TaskNameAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/ValidatorAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/ExpandProperties.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/ReplaceString.cs--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/ReplaceTokens.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/TabsToSpaces.cs--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/ChainableReader.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/Filter.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterBuilder.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterBuilderCollection.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterChain.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/TaskAttributeAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/TaskNameAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Attributes/ValidatorAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/ExpandProperties.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/ReplaceString.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/ReplaceTokens.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/TabsToSpaces.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/ChainableReader.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/Filter.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterBuilder.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterBuilderCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterChain.cs-->
+    </data> <!--Messages From: \NAnt.Core/Attributes/TaskAttributeAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/TaskNameAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/ValidatorAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Filters/ExpandProperties.cs-->
+    <!--Messages From: \NAnt.Core/Filters/ReplaceString.cs-->
+    <!--Messages From: \NAnt.Core/Filters/ReplaceTokens.cs-->
+    <!--Messages From: \NAnt.Core/Filters/TabsToSpaces.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/ChainableReader.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/Filter.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterBuilder.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterBuilderCollection.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterChain.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/TaskAttributeAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/TaskNameAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Attributes/ValidatorAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Filters/ExpandProperties.cs-->
+    <!--Messages From: \NAnt.Core/Filters/ReplaceString.cs-->
+    <!--Messages From: \NAnt.Core/Filters/ReplaceTokens.cs-->
+    <!--Messages From: \NAnt.Core/Filters/TabsToSpaces.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/ChainableReader.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/Filter.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterBuilder.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterBuilderCollection.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterChain.cs-->
     <data name="NA1093">
-        <value>BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for &lt;{1} ... /&gt;.</value>       
+        <value>BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for &lt;{1} ... /&gt;.</value>
     </data>
     <data name="NA1094">
         <value>Child element type {0} cannot be added to collection {1} for underlying property {2} for &lt;{3} ... /&gt;.</value>
         <comment>Child element type {0} cannot be added to collection</comment>
-    </data> <!-- Functions and Tasks--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/FilterCollection.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Filters/Support/PhysicalTextReader.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/AssemblyFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/AssemblyNameFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/BooleanFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/ConversionFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/DateTimeFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/DirectoryFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/DoubleFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/EnvironmentFunctions.cs-->
+    </data> <!-- Functions and Tasks-->
+    <!--Messages From: \NAnt.Core/Filters/Support/FilterCollection.cs-->
+    <!--Messages From: \NAnt.Core/Filters/Support/PhysicalTextReader.cs-->
+    <!--Messages From: \NAnt.Core/Functions/AssemblyFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/AssemblyNameFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/BooleanFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/ConversionFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/DateTimeFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/DirectoryFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/DoubleFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/EnvironmentFunctions.cs-->
     <data name="NA1095">
         <value>Environment variable \"{0}\" does not exist.</value>
         <comment>Environment variable \"{0}\" does not exist.</comment>
-    </data> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/FileFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/FileVersionInfoFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/Int32Functions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/Int64Functions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/MathFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/NAntFunctions.cs-->
+    </data> <!--Messages From: \NAnt.Core/Functions/FileFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/FileVersionInfoFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/Int32Functions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/Int64Functions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/MathFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/NAntFunctions.cs-->
     <data name="NA1096">
         <value>\"{0}\" is not a valid framework identifier.</value>
         <comment>\"{0}\" is not a valid framework identifier.</comment>
@@ -428,12 +460,18 @@
     <data name="NA1099">
         <value>Task '{0}' is not available.</value>
         <comment>Task '{0}' is not available.</comment>
-    </data> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/OperatingSystemFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/PathFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/PkgConfigFunctions.cs-->
+    </data>
+    <!--Messages From: \NAnt.Core/Functions/OperatingSystemFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/PathFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/PkgConfigFunctions.cs-->
     <data name="NA1100">
         <value>Package \"{0}\" does not exist.</value>
         <comment>Package \"{0}\" does not exist.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/StringFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/TimeSpanFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Functions/VersionFunctions.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/AttribTask.cs-->
+    <!--Messages From: \NAnt.Core/Functions/StringFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/TimeSpanFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Functions/VersionFunctions.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/AttribTask.cs-->
     <data name="NA1101">
         <value>Cannot set attributes for directory '{0}'.</value>
         <comment>Cannot set attributes for directory '{0}'.</comment>
@@ -442,7 +480,7 @@
         <value>Cannot set attributes for file '{0}'.</value>
         <comment>Cannot set attributes for file '{0}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/AvailableTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/AvailableTask.cs-->
     <data name="NA1103">
         <value>Unable to determine whether directory '{0}' is available.</value>
         <comment>Unable to determine whether directory '{0}' is available.</comment>
@@ -451,7 +489,8 @@
         <value>Unable to determine whether file '{0}' is available.</value>
         <comment>Unable to determine whether file '{0}' is available.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/CallTask.cs--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/CopyTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/CallTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/CopyTask.cs-->
     <data name="NA1105">
         <value>The 'tofile' and 'todir' attribute cannot both be set.</value>
         <comment>The 'tofile' and 'todir' attribute cannot both be set.</comment>
@@ -484,7 +523,7 @@
         <value>Could not find file '{0}' to copy.</value>
         <comment>Could not find file '{0}' to copy.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/DeleteTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/DeleteTask.cs-->
     <data name="NA1113">
         <value>Cannot delete directory '{0}'.</value>
         <comment>Cannot delete directory '{0}'.</comment>
@@ -497,17 +536,18 @@
         <value>Cannot delete directory '{0}'. The directory does not exist.</value>
         <comment>Cannot delete directory '{0}'. The directory does not exist.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/DescriptionTask.cs--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/EchoTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/DescriptionTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/EchoTask.cs-->
     <data name="NA1116">
         <value>Failed to write message to file '{0}'.</value>
         <comment>Failed to write message to file '{0}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/ExecTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/ExecTask.cs-->
     <data name="NA1117">
         <value>'{0}' is not a valid value for attribute 'program' of &lt;{1} ... /&gt;.</value>
         <comment>'{0}' is not a valid value for attribute 'program' of &lt;{1} ... /&gt;.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/ExternalProgramBase.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/ExternalProgramBase.cs-->
     <data name="NA1118">
         <value>External Program {0} did not finish within {1} milliseconds.</value>
         <comment>External Program {0} did not finish within {1} milliseconds.</comment>
@@ -532,18 +572,18 @@
         <value>The framework directory for the '{0}' framework is not available or not configured.</value>
         <comment>The framework directory for the '{0}' framework is not available or not configured.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/FailTask.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/GetTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/FailTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/GetTask.cs-->
     <data name="NA1125">
         <value>Unable to download '{0}' to '{1}'.</value>
         <comment>Unable to download '{0}' to '{1}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/IfTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/IfTask.cs-->
     <data name="NA1126">
         <value>PropertyTrue test failed for '{0}'.</value>
         <comment>PropertyTrue test failed for '{0}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/IncludeTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/IncludeTask.cs-->
     <data name="NA1127">
         <value>Build file '{0}' does not exist.</value>
         <comment>Build file '{0}' does not exist.</comment>
@@ -552,12 +592,12 @@
         <value>Could not include build file '{0}'.</value>
         <comment>Could not include build file '{0}'.</comment>
     </data>
-     <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/LoadFileTask.cs-->
+     <!--Messages From: \NAnt.Core/Tasks/LoadFileTask.cs-->
     <data name="NA1129">
         <value>The content of file '{0}' could not be loaded.</value>
         <comment>The content of file '{0}' could not be loaded.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/LoadTasks.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/LoadTasks.cs-->
     <data name="NA1130">
         <value>Failure scanning \"{0}\" for extensions.</value>
         <comment>Failure scanning \"{0}\" for extensions.</comment>
@@ -570,7 +610,7 @@
         <value>Assembly \"{0}\" does not exist. Can't scan for extensions.</value>
         <comment>Assembly \"{0}\" does not exist. Can't scan for extensions.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/LoopTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/LoopTask.cs-->
     <data name="NA1133">
         <value>Source file '{0}' does not exist.</value>
         <comment>Source file '{0}' does not exist.</comment>
@@ -579,7 +619,7 @@
         <value>Source directory '{0}' does not exist.</value>
         <comment>Source directory '{0}' does not exist.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/MailTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/MailTask.cs-->
     <data name="NA1135">
         <value>File '{0}' NOT added to message body. {1}</value>
         <comment>File '{0}' NOT added to message body. {1}</comment>
@@ -588,31 +628,31 @@
         <value>File '{0}' NOT attached to message. {1}</value>
         <comment>File '{0}' NOT attached to message. {1}</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/MkDirTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/MkDirTask.cs-->
     <data name="NA1137">
         <value>Directory '{0}' could not be created.</value>
         <comment>Directory '{0}' could not be created.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/MoveTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/MoveTask.cs-->
     <data name="NA1138">
         <value>Failed to move {0} to {1}.</value>
         <comment>Failed to move {0} to {1}.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/NAntSchemaTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/NAntSchemaTask.cs-->
     <data name="NA1140">
         <value>BuildElementArrayAttribute and BuildElementCollectionAttribute should have an element type assigned that derives from Element for {0}.{1}.</value>
         <comment>BuildElementArrayAttribute and BuildElementCollectionAttribute</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/NAntTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/NAntTask.cs-->
     <data name="NA1141">
         <value>The 'buildfile' attribute and the &lt;buildfiles&gt; element cannot be combined.</value>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/PropertyTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/PropertyTask.cs-->
     <data name="NA1143">
         <value>Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}</value>
         <comment>Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/RegexTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/RegexTask.cs-->
     <data name="NA1144">
         <value>No match found for expression '{0}' in '{1}'.</value>
         <comment>No match found for expression '{0}' in '{1}'.</comment>
@@ -621,13 +661,13 @@
         <value>Invalid value \"{0}\" for \"pattern\" attribute.</value>
         <comment>Invalid value \"{0}\" for \"pattern\" attribute.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/SetEnvTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/SetEnvTask.cs-->
     <data name="NA1146">
         <value>Failed setting environment variable \"{0}\" to \"{1}\".</value>
         <comment>Failed setting environment variable \"{0}\" to \"{1}\".</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/SleepTask.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/StyleTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/SleepTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/StyleTask.cs-->
     <data name="NA1147">
         <value>No source files indicated; use \"in\" or \"infiles\".</value>
         <comment>No source files indicated; use \"in\" or \"infiles\".</comment>
@@ -647,15 +687,15 @@
     <data name="NA1151">
         <value>Could not perform XSLT transformation of '{0}' using stylesheet '{1}'.</value>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/SysInfo.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/TouchTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/SysInfo.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/TouchTask.cs-->
     <data name="NA1152">
         <value>Cannot touch file '{0}'.</value>
         <comment>Cannot touch file '{0}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/TStampTask.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/UpToDateTask.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/XmlPeekTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/TStampTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/UpToDateTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/XmlPeekTask.cs-->
     <data name="NA1153">
         <value>Could not peek at XML file '{0}'.</value>
         <comment>Could not peek at XML file '{0}'.</comment>
@@ -680,7 +720,7 @@
         <value>Failed to load the XML document '{0}'.</value>
         <comment>Failed to load the XML document '{0}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Tasks/XmlPokeTask.cs-->
+    <!--Messages From: \NAnt.Core/Tasks/XmlPokeTask.cs-->
     <data name="NA1159">
         <value>Could not poke at XML file '{0}'.</value>
         <comment>Could not poke at XML file '{0}'.</comment>
@@ -694,13 +734,13 @@
         <comment>Failed to save the XML document to '{0}'.</comment>
     </data>
     <!--Types -->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/Argument.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/ArgumentCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/Credential.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/DirSet.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/EnvironmentVariable.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/EnvironmentVariableCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/FileSet.cs-->
+    <!--Messages From: \NAnt.Core/Types/Argument.cs-->
+    <!--Messages From: \NAnt.Core/Types/ArgumentCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/Credential.cs-->
+    <!--Messages From: \NAnt.Core/Types/DirSet.cs-->
+    <!--Messages From: \NAnt.Core/Types/EnvironmentVariable.cs-->
+    <!--Messages From: \NAnt.Core/Types/EnvironmentVariableCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/FileSet.cs-->
     <data name="NA1164">
         <value>The fileset specified is empty after scanning '{0}' for: {1}</value>
         <comment>The fileset specified is empty after scanning '{0}' for: {1}</comment>
@@ -709,20 +749,20 @@
         <value>'{0}' list could not be opened.</value>
         <comment>'{0}' list could not be opened.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/Formatter.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/FormatterCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/NamespaceImport.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/NamespaceImportCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/Option.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/OptionCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/PathElement.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/PathSet.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/Proxy.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/RawXml.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/Token.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/XmlNamespace.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/XmlNamespaceCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/XsltExtensionObject.cs-->
+    <!--Messages From: \NAnt.Core/Types/Formatter.cs-->
+    <!--Messages From: \NAnt.Core/Types/FormatterCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/NamespaceImport.cs-->
+    <!--Messages From: \NAnt.Core/Types/NamespaceImportCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/Option.cs-->
+    <!--Messages From: \NAnt.Core/Types/OptionCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/PathElement.cs-->
+    <!--Messages From: \NAnt.Core/Types/PathSet.cs-->
+    <!--Messages From: \NAnt.Core/Types/Proxy.cs-->
+    <!--Messages From: \NAnt.Core/Types/RawXml.cs-->
+    <!--Messages From: \NAnt.Core/Types/Token.cs-->
+    <!--Messages From: \NAnt.Core/Types/XmlNamespace.cs-->
+    <!--Messages From: \NAnt.Core/Types/XmlNamespaceCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/XsltExtensionObject.cs-->
     <data name="NA1166">
         <value>Assembly \"{0}\" does not exist. Can't create extension object.</value>
         <comment>Assembly \"{0}\" does not exist. Can't create extension object.</comment>
@@ -735,12 +775,12 @@
         <value>Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. </value>
         <comment>Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. </comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/XsltExtensionObjectCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/XsltParameter.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Types/XsltParameterCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/XsltExtensionObjectCollection.cs-->
+    <!--Messages From: \NAnt.Core/Types/XsltParameter.cs-->
+    <!--Messages From: \NAnt.Core/Types/XsltParameterCollection.cs-->
     <!-- Util namespace-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/AssemblyResolver.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineArgument.cs-->
+    <!--Messages From: \NAnt.Core/Util/AssemblyResolver.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineArgument.cs-->
     <data name="NA1169">
         <value>Collection-based command-line argument '-{0}' has no strongly-typed Add method.</value>
         <comment>Collection-based command-line argument '-{0}' has no strongly-typed Add method.</comment>
@@ -768,11 +808,11 @@
         <value>Duplicate command-line argument '-{0}'.</value>
         <comment>Duplicate command-line argument '-{0}'.</comment>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineArgumentAttribute.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineArgumentCollection.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineArgumentException.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineArgumentTypes.cs-->
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineParser.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineArgumentAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineArgumentCollection.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineArgumentException.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineArgumentTypes.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineParser.cs-->
     <data name="NA1177">
         <value>Commandline argument '-{0}' is obsolete. {1}</value>
         <comment>Commandline argument '-{0}' is obsolete. {1}</comment>
@@ -794,7 +834,13 @@
         <value>Framework '{0}' is invalid and has not been loaded : {1}.</value>
     </data>
     
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/DefaultCommandLineArgumentAttribute.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/FileUtils.cs--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/GacCache.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/ReflectionUtils.cs--> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/ResourceUtils.cs-->  <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/StringUtils.cs--> <!-- General Strings -->
+    <!--Messages From: \NAnt.Core/Util/DefaultCommandLineArgumentAttribute.cs-->
+    <!--Messages From: \NAnt.Core/Util/FileUtils.cs-->
+    <!--Messages From: \NAnt.Core/Util/GacCache.cs-->
+    <!--Messages From: \NAnt.Core/Util/ReflectionUtils.cs-->
+    <!--Messages From: \NAnt.Core/Util/ResourceUtils.cs-->
+    <!--Messages From: \NAnt.Core/Util/StringUtils.cs-->
+    <!-- General Strings -->
     <data name="String_ValidatingElement">
         <value>Validating &lt;{1} {2}='...'&gt; with {0}</value>
         <comment>Validating &lt;{1} {2}='...'&gt; with {0}</comment>
@@ -810,7 +856,7 @@
     <data name="String_SettingValue">
         <value>Setting value: {2}.{0} = {1}</value>
         <comment>Setting value: {2}.{0} = {1}</comment>
-    </data> <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Log.cs-->
+    </data> <!--Messages From: \NAnt.Core/Log.cs-->
     <data name="String_TotalTime">
         <value>Total time: {0} seconds.</value>
         <comment>Total time: {0} seconds.</comment>
@@ -860,7 +906,7 @@
     <data name="String_ValidValues">
         <value>Valid values are: {0}.</value>
     </data>
-    <!--Messages From: C:\ianm\cvs\nant\src\NAnt.Core\/Util/CommandLineParser.cs-->
+    <!--Messages From: \NAnt.Core/Util/CommandLineParser.cs-->
     <data name="String_BuildBanner">
         <value>{0} {1} (Build {2}; {3}; {4})</value>
         <comment>{0} {1} (Build {2}; {3}; {4})</comment>
