@@ -67,24 +67,24 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// List of valid culture names for this platform
         /// </summary>
-        protected static StringCollection cultureNames = new StringCollection();
+        protected static StringCollection CultureNames = new StringCollection();
 
-        #region Class Constructor
+        #endregion Protected Static Fields
+
+        #region Static Constructor
         
         /// <summary>
-        /// Class constructor for CompilerBase. It is called when the type is first loaded by the runtime
+        /// Class constructor for <see cref="CompilerBase" />.
         /// </summary>
         static CompilerBase() {
             // fill the culture list
-            foreach ( CultureInfo ci in CultureInfo.GetCultures( CultureTypes.AllCultures  ) ) {		       
-                cultureNames.Add( ci.Name  );
+            foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.AllCultures)) {
+                CultureNames.Add(ci.Name);
             }
         }
         
-        #endregion
-        #endregion Protected Static Fields
+        #endregion Static Constructor
 
-    
         #region Public Instance Properties
 
         /// <summary>
@@ -573,23 +573,26 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Determines if a given file is a localised resource file.
         /// </summary>
-        /// <param name="resXFile">The resx file path to check for culture info</param>   
-        /// <param name="foundCulture">The name of the culture that was located</param>
-        /// <returns>true if we found a culture name otherwise false</returns>
-        protected bool ContainsCulture( string resXFile, ref string foundCulture ) {
-            
-            string noextpath = Path.GetFileNameWithoutExtension( resXFile );
-            int index = noextpath.LastIndexOf( '.' );
-            if ( index >= 0 && index <= noextpath.Length ) {
-                string possibleculture = noextpath.Substring( index +1, noextpath.Length - (index +1) );
+        /// <param name="resXFile">The resx file path to check for culture info.</param>   
+        /// <param name="foundCulture">The name of the culture that was located.</param>
+        /// <returns>
+        /// <see langword="true" /> if we found a culture name; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        protected bool ContainsCulture(string resXFile, ref string foundCulture) {
+            string noextpath = Path.GetFileNameWithoutExtension(resXFile);
+            int index = noextpath.LastIndexOf('.');
+            if (index >= 0 && index <= noextpath.Length) {
+                string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));
                 // check that its in our list of culture names
-                if ( cultureNames.Contains(possibleculture) ) {
+                if (CultureNames.Contains(possibleculture)) {
                     foundCulture = possibleculture;
                     return true;
                 }
             }
             return false;
         }
+
         /// <summary>
         /// An abstract method that must be overridden in each compiler.  It is 
         /// responable for extracting and returning the associated namespace/classname 
@@ -650,9 +653,11 @@ namespace NAnt.DotNet.Tasks {
             
             // check if this is a localised resx file
             string culture = "";
-            if ( ContainsCulture( sourceFile, ref culture )) {
-                sourceFile = sourceFile.Replace( string.Format( ".{0}", culture  ), "" );
+            if (ContainsCulture(sourceFile, ref culture)) {
+                sourceFile = sourceFile.Replace(string.Format(CultureInfo.InvariantCulture,
+                    ".{0}", culture), "");
             }
+
             StreamReader sr = null;
             ResourceLinkage resourceLinkage  = null; 
   
@@ -684,27 +689,41 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="resourceFiles">List of files to bind into</param>
         /// <param name="outputFile">Resource assembly to generate</param>
         /// <param name="culture">Culture of the generated assembly.</param>
-        protected void LinkResourceAssembly( StringCollection resourceFiles, string outputFile, string culture ){
-            
+        protected void LinkResourceAssembly(StringCollection resourceFiles, string outputFile, string culture) {
             // defer to the assembly linker task
             AssemblyLinkerTask alink = new AssemblyLinkerTask();
+
+            // inherit project from current task
             alink.Project = this.Project;
+
+            // inherit parent from current task
             alink.Parent = this.Parent;
+
+            // make sure framework specific information is set
             alink.InitializeTaskConfiguration();
 
+            // set task properties
             alink.Output = outputFile;
             alink.Culture = culture;
             alink.OutputTarget = "lib";
+
+            // set parent of child elements
+            alink.Sources.Parent = alink;
+
+            // child elements inherit project from current task
+            alink.Sources.Project = this.Project;
             
-            foreach( string resource in resourceFiles ) {
-                alink.Sources.FileNames.Add( resource );
+            foreach (string resource in resourceFiles) {
+                alink.Sources.FileNames.Add(resource);
             }
             
-            // Fix up the indent level
+            // fix up the indent level
             Project.Indent();
             
             // execute the nested task
             alink.Execute();
+
+            // restore indent level
             Project.Unindent();
         }
         
@@ -718,12 +737,7 @@ namespace NAnt.DotNet.Tasks {
             resgen.Project = this.Project;
             resgen.Parent = this.Parent;
 
-            // temporary hack to force configuration settings to be
-            // read from NAnt configuration file
-            //
-            // TO-DO : Remove this temporary hack when a permanent solution is
-            // available for loading the default values from the configuration
-            // file if a build element is constructed from code.
+            // make sure framework specific information is set
             resgen.InitializeTaskConfiguration();
            
             // inherit Verbose setting from current task
@@ -734,9 +748,13 @@ namespace NAnt.DotNet.Tasks {
             resgen.ToDirectory = Path.GetDirectoryName(outputFile);
             resgen.BaseDirectory = Path.GetDirectoryName(inputFile);
 
-            // Fix up the indent level --
+            // fix up the indent level
             Project.Indent();
+
+            // execute the task
             resgen.Execute();
+
+            // restore the indent level
             Project.Unindent();
         }
         
