@@ -551,7 +551,8 @@ namespace NAnt.DotNet.Tasks {
                                 // store resource filename for later linking
                                 ((Hashtable) cultureResources[resourceCulture.Name])[manifestResourceName] = fileName;
                             } else {
-                                string resourceoption = string.Format(CultureInfo.InvariantCulture, "{0},{1}",fileName, manifestResourceName);
+                                string resourceoption = string.Format(CultureInfo.InvariantCulture, 
+                                    "{0},{1}",fileName, manifestResourceName);
                                 WriteOption(writer, "resource", resourceoption);
                             }
                         }
@@ -679,6 +680,12 @@ namespace NAnt.DotNet.Tasks {
                             resources.GetManifestResourceName(resourceFile), 
                             "resources");
                     }
+                    break;
+                case ".resources":
+                    // determine resource name, and leave culture information
+                    // in manifest resource name
+                    manifestResourceName = resources.GetManifestResourceName(
+                        resourceFile);
                     break;
                 default:
                     // VS.NET handles an embedded resource file named licenses.licx
