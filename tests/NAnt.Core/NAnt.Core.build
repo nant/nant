@@ -8,7 +8,7 @@
     -->
     <target name="build">
         <!-- build test assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591,0618" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
             <sources failonempty="true">
                 <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
