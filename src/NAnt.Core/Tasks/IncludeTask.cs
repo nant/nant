@@ -69,8 +69,7 @@ namespace NAnt.Core.Tasks {
     public class IncludeTask : Task {
         #region Private Instance Fields
 
-        private string _buildFileName = null;
-        private bool _failOnMissingFile = true;
+        private string _buildFileName;
 
         #endregion Private Instance Fields
 
@@ -98,16 +97,6 @@ namespace NAnt.Core.Tasks {
             set { _buildFileName = value; }
         }
 
-        /// <summary>
-        /// Indicates whether an error should be generated on a missing file. Default is <see langword="true"/>.
-        /// </summary>
-        [TaskAttribute("failonmissing", Required=false)]
-        [BooleanValidator()]
-        public bool FailOnMissingFile{
-            get { return _failOnMissingFile ; }
-            set { _failOnMissingFile = value; }
-        }
-
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -126,9 +115,19 @@ namespace NAnt.Core.Tasks {
             if (StringUtils.IsNullOrEmpty(_currentBasedir) || _nestinglevel == 0) {
                 _currentBasedir = Project.BaseDirectory;
             }
-            // Check for recursive include
-            string buildFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
-            
+
+            string buildFileName = null;
+
+            try {
+                // check if build file is valid file name
+                buildFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not include build file '{0}'.", buildFileName),
+                    Location, ex);
+            }
+
+            // check for recursive includes
             foreach (string currentFileName in _includedFileNames) {
                 if (currentFileName == buildFileName) {
                     throw new BuildException("Recursive includes are not allowed.", Location);
@@ -137,17 +136,18 @@ namespace NAnt.Core.Tasks {
         } 
 
         protected override void ExecuteTask() {
-            string includedFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
-            
-            //if we aren't supported to fail if the file is missing, then we should finish up now.
-            if (!FailOnMissingFile && !File.Exists(includedFileName)) {
-                Log(Level.Verbose, "Include file not found {0}({1})", includedFileName, BuildFileName);
-                return;
+            string includedFileName = Path.GetFullPath(Path.Combine(_currentBasedir, 
+                BuildFileName));
+
+            // check if build file exists
+            if (!File.Exists(includedFileName)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Build file '{0}' does not exist.", includedFileName), Location);
             }
-           
-            // has this file already been mapped ?
+
+            // check if file has already been mapped
             if (Project.LocationMap.FileIsMapped(includedFileName)) {
-                Log(Level.Verbose, "Duplicate include of file {0}.", includedFileName);
+                Log(Level.Verbose, "Duplicate include of file '{0}'.", includedFileName);
                 return;
             }
             
@@ -174,7 +174,7 @@ namespace NAnt.Core.Tasks {
                 throw;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not include build file {0}.", includedFileName),
+                    "Could not include build file '{0}'.", includedFileName),
                     Location, ex);
             } finally {
                 // pop off the stack
