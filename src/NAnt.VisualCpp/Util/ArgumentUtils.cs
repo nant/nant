@@ -28,12 +28,17 @@ namespace NAnt.VisualCpp.Util {
         /// </summary>
         /// <param name="value">The input string to check and duplicate the trailing backslash if necessary.</param>
         /// <returns>The result string after being processed.</returns>
+        /// <remarks>
+        /// Also duplicates trailing backslash in quoted value.
+        /// </remarks>
         public static string DuplicateTrailingBackSlash(string value) {
-            if (value.EndsWith(@"\")) {
-                return value + @"\";
-            } else {
-                return value;
+            bool isQuoted = value.StartsWith("\"") && value.EndsWith("\"");
+
+            int lastIndex = (isQuoted ? value.Length - 2 : value.Length - 1);
+            if (value[lastIndex] == '\\') {
+                return value.Insert(lastIndex, @"\");
             }
+            return value;
         }
 
         /// <summary>
