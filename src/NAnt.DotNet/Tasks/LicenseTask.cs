@@ -75,7 +75,7 @@ namespace NAnt.DotNet.Tasks {
 
         // framework configuration settings
         private bool _supportsAssemblyReferences;
-        private bool _hasCommandLineCompiler;
+        private bool _hasCommandLineCompiler = true;
 
         #endregion Private Instance Fields
 
@@ -139,7 +139,8 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Indicates whether the current target framework has a command line
-        /// tool for compiling licenses files. The default is <see langword="false" />.
+        /// tool for compiling licenses files. The default is 
+        /// <see langword="true" />.
         /// </summary>
         [FrameworkConfigurable("hascommandlinecompiler")]
         public bool HasCommandLineCompiler {
@@ -260,6 +261,9 @@ namespace NAnt.DotNet.Tasks {
 
                 // set base directory of fileset
                 ct.CopyFileSet.BaseDirectory = Assemblies.BaseDirectory;
+
+                // copy all files to base directory itself
+                ct.Flatten = true;
 
                 // copy referenced assemblies
                 foreach (string file in Assemblies.FileNames) {
