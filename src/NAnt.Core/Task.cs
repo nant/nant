@@ -177,8 +177,6 @@ namespace NAnt.Core {
                         throw;
                     } else {
                         if (this.Verbose) {
-                            // insert empty line before error message
-                            Log(Level.Error, string.Empty);
                             // output exception (with stacktrace) to build log
                             Log(Level.Error, ex.ToString());
                         } else {
@@ -201,8 +199,6 @@ namespace NAnt.Core {
                                 nestedException = nestedException.InnerException;
                             }
 
-                            // insert empty line before error message
-                            Log(Level.Error, string.Empty);
                             // output message of exception(s) to build log
                             Log(Level.Error, msg);
                         }
