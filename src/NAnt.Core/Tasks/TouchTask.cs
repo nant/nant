@@ -167,7 +167,7 @@ namespace NAnt.Core.Tasks {
                 } else {
                     Log(Level.Verbose, LogPrefix + "Creating file '{0}' with '{1}'.", 
                         path, touchDateTime.ToString(CultureInfo.InvariantCulture));
-                    System.IO.File.Create(path);
+                    using(System.IO.File.Create(path)) { }
                 }
                 System.IO.File.SetLastWriteTime(path, touchDateTime);
             } catch (Exception ex) {
