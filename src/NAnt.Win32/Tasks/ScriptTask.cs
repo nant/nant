@@ -87,7 +87,7 @@ namespace NAnt.Core.Tasks {
         private static Hashtable _compilerMap;
         private string _rootClassName;
         private string _code;
-        private ArrayList _imports = new ArrayList();
+        private NamespaceImportCollection _imports = new NamespaceImportCollection();
 
         #endregion Private Instance Fields
 
@@ -133,6 +133,14 @@ namespace NAnt.Core.Tasks {
             set { _mainClass = value; }
         }
 
+        /// <summary>
+        /// The namespaces to import.
+        /// </summary>
+        [BuildElementCollection("imports")]
+        public NamespaceImportCollection Imports {
+            get { return _imports; }
+        }
+
         #endregion Public Instance Properties
 
         #region Static Constructor
@@ -175,14 +183,7 @@ namespace NAnt.Core.Tasks {
             }
             _code = codeList.Item(0).InnerText;
 
-            _rootClassName = "nant" + System.Guid.NewGuid().ToString().Replace("-", "");
-
-            _imports.Clear();
-            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
-            XmlNodeList importsList = taskNode.SelectNodes("nant:imports/nant:import", Project.NamespaceManager);
-            foreach (XmlNode import in importsList) {
-                _imports.Add(import.Attributes["name"].InnerText);
-            }
+            _rootClassName = "nant" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -207,7 +208,7 @@ namespace NAnt.Core.Tasks {
                     if (asm.Location != null && asm.Location.Length != 0) {
                         options.ReferencedAssemblies.Add(asm.Location);
                     }
-                } catch ( NotSupportedException ) {
+                } catch (NotSupportedException) {
                     // Ignore - this error is sometimes thrown by asm.Location for certain dynamic assemblies
                 }
             }
@@ -222,7 +223,15 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            string code = compilerInfo.GenerateCode(_rootClassName, _code, _imports);
+            StringCollection imports = new StringCollection();
+
+            foreach (NamespaceImport import in Imports) {
+                if (import.IfDefined && !import.UnlessDefined) {
+                    imports.Add(import.Namespace);
+                }
+            }
+
+            string code = compilerInfo.GenerateCode(_rootClassName, _code, imports);
 
             CompilerResults results = compiler.CompileAssemblyFromSource(options, code);
 
@@ -316,7 +325,7 @@ namespace NAnt.Core.Tasks {
                 // Generate default imports section.
                 CodePrologue = "";
                 CodePrologue += GenerateImportCode(ScriptTask._defaultNamespaces);
-            }
+        }
 
             private string GenerateImportCode(IList namespaces) {
                 CodeNamespace nspace = new CodeNamespace();
@@ -329,7 +338,7 @@ namespace NAnt.Core.Tasks {
                 return sw.ToString();
             }
 
-            public string GenerateCode(string typeName, string codeBody, IList imports) {
+            public string GenerateCode(string typeName, string codeBody, StringCollection imports) {
                 CodeTypeDeclaration typeDecl = new CodeTypeDeclaration(typeName);
                 typeDecl.IsClass = true;
                 typeDecl.TypeAttributes = TypeAttributes.Public;
