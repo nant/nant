@@ -94,13 +94,6 @@ namespace NAnt.Core {
     ///         }
     ///     </code>
     /// </example>
-    /// <history>
-    ///     <change date="20020220" author="Ari Hännikäinen">Added support for absolute paths and relative paths refering to parent directories ( ../ )</change>
-    ///     <change date="20020221" author="Ari Hännikäinen">Changed implementation because of performance reasons - now scanning each directory only once</change>
-    ///     <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com)">
-    ///         Fixed a bug that was causing absolute pathnames to turn into an invalid regex pattern, and thus never match.
-    ///     </change>
-    /// </history>
     [Serializable()]
     public class DirectoryScanner : ICloneable {
         #region Private Instance Fields
@@ -280,10 +273,6 @@ namespace NAnt.Core {
         /// Uses <see cref="Includes" /> and <see cref="Excludes" /> search criteria (relative to 
         /// <see cref="BaseDirectory" /> or absolute), to search for filesystem objects.
         /// </summary>
-        /// <history>
-        ///     <change date="20020220" author="Ari Hännikäinen">Totally changed the scanning strategy</change>
-        ///     <change date="20020221" author="Ari Hännikäinen">Changed it again because of performance reasons</change>
-        /// </history>
         public void Scan() {
             _includePatterns = new ArrayList();
             _includeNames = new StringCollectionWithGoodToString ();
@@ -339,9 +328,6 @@ namespace NAnt.Core {
         /// <param name="regexPatterns">Out. Regex patterns. Absolute canonical paths.</param>
         /// <param name="nonRegexFiles">Out. Non-regex files. Absolute canonical paths.</param>
         /// <param name="addSearchDirectories">In. Whether to allow a pattern to add search directories.</param>
-        /// <history>
-        ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
-        /// </history>
         private void ConvertPatterns(StringCollection nantPatterns, ArrayList regexPatterns, StringCollection nonRegexFiles, bool addSearchDirectories) {
             string searchDirectory;
             string regexPattern;
@@ -397,15 +383,6 @@ namespace NAnt.Core {
         /// <param name="recursive">Out. Whether the pattern is potentially recursive or not</param>
         /// <param name="isRegex">Out. Whether this is a regex pattern or not</param>
         /// <param name="regexPattern">Out. Regex search pattern (absolute canonical path)</param>
-        /// <history>
-        ///     <change date="20020220" author="Ari Hännikäinen">Created</change>
-        ///     <change date="20020221" author="Ari Hännikäinen">Returning absolute regex patterns instead of relative nant patterns</change>
-        ///     <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com)">
-        ///     Added replacing of slashes with Path.DirectorySeparatorChar to make this OS-agnostic.  Also added the Path.IsPathRooted check
-        ///     to support absolute pathnames to prevent basedir = "/foo/bar" and pattern="/fudge/nugget" from being incorrectly turned into 
-        ///     "/foo/bar/fudge/nugget".  (pattern = "fudge/nugget" would still be treated as relative to basedir)
-        ///     </change>
-        /// </history>
         private void ParseSearchDirectoryAndPattern(bool isInclude, string originalNAntPattern, out string searchDirectory, out bool recursive, out bool isRegex, out string regexPattern) {
             string s = originalNAntPattern;
             s = s.Replace('\\', Path.DirectorySeparatorChar);
@@ -495,9 +472,6 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="path">Directory in which to search (absolute canonical path)</param>
         /// <param name="recursive">Whether to scan recursively or not</param>
-        /// <history>
-        ///     <change date="20020221" author="Ari Hännikäinen">Checking if the directory has already been scanned</change>
-        /// </history>
         private void ScanDirectory(string path, bool recursive) {
             // scan each directory only once
             if (_scannedDirectories.Contains(path)) {
@@ -757,9 +731,6 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="nantPattern">Search pattern relative to the search directory.</param>
         /// <returns>Regular expresssion</returns>
-        /// <history>
-        ///     <change date="20020220" author="Ari Hännikäinen">Added parameter baseDir, using  it instead of class member variable</change>
-        /// </history>
         private static string ToRegexPattern(string nantPattern) {
             StringBuilder pattern = CleanPath(nantPattern);
 
