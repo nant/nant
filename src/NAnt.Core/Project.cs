@@ -1263,7 +1263,8 @@ namespace NAnt.Core {
             if (BuildFileUri != null) {
                 Properties.AddReadOnly(NAntPropertyProjectBuildFile, BuildFileUri.ToString());
             }
-            Properties.AddReadOnly(NAntPropertyProjectDefault, DefaultTargetName);
+            Properties.AddReadOnly(NAntPropertyProjectDefault, 
+                StringUtils.ConvertNullToEmpty(DefaultTargetName));
         }
 
         #endregion Protected Instance Methods
