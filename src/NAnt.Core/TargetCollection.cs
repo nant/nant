@@ -27,8 +27,8 @@ namespace NAnt.Core {
     public class TargetCollection : ArrayList {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public virtual int Add(Target t){
-            //throw an exception if an attempt is made to add a null target
-            if(t == null) {
+            // throw an exception if an attempt is made to add a null target
+            if (t == null) {
                 throw new BuildException("Null Target!");
             }
 
@@ -37,17 +37,26 @@ namespace NAnt.Core {
                 "Adding Target '{0}'", 
                 t.Name));
             
-            //check for existing target with same name.
-            if(Find(t.Name) == null) {
+            // check for existing target with same name.
+            if (Find(t.Name) == null) {
                 return base.Add(t);
             } else {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Duplicate Target Named '{0}'!", t.Name));
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Duplicate target named '{0}'!", t.Name));
             }
         }
 
+        /// <summary>
+        /// Finds a target by name.
+        /// </summary>
+        /// <param name="targetName">The name of the target to find.</param>
+        /// <returns>
+        /// The <see cref="Target" /> with the specified name, or 
+        /// <see langword="null" /> if no <see cref="Target" /> exists with
+        /// the given name.
+        /// </returns>
         public Target Find(string targetName) {
-            //find target by name
-            foreach(Target target in this) {
+            foreach (Target target in this) {
                 if (target.Name == targetName)
                     return target;
             }
@@ -74,7 +83,7 @@ namespace NAnt.Core {
         }
 
         public override int Add(object value) {
-            //call typed version above.
+            // call typed version above.
             return Add(value as Target);
         }
 
