@@ -31,7 +31,7 @@ namespace SourceForge.NAnt {
         /// Gets or sets the buildfile that should be executed.
         /// </summary>
         /// <value>The buildfile that should be executed.</value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="buildfile", ShortName="file",  Description="use given buildfile")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="buildfile", ShortName="f",  Description="use given buildfile")]
         public FileInfo BuildFile {
             get { return _buildFile; }
             set { _buildFile = value; }
@@ -65,7 +65,7 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets the number of characters that build output should be 
+        /// Gets or sets the number of characters that build output should be
         /// indented.
         /// </summary>
         /// <value>
@@ -94,7 +94,7 @@ namespace SourceForge.NAnt {
         /// of listeners.
         /// </summary>
         /// <value>
-        /// The <see cref="Type" /> of logger to add to the list of 
+        /// The <see cref="Type" /> of logger to add to the list of
         /// listeners.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logger", Description="use given type as logger")]
