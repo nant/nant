@@ -35,7 +35,7 @@ namespace NAnt.Console {
 
         static ConsoleStub() {
             // check a class in mscorlib to determine if we're running on Mono
-            if (Type.GetType("Mono.Runtime", false) != null) {
+            if (Type.GetType("System.MonoType", false) != null) {
                 FrameworkFamily = "mono";
             } else {
                 FrameworkFamily = "net";
