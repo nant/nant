@@ -29,7 +29,7 @@ namespace NAnt.Core.Types {
     /// Represents a namespace to import.
     /// </summary>
     [ElementName("import")]
-    public class NamespaceImport : DataTypeBase {
+    public class NamespaceImport : Element {
         #region Private Instance Fields
 
         private string _namespace = null;
