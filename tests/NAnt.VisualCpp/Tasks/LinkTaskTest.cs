@@ -29,7 +29,7 @@ using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 
-namespace SourceForge.NAnt.Tests
+namespace Tests.NAnt.VisualCpp.Tasks
 {
     [TestFixture]
     public class LinkTaskTest_HelloWorld : BuildTestBase {
