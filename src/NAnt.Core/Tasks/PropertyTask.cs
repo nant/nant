@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <project name="property-example">
-    ///   <property name="debug" value="true" unless="${property::exists('debug')}" />
+    ///   <property name="debug" value="true" overwrite="false" />
     ///   <echo message="debug: ${debug}" />
     /// </project>
     ///     ]]>
@@ -149,8 +149,6 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("overwrite", Required=false)]
         [BooleanValidator()]
-            // TODO: remove this after the 0.85 release
-        [Obsolete("Use a \"property::exists('...')\" unless condition instead.", false)]
         public bool Overwrite {
             get { return _overwrite; }
             set { _overwrite = value; }
