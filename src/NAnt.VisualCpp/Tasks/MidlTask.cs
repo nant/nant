@@ -425,9 +425,9 @@ namespace NAnt.VisualCpp.Tasks {
             foreach (Option option in _options) {
                 if (IfDefined && !UnlessDefined) {
                     if (option.Value == null) {
-                        writer.WriteLine(option.Name);
+                        writer.WriteLine(option.OptionName);
                     } else {
-                        writer.WriteLine(option.Name + " " + option.Value);
+                        writer.WriteLine(option.OptionName + " " + option.Value);
                     }
                 }
             }
