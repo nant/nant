@@ -120,8 +120,13 @@
         </copy>
         <!-- work around mono bug #57602-->
         <copy todir="${build.dir}/bin"
-            if="${framework::get-family(framework::get-target-framework()) ='mono'}" 
-            file="${lib.framework.dir}/log4net.dll"/>
+              flatten="true"
+              if="${framework::get-family(framework::get-target-framework())='mono'}">
+            <fileset>
+                <include name="${lib.framework.dir}/log4net.dll" />
+                <include name="${lib.framework.dir}/NDoc.Core.dll"/>
+            </fileset>
+        </copy>
         <!-- build NAnt.Core assembly -->
         <nant buildfile="src/NAnt.Core/NAnt.Core.build" target="build" />
         <!-- build NAnt.Console assembly -->
