@@ -47,6 +47,7 @@ namespace NAnt.DotNet.Tasks {
         private string _define;
         private FileInfo _win32icon;
         private bool _warnAsError;
+        private bool _forceRebuild;
         private string _mainType;
         private FileSet _references = new FileSet();
         private FileSet _lib = new FileSet();
@@ -166,6 +167,20 @@ namespace NAnt.DotNet.Tasks {
         public bool WarnAsError {
             get { return _warnAsError; }
             set { _warnAsError = value; }
+        }
+
+        /// <summary>
+        /// Instructs NAnt to recompile the output file regardless of the file timestamps.
+        /// </summary>
+        /// <remarks>
+        /// When this parameter is to <see langword="true" />, NAnt will always
+        /// run the compiler to rebuild the output file, regardless of the file timestamps.
+        /// </remarks>
+        [TaskAttribute("rebuild")]
+        [BooleanValidator()]
+        public bool ForceRebuild {
+            get { return _forceRebuild; }
+            set { _forceRebuild = value; }
         }
 
         /// <summary>
@@ -794,6 +809,11 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
+
+            if (ForceRebuild) {
+                Log(Level.Verbose, LogPrefix + "'rebuild' attribute set to true, recompiling.");
+                return true;
+            }
 
             if (!OutputFile.Exists) {
                 return true;
