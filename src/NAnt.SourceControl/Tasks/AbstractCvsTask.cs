@@ -45,6 +45,7 @@ namespace NAnt.SourceControl.Tasks {
         private string _module;
         private DirectoryInfo _destinationDirectory;
         private string _password;
+        private string _passFile;
         private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
 
         private CvsRoot _root;
@@ -53,6 +54,11 @@ namespace NAnt.SourceControl.Tasks {
         private ICommand _command;
         private OptionCollection _commandOptions = new OptionCollection();
         private OptionCollection _globalOptions = new OptionCollection();
+
+        /// <summary>
+        /// Environment variable cvs uses to specify the cvs passfile.
+        /// </summary>
+        public const string CVS_PASSFILE = "CVS_PASSFILE";
 
         #endregion Private Instance Fields
 
@@ -180,6 +186,16 @@ namespace NAnt.SourceControl.Tasks {
         public string Password {
             get { return _password;}
             set { _password = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// The full path to the .cvspass file (including the .cvspass file name).
+        ///     This overrides the environment variable CVS_PASSFILE.
+        /// </summary>
+        [TaskAttribute("passfile")]
+        public string PassFile {
+            get {return this._passFile;}
+            set {this._passFile = value;}
         }
 
         /// <summary>

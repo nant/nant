@@ -84,21 +84,42 @@ namespace NAnt.SourceControl.Tasks {
             cvsProcessInfo.WorkingDirectory = this.DestinationDirectory.FullName;
             cvsProcessInfo.RedirectStandardOutput = true;
             cvsProcessInfo.CreateNoWindow = true;
+            cvsProcessInfo.EnvironmentVariables.Add(CVS_PASSFILE, this.GetPassFile());
 
             // Run the process
             Process cvsProcess = new Process();
             cvsProcess.StartInfo = cvsProcessInfo;
-            string output;
+            StringBuilder output = new StringBuilder ();
             try {
                 cvsProcess.Start();
             } catch (Exception) {
                 throw new Exception ("Unable to start process: " + fileName);
             } finally {
-                output = cvsProcess.StandardOutput.ReadToEnd();
+                output.Append(cvsProcess.StandardOutput.ReadToEnd());
             }
 
-            Log(Level.Debug, LogPrefix + output);
-            cvsProcess.WaitForExit();
+            if (cvsProcess.ExitCode != 0) {
+                throw new BuildException ("Cvs process exited with error code: " + cvsProcess.ExitCode);
+            }
+
+            Log(Level.Debug, LogPrefix + output.ToString());
+        }
+
+        private String GetPassFile () {
+            if (this.PassFile == null) {
+                string userHome =
+                    System.Environment.GetEnvironmentVariable("HOME");
+
+                // if the user home is null then try to get the rooted path,
+                //  this will be cvs' behavior as well
+                if (null == userHome) {
+                    userHome = 
+                        Path.GetPathRoot(System.Environment.CurrentDirectory);
+                }
+
+                this.PassFile = Path.Combine(userHome, ".cvspass");
+            }
+            return this.PassFile;
         }
 
         private String GetCvsVersion (String fileName) {
