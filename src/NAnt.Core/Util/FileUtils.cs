@@ -143,16 +143,38 @@ namespace NAnt.Core.Util {
             return new DirectoryInfo(tempFile);
         }
 
+        /// <summary>
+        /// Combines two path strings.
+        /// </summary>
+        /// <param name="path1">The first path.</param>
+        /// <param name="path2">The second path.</param>
+        /// <returns>
+        /// A string containing the combined paths. If one of the specified 
+        /// paths is a zero-length string, this method returns the other path. 
+        /// If <paramref name="path2" /> contains an absolute path, this method 
+        /// returns <paramref name="path2" />.
+        /// </returns>
+        /// <remarks>
+        ///   <para>
+        ///   On *nix, processing is delegated to <see cref="Path.Combine(string, string)" />.
+        ///   </para>
+        ///   <para>
+        ///   On Windows, this method normalized the paths to avoid running into
+        ///   the 260 character limit of a path and converts forward slashes in 
+        ///   both <paramref name="path1" /> and <paramref name="path2" /> to 
+        ///   the platform's directory separator character.
+        ///   </para>
+        /// </remarks>
         public static string CombinePaths(string path1, string path2) {
+            if (PlatformHelper.IsUnix) {
+                return Path.Combine(path1, path2);
+            }
+
             if (path1 == null) {
                 throw new ArgumentNullException("path1");
             }
             if (path2 == null) {
                 throw new ArgumentNullException("path2");
-            }
-
-            if (PlatformHelper.IsUnix || (path1.Length + path2.Length + 1) <= 260) {
-                return Path.Combine(path1, path2);
             }
 
             char separatorChar = Path.DirectorySeparatorChar;
