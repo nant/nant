@@ -557,7 +557,7 @@
     
     <target name="install-linux">
         <property name="install.realprefix" value="/usr/local" />
-        <if test="${not( property::exists('install.prefix')) and not(string::get-length('install.prefix') = 0)}">
+        <if test="${property::exists('install.prefix') and string::get-length('install.prefix') = 0}">
             <property name="install.realprefix" value="${install.prefix}" />
         </if>
         <property name="install.bindir" value="${path::combine(install.realprefix, 'bin')}"/>
