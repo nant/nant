@@ -47,7 +47,7 @@ namespace NAnt.VSNet {
         /// The type of the project.
         /// </value>
         public override ProjectType Type {
-            get { return ProjectType.CSharp; }
+            get { return ProjectType.JSharp; }
         }
 
         /// <summary>

@@ -180,18 +180,18 @@ namespace NAnt.VSNet {
         }
 
         private string GetManifestResourceNameJSharp(ConfigurationSettings configSetting, string dependentFile) {
-            // defer to the resource management code in JscTask
-            JscTask jsc = new JscTask();
-            jsc.Project = _solutionTask.Project;
-            jsc.NamespaceManager = _solutionTask.NamespaceManager;
-            jsc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName,
+            // defer to the resource management code in VjcTask
+            VjcTask vjc = new VjcTask();
+            vjc.Project = _solutionTask.Project;
+            vjc.NamespaceManager = _solutionTask.NamespaceManager;
+            vjc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName,
                 Project.ProjectSettings.OutputFileName));
 
             // set-up resource fileset
             ResourceFileSet resources = new ResourceFileSet();
             resources.Project = _solutionTask.Project;
             resources.NamespaceManager = _solutionTask.NamespaceManager;
-            resources.Parent = jsc;
+            resources.Parent = vjc;
             resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(
                 Project.ProjectPath));
             resources.Prefix = Project.ProjectSettings.RootNamespace;
@@ -199,7 +199,7 @@ namespace NAnt.VSNet {
 
             // bug #1042917: use logical location of resource file to determine
             // manifest resource name
-            return jsc.GetManifestResourceName(resources, InputFile.FullName,
+            return vjc.GetManifestResourceName(resources, InputFile.FullName,
                 LogicalFile.FullName, dependentFile);
         }
 
