@@ -457,6 +457,30 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
+        /// <summary>Test excluding files.</summary>
+        /// <remarks>
+        ///   Matches all files from the temp directory, then excludes XYZzzz.txt.  See if adding an exact exclude to a 
+        ///   recursive include break things.
+        /// </remarks>
+        [Test]
+        public void Test_Dont_Match_Basedir() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "Foo3.bar"),
+                                                          Path.Combine(_folder3, "Foo4.bar"),
+                                                          Path.Combine(_folder3, "XYZ.txt"),
+                                                          Path.Combine(_folder3, "XYZ.bak")
+                                                      };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(_folder3, "XYZzzz.txt")
+                                                      };
+
+            _scanner.Includes.Add(@"folder2/**/*");
+            _scanner.Excludes.Add(@"folder2/**/XYZzzz.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+
         #endregion Public Instance Methods
 
         #region Protected Instance Methods
