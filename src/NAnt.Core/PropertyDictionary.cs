@@ -83,6 +83,35 @@ namespace NAnt.Core {
 
         #endregion Public Instance Properties
 
+        #region Override implementation of DictionaryBase
+
+        protected override void OnClear() {
+            _readOnlyProperties.Clear();
+        }
+
+        protected override void OnInsert(Object key, Object value)  {
+            string propertyName = key as string;
+            if (propertyName == null) {
+                throw new ArgumentException("Property name must be a string.", "key");
+            }
+
+            if (value != null) {
+                if (!(value is string)) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                        "Property value must be a string, was '{0}'.", value.GetType()), 
+                        "value");
+                }
+            } else {
+                // TODO: verify this
+                // throw new ArgumentException("Property value '" + propertyName + "' must not be null", "value");
+                return;
+            }
+
+            ValidatePropertyName(propertyName, Location.UnknownLocation);
+        }
+
+        #endregion Override implementation of DictionaryBase
+
         #region Public Instance Methods
 
         /// <summary>
@@ -226,48 +255,10 @@ namespace NAnt.Core {
 
         #endregion Public Instance Methods
 
-        #region Override implementation of DictionaryBase
-
-        protected override void OnClear() {
-            _readOnlyProperties.Clear();
-        }
-
-        protected override void OnInsert(Object key, Object value)  {
-            string propertyName = key as string;
-            if (propertyName == null)
-                throw new ArgumentException("Property name must be a string.", "key");
-
-            if (value != null) {
-                if (!(value is string))
-                    throw new ArgumentException("Property value must be a string, was " + value.GetType(), "value");
-            } else {
-                // TODO: verify this
-                // throw new ArgumentException("Property value '" + propertyName + "' must not be null", "value");
-                return;
-            }
-
-            ValidatePropertyName(propertyName, Location.UnknownLocation);
-        }
-        #endregion Override implementation of DictionaryBase
-
-        #region Private Instance Methods
-
-        public static void ValidatePropertyName(string propertyName, Location location) {
-            const string propertyNamePattern = "^[_A-Za-z0-9][_A-Za-z0-9\\-.]*$";
-
-            // validate property name
-            //
-            if (!Regex.IsMatch(propertyName, propertyNamePattern)) {
-                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
-            }
-            if (propertyName.EndsWith("-") || propertyName.EndsWith(".")) {
-                // this additional rule helps simplify the regex pattern
-                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
-            }
-        }
+        #region Internal Instance Methods
 
         internal string GetPropertyValue(string propertyName) {
-                return (string)Dictionary[propertyName];
+            return (string) Dictionary[propertyName];
         }
 
         /// <summary>
@@ -281,7 +272,11 @@ namespace NAnt.Core {
         internal string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {            
             return EvaluateEmbeddedExpressions(input, location, state, visiting);
         }
-        
+
+        #endregion Internal Instance Methods
+
+        #region Private Instance Methods
+
         /// <summary>
         /// Evaluates the given expression string and returns the result
         /// </summary>
@@ -379,6 +374,24 @@ namespace NAnt.Core {
 
         #region Private Static Methods
 
+        private static void ValidatePropertyName(string propertyName, Location location) {
+            const string propertyNamePattern = "^[_A-Za-z0-9][_A-Za-z0-9\\-.]*$";
+
+            // validate property name
+            //
+            if (!Regex.IsMatch(propertyName, propertyNamePattern)) {
+                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
+            }
+            if (propertyName.EndsWith("-") || propertyName.EndsWith(".")) {
+                // this additional rule helps simplify the regex pattern
+                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
+            }
+        }
+
+        #endregion Private Static Methods
+
+        #region Internal Static Methods
+
         /// <summary>
         /// Builds an appropriate exception detailing a specified circular
         /// reference.
@@ -404,7 +417,7 @@ namespace NAnt.Core {
             return new BuildException(sb.ToString());
         }
 
-        #endregion Private Static Methods
+        #endregion Internal Static Methods
 
         #region Private Instance Fields
 
@@ -426,7 +439,7 @@ namespace NAnt.Core {
 
         #endregion Private Instance Fields
 
-        #region Private Static Fields
+        #region Internal Static Fields
 
         /// <summary>
         /// Constant for the "visiting" state, used when traversing a DFS of 
@@ -440,6 +453,6 @@ namespace NAnt.Core {
         /// </summary>
         internal const string Visited = "VISITED";
 
-        #endregion Private Static Fields
+        #endregion Internal Static Fields
     }
 }
