@@ -81,6 +81,8 @@ namespace SourceForge.NAnt.Tests {
                     p.Execute();
                 }
                 catch {
+                    /*
+                     * 
                     output = c.Close();
                     if(!(output == null || output.Equals(string.Empty) || output.Equals(""))){
                         Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
@@ -89,7 +91,9 @@ namespace SourceForge.NAnt.Tests {
                         Console.Write (output);
                         Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
                     }
+                    */
                     throw;
+                    
                 }
                 finally {
                     if(output == null)
