@@ -73,7 +73,7 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [FrameworkConfigurable("exename")]
         public virtual string ExeName {
-            get { return (_exeName != null) ? _exeName : Name + ".exe"; }
+            get { return (_exeName != null) ? _exeName : Name; }
             set { _exeName = value; }
         }
 
@@ -174,6 +174,18 @@ namespace NAnt.Core.Tasks {
             set { _useRuntimeEngine = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="TextWriter" /> to which standard output
+        /// messages of the external program will be written.
+        /// </summary>
+        /// <value>
+        /// The <see cref="TextWriter" /> to which standard output messages of 
+        /// the external program will be written.
+        /// </value>
+        /// <remarks>
+        /// By default, standard output messages wil be written to the build log
+        /// with level <see cref="Level.Info" />.
+        /// </remarks>
         public virtual TextWriter OutputWriter {
             get { 
                 if (_outputWriter == null) {
@@ -186,6 +198,18 @@ namespace NAnt.Core.Tasks {
             set { _outputWriter = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="TextWriter" /> to which error output
+        /// of the external program will be written.
+        /// </summary>
+        /// <value>
+        /// The <see cref="TextWriter" /> to which error output of the external 
+        /// program will be written.
+        /// </value>
+        /// <remarks>
+        /// By default, error output wil be written to the build log with level 
+        /// <see cref="Level.Warning" />.
+        /// </remarks>
         public virtual TextWriter ErrorWriter {
             get { 
                 if (_errorWriter == null) {
@@ -461,7 +485,7 @@ namespace NAnt.Core.Tasks {
                     case LocationType.FrameworkDir:
                         if (Project.TargetFramework.FrameworkDirectory != null) {
                             string frameworkDir = Project.TargetFramework.FrameworkDirectory.FullName;
-                            fullPath = Path.Combine(frameworkDir, ExeName);
+                            fullPath = Path.Combine(frameworkDir, ExeName + ".exe");
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
@@ -472,7 +496,7 @@ namespace NAnt.Core.Tasks {
                     case LocationType.FrameworkSdkDir:
                         if (Project.TargetFramework.SdkDirectory != null) {
                             string sdkDirectory = Project.TargetFramework.SdkDirectory.FullName;
-                            fullPath = Path.Combine(sdkDirectory, ExeName);
+                            fullPath = Path.Combine(sdkDirectory, ExeName + ".exe");
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
