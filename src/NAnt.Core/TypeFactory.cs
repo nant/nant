@@ -100,7 +100,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="assemblyFile">The assembly to scan for tasks, types, functions and filters.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static void ScanAssembly(string assemblyFile) {
+        public static bool ScanAssembly(string assemblyFile) {
             Assembly assembly = null;
 
             try {
@@ -112,7 +112,9 @@ namespace NAnt.Core {
             }
 
             if (assembly != null) {
-                ScanAssembly(assembly);
+                return ScanAssembly(assembly);
+            } else {
+                return false;
             }
         }
 
@@ -120,22 +122,54 @@ namespace NAnt.Core {
         /// Scans the given assembly for tasks, types, functions and filters.
         /// </summary>
         /// <param name="assembly">The assembly to scan for tasks, types, functions and filters.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="assembly" /> contains at 
+        /// least one "extension"; otherwise, <see langword="false" />.
+        /// </returns>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static void ScanAssembly(Assembly assembly) {
+        public static bool ScanAssembly(Assembly assembly) {
             logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                "Scanning '{0}' for tasks, types and functions.", 
+                "Scanning '{0}' for tasks, types, filters and functions.", 
                 assembly.GetName().Name));
 
+            bool extensionAssembly = false;
+
             try {
-                AddTasks(assembly);
-                AddDataTypes(assembly);
-                AddFunctionSets(assembly);
-                AddFilters(assembly);
+                foreach (Type type in assembly.GetTypes()) {
+                    //
+                    // each extension type is exclusive, meaning a given type 
+                    // cannot be both a task and data type
+                    //
+                    // so it doesn't make sense to scan a type for, for example,
+                    // data types if the type has already been positively
+                    // identified as a task
+                    //
+
+                    bool extensionFound = ScanTypeForTasks(type);
+
+                    if (!extensionFound) {
+                        extensionFound = ScanTypeForDataTypes(type);
+                    }
+
+                    if (!extensionFound) {
+                        extensionFound = ScanTypeForFunctions(type);
+                    }
+
+                    if (!extensionFound) {
+                        extensionFound = ScanTypeForFilters(type);
+                    }
+
+                    // if extension is found in type, then mark assembly as
+                    // extension assembly
+                    extensionAssembly = extensionAssembly || extensionFound;
+                }
             } catch (Exception ex) {
                 logger.Error(string.Format(CultureInfo.InvariantCulture, 
                     "Error scanning '{0}' for tasks, types, functions and filters.", 
                     assembly.GetName().Name), ex);
             }
+
+            return extensionAssembly;
         }
 
         /// <summary>
@@ -191,212 +225,16 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Scans the given assembly for any classes derived from 
-        /// <see cref="FunctionSetBase" /> and scans them for custom functions.
+        /// Looks up a function by name.
         /// </summary>
-        /// <param name="taskAssembly">The <see cref="Assembly" /> containing the new custom functions to be loaded.</param>
+        /// <param name="methodName">The name of the function to lookup.</param>
         /// <returns>
-        /// The number of functions found in the assembly.
+        /// A <see cref="MethodInfo" /> representing the function, or 
+        /// <see langword="null" /> if a function with the given name does not
+        /// exist.
         /// </returns>
-        public static int AddFunctionSets(Assembly taskAssembly) {
-            int functionSetCount = 0;
-
-            try {
-                foreach (Type type in taskAssembly.GetTypes()) {
-                    FunctionSetAttribute functionSetAttribute = (FunctionSetAttribute) 
-                        Attribute.GetCustomAttribute(type, typeof(FunctionSetAttribute));
-                    if (functionSetAttribute != null) {
-                        bool acceptType = (type == typeof(ExpressionEvaluator));
-                        
-                        if (type.IsSubclassOf(typeof(FunctionSetBase)) && !type.IsAbstract) {
-                            acceptType = true;
-                        }
-
-                        if (acceptType) {
-                            string prefix = functionSetAttribute.Prefix;
-                            if (prefix != null && prefix != String.Empty) {
-                                prefix += "::";
-                            } else {
-                                continue;
-                            }
-
-                            //
-                            // add instance methods
-                            // 
-                            foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                                FunctionAttribute functionAttribute = (FunctionAttribute)
-                                    Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
-                                if (functionAttribute != null) {
-                                    // look at scoping each class by namespace prefix
-                                    if (! _methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
-                                        _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
-                                    }
-                                }
-                            }
-
-                            //
-                            // add static methods
-                            // 
-                            foreach ( MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Static )) {
-                                FunctionAttribute functionAttribute = (FunctionAttribute)
-                                    Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
-                                if (functionAttribute != null) {
-                                    // look at scoping each class by prefix
-                                    if (! _methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
-                                        _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
-                                    }
-                                }
-                            }
-                            functionSetCount++;
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error loading functions from '{0}' ({1}).", taskAssembly.FullName, 
-                    taskAssembly.Location), ex);
-            }
-            return functionSetCount;
-        }
-
-        /// <summary>
-        /// Scans the given assembly for any classes derived from 
-        /// <see cref="Task" /> and adds a new builder for them.
-        /// <note>
-        ///     If the taskname is already loaded then a new assembly scan 
-        ///     that finds new tasks that are already loaded will not replace it. 
-        ///     Once tasks are added, they cannot be removed.
-        /// </note>
-        /// </summary>
-        /// <param name="taskAssembly">The <see cref="Assembly" /> containing the new tasks to be loaded.</param>
-        /// <returns>
-        /// The number of tasks found in the assembly.
-        /// </returns>
-        public static int AddTasks(Assembly taskAssembly) {
-            int taskCount = 0;
-
-            try {
-                foreach (Type type in taskAssembly.GetTypes()) {
-                    TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
-                        Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
-
-                    if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract && taskNameAttribute != null) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                            "Creating TaskBuilder for '{0}'", type.Name));
-                        TaskBuilder tb = new TaskBuilder(type.FullName, taskAssembly.Location);
-                        if (TaskBuilders[tb.TaskName] == null) {
-                            TaskBuilders.Add(tb);
-                            foreach(WeakReference wr in _projects) {
-                                if (!wr.IsAlive) {
-                                    logger.Error("Project WeakRef is dead.");
-                                    continue;
-                                }
-                                Project p = wr.Target as Project;
-                                if (p == null) {
-                                    logger.Error("WeakRef not a project! This should not be possible.");
-                                    continue;
-                                }
-                                UpdateProjectWithBuilder(p, tb);
-                            }
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture,
-                                "Adding '{0}' from {1}:{2}", tb.TaskName, 
-                                tb.AssemblyFileName, tb.ClassName));
-
-                            // increment number of tasks loaded from assembly
-                            taskCount++;
-                        }
-                    }
-                }
-            } catch (Exception ex) { // for assemblies that don't have types
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error loading tasks from {0}({1}).", taskAssembly.FullName, 
-                    taskAssembly.Location), ex);
-            }
-
-            return taskCount;
-        }
-
-        public static int AddDataTypes(Assembly taskAssembly) {
-            int typeCount = 0;
-
-            try {
-                foreach (Type type in taskAssembly.GetTypes()) {
-                    ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
-                        Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
-
-                    if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "Creating DataTypeBaseBuilder for {0}", type.Name));
-                        DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.FullName, taskAssembly.Location);
-                        if (DataTypeBuilders[dtb.DataTypeName] == null) {
-                            DataTypeBuilders.Add(dtb);
-                            foreach (WeakReference wr in _projects) {
-                                if (!wr.IsAlive) {
-                                    logger.Error("Project WeakRef is dead.");
-                                    continue;
-                                }
-                                Project p = wr.Target as Project;
-                                if (p == null) {
-                                    logger.Error("WeakRef not a project! This should not be possible.");
-                                    continue;
-                                }
-                            }
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                                "Adding '{0}' from {1}:{2}", dtb.DataTypeName, 
-                                dtb.AssemblyFileName, dtb.ClassName));
-
-                            // increment number of types loaded from assembly
-                            typeCount++;
-                        }
-                    }
-                }
-            } catch (Exception ex) { // for assemblies that don't have types
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error loading types from {0}({1}).", taskAssembly.FullName, 
-                    taskAssembly.Location), ex);
-            }
-
-            return typeCount;
-        }
-
-        public static int AddFilters(Assembly taskAssembly) {
-            int filtercount = 0;
-
-            try {
-                foreach (Type type in taskAssembly.GetTypes()) {
-                    ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
-                        Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
-
-                    if (type.IsSubclassOf(typeof(Filter)) && !type.IsAbstract && elementNameAttribute != null) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "Creating FilterBuilder for {0}", type.Name));
-                        FilterBuilder builder = new FilterBuilder(type.FullName, taskAssembly.Location);
-                        if (FilterBuilders[builder.FilterName] == null) {
-                            FilterBuilders.Add(builder);
-
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                                "Adding filter '{0}' from {1}:{2}", builder.FilterName, 
-                                builder.AssemblyFileName, builder.ClassName));
-
-                            // increment number of types loaded from assembly
-                            filtercount++;
-                        }
-                    }
-                }
-            } catch (Exception ex) { // for assemblies that don't have types
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error loading types from {0}({1}).", taskAssembly.FullName, 
-                    taskAssembly.Location), ex);
-            }
-
-            return filtercount;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="methodName"></param>
-        /// <returns></returns>
         public static MethodInfo LookupFunction(string methodName){
-            return (MethodInfo)_methodInfoCollection[methodName];
+            return (MethodInfo) _methodInfoCollection[methodName];
         }
 
         /// <summary> 
@@ -492,7 +330,6 @@ namespace NAnt.Core {
             return filter;
         }
 
-
         public static DataTypeBase CreateDataType(XmlNode elementNode, Project proj) {
             if (elementNode == null) {
                 throw new ArgumentNullException("elementNode");
@@ -545,5 +382,211 @@ namespace NAnt.Core {
         }
 
         #endregion Internal Static Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Scans a given <see cref="Type" /> for tasks.
+        /// </summary>
+        /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="type" /> represents a
+        /// <see cref="Task" />; otherwise, <see langword="false" />.
+        /// </returns>
+        private static bool ScanTypeForTasks(Type type) {
+            try {
+                TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
+                    Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
+
+                if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract && taskNameAttribute != null) {
+                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                        "Creating TaskBuilder for '{0}'", type.Name));
+                    TaskBuilder tb = new TaskBuilder(type.FullName, type.Assembly.Location);
+                    if (TaskBuilders[tb.TaskName] == null) {
+                        logger.Debug(string.Format(CultureInfo.InvariantCulture,
+                            "Adding '{0}' from {1}:{2}", tb.TaskName, 
+                            tb.AssemblyFileName, tb.ClassName));
+
+                        TaskBuilders.Add(tb);
+                        foreach(WeakReference wr in _projects) {
+                            if (!wr.IsAlive) {
+                                logger.Error("Project WeakRef is dead.");
+                                continue;
+                            }
+                            Project p = wr.Target as Project;
+                            if (p == null) {
+                                logger.Error("WeakRef not a project! This should not be possible.");
+                                continue;
+                            }
+                            UpdateProjectWithBuilder(p, tb);
+                        }
+
+                        // specified type represents a task
+                        return true;
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error scanning type '{0}' for tasks.", 
+                    type.AssemblyQualifiedName), ex);
+            }
+
+            // specified type does not represent valid task
+            return false;
+        }
+
+        /// <summary>
+        /// Scans a given <see cref="Type" /> for data type.
+        /// </summary>
+        /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="type" /> represents a
+        /// data type; otherwise, <see langword="false" />.
+        /// </returns>
+        private static bool ScanTypeForDataTypes(Type type) {
+            try {
+                ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
+                    Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
+
+                if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
+                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                        "Creating DataTypeBaseBuilder for {0}", type.Name));
+                    DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.FullName, type.Assembly.Location);
+                    if (DataTypeBuilders[dtb.DataTypeName] == null) {
+                        logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                            "Adding '{0}' from {1}:{2}", dtb.DataTypeName, 
+                            dtb.AssemblyFileName, dtb.ClassName));
+
+                        DataTypeBuilders.Add(dtb);
+                    }
+
+                    // specified type represents a data type
+                    return true;
+                }
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error scanning type '{0}' for data types.", 
+                    type.AssemblyQualifiedName), ex);
+            }
+
+            // specified type does not represent valid data type
+            return false;
+        }        
+
+        /// <summary>
+        /// Scans a given <see cref="Type" /> for functions.
+        /// </summary>
+        /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="type" /> represents a
+        /// valid set of funtions; otherwise, <see langword="false" />.
+        /// </returns>
+        private static bool ScanTypeForFunctions(Type type) {
+            try {
+                FunctionSetAttribute functionSetAttribute = (FunctionSetAttribute) 
+                    Attribute.GetCustomAttribute(type, typeof(FunctionSetAttribute));
+                if (functionSetAttribute == null) {
+                    // specified type does not represent a valid functionset
+                    return false;
+                }
+
+                bool acceptType = (type == typeof(ExpressionEvaluator));
+                
+                if (type.IsSubclassOf(typeof(FunctionSetBase)) && !type.IsAbstract) {
+                    acceptType = true;
+                }
+
+                if (acceptType) {
+                    string prefix = functionSetAttribute.Prefix;
+                    if (prefix != null && prefix != String.Empty) {
+                        prefix += "::";
+                    } else {
+                        logger.Warn(string.Format(CultureInfo.InvariantCulture, 
+                            "Ignoring functions in type '{0}': no prefix was set.",
+                            type.AssemblyQualifiedName));
+                        // specified type does not represent a valid functionset
+                        return false;
+                    }
+
+                    //
+                    // add instance methods
+                    // 
+                    foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                        FunctionAttribute functionAttribute = (FunctionAttribute)
+                            Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
+                        if (functionAttribute != null) {
+                            // look at scoping each class by namespace prefix
+                            if (! _methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
+                                _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
+                            }
+                        }
+                    }
+
+                    //
+                    // add static methods
+                    // 
+                    foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Static)) {
+                        FunctionAttribute functionAttribute = (FunctionAttribute)
+                            Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
+                        if (functionAttribute != null) {
+                            // look at scoping each class by prefix
+                            if (!_methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
+                                _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
+                            }
+                        }
+                    }
+
+                    // specified type represents a valid functionset
+                    return true;
+                }
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error scanning type '{0}' for functions.", 
+                    type.AssemblyQualifiedName), ex);
+            }
+
+            // specified type does not represent a valid functionset
+            return false;
+        }
+
+        /// <summary>
+        /// Scans a given <see cref="Type" /> for filters.
+        /// </summary>
+        /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="type" /> represents a
+        /// <see cref="Filter" />; otherwise, <see langword="false" />.
+        /// </returns>
+        private static bool ScanTypeForFilters(Type type) {
+            try {
+                ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
+                    Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
+
+                if (type.IsSubclassOf(typeof(Filter)) && !type.IsAbstract && elementNameAttribute != null) {
+                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                        "Creating FilterBuilder for {0}", type.Name));
+                    FilterBuilder builder = new FilterBuilder(type.FullName, type.Assembly.Location);
+                    if (FilterBuilders[builder.FilterName] == null) {
+                        FilterBuilders.Add(builder);
+
+                        logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                            "Adding filter '{0}' from {1}:{2}", builder.FilterName, 
+                            builder.AssemblyFileName, builder.ClassName));
+                    }
+
+                    // specified type represents a filter
+                    return true;
+                }
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error scanning type '{0}' for filters.", 
+                    type.AssemblyQualifiedName), ex);
+            }
+
+            // specified type does not represent a valid filter
+            return false;
+        }
+
+        #endregion Private Static Methods
     }
 }
