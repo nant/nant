@@ -151,7 +151,7 @@ namespace Tests.NAnt.Console {
 
             // try to find build file in sub directory
             // expect an exception - multiple *.build files found
-            try {
+            try {               
                 ConsoleDriver.GetBuildFileName(subDirectory, null, true);
                 Assertion.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
@@ -322,8 +322,8 @@ namespace Tests.NAnt.Console {
 
             // using a regular expression look for a plausible version number and valid copyright date
             // expression created by RegEx http://www.organicbit.com/regex/
-            string expression = @"Default Target:[\s\S]*(?<default>build)\s*compiles the source code[\s\S]*Main Targets:[\s\S]*(?<main1>build)\s*compiles the source code[\s\S]*(?<main2>clean)\s*cleans build directory[\s\S]*(?<main3>test)\s*run the program[\s\S]*Sub Targets:[\s\S]*(?<subtarget1>init)";
-
+            string expression = @"Default Target:[\s]*(?<default>build)\s*compiles the source code[\s]*Main Targets:[\s]*(?<main1>build)\s*compiles the source code[\s]*(?<main2>clean)\s*cleans build directory[\s]*(?<main3>test)\s*run the program[\s]*Sub Targets:[\s]*(?<subtarget1>init)";			
+		
             Match match = Regex.Match(result, expression);
             if (match.Success) {
                 Assertion.AssertEquals("build", match.Groups["default"].Value);
