@@ -28,8 +28,10 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Tasks;
 using NAnt.DotNet.Types;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -42,14 +44,23 @@ namespace NAnt.VSNet {
             _resourceSourceFileRelativePath = resourceSourceFileRelativePath;
             _dependentFile = dependentFile;
             _solutionTask = solutionTask;
+            _culture = CompilerBase.GetResourceCulture(resourceSourceFile.FullName);
         }
 
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
 
-        public string Setting {
-            get { return @"/res:""" + _compiledResourceFile + @""""; }
+        public CultureInfo Culture {
+            get { return _culture; }
+        }
+
+        public string ManifestResourceName {
+            get { return _manifestResourceName; }
+        }
+
+        public string CompiledResourceFile {
+            get { return _compiledResourceFile; }
         }
 
         public FileInfo InputFile {
@@ -65,15 +76,18 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void Compile(ConfigurationSettings configurationSettings, bool showCommands) {
-            switch (InputFile.Extension.ToLower()) {
+            switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
                     _compiledResourceFile = CompileResx();
+                    _manifestResourceName = GetManifestResourceName(configurationSettings);
                     break;
                 case ".licx":
                     _compiledResourceFile = CompileLicx();
+                    _manifestResourceName = GetManifestResourceName(configurationSettings);
                     break;
                 default:
                     _compiledResourceFile = CompileResource();
+                    _manifestResourceName = GetManifestResourceName(configurationSettings);
                     break;
             }
         }
@@ -82,49 +96,59 @@ namespace NAnt.VSNet {
 
         #region Private Instance Methods
 
-        private string GetDependentResourceName(string dependentFile) {
-            string extension = Path.GetExtension(dependentFile);
-        
-            switch (extension.ToLower(CultureInfo.InvariantCulture)) {
-                case ".cs":
-                    return GetDependentResourceNameCSharp(dependentFile);
-                case ".vb":
-                    return GetDependentResourceNameVB(dependentFile);
+        private string GetManifestResourceName(ConfigurationSettings configSettings) {
+            switch (Project.ProjectSettings.Type) {
+                case ProjectType.CSharp:
+                    return GetManifestResourceNameCSharp(configSettings, _dependentFile);
+                case ProjectType.VBNet:
+                    return GetManifestResourceNameVB(configSettings, _dependentFile);
                 default:
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                        "Unsupported file extension '{0}'.", extension));
+                        "Unsupported project type '{0}'.", Project.ProjectSettings.Type));
             }
         }
 
-        private string GetDependentResourceNameCSharp(string dependentFile) {
+        private string GetManifestResourceNameCSharp(ConfigurationSettings configSetting, string dependentFile) {
             // defer to the resource management code in CscTask
             CscTask csc = new CscTask();      
             csc.Project = _solutionTask.Project;
-            return csc.GetManifestResourceName(new ResourceFileSet(), 
-                InputFile.FullName, dependentFile);
+            csc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
+                Project.ProjectSettings.OutputFileName));
+
+            // set-up resource fileset
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.Project = _solutionTask.Project;
+            resources.Parent = csc;
+            resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
+            resources.Prefix = Project.ProjectSettings.RootNamespace;
+            resources.DynamicPrefix = true;
+
+            return csc.GetManifestResourceName(resources, InputFile.FullName, 
+                dependentFile);
         }
 
-        private string GetDependentResourceNameVB(string dependentFile) {
+        private string GetManifestResourceNameVB(ConfigurationSettings configSetting, string dependentFile) {
             // defer to the resource management code in VbcTask
             VbcTask vbc = new VbcTask();
             vbc.Project = _solutionTask.Project;
+            vbc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
+                Project.ProjectSettings.OutputFileName));
             vbc.RootNamespace = Project.ProjectSettings.RootNamespace;
-            return vbc.GetManifestResourceName(new ResourceFileSet(), 
-                InputFile.FullName, dependentFile);
+            
+            // set-up resource fileset
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.Project = _solutionTask.Project;
+            resources.Parent = vbc;
+            resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
+            resources.Prefix = Project.ProjectSettings.RootNamespace;
+            resources.DynamicPrefix = true;
+
+            return vbc.GetManifestResourceName(resources, InputFile.FullName, 
+                dependentFile);
         }
 
         private string CompileResource() {
-            string outputFile = Project.ProjectSettings.GetTemporaryFilename(
-                Project.ProjectSettings.RootNamespace + "." + 
-                _resourceSourceFileRelativePath.Replace("\\", "."));
-            
-            if (File.Exists(outputFile)) {
-                File.SetAttributes(outputFile, FileAttributes.Normal);
-                File.Delete(outputFile);
-            }
-
-            InputFile.CopyTo(outputFile);
-            return outputFile;
+            return InputFile.FullName;
         }
 
         private string CompileLicx() {
@@ -169,32 +193,8 @@ namespace NAnt.VSNet {
         }
 
         private string CompileResx() {
-            string outFile;
-            
-            if (!StringUtils.IsNullOrEmpty(_dependentFile)) {
-                outFile = GetDependentResourceName(_dependentFile);
-            } else {
-                StringBuilder sb = new StringBuilder();
-                if (!StringUtils.IsNullOrEmpty(Project.ProjectSettings.RootNamespace)) {
-                    sb.Append(Project.ProjectSettings.RootNamespace);
-                }
-                if (!StringUtils.IsNullOrEmpty(Path.GetDirectoryName(_resourceSourceFileRelativePath))) {
-                    if (sb.Length > 0) {
-                        sb.Append('.');
-                    }
-                    sb.AppendFormat("{0}", Path.GetDirectoryName(_resourceSourceFileRelativePath).Replace("\\", "."));
-                }
-
-                if (sb.Length > 0) {
-                    sb.Append('.');
-                }
-                sb.AppendFormat("{0}", Path.GetFileNameWithoutExtension(InputFile.Name));
-
-                sb.Append(".resources");
-                outFile = sb.ToString();
-            }
-            
-            FileInfo outputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(outFile));
+            FileInfo outputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(
+                InputFile.FullName));
 
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
@@ -227,10 +227,12 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
+        private CultureInfo _culture;
         private string _compiledResourceFile;
         private FileInfo _resourceSourceFile;
         private string _dependentFile;
         private string _resourceSourceFileRelativePath;
+        private string _manifestResourceName;
         private Project _project;
         private SolutionTask _solutionTask;
 

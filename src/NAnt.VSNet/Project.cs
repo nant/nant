@@ -31,6 +31,10 @@ using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
+using NAnt.DotNet.Tasks;
+using NAnt.DotNet.Types;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -244,14 +248,15 @@ namespace NAnt.VSNet {
 
         public override bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
             bool bSuccess = true;
+ 			bool haveCultureSpecificResources = false;
 
             ConfigurationSettings cs = (ConfigurationSettings) _htConfigurations[configuration];
             if (cs == null) {
-                Log(Level.Info, LogPrefix + "Configuration {0} does not exist. Skipping.", configuration);
+                Log(Level.Info, LogPrefix + "Configuration '{0}' does not exist. Skipping.", configuration);
                 return true;
             }
 
-            Log(Level.Info, LogPrefix + "Building {0} [{1}]...", Name, configuration);
+            Log(Level.Info, LogPrefix + "Building '{0}' [{1}]...", Name, configuration);
             cs.OutputDir.Create();
 
             // perform prebuild actions (for VS.NET 2003)
@@ -353,9 +358,18 @@ namespace NAnt.VSNet {
                 if (_htResources.Count > 0) {
                     Log(Level.Verbose, LogPrefix + "Compiling resources:");
                     foreach (Resource resource in _htResources.Values) {
+ 						// ignore resource files associated with a culture
+ 						if (resource.Culture != null) {
+ 							haveCultureSpecificResources = true;
+ 							continue;
+ 						}
+
                         Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
                         resource.Compile(cs, bShowCommands);
-                        sw.WriteLine(resource.Setting);
+
+                        sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                            "/res:\"{0}\",\"{1}\"", resource.CompiledResourceFile, 
+                            resource.ManifestResourceName)); 
                     }
                 }
 
@@ -454,6 +468,63 @@ namespace NAnt.VSNet {
                     }
                 }
             }
+
+ 			#region Process culture-specific resource files
+
+ 			if (bSuccess && haveCultureSpecificResources) {
+ 				Log(Level.Verbose, LogPrefix + "Compiling satellite resources:");
+ 				Hashtable cultures = new Hashtable();
+ 				foreach (Resource resource in _htResources.Values) {
+ 					// ignore resource files NOT associated with a culture
+ 					if (resource.Culture == null) {
+ 						continue;
+ 					}
+ 					ArrayList resFiles = null;
+ 					if (!cultures.ContainsKey(resource.Culture)) {
+ 						resFiles = new ArrayList();
+ 						cultures.Add(resource.Culture, resFiles);
+ 					} else {
+ 						resFiles = (ArrayList) cultures[resource.Culture];
+ 					}
+ 					resFiles.Add(resource);
+ 				}
+
+ 				foreach (DictionaryEntry de in cultures) {
+ 					string culture = ((CultureInfo) de.Key).Name;
+ 					ArrayList resFiles = (ArrayList) de.Value;
+
+ 					AssemblyLinkerTask al = new AssemblyLinkerTask();
+ 					al.Project = this.SolutionTask.Project;
+ 					al.Parent = this.SolutionTask.Parent;
+ 					al.BaseDirectory = cs.OutputDir;
+ 					al.InitializeTaskConfiguration();
+
+ 					string satellitePath = cs.OutputDir.FullName;
+ 					satellitePath = Path.Combine (satellitePath, culture);
+ 					Directory.CreateDirectory(satellitePath);
+ 					satellitePath = Path.Combine(satellitePath, string.Format(
+                        CultureInfo.InvariantCulture, "{0}.resources.dll", 
+                        _projectSettings.AssemblyName));
+ 					al.OutputFile = new FileInfo(satellitePath);
+ 					al.OutputTarget = "lib";
+ 					al.Culture = culture;
+ 					al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, _projectSettings.OutputFileName));
+ 					foreach (Resource resource in resFiles) {
+ 						resource.Compile(cs, bShowCommands);
+                        // add resources to embed 
+                        Argument arg = new Argument();
+                        arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",\"{1}\"", resource.CompiledResourceFile, resource.ManifestResourceName);
+                        al.Arguments.Add(arg);
+ 					}
+ 					// run assembly linker
+ 					SolutionTask.Project.Indent();
+ 					Log(Level.Verbose, LogPrefix + " - {0}", culture);
+ 					al.Execute();
+ 					SolutionTask.Project.Unindent();
+ 				}
+ 			}
+
+ 			#endregion Process culture-specific resource files
 
             if (ProjectSettings.RunPostBuildEvent != null) {
                 if (!PostBuild(cs, (exitCode == 0) ? true : false, (exitCode == 0) ? true : false)) {
