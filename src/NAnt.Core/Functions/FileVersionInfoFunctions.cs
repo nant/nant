@@ -49,6 +49,7 @@ namespace NAnt.Core.Functions {
         /// A <see cref="FileVersionInfo" /> containing information about the file.
         /// </returns>
         /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
+        [Function("get-version-info")]
         public FileVersionInfo GetVersionInfo(string fileName) {
             return FileVersionInfo.GetVersionInfo(
                 Project.GetFullPath(fileName));
