@@ -22,6 +22,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -74,6 +75,7 @@ namespace NAnt.Core.Tasks {
     ///     <proxy host="proxy.company.com" port="8080">
     ///         <credentials username="proxyuser" password="dunno" />
     ///     </proxy>
+    /// </get>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -88,6 +90,7 @@ namespace NAnt.Core.Tasks {
         private int _timeout = 100000;
         private bool _useTimeStamp;
         private Credential _credentials;
+        private FileSet _certificates = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -174,6 +177,15 @@ namespace NAnt.Core.Tasks {
         public int Timeout {
             get { return _timeout; }
             set { _timeout = value; }
+        }
+
+        /// <summary>
+        /// The security certificates to associate with the request.
+        /// </summary>
+        [BuildElement("certificates")]
+        public FileSet Certificates {
+            get { return _certificates; }
+            set { _certificates = value; }
         }
 
         #endregion Public Instance Properties
@@ -283,7 +295,10 @@ namespace NAnt.Core.Tasks {
                 destWriter.Close();
                 responseStream.Close();
 
-                //check to see if we actually have a file...
+                // refresh file info
+                DestinationFile.Refresh();
+
+                // check to see if we actually have a file...
                 if(!DestinationFile.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Unable to download '{0}' to '{1}'.", Source, 
@@ -395,6 +410,12 @@ namespace NAnt.Core.Tasks {
                     //REVISIT: at this point even non HTTP connections may support the if-modified-since
                     //behaviour -we just check the date of the content and skip the write if it is not
                     //newer. Some protocols (FTP) dont include dates, of course.
+                }
+
+                // associate security certificates
+                foreach (string certificate in Certificates.FileNames) {
+                    httpRequest.ClientCertificates.Add(
+                        X509Certificate.CreateFromCertFile(certificate));
                 }
 
                 webRequest = httpRequest;
