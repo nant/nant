@@ -213,6 +213,7 @@ namespace NAnt.Core.Util {
         /// </summary>
         /// <param name="path">The file or directory for which to obtain absolute path information.</param>
         /// <returns>Path Resolved</returns>
+        /// <exception cref="ArgumentException">path is a zero-length string, contains only white space or contains one or more invalid characters as defined by <see cref="Path.InvalidPathChars" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null" />.</exception>
         public static string GetFullPath(string path) {
             if (path == null) {
@@ -221,6 +222,10 @@ namespace NAnt.Core.Util {
 
             if (PlatformHelper.IsUnix || Path.IsPathRooted(path)) {
                 return Path.GetFullPath(path);
+            }
+
+            if (path.Length == 0 || path.Trim().Length == 0 || path.IndexOfAny(Path.InvalidPathChars) != -1) {
+                throw new ArgumentException("The path is not of a legal form.");
             }
 
             string combinedPath = FileUtils.CombinePaths(
