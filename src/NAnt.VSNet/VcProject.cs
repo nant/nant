@@ -218,9 +218,31 @@ namespace NAnt.VSNet {
                 return true;
             }
 
-            foreach (VcConfiguration buildConfig in buildConfigs.Keys) {
-                BuildCPPFiles((ArrayList) buildConfigs[buildConfig], baseConfig, 
-                    buildConfig);
+
+            VcConfiguration stdafxConfig = null;
+
+            // If VC project uses precompiled headers then the precompiled header
+            // output (.pch file) must be generated before compiling any other
+            // source files.
+            foreach (VcConfiguration vcConfig in buildConfigs.Keys) {
+                const string compilerTool = "VCCLCompilerTool";
+                Hashtable compilerArgs = vcConfig.GetToolArguments(compilerTool, _clArgMap);   
+
+                object o = compilerArgs["UsePrecompiledHeader"];
+
+                if (o != null) {
+                    string arg = o as string;
+                    if (arg.Equals("/Yc")) {
+                        BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig, vcConfig);
+                        stdafxConfig = vcConfig;
+                    }
+                }
+            }
+
+            foreach (VcConfiguration vcConfig in buildConfigs.Keys) {
+                if (vcConfig != stdafxConfig) {
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig, vcConfig);
+                }
             }
 
             string libOutput = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
@@ -358,14 +380,20 @@ namespace NAnt.VSNet {
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
                 foreach (string includeDir in includeDirs.Split(',', ';')) {
+                    if (includeDir.Length == 0) {
+                        continue;
+                    }
                     clTask.IncludeDirs.DirectoryNames.Add(
                         CleanPath(includeDir));
                 }
             }
 
-            string metadataDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalUsingDirectories");
+            string metadataDirs = MergeCompilerToolSetting(baseConfig, fileConfig, "AdditionalUsingDirectories");
             if (!StringUtils.IsNullOrEmpty(metadataDirs)) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
+                    if (metadataDir.Length == 0) {
+                        continue;
+                    }
                     clTask.MetaDataIncludeDirs.DirectoryNames.Add(
                         CleanPath(baseConfig.ExpandMacros(metadataDir)));
                 }
@@ -374,6 +402,9 @@ namespace NAnt.VSNet {
             string forcedUsingFiles = fileConfig.GetToolSetting(compilerTool, "ForcedUsingFiles");
             if (!StringUtils.IsNullOrEmpty(forcedUsingFiles)) {
                 foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
+                    if (forcedUsingFile.Length == 0) {
+                        continue;
+                    }
                     clTask.ForcedUsingFiles.Includes.Add(
                         CleanPath(baseConfig.ExpandMacros(forcedUsingFile)));
                 }
@@ -401,7 +432,7 @@ namespace NAnt.VSNet {
                     Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
-            string preprocessorDefs = MergePreprocessorDefinitions(baseConfig, fileConfig);
+            string preprocessorDefs = MergeCompilerToolSetting(baseConfig, fileConfig, "PreprocessorDefinitions");
             if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     if (def.Length != 0) {
@@ -409,6 +440,33 @@ namespace NAnt.VSNet {
                         clTask.Arguments.Add(new Argument(def));
                     }
                 }
+            }
+
+            string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
+            if (!StringUtils.IsNullOrEmpty(undefinePreprocessorDefs)) { 
+                foreach (string def in undefinePreprocessorDefs.Split(';', ',')) { 
+                    clTask.Arguments.Add(new Argument("/U"));
+                    clTask.Arguments.Add(new Argument(def));
+                }
+            }
+
+
+            string addOptions = baseConfig.GetToolSetting(compilerTool, "AdditionalOptions");
+            if (addOptions != null) {
+                using (StringReader reader = new StringReader(addOptions)) {
+                    string addOptionsLine = reader.ReadLine();
+                    while (addOptionsLine != null) {
+                        foreach(string addOption in addOptionsLine.Split(' '))  {
+                            clTask.Arguments.Add(new Argument(addOption));
+                        }
+                        addOptionsLine = reader.ReadLine();
+                    }
+                }
+            }
+
+            string exceptionHandling = baseConfig.GetToolSetting(compilerTool, "ExceptionHandling");
+            if (exceptionHandling == null || exceptionHandling.ToUpper().Equals("TRUE")) {
+                clTask.Arguments.Add(new Argument("/EHsc"));
             }
 
             if (IsOutputDll(fileConfig)) {
@@ -429,18 +487,24 @@ namespace NAnt.VSNet {
                         // with the "UsePrecompiledHeader" argument
                         break;
                     case "UsePrecompiledHeader":
-                        string headerThrough = compilerArgs["PrecompiledHeaderThrough"] as string;
-                        if (headerThrough == null) {
-                            headerThrough = "StdAfx.h";
-                        }
-                        clTask.Arguments.Add(new Argument(((string) compilerArgs[key]) + "\"" + headerThrough + "\""));
+                        string arg = compilerArgs["UsePrecompiledHeader"] as string;
 
-                        string headerFile = compilerArgs["PrecompiledHeaderFile"] as string;
-                        if (headerFile == null) {
-                            headerFile = fileConfig.ExpandMacros("$(IntDir)/$(TargetName).pch");
-                        }
+                        // if arg.length == 0 then this configuration explicitly turns
+                        // OFF use of precompiled headers - even if parent config uses it.
+                        if (arg == null || arg.Length > 0) {
+                            string headerThrough = compilerArgs["PrecompiledHeaderThrough"] as string;
+                            if (headerThrough == null) {
+                                headerThrough = "StdAfx.h";
+                            }
+                            clTask.Arguments.Add(new Argument(((string) compilerArgs[key]) + "\"" + headerThrough + "\""));
 
-                        clTask.Arguments.Add(new Argument("/Fp\"" + headerFile + "\""));
+                            string headerFile = compilerArgs["PrecompiledHeaderFile"] as string;
+                            if (headerFile == null) {
+                                headerFile = fileConfig.ExpandMacros("$(IntDir)/$(TargetName).pch");
+                            }
+
+                            clTask.Arguments.Add(new Argument("/Fp\"" + headerFile + "\""));
+                        }
                         break;
                     default:
                         clTask.Arguments.Add(new Argument((string) compilerArgs[key]));
@@ -573,6 +637,9 @@ namespace NAnt.VSNet {
             string addLibDirs = baseConfig.GetToolSetting(linkerTool, "AdditionalLibraryDirectories");
             if (addLibDirs != null) {
                 foreach (string addLibDir in addLibDirs.Split(',', ';')) {
+                    if (addLibDir.Length == 0) {
+                        continue;
+                    }
                     linkTask.LibDirs.DirectoryNames.Add(addLibDir);
                 }
             }
@@ -584,8 +651,14 @@ namespace NAnt.VSNet {
 
             string addOptions = baseConfig.GetToolSetting(linkerTool, "AdditionalOptions");
             if (addOptions != null) {
-                foreach(string addOption in addOptions.Split(' ')) {
-                    linkTask.Arguments.Add(new Argument(addOption));
+                using (StringReader reader = new StringReader(addOptions)) {
+                    string addOptionsLine = reader.ReadLine();
+                    while (addOptionsLine != null) {
+                        foreach (string addOption in addOptionsLine.Split(' ')) {
+                            linkTask.Arguments.Add(new Argument(addOption));
+                        }
+                        addOptionsLine = reader.ReadLine();
+                    }
                 }
             }
 
@@ -625,25 +698,28 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Merges the preprocessor definitions of <paramref name="baseConfig" /> 
+        /// Merges the specified tool setting of <paramref name="baseConfig" /> 
         /// with <paramref name="fileConfig" />.
         /// </summary>
         /// <remarks>
-        /// The merge is uppresses when the flag $(noinherit) is defined in
+        /// The merge is suppressed when the flag $(noinherit) is defined in
         /// <paramref name="fileConfig" />.
         /// </remarks>
-        private string MergePreprocessorDefinitions(VcConfiguration baseConfig, VcConfiguration fileConfig) {
+        private string MergeCompilerToolSetting(VcConfiguration baseConfig, VcConfiguration fileConfig, string setting) {
             const string compilerTool = "VCCLCompilerTool";
             const string noinherit = "$(noinherit)";
-            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, 
-                "PreprocessorDefinitions");
-            if (preprocessorDefs.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
-                preprocessorDefs += ";" + baseConfig.GetToolSetting(compilerTool, 
-                    "PreprocessorDefinitions");
-            } else {
-                preprocessorDefs = preprocessorDefs.Remove(preprocessorDefs.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+            string settingValue = fileConfig.GetToolSetting(compilerTool, setting);
+
+            if (settingValue == null) {
+                return baseConfig.GetToolSetting(compilerTool, setting);
             }
-            return preprocessorDefs;
+
+            if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
+                settingValue += ";" + baseConfig.GetToolSetting(compilerTool, setting);
+            } else {
+                settingValue = settingValue.Remove(settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+            }
+            return settingValue;
         }
 
         #endregion Private Instance Methods
@@ -660,8 +736,6 @@ namespace NAnt.VSNet {
                     Location.UnknownLocation, ex);
             }
         }
-
-        #region Public Static Methods
 
         /// <summary>
         /// Returns a value indicating whether the project represented by the
@@ -708,8 +782,6 @@ namespace NAnt.VSNet {
 
         #endregion Public Static Methods
 
-        #endregion Public Static Methods
-
         #region Private Static Methods
 
         /// <summary>
@@ -741,9 +813,9 @@ namespace NAnt.VSNet {
         #region Private Static Fields
 
         private static string[] _defaultLibraries = new string[] { 
-            "kernel32.lib", "user32.lib", "gdi32.lib", "winspool.lib", "comdlg32.lib",
-            "advapi32.lib", "shell32.lib", "ole32.lib", "oleaut32.lib", "uuid.lib"
-        };
+                                                                     "kernel32.lib", "user32.lib", "gdi32.lib", "winspool.lib", "comdlg32.lib",
+                                                                     "advapi32.lib", "shell32.lib", "ole32.lib", "oleaut32.lib", "uuid.lib"
+                                                                 };
 
         #endregion Private Static Fields
     }
