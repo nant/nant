@@ -118,6 +118,7 @@ namespace NAnt.Core {
         /// <summary>
         /// The prefix used when sending messages to the log.
         /// </summary>
+        [Obsolete("Will be removed soon", false)]
         public string LogPrefix {
             get {
                 string prefix = "[" + Name + "] ";
@@ -179,7 +180,7 @@ namespace NAnt.Core {
                             // insert empty line before error message
                             Log(Level.Error, string.Empty);
                             // output exception (with stacktrace) to build log
-                            Log(Level.Error, LogPrefix + ex.ToString());
+                            Log(Level.Error, ex.ToString());
                         } else {
                             string msg = ex.Message;
                             // get first nested exception
