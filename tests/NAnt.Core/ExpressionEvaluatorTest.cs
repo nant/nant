@@ -159,11 +159,11 @@ namespace Tests.NAnt.Core {
         }
         
         [Test] public void TestNAntFunctions() {
-            AssertExpression("nant::get-property-value('prop1')", "asdf");
-            AssertExpression("nant::property-exists('prop1')", true);
-            AssertExpression("nant::property-exists('prop1a')", false);
-            //AssertExpression("nant::target-exists('i_am_not_there')", false);
-            //AssertExpression("nant::target-exists('test')", true);
+            AssertExpression("property::get-value('prop1')", "asdf");
+            AssertExpression("property::exists('prop1')", true);
+            AssertExpression("property::exists('prop1a')", false);
+            //AssertExpression("target::exists('i_am_not_there')", false);
+            //AssertExpression("target::exists('test')", true);
         }
         #endregion
         
