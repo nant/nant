@@ -18,8 +18,6 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 
@@ -107,19 +105,25 @@ namespace SourceForge.NAnt.Tasks {
     ///   ]]></code>
     /// </example>
     [TaskName("if")]
-    public class IfTask : TaskContainer{
-        
+    public class IfTask : TaskContainer {
+        #region Private Instance Fields
+
         private string _propNameTrue = null;
         private string _propNameExists = null;
         private string _targetName = null;
         private string _uptodateFile = null;
         private FileSet _compareFiles = null;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         /// <summary>
         /// The file to compare if uptodate
         /// </summary>
         [TaskAttribute("uptodatefile")]
         public string PrimaryFile {
+            get { return _uptodateFile; }
             set {_uptodateFile = Project.GetFullPath(value);}
         }
 
@@ -127,13 +131,10 @@ namespace SourceForge.NAnt.Tasks {
         /// The file to check against for the uptodate file.
         /// </summary>
         [TaskAttribute("comparefile")]
-        public string CompareFile { 
+        public string CompareFile {
             set { 
                 if(_compareFiles == null) {
-                    _compareFiles = new FileSet();
-                    _compareFiles.Parent = this;
-                    _compareFiles.Project = this.Project;
-                }
+                    _compareFiles = new FileSet();                    _compareFiles.Parent = this;                    _compareFiles.Project = this.Project;                }
                 _compareFiles.Includes.Add(value); 
 
             }
@@ -143,9 +144,9 @@ namespace SourceForge.NAnt.Tasks {
         /// The FileSet that contains the comparison files for the uptodateFile.
         /// </summary>
         [FileSet("comparefiles")]
-        public FileSet CompareFiles { 
-            set { _compareFiles = value;}
-            get { return _compareFiles;}
+        public FileSet CompareFiles {
+            get { return _compareFiles; }
+            set { _compareFiles = value; }
         } 
 
         /// <summary>
@@ -153,7 +154,8 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         [TaskAttribute("propertytrue")]
         public string PropertyNameTrue {
-            set {_propNameTrue = value;}
+            get { return _propNameTrue; }
+            set { _propNameTrue = value; }
         }
 
         /// <summary>
@@ -161,7 +163,8 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         [TaskAttribute("propertyexists")]
         public string PropertyNameExists {
-            set {_propNameExists = value;}
+            get { return _propNameExists;}
+            set { _propNameExists = value; }
         }
 
         /// <summary>
@@ -169,14 +172,13 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
        [TaskAttribute("targetexists")]
         public string TargetNameExists {
-            set {_targetName = value;}
+            get { return _targetName; }
+            set { _targetName = value; }
         }
 
-        protected override void ExecuteTask() {
-            if(ConditionsTrue) {
-                base.ExecuteTask();
-            }
-        }
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
 
         protected virtual bool ConditionsTrue {
             get {
@@ -223,13 +225,25 @@ namespace SourceForge.NAnt.Tasks {
                 return ret;
             }
         }
+
+        #endregion Protected Instance Properties
+
+        #region Override implementation of TaskContainer
+
+        protected override void ExecuteTask() {
+            if(ConditionsTrue) {
+                base.ExecuteTask();
+            }
+        }
+
+        #endregion Override implementation of TaskContainer
     }
 
     /// <summary>
     /// The opposite of the <c>if</c> task.
     /// </summary>
     /// <example>
-    ///   <para>Check existence of a property</para>
+    ///   <para>Checks for the existence of a property</para>
     ///   <code>
     ///   <![CDATA[
     ///   <ifnot propertyexists="myProp">
@@ -237,7 +251,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </if>
     ///   ]]></code>
     ///   
-    ///   <para>Check that a property value is not true</para>
+    ///   <para>Checks that a property value is not true</para>
     ///   <code>
     ///   <![CDATA[
     ///   <ifnot propertytrue="myProp">
@@ -247,7 +261,7 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     ///
     /// <example>
-    ///   <para>Check that a target does not exist</para>
+    ///   <para>Checks that a target does not exist</para>
     ///   <code>
     ///   <![CDATA[
     ///   <ifnot targetexists="myTarget">
@@ -256,12 +270,14 @@ namespace SourceForge.NAnt.Tasks {
     ///   ]]></code>
     /// </example>
     [TaskName("ifnot")]
-    public class IfNotTask : IfTask{
+    public class IfNotTask : IfTask {
+        #region Override implementation of IfTask
+
         protected override bool ConditionsTrue {
-            get {
-                return !base.ConditionsTrue;
-            }
+            get { return !base.ConditionsTrue; }
         }
+
+        #endregion Override implementation of IfTask
     }
 
     /*

@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Scott Hernandez
+// Copyright (C) 2002-2003 Scott Hernandez
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Loops over a set of Items.
+    /// Loops over a set of items.
     /// </summary>
     /// <remarks>
     ///   <para>Loop over items in a set. Can loop over files in directory, lines in a file, etc.</para>
@@ -97,28 +97,34 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("foreach")]
     public class LoopTask : TaskContainer {
-        public enum ItemTypes {
+        public enum LoopItem {
             None,
             File,
             Folder,
             String,
             Line
         }
-        public enum TrimTypes {
+        public enum LoopTrim {
             None,
             End,
             Start,
             Both
         }
 
+        #region Private Instance Fields
+
         string _prop = null;
         string[] _props = null;
-        ItemTypes _itemType = ItemTypes.None;
-        TrimTypes _trimType = TrimTypes.None;
+        LoopItem _loopItem = LoopItem.None;
+        LoopTrim _loopTrim = LoopTrim.None;
         string _inAttribute = null;
         string _delim = null;
         InElement _inElement = null;
         TaskContainer _doStuff = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>The NAnt propperty name(s) that should be used for the current iterated item.</summary>
         /// <remarks>If specifying multiple properties, separate them with a comma.</remarks>
@@ -142,47 +148,50 @@ namespace SourceForge.NAnt.Tasks {
         /// The type of iteration that should be done.
         /// </summary>
         [TaskAttribute("item", Required=true)]
-        public ItemTypes ItemType   { get { return _itemType;} set {_itemType = value; }}
+        public LoopItem ItemType   { get { return _loopItem;} set { _loopItem = value; }}
 
         /// <summary>
         /// The type of whitespace trimming that should be done.
         /// </summary>
         [TaskAttribute("trim")]
-        public TrimTypes TrimType   { get { return _trimType;} set {_trimType = value; }}
+        public LoopTrim TrimType   { get { return _loopTrim;} set { _loopTrim = value; }}
 
         /// <summary>
         /// The source of the iteration.
         /// </summary>
         [TaskAttribute("in", Required=false)]
-        public string Source   { get { return _inAttribute;} set {_inAttribute = value; }}
+        public string Source   { get { return _inAttribute;} set { _inAttribute = value; }}
 
         /// <summary>
         /// The deliminator char.
         /// </summary>
         [TaskAttribute("delim")]
-        public string Delimiter { get { return _delim;} set {_delim = value; }}
+        public string Delimiter { get { return _delim;} set { _delim = value; }}
 
         /// <summary>        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.        /// </summary>
         [BuildElement("in")]
-        public InElement InElement { set { _inElement = value; }}
+        public InElement InElement { get { return _inElement; } set { _inElement = value; }}
 
         /// <summary>        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.        /// </summary>
         [BuildElement("do")]
-        public TaskContainer StuffToDo { set { _doStuff = value; }}
+        public TaskContainer StuffToDo { get { return _doStuff; } set { _doStuff = value; }}
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of TaskContainer
 
         protected override void ExecuteTask() {
-            string[] oldPropVals = new string[ _props.Length ];
+            string[] oldPropVals = new string[_props.Length];
             // Save all of the old property values
-            for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
-                oldPropVals[ nIndex ] = Properties[ _props[ nIndex ] ];
+            for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) {
+                oldPropVals[nIndex] = Properties[_props[nIndex]];
             }
             
             try {
-                switch(ItemType) {
-                    case ItemTypes.None:
+                switch (ItemType) {
+                    case LoopItem.None:
                         throw new BuildException("Invalid itemtype", Location);
-                    case ItemTypes.File:
+                    case LoopItem.File:
                         if(_inAttribute == null && _inElement == null)
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
 
@@ -210,7 +219,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
                         
                         break;
-                    case ItemTypes.Folder:
+                    case LoopItem.Folder:
                         if(_inAttribute == null && _inElement == null)
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
 
@@ -235,7 +244,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
 
                         break;
-                    case ItemTypes.Line:
+                    case LoopItem.Line:
                         if(!File.Exists(Project.GetFullPath(_inAttribute)))
                             throw new BuildException("Invalid Source: " + _inAttribute, Location);
                         if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0 ) )
@@ -253,7 +262,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
                         sr.Close();
                         break;
-                    case ItemTypes.String:
+                    case LoopItem.String:
                         if(_props.Length > 1)
                             throw new BuildException(@"Only one property may be specified for item=""String""");
                         if(Delimiter == null || Delimiter.Length == 0)
@@ -265,45 +274,54 @@ namespace SourceForge.NAnt.Tasks {
                 }
             } finally {
                 // Restore all of the old property values
-                for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
-                    Properties[ _props[ nIndex ] ] = oldPropVals[ nIndex ];
+                for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) {
+                    Properties[_props[nIndex]] = oldPropVals[nIndex];
                 }
             }
         }
 
+        protected override void ExecuteChildTasks() {            if(_doStuff == null) {                base.ExecuteChildTasks();            } else {                _doStuff.Execute();            }        }
+
+        #endregion Override implementation of TaskContainer
+
+        #region Protected Instance Methods
+
         protected virtual void DoWork(params string[] propVals) {
-            for (int nIndex = 0; nIndex < propVals.Length; nIndex++ ) {
-                string propValue = propVals[ nIndex ];
-                if ( nIndex >= _props.Length )
+            for (int nIndex = 0; nIndex < propVals.Length; nIndex++) {
+                string propValue = propVals[nIndex];
+                if (nIndex >= _props.Length)
                     throw new BuildException("Too many items on line");
-                switch (_trimType) {
-                    case TrimTypes.Both:
+                switch (TrimType) {
+                    case LoopTrim.Both:
                         propValue = propValue.Trim();
                         break;
-                    case TrimTypes.Start:
+                    case LoopTrim.Start:
                         propValue = propValue.TrimStart();
                         break;
-                    case TrimTypes.End:
+                    case LoopTrim.End:
                         propValue = propValue.TrimEnd();
                         break;
                 }
-                Properties[ _props[ nIndex ] ] = propValue;
+                Properties[_props[ nIndex ]] = propValue;
             }
             base.ExecuteTask();
-        }
-        protected override void ExecuteChildTasks() {            if(_doStuff == null) {                base.ExecuteChildTasks();            } else {                _doStuff.Execute();            }        }
-    }
+        }        #endregion Protected Instance Methods    }
 
-    // These classes provide a way of getting the Element task to initialize
-    // the values from the build file.
     public class InElement : Element {
+        #region Private Instance Fields
+
         FileSet _items = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         [FileSet("items")]
         public FileSet Items {
-            set {
-                _items = value;
-            }
             get { return _items;}
+            set { _items = value; }
         }
+
+        #endregion Public Instance Properties
     }
 }

@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
@@ -42,21 +42,40 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("include")] // TODO make into ant:include
     public class IncludeTask : Task {
+        #region Private Instance Fields
 
-        /// <summary>Used to check for recursived includes.</summary>
+        string _buildFileName = null;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        /// <summary>
+        /// Used to check for recursived includes.
+        /// </summary>
         static Stack _includedFileNames = new Stack();
-        static string _currentBasedir = "";     
-        string _buildFileName = null;   
+
+        static string _currentBasedir = "";
         static int _nestinglevel = 0;
+
+        #endregion Private Static Fields
+
+        #region Public Instance Properties
 
         /// <summary>Build file to include.</summary>
         [TaskAttribute("buildfile", Required=true)]
         public string BuildFileName {
             get { return _buildFileName; }
             set { _buildFileName = value; }
-        }       
+        }
 
-        /// <summary>Verify parameters.</summary>
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
+        /// <summary>
+        /// Verifies parameters.
+        /// </summary>
         /// <param name="taskNode">Xml taskNode used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
             // Task can only be included as a global task.
@@ -65,11 +84,11 @@ namespace SourceForge.NAnt.Tasks {
             if (Parent != null && !(Parent is Project)) {
                 throw new BuildException("Task not allowed in targets.  Must be at project level.", Location);
             }
-            if ( _currentBasedir == "" || _nestinglevel == 0 ){
+            if (_currentBasedir == null || _currentBasedir.Length == 0 || _nestinglevel == 0) {
                 _currentBasedir = Project.BaseDirectory;
             }
-            // Check for recursive include.           
-            string buildFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));           
+            // Check for recursive include
+            string buildFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
             
             foreach (string currentFileName in _includedFileNames) {
                 if (currentFileName == buildFileName) {
@@ -79,17 +98,16 @@ namespace SourceForge.NAnt.Tasks {
         } 
 
         protected override void ExecuteTask() {
-            
-            // push ourselves onto the stack (prevents recursive includes)                     
+            // push ourselves onto the stack (prevents recursive includes)
             string includedFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
             _includedFileNames.Push(includedFileName);
             _nestinglevel ++;
             
-            Log.WriteLineIf(Verbose, LogPrefix + "including file {0}", includedFileName );
-            string oldBaseDir = Project.BaseDirectory;           
+            Log.WriteLineIf(Verbose, LogPrefix + "Including file {0}", includedFileName);
+            string oldBaseDir = Project.BaseDirectory;
             
-            // set basedir to be used by the nested calls ( if any )
-            _currentBasedir = Path.GetDirectoryName( includedFileName );
+            // set basedir to be used by the nested calls (if any)
+            _currentBasedir = Path.GetDirectoryName(includedFileName);
             
             try {
                 XmlDocument doc = new XmlDocument();
@@ -100,14 +118,15 @@ namespace SourceForge.NAnt.Tasks {
             } catch (Exception e) {
                 throw new BuildException("Could not include build file " + includedFileName, Location, e);
             } finally {
-                
                 // pop off the stack
                 _includedFileNames.Pop();
                 _nestinglevel--;
                 
-                 // reset base\dir   
-                _currentBasedir = oldBaseDir;             
+                 // reset base\dir
+                _currentBasedir = oldBaseDir;
            }
         }
+
+        #endregion Override implementation of Task
     }
 }

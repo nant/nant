@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Security.Permissions;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -31,7 +32,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Creates an XSD File for all available Tasks.
+    /// Creates an XSD File for all available tasks.
     /// </summary>
     /// <remarks>
     ///   <para>This can be used in conjuntion with the command-line option to do XSD Schema validation on the build file.</para>
@@ -42,8 +43,6 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("nantschema")]
     public class NAntSchemaTask : Task {
-        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         #region Private Instance Fields
 
         string  _file               = null;
@@ -52,15 +51,21 @@ namespace SourceForge.NAnt.Tasks {
 
         #endregion Private Instance Fields
 
+        #region Private Static Fields
+
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        #endregion Private Static Fields
+
         #region Public Instance Properties
 
-        [TaskAttribute("output",Required=true)]
+        [TaskAttribute("output", Required=true)]
         public virtual string FileName {
             get { return _file; }
             set { _file = value; }
         }
 
-        [TaskAttribute("target-ns",Required=false)]
+        [TaskAttribute("target-ns", Required=false)]
         public virtual string TargetNamespace{
             get { return _targetNamespace; }
             set { _targetNamespace = value; }
@@ -76,6 +81,7 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Override implementation of Task
 
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         protected override void ExecuteTask() {
             ArrayList taskTypes;
 
@@ -102,7 +108,211 @@ namespace SourceForge.NAnt.Tasks {
 
         #endregion Override implementation of Task
 
-        protected class NAntSchemaGenerator {
+        #region Public Static Methods
+
+        /// <summary>
+        /// Creates a NAnt Schema for given types
+        /// </summary>
+        /// <param name="stream">The output stream to save the schema to. If null, writing is ignored, no exception generated</param>
+        /// <param name="tasks">The list of Types to generate Schema for</param>
+        /// <param name="targetNS">The target Namespace to output</param>
+        /// <returns>The new NAnt Schema</returns>
+        public static XmlSchema WriteSchema(System.IO.Stream stream, Type[] tasks, string targetNS) {
+            NAntSchemaGenerator gen = new NAntSchemaGenerator(tasks, targetNS);
+
+            if(!gen.Schema.IsCompiled) {
+                gen.Compile();
+            }
+
+            if (stream != null) {
+                gen.Schema.Write(stream);
+            }
+
+            return gen.Schema;
+        }
+
+        #endregion Public Static Methods
+
+        #region Protected Static Methods
+
+        protected static string GenerateIDFromType(Type type) {
+            return type.ToString().Replace("+", "-").Replace("[","_").Replace("]","_");
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="XmlSchemaAttribute" /> instance.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
+        /// <param name="required">Value indicating whether the attribute should be required.</param>
+        /// <returns>The new <see cref="XmlSchemaAttribute" /> instance.</returns>
+        protected static XmlSchemaAttribute CreateXsdAttribute(string name, bool required) {
+            XmlSchemaAttribute newAttr = new XmlSchemaAttribute();
+
+            newAttr.Name= name;
+
+            if (required) {
+                newAttr.Use = XmlSchemaUse.Required;
+            } else {
+                newAttr.Use = XmlSchemaUse.Optional;
+            }
+
+            return newAttr;
+        }
+
+        /// <summary>
+        /// Create a new <see cref="XmlSchemaComplexType" /> instance.
+        /// </summary>
+        /// <param name="name">The name of the complex type.</param>
+        /// <param name="id">The id of the complex type.</param>
+        /// <param name="attributes">The attributes of the complex type; null indicates none.</param>
+        /// <returns>The new <see cref="XmlSchemaComplexType" /> instance.</returns>
+        protected static XmlSchemaComplexType CreateXsdComplexType(string name, string id, XmlSchemaAttribute[] attributes) {
+            XmlSchemaComplexType newCT = new XmlSchemaComplexType();
+
+            newCT.Name = name;
+            newCT.Id = id;
+
+            if (attributes != null) {
+                foreach (XmlSchemaAttribute attr in attributes) {
+                    newCT.Attributes.Add(attr);
+                }
+            }
+
+            return newCT;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="XmlSchemaChoice" /> instance.
+        /// </summary>
+        /// <param name="min">The minimum value to allow for this choice</param>
+        /// <param name="max">The maximum value to allow, Decimal.MaxValue sets it to 'unbound'</param>
+        /// <returns>The new <see cref="XmlSchemaChoice" /> instance.</returns>
+        protected static XmlSchemaChoice CreateXsdChoice(Decimal min, Decimal max) {
+            XmlSchemaChoice newChoice = new XmlSchemaChoice();
+
+            newChoice.MinOccurs = min;
+
+            if (max != Decimal.MaxValue) {
+                newChoice.MaxOccurs = max;
+            } else {
+                newChoice.MaxOccursString = "unbounded";
+            }
+            
+            return newChoice;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="XmlSchemaSequence" /> instance.
+        /// </summary>
+        /// <param name="min">The minimum value to allow for this choice</param>
+        /// <param name="max">The maximum value to allow, Decimal.MaxValue sets it to 'unbound'</param>
+        /// <returns>The new <see cref="XmlSchemaSequence" /> instance.</returns>
+        protected static XmlSchemaSequence CreateXsdSequence(Decimal min, Decimal max) {
+            XmlSchemaSequence newSeq = new XmlSchemaSequence();
+
+            newSeq.MinOccurs = min;
+
+            if(max != Decimal.MaxValue) {
+                newSeq.MaxOccurs = max;
+            } else {
+                newSeq.MaxOccursString = "unbounded";
+            }
+            
+            return newSeq;
+        }    
+
+        protected static XmlSchemaComplexType CreateTaskListComplexType(IList taskComplexTypes) {
+            XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
+
+            tasklistCT.Particle = CreateXsdSequence(0, Decimal.MaxValue);
+
+            XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
+
+            ((XmlSchemaGroupBase) tasklistCT.Particle).Items.Add(group1);
+
+            //XmlSchemaGroupBase group2 = (XmlSchemaGroupBase)tasklistCT.Particle;
+
+            foreach(XmlSchemaComplexType taskCT in taskComplexTypes) {
+                XmlSchemaGroupBase group2 = CreateXsdSequence(0, Decimal.MaxValue);
+
+                group1.Items.Add(group2);
+
+                XmlSchemaElement taskElement = new XmlSchemaElement();
+                taskElement.Name = taskCT.Name;
+                taskElement.SchemaTypeName = taskCT.QualifiedName;
+
+                group2.Items.Add(taskElement);
+            }
+
+            return tasklistCT;
+        }
+
+        protected static XmlNode[] TextToNodeArray(string text) {
+            XmlDocument doc = new XmlDocument();
+
+            return new XmlNode[1] {doc.CreateTextNode(text)};
+        }
+
+        protected static void AddDocumentation(XmlSchemaAnnotated ann, string doc) {
+            if(ann.Annotation == null) {
+                ann.Annotation = new XmlSchemaAnnotation();
+            }
+
+            XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
+
+            ann.Annotation.Items.Add(schemaDoc);
+
+            schemaDoc.Markup = TextToNodeArray(doc);
+        }
+
+        protected static void AddDocumentation(XmlSchemaAttribute attribute, string doc) {
+            if(attribute.Annotation == null) {
+                attribute.Annotation = new XmlSchemaAnnotation();
+            }
+
+            XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
+
+            attribute.Annotation.Items.Add(schemaDoc);
+
+            schemaDoc.Markup = TextToNodeArray(doc);
+        }
+
+        /// <summary>
+        /// Searches throught custom attributes for any attribute based on
+        /// <paramref name="attributeType" />.
+        /// </summary>
+        /// <param name="member">Member that should be searched for custom attributes based on <paramref name="attributeType" />.</param>
+        /// <param name="attributeType">Custom attribute type that should be searched for; meaning that you want something derived by it.</param>
+        /// <param name="searchMemberHierarchy">Value indicating whether the <paramref name="member" /> class hierarchy should be searched for custom attributes.</param>
+        /// <param name="searchAttributeHierarchy">Value indicating whether the <paramref name="attributeType" /> class hierarchy should be searched for a match.</param>
+        /// <returns>
+        /// A custom attribute matching the search criteria or a null reference 
+        /// when no matching custom attribute is found.
+        /// </returns>
+        protected static Attribute GetDerivedAttribute(MemberInfo member, Type attributeType, bool searchMemberHierarchy, bool searchAttributeHierarchy) {
+            if (searchAttributeHierarchy) {
+                Attribute[] attrs = Attribute.GetCustomAttributes(member, searchMemberHierarchy);
+
+                foreach (Attribute a in attrs) {
+                    Type aType = a.GetType();
+
+                    while (!typeof(object).Equals(aType.BaseType) && aType.BaseType != null) {
+                        if (aType.Equals(attributeType)) {
+                            return a;
+                        }
+                        aType = aType.BaseType;
+                    }
+                }
+            } else {
+                return Attribute.GetCustomAttribute(member, attributeType, searchMemberHierarchy);
+            }
+
+            return null;
+        }
+
+        #endregion Protected Static Methods
+
+        private class NAntSchemaGenerator {
             #region Private Instance Fields
 
             IDictionary _nantComplexTypes = null;
@@ -115,15 +325,16 @@ namespace SourceForge.NAnt.Tasks {
             #region Public Instance Constructors
 
             /// <summary>
-            /// Creates a new SchemaGenerator.
+            /// Creates a new instance of the <see cref="NAntSchemaGenerator" />
+            /// class.
             /// </summary>
-            /// <param name="tasks"></param>
+            /// <param name="tasks">Tasks for which a schema should be generated.</param>
             /// <param name="targetNS">The namespace to use.
             /// <example> http://tempuri.org/nant.xsd </example>
             /// </param>
             public NAntSchemaGenerator(Type[] tasks, string targetNS) {
                 //setup namespace stuff
-                if(targetNS != null && targetNS != string.Empty) {
+                if(targetNS != null && targetNS.Length != 0) {
                     _nantSchema.TargetNamespace = targetNS;
                     _nantSchema.Namespaces.Add("nant", _nantSchema.TargetNamespace);
                     _namespaceURI = targetNS;
@@ -140,17 +351,17 @@ namespace SourceForge.NAnt.Tasks {
                 //initialize stuff
                 _nantComplexTypes = new HybridDictionary(tasks.Length);
                 _tasks = tasks;
-                XmlSchemaComplexType empty_fake = CreateXSDCT("fake-empty", null, null);
+                XmlSchemaComplexType empty_fake = CreateXsdComplexType("fake-empty", null, null);
 
                 //add timestamp and info for project.
-                AddDocumentation(empty_fake, DateTime.Now + " \nGenerated by" + GetType().ToString());
+                AddDocumentation(empty_fake, DateTime.Now.ToString(CultureInfo.InvariantCulture) + " \nGenerated by" + GetType().ToString());
 
                 _nantSchema.Items.Add(empty_fake);
 
                 //create temp list of task Complex Types
                 IList taskCTs = new ArrayList(tasks.Length);
 
-                foreach(Type t in tasks) {
+                foreach (Type t in tasks) {
                     XmlSchemaComplexType taskCT = CreateComplexType(t, ((TaskNameAttribute) GetDerivedAttribute(t, typeof(TaskNameAttribute), false, true)).Name, true);
                     taskCTs.Add(taskCT);
                 }
@@ -158,17 +369,17 @@ namespace SourceForge.NAnt.Tasks {
                 Compile();
 
                 //create target ComplexType
-                XmlSchemaComplexType targetCT = CreateTaskListCT(taskCTs);
+                XmlSchemaComplexType targetCT = CreateTaskListComplexType(taskCTs);
                 targetCT.Name="target";
 
                 //name attribute
-                targetCT.Attributes.Add(CreateXSDAttr("name", true));
+                targetCT.Attributes.Add(CreateXsdAttribute("name", true));
 
                 //default attribute
-                targetCT.Attributes.Add(CreateXSDAttr("depends", false));
+                targetCT.Attributes.Add(CreateXsdAttribute("depends", false));
 
                 //description attribute
-                targetCT.Attributes.Add(CreateXSDAttr("description", false));
+                targetCT.Attributes.Add(CreateXsdAttribute("description", false));
 
                 _nantSchema.Items.Add(targetCT);
 
@@ -181,18 +392,18 @@ namespace SourceForge.NAnt.Tasks {
                 XmlSchemaElement projectElement = new XmlSchemaElement();
                 projectElement.Name = "project";
 
-                XmlSchemaComplexType projectCT = CreateTaskListCT(taskCTs);
+                XmlSchemaComplexType projectCT = CreateTaskListComplexType(taskCTs);
 
                 projectElement.SchemaType =  projectCT;
 
                 //name attribute
-                projectCT.Attributes.Add(CreateXSDAttr("name", true));
+                projectCT.Attributes.Add(CreateXsdAttribute("name", true));
 
                 //default attribute
-                projectCT.Attributes.Add(CreateXSDAttr("default", false));
+                projectCT.Attributes.Add(CreateXsdAttribute("default", false));
 
                 //basedir attribute
-                projectCT.Attributes.Add(CreateXSDAttr("basedir", false));
+                projectCT.Attributes.Add(CreateXsdAttribute("basedir", false));
 
                 _nantSchema.Items.Add(projectElement);
 
@@ -247,40 +458,40 @@ namespace SourceForge.NAnt.Tasks {
                 }
             }
 
-            protected XmlSchemaComplexType FindCTByID(string id) {
+            protected XmlSchemaComplexType FindComplexTypeByID(string id) {
                 if(_nantComplexTypes.Contains(id)) {
                     return (XmlSchemaComplexType)_nantComplexTypes[id];
                 }
                 return null;
             }
 
-/*            protected XmlSchemaComplexType CreateComplexTypeForTask(Type t, string name, bool useRefs) {
+            /*            protected XmlSchemaComplexType CreateComplexTypeForTask(Type t, string name, bool useRefs) {
 
-                XmlSchemaComplexType ct = CreateComplexType(t, name, useRefs);
+                            XmlSchemaComplexType ct = CreateComplexType(t, name, useRefs);
 
-                ct.Content = new XmlSchemaComplexContentExtension();
+                            ct.Content = new XmlSchemaComplexContentExtension();
 
-                ((XmlSchemaComplexContentExtension) ct.ContentModel).BaseTypeName = new XmlQualifiedName("Task", _namespaceURI);
+                            ((XmlSchemaComplexContentExtension) ct.ContentModel).BaseTypeName = new XmlQualifiedName("Task", _namespaceURI);
 
-                return ct;                
+                            return ct;                
 
-            }
+                        }
 
-*/
+            */
 
             protected XmlSchemaComplexType CreateComplexType(Type t, string name, bool useRefs) {
                 XmlSchemaComplexType ct = null;
 
                 if(useRefs) {
                     //lookup the type to see if we have done this already.
-                    ct = FindCTByID(GenerateIDFromClassType(t));
+                    ct = FindComplexTypeByID(GenerateIDFromType(t));
                 }
 
                 if(ct != null) return ct;
 
-                ct = CreateXSDCT(name, GenerateIDFromClassType(t), null);
+                ct = CreateXsdComplexType(name, GenerateIDFromType(t), null);
 
-                XmlSchemaGroupBase group1 = CreateXSDSequence(0, Decimal.MaxValue);
+                XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
 
                 foreach(MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                     if(memInfo.DeclaringType.Equals(typeof(object))) continue;
@@ -292,7 +503,7 @@ namespace SourceForge.NAnt.Tasks {
                     BuildElementAttribute  buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute ), true);
 
                     if(taskAttrAttr != null) {
-                        XmlSchemaAttribute newAttr = CreateXSDAttr(taskAttrAttr.Name, taskAttrAttr.Required);
+                        XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
                         ct.Attributes.Add(newAttr);
                     } else if(buildElemAttr != null) {
                         // Create individial choice for any individual child Element
@@ -300,7 +511,7 @@ namespace SourceForge.NAnt.Tasks {
 
                         if(buildElemAttr.Required) min = 1;
 
-                        XmlSchemaGroupBase elementGroup = CreateXSDSequence(min, Decimal.MaxValue);
+                        XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
                         XmlSchemaElement childElement = new XmlSchemaElement();
                         childElement.Name = buildElemAttr.Name;
 
@@ -341,205 +552,5 @@ namespace SourceForge.NAnt.Tasks {
 
             #endregion Public Instance Methods
         }
-
-        #region Public Static Methods
-
-        /// <summary>
-        /// Creates a NAnt Schema for given types
-        /// </summary>
-        /// <param name="stream">The output stream to save the schema to. If null, writing is ignored, no exception generated</param>
-        /// <param name="tasks">The list of Types to generate Schema for</param>
-        /// <param name="targetNS">The target Namespace to output</param>
-        /// <returns>The new NAnt Schema</returns>
-        public static XmlSchema WriteSchema(System.IO.Stream stream, Type[] tasks, string targetNS) {
-            NAntSchemaGenerator gen = new NAntSchemaGenerator(tasks, targetNS);
-
-            if(!gen.Schema.IsCompiled) {
-                gen.Compile();
-            }
-
-            if (stream != null) {
-                gen.Schema.Write(stream);
-            }
-
-            return gen.Schema;
-        }
-
-        #endregion Public Static Methods
-
-        #region Protected Static Methods
-
-        protected static string GenerateIDFromClassType(Type cls) {
-            return cls.ToString().Replace("+", "-").Replace("[","_").Replace("]","_");
-        }
-
-        /// <summary>
-        /// Creates a new XmlSchemaAttribute
-        /// </summary>
-        /// <param name="name">XmlSchemaAttribute.Name</param>
-        /// <param name="required">sets XmlSchemaAttribute.Use</param>
-        /// <returns>The attribute</returns>
-        protected static XmlSchemaAttribute CreateXSDAttr(string name, bool required) {
-            XmlSchemaAttribute newAttr = new XmlSchemaAttribute();
-
-            newAttr.Name= name;
-
-            if (required) {
-                newAttr.Use = XmlSchemaUse.Required;
-            } else {
-                newAttr.Use = XmlSchemaUse.Optional;
-            }
-
-            return newAttr;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name">ComplexType.Name</param>
-        /// <param name="id">ComplexType.id</param>
-        /// <param name="attrs">ComplexType.Attributes; null indicates none.</param>
-        /// <returns></returns>
-        protected static XmlSchemaComplexType CreateXSDCT(string name, string id, XmlSchemaAttribute[] attrs) {
-            XmlSchemaComplexType newCT = new XmlSchemaComplexType();
-
-            newCT.Name = name;
-            newCT.Id = id;
-
-            if(attrs != null) {
-                foreach(XmlSchemaAttribute attr in attrs) {
-                    newCT.Attributes.Add(attr);
-                }
-            }
-
-            return newCT;
-        }
-
-        /// <summary>
-        /// Generates a new object.
-        /// </summary>
-        /// <param name="min">The min value to allow for this choice</param>
-        /// <param name="max">The max value to allow, Decimal.MaxValue sets it to 'unbound'</param>
-        /// <returns></returns>
-        protected static XmlSchemaChoice CreateXSDChoice(Decimal min, Decimal max) {
-            XmlSchemaChoice newChoice = new XmlSchemaChoice();
-
-            newChoice.MinOccurs = min;
-
-            if (max != Decimal.MaxValue) {
-                newChoice.MaxOccurs = max;
-            } else {
-                newChoice.MaxOccursString = "unbounded";
-            }
-            
-            return newChoice;
-        }
-
-        /// <summary>
-        /// Generates a new object.
-        /// </summary>
-        /// <param name="min">The min value to allow for this choice</param>
-        /// <param name="max">The max value to allow, Decimal.MaxValue sets it to 'unbound'</param>
-        /// <returns></returns>
-        protected static XmlSchemaSequence CreateXSDSequence(Decimal min, Decimal max) {
-            XmlSchemaSequence newSeq = new XmlSchemaSequence();
-
-            newSeq.MinOccurs = min;
-
-            if(max != Decimal.MaxValue) {
-                newSeq.MaxOccurs = max;
-            } else {
-                newSeq.MaxOccursString = "unbounded";
-            }
-            
-            return newSeq;
-        }    
-
-        protected static XmlSchemaComplexType CreateTaskListCT(IList taskComplexTypes) {
-            XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
-
-            tasklistCT.Particle = CreateXSDSequence(0, Decimal.MaxValue);
-
-            XmlSchemaGroupBase group1 = CreateXSDSequence(0, Decimal.MaxValue);
-
-            ((XmlSchemaGroupBase) tasklistCT.Particle).Items.Add(group1);
-
-            //XmlSchemaGroupBase group2 = (XmlSchemaGroupBase)tasklistCT.Particle;
-
-            foreach(XmlSchemaComplexType taskCT in taskComplexTypes) {
-                XmlSchemaGroupBase group2 = CreateXSDSequence(0, Decimal.MaxValue);
-
-                group1.Items.Add(group2);
-
-                XmlSchemaElement taskElement = new XmlSchemaElement();
-                taskElement.Name = taskCT.Name;
-                taskElement.SchemaTypeName = taskCT.QualifiedName;
-
-                group2.Items.Add(taskElement);
-            }
-
-            return tasklistCT;
-        }
-
-        protected static XmlNode[] TextToNodeArray(string text) {
-            XmlDocument doc = new XmlDocument();
-
-            return new XmlNode[1] {doc.CreateTextNode(text)};
-        }
-
-        protected static void AddDocumentation(XmlSchemaAnnotated ann, string doc) {
-            if(ann.Annotation == null) {
-                ann.Annotation = new XmlSchemaAnnotation();
-            }
-
-            XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
-
-            ann.Annotation.Items.Add(schemaDoc);
-
-            schemaDoc.Markup = TextToNodeArray(doc);
-        }
-
-        protected static void AddDocumentation(XmlSchemaAttribute attr, string doc) {
-            if(attr.Annotation == null) {
-                attr.Annotation = new XmlSchemaAnnotation();
-            }
-
-            XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
-
-            attr.Annotation.Items.Add(schemaDoc);
-
-            schemaDoc.Markup = TextToNodeArray(doc);
-        }
-
-        /// <summary>
-        /// Searches throught custom attributes for any attribute based on attr
-        /// </summary>
-        /// <param name="meminfo">MemberInfo (includes Properties/Fields/Types)</param>
-        /// <param name="attr">Type of the Attribute you want; meaning that you want something derived by it.</param>
-        /// <param name="bSearchObjectHier">Search the MemberInfo class ancestry</param>
-        /// <param name="bSearchAttributeHier">Search the Attribute Type ancestry for a mactch to attr</param>
-        /// <returns></returns>
-        protected static Attribute GetDerivedAttribute(MemberInfo meminfo, Type attr, bool bSearchObjectHier, bool bSearchAttributeHier) {
-            if (bSearchAttributeHier) {
-                Attribute[] attrs = Attribute.GetCustomAttributes(meminfo, bSearchObjectHier);
-
-                foreach(Attribute a in attrs) {
-                    Type aType = a.GetType();
-
-                    while (!typeof(object).Equals(aType.BaseType) && aType.BaseType != null) {
-                        if (aType.Equals(attr)) {
-                            return a;
-                        }
-                        aType = aType.BaseType;
-                    }
-                }
-            } else {
-                return Attribute.GetCustomAttribute(meminfo, attr, bSearchObjectHier);
-            }
-
-            return null;
-        }
-
-        #endregion Protected Static Methods
     }
 }

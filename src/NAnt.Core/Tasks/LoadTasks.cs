@@ -22,6 +22,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Security.Permissions;
 using System.Text;
 using System.Xml;
 
@@ -29,7 +30,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Tells Nant to load a tasks form a given assembly or all assemblies in given directories.
+    /// Loads tasks form a given assembly or all assemblies in given directories.
     /// </summary>
     /// <remarks></remarks>
      /// <example>
@@ -69,7 +70,7 @@ namespace SourceForge.NAnt.Tasks {
 
         string _assembly = null;
         string _path = null;
-        FileSet _fileset = new FileSet();        
+        FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
         
@@ -95,33 +96,33 @@ namespace SourceForge.NAnt.Tasks {
         /// Executes the Load Tasks task.
         /// </summary>
         /// <exception cref="BuildException">A file that has to be copied does not exist or could not be copied.</exception>
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         protected override void ExecuteTask() {
             ValidateAttributes();
             // single file case
-            if ( AssemblyPath != null ) {
-                if ( ! File.Exists(   Project.GetFullPath( AssemblyPath )) ) {
-                    string msg = String.Format(CultureInfo.InvariantCulture,"assembly {0} does not exist. Can't scan for tasks", AssemblyPath );
-                    throw new BuildException( msg, Location );
+            if (AssemblyPath != null) {
+                if (!File.Exists(Project.GetFullPath(AssemblyPath))) {
+                    string msg = String.Format(CultureInfo.InvariantCulture,"assembly {0} does not exist. Can't scan for tasks", AssemblyPath);
+                    throw new BuildException(msg, Location);
                 }  
-                TaskFileSet.FileNames.Add(  Project.GetFullPath( AssemblyPath ) );
-            }
-            else if (Path != null){
-                if ( ! Directory.Exists( Project.GetFullPath( Path )) ){
-                    string msg = String.Format(CultureInfo.InvariantCulture,"path {0} does not exist. Can't scan for tasks", Path );
-                    throw new BuildException( msg, Location );
+                TaskFileSet.FileNames.Add(Project.GetFullPath(AssemblyPath));
+            } else if (Path != null) {
+                if (!Directory.Exists(Project.GetFullPath(Path))) {
+                    string msg = String.Format(CultureInfo.InvariantCulture,"Path {0} does not exist. Can't scan for tasks", Path);
+                    throw new BuildException(msg, Location);
                 }
-                TaskFileSet.DirectoryNames.Add( Project.GetFullPath( Path ) );
+                TaskFileSet.DirectoryNames.Add(Project.GetFullPath(Path));
             }
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
-                Log.WriteLine( LogPrefix + "Loading Tasks from Assembly {0}", assemblyPath );
-                TaskFactory.AddTasks( Assembly.LoadFrom(assemblyPath) );
+                Log.WriteLine(LogPrefix + "Loading Tasks from Assembly {0}", assemblyPath);
+                TaskFactory.AddTasks(Assembly.LoadFrom(assemblyPath));
             }
             // now the filenames
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
-                Log.WriteLine( LogPrefix + "Scanning directory {0} for task assemblies", scanPath );
-                TaskFactory.ScanDir( scanPath );
-            }            
+                Log.WriteLine(LogPrefix + "Scanning directory {0} for task assemblies", scanPath);
+                TaskFactory.ScanDir(scanPath);
+            }
         }
 
         #endregion Override implemenation of Task
@@ -130,7 +131,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>
         /// Validates the attributes.
-        /// </summary>        
+        /// </summary>
         /// <exception cref="BuildException">Both <see cref="AssemblyPath" /> and <see cref="Path" /> are set.</exception>
         protected void ValidateAttributes(){ 
             //verify that our params are correct
