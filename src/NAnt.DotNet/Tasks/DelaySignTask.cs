@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU Library General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.DotNet.Tasks;
-using StringBuilder = System.Text.StringBuilder;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -51,8 +52,9 @@ namespace NAnt.DotNet.Tasks {
     /// </example>
     [TaskName("delay-sign")]
     [ProgramLocation(LocationType.FrameworkSdkDir)]
-    public class DelaySignTask : ExternalProgramBase  {
+    public class DelaySignTask : ExternalProgramBase {
         #region Private Instance Fields
+
         private FileSet _targets        = new FileSet();
         private string  _keyFilename    = null;
         private string  _keyContainer   = null;
@@ -61,10 +63,11 @@ namespace NAnt.DotNet.Tasks {
         private string _exeName         = "sn"; 
         
         #endregion Private Instance Fields
-                       
-        
+
+        #region Public Instance Properties
+
         /// <summary>
-        /// Takes a list of assemblies/executables to sign
+        /// Takes a list of assemblies/executables to sign.
         /// </summary>
         [FileSet("targets")]
         public FileSet Targets {
@@ -73,14 +76,12 @@ namespace NAnt.DotNet.Tasks {
         }
         
         /// <summary>
-        /// Specifies the filesystem path to the signing key
+        /// Specifies the filesystem path to the signing key.
         /// </summary>
         [TaskAttribute("keyfile")]
         public string KeyFile {
-            //get { return (_keyFilename != null) ? Project.GetFullPath(_keyFilename) : null; }           
-            get { return _keyFilename; }
-            set { _keyFilename = setStringValue(value); }
-           
+            get { return (_keyFilename != null) ? Project.GetFullPath(_keyFilename) : null; }
+            set { _keyFilename = SetStringValue(value); }
         }
 
         /// <summary>
@@ -88,19 +89,23 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("keycontainer")]
         public string KeyContainer {
-            get { return (_keyContainer != null) ? Project.GetFullPath(_keyContainer) : null; }                 
-            set { _keyContainer = setStringValue(value); }
-            
+            get { return _keyContainer; }
+            set { _keyContainer = SetStringValue(value); }
         }
-                
+
         /// <summary>
-        /// Specifies whether non-error output should be suppressed.
+        /// Specifies whether non-error output should be suppressed. Default
+        /// is <c>true</c>.
         /// </summary>
         [TaskAttribute("quiet")]
         public bool Quiet {
-            get { return _quiet;  }
+            get { return _quiet; }
             set { _quiet = value; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
 
         /// <summary>
         /// Gets the command line arguments for the external program.
@@ -108,41 +113,43 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// The command line arguments for the external program.
         /// </value>
-        public override string ProgramArguments  { 
-            get { return _arguments; } 
+        public override string ProgramArguments { 
+            get { return _arguments; }
         }
 
         /// <summary>
         /// Override the ExeName paramater for sn.exe
-        /// </summary>       
+        /// </summary>
         [FrameworkConfigurable("exename")]
-        public override string ExeName {            
+        public override string ExeName {
             get { return _exeName; }
-            set { _exeName = setStringValue(value); }
+            set { _exeName = SetStringValue(value); }
         }
-        
+
         /// <summary>
         /// Converts a single file or group of files.
         /// </summary>
         protected override void ExecuteTask() {
-            bool keyAvail = (KeyFile != null );
-            bool containerAvail = (KeyContainer != null );
-            if ((keyAvail && containerAvail) ||
-                (! keyAvail && ! containerAvail)) {
-                throw new BuildException
-                    ("either 'keyfile' or 'keycontainer' must be specified");
+            bool keyAvail = KeyFile != null;
+            bool containerAvail = KeyContainer != null;
+            string keyname = containerAvail ? KeyContainer : KeyFile;
+
+            if ((keyAvail && containerAvail) || (! keyAvail && ! containerAvail)) {
+                throw new BuildException("Either 'keyfile' or 'keycontainer' must be specified.");
             }
 
-            string keyname =  (containerAvail ? KeyContainer : KeyFile);
-
-            foreach (string filename in Targets.FileNames)  {
+            foreach (string filename in Targets.FileNames) {
                 // Try to guess the buffer length
                 // Add 12 for "-R", maybe 'c' and "-q", and spaces/ quotes.
                 StringBuilder arguments = new StringBuilder (9 + filename.Length + keyname.Length);
+
                 if (Quiet) {
                     arguments.Append("-q ");
                 }
+
+                // indicate that we want to resign a previously signed or delay-signed assembly
                 arguments.Append("-R");
+
                 if (containerAvail) {
                     arguments.Append('c');
                 }
@@ -155,5 +162,7 @@ namespace NAnt.DotNet.Tasks {
                 base.ExecuteTask();
             }
         }
+
+        #endregion Override implementation of ExternalProgramBase
     }
 }
