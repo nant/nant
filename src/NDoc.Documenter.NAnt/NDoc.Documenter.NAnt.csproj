@@ -108,12 +108,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAntTaskDocumenter.cs"
+                    RelPath = "NAntDocumenter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAntTaskDocumenterConfig.cs"
+                    RelPath = "NAntDocumenterConfig.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
