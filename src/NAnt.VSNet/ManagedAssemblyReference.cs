@@ -235,6 +235,8 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         private string GetComponentAssemblyFolder(XmlElement referenceElement) {
+            string componentAssemblyFolder = null;
+
             if (referenceElement.Attributes["AssemblyFolderKey"] != null) {
                 string assemblyFolderKey = referenceElement.Attributes["AssemblyFolderKey"].Value;
 
@@ -284,15 +286,29 @@ namespace NAnt.VSNet {
                     repositoryKey = registryHive.OpenSubKey(AssemblyFoldersKey);
                 }
 
-                RegistryKey componentKey = repositoryKey.OpenSubKey(assemblyFolderKeyParts[assemblyFolderKeyParts.Length - 1]);
-                if (componentKey != null) {
-                    string folder = componentKey.GetValue(string.Empty) as string;
-                    if (folder != null) {
-                        return folder;
+                if (repositoryKey != null) {
+                    RegistryKey componentKey = repositoryKey.OpenSubKey(
+                        assemblyFolderKeyParts[assemblyFolderKeyParts.Length - 1]);
+                    if (componentKey != null) {
+                        string folder = componentKey.GetValue(string.Empty) as string;
+                        if (folder != null) {
+                            componentAssemblyFolder = folder;
+                        } else {
+                            Log(Level.Debug, "Default value for AssemblyFolder"
+                                + " \"{0}\" does not exist or is not a string"
+                                + " value.", assemblyFolderKey);
+                        }
+                    } else {
+                        Log(Level.Debug, "Component key for AssemblyFolder \"{0}\""
+                            + " does not exist.", assemblyFolderKey);
                     }
+                } else {
+                    Log(Level.Debug, "Repository for AssemblyFolder \"{0}\" does"
+                        + " not exist.", assemblyFolderKey);
                 }
             }
-            return null;
+
+            return componentAssemblyFolder;
         }
 
         protected override string ResolveFromAssemblyFolders(XmlElement referenceElement, string fileName) {
@@ -319,7 +335,7 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private string _assemblyFile;
+        private readonly string _assemblyFile;
         private readonly bool _isPrivateSpecified;
         private readonly bool _isPrivate;
         private readonly string _name = string.Empty;
