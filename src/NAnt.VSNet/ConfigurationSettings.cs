@@ -154,6 +154,29 @@ namespace NAnt.VSNet {
             get { return _outputDir; }
         }
 
+        /// <summary>
+        /// Get the directory in which compiled resource files will be stored
+        /// for this configuration.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a directory relative to the project directory named 
+        /// <c>obj\&lt;configuration name&gt;</c>.
+        /// </para>
+        /// <para>
+        /// <c>.resx</c> and <c>.licx</c> files will only be recompiled if the
+        /// compiled resource files in the <see cref="ObjectDir" /> are not 
+        /// uptodate.
+        /// </para>
+        /// </remarks>
+        public DirectoryInfo ObjectDir {
+            get { 
+                return new DirectoryInfo(Path.Combine(
+                    Path.Combine(Project.ProjectSettings.ProjectDirectory.FullName, "obj"),
+                    Name));
+            }
+        }
+
         public override string OutputPath {
             get { return Path.Combine(OutputDir.FullName, Project.ProjectSettings.OutputFileName); }
         }
