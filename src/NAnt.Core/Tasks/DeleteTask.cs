@@ -35,19 +35,27 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>Delete a single file.</para>
-    ///   <code>&lt;delete file="myfile.txt"/&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <delete file="myfile.txt" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Delete a directory and the contents within.  If the directory does not exist the task does nothing.</para>
-    ///   <code>&lt;delete dir="${build.dir}" failonerror="false"/&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <delete dir="${build.dir}" failonerror="false" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Delete a set of files.  Note the lack of file attribute in the delete element.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <delete>
     ///     <fileset>
-    ///         <includes name="${basename}-??.exe"/>
-    ///         <includes name="${basename}-??.pdb"/>
+    ///         <includes name="${basename}-??.exe" />
+    ///         <includes name="${basename}-??.pdb" />
     ///     </fileset>
     /// </delete>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("delete")]

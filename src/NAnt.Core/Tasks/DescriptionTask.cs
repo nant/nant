@@ -27,7 +27,11 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <example>
     ///   <para>Set a description.</para>
-    ///   <code><![CDATA[<description>This is a description.</description>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <description>This is a description.</description>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("description")]
     public class DescriptionTask : Task {

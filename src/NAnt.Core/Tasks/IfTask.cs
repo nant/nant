@@ -30,7 +30,7 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <remarks>
     ///     <para>If no conditions are checked, all child tasks are executed. 
-    ///     True is the default condition result (with no conditions specified).</para>
+    ///     <c>True</c> is the default condition result (with no conditions specified).</para>
     ///     <para>If more than one attribute is used, they are &amp;&amp;'d. The first to fail stops the check.</para>
     ///     <para>The order of condition evaluation is, target, propertyexists, propertytrue, uptodate.</para>
     /// </remarks>
@@ -38,9 +38,9 @@ namespace NAnt.Core.Tasks {
     ///   <para>Check that a target exists</para>
     ///   <code>
     ///   <![CDATA[
-    ///   <target name="myTarget"/>
+    ///   <target name="myTarget" />
     ///   <if targetexists="myTarget">
-    ///     <echo message="myTarget exists."/>
+    ///     <echo message="myTarget exists" />
     ///   </if>
     ///   ]]>
     ///   </code>
@@ -48,39 +48,39 @@ namespace NAnt.Core.Tasks {
     /// <example>
     ///   <para>Check existence of a property</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <if propertyexists="myProp">
-    ///     <echo message="myProp Exists. Value='${myProp}'"/>
-    ///   </if>
-    ///   ]]>
+    ///     <![CDATA[
+    /// <if propertyexists="myProp">
+    ///     <echo message="myProp Exists. Value='${myProp}'" />
+    /// </if>
+    ///     ]]>
     ///   </code>
     ///   <para>Check that a property value is true</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <if propertytrue="myProp">
-    ///     <echo message="myProp is true. Value='${myProp}'"/>
-    ///   </if>
-    ///   ]]>
+    ///     <![CDATA[
+    /// <if propertytrue="myProp">
+    ///     <echo message="myProp is true. Value='${myProp}'" />
+    /// </if>
+    ///     ]]>
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Check that a property exists and is true (uses multiple conditions)</para>
+    ///   <para>Check that a property exists and is <c>true</c> (uses multiple conditions)</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <if propertyexists="myProp" propertytrue="myProp">
-    ///     <echo message="myProp is '${myProp}'"/>    
-    ///   </if>
-    ///   ]]>
+    ///     <![CDATA[
+    /// <if propertyexists="myProp" propertytrue="myProp">
+    ///     <echo message="myProp is '${myProp}'" />
+    /// </if>
+    ///     ]]>
     ///   </code>
     ///   <para>which is the same as</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <if propertyexists="myProp">
+    ///     <![CDATA[
+    /// <if propertyexists="myProp">
     ///     <if propertytrue="myProp">
-    ///         <echo message="myProp is '${myProp}'"/>    
+    ///         <echo message="myProp is '${myProp}'" />
     ///     </if>
-    ///   </if>
-    ///   ]]>
+    /// </if>
+    ///     ]]>
     ///   </code>
     /// </example>
     /// <para>
@@ -91,22 +91,22 @@ namespace NAnt.Core.Tasks {
     /// <example>
     ///   <para>Checks file dates. If myfile.dll is uptodate, then do stuff.</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <if uptodatefile="myfile.dll" comparefile="myfile.cs">
-    ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
-    ///   </if>
-    ///   ]]>
+    ///     <![CDATA[
+    /// <if uptodatefile="myfile.dll" comparefile="myfile.cs">
+    ///     <echo message="myfile.dll is newer/same-date as myfile.cs" />
+    /// </if>
+    ///     ]]>
     ///   </code>
     ///   <para>or</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <if uptodatefile="myfile.dll">
+    ///     <![CDATA[
+    /// <if uptodatefile="myfile.dll">
     ///     <comparefiles>
-    ///         <includes name="*.cs"/>
+    ///         <includes name="*.cs" />
     ///     </comparefiles>
-    ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
-    ///   </if>
-    ///   ]]>
+    ///     <echo message="myfile.dll is newer/same-date as myfile.cs" />
+    /// </if>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("if")]

@@ -38,50 +38,85 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>Gets the index page of the NAnt home page, and stores it in the file help/index.html.</para>
-    ///   <code>&lt;get src="http://nant.sourceforge.org/" dest="help/index.html"/&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <get src="http://nant.sourceforge.org/" dest="help/index.html" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("get")]
     public class GetTask : Task {
         #region Private Instance Fields
 
-        string _src = null;
-        string _dest = null;
-        string _proxy = null;
-        bool _ignoreErrors = false;
-        bool _useTimeStamp = false;
-        FileSet _fileset = new FileSet();
+        private string _src = null;
+        private string _dest = null;
+        private string _proxy = null;
+        private bool _ignoreErrors = false;
+        private bool _useTimeStamp = false;
+        private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        /// <summary>The URL from which to retrieve a file.</summary>
+        /// <summary>
+        /// The URL from which to retrieve a file.
+        /// </summary>
         [TaskAttribute("src", Required=true)]
-        public string Source { get { return _src; } set { _src = value; } }
+        public string Source {
+            get { return _src; }
+            set { _src = value; }
+        }
 
-        /// <summary>The file where to store the retrieved file.</summary>
+        /// <summary>
+        /// The file where to store the retrieved file.
+        /// </summary>
         [TaskAttribute("dest", Required=true)]
-        public string Destination { get { return _dest; } set { _dest = value; }}
+        public string Destination {
+            get { return _dest; }
+            set { _dest = value; }
+        }
 
-        /// <summary>If inside a firewall, proxy server/port information
+        /// <summary>
+        /// If inside a firewall, proxy server/port information
         /// Format: {proxy server name}:{port number}
-        /// Example: proxy.mycompany.com:8080 </summary>
+        /// Example: proxy.mycompany.com:8080 
+        /// </summary>
         [TaskAttribute("httpproxy")]
-        public string Proxy { get { return _proxy; } set { _proxy = value; } }
+        public string Proxy {
+            get { return _proxy; }
+            set { _proxy = value; }
+        }
 
-        /// <summary>Log errors but don't treat as fatal. ("true"/"false"). Default is "false".</summary>
+        /// <summary>
+        /// Log errors but don't treat as fatal. Default is <c>false</c>.
+        /// </summary>
         [TaskAttribute("ignoreerrors")]
         [BooleanValidator()]
-        public bool IgnoreErrors {  get { return _ignoreErrors; } set { _ignoreErrors = value; } }
+        public bool IgnoreErrors {
+            get { return _ignoreErrors; }
+            set { _ignoreErrors = value; }
+        }
 
-        /// <summary>Conditionally download a file based on the timestamp of the local copy. HTTP only. ("true"/"false"). Default is "false".</summary>
+        /// <summary>
+        /// Conditionally download a file based on the timestamp of the local 
+        /// copy. HTTP only. Default is <c>false</c>.
+        /// </summary>
         [TaskAttribute("usetimestamp")]
         [BooleanValidator()]
-        public bool UseTimeStamp { get { return _useTimeStamp; }  set { _useTimeStamp = value; } }
+        public bool UseTimeStamp {
+            get { return _useTimeStamp; }
+            set { _useTimeStamp = value; }
+        }
 
-        /// <summary>FileSets are used to select files to get.</summary>
+        /// <summary>
+        /// FileSets are used to select files to get.
+        /// </summary>
         [FileSet("fileset")]
-        public FileSet FileSet { get { return _fileset; } set {_fileset = value; } }
+        public FileSet FileSet {
+            get { return _fileset; }
+            set {_fileset = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -107,7 +142,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
-        /// <summary>This is where the work is done </summary>
+        /// <summary>
+        /// This is where the work is done 
+        /// </summary>
         protected override void ExecuteTask() {
             try {
                 //set the timestamp to the file date.

@@ -39,16 +39,20 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>Copy a single file.</para>
-    ///   <code>&lt;copy file="myfile.txt" tofile="mycopy.txt"/&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <copy file="myfile.txt" tofile="mycopy.txt" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Copy a set of files to a new directory.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <copy todir="${build.dir}">
     ///     <fileset basedir="bin">
-    ///         <includes name="*.dll"/>
+    ///         <includes name="*.dll" />
     ///     </fileset>
     /// </copy>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("copy")]
@@ -94,7 +98,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Overwrite existing files even if the destination files are newer. Defaults to "false".
+        /// Overwrite existing files even if the destination files are newer. 
+        /// Defaults to <c>false</c>.
         /// </summary>
         [TaskAttribute("overwrite")]
         [BooleanValidator()]
@@ -104,7 +109,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Filesets are used to select files to copy. To use a fileset, the todir attribute must be set.
+        /// Filesets are used to select files to copy. To use a fileset, the 
+        /// <see cref="P:ToDirectory" /> attribute must be set.
         /// </summary>
         [FileSet("fileset")]
         public FileSet CopyFileSet {

@@ -32,7 +32,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>Ping nant.sourceforge.net.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <exec program="ping" commandline="nant.sourceforge.net"/>
+    /// <exec program="ping" commandline="nant.sourceforge.net" />
     ///     ]]>
     ///   </code>
     /// </example>

@@ -32,12 +32,24 @@ namespace NAnt.Core.Tasks {
     ///   <note>NAnt uses a number of predefined properties.</note>
     /// </remarks>
     /// <example>
-    ///   <para>Define a <c>debug</c> property with the value <c>true</c>.</para>
-    ///   <code><![CDATA[<property name="debug" value="true"/>]]></code>
+    ///   <para>Define a <c>debug</c> property with value <c>true</c>.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <property name="debug" value="true" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Use the user-defined <c>debug</c> property.</para>
-    ///   <code><![CDATA[<property name="trace" value="${debug}"/>]]></code>
-    ///   <para>Define a Read-Only property.</para><para>This is just like passing in the param on the command line.</para>
-    ///   <code><![CDATA[<property name="do_not_touch_ME" value="hammer" readonly="true"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <property name="trace" value="${debug}" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Define a read-only property.</para><para>This is just like passing in the param on the command line.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <property name="do_not_touch_ME" value="hammer" readonly="true"/>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("property")]
     public class PropertyTask : Task {
@@ -71,7 +83,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Specifies whether the property is read-only or not. Default is "false".
+        /// Specifies whether the property is read-only or not. 
+        /// Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
@@ -83,7 +96,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Specifies whether the value of a property should be overwritten if
         /// the property already exists (unless the property is readonly). 
-        /// Default is "true".
+        /// Default is <c>true</c>.
         /// </summary>
         [TaskAttribute("overwrite", Required=false)]
         [BooleanValidator()]

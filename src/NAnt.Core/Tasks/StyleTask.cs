@@ -48,30 +48,36 @@ namespace NAnt.Core.Tasks {
     /// </example>
     /// <example>
     ///   <para>Create a report in HTML, with a param.</para>
-    ///   <code><![CDATA[
-    ///     <style style="report.xsl" in="data.xml" out="report.html">
-    ///         <param name="reportType" expression="Plain"/>
-    ///     </style>
-    ///   ]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <style style="report.xsl" in="data.xml" out="report.html">
+    ///     <param name="reportType" expression="Plain" />
+    /// </style>
+    ///     ]]>
+    ///   </code>
     /// </example>
     /// <example>
     ///   <para>Create a report in HTML, with a expanded param.</para>
-    ///   <code><![CDATA[
-    ///     <style style="report.xsl" in="data.xml" out="report.html">
-    ///         <param name="reportType" expression="${report.type}"/>
-    ///     </style>
-    ///   ]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <style style="report.xsl" in="data.xml" out="report.html">
+    ///     <param name="reportType" expression="${report.type}" />
+    /// </style>
+    ///     ]]>
+    ///   </code>
     /// </example>
     /// <example>
     /// <para>Create a some code based on a directory of templates.</para>
-    ///   <code><![CDATA[
+    ///   <code>
+    ///     <![CDATA[
     /// <style style="CodeGenerator.xsl" extension="java">
     ///   <infiles>
-    ///     <includes name="*.xml"/>
+    ///     <includes name="*.xml" />
     ///   </infiles>
     /// <style>
-    /// ]]></code>
-    /// </example> 
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("style")]
     public class StyleTask : Task {
         #region Private Instance Fields
@@ -98,7 +104,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("destdir", Required=false)]
         public string DestDir                  { get { return _destDir; } set { _destDir = value; } }
         
-        /// <summary>Desired file extension to be used for the targets. The default is "html".</summary>
+        /// <summary>Desired file extension to be used for the targets. Default is <c>html</c>.</summary>
         [TaskAttribute("extension", Required=false)]
         public string Extension                { get { return _extension; } set { _extension = value; } }
         

@@ -41,7 +41,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>Writes a message with expanded macro to the build log.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <echo message="Base build directory = ${nant.project.basedir}"/>
+    /// <echo message="Base build directory = ${nant.project.basedir}" />
     ///     ]]>
     ///   </code>
     ///   <para>Functionally equivalent to the previous example.</para>

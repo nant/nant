@@ -35,20 +35,28 @@ namespace NAnt.Core.Tasks {
     ///   <para>Refer to the <a href="ms-help://MS.NETFrameworkSDK/cpref/html/frlrfSystemIOFileAttributesClassTopic.htm">FileAttributes</a> enumeration in the .NET SDK for more information about file attributes.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Set the ReadOnly attribute to true for the specified file in the project directory.</para>
-    ///   <code><![CDATA[<attrib file="myfile.txt" readonly="true"/>]]></code>
+    ///   <para>Set the read-only attribute for the specified file in the project directory.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <attrib file="myfile.txt" readonly="true" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Set the normal file attributes to the specified file.</para>
-    ///   <code><![CDATA[<attrib file="myfile.txt" normal="true"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <attrib file="myfile.txt" normal="true" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Set the normal file attributes to all executable files in the current project directory and sub-directories.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <attrib normal="true">
     ///     <fileset>
-    ///         <includes name="**/*.exe"/>
-    ///         <includes name="**/*.dll"/>
+    ///         <includes name="**/*.exe" />
+    ///         <includes name="**/*.dll" />
     ///     </fileset>
     /// </attrib>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("attrib")]
