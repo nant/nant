@@ -97,13 +97,16 @@ namespace SourceForge.NAnt.Attributes {
         /// otherwise, <c>false</c>.
         /// </returns>
         public override bool Validate(object value) {
+            Int32 intValue;
+
             try {
-                Int32 intValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
-                if (intValue < MinValue || intValue > MaxValue) {
-                    throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue));
-                }
+                intValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
             } catch (Exception) {
                 throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer value.", value.ToString()));
+            }
+
+            if (intValue < MinValue || intValue > MaxValue) {
+                throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue));
             }
             return true;
         }
