@@ -37,7 +37,7 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="File" in="c:\" property="filename">
-    ///     <echo message="${filename}"/>
+    ///     <echo message="${filename}" />
     /// </foreach>    
     ///     ]]>
     ///   </code>
@@ -47,20 +47,20 @@ namespace NAnt.Core.Tasks {
     /// <foreach item="File" property="filename">
     ///     <in>
     ///         <items>
-    ///             <includes name="**"/>
+    ///             <includes name="**" />
     ///         </items>
     ///     </in>
     ///     <do>
-    ///         <echo message="${filename}"/>
+    ///         <echo message="${filename}" />
     ///     </do>
-    /// </foreach>    
+    /// </foreach>
     ///     ]]>
     ///   </code>
     ///   <para>Loops over the folders in C:\</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="Folder" in="c:\" property="foldername">
-    ///     <echo message="${foldername}"/>
+    ///     <echo message="${foldername}" />
     /// </foreach>
     ///     ]]>
     ///   </code>
@@ -70,20 +70,20 @@ namespace NAnt.Core.Tasks {
     /// <foreach item="Folder" property="foldername">
     ///     <in>
     ///         <items>
-    ///             <includes name="**"/>
+    ///             <includes name="**" />
     ///         </items>
     ///     </in>
     ///     <do>
-    ///         <echo message="${foldername}"/>
+    ///         <echo message="${foldername}" />
     ///     </do>
-    /// </foreach>    
+    /// </foreach>
     ///     ]]>
     ///   </code>
     ///   <para>Loops over a list</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="String" in="1 2,3" delim=" ," property="count">
-    ///     <echo message="${count}"/>
+    ///     <echo message="${count}" />
     /// </foreach>
     ///     ]]>
     ///   </code>
@@ -91,7 +91,7 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="Line" in="properties.csv" delim="," property="x,y">
-    ///     <echo message="Read pair ${x}=${y}"/>
+    ///     <echo message="Read pair ${x}=${y}" />
     /// </foreach>
     ///     ]]>
     ///   </code>
@@ -105,6 +105,7 @@ namespace NAnt.Core.Tasks {
             String,
             Line
         }
+
         public enum LoopTrim {
             None,
             End,
@@ -114,24 +115,29 @@ namespace NAnt.Core.Tasks {
 
         #region Private Instance Fields
 
-        string _prop = null;
-        string[] _props = null;
-        LoopItem _loopItem = LoopItem.None;
-        LoopTrim _loopTrim = LoopTrim.None;
-        string _inAttribute = null;
-        string _delim = null;
-        InElement _inElement = null;
-        TaskContainer _doStuff = null;
+        private string _prop = null;
+        private string[] _props = null;
+        private LoopItem _loopItem = LoopItem.None;
+        private LoopTrim _loopTrim = LoopTrim.None;
+        private string _inAttribute = null;
+        private string _delim = null;
+        private InElement _inElement = null;
+        private TaskContainer _doStuff = null;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        /// <summary>The NAnt propperty name(s) that should be used for the current iterated item.</summary>
-        /// <remarks>If specifying multiple properties, separate them with a comma.</remarks>
+        /// <summary>
+        /// The NAnt property name(s) that should be used for the current 
+        /// iterated item.
+        /// </summary>
+        /// <remarks>
+        /// If specifying multiple properties, separate them with a comma.
+        /// </remarks>
         [TaskAttribute("property", Required=true)]
-        public string Property { 
-            get { return _prop; } 
+        public string Property {
+            get { return _prop; }
             set {
                 _prop = value;
                 _props = _prop.Split(',');
@@ -144,40 +150,64 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The type of iteration that should be done.
+        /// The type of iteration that should be done - either <see cref="F:LoopItem.File" />,
+        /// <see cref="F:LoopItem.Folder" />, <see cref="F:LoopItem.String" /> or
+        /// <see cref="F:LoopItem.Line" />.
         /// </summary>
         [TaskAttribute("item", Required=true)]
-        public LoopItem ItemType   { get { return _loopItem;} set { _loopItem = value; }}
+        public LoopItem ItemType {
+            get { return _loopItem;}
+            set { _loopItem = value; }
+        }
 
         /// <summary>
-        /// The type of whitespace trimming that should be done.
+        /// The type of whitespace trimming that should be done - either
+        /// <see cref="F:LoopTrim.None" />, <see cref="F:LoopTrim.End" />,
+        /// <see cref="F:LoopTrim.Start" /> or <see cref="F:LoopTrim.Both" />.
+        /// Default is <see cref="F:LoopTrim.None" />.
         /// </summary>
         [TaskAttribute("trim")]
-        public LoopTrim TrimType   { get { return _loopTrim;} set { _loopTrim = value; }}
+        public LoopTrim TrimType {
+            get { return _loopTrim;}
+            set { _loopTrim = value; }
+        }
 
         /// <summary>
         /// The source of the iteration.
         /// </summary>
         [TaskAttribute("in", Required=false)]
-        public string Source   { get { return _inAttribute;} set { _inAttribute = value; }}
+        public string Source {
+            get { return _inAttribute;}
+            set { _inAttribute = value; }
+        }
 
         /// <summary>
         /// The deliminator char.
         /// </summary>
         [TaskAttribute("delim")]
-        public string Delimiter { get { return _delim;} set { _delim = value; }}
+        public string Delimiter {
+            get { return _delim; }
+            set { _delim = value; }
+        }
 
         /// <summary>
-        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
+        /// Stuff to operate in. Just like the in attribute, but supports more 
+        /// complicated things like filesets and such.
         /// </summary>
         [BuildElement("in")]
-        public InElement InElement { get { return _inElement; } set { _inElement = value; }}
+        public InElement InElement {
+            get { return _inElement; }
+            set { _inElement = value; }
+        }
 
         /// <summary>
-        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
+        /// Tasks to execute for each matching item.
         /// </summary>
         [BuildElement("do")]
-        public TaskContainer StuffToDo { get { return _doStuff; } set { _doStuff = value; }}
+        public TaskContainer StuffToDo {
+            get { return _doStuff; }
+            set { _doStuff = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -331,7 +361,7 @@ namespace NAnt.Core.Tasks {
     public class InElement : Element {
         #region Private Instance Fields
 
-        FileSet _items = null;
+        private FileSet _items = null;
 
         #endregion Private Instance Fields
 
