@@ -43,7 +43,7 @@ namespace SourceForge.NAnt.Tests {
                         </if>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, olderFP, newerFP));
-            Log.WriteLine(result);
+            //Log.WriteLine(result);
             Assertion.Assert(result.IndexOf("is newer than") != -1);
         }
 
