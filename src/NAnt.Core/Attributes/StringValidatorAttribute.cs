@@ -19,6 +19,7 @@
 
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 using NAnt.Core.Util;
 
@@ -56,6 +57,18 @@ namespace NAnt.Core.Attributes {
             set { _allowEmpty = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a regular expression.  The string will be validated to
+        ///     determine if it matches the expression.
+        /// </summary>
+        /// <value>
+        /// <see cref="System.Text.RegularExpressions"/>
+        /// </value>
+        public string Expression {
+            get { return _expression; }
+            set { _expression = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ValidatorAttribute
@@ -79,6 +92,14 @@ namespace NAnt.Core.Attributes {
             if (!AllowEmpty && StringUtils.IsNullOrEmpty(valueString)) {
                 throw new ValidationException("An empty value is not allowed.");
             }
+
+            if (null != StringUtils.ConvertEmptyToNull(Expression)) {
+                if (!Regex.IsMatch(Convert.ToString(value), Expression)) {
+                    throw new ValidationException(
+                        String.Format("String {0} does not match expression {1}.",
+                            value, Expression));
+                }
+            }
         }
 
         #endregion Override implementation of ValidatorAttribute
@@ -86,6 +107,7 @@ namespace NAnt.Core.Attributes {
         #region Private Instance Fields
 
         private bool _allowEmpty = true;
+        private string _expression;
 
         #endregion Private Instance Fields
     }
