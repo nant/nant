@@ -47,6 +47,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("al")]
+    [ProgramLocation(LocationType.FrameworkDir)]
     public class AssemblyLinkerTask : NAnt.Core.Tasks.ExternalProgramBase {
         #region Private Instance Fields
 
@@ -56,7 +57,6 @@ namespace NAnt.DotNet.Tasks {
         private string _culture = null;
         private string _template = null;
         private string _keyfile = null;
-        private string _exeName = null;
         private FileSet _sources = new FileSet();
 
         #endregion Private Instance Fields
@@ -181,47 +181,6 @@ namespace NAnt.DotNet.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
-
-        /// <summary>
-        /// Gets or sets the name of the executable that should be used to launch 
-        /// the external program.
-        /// </summary>
-        /// <value>
-        /// The name of the executable that should be used to launch the external
-        /// program, or <see langword="null" /> if no name is configured or 
-        /// specified.
-        /// </value>
-        /// <remarks>
-        /// If available, the configured value in the NAnt configuration
-        /// file will be used if no name is specified.
-        /// </remarks>
-        [FrameworkConfigurable("exename", Required=false)]
-        public override string ExeName {
-            get { return _exeName; }
-            set { _exeName = value; }
-        }
-
-        /// <summary>
-        /// Gets the filename of the external program to start.
-        /// </summary>
-        /// <value>The filename of the external program.</value>
-        public override string ProgramFileName {
-            get {
-                if (Project.CurrentFramework != null) {
-                    if (ExeName != null) {
-                        string frameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                        return Path.Combine(frameworkDir, ExeName + ".exe");
-                    } else {
-                        throw new BuildException(
-                            string.Format(CultureInfo.InvariantCulture, 
-                            "The {0} task is not available or not configured for the {1} framework.", 
-                            Name, Project.CurrentFramework.Name));
-                    }
-                } else {
-                    return (ExeName != null) ? ExeName : Name;
-                }
-            }
-        }
 
         /// <summary>
         /// Gets the command-line arguments for the external program.
