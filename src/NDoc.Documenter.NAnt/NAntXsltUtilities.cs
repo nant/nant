@@ -345,7 +345,7 @@ namespace NDoc.Documenter.NAnt {
             }
             
             XmlNode classNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
-            if(classNode == null) {
+            if (classNode == null) {
                 //System.Console.WriteLine("Could not find: {0}", id);
             }
             return classNode;

@@ -143,8 +143,6 @@ namespace NDoc.Documenter.NAnt {
             // crate the master xml document that contains all the documentation
             MakeXml(project);
 
-
-
             // create a xml document that will get transformed by xslt
             _xmlDocumentation = new XmlDocument();
             _xmlDocumentation.LoadXml( XmlBuffer); 
