@@ -857,7 +857,7 @@ namespace SourceForge.NAnt {
             ProcessFrameworkInfo(frameworkInfoNodes);
             
             string defaultFramework = GetXmlAttributeValue(node, "defaultframework");
-            if ( _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
+            if (defaultFramework != null && _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
                 
                 Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );
                 Properties.Add("nant.settings.currentframework", defaultFramework );
@@ -866,7 +866,7 @@ namespace SourceForge.NAnt {
                 CurrentFramework = _defaultFramework;
             }   
             else {        
-                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
+                Log.WriteLine( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
             }
 
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)

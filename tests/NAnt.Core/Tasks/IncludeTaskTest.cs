@@ -74,8 +74,8 @@ namespace SourceForge.NAnt.Tests {
             try {
                 RunBuild(formatNestedTask);
                 Assertion.Fail("Task appears in target element but BuildException not thrown.");
-            } catch (BuildException e) {
-                Assertion.Assert("Build exception should have been because of a nested task.\n" + e.Message, e.Message.IndexOf("Task not allowed in targets.") != -1);
+            } catch (TestBuildException e) {
+                Assertion.Assert("Build exception should have been because of a nested task.\n" + e.ToString(), e.InnerException.Message.IndexOf("Task not allowed in targets.") != -1);
             }
         }
 
@@ -89,8 +89,8 @@ namespace SourceForge.NAnt.Tests {
             try {
                 RunBuild(FormatBuildFile(_format));
                 Assertion.Fail("Task appears in target element but BuildException not thrown.");
-            } catch (BuildException e) {
-                Assertion.Assert("Build exception should have been because of a recursive include.\n" + e.Message, e.Message.IndexOf("Recursive includes are not allowed.") != -1);
+            } catch (TestBuildException e) {
+                Assertion.Assert("Build exception should have been because of a recursive include.\n" + e.ToString(), e.InnerException.Message.IndexOf("Recursive includes are not allowed.") != -1);
             }
         }
 

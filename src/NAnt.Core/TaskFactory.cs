@@ -25,6 +25,8 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt {
     /// <summary>
     /// The TaskFactory comprises all of the loaded, and available, tasks. Use these static methods to register, initialize and create a task.
@@ -64,9 +66,10 @@ namespace SourceForge.NAnt {
             scanner.Includes.Add("*Tests.dll");
             scanner.Includes.Add("*Test.dll");
 
+            logger.Info(string.Format(CultureInfo.InvariantCulture,"Adding Tasks (from AppDomain='{0}'):", AppDomain.CurrentDomain.FriendlyName));
             foreach(string assemblyFile in scanner.FileNames) {
                 //Log.WriteLine("{0}:Add Tasks from {1}", AppDomain.CurrentDomain.FriendlyName, assemblyFile);
-                logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}:Add Tasks from {1}", AppDomain.CurrentDomain.FriendlyName, assemblyFile));
+                logger.Info(string.Format(CultureInfo.InvariantCulture,"Assembly '{0}'s tasks are being scanned.", assemblyFile));
                 
                 AddTasks(Assembly.LoadFrom(assemblyFile));
                 //AddTasks(AppDomain.CurrentDomain.Load(assemblyFile.Replace(AppDomain.CurrentDomain.BaseDirectory,"").Replace(".dll","")));
@@ -97,8 +100,14 @@ namespace SourceForge.NAnt {
         public static int AddTasks(Assembly assembly) {
             int taskCount = 0;
             try {
+
                 foreach(Type type in assembly.GetTypes()) {
-                    if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract) {
+                    TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
+                        Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
+
+                    if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract && taskNameAttribute != null) {
+
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "Creating TaskBuilder for {0}", type.Name));
                         TaskBuilder tb = new TaskBuilder(type.FullName, assembly.Location);
                         if (_builders.Add(tb)) {
                             foreach(WeakReference wr in _projects) {
@@ -120,8 +129,10 @@ namespace SourceForge.NAnt {
                     }
                 }
             }
-                // For assemblies that don't have types
-            catch{};
+            // For assemblies that don't have types
+            catch (Exception e){
+                logger.Error(string.Format(CultureInfo.InvariantCulture, "Error loading tasks from {0}({1})", assembly.FullName, assembly.Location),e);
+            };
 
             return taskCount;
         }

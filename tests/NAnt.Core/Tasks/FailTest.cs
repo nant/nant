@@ -42,8 +42,8 @@ namespace SourceForge.NAnt.Tests {
                 string result = RunBuild(_xml);            
                 Assertion.Assert("Fail message missing:" + result, result.IndexOf("Death Sucks!") != -1);
             }
-            catch (BuildException be) {
-                Assertion.Assert("Did not fail from Test!", be.ToString().IndexOf("Death Sucks!") != -1);
+            catch (TestBuildException be) {
+                Assertion.Assert("Did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
             }
         }
     }

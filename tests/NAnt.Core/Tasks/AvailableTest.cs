@@ -131,7 +131,7 @@ namespace SourceForge.NAnt.Tests {
         }
 
         [Test]
-        [ExpectedException(typeof(BuildException))]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_InvalidResourceType() {
             string _xml= @"
             <project>

@@ -85,8 +85,10 @@ namespace SourceForge.NAnt.Tasks {
         string[] _props = null;
         ItemTypes _itemType = ItemTypes.None;
         TrimTypes _trimType = TrimTypes.None;
-        string _source = null;
+        string _inAttribute = null;
         string _delim = null;
+        InElement _inElement = null;
+        TaskContainer _doStuff = null;
 
         /// <summary>The NAnt propperty name(s) that should be used for the current iterated item.</summary>
         /// <remarks>If specifying multiple properties, separate them with a comma.</remarks>
@@ -121,14 +123,27 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>
         /// The source of the iteration.
         /// </summary>
-        [TaskAttribute("in", Required=true)]
-        public string Source   { get { return _source;} set {_source = value; }}
+        [TaskAttribute("in", Required=false)]
+        public string Source   { get { return _inAttribute;} set {_inAttribute = value; }}
 
         /// <summary>
         /// The deliminator char.
         /// </summary>
         [TaskAttribute("delim")]
         public string Delimiter { get { return _delim;} set {_delim = value; }}
+
+        /// <summary>
+        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
+        /// </summary>
+        [BuildElement("in")]
+        public InElement InElement { set { _inElement = value; }}
+
+        /// <summary>
+        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
+        /// </summary>
+        [BuildElement("do")]
+        public TaskContainer StuffToDo { set { _doStuff = value; }}
+
 
         protected override void ExecuteTask() {
             string[] oldPropVals = new string[ _props.Length ];
@@ -141,24 +156,42 @@ namespace SourceForge.NAnt.Tasks {
                 switch(ItemType) {
                     case ItemTypes.None:
                         throw new BuildException("Invalid itemtype", Location);
+                    
                     case ItemTypes.File: {
-                        if(!Directory.Exists(Project.GetFullPath(_source)))
-                            throw new BuildException("Invalid Source: " + _source, Location);
-                        if(_props.Length != 1)
-                            throw new BuildException(@"Only one property is valid for item=""File""");
-                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_source));
-                        FileInfo[] files = dirInfo.GetFiles();
-                        foreach(FileInfo file in files) {
-                            DoWork(file.FullName);
+                        if(_inAttribute == null && _inElement == null)
+                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
+
+                        if(_inAttribute != null) {
+                        
+                            if(!Directory.Exists(Project.GetFullPath(_inAttribute)))
+                                throw new BuildException("Invalid Source: " + _inAttribute, Location);
+                        
+                            if(_props.Length != 1)
+                                throw new BuildException(@"Only one property is valid for item=""File""");
+                        
+                            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
+                            FileInfo[] files = dirInfo.GetFiles();
+                        
+                            foreach(FileInfo file in files) {
+                                DoWork(file.FullName);
+                            }
+                        } else {
+                            if(_doStuff == null)
+                                throw new BuildException("Must use <do> with <in>.",Location );
+
+                            foreach(string file in _inElement.Items.FileNames) {
+                                DoWork(file);
+                            }
                         }
+                        
                         break;
                     }
                     case ItemTypes.Folder: {
-                        if(!Directory.Exists(Project.GetFullPath(_source)))
-                            throw new BuildException("Invalid Source: " + _source, Location);
+                        if(!Directory.Exists(Project.GetFullPath(_inAttribute)))
+                            throw new BuildException("Invalid Source: " + _inAttribute, Location);
                         if(_props.Length != 1)
                             throw new BuildException(@"Only one property is valid for item=""Folder""");
-                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_source));
+                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
                         DirectoryInfo[] dirs = dirInfo.GetDirectories();
                         foreach(DirectoryInfo dir in dirs) {
                             DoWork(dir.FullName);
@@ -166,12 +199,12 @@ namespace SourceForge.NAnt.Tasks {
                         break;
                     }
                     case ItemTypes.Line: {
-                        if(!File.Exists(Project.GetFullPath(_source)))
-                            throw new BuildException("Invalid Source: " + _source, Location);
+                        if(!File.Exists(Project.GetFullPath(_inAttribute)))
+                            throw new BuildException("Invalid Source: " + _inAttribute, Location);
                         if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0 ) )
                             throw new BuildException("Delimiter(s) must be specified if multiple properties are specified");
 
-                        StreamReader sr = File.OpenText(Project.GetFullPath(_source));
+                        StreamReader sr = File.OpenText(Project.GetFullPath(_inAttribute));
                         while(true) {
                             string line = sr.ReadLine();
                             if (line ==null)
@@ -189,7 +222,7 @@ namespace SourceForge.NAnt.Tasks {
                             throw new BuildException(@"Only one property may be specified for item=""String""");
                         if(Delimiter == null || Delimiter.Length == 0)
                             throw new BuildException(@"Delimiter must be specified for item=""String""");
-                        string[] items = _source.Split(Delimiter.ToCharArray());
+                        string[] items = _inAttribute.Split(Delimiter.ToCharArray());
                         foreach(string s in items)
                             DoWork(s);
                         break;
@@ -224,6 +257,27 @@ namespace SourceForge.NAnt.Tasks {
                 Properties[ _props[ nIndex ] ] = propValue;
             }
             base.ExecuteTask();
+        }
+
+        protected override void ExecuteChildTasks() {
+            if(_doStuff == null)
+                base.ExecuteChildTasks();
+            else
+                _doStuff.Execute();
+        }
+    }
+
+    // These classes provide a way of getting the Element task to initialize
+    // the values from the build file.
+
+    public class InElement : Element {
+        FileSet _items = null;
+        [FileSet("items")]
+        public FileSet Items {
+            set {
+                _items = value;
+            }
+            get { return _items;}
         }
     }
 }

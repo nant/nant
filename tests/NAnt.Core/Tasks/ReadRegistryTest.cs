@@ -39,7 +39,7 @@ namespace SourceForge.NAnt.Tests {
                 string result = RunBuild(_xml);
                 Assertion.Assert("Fail message missing:\n" + result, result.IndexOf("productID=;") == -1);
             }
-            catch (BuildException be) {
+            catch (TestBuildException be) {
                 Assertion.Fail("\n" + be.ToString());
             }
         }
@@ -57,9 +57,9 @@ namespace SourceForge.NAnt.Tests {
                 Console.WriteLine(result);
                 Assertion.Fail("Invalid key did not generate an exception");
             }
-            catch (BuildException be) {
+            catch (TestBuildException be) {
                 //no op, good.
-                if(be.ToString().IndexOf("missing") != -1)
+                if(be.InnerException.ToString().IndexOf("missing") != -1)
                     Assertion.Fail("Wrong type of exception; does not contain word 'missing'!\n" + be.ToString());
             }
             catch {

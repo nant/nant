@@ -50,7 +50,7 @@ namespace SourceForge.NAnt.Tests {
             try {
                 RunBuild(String.Format(_format, " milliseconds='-1'"));
                 Assertion.Fail("A BuildException must be thrown for negative durations.");
-            } catch (BuildException) {
+            } catch (TestBuildException) {
                 // This is expected.
             }
         }
@@ -60,7 +60,7 @@ namespace SourceForge.NAnt.Tests {
             try {
                 RunBuild(String.Format(_format, " seconds='1' milliseconds='-1'"));
                 Assertion.Fail("A BuildException must be thrown for negative partial durations.");
-            } catch (BuildException) {
+            } catch (TestBuildException) {
                 // This is expected.
             }
         }

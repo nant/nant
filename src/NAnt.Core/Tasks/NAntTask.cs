@@ -47,7 +47,7 @@ namespace SourceForge.NAnt.Tasks {
         // The same Ant task handles these issues.
 
         /// <summary>The build file to build. If not specified, use the current build file.</summary>
-        [TaskAttribute("appdomain")]
+        [TaskAttribute("newappdomain")]
         public bool NewAppDomain {
             set { _newAppDomain = value; }
         }
@@ -79,6 +79,8 @@ namespace SourceForge.NAnt.Tasks {
 
         protected override void ExecuteTask() {
             try {
+                //TODO: Add NewAppDomain code here.!
+
                 Log.WriteLine(LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
                 Log.Indent();
                 Project project = new Project(Project.GetFullPath(BuildFileName), Verbose);

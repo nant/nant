@@ -25,6 +25,9 @@ namespace SourceForge.NAnt {
     public class TaskBuilderCollection : ArrayList {
 
         public bool Add(TaskBuilder builder) {
+            if(builder == null) 
+                return false;
+
             // prevent adding duplicate builders with the same task name
             bool taskAdded = false;
             if (FindBuilderForTask(builder.TaskName) == null) {

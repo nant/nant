@@ -58,7 +58,30 @@ namespace SourceForge.NAnt.Tests {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
+            Assertion.Assert(result.IndexOf("test.build") != -1);
+        }
+        
+        [Test]
+        public void Test_Loop_Files_From_FileSet() {
+            string _xml = @"
+                    <project>
+                        <foreach item='File' property='file'>
+                            <in>
+                                <items basedir='${nant.project.basedir}'>
+                                    <includes name='*'/>
+                                </items>
+                            </in>
+                            <do>
+                                <echo message='File:${file}'/>
+                            </do>
+                        </foreach>
+                    </project>";
+            string result = RunBuild(_xml);
+            if(result != null && result.Length > 0)
+                Log.Write(result);
+            else
+                Log.WriteLine("Empty result");
+
             Assertion.Assert(result.IndexOf("test.build") != -1);
         }
 

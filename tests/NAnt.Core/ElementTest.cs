@@ -67,7 +67,10 @@ namespace SourceForge.NAnt.Tests {
             try {
                string result = RunBuild(build);
                Assertion.Fail("Null property value allowed.\n" + result);
-            } catch ( BuildException /*ex*/ ) {
+            } catch ( TestBuildException e ) {
+                if (!(e.InnerException is BuildException)) {
+                    Assertion.Fail("Unexpected exception thrown.\n" + e.ToString());
+                }
             } catch ( Exception e ) {
                Assertion.Fail("Unexpected exception thrown.\n" + e.ToString());
             }

@@ -32,27 +32,42 @@ namespace SourceForge.NAnt.Tests {
 
     [TestFixture]
     public class IfTest : BuildTestBase {
+        string _newFile = null;
+        string _oldFile = null;
+
+        protected override void SetUp() {
+            base.SetUp();
+            _newFile = this.CreateTempFile("new.txt","I'm younger");
+            _oldFile = this.CreateTempFile("old.txt","I'm older");
+            File.SetLastWriteTime(_oldFile, DateTime.Now.AddHours(-1));
+        }
+
         [Test]
         public void Test_IF_NewerFile() {
-            string olderFP = this.CreateTempFile("old.txt","I'm older");
-            string newerFP = this.CreateTempFile("new.txt","I'm younger");
             string _xml = @"
                     <project>
-                        <if uptodatefile='{0}' comparefile='{1}'>
+                        <if uptodatefile='{1}' comparefile='{0}'>
                             <echo message='{1} is newer than {0}'/>
                         </if>
                     </project>";
-            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, olderFP, newerFP));
-            //Log.WriteLine(result);
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
+            Assertion.Assert(result.IndexOf("is newer than") == -1);
+        }
+        
+        [Test]
+        public void Test_IFNot_NewerFile() {
+            string _xml = @"
+                    <project>
+                        <ifnot uptodatefile='{1}' comparefile='{0}'>
+                            <echo message='{1} is newer than {0}'/>
+                        </ifnot>
+                    </project>";
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
             Assertion.Assert(result.IndexOf("is newer than") != -1);
         }
 
-        /*
-         * Get this working, then add back.
         [Test]
         public void Test_IF_NewerFiles() {
-            string olderFP = this.CreateTempFile("1old.txt","I'm older");
-            string newerFP = this.CreateTempFile("2new.txt","I'm younger");
             string _xml = @"
                     <project>
                         <if uptodatefile='{0}'>
@@ -62,11 +77,24 @@ namespace SourceForge.NAnt.Tests {
                             <echo message='{1} is newer than {0}'/>
                         </if>
                     </project>";
-            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, olderFP, newerFP));
-            Log.WriteLine(result);
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
+            Assertion.Assert(result.IndexOf("is newer than") == -1);
+        }
+
+        [Test]
+        public void Test_IFNot_NewerFiles() {
+            string _xml = @"
+                    <project>
+                        <ifnot uptodatefile='{0}'>
+                            <comparefiles>
+                                <includes name='{1}'/>
+                            </comparefiles>
+                            <echo message='{1} is newer than {0}'/>
+                        </ifnot>
+                    </project>";
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
             Assertion.Assert(result.IndexOf("is newer than") != -1);
         }
-        */
 
         [Test]
         public void Test_IF_PropExists_Positive() {
@@ -151,5 +179,5 @@ namespace SourceForge.NAnt.Tests {
             //Log.WriteLine(result);
             Assertion.Assert(result.IndexOf("failed") == -1);
         }
-    }
+   }
 }

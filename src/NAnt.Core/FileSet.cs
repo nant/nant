@@ -214,7 +214,7 @@ namespace SourceForge.NAnt {
             }
         }
 
-            [BuildElementArray("excludes")]
+        [BuildElementArray("excludes")]
         public ExcludesElement[] SetExcludes{
             set {
                 foreach(ExcludesElement exclude in value){
@@ -241,7 +241,6 @@ namespace SourceForge.NAnt {
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.
 
-        [ElementName("excludes")]
         public class ExcludesElement : Element {
             string _pattern;
             bool _ifDefined = true;
@@ -271,7 +270,6 @@ namespace SourceForge.NAnt {
             }
         }
 
-        [ElementName("includes")]
         public class IncludesElement : ExcludesElement {
             bool _asIs = false;
             bool _fromPath = false;
@@ -293,7 +291,6 @@ namespace SourceForge.NAnt {
             }
         }
         
-        [ElementName("fromfile")]
         public class IncludesListElement : ExcludesElement {
 
             string[] files;

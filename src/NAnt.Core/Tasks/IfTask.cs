@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Scott Hernandez
+// Copyright (C) 2002-2003 Scott Hernandez
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -109,7 +109,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>
         /// The file to compare if uptodate
         /// </summary>
-        [TaskAttribute("uptodateFile")]
+        [TaskAttribute("uptodatefile")]
         public string PrimaryFile {
             set {_uptodateFile = Project.GetFullPath(value);}
         }
@@ -136,15 +136,8 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         [FileSet("comparefiles")]
         public FileSet CompareFiles { 
-            set {
-                if(_compareFiles != null) {
-                    foreach(string s in _compareFiles.Includes) {
-                        value.Includes.Add(s);
-                    }
-                }
-                _compareFiles = value; 
-
-            }
+            set { _compareFiles = value;}
+            get { return _compareFiles;}
         } 
 
         /// <summary>
@@ -208,13 +201,13 @@ namespace SourceForge.NAnt.Tasks {
                 if(_uptodateFile != null) {
                     FileInfo primaryFile = new FileInfo(_uptodateFile);
                     if(primaryFile == null) {
-                        ret = true;
+                        ret = false;
                     }
                     else {
                         string newerFile = FileSet.FindMoreRecentLastWriteTime(_compareFiles.FileNames, primaryFile.LastWriteTime);
-                        bool bNeedsAnUpdate = (null == newerFile);
-                        Log.WriteLineIf(Project.Verbose && bNeedsAnUpdate, "{0) is newer than {1}" , newerFile, primaryFile.Name);
-                        ret = !bNeedsAnUpdate;
+                        bool bNeedsAnUpdate = !(null == newerFile);
+                        Log.WriteLineIf(Project.Verbose && bNeedsAnUpdate, "{2}:{0) is newer than {1}. Excuting Embedded Tasks" , newerFile, primaryFile.Name, LogPrefix);
+                        ret = ret && bNeedsAnUpdate;
                     }
                     if (!ret) return false;
                 }

@@ -43,11 +43,19 @@ namespace SourceForge.NAnt.Tests {
         }
 
         /// <remarks>
+        ///   <para>No need to add SetUp attribute to overriden method.</para>
         ///   <para>Super classes that override SetUp must call the base class first.</para>
         /// </remarks>
-        [SetUp]
         protected virtual void SetUp() {
             _tempDirName = TempDir.Create(this.GetType().FullName);
+        }
+
+        /// <summary>
+        /// This method will be called by NUnit for setup.
+        /// </summary>
+        [SetUp]
+        protected void NUnitSetUp() {
+            SetUp();
         }
 
         /// <remarks>
@@ -79,19 +87,9 @@ namespace SourceForge.NAnt.Tests {
                 try{
                     p.Execute();
                 }
-                catch {
-                    /*
-                     * 
+                catch (Exception e){
                     output = c.Close();
-                    if(!(output == null || output.Equals(string.Empty) || output.Equals(""))){
-                        Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
-                        Console.WriteLine("+++++     Output From Test      +++++");
-                        Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
-                        Console.Write (output);
-                        Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
-                    }
-                    */
-                    throw;
+                    throw new TestBuildException("Error Executing Project", output, e);
                     
                 }
                 finally {

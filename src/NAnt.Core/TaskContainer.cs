@@ -27,12 +27,25 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {
 
-    public abstract class TaskContainer : Task {
+    /// <summary>
+    /// Executes embedded tasks. First inherit from TaskContainer, then call ExecuteChildTasks during Exec.
+    /// <note>
+    ///     <para>
+    ///         All BuildElements (like a FileSet or OptionSet) are automatically excluded from things that get executed. 
+    ///         They are evaluted normally during xml task initialization.
+    ///     </para>
+    ///     <para>
+    ///         For an example, see <if/> or <foreach/>
+    ///     </para>
+    /// </note>
+    /// </summary>
+    public class TaskContainer : Task {
         private StringCollection _subXMLElements = null;
 
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             base.InitializeTask(taskNode);
 
+            //Exclude any BuildElements (like FileSets, etc.) from our execution elements.
              _subXMLElements = new StringCollection();
             foreach(MemberInfo memInfo in this.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                 if(memInfo.DeclaringType.Equals(typeof(object))) continue;

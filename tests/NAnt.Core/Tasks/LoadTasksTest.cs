@@ -54,8 +54,8 @@ namespace SourceForge.NAnt.Tests {
                 string result = RunBuild(_xml);
                 Assertion.Fail("Invalid assembly path did not generate an exception");
             }
-            catch(BuildException be) { 
-                if( be.Message.IndexOf("'does not exist") != -1) {
+            catch(TestBuildException be) { 
+                if( be.InnerException.Message.IndexOf("'does not exist") != -1) {
                     Assertion.Fail("Wrong type of exception; does not contain words 'does not exist'!\n " + be.ToString()); 
                 }
             }
@@ -72,7 +72,9 @@ namespace SourceForge.NAnt.Tests {
                 string result = RunBuild(_xml);
                 Assertion.Fail("Invalid attribute combination did not generate an exception");
             }
-            catch(BuildException) {               
+            catch(TestBuildException e) {
+                if(!(e.InnerException is BuildException))
+                    Assertion.Fail("Incorrect exception type !");
             }
             catch {
                 Assertion.Fail("Incorrect exception type !");

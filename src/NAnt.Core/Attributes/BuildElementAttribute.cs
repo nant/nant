@@ -24,7 +24,7 @@ namespace SourceForge.NAnt.Attributes {
     /// Indicates that property should be treated as a xml file set for the task.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public abstract class BuildElementAttribute : Attribute {
+    public class BuildElementAttribute : Attribute {
         #region Private Instance Fields
 
         string _name;
@@ -39,7 +39,7 @@ namespace SourceForge.NAnt.Attributes {
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
-        protected BuildElementAttribute(string name) {
+        public BuildElementAttribute(string name) {
             Name = name;
         }
 
