@@ -31,6 +31,11 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod 775 ${sf.net.web.path}/schema/${project.name}-${project.version}.xsd" />
         </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp nant ${sf.net.web.path}/schema/${project.name}-${project.version}.xsd" />
+        </exec>
     </target>
     <!-- copy help to sourceforge -->
     <target name="deploy-help" depends="set-net-1.0-runtime-configuration, release, package">
@@ -56,6 +61,11 @@
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod -R 775 ${sf.net.web.path}/help" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp -R nant ${sf.net.web.path}/help" />
         </exec>
     </target>
     <!-- copy website to sourceforge -->
@@ -99,6 +109,11 @@
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chmod 775 {} \;" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chgrp nant {} \;" />
         </exec>
     </target>
 </project>

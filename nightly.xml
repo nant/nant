@@ -33,6 +33,11 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${execfilename}" />
         </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${execfilename}" />
+        </exec>
     </target>
     <!-- copy schema to sourceforge -->
     <target name="deploy-schema" depends="set-net-1.0-runtime-configuration, package">
@@ -52,6 +57,11 @@
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod 775 ${sf.net.web.path}/nightly/schema/${project.name}-${project.version}.xsd" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp nant ${sf.net.web.path}/nightly/schema/${project.name}-${project.version}.xsd" />
         </exec>
     </target>
     <!-- copy help to sourceforge -->
@@ -78,6 +88,11 @@
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod -R 775 ${sf.net.web.path}/nightly/help" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp -R nant ${sf.net.web.path}/nightly/help" />
         </exec>
     </target>
     <!-- copy website to sourceforge -->
@@ -122,6 +137,11 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chmod 775 {} \;" />
         </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chgrp nant {} \;" />
+        </exec>
     </target>
     <!-- copy nightly website to sourceforge -->
     <target name="deploy-nightly-web" depends="set-net-1.0-runtime-configuration, package">
@@ -164,6 +184,11 @@
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path}/nightly -maxdepth 1 -type f -exec chmod 775 {} \;" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="find ${sf.net.web.path}/nightly -maxdepth 1 -type f -exec chgrp nant {} \;" />
         </exec>
     </target>
     <!-- copies NAnt to install dir -->
