@@ -180,7 +180,7 @@ namespace SourceForge.NAnt.Tasks {
                         Sources.BaseDirectory = BaseDirectory;
                     }
 
-                    Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, OutputPath);
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, OutputPath);
 
                     // Microsoft common compiler options
                     writer.Write(" /t:{0}", OutputTarget);
@@ -204,7 +204,7 @@ namespace SourceForge.NAnt.Tasks {
                     _arguments = sb.ToString();
 
                     // display response file contents
-                    Log.WriteLineIf(Verbose, _arguments);
+                    Log(Level.Verbose, _arguments);
 
                     // call base class to do the work
                     base.ExecuteTask();
@@ -235,7 +235,7 @@ namespace SourceForge.NAnt.Tasks {
 
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, outputFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date.", fileName);
+                Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
                 return true;
             }
 

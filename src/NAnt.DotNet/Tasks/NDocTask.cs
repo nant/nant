@@ -150,9 +150,7 @@ namespace SourceForge.NAnt.Tasks {
 
             // write documenter project settings to temp file
             string projectFileName = Path.GetTempFileName(); //@"c:\work\nant\nant.xdp";
-            if (Verbose) {
-                Log.WriteLine(LogPrefix + "Writing project settings to '{0}'.", projectFileName);
-            }
+            Log(Level.Verbose, LogPrefix + "Writing project settings to '{0}'.", projectFileName);
 
             XmlTextWriter writer = new XmlTextWriter(projectFileName, Encoding.ASCII);
             writer.Formatting = Formatting.Indented;
@@ -195,7 +193,7 @@ namespace SourceForge.NAnt.Tasks {
             writer.WriteEndElement();
             writer.Close();
 
-            Log.WriteLineIf(Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
+            Log(Level.Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
 
             // create Project object
             NDoc.Core.Project project = null;
@@ -238,7 +236,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
         private void OnDocBuildingStep(object sender, ProgressArgs e) {
-            Log.WriteLine(LogPrefix + e.Status);
+            Log(Level.Info, LogPrefix + e.Status);
         }
 
         /// <summary>
@@ -248,7 +246,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
         private void OnDocBuildingProgress(object sender, ProgressArgs e) {
-            Log.WriteLineIf(Verbose, LogPrefix + e.Progress + "% complete");
+            Log(Level.Verbose, LogPrefix + e.Progress + "% complete");
         }
 
         /// <summary>

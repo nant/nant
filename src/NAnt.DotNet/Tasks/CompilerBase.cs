@@ -20,6 +20,7 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -206,7 +207,7 @@ namespace SourceForge.NAnt.Tasks {
                         Sources.BaseDirectory = BaseDirectory;
                     }
 
-                    Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, OutputPath);
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, OutputPath);
 
                     // specific compiler options
                     WriteOptions(writer);
@@ -301,9 +302,9 @@ namespace SourceForge.NAnt.Tasks {
 
                     if (Verbose) {
                         // display response file contents
-                        Log.WriteLine(LogPrefix + "Contents of " + _responseFileName);
+                        Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
                         StreamReader reader = File.OpenText(_responseFileName);
-                        Log.WriteLine(reader.ReadToEnd());
+                        Log(Level.Info, reader.ReadToEnd());
                         reader.Close();
                     }
 
@@ -360,21 +361,21 @@ namespace SourceForge.NAnt.Tasks {
             //Sources Updated?
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, outputFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
             //References Updated?
             fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, outputFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
             //Modules Updated?
             fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, outputFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
@@ -382,7 +383,7 @@ namespace SourceForge.NAnt.Tasks {
             foreach (ResourceFileSet resources in ResourcesList) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, outputFileInfo.LastWriteTime);
                 if (fileName != null) {
-                    Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                    Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                     return true;
                 }
             }
@@ -405,7 +406,7 @@ namespace SourceForge.NAnt.Tasks {
 
             fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, outputFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
@@ -474,9 +475,9 @@ namespace SourceForge.NAnt.Tasks {
             _resgenTask = resgen;
 
             // Fix up the indent level --
-            Log.IndentLevel++;
+            Project.Indent();
             resgen.Execute();
-            Log.IndentLevel--;
+            Project.UnIndent();
         }
 
         #endregion Protected Instance Methods
