@@ -54,31 +54,76 @@ namespace Tests.NAnt.Core {
         #region Public Instance Methods
 
         /// <summary>
-        /// Runs the xml as NAnt project and returns the console output as a 
+        /// Runs the XML as NAnt project and returns the console output as a 
         /// string.
         /// </summary>
-        /// <param name="xml">Xml representing the build file contents.</param>
-        /// <returns>The console output.</returns>
+        /// <param name="xml">XML representing the build file contents.</param>
+        /// <returns>
+        /// The console output.
+        /// </returns>
         public string RunBuild(string xml) {
             return RunBuild(xml, Level.Info);
         }
 
         /// <summary>
-        /// Runs the xml as NAnt project and returns the console output as a 
+        /// Runs the XML as NAnt project and returns the console output as a 
         /// string.
         /// </summary>
-        /// <param name="xml">Xml representing the build file contents.</param>
-        /// <returns>The console output.</returns>
+        /// <param name="xml">XML representing the build file contents.</param>
+        /// <returns>
+        /// The console output.
+        /// </returns>
+        public string RunBuild(string xml, IBuildListener listener) {
+            return RunBuild(xml, Level.Info, listener);
+        }
+
+        /// <summary>
+        /// Runs the XML as NAnt project and returns the console output as a 
+        /// string.
+        /// </summary>
+        /// <param name="xml">XML representing the build file contents.</param>
+        /// <returns>
+        /// The console output.
+        /// </returns>
         public string RunBuild(string xml, Level level) {
             Project project = CreateFilebasedProject(xml, level);
             return ExecuteProject(project);
         }
 
         /// <summary>
+        /// Runs the XML as NAnt project and returns the console output as a 
+        /// string.
+        /// </summary>
+        /// <param name="xml">XML representing the build file contents.</param>
+        /// <returns>
+        /// The console output.
+        /// </returns>
+        public string RunBuild(string xml, Level level, IBuildListener listener) {
+            Project project = CreateFilebasedProject(xml, level);
+
+            // attach listener to project events
+            project.BuildStarted += new BuildEventHandler(listener.BuildStarted);
+            project.BuildFinished += new BuildEventHandler(listener.BuildFinished);
+            project.TargetStarted += new BuildEventHandler(listener.TargetStarted);
+            project.TargetFinished += new BuildEventHandler(listener.TargetFinished);
+            project.TaskStarted += new BuildEventHandler(listener.TaskStarted);
+            project.TaskFinished += new BuildEventHandler(listener.TaskFinished);
+            project.MessageLogged += new BuildEventHandler(listener.MessageLogged);
+
+            // add listener to build listener collection
+            project.BuildListeners.Add(listener);
+
+            // execute the project
+            return ExecuteProject(project);
+        }
+
+        /// <summary>
         /// Executes the project and returns the console output as a string.
         /// </summary>
-        /// <param name="p">The Project to execute.</param>
-        /// <returns>The console output.</returns>
+        /// <param name="p">The project to execute.</param>
+        /// <returns>
+        /// The console output.
+        /// </returns>
         /// <remarks>
         /// Any exception that is thrown as part of the execution of the 
         /// <see cref="Project" /> is wrapped in a <see cref="TestBuildException" />.
@@ -103,7 +148,7 @@ namespace Tests.NAnt.Core {
         /// <summary>
         /// Creates a new <see cref="Project" /> with output level <see cref="Level.Info" />.
         /// </summary>
-        /// <param name="xml">The xml of the build file</param>
+        /// <param name="xml">The XML of the build file</param>
         /// <returns>
         /// A new <see cref="Project" /> with output level <see cref="Level.Info" />.
         /// </returns>
@@ -112,9 +157,9 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Creates a new <see cref="Project" />.
+        /// Creates a new <see cref="Project" /> with the given output level.
         /// </summary>
-        /// <param name="xml">The xml of the build file</param>
+        /// <param name="xml">The XML of the build file</param>
         /// <param name="level">The build output level.</param>
         /// <returns>
         /// A new <see cref="Project" /> with the specified output level.
@@ -127,7 +172,9 @@ namespace Tests.NAnt.Core {
             return new Project(buildFileName, level);
         }
 
-        /// <summary>        /// Creates an empty project xmldocument and loads it with a new project.        /// </summary>        /// <returns>The new project.</returns>
+        /// <summary>        /// Creates an empty project xmldocument and loads it with a new project.        /// </summary>        /// <returns>
+        /// The new project.
+        /// </returns>
         protected Project CreateEmptyProject() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.AppendChild(doc.CreateElement("project"));
@@ -138,7 +185,9 @@ namespace Tests.NAnt.Core {
         /// Creates a tempfile in the test temp directory.
         /// </summary>
         /// <param name="name">The filename, should not be absolute.</param>
-        /// <returns>The full path to the new file.</returns>
+        /// <returns>
+        /// The full path to the temp file.
+        /// </returns>
         public string CreateTempFile(string name) {
             return CreateTempFile(name, null);
         }
@@ -147,8 +196,12 @@ namespace Tests.NAnt.Core {
         /// </summary>
         /// <param name="name">The filename, should not be absolute.</param>
         /// <param name="contents">The content of the file.</param>
-        /// <returns>The full path to the new file.</returns>
-        /// <remarks>The file is created and existance is checked.</remarks>
+        /// <returns>
+        /// The full path to the new file.
+        /// </returns>
+        /// <remarks>
+        /// The file is created and existance is checked.
+        /// </remarks>
         public string CreateTempFile(string name, string contents) {
             string filename = Path.Combine(TempDirName, name);
             
@@ -165,8 +218,12 @@ namespace Tests.NAnt.Core {
         /// Creates a temp directory.
         /// </summary>
         /// <param name="name">The name of the directory to create (name only, no path info).</param>
-        /// <returns>The full path to the new directory.</returns>
-        /// <remarks>The dir is created and existance is checked.</remarks>
+        /// <returns>
+        /// The full path to the temp directory.
+        /// </returns>
+        /// <remarks>
+        /// The dir is created and existance is checked.
+        /// </remarks>
         public string CreateTempDir(string name) {
             return TempDir.Create(Path.Combine(TempDirName, name));
         }
