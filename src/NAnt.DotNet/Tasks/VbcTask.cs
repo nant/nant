@@ -42,7 +42,7 @@ namespace NAnt.DotNet.Tasks {
     /// the <see cref="ResourceFileSet.Prefix" /> attribute of the &lt;<see cref="CompilerBase.ResourcesList" />&gt;
     /// element should match the "Root namespace" of the VB.NET project, and the 
     /// value of the <see cref="ResourceFileSet.DynamicPrefix" /> attribute 
-    /// should be set to &quot;<see langword="true" />&quot;.
+    /// should be set to &quot;<see langword="false" />&quot;.
     /// </note>
     /// </remarks>
     /// <example>
