@@ -465,7 +465,7 @@ namespace NAnt.VSNet {
                 string projectGuid = (string) de.Key;
 
                 // lookup project using GUID
-                ProjectBase project = _htProjects[projectGuid];
+                ProjectBase project = (ProjectBase) _htProjects[projectGuid];
                 // make sure project is loaded
                 if (project == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
