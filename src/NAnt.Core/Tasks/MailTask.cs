@@ -17,6 +17,7 @@
 //
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Globalization;
@@ -26,6 +27,7 @@ using System.Web.Mail;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks { 
@@ -40,22 +42,26 @@ namespace NAnt.Core.Tasks {
     ///   <para>
     ///   Sends an email from <c>nant@sourceforge.net</c> to three recipients 
     ///   with a subject about the attachments. The body of the message will be
-    ///   the combined contents of <c>body1.txt</c> through <c>body4.txt</c>.
-    ///   The <c>body1.txt</c> through <c>body3.txt</c> files will also be 
-    ///   included as attachments.  The message will be sent using the 
-    ///   <c>smtpserver.anywhere.com</c> SMTP server.
+    ///   the combined contents of all <c>.txt</c> files in the base directory.
+    ///   All zip files in the base directory will be included as attachments.  
+    ///   The message will be sent using the <c>smtpserver.anywhere.com</c> SMTP 
+    ///   server.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <mail 
-    ///     from="nAnt@sourceforge.net" 
+    ///     from="nant@sourceforge.net" 
     ///     tolist="recipient1@sourceforge.net" 
     ///     cclist="recipient2@sourceforge.net" 
     ///     bcclist="recipient3@sourceforge.net" 
     ///     subject="Msg 7: With attachments" 
-    ///     files="body1.txt,body2.txt;body3.txt,body4.txt" 
-    ///     attachments="body1.txt,body2.txt;,body3.txt" 
-    ///     mailhost="smtpserver.anywhere.com" />
+    ///     mailhost="smtpserver.anywhere.com">
+    ///     <files>
+    ///         <includes name="*.txt" />
+    ///     </files>   
+    ///     <attachments>
+    ///         <includes name="*.zip" />
+    ///     </attachments>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -70,8 +76,8 @@ namespace NAnt.Core.Tasks {
         private string _mailHost = "localhost";
         private string _subject = "";
         private string _message = "";
-        private string _files = "";
-        private string _attachments = "";
+        private FileSet _files = new FileSet();
+        private FileSet _attachments = new FileSet();
         private MailFormat _mailFormat = MailFormat.Text;
 
         #endregion Private Instance Fields
@@ -181,47 +187,31 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Name(s) of text files to send as part of body of the email message. 
-        /// Multiple file names are comma- or semicolon-separated.
+        /// Files that are transmitted as part of the body of the email message.
         /// </summary>
-        [TaskAttribute("files")]
-        public string Files {
-            get { return _files; }
-            set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    // convert to semicolon delimited
-                    _files = value.Replace("," , ";");
-                } else {
-                    _files = null;
-                }
-            }
+        [FileSet("files")]
+        public FileSet Files { 
+            get { return _files; } 
+            set { _files = value; } 
         }
 
         /// <summary>
-        /// Name(s) of files to send as attachments to email message.
-        /// Multiple file names are comma- or semicolon-separated.
+        /// Attachments that are transmitted with the message.
         /// </summary>
-        [TaskAttribute("attachments")]
-        public string Attachments { 
-            get { return _attachments; }
-            set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    // convert to semicolon delimited
-                    _attachments = value.Replace("," , ";");
-                } else {
-                    _attachments = null;
-                }
-            }
+        [FileSet("attachments")]
+        public FileSet Attachments { 
+            get { return _attachments; } 
+            set { _attachments = value; } 
         }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
 
-        ///<summary>
-        ///Initializes task and ensures the supplied attributes are valid.
-        ///</summary>
-        ///<param name="taskNode">Xml node used to define this task instance.</param>
+        /// <summary>
+        /// Initializes task and ensures the supplied attributes are valid.
+        /// </summary>
+        /// <param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             if (StringUtils.IsNullOrEmpty(ToList) && StringUtils.IsNullOrEmpty(CcList) && StringUtils.IsNullOrEmpty(BccList)) {
                 throw new BuildException("At least one of the following attributes" +
@@ -243,7 +233,7 @@ namespace NAnt.Core.Tasks {
             mailMessage.Subject = this.Subject;
             mailMessage.BodyFormat = this.Format;
 
-            // Begin build message body
+            // begin build message body
             StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
             
             if (!StringUtils.IsNullOrEmpty(Message)) {
@@ -251,24 +241,18 @@ namespace NAnt.Core.Tasks {
                 bodyWriter.WriteLine();
             }
 
-            // Append file(s) to message body
-            if (!StringUtils.IsNullOrEmpty(Files)) {
-                string[] fileList = Files.Split(new char[]{';'});
-                string content;
-                if (fileList.Length == 1) {
-                   content = ReadFile(fileList[0]);
-                    if (content != null) {
+            // append file(s) to message body
+            foreach (string fileName in Files.FileNames) {
+                try {
+                    string content = ReadFile(fileName);
+                    if (!StringUtils.IsNullOrEmpty(content)) {
                         bodyWriter.Write(content);
+                        bodyWriter.WriteLine(string.Empty);
                     }
-                } else {
-                  foreach (string fileName in fileList) {
-                     content = ReadFile(fileName);
-                     if (content != null) {
-                        bodyWriter.WriteLine(fileName);
-                        bodyWriter.WriteLine(content);
-                        bodyWriter.WriteLine("");
-                     }
-                  }
+                } catch {
+                    Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
+                        "File '{0}' NOT added to message body. File does not exist or cannot" +
+                        " be accessed. ", fileName));
                 }
             }
 
@@ -278,21 +262,15 @@ namespace NAnt.Core.Tasks {
                 mailMessage.Body = bodyText;
             }
 
-            // Append file(s) to message body
-            if (!StringUtils.IsNullOrEmpty(Attachments)) {
-                string[] attachList = Attachments.Split(new char[]{';'});
-                foreach (string fileName in attachList) {
-                    try {
-                        // MailAttachment likes fully-qualified file names, use FileInfo to get them
-                        FileInfo fileInfo = new FileInfo(fileName);
-                        MailAttachment attach = new MailAttachment(fileInfo.FullName);
-                        mailMessage.Attachments.Add(attach);
-                    } catch {
-                        string msg = "File \"" + fileName + "\" NOT attached to message. File does not exist or cannot be accessed. Check: " + Location.ToString() + "attachments=\"" + Attachments + "\"";
-                        Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
-                            "File '{0}' NOT attached to message. File does not exist or cannot be" +
-                            " accessed. ", fileName));
-                    }
+            // add attachments to message
+            foreach (string fileName in Attachments.FileNames) {
+                try {
+                    MailAttachment attachment = new MailAttachment(fileName);
+                    mailMessage.Attachments.Add(attachment);
+                } catch {
+                    Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
+                        "File '{0}' NOT attached to message. File does not exist or cannot be" +
+                        " accessed. ", fileName));
                 }
             }
 
@@ -318,17 +296,15 @@ namespace NAnt.Core.Tasks {
         /// in a string.
         /// </summary>
         /// <param name="filename">The file to read content of.</param>
-        /// <returns>The content of the specified file.</returns>
+        /// <returns>
+        /// The content of the specified file.
+        /// </returns>
         private string ReadFile(string filename) {
             StreamReader reader = null;
 
             try {
                 reader = new StreamReader(File.OpenRead(filename));
                 return reader.ReadToEnd();
-            } catch {
-                string msg = "WARNING! File \"" + filename + "\" NOT added to message body. File does not exist or is not readable. Check: " + Location.ToString() + "files=\"" + Files + "\"";
-                Log(Level.Warning, LogPrefix + msg);
-                return null;
             } finally {
                 if (reader != null) {
                     reader.Close();
