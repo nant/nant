@@ -18,13 +18,14 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Reflection;
+using System.Xml;
+
 using NAnt.Core.Attributes;
 using NAnt.Core.Filters;
 
-
 namespace NAnt.Core.Filters {
-
     /// <summary>
     /// Represents a chain of NAnt filters that are used to
     /// filter a stream.
@@ -33,26 +34,14 @@ namespace NAnt.Core.Filters {
     /// An element that represents a chain of stream based filters that are used to filter
     /// an input stream as it is read.
     /// </remarks>
-    /// <para>Parameters:</para>
-    /// <list type="table">
-    ///    <listheader>
-    ///   <term>Parameter</term>
-    ///   <description>Description</description>
-    ///  </listheader>
-    ///  <item>
-    ///   <term><code>na</code></term>
-    ///   <description>na</description>
-    ///  </item>
-    /// </list>
-    ///
     /// <example>
     ///  <code>
     ///  <![CDATA[
     ///  <filterchain>
-    ///   <replacetokens order="1">
-    ///    <token key="DATE" value="${TODAY}"/>
+    ///   <replacetokens>
+    ///    <token key="DATE" value="${TODAY}" />
     ///   </replacetokens>
-    ///   <tabstospaces order="2"/>
+    ///   <tabstospaces />
     ///  </filterchain>
     ///  ]]>
     ///  </code>
@@ -61,120 +50,173 @@ namespace NAnt.Core.Filters {
     [Serializable]
     [ElementName("filterchain")]
     public class FilterChain : DataTypeBase {
+        #region Private Instance Fields
 
-        //Contains the configuration of each filter reader that belongs
-        //to this filter chain. This cillection is used to instantiated the stream
-        //based filters.
-        FilterElementCollection _filterElements = new FilterElementCollection();
+        private FilterCollection _filters = new FilterCollection();
 
-        /// <summary>
-        /// Default Constructor
-        /// </summary>
-        public FilterChain() {}
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>
-        /// Used to support a generic filter that is instantiated through reflection.
+        /// The filters
         /// </summary>
-        [BuildElementArray("filter", ElementType = typeof(FilterElement))]
-        public FilterElementCollection FilterElements {
-            get { return _filterElements; }
+        [BuildElementArray("filter", ElementType=typeof(Filter))]
+        public FilterCollection Filters {
+            get { return _filters; }
         }
 
-        #region Convenience Filter Elements
+        #endregion Public Instance Properties
+
+        #region Override implementation of Element
 
         /// <summary>
-        /// Use to support ReplaceCharacterConvenience filters
+        /// Initializes all build attributes and child elements.
         /// </summary>
-        [BuildElementArray("replacecharacter", ElementType = typeof(ReplaceCharacterConvenience))]
-        public FilterElementCollection ReplaceCharacterFilters {
-            get { return _filterElements; }
+        /// <remarks>
+        /// <see cref="FilterChain" /> needs to maintain the order in which the
+        /// filters are specified in the build file.
+        /// </remarks>
+        protected override void InitializeXml(XmlNode elementNode, PropertyDictionary properties, FrameworkInfo framework) {
+            XmlNode = elementNode;
+
+            FilterChainConfigurator configurator = new FilterChainConfigurator(
+                this, elementNode, properties, framework);
+            configurator.Initialize();
         }
 
-        /// <summary>
-        /// Used to support ReplaceTokensConvenience filters
-        /// </summary>
-        [BuildElementArray("replacetokens", ElementType = typeof(ReplaceTokensConvenience))]
-        public FilterElementCollection ReplaceTokenFilters {
-            get { return _filterElements; }
-        }
+        #endregion Override implementation of Element
+
+        #region Internal Instance Methods
 
         /// <summary>
-        /// Used to support TabsToSpacesConvenience filters
+        /// Used to to instantiate and return the chain of stream based filters.
         /// </summary>
-        [BuildElementArray("tabstospaces", ElementType = typeof(TabsToSpacesConvenience))]
-        public FilterElementCollection TabsToSpacesTokenFilters {
-            get { return _filterElements; }
-        }
-
-        /// <summary>
-        /// Used to support ExpandExpressions filters
-        /// </summary>
-        [BuildElementArray("expandexpressions", ElementType = typeof(ExpandExpressionsConvenience))]
-        public FilterElementCollection ExpandExpressionsFilters {
-            get { return _filterElements; }
-        }
-
-        #endregion
-        /// <summary>
-        /// Used to to instantiate and return the chain of stream based filters.  The filter that iw the last
-        /// filter in the chain. The parameter physicalTextReader is the first filter in the chain which is based on a physical
-        /// stream that feeds the chain.
-        /// </summary>
-        /// <param name="physicalTextReader">The physical TextReader that is the source of input to the filter chain.</param>
-        /// <returns>Last filter in the filter chain</returns>
+        /// <param name="physicalTextReader">The <see cref="PhysicalTextReader" /> that is the source of input to the filter chain.</param>
+        /// <remarks>
+        /// The <paramref name="physicalTextReader" /> is the first <see cref="Filter" />
+        /// in the chain, which is based on a physical stream that feeds the chain.
+        /// </remarks>
+        /// <returns>
+        /// The last <see cref="Filter" /> in the chain.
+        /// </returns>
         internal Filter GetBaseFilter(PhysicalTextReader physicalTextReader) {
-
-            //If there is not a physicalTextReader then the chain is empty.
+            // if there is no a PhysicalTextReader then the chain is empty
             if (physicalTextReader == null) {
                 return null;
             }
 
-            //The physicalTextReader must be the base filter (Based on a physical stream)
+            // the physicalTextReader must be the base filter (Based on a physical stream)
             if (!physicalTextReader.Base) {
                 throw new BuildException("A base filter must be used", Location);
             }
 
-            //Build the chain and place the base filter at the beginning.
-            Filter filter = physicalTextReader;
+            // build the chain and place the base filter at the beginning.
+            Filter parentFilter = physicalTextReader;
 
-            //Iterate through the collection of filter elements and instantiate each filter.
-            for (int currentIndex = 0 ; currentIndex < _filterElements.Count ; currentIndex++) {
-                
-                FilterElement element = _filterElements.GetByIndex(currentIndex);
+            // iterate through the collection of filter elements and instantiate each filter.
+            foreach (Filter filter in Filters) {
+                if (filter.IfDefined && !filter.UnlessDefined) {
+                    filter.Chain(parentFilter);
+                    filter.InitializeFilter();
+                    parentFilter = filter;
+                }
+            }
 
-                try {
-                    //Load the filter's assembly
-                    Assembly targetAssembly = Assembly.Load(element.AssemblyName);
+            return parentFilter;
+        }
 
-                    //Create the filter and pass the previous filter to the constructor to
-                    //chain the filters together.
-                    filter = targetAssembly.CreateInstance(
-                                 element.ClassName,
-                                 true,
-                                 BindingFlags.Public | BindingFlags.Instance,
-                                 null,
-                                 new object[1]{filter},
-                                 null,
-                                 null)
-                             as Filter;
-                    if (filter == null) {
-                        throw new ApplicationException("CreateInstance returned a null filter");
-                    }
+        #endregion Internal Instance Methods
 
-                } catch (System.Exception) {
-                    throw new BuildException("Unable to load filter: assembly = " + element.AssemblyName + ", class = " + element.ClassName
-                                             + "A filter must be derived from the base class NAnt.Core.Filters.Filter", this.Location);
+        /// <summary>
+        /// Configurator that initializes filters in the order in which they've
+        /// been specified in the build file.
+        /// </summary>
+        public class FilterChainConfigurator : AttributeConfigurator {
+            public FilterChainConfigurator(Element element, XmlNode elementNode, PropertyDictionary properties, FrameworkInfo targetFramework) 
+                : base(element, elementNode, properties, targetFramework) {
+            }
+
+            protected override bool InitializeBuildElementCollection(System.Reflection.PropertyInfo propertyInfo) {
+                Type elementType = typeof(Filter);
+
+                BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
+
+                if (buildElementArrayAttribute == null || propertyInfo.PropertyType != typeof(FilterCollection)) {
+                    return base.InitializeBuildElementCollection(propertyInfo);
                 }
 
+                XmlNodeList collectionNodes = ElementXml.ChildNodes;
 
-                //Init new filter
-                
-                filter.Project = base.Project;
-                filter.Parameters = element.Parameters;
-                filter.Location = element.Location;
-                filter.Initialize();
+                // create new array of the required size - even if size is 0
+                ArrayList list = new ArrayList(collectionNodes.Count);
+
+                foreach (XmlNode childNode in collectionNodes) {
+                    // skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                    if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
+                        continue;
+                    }
+
+                    // remove element from list of remaining items
+                    UnprocessedChildNodes.Remove(childNode.Name);
+
+                    // initialize child element (from XML or data type reference)
+                    Filter filter = TypeFactory.CreateFilter(childNode, 
+                        Element);
+
+                    list.Add(filter);
+                }
+
+                MethodInfo addMethod = null;
+
+                // get array of public instance methods
+                MethodInfo[] addMethods = propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+
+                // search for a method called 'Add' which accepts a parameter
+                // to which the element type is assignable
+                foreach (MethodInfo method in addMethods) {
+                    if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                        ParameterInfo parameter = method.GetParameters()[0];
+                        if (parameter.ParameterType.IsAssignableFrom(elementType)) {
+                            addMethod = method;
+                            break;
+                        }
+                    }
+                }
+
+                if (addMethod == null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Child element type {0} cannot be added to collection" +
+                        " {1} for underlying property {2} for <{3} ... />.", elementType.FullName,
+                        propertyInfo.PropertyType.FullName, propertyInfo.Name, Name),
+                        Location);
+                }
+
+                // if value of property is null, create new instance of collection
+                object collection = propertyInfo.GetValue(Element, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                if (collection == null) {
+                    if (!propertyInfo.CanWrite) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "BuildElementArrayAttribute cannot be applied to read-only property with" +
+                            " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                            buildElementArrayAttribute.Name, Name), 
+                            Location);
+                    }
+                    object instance = Activator.CreateInstance(
+                        propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, 
+                        null, null, CultureInfo.InvariantCulture);
+                    propertyInfo.SetValue(Element, instance, 
+                        BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                }
+
+                // add each element of the arraylist to collection instance
+                foreach (object childElement in list) {
+                    addMethod.Invoke(collection, BindingFlags.Default, null, new object[] {childElement}, CultureInfo.InvariantCulture);
+                }
+            
+                return true;
             }
-            return filter;
         }
     }
 }

@@ -16,9 +16,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-
 using System;
 using System.IO;
+
 using NAnt.Core.Types;
 
 namespace NAnt.Core.Filters {
@@ -33,8 +33,7 @@ namespace NAnt.Core.Filters {
     /// chain many ChainableReaders together.  The last ChainableReader in the chain must
     /// be based on a TextReader.
     /// </remarks>
-    public class ChainableReader : IDisposable {
-
+    public abstract class ChainableReader : Element, IDisposable {
         //Delegates for supported common functionality in
         //encapsulated TextReader and ChainableReader
         private delegate int internalRead();
@@ -47,24 +46,35 @@ namespace NAnt.Core.Filters {
         private internalPeek InternalPeek;
         private internalClose InternalClose;
 
+        private bool _baseReader = false;
+
+        #region Public Instance Properties
+
         /// <summary>
-        /// True if this is reader backed by a stream in the chain.
+        /// Gets a value indicating if the reader is backed by a stream in the 
+        /// chain.
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the reader is backed by a stream;
+        /// otherwise, <see langword="false" />.
+        /// </value>
         public bool Base{
             get { return _baseReader; }
         }
-        private bool _baseReader = false;
+
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
 
         /// <summary>
         /// Makes it so all calls to Read and Peek are passed  the ChainableReader
         /// passed as a parameter.
         /// </summary>
         /// <param name="parentChainedReader">ChainableReader to forward calls to</param>
-        public ChainableReader(ChainableReader parentChainedReader) {
+        public virtual void Chain(ChainableReader parentChainedReader) {
             if (parentChainedReader == null) {
                 throw new ArgumentNullException("parentChainedReader", "Argument can not be null");
             }
-
 
             //Assign delegates
             InternalRead = new internalRead(parentChainedReader.Read);
@@ -73,7 +83,6 @@ namespace NAnt.Core.Filters {
 
             //This is just a reader in the chain
             _baseReader = false;
-
         }
 
         /// <summary>
@@ -81,17 +90,17 @@ namespace NAnt.Core.Filters {
         /// passed as a parameter.
         /// </summary>
         /// <param name="baseReader">TextReader to forward calls to</param>
-        public ChainableReader(TextReader baseReader) {
+        public virtual void Chain(TextReader baseReader) {
             if (baseReader == null) {
                 throw new ArgumentNullException("baseReader", "Argument can not be null");
             }
 
-            //Assign delegates
+            // Assign delegates
             InternalRead = new internalRead(baseReader.Read);
             InternalPeek = new internalPeek(baseReader.Peek);
             InternalClose = new internalClose(baseReader.Close);
 
-            //This is the base reader
+            // This is the base reader
             _baseReader = true;
         }
 
@@ -106,26 +115,32 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Forwards Read calls to the TextReader or ChainableReader passed in the corresponding constructor.
         /// </summary>
-        /// <returns>Character or -1 if end of stream</returns>
+        /// <returns>
+        /// Character or -1 if end of stream.
+        /// </returns>
         public virtual int Read() {
             return InternalRead();
         }
 
         /// <summary>
-        /// Closes the reader
+        /// Closes the reader.
         /// </summary>
         public virtual void Close() {
             InternalClose();
         }
-        #region IDisposable Members
+
+        #endregion Public Instance Methods
+
+        #region Implementation of IDisposable
 
         /// <summary>
-        /// Calls close and supresses the finalizer for the object
+        /// Calls close and supresses the finalizer for the object.
         /// </summary>
         public void Dispose() {
             Close();
             GC.SuppressFinalize(this);
         }
-        #endregion
+
+        #endregion Implementation of IDisposable
     }
 }

@@ -15,97 +15,63 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-using System;
-using System.IO;
-using NAnt.Core.Types;
+
+using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Filters {
     /// <summary>
     /// Base class for filters.
     /// </summary>
     /// <remarks>
-    /// Base class for filters. All NAnt filters must be derived form this class. Filter provides
+    /// Base class for filters. All NAnt filters must be derived from this class. Filter provides
     /// support for parameters and provides a reference to the project. Filter's base class
     /// ChainableReader allows filters to be chained together.
-    ///
-    /// A <see cref="FilterElement"/> is used to create a Filter.
     /// </remarks>
     public abstract class Filter : ChainableReader {
+        #region Private Instance Fields
+
+        private bool _ifDefined = true;
+        private bool _unlessDefined;
+
+        #endregion Private Instance Fields
+
         #region Public Instance Properties
 
         /// <summary>
-        /// Current project.  Set after construction but before Initialize() is called.
+        /// If <see langword="true" /> then the filter will be used; otherwise, 
+        /// skipped. The default is <see langword="true" />.
         /// </summary>
-        public Project Project {
-            get { return _project; }
-            set { _project = value;}
+        [TaskAttribute("if")]
+        [BooleanValidator()]
+        public bool IfDefined {
+            get { return _ifDefined; }
+            set { _ifDefined = value; }
         }
-        private Project _project = null;
-
 
         /// <summary>
-        /// Collection of parameters that belong to the filter.
-        /// Set after construction but before Initialize() is called.
+        /// Opposite of <see cref="IfDefined" />. If <see langword="false" /> 
+        /// then the filter will be executed; otherwise, skipped. The default 
+        /// is <see langword="false" />.
         /// </summary>
-        public FilterElementParameterCollection Parameters {
-            get { return _parameters; }
-            set { _parameters = value; }
+        [TaskAttribute("unless")]
+        [BooleanValidator()]
+        public bool UnlessDefined {
+            get { return _unlessDefined; }
+            set { _unlessDefined = value; }
         }
-        FilterElementParameterCollection _parameters = null;
 
-        /// <summary>
-        /// Used to get and set the location of the filter.
-        /// This fill be the location of the element that
-        /// represents this filter.
-        /// </summary>
-        public Location Location {
-            get { return _location; }
-            set { _location = value; }
-        }
-        Location _location = null;
+        #endregion Public Instance Properties
 
-        #endregion Instance Properties
-
-        #region Public Instance Constructors
-
-        /// <summary>
-        /// See ChainableReader(ChainableReader chainedReader)
-        /// </summary>
-        public Filter(ChainableReader chainedReader) : base(chainedReader) {}
-
-        /// <summary>
-        /// See ChainableReader(TextReader textReader)
-        /// </summary>
-        public Filter(TextReader textReader) : base(textReader) {}
-
-        #endregion Public Instance Constructors
-
-        #region Public Virtual Methods
+        #region Public Instance Methods
 
         /// <summary>
         /// Called after construction and after properties are set. Allows
-        /// for filter initialization based on properties such as Project and Properties.
+        /// for filter initialization.
         /// </summary>
-        public virtual void Initialize() {}
-
-        #endregion Public Virtual Methods
-
-        #region PublicInstanceMethods
-
-        /// <summary>
-        /// Logs a message with the given priority.
-        /// </summary>
-        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to be logged.</param>
-        /// <remarks>
-        /// The actual logging is delegated to the project.
-        /// </remarks>
-        public virtual void Log(Level messageLevel, string message) {
-            if (Project != null) {
-                Project.Log(messageLevel, message);
-            }
+        public virtual void InitializeFilter() {
         }
-        #endregion PublicInstanceMethods
+
+        #endregion Public Instance Methods
     }
 }
 
