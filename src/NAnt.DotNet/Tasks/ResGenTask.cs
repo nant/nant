@@ -591,18 +591,19 @@ namespace NAnt.DotNet.Tasks {
                     return false;
                 }
 
-                XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(
-                    new StreamReader(resourceFile, true)));
+                using (StreamReader sr = new StreamReader(resourceFile, true)) {
+                    XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(sr));
 
-                // determine the number of <data> elements that have a "type"
-                // attribute with a value that does not start with "System."
-                // and is not fully qualified
-                int count = xpathDoc.CreateNavigator().Select("/root/data[@type and not(starts-with(@type, 'System.') and contains(@type,'PublicKeyToken='))]").Count;
+                    // determine the number of <data> elements that have a "type"
+                    // attribute with a value that does not start with "System."
+                    // and is not fully qualified
+                    int count = xpathDoc.CreateNavigator().Select("/root/data[@type and not(starts-with(@type, 'System.') and contains(@type,'PublicKeyToken='))]").Count;
 
-                // if there are no <data> elements of a third party type, we 
-                // assume that the resource file does not reference types from
-                // third party assemblies
-                return count > 0;
+                    // if there are no <data> elements of a third party type, we 
+                    // assume that the resource file does not reference types from
+                    // third party assemblies
+                    return count > 0;
+                }
             } catch (Exception) {
                 // have the resgen tool deal with issues (eg. invalid xml)
                 return true;
@@ -623,37 +624,39 @@ namespace NAnt.DotNet.Tasks {
                 return null;
             }
 
-            XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(
-                new StreamReader(resxFile.FullName, true)));
-            XPathNavigator xpathNavigator = xpathDoc.CreateNavigator();
+            using (StreamReader sr = new StreamReader(resxFile.FullName, true)) {
+                XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(sr));
 
-            // check resheader version
-            xpathNavigator.Select("/root/resheader[@name = 'version']/value");
-            XPathNodeIterator nodeIterator = xpathNavigator.Select("/root/resheader[@name = 'version']/value");
-            if (nodeIterator.MoveNext()) {
-                string version = nodeIterator.Current.Value;
-                // 1.0 resx files do not support external file references
-                if (version == "1.0.0.0") {
-                    return null;
+                XPathNavigator xpathNavigator = xpathDoc.CreateNavigator();
+
+                // check resheader version
+                xpathNavigator.Select("/root/resheader[@name = 'version']/value");
+                XPathNodeIterator nodeIterator = xpathNavigator.Select("/root/resheader[@name = 'version']/value");
+                if (nodeIterator.MoveNext()) {
+                    string version = nodeIterator.Current.Value;
+                    // 1.0 resx files do not support external file references
+                    if (version == "1.0.0.0") {
+                        return null;
+                    }
                 }
-            }
 
-            StringCollection externalFiles = new StringCollection();
-            string baseExternalFileDirectory = UseSourcePath ? resxFile.DirectoryName
-                : Project.BaseDirectory;
+                StringCollection externalFiles = new StringCollection();
+                string baseExternalFileDirectory = UseSourcePath ? resxFile.DirectoryName
+                    : Project.BaseDirectory;
 
-            // determine the number of <data> elements that have a "type"
-            // attribute with a value that does not start with "System."
-            XPathNodeIterator xfileIterator = xpathNavigator.Select("/root/data[@type = 'System.Resources.ResXFileRef, System.Windows.Forms']/value");
-            while (xfileIterator.MoveNext()) {
-                string[] parts = xfileIterator.Current.Value.Split(';');
-                if (parts.Length <= 1) {
-                    continue;
+                // determine the number of <data> elements that have a "type"
+                // attribute with a value that does not start with "System."
+                XPathNodeIterator xfileIterator = xpathNavigator.Select("/root/data[@type = 'System.Resources.ResXFileRef, System.Windows.Forms']/value");
+                while (xfileIterator.MoveNext()) {
+                    string[] parts = xfileIterator.Current.Value.Split(';');
+                    if (parts.Length <= 1) {
+                        continue;
+                    }
+                    externalFiles.Add(Path.Combine(baseExternalFileDirectory, parts[0]));
                 }
-                externalFiles.Add(Path.Combine(baseExternalFileDirectory, parts[0]));
-            }
 
-            return externalFiles;
+                return externalFiles;
+            }
         }
 
         #endregion Private Instance Methods
