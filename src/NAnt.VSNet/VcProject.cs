@@ -30,14 +30,14 @@ using NAnt.VSNet.Tasks;
 using NAnt.VisualCpp.Tasks;
 
 namespace NAnt.VSNet {
-	
+    
     /// <summary>
-	/// Visual C++ project.
-	/// </summary>
-	public class VcProject: ProjectBase {
+    /// Visual C++ project.
+    /// </summary>
+    public class VcProject: ProjectBase {
         
         #region Public Instance Constructors
-		
+        
         public VcProject(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) {
             _htConfigurations         = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -50,7 +50,7 @@ namespace NAnt.VSNet {
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
 
             _objFiles = new ArrayList();
-		}
+        }
 
         #endregion
 
@@ -154,7 +154,6 @@ namespace NAnt.VSNet {
                         lastConfig = fileConfig;
                         cppFilesToBuild.Clear();
                     }
-                    
                     cppFilesToBuild.Add(fileName);
                 }
             }
@@ -164,12 +163,14 @@ namespace NAnt.VSNet {
             }
 
             string libOutput = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
-            if (libOutput != null)
+            if (libOutput != null) {
                 RunLibrarian(baseConfig);
+            }
             else {
                 string linkOutput = baseConfig.GetToolSetting("VCLinkerTool", "OutputFile");
-                if (linkOutput != null)
+                if (linkOutput != null) {
                     RunLinker(baseConfig);
+                }
             }
 
             return true;
@@ -182,8 +183,9 @@ namespace NAnt.VSNet {
             }
 
             string linkOutput = config.GetToolSetting("VCLinkerTool", "OutputFile");
-            if (linkOutput != null)
+            if (linkOutput != null) {
                 return linkOutput;
+            }
             
             return config.GetToolSetting("VCLibrarianTool", "OutputFile");
         }
@@ -369,8 +371,6 @@ namespace NAnt.VSNet {
             "kernel32.lib", "user32.lib", "gdi32.lib", "winspool.lib", "comdlg32.lib",
             "advapi32.lib", "shell32.lib", "ole32.lib", "oleaut32.lib", "uuid.lib"
         };
-
         #endregion
-
     }
 }

@@ -22,12 +22,11 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 
-namespace NAnt.VSNet
-{
-	/// <summary>
-	/// A mapping from properties in the .vcproj file to command line arguments.
-	/// </summary>
-	public class VcArgumentMap {
+namespace NAnt.VSNet {
+    /// <summary>
+    /// A mapping from properties in the .vcproj file to command line arguments.
+    /// </summary>
+    public class VcArgumentMap {
         
         public VcArgumentMap() {
             _htArgs = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -100,9 +99,9 @@ namespace NAnt.VSNet
             internal abstract string MapValue(string propValue);
 
             protected string FormatOption(string value) {
-                if (_name == null)
+                if (_name == null) {
                     return "/" + value;
-
+                }
                 return "/" + _name + value;
             }
         }
@@ -144,10 +143,11 @@ namespace NAnt.VSNet
                     return null;
                 }
                 
-                if (iValue < 0 || iValue >= _values.Length || _values [iValue] == null)
+                if (iValue < 0 || iValue >= _values.Length || _values [iValue] == null) {
                     return null;
+                }
                 return FormatOption(_values [iValue]);
             }
         }
-	}
+    }
 }

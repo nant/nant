@@ -24,12 +24,11 @@ using System.IO;
 using NAnt.Core;
 using NAnt.VSNet.Tasks;
 
-namespace NAnt.VSNet
-{
-	/// <summary>
-	/// Factory class for VcProject-derived classes.
-	/// </summary>
-	public class ProjectFactory {
+namespace NAnt.VSNet {
+    /// <summary>
+    /// Factory class for VcProject-derived classes.
+    /// </summary>
+    public class ProjectFactory {
 
         #region Public Static Methods
 
@@ -65,5 +64,5 @@ namespace NAnt.VSNet
         }
 
         #endregion
-	}
+    }
 }

@@ -22,10 +22,10 @@ using System.Xml;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-	/// <summary>
-	/// Base class for all project classes
-	/// </summary>
-	public abstract class ProjectBase {
+    /// <summary>
+    /// Base class for all project classes
+    /// </summary>
+    public abstract class ProjectBase {
 
         #region Public Instance Properties
 
@@ -82,5 +82,5 @@ namespace NAnt.VSNet {
         }
 
         #endregion
-	}
+    }
 }
