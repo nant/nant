@@ -20,79 +20,76 @@
 // Even stripped down, it still includes more than NAnt needs right now, but
 // the extra functionality was left in there in case it's needed in the future.
 
-using System;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Globalization;
-
 namespace SourceForge.NAnt {
 
-    // these exceptions now have all appropriate constructors to pass the Exception_test in the unit test suite. Not sure if this is overkill or not.
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Runtime.Serialization;
+    using System.Text;
+
     [Serializable]
     public class InvalidVolumeException : ApplicationException {
+        #region Public Instance Constructors
+
         /// <summary>
-        /// Constructs a build exception with no descriptive information.
+        /// Initializes a new instance of the <see cref="InvalidVolumeException" /> class.
         /// </summary>
         public InvalidVolumeException() : base() {
         }
 
-        public InvalidVolumeException(String message) : base(message) {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidVolumeException" /> class 
+        /// with a descriptive message.
+        /// </summary>
+        /// <param name="message">A descriptive message to include with the exception.</param>
+        public InvalidVolumeException(string message) : base(message) {
         }
 
-        public InvalidVolumeException(String message, Exception e) : base(message, e) {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidVolumeException" /> class
+        /// with the specified descriptive message and inner exception.
+        /// </summary>
+        /// <param name="message">A descriptive message to include with the exception.</param>
+        /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
+        public InvalidVolumeException(string message, Exception innerException) : base(message, innerException) {
         }
 
-        public InvalidVolumeException(Uri VolUri) : base("Volume information could not be retreived for the path '" + VolUri.LocalPath + "'. Verify that the path is valid and ends in a trailing backslash, and try again."){}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidVolumeException" /> class
+        /// with the specified <see cref="Uri" />.
+        /// </summary>
+        /// <param name="volUri"><see cref="Uri" /> of the invalid volume.</param>
+        public InvalidVolumeException(Uri volUri) : base("Volume information could not be retrieved for the path '" + volUri.LocalPath + "'. Verify that the path is valid and ends in a trailing backslash, and try again."){}
 
+        #endregion Public Instance Constructors
+
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidVolumeException" /> class 
+        /// with serialized data.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
         protected InvalidVolumeException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
-    }
 
-    [Serializable]
-    public class InvalidVolumeTypeException : ApplicationException {
-        /// <summary>
-        /// Constructs a build exception with no descriptive information.
-        /// </summary>
-        public InvalidVolumeTypeException() : base("This action cannot be performed because of the volume is of the wrong type."){}
-
-        public InvalidVolumeTypeException(String message) : base(message) {
-        }
-        public InvalidVolumeTypeException(String message, Exception e) : base(message, e) {
-        }
-        protected InvalidVolumeTypeException(SerializationInfo info, StreamingContext context) : base(info, context) {
-        }
-    }
-
-    [Serializable]
-    public class VolumeAccessException : ApplicationException {
-        /// <summary>
-        /// Constructs a build exception with no descriptive information.
-        /// </summary>
-        public VolumeAccessException() : base("The volume could not be accessed and may be offline."){}
-
-        public VolumeAccessException(String message) : base(message) {
-        }
-
-        public VolumeAccessException(String message, Exception e) : base(message, e) {
-        }
-
-        protected VolumeAccessException(SerializationInfo info, StreamingContext context) : base(info, context) {
-        }
+        #endregion Protected Instance Constructors
     }
 
     /// <summary>
     /// Represents the different types of drives that may exist in a system.
     /// </summary>
-    public enum VolumeTypes {
+    public enum VolumeType {
         Unknown,    // The drive type cannot be determined.
         Invalid,    // The root path is invalid. For example, no volume is mounted at the path.
         Removable,  // The disk can be removed from the drive.
         Fixed,      // The disk cannot be removed from the drive.
         Remote,     // The drive is a remote (network) drive.
-        CDROM,      // The drive is a CD-ROM drive.
-        RAMDisk     // The drive is a RAM disk.
+        CDRom,      // The drive is a CD-ROM drive.
+        RamDisk     // The drive is a RAM disk.
     };
 
     /// <summary>
@@ -103,26 +100,25 @@ namespace SourceForge.NAnt {
         Unknown                 = 0x0,
         CaseSensitive           = 0x00000001,
         Compressed              = 0x00008000,
-        PersistentACLS          = 0x00000008,
+        PersistentAcls          = 0x00000008,
         PreservesCase           = 0x00000002,
         ReadOnly                = 0x00080000,
         SupportsEncryption      = 0x00020000,
         SupportsFileCompression = 0x00000010,
         SupportsNamedStreams    = 0x00040000,
-        SupportsObjectIDs       = 0x00010000,
+        SupportsObjectIds       = 0x00010000,
         SupportsQuotas          = 0x00000020,
         SupportsReparsePoints   = 0x00000080,
         SupportsSparseFiles     = 0x00000040,
         SupportsUnicodeOnVolume = 0x00000004
-};
+    };
 
     /// <summary>
     /// Presents information about a volume.
     /// </summary>
-    public class VolumeInfo  {
-        /**********************************************************
-        * Private Constants
-        *********************************************************/
+    public sealed class VolumeInfo  {
+        #region Private Static Fields
+
         private const int NAMESIZE = 80;
         private const int MAX_PATH = 256;
         private const int FILE_ATTRIBUTE_NORMAL = 128;
@@ -131,15 +127,16 @@ namespace SourceForge.NAnt {
         private const int SHGFI_LARGEICON = 0;
         private const int SHGFI_SMALLICON = 1;
 
-        /**********************************************************
-        * Private Structures
-        *********************************************************/
+        #endregion Private Static Fields
+
+        #region Private classes, structs and enums
+
         [StructLayout(LayoutKind.Sequential)]
         private class UniversalNameInfo {
-            public string NetworkPath=null;
+            public string NetworkPath = null;
         }
 
-        [StructLayout ( LayoutKind.Sequential, CharSet=CharSet.Ansi )]
+        [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Ansi)]
         private struct SHFILEINFOA {
             public IntPtr   hIcon;
             public int      iIcon;
@@ -150,43 +147,37 @@ namespace SourceForge.NAnt {
             public string szTypeName;
         };
 
-        /**********************************************************
-        * Private Enums
-        *********************************************************/
-        private enum UniInfoLevels {
+        private enum UniInfoLevel {
             Universal=1,
             Remote=2
         };
 
-        /**********************************************************
-         * Method Imports
-         *********************************************************/
-        [DllImport("mpr.dll")]
-        private static extern UInt32 WNetGetUniversalName( string driveLetter, UniInfoLevels InfoLevel, IntPtr Ptr, ref UInt32 UniSize );
-        [DllImport("kernel32.dll")]
-        private static extern long GetDriveType(string driveLetter);
-        [DllImport("kernel32.dll")]
-        private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
+        #endregion Private classes, structs and enums
 
-        private static void ValidateURI(Uri uri) {
-            // Make sure we were passed something
-            if (uri == null) throw new ArgumentNullException();
+        #region Private Instance Constructors
 
-            // Make sure we can handle this type of uri
-            if (!uri.IsFile) throw new InvalidVolumeException(uri);
-
-            // Make sure Uri is trailed properly
-            string dirsep =  String.Format(CultureInfo.InvariantCulture, "{0}",Path.DirectorySeparatorChar);
-            if (!uri.LocalPath.EndsWith(dirsep) ) throw new InvalidVolumeException(uri);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VolumeInfo" /> class.
+        /// </summary>
+        /// <remarks>
+        /// Uses a private access modifier to prevent instantiation of this class.
+        /// </remarks>
+        private VolumeInfo() {
         }
+
+        #endregion Private Instance Constructors
+
+        #region Public Static Methods
 
         /// <summary>
         /// Determines whether the file system is case sensitive. Performs a
         /// P/Invoke to the Win32 API GetVolumeInformation.
         /// </summary>
         /// <param name="uri"></param>
-        /// <returns></returns>
-        static public bool IsVolumeCaseSensitive(Uri uri) {
+        /// <returns>
+        /// <c>true</c> if the specified volume is case-sensitive; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsVolumeCaseSensitive(Uri uri) {
             ValidateURI(uri);
 
             bool isCaseSensitive = true;
@@ -205,11 +196,11 @@ namespace SourceForge.NAnt {
                 UInt32 MaxCompLen = 0;
 
                 // Attempt to retreive the information
-                long Ret = GetVolumeInformation(uri.LocalPath, VolLabel, (UInt32)VolLabel.Capacity, ref SerNum, ref MaxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity);
+                long Ret = GetVolumeInformation(uri.LocalPath, VolLabel, (UInt32)VolLabel.Capacity, ref SerNum, ref MaxCompLen, ref VolFlags, FSName, (UInt32) FSName.Capacity);
 
-                isCaseSensitive = (((VolumeFlags)VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
+                isCaseSensitive = (((VolumeFlags) VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
             }
-            else if ((int)platformID == 128) {
+            else if ((int) platformID == 128) {
                 // Mono uses Platform id = 128 for Unix
                 isCaseSensitive = true;
 
@@ -217,5 +208,26 @@ namespace SourceForge.NAnt {
             }
             return isCaseSensitive;
         }
+
+        #endregion Public Static Methods
+
+        #region Private Static Methods
+
+        [DllImport("kernel32.dll")]
+        private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
+
+        private static void ValidateURI(Uri uri) {
+            // Make sure we were passed something
+            if (uri == null) throw new ArgumentNullException();
+
+            // Make sure we can handle this type of uri
+            if (!uri.IsFile) throw new InvalidVolumeException(uri);
+
+            // Make sure Uri is trailed properly
+            string dirsep =  String.Format(CultureInfo.InvariantCulture, "{0}", Path.DirectorySeparatorChar);
+            if (!uri.LocalPath.EndsWith(dirsep) ) throw new InvalidVolumeException(uri);
+        }
+
+        #endregion Private Static Methods
     }
 }
