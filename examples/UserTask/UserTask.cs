@@ -23,7 +23,7 @@ namespace NAnt.Examples.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            Log(Level.Info, Message.ToUpper());
+            Log(Level.Info, _message.ToUpper());
         }
 
         #endregion Override implementation of Task
