@@ -242,6 +242,7 @@
             <assemblies basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="NAnt.*Tasks.dll" />
+                <includes name="NAnt.NUnitFormatters.dll" />
             </assemblies>
             <documenters>
                 <documenter name="MSDN">
