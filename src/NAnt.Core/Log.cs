@@ -428,8 +428,11 @@ namespace NAnt.Core {
 
                         // output nested exceptions
                         Exception nestedException = error.InnerException;
+                        int exceptionIndentationLevel = indentationLevel;
+                        int indentShift = 4; //e.Project.IndentationSize;
                         while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                            OutputMessage(Level.Error, " " + nestedException.Message, indentationLevel);
+                            exceptionIndentationLevel += indentShift;
+                            OutputMessage(Level.Error, nestedException.Message, exceptionIndentationLevel);
                             nestedException = nestedException.InnerException;
                         }
                     }
@@ -553,26 +556,44 @@ namespace NAnt.Core {
         /// <param name="message">The message to output.</param>
         /// <param name="indentationLength">The number of characters that the message should be indented.</param>
         private void OutputMessage(Level mesageLevel, string message, int indentationLength) {
-            string indentedMessage = null;
+
+            //
+            // split the message by lines - the separator is "\n" since we've eliminated
+            // \r characters
 
             if (mesageLevel >= Threshold) {
+                string txt = message;
+
+                //
+                // beautify the message a bit
+                //
+                txt = txt.Replace("\t", " "); // replace tabs with spaces
+                txt = txt.Replace("\r", ""); // get rid of \r
+
+                string[] lines = txt.Split('\n');
+                string indentString = String.Empty;
+
                 if (indentationLength > 0) {
-                    StringBuilder sb = new StringBuilder(message);
-                    sb.Insert(0, " ", indentationLength);
-                    indentedMessage = sb.ToString();
-                } else {
-                    indentedMessage = message;
+                    indentString = new String(' ', indentationLength);
                 }
 
-                // output the message to the console
-                Console.Out.WriteLine(indentedMessage);
+                foreach (string line in lines) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append(' ', indentationLength);
+                    sb.Append(line);
 
-                // if an OutputWriter was set, write the message to it
-                if (OutputWriter != null) {
-                    OutputWriter.WriteLine(indentedMessage);
+                    string indentedMessage = sb.ToString();
+
+                    // output the message to the console
+                    Console.Out.WriteLine(indentedMessage);
+
+                    // if an OutputWriter was set, write the message to it
+                    if (OutputWriter != null) {
+                        OutputWriter.WriteLine(indentedMessage);
+                    }
+
+                    Log(indentedMessage);
                 }
-
-                Log(indentedMessage);
             }
         }
 
