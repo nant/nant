@@ -279,7 +279,7 @@ namespace NAnt.VSNet {
             string asmListingLocation = fileConfig.GetToolSetting(compilerTool, "AssemblerListingLocation");
             if (asmOutput != null && asmOutput != "0" && asmListingLocation != null) {
                 // parameter for AssemblerOutput itself will be handled by the map
-                clTask.Arguments.Add(new Argument("/Fa" + asmListingLocation));
+                clTask.Arguments.Add(new Argument("/Fa\"" + asmListingLocation + "\""));
             }
 
             string intermediateDir = Path.Combine(_projectDirectory, fileConfig.IntermediateDir);
