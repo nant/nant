@@ -47,5 +47,20 @@ namespace SourceForge.NAnt.Tests {
             string result = RunBuild(String.Format(_format, "verbose='true'"));
             Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
         }
+
+        public void Test_DuplicateTasks() {
+            string xml = @"<?xml version='1.0' ?>
+            <project>
+                <sysinfo/>
+                <sysinfo/>
+            </project>";
+
+           try {
+              string result = RunBuild(xml);
+
+           } catch(BuildException e) {
+              Fail("Duplicate sysinfo tasks should've worked\n" + e.ToString());
+           }
+        }
     }
 }
