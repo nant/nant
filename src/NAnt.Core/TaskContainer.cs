@@ -85,8 +85,7 @@ namespace NAnt.Core {
         /// </remarks>
         protected virtual void ExecuteChildTasks() {
             foreach (XmlNode childNode in XmlNode) {
-                if (childNode.Name.StartsWith("#") && 
-                    childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                     continue;
                 }
 
@@ -105,12 +104,7 @@ namespace NAnt.Core {
         }
 
         protected virtual Task CreateChildTask(XmlNode node) {
-            try {
-                return Project.CreateTask(node);
-            } catch (BuildException ex) {
-                Log(Level.Error, LogPrefix + "Failed to created task for <{0} ... /> XML element for reason:\n {1}", node.Name, ex.ToString());
-            }
-            return null;
+			return Project.CreateTask(node);
         }
         
         protected virtual bool IsPrivateXmlElement(XmlNode node) {
