@@ -652,6 +652,8 @@ namespace NAnt.VSNet {
                 CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
             string minorVersion = (int.Parse(elemReference.Attributes["VersionMinor"].Value, 
                 CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
+			string lcid = (int.Parse(elemReference.Attributes["Lcid"].Value, 
+				CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
             string referenceName = elemReference.Attributes["Name"].Value;
 
             string tlbVersionKey = string.Format(@"TYPELIB\{0}\{1}.{2}", 
@@ -659,7 +661,7 @@ namespace NAnt.VSNet {
 
             string tlbRegistryKey = string.Format(@"TYPELIB\{0}\{1}.{2}\{3}\win32", 
                 elemReference.Attributes["Guid"].Value, majorVersion, minorVersion,
-                elemReference.Attributes["Lcid"].Value);
+				lcid);
 
             // look for a primary interop assembly
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
