@@ -130,9 +130,9 @@
             <td>
                 <xsl:apply-templates mode="docstring" select="." />
                 <xsl:if test="attribute/property[@name='ExpandProperties' and @value='False']">
-                    <p />
-                    <b>Note:</b> This attribute's propeties will not be automatically expanded!
-                    <p />
+                    <p style="font-weight: bold;">
+                        This attribute's properties will not be automatically expanded!
+                    </p>
                 </xsl:if>
                 
             </td>
