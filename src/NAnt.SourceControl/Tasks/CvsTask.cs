@@ -66,6 +66,30 @@ namespace NAnt.SourceControl.Tasks {
             set {_commandName = value;}
         }
 
+        /// <summary>
+        /// Specify if the module is needed for this cvs command.  
+        /// </summary>
+        protected override bool IsModuleNeeded {
+            get {
+                bool moduleNeeded;
+                switch (this.CommandName) {
+                    case CheckoutTask.CvsCommandName:
+                        moduleNeeded = true;
+                        break;
+                    case UpdateTask.CvsCommandName:
+                        moduleNeeded = false;
+                        break;
+                    case "commit":
+                        moduleNeeded = false;
+                        break;
+                    default:
+                        moduleNeeded = true;
+                        break;
+                }
+                return moduleNeeded;
+            }
+        }
+
         #endregion
     }
 }

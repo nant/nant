@@ -267,7 +267,7 @@ namespace NAnt.SourceControl.Tasks {
         ///   <para>In NAnt the module name would be:</para>
         ///   <code>nant</code>
         /// </example>
-        [TaskAttribute("module", Required=true)]
+        [TaskAttribute("module", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Module {
             get { return _module; }
@@ -447,6 +447,11 @@ namespace NAnt.SourceControl.Tasks {
             }
 
             AppendFiles();
+            if (IsModuleNeeded && null == Module) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Cvs module is required for this action."), 
+                    Location);
+            }
             if (IsModuleNeeded) {
                 Arguments.Add(new Argument(Module));
             }
