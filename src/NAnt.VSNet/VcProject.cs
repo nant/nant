@@ -1533,7 +1533,7 @@ namespace NAnt.VSNet {
             }
 
             try {
-                ProductVersion productVersion = GetProductVersion(docElement);
+                GetProductVersion(docElement);
                 // no need to perform version check here as this is done in 
                 // GetProductVersion
             } catch {

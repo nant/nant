@@ -171,7 +171,7 @@ namespace NAnt.VSNet {
             }
 
             try {
-                ProductVersion productVersion = GetProductVersion(projectNode);
+                GetProductVersion(projectNode);
                 // no need to perform version check here as this is done in 
                 // GetProductVersion
             } catch {

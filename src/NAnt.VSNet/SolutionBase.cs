@@ -186,7 +186,6 @@ namespace NAnt.VSNet {
         public bool Compile(string configuration) {
             GetDependenciesFromProjects(configuration);
 
-            Hashtable htDeps = (Hashtable) _htProjectDependencies.Clone();
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             ArrayList failedProjects = new ArrayList();

@@ -35,8 +35,6 @@ namespace NAnt.VSNet {
             _project = project;
             _settings = new ArrayList();
 
-            string extension = string.Empty;
-
             // check whether build file is valid
             if (elemRoot.FirstChild == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
