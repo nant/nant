@@ -18,9 +18,9 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -31,167 +31,79 @@ using System.Xml.Xsl;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// ConsoleDriver is used as the main entry point to NAnt. It is called by the ConsoleStub.
+    /// Main entry point to NAnt that is called by the ConsoleStub.
     /// </summary>
     public class ConsoleDriver {
-        private static readonly log4net.ILog debuglogger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #region Private Static Fields
+
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     
-        const string buildfileOption    = "-buildfile:";
-        const string buildfileOption2   = "-file:";
-        const string buildfileOption3   = "-f:";
-        const string setOption          = "-D:";
-        const string helpOption         = "-help";
-        const string helpOption2        = "-?";
-        const string projectHelpOption  = "-projecthelp";
-        const string verboseOption      = "-verbose";
-        const string verboseOption2     = "-v";
-        const string findOption         = "-find";
-        const string loggerOption       = "-logger:";
-        const string logFileOption      = "-logfile:";
-        const string logFileOption2     = "-l:";
-        
-        //not documented. Used for testing.
-        const string indentOption       = "-indent";
+        #endregion Private Static Fields
+
+        #region Public Static Methods
                 
-        private enum CommandLineOption {
-            OPTION_BUILDFILE,
-            OPTION_SET,
-            OPTION_HELP,
-            OPTION_PROJECTHELP,
-            OPTION_VERBOSE,
-            OPTION_FIND,
-            OPTION_INDENT,
-            OPTION_LOGGER,
-            OPTION_LOGFILE,
-            OPTION_TARGET
-        }
-        
-        /// <summary>
-        /// Given one parsed command-line argument, identify the supported flag being provided,
-        /// or throw an ApplicationException if invalid.
-        /// </summary>
-        /// <param name="arg">A single command-line argument.</param>
-        /// <returns>The CommandLineOption enum value indicating the flag represented by arg.</returns>
-        private static CommandLineOption IdentifyArgument(string arg) {
-            if (    arg.StartsWith(buildfileOption) || 
-                arg.StartsWith(buildfileOption2) ||
-                arg.StartsWith(buildfileOption3)) {
-                return CommandLineOption.OPTION_BUILDFILE;
-            } else if (arg.StartsWith(setOption)) {
-                return CommandLineOption.OPTION_SET;
-            } else if (arg.Equals(helpOption) || arg.Equals(helpOption2)) {
-                return CommandLineOption.OPTION_HELP;
-            } else if (arg.Equals(projectHelpOption))   {
-                return CommandLineOption.OPTION_PROJECTHELP;
-            } else if (arg.Equals(verboseOption) || arg.Equals(verboseOption2)) {
-                return CommandLineOption.OPTION_VERBOSE;
-            } else if (arg.Equals(findOption)) {
-                return CommandLineOption.OPTION_FIND;
-            } else if (arg.StartsWith(indentOption)) {
-                return CommandLineOption.OPTION_INDENT;
-            } else if (arg.StartsWith(loggerOption)) {
-                return CommandLineOption.OPTION_LOGGER;
-            } else if (arg.StartsWith(logFileOption) || arg.StartsWith(logFileOption2)) {
-                return CommandLineOption.OPTION_LOGFILE;
-            }
-                //I kept this logic about arg.Length > 0, but isn't it redundant?  
-                //"".StartsWith("-") == false
-            else if (arg.Length > 0 && arg.StartsWith("-")) {
-                throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", arg));
-            } else {
-                // must be a target if not an option
-                return CommandLineOption.OPTION_TARGET;
-            }
-
-
-        }
-
         /// <summary>
         /// Starts NAnt. This is the Main entry point
         /// </summary>
         /// <param name="args">Command Line args, or whatever you want to pass it. They will treated as Command Line args.</param>
         /// <returns>The exit code.</returns>
         public static int Main(string[] args) {
+            CommandLineParser commandLineParser = null;
             StreamWriter logFileStream = null;
-            bool verbose = false;
+            Project project = null;
 
             try {
-                Project project = null;
-                bool showHelp = false;
-                bool showProjectHelp = false;
-                bool findInParent = false;
-                System.Collections.Specialized.StringCollection targets = new System.Collections.Specialized.StringCollection();
                 PropertyDictionary buildOptionProps = new PropertyDictionary();
 
-                bool changeLogger = false;
-                string loggerType = "";
-                string logFile = null;
+                CommandLineOptions cmdlineOptions = new CommandLineOptions();
 
-                foreach (string arg in args) {
-                    CommandLineOption currentOption = IdentifyArgument(arg);
-                    switch (currentOption) {
-                        
-                        case CommandLineOption.OPTION_BUILDFILE:
-                            if(project != null ) {
-                                Log.WriteLine("Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'",arg.Substring(arg.IndexOf(":") + 1), project.BuildFileURI);                         
-                            }
-                            project = new Project(arg.Substring(arg.IndexOf(":") + 1), verbose );
-                            break;
-                        case CommandLineOption.OPTION_FIND:
-                            findInParent = true;
-                            break;
-                        case CommandLineOption.OPTION_HELP:
-                            showHelp = true;
-                            break;
-                        case CommandLineOption.OPTION_INDENT:
-                            Log.IndentLevel = Int32.Parse(arg.Substring(indentOption.Length + 1));
-                            break;
-                        case CommandLineOption.OPTION_LOGFILE:
-                            logFile = arg.Substring(arg.IndexOf(":") + 1);
-                            break;
-                        case CommandLineOption.OPTION_LOGGER:
-                            changeLogger = true;
-                            loggerType = arg.Substring(arg.IndexOf(":") + 1);
-                            break;
-                        case CommandLineOption.OPTION_PROJECTHELP:
-                            showProjectHelp = true;
-                            break;
-                        case CommandLineOption.OPTION_SET:
-                            // Properties from command line cannot be overwritten by
-                            // the build file.  Once set they are set for the rest of the build.
-                            Match match = Regex.Match(arg, @"-D:(\w+.*)=(\w*.*)");
-                            if (match.Success) {
-                                string name = match.Groups[1].Value;
-                                string value = match.Groups[2].Value;
-                                buildOptionProps.AddReadOnly(name, value);
-                            }
-                            break;
-                        case CommandLineOption.OPTION_TARGET:
-                            targets.Add(arg);
-                            break;
-                        case CommandLineOption.OPTION_VERBOSE:
-                            verbose = true;
-                            if(project != null)
-                                project.Verbose=true;
-                            break;
+                commandLineParser = new CommandLineParser(typeof(CommandLineOptions));
+                commandLineParser.Parse(args, cmdlineOptions);
+
+                if (!cmdlineOptions.NoLogo) {
+                    Console.WriteLine(commandLineParser.LogoBanner);
+                }
+
+                if (cmdlineOptions.ShowHelp) {
+                    ConsoleDriver.ShowHelp(commandLineParser);
+                    return 0;
+                }
+
+                if (cmdlineOptions.BuildFile != null) {
+                    if(project != null ) {
+                        Log.WriteLine("Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile.FullName, project.BuildFileURI);
+                    }
+                    project = new Project(cmdlineOptions.BuildFile.FullName, cmdlineOptions.Verbose);
+                }
+
+                if (cmdlineOptions.Indent != 0) {
+                    Log.IndentLevel = cmdlineOptions.Indent;
+                }
+
+                foreach (string property in cmdlineOptions.Properties) {
+                    Match match = Regex.Match(property, @"(\w+.*)=(\w*.*)");
+                    if (match.Success) {
+                        string name = match.Groups[1].Value;
+                        string value = match.Groups[2].Value;
+                        buildOptionProps.AddReadOnly(name, value);
                     }
                 }
 
-                if (changeLogger) {
-                    LogListener logger;
-                    try {
-                        if(logFile != null) {
-                            logFileStream = new StreamWriter(new FileStream(logFile, FileMode.Create, FileAccess.Write, FileShare.None));
-                            logger = CreateLogger(loggerType, logFileStream);
-                        } else {
-                            logger = CreateLogger(loggerType);
-                        }
-                    } catch(Exception e) {
-                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}", loggerType));
-                        throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}",loggerType), e);
-                    }
+                if (cmdlineOptions.LoggerType != null) {
                     Log.Listeners.Clear();
-                    Log.Listeners.Add(logger);
+                    try {
+                        LogListener logListener;
+                        if(cmdlineOptions.LogFile != null) {
+                            logFileStream = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
+                            logListener = CreateLogger(cmdlineOptions.LoggerType, logFileStream);
+                        } else {
+                            logListener = CreateLogger(cmdlineOptions.LoggerType);
+                        }
+                        Log.Listeners.Add(logListener);
+                    } catch(Exception e) {
+                        logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}.", cmdlineOptions.LoggerType), e);
+                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}", cmdlineOptions.LoggerType));
+                    }
                 }
 
                 foreach (LogListener listener in Log.Listeners) {
@@ -206,72 +118,83 @@ namespace SourceForge.NAnt {
                     }
                 }
 
-                if (showHelp) {
-                    ShowCommandLineHelp();
+                // Get build file name if the project has not been created.
+                // If a build file was not specified on the command line.
+                if(project == null) {
+                    project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), cmdlineOptions.Verbose);
+                }                    
 
+                // copy cmd line targets
+                foreach (string target in cmdlineOptions.Targets) {
+                    project.BuildTargets.Add(target);
+                }
+
+                foreach (System.Collections.DictionaryEntry de in buildOptionProps) {
+                    project.Properties.AddReadOnly((string) de.Key, (string) de.Value);
+                }
+
+                //add these here and in the project .ctor
+                Assembly ass = Assembly.GetExecutingAssembly();
+
+                project.Properties.AddReadOnly(Project.NANT_PROPERTY_FILENAME, ass.Location);
+                project.Properties.AddReadOnly(Project.NANT_PROPERTY_VERSION,  ass.GetName().Version.ToString());
+                project.Properties.AddReadOnly(Project.NANT_PROPERTY_LOCATION, Path.GetDirectoryName(ass.Location));
+
+                if (cmdlineOptions.ShowProjectHelp) {
+                    ConsoleDriver.ShowProjectHelp(project.Doc);
                 } else {
-                    // Get build file name if the project has not been created.
-                    // If a build file was not specified on the command line.
-                    if(project == null) {
-                        project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, findInParent), verbose);
-                    }                    
-                                       
-                    // copy cmd line targets
-                    foreach( string target in targets ){
-                        project.BuildTargets.Add( target );
-                    }
-                    
-                    foreach(System.Collections.DictionaryEntry de in buildOptionProps) {
-                        project.Properties.AddReadOnly((string)de.Key, (string)de.Value);
-                    }
-
-                    //add these here and in the project .ctor
-                    Assembly ass = Assembly.GetExecutingAssembly();
-
-                    project.Properties.AddReadOnly(Project.NANT_PROPERTY_FILENAME, ass.Location);
-                    project.Properties.AddReadOnly(Project.NANT_PROPERTY_VERSION,  ass.GetName().Version.ToString());
-                    project.Properties.AddReadOnly(Project.NANT_PROPERTY_LOCATION, Path.GetDirectoryName(ass.Location));
-
-                    //constructs a copy of ths args and removes the buildfile arg.
-                    StringBuilder argsString = new StringBuilder(args.Length * 12, 600);
-                    foreach (string arg in args) {
-                        if (CommandLineOption.OPTION_BUILDFILE == IdentifyArgument(arg)) {
-                            continue;
-                        }
-                        argsString.Append(arg);
-                        argsString.Append(" ");
-                    }
-                    project.Properties.AddReadOnly("nant.cl-opts", argsString.ToString());
-
-                    if (showProjectHelp) {
-                        ShowProjectHelp(project.Doc);
-                    } else {
-                        if (!project.Run()) {
-                            throw new ApplicationException("");
-                        }
+                    if (!project.Run()) {
+                        return 1;
                     }
                 }
                 return 0;
+            } catch (CommandLineArgumentException e) {
+                // Log exception to internal log
+                logger.Warn("Invalid commandline specified.", e);
+
+                // Write logo banner to conole if parser was created successfully
+                if (commandLineParser != null) {
+                    Console.WriteLine(commandLineParser.LogoBanner);
+                }
+
+                // Write message of exception to console
+                Console.WriteLine(e.Message);
+                return 1;
             } catch (ApplicationException e) {
-                debuglogger.Debug("Internal Nant Error", e);
-               
                 if (e.InnerException != null && e.InnerException.Message != null) {
                     Console.WriteLine(e.Message + "\n\t" + e.InnerException.Message);
                 } else {
                     Console.WriteLine(e.Message);
                 }
-                Console.WriteLine("More information was logged via log4net at level debug");
+
+                Console.WriteLine();
+                if (logger.IsWarnEnabled) {
+                    logger.Warn("Internal Nant Error", e);
+                    Console.WriteLine("Consult the log4net output for more information.");
+                } else {
+                    Console.WriteLine("For more information regarding the cause of the " +
+                        "build failure, enable log4net using the instructions in NAnt.exe.config and " +
+                        "run the build again.");
+                }
+
                 Console.WriteLine();
                 Console.WriteLine("Try 'nant -help' for more information");
                 return 1;
             } catch (Exception e) {
-                debuglogger.Debug("Internal Nant Error", e);
-
                 // all other exceptions should have been caught
                 Console.WriteLine("INTERNAL ERROR");
                 Console.WriteLine(e.Message);
+
                 Console.WriteLine();
-                Console.WriteLine("More information was logged via log4net at level debug");
+                if (logger.IsFatalEnabled) {
+                    logger.Fatal("Internal Nant Error", e);
+                    Console.WriteLine("Consult the log4net output for more information.");
+                } else {
+                    Console.WriteLine("For more information regarding the cause of the " +
+                        "build failure, enable log4net using the instructions in NAnt.exe.config and " +
+                        "run the build again.");
+                }
+
                 Console.WriteLine();
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
                 return 2;
@@ -349,14 +272,27 @@ namespace SourceForge.NAnt {
             return buildFileName;
         }
 
-        ///<summary>dynamically constructs an instance of the class specified. At this point, only looks in the assembly where LogListener is defined</summary>
+        /// <summary>
+        /// Dynamically constructs an instance of the class specified.
+        /// </summary>
+        /// <remarks>
+        /// At this point, only looks in the assembly where <see cref="LogListener" /> 
+        /// is defined.
+        /// </remarks>
         public static LogListener CreateLogger(string className) {
             Assembly assembly = Assembly.GetAssembly(typeof(LogListener));
 
             return (LogListener) Activator.CreateInstance(assembly.GetType(className, true));
         }
 
-        ///<summary>dynamically constructs an instance of the class specified using the passed TextWriter. At this point, only looks in the assembly where LogListener is defined</summary>
+        /// <summary>
+        /// Dynamically constructs an instance of the class specified using the 
+        /// passed <see cref="TextWriter" />.
+        /// </summary>
+        /// <remarks>
+        /// At this point, only looks in the assembly where <see cref="LogListener" /> 
+        /// is defined.
+        /// </remarks>
         public static LogListener CreateLogger(string className, TextWriter writer) {
             Assembly assembly = Assembly.GetAssembly(typeof(LogListener));
 
@@ -365,43 +301,25 @@ namespace SourceForge.NAnt {
             return (LogListener) Activator.CreateInstance(assembly.GetType(className, true), args);
         }
 
+        #endregion Public Static Methods
+
+        #region Private Static Methods
+
         /// <summary>
         /// Spits out generic help info to the console.
         /// </summary>
-        private static void ShowCommandLineHelp() {
-            // Get version information directly from assembly.  This takes more
-            // work but keeps the version numbers being displayed in sync with
-            // what the assembly is marked with.
-            FileVersionInfo info = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-
-            const int optionPadding = 23;
-
-            Console.WriteLine("NAnt version {0} Copyright (C) 2001-{1} Gerry Shaw",
-                info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart,
-                DateTime.Now.Year);
-            Console.WriteLine(Assembly.GetExecutingAssembly().CodeBase);
-            Console.WriteLine("http://nant.sf.net");
+        private static void ShowHelp(CommandLineParser parser) {
+            Console.WriteLine("http://nant.sourceforge.net");
             Console.WriteLine();
             Console.WriteLine("NAnt comes with ABSOLUTELY NO WARRANTY.");
             Console.WriteLine("This is free software, and you are welcome to redistribute it under certain");
             Console.WriteLine("conditions set out by the GNU General Public License.  A copy of the license");
             Console.WriteLine("is available in the distribution package and from the NAnt web site.");
             Console.WriteLine();
-            Console.WriteLine("usage: nant [options] [target [target2 [target3] ... ]]");
-            Console.WriteLine();
-            Console.WriteLine("options:");
-            Console.WriteLine("  {0} print this message", helpOption.PadRight(optionPadding));
-            Console.WriteLine("  {0} print project help information", projectHelpOption.PadRight(optionPadding));
-            Console.WriteLine("  {0} use given buildfile", (buildfileOption + "<file>").PadRight(optionPadding));
-            Console.WriteLine("     {0} ''        ", (buildfileOption2 + "<file>").PadRight(optionPadding));
-            Console.WriteLine("     {0} ''        ", (buildfileOption3 + "<file>").PadRight(optionPadding));
-            Console.WriteLine("  {0} search parent directories for buildfile", findOption.PadRight(optionPadding));
-            Console.WriteLine("  {0} use value for given property", (setOption + "<property>=<value>").PadRight(optionPadding));
-            Console.WriteLine("  {0} displays more information during build process", (verboseOption + ", " + verboseOption2).PadRight(optionPadding));
-            Console.WriteLine("  {0} use given class name as logger", loggerOption.PadRight(optionPadding));
-            Console.WriteLine("  {0} use value as name of log output file", (logFileOption + ", " + logFileOption2).PadRight(optionPadding));
-            Console.WriteLine();
+            Console.WriteLine(parser.Usage);
             Console.WriteLine("A file ending in .build will be used if no buildfile is specified.");
         }
+
+        #endregion Private Static Methods
     }
 }
