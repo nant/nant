@@ -965,4 +965,132 @@ namespace NAnt.Core {
 
         #endregion Private Instance Fields
     }
+
+    /// <summary>
+    /// Implements a <see cref="TextWriter" /> for writing information to 
+    /// the NAnt logging infrastructure.
+    /// </summary>
+    public class LogWriter : TextWriter {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LogWriter" /> class 
+        /// with the specified prefix and format provider.
+        /// </summary>
+        /// <param name="task">Determines the indentation level.</param>
+        /// <param name="outputLevel">The <see cref="Level" /> with which messages will be output to the build log.</param>
+        /// <param name="logPrefix">The prefix for written messages.</param>
+        /// <param name="formatProvider">An <see cref="IFormatProvider" /> object that controls formatting.</param>
+        public LogWriter(Task task, Level outputLevel, string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
+            _task = task;
+            _logPrefix = logPrefix;
+            _outputLevel = outputLevel;
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Override implementation of TextWriter
+
+        /// <summary>
+        /// Gets the <see cref="Encoding" /> in which the output is written.
+        /// </summary>
+        /// <value>
+        /// The <see cref="LogWriter" /> always writes output in UTF8 
+        /// encoding.
+        /// </value>
+        public override Encoding Encoding {
+            get { return Encoding.UTF8; }
+        }
+
+        /// <summary>
+        /// Writes a character array to the text stream, while adding a 
+        /// prefix if its the first output on the current line.
+        /// </summary>
+        /// <param name="chars">The character array to write to the text stream.</param>
+        public override void Write(char[] chars) {
+            if (_needPrefix) {
+                _message = _logPrefix;
+                _needPrefix = false;
+            }
+            _message += new string(chars, 0, chars.Length -1);
+        }
+
+        public override void Write(string value) {
+            if (_needPrefix) {
+                _message = _logPrefix;
+                _needPrefix = false;
+            }
+
+            _message += value;
+        }
+
+        public override void WriteLine() {
+            WriteLine(string.Empty);
+        }
+
+
+        /// <summary>
+        /// Writes a string followed by a line terminator to the text stream.
+        /// </summary>
+        /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
+        public override void WriteLine(string value) {
+            if (_message.Length != 0) {
+                _task.Log(OutputLevel, _message + value);
+            } else {
+                _task.Log(OutputLevel, _logPrefix + value);
+            }
+
+            _message = string.Empty;
+            _needPrefix = true;
+        }
+
+        /// <summary>
+        /// Writes out a formatted string with prefix and a new line, using the same 
+        /// semantics as <see cref="string.Format(string, object[])" />.
+        /// </summary>
+        /// <param name="line">The formatting string.</param>
+        /// <param name="args">The object array to write into format string.</param>
+        public override void WriteLine(string line, params object[] args) {
+            if (_message.Length != 0) {
+                _task.Log(OutputLevel, _message + line, args);
+            } else {
+                _task.Log(OutputLevel, _logPrefix + _message + string.Format(CultureInfo.InvariantCulture, line, args));
+            }
+
+            _message = string.Empty;
+            _needPrefix = true;
+        }   
+
+        public override void Close() {
+            if (_message.Length != 0) {
+                _task.Log(OutputLevel, _message);
+                _message = string.Empty;
+            }
+            base.Close();
+        }
+
+        #endregion Override implementation of TextWriter
+
+        #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets the <see cref="Level" /> with which messages will be output to
+        /// the build log.
+        /// </summary>
+        protected Level OutputLevel {
+            get { return _outputLevel; }
+        }
+
+        #endregion Protected Instance Properties
+
+        #region Private Instance Fields
+
+        private Task _task;
+        private Level _outputLevel;
+        private bool _needPrefix = true;
+        private string _logPrefix;
+        private string _message = "";
+
+        #endregion Private Instance Fields
+    }
 }
