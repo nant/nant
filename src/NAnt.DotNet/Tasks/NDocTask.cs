@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -30,6 +31,7 @@ using NDoc.Core;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -284,19 +286,16 @@ namespace NAnt.DotNet.Tasks {
             Log(Level.Verbose, LogPrefix + e.Progress + "% complete");
         }
 
-        /// <summary>
-        /// Returns the documenter for the given project. If the documenter is not found it will throw a new BuildException.
-        /// </summary>
-        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
+        /// <summary>        /// Returns the documenter for the given project.        /// </summary>        /// <exception cref="BuildException">Documenter <paramref name="documenterName" /> is not found.</exception>        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
             IDocumenter documenter = null;
 
             if (project == null) {
                 project = new NDoc.Core.Project();
             }
-            StringBuilder documenters = new StringBuilder();
+            StringCollection documenters = new StringCollection();
             foreach (IDocumenter d in project.Documenters) {
-                documenters.Append(d.Name);
-                documenters.Append(" ");
+                documenters.Add(d.Name);
+
                 // ignore case when comparing documenter names
                 if (string.Compare(d.Name, documenterName, true, CultureInfo.InvariantCulture) == 0) {
                     documenter = (IDocumenter) d;
@@ -306,11 +305,15 @@ namespace NAnt.DotNet.Tasks {
 
             //throw an exception if the documenter could not be found.
             if (documenter == null) {
-                if(documenters.Length == 0) {
-                    documenters.Append("No Documenters Found!");
+                if (documenters.Count == 0) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Error loading documenter '{0}'.  There are no NDoc documenters available.", documenterName), Location);
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Error loading documenter '{0}' from available documenters ({1})." +
+                        " Is the NDoc documenter assembly available?", documenterName, 
+                        StringUtils.Join(", ", documenters)), Location);
                 }
-                string msg = String.Format(CultureInfo.InvariantCulture, "Error loading documenter '{0}' from available documenters ({1}). Is the documenter assembly available?", documenterName, documenters.ToString());
-                throw new BuildException(msg, Location);
             }
             return documenter;
         }
