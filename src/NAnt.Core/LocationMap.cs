@@ -159,6 +159,9 @@ namespace SourceForge.NAnt {
         public Location GetLocation(XmlNode node) {
             // find hashtable this node's file is mapped under
             string fileName = node.BaseURI;
+            if (fileName == "" ) {
+                return new Location(null, 0, 0 ); // return null location because we have a fileless node.
+            } 
             if (!_fileMap.ContainsKey(fileName)) {
                 throw new ArgumentException("Xml node has not been mapped.");
             }
