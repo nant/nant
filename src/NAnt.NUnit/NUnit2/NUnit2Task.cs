@@ -19,20 +19,23 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Resources;
+using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
-using System.Reflection;
-using System.Resources;
-using System.Collections;
-using System.Collections.Specialized;
-using System.Text;
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
+
 using NUnit.Framework;
 using NUnit.Core;
-using System.Globalization;
+
+using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Tasks.NUnit.Formatters;
+
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
     /// <summary>Runs tests using the NUnit V2.0 framework.</summary>
@@ -138,7 +141,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                             if (formatter.UseFile) {
                                 writer = new StreamWriter(assemblyFile + "-results" + formatter.Extension);
                             } else {
-                                writer = new LogWriter(LogPrefix);
+                                writer = new LogWriter(LogPrefix, CultureInfo.InvariantCulture);
                             }
                             CreateSummaryDocument(xmlResultFile, writer, test);
                             writer.Close();
@@ -165,7 +168,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         private TestResult[] RunRemoteTest(NUnit2Test test, EventListener listener) {
             try
             {
-                LogWriter writer = new LogWriter(LogPrefix);
+                LogWriter writer = new LogWriter(LogPrefix, CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
 
                 return domain.RunTest(test.TestName, GetTestAssemblies(test), test.AppConfigFile, listener);
@@ -192,9 +195,8 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             XmlTextReader transformReader;
             if(test.TransformFile == null) {
                 Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
-                ResourceManager resourceManager = new ResourceManager("NUnit.Framework.Transform",assembly);
-                string xmlData = (string)resourceManager.GetObject("Summary.xslt");
-
+                ResourceManager resourceManager = new ResourceManager("NUnit.Framework.Transform", assembly);
+                string xmlData = (string)resourceManager.GetObject("Summary.xslt",  CultureInfo.InvariantCulture);
                 transformReader = new XmlTextReader(new StringReader(xmlData));
             }
             else {
@@ -212,8 +214,8 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         private class LogWriter : TextWriter {
             
             public override Encoding Encoding { get { return Encoding.UTF8; } }
-            
-            public LogWriter( string logPrefix ) {
+
+            public LogWriter(string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
                 _logPrefix = logPrefix;
             }
 
