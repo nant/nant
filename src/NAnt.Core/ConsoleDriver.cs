@@ -253,20 +253,30 @@ namespace SourceForge.NAnt {
 
                 //Log.WriteLine("Searching for '{0}' file in '{1}'", searchPattern, directory);
 
-                // find first file ending in .build
+                // look for a default.build
                 DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                FileInfo[] files = directoryInfo.GetFiles(searchPattern);
-                if (files.Length == 1) {
-                    buildFileName = Path.Combine(directory, files[0].Name);
-                } else if (files.Length == 0) {
+                FileInfo[] files = directoryInfo.GetFiles("default.build");
+                if (files.Length == 1) {                    
+                    buildFileName = files[0].FullName;
+                    return buildFileName;
+                }
+                
+                // now find any file ending in .build
+                files = directoryInfo.GetFiles(searchPattern);
+                if (files.Length == 1) { // got a single .build
+                     buildFileName = files[0].FullName;
+                } 
+                else if (files.Length > 1 ) {              
+                    throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "More than one '{0}' file found in '{1}' and no default.build.  Use -buildfile:<file> to specify or create a default.build file.", searchPattern, directory));                    
+                }
+                else if (files.Length == 0 && findInParent ) { // recurse up the tree
                     DirectoryInfo parentDirectoryInfo = directoryInfo.Parent;
-                    if (findInParent && parentDirectoryInfo != null) {
-                        buildFileName = GetBuildFileName(parentDirectoryInfo.FullName, searchPattern, findInParent);
-                    } else {
-                        throw new ApplicationException((String.Format(CultureInfo.InvariantCulture, "Could not find a '{0}' file in '{1}'", searchPattern, directory)));
-                    }
-                } else { // files.Length > 1
-                    throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "More than one '{0}' file found in '{1}'.  Use -buildfile:<file> to specify.", searchPattern, directory));
+                    if ( findInParent && parentDirectoryInfo != null) {
+                        buildFileName = GetBuildFileName(parentDirectoryInfo.FullName, searchPattern, findInParent );
+                    } 
+                }
+                else {
+                     throw new ApplicationException((String.Format(CultureInfo.InvariantCulture, "Could not find a '{0}' file in '{1}'", searchPattern, directory)));
                 }
             }
             return buildFileName;
