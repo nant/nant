@@ -5,10 +5,10 @@
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" overwrite="false" />
     <!-- default configuration -->
-    <property name="project.config" value="debug" />
-    <!-- debug|release -->
+    <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
     <property name="build.defines" value="" />
+    <property name="build.number" value="${math::floor(timespan::get-total-days(datetime::now() - '01-01-2000'))}" dynamic="true" />
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
     <!-- Win32TaskAssemblies (tas.win32) -->
@@ -54,10 +54,10 @@
                 <attribute type="AssemblyConfigurationAttribute" value="${nant.settings.currentframework}.${nant.platform.name}; nightly" />
                 <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
                 <attribute type="AssemblyProductAttribute" value="NAnt" />
-                <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-2004 Gerry Shaw" />
+                <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
                 <attribute type="AssemblyTrademarkAttribute" value="" />
                 <attribute type="AssemblyCultureAttribute" value="" />
-                <attribute type="AssemblyVersionAttribute" value="${project.version}.1447.0" />
+                <attribute type="AssemblyVersionAttribute" value="${project.version}.${build.number}.0" />
                 <attribute type="AssemblyInformationalVersionAttribute" value="${project.version}" />
             </attributes>
         </asminfo>
