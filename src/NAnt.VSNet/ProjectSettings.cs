@@ -49,6 +49,9 @@ namespace NAnt.VSNet {
 
             _guid = elemRoot.FirstChild.Attributes["ProjectGuid"].Value.ToUpper(CultureInfo.InvariantCulture);
 
+            // initialize hashtable for holding string settings
+            Hashtable htStringSettings = new Hashtable();
+
             switch (elemSettings.Attributes["OutputType"].Value.ToLower(CultureInfo.InvariantCulture)) {
                 case "library":
                     _settings.Add("/target:library");
@@ -57,10 +60,14 @@ namespace NAnt.VSNet {
                 case "exe":
                     _settings.Add("/target:exe");
                     _outputExtension = ".exe";
+                    // startup object only makes sense for executable assemblies
+                    htStringSettings["StartupObject"] = @"/main:""{0}""";
                     break;
                 case "winexe":
                     _settings.Add("/target:winexe");
                     _outputExtension = ".exe";
+                    // startup object only makes sense for executable assemblies
+                    htStringSettings["StartupObject"] = @"/main:""{0}""";
                     break;
                 default:
                     throw new ApplicationException(string.Format("Unknown output type: {0}.", elemSettings.Attributes["OutputType"].Value));
@@ -100,9 +107,6 @@ namespace NAnt.VSNet {
                 }
             }
 
-            Hashtable htStringSettings = new Hashtable();
-
-            htStringSettings["StartupObject"] = @"/main:""{0}""";
             htStringSettings["ApplicationIcon"] = @"/win32icon:""{0}""";
 
             foreach (DictionaryEntry de in htStringSettings) {
