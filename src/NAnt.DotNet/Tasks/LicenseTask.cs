@@ -188,10 +188,6 @@ namespace NAnt.DotNet.Tasks {
                 licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
                     + "Loading assemblies:");
 
-                foreach (FrameworkInfo framework in licenseTask.Project.FrameworkInfoDictionary) {
-                    licenseTask.Log(Level.Verbose, framework.Name);
-                }
-
                 // first, load all the assemblies so that we can search for the 
                 // licensed component
                 foreach (string assemblyFileName in licenseTask.Assemblies.FileNames) {
@@ -261,6 +257,21 @@ namespace NAnt.DotNet.Tasks {
                                 "Failed to locate type {0}.", typeName), licenseTask.Location);
                         } else {
                             licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + ((Type) htLicenses[line]).Assembly.CodeBase);
+                        }
+
+                        object[] attributes = (object[]) tp.GetCustomAttributes(true);
+
+                        foreach (object attribute in attributes) {
+                            if (typeof(LicenseProviderAttribute).AssemblyQualifiedName == attribute.GetType().AssemblyQualifiedName) {
+                                Console.WriteLine("ASSEMBLY QUALIFIED NAMES ARE EQUAL");
+
+                                if (typeof(LicenseProviderAttribute) == attribute.GetType()) {
+                                    Console.WriteLine("TYPES ARE EQUAL");
+                                } else {
+                                    Console.WriteLine("BUT TYPES DIFFER");
+                                }
+                                break;
+                            }
                         }
 
                         // Ensure that we've got a licensed component
