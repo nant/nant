@@ -193,6 +193,10 @@ namespace NAnt.Core.Tasks {
             if (EncodingName != null) {
                 try {
                     System.Text.Encoding.GetEncoding(EncodingName);
+                } catch (ArgumentException) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "{0} is not a valid encoding.",
+                        EncodingName), Location);
                 } catch (NotSupportedException) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "{0} encoding is not supported on the current platform.",
