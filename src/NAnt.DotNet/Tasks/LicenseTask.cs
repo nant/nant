@@ -314,7 +314,6 @@ namespace NAnt.DotNet.Tasks {
                 Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-
             // get the output .licenses file
             if (OutputFile == null) {
                 try {
@@ -375,8 +374,9 @@ namespace NAnt.DotNet.Tasks {
                     base.ExecuteTask();
 
                     // delete any existing output file
-                    if ( File.Exists( licensesFile.FullName ) )
-                        File.Delete( licensesFile.FullName );
+                    if (File.Exists(licensesFile.FullName)) {
+                        File.Delete(licensesFile.FullName);
+                    }
 
                     // copy licenses file to output file
                     File.Copy(Path.Combine(BaseDirectory.FullName, Target + ".licenses"), 
