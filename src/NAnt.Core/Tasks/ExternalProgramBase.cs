@@ -301,6 +301,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>        /// Reads from the stream until the external program is ended.        /// </summary>
         private void StreamReaderThread_Output() {
             StreamReader reader = (StreamReader) _htThreadStream[Thread.CurrentThread.Name];
+            bool doAppend = OutputAppend;
             while (true) {
                 string strLogContents = reader.ReadLine();
                 if (strLogContents == null)
@@ -312,8 +313,9 @@ namespace NAnt.Core.Tasks {
                     Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
                     if (OutputFile != null && OutputFile.Length != 0) {
-                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
-                        writer.Write(strLogContents);
+                        StreamWriter writer = new StreamWriter(OutputFile, doAppend);
+                        writer.WriteLine(strLogContents);
+                        doAppend = true;
                         writer.Close();
                     }
                 }
