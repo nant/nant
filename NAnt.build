@@ -538,19 +538,26 @@
         </if>
     </target>
     
-    <target name="install-windows">
+    <target name="install-windows" depends="userdoc" >
         <property name="install.realprefix" value="c:\program files" />
         <if test="${property::exists('install.prefix') and string::get-length('install.prefix') = 0}">
             <property name="install.realprefix" value="${install.prefix}" />
         </if>
         <property name="install.copylocation" value="${path::combine(install.realprefix, 'nant')}"/>
         <echo message="installing NAnt to ${install.copylocation}" />
-        <copy todir="${install.copylocation}" overwrite="true">
-            <fileset basedir="bin">
+        
+        <copy todir="${install.copylocation}/bin" overwrite="true">
+            <fileset basedir="${build.dir}/bin">
                 <include name="**/*" />
                 <exclude name="*.Tests.dll"/>
                 <exclude name="*.xml"/>
                 <exclude name="*.pdb"/>
+            </fileset>
+        </copy>
+        <!-- install docs -->
+        <copy todir="${install.copylocation}/doc" overwrite="true">
+            <fileset basedir="${build.dir}/doc">
+                <include name="**/*" />
             </fileset>
         </copy>
     </target>
@@ -563,21 +570,27 @@
         <property name="install.bindir" value="${path::combine(install.realprefix, 'bin')}"/>
         <property name="install.share" value="${path::combine(install.realprefix, 'share')}"/>
         <property name="install.copylocation" value="${path::combine (install.share, 'nant')}"/>
-        <echo message="installing NAnt to ${install.copylocation}" />
         <property name="prefix" value="${pkg-config::get-variable('mono', 'prefix')}"/>
+        <echo message="installing NAnt to ${install.copylocation}" />
         
-        <copy todir="${install.copylocation}" overwrite="true">
-            <fileset basedir="bin">
+        <copy todir="${install.copylocation}/bin" overwrite="true">
+            <fileset basedir="${build.dir}/bin">
                 <include name="**/*" />
                 <exclude name="*.Tests.dll"/>
                 <exclude name="*.xml"/>
+            </fileset>
+        </copy>
+        <!-- only copy the static help pages on linux as the ndoc build process only works on windows -->
+        <copy todir="${install.copylocation}/doc" overwrite="true">
+            <fileset basedir="doc">
+                <include name="**/*" />
             </fileset>
         </copy>
         <echo message="installing NAnt wrapper script to ${install.bindir}" />
         <echo file="${path::combine(install.bindir, 'nant')}">
 #!/bin/sh
 
-exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'NAnt.exe')} "$@"
+exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'bin')}/NAnt.exe "$@"
         </echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
     </target>
