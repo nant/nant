@@ -83,6 +83,7 @@ namespace SourceForge.NAnt {
         /// </remarks>
         public void BuildFinished(object sender, BuildEventArgs e) {
             _xmlWriter.WriteEndElement();
+            _xmlWriter.Flush();
         }
 
         /// <summary>
