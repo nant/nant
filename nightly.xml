@@ -11,9 +11,22 @@
 		</code>
     </script>
     
+    <property name="sf.net.ssh.server" value="shell1.sf.net"/>
+    <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs/builds"/>
+    
     <include buildfile="nant.build"/>
+    
     <target name="nightly" depends="package" description="Perform a 'nightly' package">
-	<scp file="${project.zip-path}" server="shell1.sf.net" path="/home/groups/n/na/nant/htdocs/builds"/>
+		
+		<!-- copy the build up to sourceforge -->
+		<scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
+		
+		<!-- make sure files are readable -->
+		<exec program="ssh">
+			<arg value="${sf.net.ssh.server}"/>
+			<arg value="chmod a+r ${sf.net.build.path}/*"/>
+		</exec>
+		
     </target>
     
 </project>
