@@ -19,8 +19,10 @@
 
 namespace SourceForge.NAnt {
 
+    using System;
     using System.Collections;
     using System.Collections.Specialized;
+    using System.Text.RegularExpressions;
 
     public class PropertyDictionary : DictionaryBase {
 
@@ -96,6 +98,36 @@ namespace SourceForge.NAnt {
                 }
             }
         }
+
+        /// <summary>
+        /// Expands a string from known properties
+        /// </summary>
+        /// <param name="input">The string with replacement tokens</param>
+        /// <returns>The expanded and replaced string</returns>
+        public string ExpandProperties(string input) {
+            // Moved from Project.cs by Tomas Restrepo
+            string output = input;
+            if (input != null) {
+                const string pattern = @"\$\{([^\}]*)\}";
+                foreach (Match m in Regex.Matches(input, pattern)) {
+                    if (m.Length > 0) {
+
+                        string token         = m.ToString();
+                        string propertyName  = m.Groups[1].Captures[0].Value;
+                        string propertyValue = this[propertyName];
+
+                        if (propertyValue != null) {
+                            output = output.Replace(token, propertyValue);
+                        }
+                        else {
+                            throw new BuildException(String.Format("Property '{0}' has not been set!", propertyName));
+                        }
+                    }
+                }
+            }
+            return output;
+        }
+
     
     }
 }

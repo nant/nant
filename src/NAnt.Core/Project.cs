@@ -24,7 +24,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
 using System.Collections;
@@ -520,26 +519,7 @@ namespace SourceForge.NAnt {
         /// <param name="input">The string with replacement tokens</param>
         /// <returns>The expanded and replaced string</returns>
         public string ExpandProperties(string input) {
-            string output = input;
-            if (input != null) {
-                const string pattern = @"\$\{([^\}]*)\}";
-                foreach (Match m in Regex.Matches(input, pattern)) {
-                    if (m.Length > 0) {
-
-                        string token         = m.ToString();
-                        string propertyName  = m.Groups[1].Captures[0].Value;
-                        string propertyValue = Properties[propertyName];
-
-                        if (propertyValue != null) {
-                            output = output.Replace(token, propertyValue);
-                        }
-                        else {
-                            throw new BuildException(String.Format("Property '{0}' has not been set!", propertyName));
-                        }
-                    }
-                }
-            }
-            return output;
+            return _properties.ExpandProperties(input);
         }
 
         /// <summary>Combine with project's <see cref="BaseDirectory"/> to form a full path to file or directory.</summary>
