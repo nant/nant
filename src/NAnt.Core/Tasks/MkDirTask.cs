@@ -47,7 +47,7 @@ namespace NAnt.Core.Tasks {
     public class MkDirTask : Task {
         #region Private Instance Fields
 
-        private string _dir = null;
+        private DirectoryInfo _dir;
 
         #endregion Private Instance Fields
 
@@ -57,10 +57,9 @@ namespace NAnt.Core.Tasks {
         /// The directory to create.
         /// </summary>
         [TaskAttribute("dir", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Dir {
-            get { return (_dir != null) ? Project.GetFullPath(_dir) : null; }
-            set { _dir = StringUtils.ConvertEmptyToNull(value); }
+        public DirectoryInfo Dir {
+            get { return _dir; }
+            set { _dir = value; }
         }
 
         #endregion Public Instance Properties
@@ -73,14 +72,13 @@ namespace NAnt.Core.Tasks {
         /// <exception cref="BuildException">The directory could not be created.</exception>
         protected override void ExecuteTask() {
             try {
-                string directory = Dir;
-                if (!Directory.Exists(directory)) {
-                    Log(Level.Info, LogPrefix + "Creating directory {0}.", directory);
-                    Directory.CreateDirectory(directory);
+                if (!Dir.Exists) {
+                    Log(Level.Info, LogPrefix + "Creating directory '{0}'.", Dir.FullName);
+                    Dir.Create();
                 }
             } catch (Exception ex) {
                 throw new BuildException(LogPrefix + string.Format(CultureInfo.InvariantCulture, 
-                    "Directory '{0}' could not be created.", Dir), Location, ex);
+                    "Directory '{0}' could not be created.", Dir.FullName), Location, ex);
             }
         }
 

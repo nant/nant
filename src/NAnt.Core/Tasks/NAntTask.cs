@@ -62,7 +62,7 @@ namespace NAnt.Core.Tasks {
     public class NAntTask : Task {
         #region Private Instance Fields
 
-        private string _buildFileName;
+        private FileInfo _buildFile;
         private string _target;
         private bool _inheritAll = true;
         private ArrayList _overrideProperties = new ArrayList();
@@ -72,12 +72,12 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The build file to build. If not specified, use the current build file.
+        /// The build file to build.
         /// </summary>
         [TaskAttribute("buildfile", Required=true) ]
-        public string BuildFileName {
-            get { return Project.GetFullPath(_buildFileName); }
-            set { _buildFileName = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo BuildFile {
+            get { return _buildFile; }
+            set { _buildFile = value; }
         }
 
         /// <summary>
@@ -115,12 +115,14 @@ namespace NAnt.Core.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of Task
+
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
+            Log(Level.Info, LogPrefix + "{0} {1}", BuildFile.FullName, DefaultTarget);
             Log(Level.Info, string.Empty);
 
             // create new project with same threshold as current project and increased indentation level
-            Project project = new Project(Project.GetFullPath(BuildFileName), Project.Threshold, Project.IndentationLevel + 1);
+            Project project = new Project(BuildFile.FullName, Project.Threshold, 
+                Project.IndentationLevel + 1);
 
             // add listeners of current project to new project
             project.AttachBuildListeners(Project.BuildListeners);
@@ -175,8 +177,7 @@ namespace NAnt.Core.Tasks {
             try {
                 // change current directory to directory of the build file that
                 // will be run
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(
-                    Project.GetFullPath(BuildFileName)));
+                Directory.SetCurrentDirectory(BuildFile.DirectoryName);
                 // run the given build
                 if (!project.Run()) {
                     throw new BuildException("Nested build failed.  Refer to build log for exact reason.");

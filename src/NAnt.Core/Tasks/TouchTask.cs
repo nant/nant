@@ -59,9 +59,9 @@ namespace NAnt.Core.Tasks {
     public class TouchTask : Task {
         #region Private Instance Fields
 
-        private string _file = null;
-        private string _millis = null;
-        private string _datetime = null;
+        private FileInfo _file;
+        private string _millis;
+        private string _datetime;
         private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
@@ -69,10 +69,10 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Assembly filename (required unless a <see cref="FileSet" /> is specified).
+        /// The file to touch.
         /// </summary>
         [TaskAttribute("file")]
-        public string FileName {
+        public FileInfo File {
             get { return _file; }
             set { _file = value; }
         }
@@ -110,37 +110,36 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
-        ///<summary>Initializes task and ensures the supplied attributes are valid.</summary>
-        ///<param name="taskNode">Xml node used to define this task instance.</param>
+        /// <summary>
+        /// Ensures the supplied attributes are valid.
+        /// </summary>
+        /// <param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             // limit task to either millis or a date string
-            if (_millis != null && _datetime != null) {
-                throw new BuildException("Cannot specify 'millis' and 'datetime' in the same touch task", Location);
+            if (Millis != null && Datetime != null) {
+                throw new BuildException("Cannot specify 'millis' and 'datetime' in the same touch task.", Location);
+            }
+
+            // limit task to touching either a file or fileset
+            if (File != null && TouchFileSet.Includes.Count != 0) {
+                throw new BuildException("Cannot specify both 'file' attribute" 
+                    + " and use <fileset> in the same <touch> task.", Location);
             }
         }
 
         protected override void ExecuteTask() {
             DateTime touchDateTime = DateTime.Now;
 
-            if (_millis != null) {
-                touchDateTime = GetDateTime(Convert.ToInt32(_millis, CultureInfo.InvariantCulture));
-            }
-
-            if (_datetime != null) {
-                touchDateTime = GetDateTime(_datetime);
+            if (Millis != null) {
+                touchDateTime = GetDateTime(Convert.ToInt32(Millis, CultureInfo.InvariantCulture));
+            } else if (Datetime != null) {
+                touchDateTime = GetDateTime(Datetime);
             }
 
             // try to touch specified file
-            if (FileName != null) {
-                string path = null;
-                try {
-                    path = Project.GetFullPath(FileName);
-                } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", FileName);
-                    throw new BuildException(msg, Location, e);
-                }
-                // touch file(s)
-                TouchFile(path, touchDateTime);
+            if (File != null) {
+                // touch file
+                TouchFile(File.FullName, touchDateTime);
             } else {
                 // touch files in fileset
                 // only use the file set if file attribute has NOT been set
@@ -156,16 +155,25 @@ namespace NAnt.Core.Tasks {
 
         private void TouchFile(string path, DateTime touchDateTime) {
             try {
-                if (File.Exists(path)) {
-                    Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                if (System.IO.File.Exists(path)) {
+                    Log(Level.Verbose, LogPrefix + "Touching file '{0}' with '{1}'.", 
+                        path, touchDateTime.ToString(CultureInfo.InvariantCulture));
                 } else {
-                    Log(Level.Verbose, LogPrefix + "Creating file {0} with {1}.", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
-                    File.Create(path);
+                    Log(Level.Verbose, LogPrefix + "Creating file '{0}' with '{1}'.", 
+                        path, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                    System.IO.File.Create(path);
                 }
-                File.SetLastWriteTime(path, touchDateTime);
-            } catch (Exception e) {
+                System.IO.File.SetLastWriteTime(path, touchDateTime);
+            } catch (Exception ex) {
+                string msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot touch file '{0}'.", path);
+
+                if (FailOnError) {
+                    throw new BuildException(msg, Location, ex);
+                }
+
                 // swallow any errors and move on
-                Log(Level.Verbose, LogPrefix + "Error: {0}.", e.ToString());
+                Log(Level.Verbose, LogPrefix + msg + " " + ex.Message);
             }
         }
 

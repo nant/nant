@@ -53,7 +53,7 @@ namespace NAnt.Core.Tasks {
     public class NAntSchemaTask : Task {
         #region Private Instance Fields
 
-        private string _outputFile = null;
+        private FileInfo _outputFile;
         private string _forType = null;
         private string _targetNamespace = "http://tempuri.org/nant-donotuse.xsd";
 
@@ -71,10 +71,9 @@ namespace NAnt.Core.Tasks {
         /// The name of the output file to which the XSD should be written.
         /// </summary>
         [TaskAttribute("output", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public virtual string OutputFile {
-            get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
-            set { _outputFile = StringUtils.ConvertEmptyToNull(value); }
+        public virtual FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -121,17 +120,15 @@ namespace NAnt.Core.Tasks {
                 taskTypes.Add(Type.GetType(ForType, true, true));
             }
 			
-			FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile); 
-			FilePermission.Assert();
-
-            using (FileStream file = File.Open(OutputFile, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+			FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile.FullName); 			FilePermission.Assert();
+            using (FileStream file = File.Open(OutputFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
                 WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)), TargetNamespace);
 
                 file.Flush();
                 file.Close();
             }
 
-            Log(Level.Info, LogPrefix + "Wrote schema to '{0}'.", OutputFile);
+            Log(Level.Info, LogPrefix + "Wrote schema to '{0}'.", OutputFile.FullName);
         }
 
         #endregion Override implementation of Task
