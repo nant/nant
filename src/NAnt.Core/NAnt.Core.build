@@ -18,13 +18,8 @@
             <sources failonempty="true">
                 <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <include name="../CommonAssemblyInfo.cs" />
-                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
-                <exclude name="Tasks/ScriptTask.cs"/>
-            </sources>
-            <resources basedir=".">
-                <include name="*.resx" />
-            </resources>
+                <include name="../CommonAssemblyInfo.cs" />               
+            </sources>                       
             <resources basedir="Resources">
                 <include name="**/*" />
             </resources>
