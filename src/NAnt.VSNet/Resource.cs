@@ -187,6 +187,9 @@ namespace NAnt.VSNet {
             // inherit namespace manager from parent task
             lt.Assemblies.NamespaceManager = lt.NamespaceManager;
 
+            // set base directory for filesets
+            lt.Assemblies.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
+
             // set task properties
             lt.InputFile = InputFile;
             lt.OutputFile = new FileInfo(Path.Combine(configurationSettings.ObjectDir.FullName, 
@@ -233,6 +236,18 @@ namespace NAnt.VSNet {
 
             // make sure framework specific information is set
             rt.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            rt.Assemblies.Parent = rt;
+
+            // inherit project from solution task from parent task
+            rt.Assemblies.Project = rt.Project;
+
+            // inherit namespace manager from parent task
+            rt.Assemblies.NamespaceManager = rt.NamespaceManager;
+
+            // set base directory for filesets
+            rt.Assemblies.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
 
             // set task properties
             rt.InputFile = InputFile;

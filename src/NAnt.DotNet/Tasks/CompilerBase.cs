@@ -1189,10 +1189,23 @@ namespace NAnt.DotNet.Tasks {
             // inherit Verbose setting from current task
             resgen.Verbose = Verbose;
 
+            // set parent of child elements
+            resgen.Assemblies.Parent = resgen;
+
+            // inherit project from parent task
+            resgen.Assemblies.Project = resgen.Project;
+
+            // inherit namespace manager from parent task
+            resgen.Assemblies.NamespaceManager = resgen.NamespaceManager;
+
+            // set base directory for filesets
+            resgen.Assemblies.BaseDirectory = References.BaseDirectory;
+
+            // set task properties
             resgen.InputFile = inputFile;
             resgen.OutputFile = outputFile;
 
-            // inherit asssembly references from current task
+            // inherit assembly references from current task
             foreach (string assemblyFile in References.FileNames) {
                 resgen.Assemblies.Includes.Add(assemblyFile);
             }
