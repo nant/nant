@@ -28,9 +28,9 @@ namespace NAnt.VSNet.Tasks {
     /// Summary description for ProjectSettings.
     /// </summary>
     public class ProjectSettings {
-        public ProjectSettings( XmlElement elemRoot, XmlElement elemSettings ) {
+        public ProjectSettings( XmlElement elemRoot, XmlElement elemSettings, TempFileCollection tfc ) {
             _elemSettings = elemSettings;
-            _tfc = new TempFileCollection();
+            _tfc = tfc;
             Directory.CreateDirectory( _tfc.BasePath );
 
             _alSettings = new ArrayList();

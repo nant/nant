@@ -45,7 +45,7 @@ namespace NAnt.VSNet.Tasks {
                 if ( sln == null )
                     throw new Exception( "External reference found, but no solution specified: " + _strName );
 
-                Project p = new Project( _nanttask );
+                Project p = new Project( _nanttask, ps.TemporaryFiles );
                 string strFile = sln.GetProjectFileFromGUID( elemReference.GetAttribute( "Project" ) );
                 if ( strFile == null )
                     throw new Exception( "External reference found, but project was not loaded: " + _strName );
