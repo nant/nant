@@ -146,7 +146,7 @@ namespace NAnt.VSNet {
         }
         
         protected ReferencesResolver ReferencesResolver {
-        	get { return _refResolver; }
+            get { return _refResolver; }
         }
 
         #endregion Protected Instance Properties
@@ -229,7 +229,7 @@ namespace NAnt.VSNet {
         #region Protected Static Methods
 
         protected static XmlDocument LoadXmlDocument(string fileName) {
-        	return ProjectFactory.LoadProjectXml(fileName);
+            return ProjectFactory.LoadProjectXml(fileName);
         }
 
         #endregion Protected Static Methods

@@ -357,34 +357,34 @@ namespace NAnt.VSNet.Tasks {
                     // store the temp dir so we can clean it up later
                     basePath = tfc.BasePath;
 
-					// create temporary domain
-					AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
-						AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+                    // create temporary domain
+                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
+                        AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
 
-					try {
-						ReferencesResolver referencesResolver =
-							((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-							typeof(ReferencesResolver).FullName).Unwrap());
+                    try {
+                        ReferencesResolver referencesResolver =
+                            ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                            typeof(ReferencesResolver).FullName).Unwrap());
 
-						using (GacCache gacCache = new GacCache(this.Project)) {
-							// check if solution file was specified
-							if (SolutionFile == null) {
-								sln = new Solution(new ArrayList(Projects.FileNames), new ArrayList(ReferenceProjects.FileNames), tfc, 
-									this, WebMaps, ExcludeProjects, OutputDir, gacCache, referencesResolver);
-							} else {
-								sln = new Solution(SolutionFile, new ArrayList(Projects.FileNames), 
-									new ArrayList(ReferenceProjects.FileNames), tfc, this, 
-									WebMaps, ExcludeProjects, OutputDir, gacCache, referencesResolver);
-							}
+                        using (GacCache gacCache = new GacCache(this.Project)) {
+                            // check if solution file was specified
+                            if (SolutionFile == null) {
+                                sln = new Solution(new ArrayList(Projects.FileNames), new ArrayList(ReferenceProjects.FileNames), tfc, 
+                                    this, WebMaps, ExcludeProjects, OutputDir, gacCache, referencesResolver);
+                            } else {
+                                sln = new Solution(SolutionFile, new ArrayList(Projects.FileNames), 
+                                    new ArrayList(ReferenceProjects.FileNames), tfc, this, 
+                                    WebMaps, ExcludeProjects, OutputDir, gacCache, referencesResolver);
+                            }
 
-							if (!sln.Compile(Configuration)) {
-								throw new BuildException("Project build failed.", Location);
-							}
-						}
-					} finally {
-						// unload temporary domain
-						AppDomain.Unload(temporaryDomain);
-					}
+                            if (!sln.Compile(Configuration)) {
+                                throw new BuildException("Project build failed.", Location);
+                            }
+                        }
+                    } finally {
+                        // unload temporary domain
+                        AppDomain.Unload(temporaryDomain);
+                    }
                 }
             } finally {
                 if (basePath != null && Directory.Exists(basePath)) {
