@@ -286,11 +286,8 @@ namespace NAnt.DotNet.Tasks {
             ResourceLinkage resourceLinkage = base.GetResourceLinkage(dependentFile, resourceCulture);
 
             // check if resource linkage could be determined at all
-            if (resourceLinkage == null) {
-                if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
-                    resourceLinkage = new ResourceLinkage(RootNamespace, null);
-                }
-            } else {
+            if (resourceLinkage != null) {
+                // for VB.NET, the root namespace always needs to be used
                 if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
                     if (resourceLinkage.HasNamespaceName) {
                         resourceLinkage.NamespaceName = RootNamespace + "." + resourceLinkage.NamespaceName;

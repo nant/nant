@@ -659,10 +659,6 @@ namespace NAnt.DotNet.Tasks {
                             resources.GetManifestResourceName(resourcePhysicalFile,
                             resourceLogicalFile), "resources");
                     } else {
-                        if (!resourceLinkage.HasNamespaceName) {
-                            resourceLinkage.NamespaceName = resources.Prefix;
-                        }
-
                         if (!resourceLinkage.HasClassName) {
                             // use filename of resource file to determine class name
 
