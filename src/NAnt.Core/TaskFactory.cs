@@ -118,6 +118,11 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Scans the given assembly for any classes derived from 
         /// <see cref="Task" /> and adds a new builder for them.
+        /// <note>
+        ///     If the taskname is already loaded then a new assembly scan 
+        ///     that finds new tasks that are already loaded will not replace it. 
+        ///     Once tasks are added, they cannot be removed.
+        /// </note>
         /// </summary>
         /// <param name="taskAssembly">The <see cref="Assembly" /> containing the new tasks to be loaded.</param>
         /// <returns>The number of tasks found in the assembly.</returns>
