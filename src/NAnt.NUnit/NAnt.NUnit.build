@@ -2,12 +2,13 @@
 <project name="NAnt.NUnit" default="build">
     <!--
         Required properties:
-            * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
-            * build.debug   - (true|false) debug build?
+            * build.dir             - (path) root level to build to, assemblies will go in ${build.dir}/bin
+            * build.debug           - (true|false) debug build?
+            * current.build.defines - framework-specific build defines
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit.dll" doc="${build.dir}/bin/NAnt.NUnit.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit.dll" doc="${build.dir}/bin/NAnt.NUnit.xml">
             <sources>
                 <includes name="*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -18,7 +19,7 @@
                 <includes name="nunit.framework.dll"/>
             </references>
         </csc>
-        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
             <sources>
                 <includes name="NUnit1/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -30,7 +31,7 @@
                 <includes name="NAnt.NUnit.dll"/>
             </references>
         </csc>
-        <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
             <sources>
                 <includes name="NUnit2/*.cs"/>
                 <!-- common assembly-level attributes -->
