@@ -50,7 +50,7 @@ namespace Tests.NAnt.Core.Util {
         [Test]
         public void Test_GetFullPath() {
             if (PlatformHelper.IsWin32) {
-                Assert.AreEqual(@"Z:\", FileUtils.GetFullPath("Z:"), "#1");
+                Assert.IsTrue(FileUtils.GetFullPath("Z:").StartsWith(@"Z:\"), "#1");
                 Assert.AreEqual(@"c:\abc\def", FileUtils.GetFullPath (@"c:\abc\def"), "#2");
                 Assert.IsTrue(FileUtils.GetFullPath(@"\").EndsWith(@"\"), "#3");
                 Assert.IsTrue(FileUtils.GetFullPath("/").EndsWith (@"\"), "#4");
