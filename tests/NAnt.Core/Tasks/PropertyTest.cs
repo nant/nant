@@ -26,9 +26,9 @@ using System.Xml;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class PropertyTest : BuildTestBase {
-		[Test]
+        [Test]
         public void Test_PropCreate() {
             string _xml = @"
                     <project name='PropTests'>
@@ -39,7 +39,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Property value not set.\n" + result, result.IndexOf("I Love you") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_PropReset() {
             string _xml = @"
                     <project name='PropTests'>
@@ -51,20 +51,20 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(_xml);
             Assertion.Assert("Property value not re-set.\n" + result, result.IndexOf("I Love me") != -1);
         }
-        
+ 
         [Test]
         public void Test_ROSet() {
-/*
-            XmlDocument doc = new XmlDocument();
-            XmlElement project = doc.CreateElement("project");
-            XmlElement echo = doc.CreateElement("echo");
-            XmlAttribute message = doc.CreateAttribute("message");
-            message.Value=""
-            project.AppendChild(
+            /*
+                        XmlDocument doc = new XmlDocument();
+                        XmlElement project = doc.CreateElement("project");
+                        XmlElement echo = doc.CreateElement("echo");
+                        XmlAttribute message = doc.CreateAttribute("message");
+                        message.Value=""
+                        project.AppendChild(
 
-            doc.AppendChild(project);
-            return doc;
-*/
+                        doc.AppendChild(project);
+                        return doc;
+            */
 
             string _xml = @"
                     <project name='PropTests'>
@@ -73,6 +73,42 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             Assertion.Assert("RO Property value was set.\n" + result, result.IndexOf("nant.filename=you") == -1);
+        }
+
+        [Test]
+        public void Test_NoOverwriteProperty() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='you'/>
+                        <property name='foo' value='me' overwrite='false' />
+                        <echo message='I Love ${foo}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Property value should not have been overwritten.\n" + result, result.IndexOf("I Love me") == -1);
+        }
+
+        [Test]
+        public void Test_OverwriteProperty() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='you'/>
+                        <property name='foo' value='me' overwrite='true' />
+                        <echo message='I Love ${foo}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Property value should have been overwritten.\n" + result, result.IndexOf("I Love me") != -1);
+        }
+
+        [Test]
+        public void Test_OverwriteReadOnlyProperty() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='you' readonly='true'/>
+                        <property name='foo' value='me' overwrite='true' />
+                        <echo message='I Love ${foo}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Read-only property should not have been overwritten.\n" + result, result.IndexOf("I Love me") == -1);
         }
     }
 }
