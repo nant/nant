@@ -59,7 +59,6 @@ namespace NAnt.VSNet {
                 }
 
                 ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, outputDir, projectFile);
-                project.Load(solution, projectFile);
 
                 // we don't know what the timestamp of the project is going to be, 
                 // because we don't know what configuration we will be building

@@ -19,6 +19,7 @@
 
 using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 
@@ -39,23 +40,35 @@ namespace NAnt.VSNet {
         private ProjectFactory() {
         }
 
+        static ProjectFactory() {
+            _cachedProjects = new Hashtable();
+            _cachedProjectGuids = new Hashtable();
+        }
+
         #endregion Public Static Methods
 
         #region Public Static Methods
 
         public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, string outputDir, string path) {
-            string projectExt = Path.GetExtension(path).ToLower(CultureInfo.InvariantCulture);
-            if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                Project p = new Project(slnTask, tfc, outputDir);
-                p.Load(sln, path);
-                return p;
+            string projectName = Path.GetFullPath(path).ToLower(CultureInfo.InvariantCulture);
+            string projectExt = Path.GetExtension(projectName);
+            
+            // Is this a new project?
+            if (!_cachedProjects.Contains(projectName)) {
+                if (projectExt == ".vbproj" || projectExt == ".csproj") {
+                    Project p = new Project(slnTask, tfc, outputDir);
+                    p.Load(sln, path);
+                    _cachedProjects[projectName] = p;
+                } else if (projectExt == ".vcproj") {
+                    VcProject p = new VcProject(slnTask, tfc, outputDir);
+                    p.Load(sln, path);
+                    _cachedProjects[projectName] = p;
+                } 
+                else 
+                    throw new BuildException("Unknown project file extension " + projectExt);
             }
-            if (projectExt == ".vcproj") {
-                VcProject p = new VcProject(slnTask, tfc, outputDir);
-                p.Load(sln, path);
-                return p;
-            }
-            throw new BuildException("Unknown project file extension " + projectExt);
+
+            return (ProjectBase)_cachedProjects[projectName];
         }
 
         public static bool IsSupportedProjectType(string path) {
@@ -64,16 +77,27 @@ namespace NAnt.VSNet {
         }
 
         public static string LoadGuid(string fileName, TempFileCollection tfc) {
-            string projectExt = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
-            if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                return Project.LoadGuid(fileName, tfc);
+            string projectName = Path.GetFullPath(fileName).ToLower(CultureInfo.InvariantCulture);
+            string projectExt = Path.GetExtension(projectName);
+
+            // Is this a new project?
+            if (!_cachedProjectGuids.Contains(projectName)) {
+                if (projectExt == ".vbproj" || projectExt == ".csproj") {
+                    _cachedProjectGuids[projectName] = Project.LoadGuid(fileName, tfc);
+                } else if (projectExt == ".vcproj") {
+                    _cachedProjectGuids[projectName] = VcProject.LoadGuid(fileName);
+                } else
+                    throw new BuildException("Unknown project file extension " + projectExt);
             }
-            if (projectExt == ".vcproj") {
-                return VcProject.LoadGuid(fileName);
-            }
-            throw new BuildException("Unknown project file extension " + projectExt);
+
+            return (string)_cachedProjectGuids[projectName];
         }
 
         #endregion Public Static Methods
+
+        #region Private Static Fields
+        private static Hashtable _cachedProjects;
+        private static Hashtable _cachedProjectGuids;
+        #endregion Private Static Fields
     }
 }
