@@ -398,6 +398,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\PkgConfigFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\StringFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
