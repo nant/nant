@@ -87,7 +87,7 @@ namespace NAnt.VSNet {
 
         #region Protected Static Methods
 
-        protected static bool IsURL(string fileName) {
+        protected static bool IsUrl(string fileName) {
             if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
                 return true;
             }
@@ -97,7 +97,7 @@ namespace NAnt.VSNet {
 
         protected static XmlDocument LoadXmlDocument(string fileName) {
             XmlDocument doc = new XmlDocument();
-            if (!IsURL(fileName)) {
+            if (!IsUrl(fileName)) {
                 doc.Load(fileName);
             } else {
                 Uri uri = new Uri(fileName);

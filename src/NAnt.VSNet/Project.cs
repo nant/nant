@@ -56,14 +56,36 @@ namespace NAnt.VSNet {
         /// Gets the name of the VS.NET project.
         /// </summary>
         public override string Name {
-            get { return Path.GetFileNameWithoutExtension(ProjectPath); }
+            get { 
+                string projectPath;
+
+                if (Project.IsUrl(_projectPath)) {
+                    // construct uri for project path
+                    Uri projectUri = new Uri(_projectPath);
+
+                    // get last segment of the uri (which should be the 
+                    // project file itself)
+                    projectPath = projectUri.LocalPath;
+                } else {
+                    projectPath = ProjectPath;
+                }
+
+                // return file part without extension
+                return Path.GetFileNameWithoutExtension(projectPath); 
+            }
         }
 
         /// <summary>
         /// Gets the path of the VS.NET project.
         /// </summary>
         public override string ProjectPath {
-            get { return Path.GetFullPath(_projectPath); }
+            get { 
+                if (Project.IsUrl(_projectPath)) {
+                    return _projectPath;
+                } else {
+                    return Path.GetFullPath(_projectPath);
+                }
+            }
         }
 
         /// <summary>
@@ -142,7 +164,7 @@ namespace NAnt.VSNet {
             _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), _tfc);
             _projectPath = projectPath;
 
-            _isWebProject = IsURL(projectPath);
+            _isWebProject = IsUrl(projectPath);
             _webProjectBaseUrl = String.Empty;
             string webCacheDirectory = String.Empty;
 
