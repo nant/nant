@@ -121,7 +121,7 @@ namespace NAnt.Core.Util {
             // create with size equal to number of elements in collection
             string[] elements = new string[value.Count];
 
-            // copy elements in collection to array       
+            // copy elements in collection to array
             value.CopyTo(elements, 0);
 
             // concatenate specified separator between each elements 
