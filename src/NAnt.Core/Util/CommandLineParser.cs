@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Text;
 
 namespace NAnt.Core.Util {
@@ -37,8 +38,9 @@ namespace NAnt.Core.Util {
         /// using possible arguments deducted from the specific <see cref="Type" />.
         /// </summary>
         /// <param name="argumentSpecification">The <see cref="Type" /> from which the possible command-line arguments should be retrieved.</param>
+        /// <param name="supportsResponseFile">A <see cref="bool" /> value indicating whether or not a response file is able to be used. </param>
         /// <exception cref="ArgumentNullException"><paramref name="argumentSpecification" /> is a null reference.</exception>
-        public CommandLineParser(Type argumentSpecification) {
+        public CommandLineParser(Type argumentSpecification, bool supportsResponseFile ) {
             if (argumentSpecification == null) {
                 throw new ArgumentNullException("argumentSpecification");
             }
@@ -58,6 +60,7 @@ namespace NAnt.Core.Util {
             }
 
             _argumentSpecification = argumentSpecification;
+            _supportsResponseFile = supportsResponseFile;
         }
         
         #endregion Public Instance Constructors
@@ -226,6 +229,12 @@ namespace NAnt.Core.Util {
                     }
                     helpText.Append(Environment.NewLine);
                 }
+                if (_supportsResponseFile) {
+                    helpText.AppendFormat(CultureInfo.InvariantCulture, "  {0,-31}{1}",
+                                          "@<file>",
+                                          "Insert command-line settings from a text file.");
+                    helpText.Append(Environment.NewLine);
+                }
 
                 return helpText.ToString();
             }
@@ -286,7 +295,73 @@ namespace NAnt.Core.Util {
         #endregion Public Instance Methods
 
         #region Private Instance Methods
-
+        
+        /// <summary>
+        /// Splits a string and removes any empty strings from the 
+        /// result. Same functionality as the 
+        /// public string[] Split(char[] separator, StringSplitOptions options) 
+        /// method in .Net 2.0. Replace with that call when 2.0 is standard.
+        /// </summary>
+        /// <param name="sourceString"></param>
+        /// <param name="delimiters"></param>
+        /// <returns>the array of strings</returns>
+        string[] SplitStringNoNulls(string sourceString, char[] delimiters) {
+            
+            string[] basicSplit = sourceString.Split(delimiters);
+            
+            bool containsNulls = false;
+            if ( basicSplit.Length == 0) {
+                return basicSplit;
+            }
+            StringCollection intermediateResult = new StringCollection();
+            
+            foreach(string item in basicSplit) {
+                if (item.Length != 0 ) {
+                    intermediateResult.Add(item);
+                } else {
+                    containsNulls = true;
+                }
+            }
+            // only make the extra copy of there are nulls.
+            if (containsNulls) {
+                string[] result = new string[intermediateResult.Count];
+                intermediateResult.CopyTo(result, 0);
+                return result;
+            } else {
+                return basicSplit;
+            }
+        }
+        
+        /// <summary>
+        /// Read a response file and parse the arguments as usual.
+        /// </summary>
+        /// <param name="file"></param>
+        private void ProcessResponseFile(string file){
+         
+            // throw excaption if file doesn't exist
+            StringCollection argsCol = new StringCollection();
+			char[] whitespaceChars = new char[]{' ', '\t'};
+            using (StreamReader sr = new StreamReader(file)) {
+                String line;
+                // Read and concat lines from the file until the end of 
+                // the file is reached.
+                while ((line = sr.ReadLine()) != null) {
+                    line = line.Trim(whitespaceChars);
+					if ( ! line.StartsWith("#")) {
+                        argsCol.AddRange( SplitStringNoNulls(line, whitespaceChars ));
+                    }
+                }
+                string[] args = new string[argsCol.Count];
+                argsCol.CopyTo( args, 0 );
+                
+                //parse as a regular argument list.
+                ParseArgumentList( args );
+            }
+        }
+        /// <summary>
+        /// Parse the argument list using the 
+        /// </summary>
+        /// <param name="args"></param>
         private void ParseArgumentList(string[] args) {
             if (args != null) {
                 foreach (string argument in args) {
@@ -308,7 +383,8 @@ namespace NAnt.Core.Util {
                                 
                                 CommandLineArgument arg = _argumentCollection[option];
                                 if (arg == null) {
-                                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", argument));
+                                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                        "Unknown argument '{0}'", argument));
                                 } else {
                                     // check if argument is obsolete
                                     Attribute[] attribs = (Attribute[]) arg.Property.GetCustomAttributes(
@@ -328,17 +404,33 @@ namespace NAnt.Core.Util {
                                     }
 
                                     if (arg.IsExclusive && args.Length > 1) {
-                                        throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Commandline argument '-{0}' cannot be combined with other arguments.", arg.LongName));
+                                        throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                        "Commandline argument '-{0}' cannot be combined with other arguments.",
+                                                        arg.LongName));
                                     } else {
                                         arg.SetValue(optionArgument);
                                     }
                                 }
                                 break;
+                            case '@':
+                                if ( _supportsResponseFile ) {
+                                    string responseFile = argument.Substring(1, argument.Length - 1 );
+                                    if ( ! File.Exists(responseFile)) {
+                                        throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                                            "unable to open response file \"{0}\"", responseFile ));    
+                                    }
+                                    // load file and parse it.
+                                    ProcessResponseFile(responseFile);
+                                    break;
+                                }
+                                continue;
+                                
                             default:
                                 if (_defaultArgument != null) {
                                     _defaultArgument.SetValue(argument);
                                 } else {
-                                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", argument));
+                                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                        "Unknown argument '{0}'", argument));
                                 }
                                 break;
                         }
@@ -376,6 +468,7 @@ namespace NAnt.Core.Util {
         private CommandLineArgumentCollection _argumentCollection; 
         private CommandLineArgument _defaultArgument;
         private Type _argumentSpecification;
+        private bool _supportsResponseFile = false;
 
         #endregion Private Instance Fields
     }

@@ -67,7 +67,7 @@ namespace NAnt.Core {
 
             try {
                 CommandLineOptions cmdlineOptions = new CommandLineOptions();
-                commandLineParser = new CommandLineParser(typeof(CommandLineOptions));
+                commandLineParser = new CommandLineParser(typeof(CommandLineOptions), true);
                 commandLineParser.Parse(args, cmdlineOptions);
 
                 if (!cmdlineOptions.NoLogo) {
