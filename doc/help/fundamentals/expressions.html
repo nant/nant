@@ -203,6 +203,10 @@
                     <td>32-bit signed integer value</td>
                 </tr>
                 <tr>
+                    <td>long</td>
+                    <td>64-bit signed integer value</td>
+                </tr>
+                <tr>
                     <td>double</td>
                     <td>64-bit signed double precision floating point value</td>
                 </tr>
@@ -328,9 +332,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>1 + 6666666667</code> evaluates to <code>6666666668</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>1 + 5.0</code> evaluates to <code>6.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 + 11111111111</code> evaluates to <code>17777777778</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 + 1</code> evaluates to <code>6666666668</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 + 1.5</code> evaluates to <code>6666666668.5</code>
                     </td>
                 </tr>
                 <tr>
@@ -345,6 +377,13 @@
                     <td>int</td>
                     <td>
                         <code>1.0 + 5</code> evaluates to <code>6.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>1.5 + 6666666667</code> evaluates to <code>6666666668.5</code>
                     </td>
                 </tr>
             </table>
@@ -379,9 +418,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 - 6666666667</code> evaluates to <code>-6666666662</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>5.0 - 1</code> evaluates to <code>4.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>11111111111 - 6666666667</code> evaluates to <code>4444444444</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 - 5</code> evaluates to <code>6666666662</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 - 1.5</code> evaluates to <code>6666666665.5</code>
                     </td>
                 </tr>
                 <tr>
@@ -396,6 +463,13 @@
                     <td>int</td>
                     <td>
                         <code>5.0 - 1</code> evaluates to <code>4.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>1.5 - 6666666667</code> evaluates to <code>-6666666665.5</code>
                     </td>
                 </tr>
             </table>
@@ -430,9 +504,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>2 * 6666666667</code> evaluates to <code>13333333334</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>5 * 2.0</code> evaluates to <code>10.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 * long::parse('2')</code> evaluates to <code>13333333334</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 * 2</code> evaluates to <code>13333333334</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 * 1.7</code> evaluates to <code>11333333333.9</code>
                     </td>
                 </tr>
                 <tr>
@@ -447,6 +549,13 @@
                     <td>int</td>
                     <td>
                         <code>5.0 * 2</code> evaluates to <code>10.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>1.7 * 6666666667</code> evaluates to <code>11333333333.9</code>
                     </td>
                 </tr>
             </table>
@@ -481,9 +590,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>10 / 10000000000</code> evaluates to <code>0.000000001</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>8 / 2.0</code> evaluates to <code>4.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>13333333334 / 6666666667</code> evaluates to <code>2</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>13333333334 / 2</code> evaluates to <code>6666666667</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>13333333334 / 2.0</code> evaluates to <code>6666666667.0</code>
                     </td>
                 </tr>
                 <tr>
@@ -498,6 +635,13 @@
                     <td>int</td>
                     <td>
                         <code>6.0 / 3</code> evaluates to <code>2.0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>20000000000.0 / 10000000000</code> evaluates to <code>2.0</code>
                     </td>
                 </tr>
             </table>
@@ -536,9 +680,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>10 % 6666666667</code> evaluates to <code>10</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>5 % 3.5</code> evaluates to <code>1.5</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>13333333334 % 6666666667</code> evaluates to <code>0</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 % 10</code> evaluates to <code>7</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 % 3.5</code> evaluates to <code>3.0</code>
                     </td>
                 </tr>
                 <tr>
@@ -553,6 +725,13 @@
                     <td>int</td>
                     <td>
                         <code>8.5 % 2</code> evaluates to <code>0.5</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>20000000000.0 % 6666666667</code> evaluates to <code>6666666666.0</code>
                     </td>
                 </tr>
             </table>
@@ -592,9 +771,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 = 6666666667</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>6 = 6.0</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 = 6666666667</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 = 665</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 = 6666666667.0</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
@@ -609,6 +816,13 @@
                     <td>int</td>
                     <td>
                         <code>8.5 = 8</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>8.5 = 6666666667</code> evaluates to <b>false</b>
                     </td>
                 </tr>
             </table>
@@ -644,9 +858,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 <> 6666666667</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>6 <> 6.0</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 <> 6666666667</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 <> 665</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 <> 6666666667.0</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
@@ -661,6 +903,13 @@
                     <td>int</td>
                     <td>
                         <code>8.5 <> 8</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>8.5 <> 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -696,9 +945,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 > 6666666667</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>6 > 4.0</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 > 6666666667</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 > 665</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 > 6666666667.0</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
@@ -713,6 +990,13 @@
                     <td>int</td>
                     <td>
                         <code>8.3 > 9</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>8.5 > 6666666667</code> evaluates to <b>false</b>
                     </td>
                 </tr>
             </table>
@@ -748,9 +1032,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 >= 6666666667</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>6 >= 4.0</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 >= 6666666667</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 >= 665</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 >= 6666666667.0</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
@@ -765,6 +1077,13 @@
                     <td>int</td>
                     <td>
                         <code>8.3 >= 9</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>8.5 >= 6666666667</code> evaluates to <b>false</b>
                     </td>
                 </tr>
             </table>
@@ -800,9 +1119,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 < 6666666667</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>6 < 7.0</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 < 6666666667</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 < 665</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 < 6666666667.0</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
@@ -817,6 +1164,13 @@
                     <td>int</td>
                     <td>
                         <code>8.3 < 9</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>8.5 < 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -852,9 +1206,37 @@
                 </tr>
                 <tr>
                     <td>int</td>
+                    <td>long</td>
+                    <td>
+                        <code>5 <= 6666666667</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>int</td>
                     <td>double</td>
                     <td>
                         <code>6 <= 7.0</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>long</td>
+                    <td>
+                        <code>6666666667 <= 6666666667</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>int</td>
+                    <td>
+                        <code>6666666667 <= 665</code> evaluates to <b>false</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>double</td>
+                    <td>
+                        <code>6666666667 <= 6666666667.0</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
@@ -869,6 +1251,13 @@
                     <td>int</td>
                     <td>
                         <code>8.3 <= 9</code> evaluates to <b>true</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>long</td>
+                    <td>
+                        <code>8.5 <= 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -897,6 +1286,12 @@
                     <td>int</td>
                     <td>
                         <code>(+1)</code> evaluates to <code>1</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>
+                        <code>(+6666666667)</code> evaluates to <code>6666666667</code>
                     </td>
                 </tr>
                 <tr>
@@ -934,6 +1329,12 @@
                     <td>int</td>
                     <td>
                         <code>(-1)</code> evaluates to <code>-1</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>long</td>
+                    <td>
+                        <code>(-6666666667)</code> evaluates to <code>-6666666667</code>
                     </td>
                 </tr>
                 <tr>

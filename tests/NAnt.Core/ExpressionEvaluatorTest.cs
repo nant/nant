@@ -118,23 +118,95 @@ namespace Tests.NAnt.Core {
             AssertExpression("1 <= 1", true);
             AssertExpression("2 <= 1", false);
 
+            // int & long
+            AssertExpression("1 == long::parse('1')", true);
+            AssertExpression("1 == long::parse('66666666666666')", false);
+            AssertExpression("1 != long::parse('66666666666666')", true);
+            AssertExpression("1 != long::parse('1')", false);
+            AssertExpression("1 > long::parse('2')", false);
+            AssertExpression("1 > long::parse('1')", false);
+            AssertExpression("2 > long::parse('1')", true);
+            AssertExpression("1 >= long::parse('66666666666666')", false);
+            AssertExpression("1 >= long::parse('1')", true);
+            AssertExpression("2 >= long::parse('1')", true);
+            AssertExpression("1 < long::parse('66666666666666')", true);
+            AssertExpression("1 < long::parse('1')", false);
+            AssertExpression("2 < long::parse('1')", false);
+            AssertExpression("1 <= long::parse('66666666666666')", true);
+            AssertExpression("1 <= long::parse('1')", true);
+            AssertExpression("2 <= long::parse('1')", false);
+
             // int & double
             AssertExpression("1 == 1.0", true);
             AssertExpression("1 == 1.5", false);
             AssertExpression("1 != 1.5", true);
             AssertExpression("1 != 1.0", false);
             AssertExpression("1 > 1.5", false);
-            AssertExpression("1 > 1.5", false);
-            AssertExpression("1.5 > 1", true);
+            AssertExpression("2 > 1.5", true);
+            AssertExpression("1 > 0.0", true);
             AssertExpression("1 >= 1.5", false);
             AssertExpression("1 >= 1.0", true);
-            AssertExpression("1.5 >= 1", true);
+            AssertExpression("2 >= 1.5", true);
             AssertExpression("1 < 1.5", true);
             AssertExpression("1 < 1.0", false);
-            AssertExpression("1.5 < 1", false);
+            AssertExpression("2 < 1", false);
             AssertExpression("1 <= 1.5", true);
             AssertExpression("1 <= 1.0", true);
-            AssertExpression("1.5 <= 1", false);
+            AssertExpression("2 <= 1.5", false);
+
+            // long & long
+            AssertExpression("66666666666666 == 66666666666666", true);
+            AssertExpression("66666666666666 == 77777777777777", false);
+            AssertExpression("66666666666666 != 77777777777777", true);
+            AssertExpression("66666666666666 != 66666666666666", false);
+            AssertExpression("66666666666666 > 77777777777777", false);
+            AssertExpression("66666666666666 > 66666666666666", false);
+            AssertExpression("77777777777777 > 66666666666666", true);
+            AssertExpression("66666666666666 >= 77777777777777", false);
+            AssertExpression("66666666666666 >= 66666666666666", true);
+            AssertExpression("77777777777777 >= 66666666666666", true);
+            AssertExpression("66666666666666 < 77777777777777", true);
+            AssertExpression("66666666666666 < 66666666666666", false);
+            AssertExpression("77777777777777 < 66666666666666", false);
+            AssertExpression("66666666666666 <= 77777777777777", true);
+            AssertExpression("66666666666666 <= 66666666666666", true);
+            AssertExpression("77777777777777 <= 66666666666666", false);
+
+            // long & int
+            AssertExpression("long::parse('1') == 1", true);
+            AssertExpression("long::parse('1') == 2", false);
+            AssertExpression("long::parse('1') != 2", true);
+            AssertExpression("long::parse('1') != 1", false);
+            AssertExpression("long::parse('1') > 2", false);
+            AssertExpression("long::parse('1') > 1", false);
+            AssertExpression("long::parse('2') > 1", true);
+            AssertExpression("long::parse('1') >= 2", false);
+            AssertExpression("long::parse('1') >= 1", true);
+            AssertExpression("long::parse('2') >= 1", true);
+            AssertExpression("long::parse('1') < 2", true);
+            AssertExpression("long::parse('1') < 1", false);
+            AssertExpression("long::parse('2') < 1", false);
+            AssertExpression("long::parse('1') <= 2", true);
+            AssertExpression("long::parse('1') <= 1", true);
+            AssertExpression("long::parse('2') <= 1", false);
+
+            // long & double
+            AssertExpression("long::parse('1') == 1.0", true);
+            AssertExpression("long::parse('1') == 2.0", false);
+            AssertExpression("long::parse('1') != 2.0", true);
+            AssertExpression("long::parse('1') != 1.0", false);
+            AssertExpression("long::parse('1') > 2.0", false);
+            AssertExpression("long::parse('1') > 1.0", false);
+            AssertExpression("long::parse('2') > 1.0", true);
+            AssertExpression("long::parse('1') >= 2.0", false);
+            AssertExpression("long::parse('1') >= 1.0", true);
+            AssertExpression("long::parse('2') >= 1.0", true);
+            AssertExpression("long::parse('1') < 2.0", true);
+            AssertExpression("long::parse('1') < 1.0", false);
+            AssertExpression("long::parse('2') < 1.0", false);
+            AssertExpression("long::parse('1') <= 2.0", true);
+            AssertExpression("long::parse('1') <= 1.0", true);
+            AssertExpression("long::parse('2') <= 1.0", false);
 
             // double & double
             AssertExpression("1.0 == 1.0", true);
@@ -171,6 +243,24 @@ namespace Tests.NAnt.Core {
             AssertExpression("1.0 <= 2", true);
             AssertExpression("1.0 <= 1", true);
             AssertExpression("2.0 <= 1", false);
+
+            // double & long
+            AssertExpression("1.0 == long::parse('1')", true);
+            AssertExpression("1.0 == 66666666666666", false);
+            AssertExpression("1.0 != 66666666666666", true);
+            AssertExpression("1.0 != long::parse('1')", false);
+            AssertExpression("1.0 > 66666666666666", false);
+            AssertExpression("1.0 > long::parse('1')", false);
+            AssertExpression("2.0 > long::parse('1')", true);
+            AssertExpression("1.0 >= 66666666666666", false);
+            AssertExpression("1.0 >= long::parse('1')", true);
+            AssertExpression("2.0 >= long::parse('1')", true);
+            AssertExpression("1.0 < 66666666666666", true);
+            AssertExpression("1.0 < long::parse('1')", false);
+            AssertExpression("2.0 < long::parse('1')", false);
+            AssertExpression("1.0 <= 66666666666666", true);
+            AssertExpression("1.0 <= long::parse('1')", true);
+            AssertExpression("2.0 <= long::parse('1')", false);
 
             // datetime & datetime
             // TO-DO !!!!
@@ -247,29 +337,9 @@ namespace Tests.NAnt.Core {
         
         [Test]
         public void TestRelationalOperators() {
-            AssertExpression("'a' == 'a'", true);
-            AssertExpression("'a' == 'b'", false);
-            AssertExpression("'a' != 'a'", false);
-            AssertExpression("'a' != 'b'", true);
             AssertExpression("'a' + 'b' == 'ab'", true);
-            AssertExpression("1 == 1", true);
-            AssertExpression("1 < 2", true);
-            AssertExpression("1 > 2", false);
-            AssertExpression("2 < 1", false);
-            AssertExpression("2 > 1", true);
-            AssertExpression("2 <= 1", false);
-            AssertExpression("2 >= 1", true);
-            AssertExpression("1 != 2", true);
-            AssertExpression("1.0 == 1.0", true);
-            AssertExpression("1.0 != 1.0", false);
-            AssertExpression("1.0 == 2.0", false);
-            AssertExpression("1.0 != 2.0", true);
             AssertExpression("true", true);
             AssertExpression("false", false);
-            AssertExpression("true == true", true);
-            AssertExpression("true == false", false);
-            AssertExpression("true != false", true);
-            AssertExpression("true != true", false);
         }
         
         [Test]
@@ -309,6 +379,12 @@ namespace Tests.NAnt.Core {
 
             // int to string
             AssertExpression("int::to-string(12345)", "12345");
+
+            // string to long
+            AssertExpression("long::parse('6667778888' + '666777')", 6667778888666777);
+
+            // long to string
+            AssertExpression("long::to-string(6667778888666777)", "6667778888666777");
 
             // string to double
             AssertExpression("double::parse('5') / (2 + 8)", 0.5);
