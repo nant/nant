@@ -437,9 +437,9 @@ namespace NAnt.Core {
             /// <param name="targetFramework">The framework that the <see cref="Element" /> should target.</param>
             /// <exception cref="ArgumentNullException">
             ///     <para><paramref name="element" /> is <see langword="null" />.</para>
-            ///     <para>--or--</para>
+            ///     <para>-or-</para>
             ///     <para><paramref name="elementNode" /> is <see langword="null" />.</para>
-            ///     <para>--or--</para>
+            ///     <para>-or-</para>
             ///     <para><paramref name="properties" /> is <see langword="null" />.</para>
             /// </exception>
             public AttributeConfigurator(Element element, XmlNode elementNode, PropertyDictionary properties, FrameworkInfo targetFramework) {
