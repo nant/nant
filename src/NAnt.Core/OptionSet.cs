@@ -25,103 +25,123 @@ using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt 
-{
+namespace SourceForge.NAnt {
+    /// <summary>
+    /// Represents an option in an optionSet
+    /// </summary>
+    public struct OptionValue {
+        #region Private Instance Fields
 
-   /// <summary>
-   /// Represents an option in an optionSet
-   /// </summary>
-   public struct OptionValue {
-      private string _name;
-      private string _value;
+        private string _name;
+        private string _value;
 
-      public string Name { 
-         get { return _name; }
-      }
-      public string Value { 
-         get { return _value; }
-      }
+        #endregion Private Instance Fields
 
-      internal OptionValue(string name, string value)
-      {
-         _name = name;
-         _value = value;
-      }
-   } // struct optionValue;
+        #region Internal Instance Constructors
 
-   /// <summary>
-   /// Handles a set of options as a name/value collection.
-   /// </summary>
-   public class OptionSet : Element, IEnumerable
-   {
-      private ArrayList _options;
+        internal OptionValue(string name, string value) {
+            _name = name;
+            _value = value;
+        }
+        
+        #endregion Internal Instance Constructors
 
-      /// <summary>
-      /// Indexer, based on option index.
-      /// </summary>
-      public OptionValue this[int index] {
-         get { return (OptionValue)_options[index]; }
-      }
+        #region Public Instance Properties
 
-      /// <summary>
-      /// Number of options in the set
-      /// </summary>
-      public int Count {
-         get { return _options.Count; }
-      }
+        public string Name { 
+            get { return _name; }
+        }
 
-      /// <summary>
-      /// Initialize a new Instance
-      /// </summary>
-      public OptionSet()
-      {
-         _options = new ArrayList();
-      }
+        public string Value { 
+            get { return _value; }
+        }
 
-      /// <summary>
-      /// The options.
-      /// </summary>
-      [BuildElementArray("option")]
-      public OptionElement[] SetOptions{
-          set {
-              _options = ArrayList.Adapter(value);
-          }
-      }
+        #endregion Public Instance Properties
+    }
 
-      public IEnumerator GetEnumerator()
-      {
-         return _options.GetEnumerator();
-      }
+    /// <summary>
+    /// Handles a set of options as a name/value collection.
+    /// </summary>
+    public class OptionSet : Element, IEnumerable {
+        #region Private Instance Fields
 
-   } // class OptionSet
+        private ArrayList _options;
 
+        #endregion Private Instance Fields
 
-   [ElementName("option")]
-   public class OptionElement : Element
-   {
-      private string _name = null;
-      private string _value = null;
+        #region Public Instance Constructors
 
-      /// <summary>
-      /// Name of this property
-      /// </summary>
-      [TaskAttribute("name", Required=true)]
-      public string OptionName {
-         get { return _name; }
-         set { _name = value; }
-      }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OptionSet" /> class.
+        /// </summary>
+        public OptionSet() {
+            _options = new ArrayList();
+        }
 
-      /// <summary>
-      /// Value of this property. Default is null;
-      /// </summary>
-      [TaskAttribute("value")]
-      public string Value {
-         get { return _value; }
-         set { _value = value; }
-      }
+        #endregion Public Instance Constructors
 
-   } // class PropvalueElement
+        #region Public Instance Properties
 
-} // namespace SourceForge.NAnt 
+        /// <summary>
+        /// Indexer, based on option index.
+        /// </summary>
+        public OptionValue this[int index] {
+            get { return (OptionValue)_options[index]; }
+        }
+
+        /// <summary>
+        /// Number of options in the set
+        /// </summary>
+        public int Count {
+            get { return _options.Count; }
+        }
+
+        /// <summary>        /// The options.        /// </summary>
+        [BuildElementArray("option")]
+        public OptionElement[] SetOptions{
+            get { return (OptionElement[]) _options.ToArray(typeof(OptionElement)); }
+            set { _options = ArrayList.Adapter(value); }
+        }
+
+        #endregion Public Instance Properties
+
+        public IEnumerator GetEnumerator() {
+            return _options.GetEnumerator();
+        }
+
+    }
+
+    [ElementName("option")]
+    public class OptionElement : Element {
+        #region Private Instance Fields
+
+        private string _name = null;
+        private string _value = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Name of this property
+        /// </summary>
+        [TaskAttribute("name", Required=true)]
+        public string OptionName {
+            get { return _name; }
+            set { _name = value; }
+        }
+
+        /// <summary>
+        /// Value of this property. Default is null;
+        /// </summary>
+        [TaskAttribute("value")]
+        public string Value {
+            get { return _value; }
+            set { _value = value; }
+        }
+
+        #endregion Public Instance Properties
+    }
+}
 
  
