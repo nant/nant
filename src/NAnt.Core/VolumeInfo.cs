@@ -187,7 +187,7 @@ namespace NAnt.Core {
                 (platformID == PlatformID.Win32Windows) ) {
 
                 //We're on some version of Windows, so the PInvoke is OK. Unless we're on mono in which case assume false
-                #if ! mono
+#if (!mono)
                 // Declare Receiving Variables
                 StringBuilder VolLabel = new StringBuilder(256);    // Label
                 UInt32 VolFlags = new UInt32();
@@ -199,7 +199,7 @@ namespace NAnt.Core {
                 long Ret = GetVolumeInformation(uri.LocalPath, VolLabel, (UInt32)VolLabel.Capacity, ref SerNum, ref MaxCompLen, ref VolFlags, FSName, (UInt32) FSName.Capacity);
 
                 isCaseSensitive = (((VolumeFlags) VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
-                #endif
+#endif
             }
             else if ((int) platformID == 128) {
                 // Mono uses Platform id = 128 for Unix
@@ -213,10 +213,12 @@ namespace NAnt.Core {
         #endregion Public Static Methods
 
         #region Private Static Methods
-    #if ! mono
+
+#if (!mono)
         [DllImport("kernel32.dll")]
         private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
-    #endif
+#endif
+
         private static void ValidateURI(Uri uri) {
             // Make sure we were passed something
             if (uri == null) throw new ArgumentNullException();
