@@ -147,6 +147,10 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
+        /// <summary>
+        /// Gets the file extension required by the current compiler.
+        /// </summary>
+        /// <value>For the JScript.NET compiler, the file extension is always <c>js</c>.</value>
         protected override string Extension { 
             get { return "js"; }
         }

@@ -219,6 +219,14 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Protected Instance Methods
 
+        /// <summary>
+        /// Determines whether the assembly manifest needs compiling or is 
+        /// uptodate.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the assembly manifest needs compiling; otherwise,
+        /// <c>false</c>.
+        /// </returns>
         protected virtual bool NeedsCompiling() {
             FileInfo outputFileInfo = new FileInfo(OutputPath);
             if (!outputFileInfo.Exists) {

@@ -206,7 +206,7 @@ namespace SourceForge.NAnt.Tasks {
         #region Override implementation of CompilerBase
 
         /// <summary>
-        /// Writes the compiler options to the specified TextWriter.
+        /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
@@ -251,6 +251,10 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
+        /// <summary>
+        /// Gets the file extension required by the current compiler.
+        /// </summary>
+        /// <value>For the J# compiler, the file extension is always <c>jsl</c>.</value>
         protected override string Extension {
             get { return "jsl"; }
         }

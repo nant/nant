@@ -239,7 +239,11 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "rootnamespace", RootNamespace);
             }
         }    
-    
+
+        /// <summary>
+        /// Gets the file extension required by the current compiler.
+        /// </summary>
+        /// <value>For the VB.NET compiler, the file extension is always <c>vb</c>.</value>
         protected override string Extension { 
             get { return "vb"; }
         }
