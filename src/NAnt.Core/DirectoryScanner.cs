@@ -230,8 +230,17 @@ namespace SourceForge.NAnt {
             searchDirectory = new DirectoryInfo(Path.Combine(BaseDirectory, s)).FullName;
             
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
-            regexPattern = ToRegexPattern(searchDirectory, modifiedNAntPattern);
+
+            //Now checks for casesensitive filesystem and does a corresponding sensitivity search.
+            regexPattern = (IsCaseSensitiveFileSystem() ? "" : "(?i)") + //specify case-insensitive matching
+                ToRegexPattern(searchDirectory, modifiedNAntPattern);
         }
+
+        bool IsCaseSensitiveFileSystem() {
+            //Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
+            return (Path.DirectorySeparatorChar != '\\'); 
+        }
+
 
 
         /// <summary>
