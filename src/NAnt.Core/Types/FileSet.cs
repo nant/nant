@@ -275,7 +275,23 @@ namespace NAnt.Core.Types {
         /// Determines if a file has a more recent last write time than the 
         /// given time.
         /// </summary>
-        /// <param name="fileNames">A collection of filenames to check last write times against.</param>
+        /// <param name="fileName">A file to check the last write time against.</param>
+        /// <param name="targetLastWriteTime">The datetime to compare against.</param>
+        /// <returns>
+        /// The name of the file that has a last write time greater than 
+        /// <paramref name="targetLastWriteTime" />; otherwise, null.
+        /// </returns>
+        public static string FindMoreRecentLastWriteTime(string fileName, DateTime targetLastWriteTime) {
+            StringCollection fileNames = new StringCollection();
+            fileNames.Add(fileName);
+            return FileSet.FindMoreRecentLastWriteTime(fileNames, targetLastWriteTime);
+        }
+
+        /// <summary>
+        /// Determines if one of the given files has a more recent last write 
+        /// time than the given time.
+        /// </summary>
+        /// <param name="fileNames">A collection of filenames to check the last write time against.</param>
         /// <param name="targetLastWriteTime">The datetime to compare against.</param>
         /// <returns>
         /// The name of the first file that has a last write time greater than 
