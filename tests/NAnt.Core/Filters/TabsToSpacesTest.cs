@@ -37,7 +37,7 @@ namespace Tests.NAnt.Core.Filters {
         /// </summary>
         [Test]
         public void EmptyFileBasicTest () {
-            base.TestFilter(@"<" + _tagName + @" />", "", "");
+            base.FilterTest(@"<" + _tagName + @" />", "", "");
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = "\tTEST\t";
             string expectedOutput = @"        TEST        ";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Tests.NAnt.Core.Filters {
         [ExpectedException(typeof(TestBuildException))]
         public void TabLengthLow() {
             string filterXml = @"<" + _tagName + @" tablength=""0"" />";
-            base.TestFilter(filterXml, " ", " ");
+            base.FilterTest(filterXml, " ", " ");
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Tests.NAnt.Core.Filters {
         [ExpectedException(typeof(TestBuildException))]
         public void TabLengthHigh() {
             string filterXml = @"<" + _tagName + @" tablength=""101"" />";
-            base.TestFilter(filterXml, " ", " ");
+            base.FilterTest(filterXml, " ", " ");
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = "NO TABS ARE PRESENT";
             string expectedOutput = @"NO TABS ARE PRESENT";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = "aaaa\tbb\t\tb\tzzzz\tz\tz\tffff";
             string expectedOutput = @"aaaa bb  b zzzz z z ffff";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
     }
 }

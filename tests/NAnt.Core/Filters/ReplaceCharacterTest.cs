@@ -35,29 +35,29 @@ namespace Tests.NAnt.Core.Filters {
 
         [Test]
         public void InstantiationTest () {
-            base.TestFilter(@"<" + _tagName + @" from=""^"" to=""$"" />", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" from=""^"" to=""$"" />", " ", " ");
         }
 
         [Test]
         public void EmptyFileTest () {
-            base.TestFilter(@"<" + _tagName + @" from=""^"" to=""$"" />", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" from=""^"" to=""$"" />", " ", " ");
         }
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void NoCharToReplaceTest () {
-            base.TestFilter(@"<" + _tagName + @" to=""$"" />", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" to=""$"" />", " ", " ");
         }
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void NoReplacementCharTest () {
-            base.TestFilter(@"<" + _tagName + @" from=""^"" />", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" from=""^"" />", " ", " ");
         }
 
         [Test]
         public void BasicTest () {
-            base.TestFilter(@"<" + _tagName + @" from=""^"" to=""$"" />", "hello!\n^\n^^\ngoodbye!", "hello!\n$\n$$\ngoodbye!");
+            base.FilterTest(@"<" + _tagName + @" from=""^"" to=""$"" />", "hello!\n^\n^^\ngoodbye!", "hello!\n$\n$$\ngoodbye!");
         }
     }
 }

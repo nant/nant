@@ -26,7 +26,6 @@ namespace Tests.NAnt.Core.Filters {
     /// Base class for running input through filters and checking results.
     /// </summary>
     public abstract class FilterTestBase : BuildTestBase {
-
         const string _testFileName = "filterTest.txt";
         const string _destDirName = "copy";
         const string _projectXmlFormat = @"<?xml version='1.0'?>
@@ -40,11 +39,11 @@ namespace Tests.NAnt.Core.Filters {
                 </copy>
             </project>";
 
-        internal void TestFilter(string filterXml, string input, string expectedOutput) {
-            TestFilter(filterXml, input, expectedOutput, String.Empty);
+        protected void FilterTest(string filterXml, string input, string expectedOutput) {
+            FilterTest(filterXml, input, expectedOutput, String.Empty);
         }
 
-        internal void TestFilter(string filterXml, string input, string expectedOutput, string prologueXml) {
+        protected void FilterTest(string filterXml, string input, string expectedOutput, string prologueXml) {
             base.CreateTempFile(_testFileName, input);
             base.RunBuild(string.Format(_projectXmlFormat, prologueXml, filterXml));
             

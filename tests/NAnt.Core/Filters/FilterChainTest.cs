@@ -31,29 +31,29 @@ namespace Tests.NAnt.Core.Filters {
     public class FilterChainTest : FilterTestBase {
         [Test]
         public void NoFilerTest () {
-            base.TestFilter("", " ", " ");
+            base.FilterTest("", " ", " ");
         }
 
         [Test]
         public void NoFilterEmptyFileTest () {
-            base.TestFilter(@"", "", "");
+            base.FilterTest(@"", "", "");
         }
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void UnknownFilterTest () {
-            base.TestFilter(@"<blah />", " ", " ");
+            base.FilterTest(@"<blah />", " ", " ");
         }
 
         [Test]
         public void FilterOrderTest1a () {
-            base.TestFilter(@"<replacecharacter from=""^"" to=""$"" />
+            base.FilterTest(@"<replacecharacter from=""^"" to=""$"" />
                     <expandproperties />", "^{'la' + 'la'}", "lala");
         }
 
         [Test]
         public void FilterOrderTest1b () {
-            base.TestFilter(@"<expandproperties />
+            base.FilterTest(@"<expandproperties />
                     <replacecharacter from=""^"" to=""$"" />", "^{'la' + 'la'}", "${'la' + 'la'}");
         }
     }

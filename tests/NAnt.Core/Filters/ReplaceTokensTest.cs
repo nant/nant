@@ -33,12 +33,12 @@ namespace Tests.NAnt.Core.Filters {
 
         [Test]
         public void InstantiationTest() {
-            base.TestFilter(@"<" + _tagName + @" endtoken=""@""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" endtoken=""@""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", " ", " ");
         }
 
         [Test]
         public void EmptyFileTest() {
-            base.TestFilter(@"<" + _tagName + @" endtoken=""@""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", "", "");
+            base.FilterTest(@"<" + _tagName + @" endtoken=""@""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", "", "");
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = @"@@OLD@";
             string expectedOutput = @"@NEW";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = @"@OLD@@";
             string expectedOutput = @"NEW@";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = @"@@OLD^";
             string expectedOutput = @"@NEW";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string input = @"@OLD^^";
             string expectedOutput = @"NEW^";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace Tests.NAnt.Core.Filters {
                         }
                       }//End of file..";
 
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace Tests.NAnt.Core.Filters {
                         }
                     }//@EOF@";
 
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
     }
 }

@@ -35,33 +35,33 @@ namespace Tests.NAnt.Core.Filters {
 
         [Test]
         public void InstantiationTest () {
-            base.TestFilter(@"<" + _tagName + @" />", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" />", " ", " ");
         }
 
         [Test]
         public void EmptyFileTest () {
-            base.TestFilter(@"<" + _tagName + @" />", "", "");
+            base.FilterTest(@"<" + _tagName + @" />", "", "");
         }
 
         [Test]
         public void ExpressionTest () {
-            base.TestFilter(@"<" + _tagName + @" />", "${'la' + 'la'}", "lala");
+            base.FilterTest(@"<" + _tagName + @" />", "${'la' + 'la'}", "lala");
         }
 
         [Test]
         public void MaxSafeExpressionTest () {
-            base.TestFilter(@"<" + _tagName + @" />", GetString(4090) + GetStringExpression(2048), GetString(4090) + GetString(2048 - _minStringExpressionLength));
+            base.FilterTest(@"<" + _tagName + @" />", GetString(4090) + GetStringExpression(2048), GetString(4090) + GetString(2048 - _minStringExpressionLength));
         }
 
         [Test]
         public void UnsafeButExpandedExpressionTest () {
-            base.TestFilter(@"<" + _tagName + @" />", GetStringExpression(4095), GetString(4095 - _minStringExpressionLength));
+            base.FilterTest(@"<" + _tagName + @" />", GetStringExpression(4095), GetString(4095 - _minStringExpressionLength));
         }
 
         [Test]
         public void UnsafeAndIgnoredExpressionTest () {
             string temp = GetString(1) + GetStringExpression(4095);
-            base.TestFilter(@"<" + _tagName + @" />", temp, temp);
+            base.FilterTest(@"<" + _tagName + @" />", temp, temp);
         }
 
         private string GetStringExpression (int expressionLength) {
