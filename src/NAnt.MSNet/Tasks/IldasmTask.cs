@@ -19,7 +19,9 @@
 //
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 
+using System.Globalization;
 using System.IO;
+using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -472,30 +474,46 @@ namespace NAnt.MSNet.Tasks {
         }
 
         /// <summary>
+        /// Checks whether the task is initialized with valid attributes.
+        /// </summary>
+        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
+        protected override void InitializeTask(XmlNode taskNode) {
+            if (ToDirectory == null && Assemblies != null && Assemblies.Includes.Count > 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'todir' should be set when using the <assemblies> element"
+                    + " to specify the list of PE files to disassemble."), Location);
+            }
+
+            if (InputFile != null && Assemblies != null && Assemblies.Includes.Count > 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'input' attribute and the <assemblies> element" 
+                    + " cannot be combined."), Location);
+            }
+
+            if (OutputFile == null && ToDirectory == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Either the 'output' or 'todir' attribute should be set."), 
+                    Location);
+            }
+
+            if (OutputFile != null && ToDirectory != null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'output' and 'todir' attribute cannot both be set."), 
+                    Location);
+            }
+        }
+
+        /// <summary>
         /// Disassembles the PE files.
         /// </summary>
         protected override void ExecuteTask() {
-            if (Assemblies != null && Assemblies.FileNames.Count > 0 ) {
-                if (OutputFile != null) {
-                    throw new BuildException(
-                        "'output' attribute is incompatible with fileset use.",
-                        Location);
-                }
-
-                foreach (string fileName in Assemblies.FileNames) {
-                    InputFile = new FileInfo(fileName);
-                    OutputFile = GetOutputFile(InputFile);
-
-                    BaseExecuteTask();
-                }
+            // disassemble a single PE file
+            if (InputFile != null) {
+                DisassemblyFile(InputFile);
             } else {
-                if (InputFile == null) {
-                    throw new BuildException(
-                        "Disassembler needs either an input attribute, or a non-empty fileset.",
-                        Location);
+                foreach (string inputFile in Assemblies.FileNames) {
+                    DisassemblyFile(new FileInfo(inputFile));
                 }
-
-                BaseExecuteTask();
             }
         }
 
@@ -504,28 +522,27 @@ namespace NAnt.MSNet.Tasks {
         #region Private Instance Methods
 
         /// <summary>
-        /// Disassembles the PE files.
+        /// Disassembles the specified PE file.
         /// </summary>
-        private void BaseExecuteTask() {
-            if (NeedsDisassembling()) {
-                Log(Level.Info, "Disassembling '{0}' to '{1}'.",
-                    InputFile.FullName, OutputFile.FullName);
+        /// <param name="inputFile">The PE file to disassemble.</param>
+        private void DisassemblyFile(FileInfo inputFile) {
+            // determine output file corresponding with PE file
+            FileInfo outputFile = GetOutputFile(inputFile);
 
-                //
+            // only actually perform disassembly if necessary
+            if (NeedsDisassembling(inputFile, outputFile)) {
+                Log(Level.Info, "Disassembling '{0}' to '{1}'.",
+                    inputFile.FullName, outputFile.FullName);
+
                 // ensure output directory exists
-                //
-                if (!OutputFile.Directory.Exists) {
-                    OutputFile.Directory.Create();
+                if (!outputFile.Directory.Exists) {
+                    outputFile.Directory.Create();
                 }
 
-                //
                 // set command-line arguments for the disassembler
-                //
-                WriteOptions();
+                WriteOptions(inputFile, outputFile);
 
-                //
                 // call base class to do the work
-                //
                 base.ExecuteTask();
             }
         }
@@ -533,22 +550,30 @@ namespace NAnt.MSNet.Tasks {
         /// <summary>
         /// Determines the full path and extension for the output file.
         /// </summary>
-        /// <param name="file">
-        /// A <see cref="System.IO.FileInfo" /> that represents the output
-        /// file for which the full path and extension should be determined.
+        /// <param name="inputFile">
+        /// A <see cref="System.IO.FileInfo" /> that represents the PE file
+        /// file for which the corresponding output file should be determined.
         /// </param>
         /// <returns>
         /// A <see cref="System.IO.FileInfo" /> that represents the full path
-        /// (with extensions) for the specified file.
+        /// (with extensions) for the output file.
         /// </returns>
-        private FileInfo GetOutputFile(FileInfo file) {
+        /// <exception cref="BuildException">The path of the output file could not be determined.</exception>
+        private FileInfo GetOutputFile(FileInfo inputFile) {
             FileInfo outputFile;
 
-            if (ToDirectory == null) {
-                outputFile = file;
+            if (OutputFile != null) {
+                outputFile = new FileInfo(OutputFile.FullName);
+            } else if (ToDirectory != null) {
+                outputFile = new FileInfo(Path.Combine(ToDirectory.FullName, inputFile.Name));
+                outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, _TargetExt));
             } else {
-                outputFile = new FileInfo(Path.Combine(ToDirectory.FullName, file.Name));
-            }   outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, _TargetExt));
+                // we should never actually get here (if the checks in 
+                // InitializeTask have been executed
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "The output file for '{0}' could not be determined.", 
+                    inputFile.FullName), Location);
+            }
 
             return outputFile;
         }
@@ -556,13 +581,9 @@ namespace NAnt.MSNet.Tasks {
         /// <summary>
         /// Writes the disassembler options.
         /// </summary>
-        private void WriteOptions() {
-            StringWriter writer = new StringWriter();
-
-            try {
-                //
+        private void WriteOptions(FileInfo inputFile, FileInfo outputFile) {
+            using (StringWriter writer = new StringWriter()) {
                 // always direct the output to console
-                //
                 WriteOption(writer, "TEXT");
                 WriteOption(writer, "NOBAR");
 
@@ -622,19 +643,15 @@ namespace NAnt.MSNet.Tasks {
                     WriteOption(writer, "VISIBILITY", Visibility.ToUpper());
                 }
 
-                if (OutputFile != null) {
-                    WriteOption(writer, "OUT", OutputFile.FullName);
-                }
+                // specifiy path of output file
+                WriteOption(writer, "OUT", outputFile.FullName);
 
-                if (InputFile != null) {
-                    writer.Write(" \"" + InputFile.FullName + "\" ");
-                }
+                // specify path of PE file to disassembly
+                writer.Write(" \"" + inputFile.FullName + "\" ");
 
                 _options = writer.ToString();
-            } finally {
-                //
+
                 // close the StringWriter and the underlying stream
-                //
                 writer.Close();
             }
         }
@@ -683,33 +700,29 @@ namespace NAnt.MSNet.Tasks {
         /// <see langword="true" /> if disassembling is needed; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        private bool NeedsDisassembling() {
+        private bool NeedsDisassembling(FileInfo inputFile, FileInfo outputFile) {
             if (ForceRebuild) {
                 Log(Level.Verbose, "'rebuild' attribute set to true, disassembling.");
-
                 return true;
             }
 
-            //
             // check if output file already exists
-            //
-            if (!OutputFile.Exists) {
+            if (!outputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, disassembling.",
+                    outputFile.FullName);
                 return true;
             }
 
-            //
-            // check if the source assembly has been updated
-            //
-            string fileName = FileSet.FindMoreRecentLastWriteTime(
-                InputFile.FullName, OutputFile.LastWriteTime);
-
+             // check if the source assembly has been updated
+             string fileName = FileSet.FindMoreRecentLastWriteTime(
+                inputFile.FullName, outputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, "'{0}' has been updated, disassembling.", 
                     fileName);
-
                 return true;
             }
 
+            // no need to disassembly the input file
             return false;
         }
 
