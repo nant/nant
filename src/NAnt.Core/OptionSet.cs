@@ -17,11 +17,7 @@
 
 // Tomas Restrepo (tomasr@mvps.org)
 
-using System;
 using System.Collections;
-using System.Collections.Specialized;
-using System.IO;
-using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 
@@ -105,10 +101,13 @@ namespace SourceForge.NAnt {
 
         #endregion Public Instance Properties
 
+        #region Implementation of IEnumerable
+
         public IEnumerator GetEnumerator() {
             return _options.GetEnumerator();
         }
 
+        #endregion Implementation of IEnumerable
     }
 
     [ElementName("option")]
@@ -143,5 +142,4 @@ namespace SourceForge.NAnt {
         #endregion Public Instance Properties
     }
 }
-
  
