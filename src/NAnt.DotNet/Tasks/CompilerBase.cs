@@ -395,7 +395,9 @@ namespace NAnt.DotNet.Tasks {
 
         #region Protected Instance Methods
 
-        /// <summary>Allows derived classes to provide compiler-specific options.</summary>
+        /// <summary>
+        /// Allows derived classes to provide compiler-specific options.
+        /// </summary>
         protected virtual void WriteOptions(TextWriter writer) {
         }
 
