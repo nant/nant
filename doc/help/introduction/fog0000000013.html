@@ -25,9 +25,46 @@
         </table>
         <h1>Installation</h1>
         <!-- @PRELIMINARY_NOTICE@ -->
-        <p>NAnt is shipped in the form of a single .zip file.&nbsp; Simply unzip the contents into a directory.&nbsp; To uninstall delete the directory.</p>
-        <p>If you are installing a new version use a clean directory.&nbsp; Delete or rename the existing installation directory.</p>
-        <p><strong><img height="9" alt=">" src="../images/bullet.gif" width="5" />&nbsp;Important</strong>: Modify the system path to include the <nobr><code>nant\bin</code></nobr> folder.</p>
-        <p>Once NAnt is installed you can launch it from the command line by typing <span style="white-space: nowrap;"><code>nant</code></span>.&nbsp; To find out what version you are running type: <span style="white-space: nowrap;"><code>nant -help</code></span>.</p>
+        <p>NAnt is available in either a source or binary distribution.  The binary distribution is all you need to use NAnt to build your projects, including creating your own custom tasks, types and functions.</p>
+        <p>If you are upgrading NAnt from a previous version, you must never install over the top of your previous installation.  Delete or rename the existing installation directory before installing the new version of NAnt.</p>
+        <h2>Installing from binaries</h2>
+        <ol>
+        <li>Download the binary distribution archive.  Either <code>nant-bin.zip</code> or <code>nant-bin.tar.gz</code> will work, the contents of each archive are the same.</li>
+        <li>Remove any previous versions of NAnt you may have installed.</li>
+        <li>Extract the contents of the archive to the location you wish to install NAnt (eg: C:\Program Files\NAnt in windows, or /usr/local/nant in Linux)</li>
+        <li>Ensure the bin folder in your NAnt installation is in your <code>PATH</code> environment variable.
+            <ul>
+            <li>In Windows, a common method to do this is to create an environment variable <code>NANT_HOME</code> that contains the folder you installed NAnt to.</li>
+            <li>Then add <code>%NANT_HOME%\bin</code> to your <code>PATH</code> variable.</li>
+            <li>Both of these should be System variables.</li>
+            </ul>
+        </li>
+        <li>Open a new command prompt (shell) and type <code>nant -help</code>.  If successful, you should see a usage message displaying available command line options.</li>
+        <li>(optional) Download and install NAnt-contrib or other third party extensions to NAnt.</li>
+        </ol>
+        
+        <h2>Installing from source</h2>
+        <ol>
+        <li>Download the source distribution archive.  Either <code>nant-src.zip</code> or <code>nant-src.tar.gz</code> will work, the contents of each archive are the same.</li>
+        <li>Remove any previous versions of NAnt you may have installed.</li>
+        <li>Extract the contents of the archive to a temporary location.  This should <b>not</b> be the location you wish to install NAnt to.</li>
+        <li>Open a command prompt and change into the folder you extracted the archive to.</li>
+        <li>Depending on your environment, build the NAnt distribution. We use make to bootstrap a cut-down version of NAnt that then builds a  :
+            <ul>
+            <h3>Windows (with Microsoft .NET)</h3>
+            <li><code>nmake -f Makefile.nmake install prefix=<i>installation-path</i></code></li>
+            <li>eg: <code>nmake -f Makefile.nmake install "prefix=C:\Program Files"</code>
+            <h3>Windows (with Mono)</h3>
+            <li><code>nmake -f Makefile.nmake install prefix=<i>installation-path</i> MONO=mono MCS=mcs</code></li>
+            <li>eg: <code>nmake -f Makefile.nmake install "prefix=C:\Program Files"</code>
+            <li>or if you have cygwin installed with a copy of make the *nix instructions below will also work.</li>
+            <h3>Linux/Unix</h3>
+            <li><code>make install prefix=<i>installation-path</i></code></li>
+            <li>eg: <code>make install prefix=/usr/local</code>
+            </ul>
+            The installation will be built to <code><i>installation-path</i>/NAnt</code>.
+        </li>
+        <li>Follow the instructions as for a binary release from step 4.</li>
+        </ol>
     </body>
 </html>
