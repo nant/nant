@@ -177,7 +177,7 @@ namespace NAnt.Core.Tasks {
         /// The type of whitespace trimming that should be done - either
         /// <see cref="LoopTrim.None" />, <see cref="LoopTrim.End" />,
         /// <see cref="LoopTrim.Start" /> or <see cref="LoopTrim.Both" />.
-        /// Default is <see cref="LoopTrim.None" />.
+        /// The default is <see cref="LoopTrim.None" />.
         /// </summary>
         [TaskAttribute("trim")]
         public LoopTrim TrimType {

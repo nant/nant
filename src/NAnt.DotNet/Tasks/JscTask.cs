@@ -54,7 +54,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies the warning level for the compiler to display. Valid 
-        /// values are <c>0</c>-<c>4</c>. Default is <c>4</c>.
+        /// values are <c>0</c>-<c>4</c>. The default is <c>4</c>.
         /// </summary>
         /// <value>
         /// The warning level for the compiler to display.

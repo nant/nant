@@ -117,7 +117,7 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
        
         /// <summary>
-        /// The string to prefix the property names with. Default is <c>sys.</c>.
+        /// The string to prefix the property names with. The default is <c>sys.</c>.
         /// </summary>
         [TaskAttribute("prefix", Required=false)]
         public string Prefix {

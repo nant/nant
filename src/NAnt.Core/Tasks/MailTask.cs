@@ -144,7 +144,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Host name of mail server. Default is <c>localhost</c>.
+        /// Host name of mail server. The default is <c>localhost</c>.
         /// </summary>
         [TaskAttribute("mailhost")]
         public string Mailhost {

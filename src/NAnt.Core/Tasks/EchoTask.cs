@@ -117,7 +117,7 @@ namespace NAnt.Core.Tasks {
         /// The logging level with which the message should be output - either 
         /// <see cref="Level.Debug" />, <see cref="Level.Verbose" />,
         /// <see cref="Level.Info" />, <see cref="Level.Warning" /> or 
-        /// <see cref="Level.Error" />. Default is <see cref="Level.Info" />.
+        /// <see cref="Level.Error" />. The default is <see cref="Level.Info" />.
         /// </summary>
         [TaskAttribute("level")]
         public Level MessageLevel {

@@ -121,7 +121,8 @@ namespace NAnt.Core.Tasks {
         }
         
         /// <summary>
-        /// Desired file extension to be used for the targets. Default is <c>html</c>.
+        /// Desired file extension to be used for the targets. The default is 
+        /// <c>html</c>.
         /// </summary>
         [TaskAttribute("extension", Required=false)]
         public string Extension {

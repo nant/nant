@@ -96,7 +96,7 @@ namespace NAnt.Core.Tasks {
         /// The registry hive to use - either <see cref="RegistryHive.LocalMachine" />,
         /// <see cref="RegistryHive.Users" />, <see cref="RegistryHive.CurrentUser" /> or
         /// <see cref="RegistryHive.ClassesRoot" />. 
-        /// Default is <see cref="RegistryHive.LocalMachine" />.
+        /// The default is <see cref="RegistryHive.LocalMachine" />.
         /// </summary>
         /// <remarks>
         /// <seealso cref="RegistryHive" />

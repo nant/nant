@@ -84,7 +84,7 @@ namespace NDoc.Documenter.NAnt {
         /// </summary>
         /// <value>
         /// The .NET Framework SDK version to provide links to for system types.
-        /// Default is <see cref="F:SdkDocVersion.MsdnOnline" />.
+        /// The default is <see cref="F:SdkDocVersion.MsdnOnline" />.
         /// </value>
         public SdkDocVersion LinkToSdkDocVersion {
             get {

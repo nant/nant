@@ -167,7 +167,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether the external program should be executed using a 
-        /// runtime engine, if configured. The Default is <see langword="false" />.
+        /// runtime engine, if configured. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the external program should be executed 
