@@ -51,8 +51,8 @@ namespace NAnt.NUnit.Types {
         /// to a file. 
         /// </summary>
         /// <value>
-        /// <c>true</c> if output should be written to a file; otherwise,
-        /// <c>false</c>. Default is <c>false</c>.
+        /// <see langword="true" /> if output should be written to a file; otherwise, 
+        /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         public bool UseFile {
             get { return _usefile; }

@@ -61,7 +61,7 @@ namespace NAnt.NUnit.Types {
             get { return _data.Type; }
             set { _data.Type = value; }
         }
-                         
+
         /// <summary>
         /// Extension to append to the output filename.
         /// </summary> 
@@ -72,8 +72,8 @@ namespace NAnt.NUnit.Types {
         }
         
         /// <summary>
-        /// Determines whether output should be persisted to a file. Default is
-        /// <c>false</c>.
+        /// Determines whether output should be persisted to a file. The default 
+        /// is <see langword="false" />.
         /// </summary> 
         [TaskAttribute("usefile", Required=false)]
         [BooleanValidator()]
