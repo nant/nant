@@ -115,11 +115,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core\NAnt.Core.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
                     RelPath = "NAnt.Core\BuildFilesInResourcesTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -153,6 +148,11 @@
                     RelPath = "NAnt.Core\LocationTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core\NAnt.Core.build"
+                    SubType = "Content"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Core\ProjectTest.cs"
@@ -266,11 +266,6 @@
                 />
                 <File
                     RelPath = "NAnt.Core\Tasks\PropertyTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\ReadRegistryTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -433,3 +428,4 @@
         </Files>
     </CSHARP>
 </VisualStudioProject>
+

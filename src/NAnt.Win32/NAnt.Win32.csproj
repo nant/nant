@@ -58,7 +58,7 @@
                 <Reference
                     Name = "System.ServiceProcess"
                     AssemblyName = "System.ServiceProcess"
-		/>
+                />
                 <Reference
                     Name = "Microsoft.JScript"
                     AssemblyName = "Microsoft.JScript"
@@ -85,14 +85,19 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Win32.build"
+                    BuildAction = "None"
+                />
+                <File
                     RelPath = "Tasks\LicenseTask.cs"
                     Link = "..\NAnt.DotNet\Tasks\LicenseTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Win32.build"
-                    BuildAction = "None"
+                    RelPath = "Tasks\ReadRegistryTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Tasks\ScriptTask.cs"

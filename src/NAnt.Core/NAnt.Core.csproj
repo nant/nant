@@ -36,7 +36,6 @@
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
                     WarningLevel = "4"
-                    NoWarn = "0618;1591"
                 />
                 <Config
                     Name = "Debug Main NAnt BuildFile"
@@ -55,7 +54,6 @@
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
                     WarningLevel = "4"
-                    NoWarn = "0618;1591"
                 />
             </Settings>
             <References>
@@ -300,16 +298,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Attributes\FunctionAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Attributes\FunctionSetAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Attributes\ElementNameAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -321,6 +309,16 @@
                 />
                 <File
                     RelPath = "Attributes\FrameworkConfigurableAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Attributes\FunctionAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Attributes\FunctionSetAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -510,11 +508,6 @@
                 />
                 <File
                     RelPath = "Tasks\PropertyTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tasks\ReadRegistryTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
