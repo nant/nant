@@ -182,12 +182,14 @@ namespace SourceForge.NAnt {
 
             bool isCaseSensitive = true;
             PlatformID platformID = System.Environment.OSVersion.Platform;
-
+            
             if ((platformID == PlatformID.Win32NT) ||
-                (platformID == PlatformID.Win32Windows)) {
+                (platformID == PlatformID.Win32Windows) ) {
 
-                //We're on some version of Windows, so the PInvoke is OK.
-
+                //We're on some version of Windows, so the PInvoke is OK. Unless we're on mono in which case assume false
+                #if mono
+                    return false;
+                #endif
                 // Declare Receiving Variables
                 StringBuilder VolLabel = new StringBuilder(256);    // Label
                 UInt32 VolFlags = new UInt32();
