@@ -17,9 +17,9 @@
 //
 // Shawn Van Ness (nantluver@arithex.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Ian MacLean ( ian@maclean.ms )
+// Ian MacLean (ian@maclean.ms)
 // Eric V. Smith (ericsmith@windsor.com)
-
+//
 // TODO: review interface for future compatibility/customizations issues
 
 using System;
@@ -28,7 +28,6 @@ using System.IO;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-    
     /// <summary>
     /// Compiles C/C++ programs using cl, Microsoft's C/C++ compiler.
     /// </summary>
@@ -66,46 +65,61 @@ namespace SourceForge.NAnt.Tasks {
         /// Options to pass to the compiler.
         /// </summary>
         [TaskAttribute("options")]
-        public string Options { get { return _options; } set { _options = value; } }
+        public string Options {
+            get { return _options; }
+            set { _options = value; }
+        }
 
         /// <summary>
         /// Directory where all output files are placed.
         /// </summary>
         [TaskAttribute("outputdir", Required=true)]
-        public string OutputDir { get { return _outputdir; } set { _outputdir = value; } }
+        public string OutputDir {
+            get { return _outputdir; }
+            set { _outputdir = value; }
+        }
 
         /// <summary>
         /// The name of the precompiled header file.
         /// </summary>
         [TaskAttribute("pchfile")]
-        public string PchFile { get { return _pchfile; } set { _pchfile = value; } }
+        public string PchFile {
+            get { return _pchfile; }
+            set { _pchfile = value; }
+        }
 
         /// <summary>
         /// The list of files to compile.
         /// </summary>
         [FileSet("sources")]
-        public FileSet Sources { get { return _sources; } }
+        public FileSet Sources {
+            get { return _sources; }
+        }
 
         /// <summary>
         /// The list of directories in which to search for include files.
         /// </summary>
         [FileSet("includedirs")]
-        public FileSet Includes { get { return _includes; } }
+        public FileSet Includes {
+            get { return _includes; }
+        }
 
         #endregion Public Instance Properties
 
-        #region Protected Instance Properties
-
-        protected string FullOutputPath {
-            get { return Path.GetFullPath(Path.Combine(BaseDirectory, OutputDir)); }
-        }
-
-        #endregion Protected Instance Properties
-
         #region Override implementation of ExternalProgramBase
 
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
         public override string ProgramFileName {get {return Name;}}
 
+        /// <summary>
+        /// Gets the command-line arguments for the external program.
+        /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
         public override string ProgramArguments {
             get {
                 if (Verbose) {
@@ -120,12 +134,15 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Compiles the sources.
+        /// </summary>
         protected override void ExecuteTask() {
             if (Sources.BaseDirectory == null) {
                 Sources.BaseDirectory = BaseDirectory;
             }
 
-            Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, FullOutputPath);
+            Log.WriteLine(LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, OutputDir));
 
             // Create temp response file to hold compiler options
             _responseFileName = Path.GetTempFileName();
@@ -133,7 +150,7 @@ namespace SourceForge.NAnt.Tasks {
 
             try {
                 // write basic switches
-                writer.WriteLine("/c");     // compile only
+                writer.WriteLine("/c"); // compile only
 
                 // write user provided options
                 if (_options != null) {
@@ -155,8 +172,8 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 // write each of the filenames
-                foreach(string filename in Sources.FileNames) {
-                    writer.WriteLine( "\"{0}\"", filename);
+                foreach (string filename in Sources.FileNames) {
+                    writer.WriteLine("\"{0}\"", filename);
                 }
 
                 writer.Close();

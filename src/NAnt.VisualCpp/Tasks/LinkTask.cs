@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 //
 // Shawn Van Ness (nantluver@arithex.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Ian MacLean ( ian@maclean.ms )
+// Ian MacLean (ian@maclean.ms)
 // Eric V. Smith (ericsmith@windsor.com)
-
+//
 // TODO: review interface for future compatibility/customizations issues
 
 using System;
@@ -28,7 +28,6 @@ using System.IO;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
     /// <summary>Links files using link, Microsoft's Incremental Linker.</summary>
     /// <remarks>
     ///   <para>This task is intended for version 7.00.9466 of link.exe.</para>
@@ -63,40 +62,54 @@ namespace SourceForge.NAnt.Tasks {
         /// Options to pass to the compiler.
         /// </summary>
         [TaskAttribute("options")]
-        public string Options {get {return _options;} set {_options = value;}}
+        public string Options {
+            get { return _options; }
+            set { _options = value; }
+        }
 
         /// <summary>
         /// The output file name.
         /// </summary>
         [TaskAttribute("output", Required=true)]
-        public string Output {get {return _output;} set {_output = value;}}
+        public string Output {
+            get { return _output; }
+            set { _output = value; }
+        }
 
         /// <summary>
         /// The list of files to combine into the output file.
         /// </summary>
         [FileSet("sources")]
-        public FileSet Sources {get {return _sources;}}
+        public FileSet Sources {
+            get { return _sources; }
+        }
 
         /// <summary>
         /// The list of additional library directories to search.
         /// </summary>
         [FileSet("libdirs")]
-        public FileSet LibDirs {get {return _libdirs;}}
+        public FileSet LibDirs {
+            get { return _libdirs; }
+        }
 
         #endregion Public Instance Properties
 
-        #region Protected Instance Properties
-
-        protected string FullOutputPath {
-            get { return Path.GetFullPath(Path.Combine(BaseDirectory, Output)); }
-        }
-
-        #endregion Protected Instance Properties
-
         #region Override implementation of ExternalProgramBase
 
-        public override string ProgramFileName {get {return Name;}}
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
+        public override string ProgramFileName {
+            get { return Name; }
+        }
 
+        /// <summary>
+        /// Gets the command-line arguments for the external program.
+        /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
         public override string ProgramArguments {
             get {
                 if (Verbose) {
@@ -111,19 +124,21 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Links the sources.
+        /// </summary>
         protected override void ExecuteTask() {
             if (Sources.BaseDirectory == null) {
                 Sources.BaseDirectory = BaseDirectory;
             }
 
-            Log.WriteLine(LogPrefix + "Linking {0} files to {1}", Sources.FileNames.Count, FullOutputPath);
+            Log.WriteLine(LogPrefix + "Linking {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
 
             // Create temp response file to hold compiler options
             _responseFileName = Path.GetTempFileName();
             StreamWriter writer = new StreamWriter(_responseFileName);
 
             try {
-
                 // specify the output file
                 writer.WriteLine("/OUT:\"{0}\"", Path.Combine(BaseDirectory, Output));
 
@@ -133,12 +148,12 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 // write each of the filenames
-                foreach(string filename in Sources.FileNames) {
+                foreach (string filename in Sources.FileNames) {
                     writer.WriteLine("\"{0}\"", filename);
                 }
 
                 // write each of the libdirs
-                foreach(string libdir in LibDirs.DirectoryNames) {
+                foreach (string libdir in LibDirs.DirectoryNames) {
                     writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
                 }
 

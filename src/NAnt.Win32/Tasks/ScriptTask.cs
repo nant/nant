@@ -78,35 +78,62 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("script")]
     public class ScriptTask : Task {
+        #region Private Instance Fields
 
-        string _language = "Unknown";
-        FileSet _references = new FileSet();        
-        string _mainClass = "";
+        private string _language = "Unknown";
+        private FileSet _references = new FileSet();
+        private string _mainClass = "";
         private static Hashtable _compilerMap;
         private string _rootClassName;
         private string _code;
         private ArrayList _imports = new ArrayList();
-        private static readonly string[] _defaultNamespaces =  {
-            "System",
-            "System.Collections",
-            "System.Collections.Specialized",
-            "System.IO",
-            "System.Text",
-            "System.Text.RegularExpressions",
-            "SourceForge.NAnt",
-        };
 
-        /// <summary>The language of the script block (VB, C# or JS).</summary>
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private static readonly string[] _defaultNamespaces = {
+                                                                  "System",
+                                                                  "System.Collections",
+                                                                  "System.Collections.Specialized",
+                                                                  "System.IO",
+                                                                  "System.Text",
+                                                                  "System.Text.RegularExpressions",
+                                                                  "SourceForge.NAnt"};
+
+        #endregion Private Static Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The language of the script block (VB, C# or JS).
+        /// </summary>
         [TaskAttribute("language", Required=true)]
-        public string Language { get { return _language; } set { _language = value; } }
+        public string Language {
+            get { return _language; }
+            set { _language = value; }
+        }
 
-        /// <summary>Any required references.</summary>
+        /// <summary>
+        /// Any required references.
+        /// </summary>
         [FileSet("references")]
-        public FileSet References { get { return _references; } }
+        public FileSet References {
+            get { return _references; }
+        }
 
-        /// <summary>The name of the main class containing the static <c>ScriptMain</c> entry point.</summary>
+        /// <summary>
+        /// The name of the main class containing the static <c>ScriptMain</c> entry point.
+        /// </summary>
         [TaskAttribute("mainclass", Required=false)]
-        public string MainClass { get { return _mainClass; } set { _mainClass = value; } }
+        public string MainClass {
+            get { return _mainClass; }
+            set { _mainClass = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Static Constructor
 
         static ScriptTask() {
             _compilerMap = new Hashtable(
@@ -127,6 +154,13 @@ namespace SourceForge.NAnt.Tasks {
             _compilerMap["JS"] = jsCompiler;
         }
 
+        #endregion Static Constructor
+
+        #region Override implementation of Task
+
+        /// <summary>
+        /// Initializes the task using the specified xml node.
+        /// </summary>
         protected override void InitializeTask(XmlNode taskNode) {
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             XmlNodeList codeList = taskNode.SelectNodes("nant:code", Project.NamespaceManager);
@@ -149,6 +183,9 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
+        /// <summary>
+        /// Executes the script block.
+        /// </summary>
         protected override void ExecuteTask() {
             CompilerInfo compilerInfo = _compilerMap[Language] as CompilerInfo;
 
@@ -161,9 +198,6 @@ namespace SourceForge.NAnt.Tasks {
             options.GenerateExecutable = false;
             options.GenerateInMemory = true;
             options.MainClass = MainClass;
-
-            // Add NAnt to references.
-            // options.ReferencedAssemblies.Add(AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName);
 
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
@@ -210,8 +244,8 @@ namespace SourceForge.NAnt.Tasks {
             if (mainType == null) {
                 throw new BuildException("Invalid mainclass.", Location);
             }
-            MethodInfo entry = mainType.GetMethod("ScriptMain");
 
+            MethodInfo entry = mainType.GetMethod("ScriptMain");
             if (entry == null) {
                 throw new BuildException("Missing entry point.", Location);
             }
@@ -231,7 +265,7 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             try {
-                entry.Invoke(null, new Object[] { Project });
+                entry.Invoke(null, new Object[] {Project});
             } catch (Exception e) {
                 // This exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception
@@ -239,6 +273,8 @@ namespace SourceForge.NAnt.Tasks {
                 throw new BuildException("Script exception.", Location, e.InnerException);
             }
         }
+
+        #endregion Override implementation of Task
 
         internal enum LanguageId : int {
             CSharp      = 1,
@@ -249,8 +285,8 @@ namespace SourceForge.NAnt.Tasks {
         internal class CompilerInfo {
             private LanguageId _lang;
             public readonly ICodeCompiler Compiler;
-            public readonly ICodeGenerator CodeGen;
-            public readonly string CodePrologue;
+            private readonly ICodeGenerator CodeGen;
+            private readonly string CodePrologue;
 
             public CompilerInfo(LanguageId languageId) {
                 _lang = languageId;
@@ -259,17 +295,15 @@ namespace SourceForge.NAnt.Tasks {
                 CodeDomProvider provider = null;
 
                 switch (languageId) {
-                case LanguageId.CSharp:
-                    provider = new Microsoft.CSharp.CSharpCodeProvider();
-                    break;
-
-                case LanguageId.VisualBasic:
-                    provider = new Microsoft.VisualBasic.VBCodeProvider();
-                    break;
-
-                case LanguageId.JScript:
-                    provider = new Microsoft.JScript.JScriptCodeProvider();
-                    break;
+                    case LanguageId.CSharp:
+                        provider = new Microsoft.CSharp.CSharpCodeProvider();
+                        break;
+                    case LanguageId.VisualBasic:
+                        provider = new Microsoft.VisualBasic.VBCodeProvider();
+                        break;
+                    case LanguageId.JScript:
+                        provider = new Microsoft.JScript.JScriptCodeProvider();
+                        break;
                 }
 
                 if (provider != null) {
@@ -307,7 +341,9 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 string declEnd = "}";
-                if (_lang == LanguageId.VisualBasic) declEnd = "End";
+                if (_lang == LanguageId.VisualBasic) {
+                    declEnd = "End";
+                }
                 int i = decl.LastIndexOf(declEnd);
                 return CodePrologue + extraImports + decl.Substring(0, i-1) + codeBody + "\n" + decl.Substring(i);
             }
