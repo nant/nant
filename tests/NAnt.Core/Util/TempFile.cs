@@ -42,7 +42,7 @@ namespace SourceForge.NAnt.Tests {
 
         public static string CreateWithContents(string contents, string fileName) {
             // Write the text into the temp file.
-            using (FileStream f = File.OpenWrite(fileName)) {
+            using (FileStream f = new FileStream(fileName, FileMode.Create)) {
                 StreamWriter s = new StreamWriter(f);
                 s.Write(contents);
                 s.Close();

@@ -51,13 +51,19 @@ namespace SourceForge.NAnt.Tests {
         public static void Delete(string path) {
             try {
                 if (Directory.Exists(path)) {
-                    SetAllFileAttributesToNormal(path);
-                    Directory.Delete(path, true);
+					SetAllFileAttributesToNormal(path);
+					string[] directoryNames = Directory.GetDirectories(path);
+					foreach(string directoryName in directoryNames) 
+						Delete(directoryName);
+					string[] fileNames = Directory.GetFiles(path);
+					foreach(string fileName in fileNames) 
+						File.Delete(fileName);
+					Directory.Delete(path);
                 }
             }
             finally {
                 if (Directory.Exists(path)) {
-                    throw new AssertionException("TempDir: "+ path + " exists.");
+                    throw new AssertionException("TempDir: "+ path + " still exists.");
                 }
             }
         }
@@ -71,7 +77,8 @@ namespace SourceForge.NAnt.Tests {
 
             string[] directoryNames = Directory.GetDirectories(path);
             foreach(string directoryName in directoryNames) {
-                SetAllFileAttributesToNormal(directoryName);
+				File.SetAttributes(directoryName, FileAttributes.Normal);
+				SetAllFileAttributesToNormal(directoryName);
             }
         }
     }
