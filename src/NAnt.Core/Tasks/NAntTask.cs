@@ -23,6 +23,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
@@ -30,7 +31,7 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Runs NAnt on a supplied build file. This can be used to build subprojects.
+    /// Runs NAnt on a supplied build file, or a set of build files.
     /// </summary>
     /// <example>
     ///   <para>
@@ -59,12 +60,27 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Build all projects named <c>default.build</c> located anywhere under 
+    ///   the project base directory.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <nant>
+    ///     <buildfiles>
+    ///         <includes name="**/default.build" />
+    ///     </buildfiles>
+    /// </nant>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("nant")]
     public class NAntTask : Task {
         #region Private Instance Fields
 
         private FileInfo _buildFile;
-        private FileSet _buildFileSet = new FileSet();
+        private FileSet _buildFiles = new FileSet();
         private string _target;
         private bool _inheritAll = true;
         private ArrayList _overrideProperties = new ArrayList();
@@ -95,12 +111,12 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Used to specify a list of build files to process.
+        /// Used to specify a set of build files to process.
         /// </summary>
         [BuildElement("buildfiles")]
-        public virtual FileSet BuildFilesFileSet {
-            get { return _buildFileSet; }
-            set { _buildFileSet = value; }
+        public virtual FileSet BuildFiles {
+            get { return _buildFiles; }
+            set { _buildFiles = value; }
         }
 
         /// <summary>
@@ -127,20 +143,27 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Validates the <see cref="NAntTask" /> element.
+        /// </summary>
+        /// <param name="taskNode">The XML node of the task to use for initialization.</param>
+        protected override void InitializeTask(XmlNode taskNode) {
+            if (BuildFile != null && BuildFiles != null && BuildFiles.Includes.Count > 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'buildfile' attribute and the <buildfiles> element" 
+                    + " cannot be combined."), Location);
+            }
+        }
+
         protected override void ExecuteTask() {
             // run the build file specified in an attribute
-            int buildFileCount = 0;
             if (BuildFile != null) {
                 RunBuild(BuildFile);
-                buildFileCount++;
-            };
-            // run all build files specified in the fileset
-            foreach (string s in BuildFilesFileSet.FileNames) {
-                RunBuild(new FileInfo(s));
-                buildFileCount++;
-            }
-            if (buildFileCount == 0) {
-                throw new BuildException("You need to specify at least one build file.", Location);
+            } else {
+                // run all build files specified in the fileset
+                foreach (string buildFile in BuildFiles.FileNames) {
+                    RunBuild(new FileInfo(buildFile));
+                }
             }
         }
 
