@@ -167,6 +167,15 @@ namespace NDoc.Documenter.NAnt {
             // generate a page for each marked task
             XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
             foreach (XmlNode node in taskAttrNodes) {
+                // do not document tasks that are deprecated and have the IsError 
+                // property of ObsoleteAttribute set to "true"
+                XmlNode obsoleteErrorNode = node.ParentNode.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
+                if (obsoleteErrorNode != null) {
+                    if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
+                        continue;
+                    }
+                }
+
                 // create arguments for nant task page transform
                 XsltArgumentList arguments = new XsltArgumentList();
                 string classID = node.ParentNode.Attributes["id"].Value;
@@ -191,6 +200,15 @@ namespace NDoc.Documenter.NAnt {
             // generate a page for each marked type
             XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.ElementNameAttribute']");
             foreach (XmlNode node in typeAttrNodes) {
+                // do not document types that are deprecated and have the IsError 
+                // property of ObsoleteAttribute set to "true"
+                XmlNode obsoleteErrorNode = node.ParentNode.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
+                if (obsoleteErrorNode != null) {
+                    if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
+                        continue;
+                    }
+                }
+
                 // create arguments for nant type page transform
                 XsltArgumentList arguments = new XsltArgumentList();
                 string classID = node.ParentNode.Attributes["id"].Value;
