@@ -194,11 +194,19 @@ namespace NAnt.VSNet {
             // create instance of Cl task
             ClTask clTask = new ClTask();
 
+            // inherit project from solution task
+            clTask.Project = _solutionTask.Project;
+
+            // inherit parent from solution task
+            clTask.Parent = _solutionTask.Parent;
+
+            // inherit verbose setting from solution task
+            clTask.Verbose = _solutionTask.Verbose;
+
             // make sure framework specific information is set
             clTask.InitializeTaskConfiguration();
 
             // set task properties
-            clTask.Project   = _solutionTask.Project;
             clTask.OutputDir = baseConfig.IntermediateDir;
             clTask.PchFile   = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
 
@@ -246,6 +254,7 @@ namespace NAnt.VSNet {
                 clTask.Arguments.Add(new Argument(arg));
             }
 
+            // execute the task
             ExecuteInProjectDirectory(clTask);
         }
 
@@ -253,12 +262,19 @@ namespace NAnt.VSNet {
             // create instance of Lib task
             LibTask libTask = new LibTask();
 
+            // inherit project from solution task
+            libTask.Project = _solutionTask.Project;
+
+            // inherit parent from solution task
+            libTask.Parent = _solutionTask.Parent;
+
+            // inherit verbose setting from solution task
+            libTask.Verbose = _solutionTask.Verbose;
+
             // make sure framework specific information is set
             libTask.InitializeTaskConfiguration();
 
             // set task properties
-            libTask.Project = _solutionTask.Project;
-            
             string outFile = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
             libTask.Output = Path.Combine(_projectDirectory, outFile);
 
@@ -266,6 +282,7 @@ namespace NAnt.VSNet {
                 libTask.Sources.FileNames.Add(objFile);
             }
             
+            // execute the task
             ExecuteInProjectDirectory(libTask);
         }
 
@@ -275,12 +292,19 @@ namespace NAnt.VSNet {
             // create instance of Link task
             LinkTask linkTask = new LinkTask();
 
+            // inherit project from solution task
+            linkTask.Project = _solutionTask.Project;
+
+            // inherit parent from solution task
+            linkTask.Parent = _solutionTask.Parent;
+
+            // inherit verbose setting from solution task
+            linkTask.Verbose = _solutionTask.Verbose;
+
             // make sure framework specific information is set
             linkTask.InitializeTaskConfiguration();
 
             // set task properties
-            linkTask.Project = _solutionTask.Project;
-
             string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");
             string pdbFile = baseConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
             if (!StringUtils.IsNullOrEmpty(_outputDir)) {
@@ -342,6 +366,7 @@ namespace NAnt.VSNet {
                 linkTask.Arguments.Add(new Argument("/LTCG"));
             }
 
+            // execute the task
             ExecuteInProjectDirectory(linkTask);
         }
 

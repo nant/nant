@@ -269,6 +269,15 @@ namespace NAnt.VSNet {
                             // create instance of Copy task
                             CopyTask ct = new CopyTask();
 
+                            // inherit project from solution task
+                            ct.Project = _solutionTask.Project;
+
+                            // inherit parent from solution task
+                            ct.Parent = _solutionTask.Parent;
+
+                            // inherit verbose setting from solution task
+                            ct.Verbose = _solutionTask.Verbose;
+
                             // make sure framework specific information is set
                             ct.InitializeTaskConfiguration();
 
@@ -278,8 +287,6 @@ namespace NAnt.VSNet {
                             }
                             ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
                             ct.ToDirectory = cs.OutputPath;
-                            ct.Project = _solutionTask.Project;
-                            ct.Verbose = _solutionTask.Verbose;
 
                             _solutionTask.Project.Indent();
                             ct.Execute();

@@ -201,6 +201,15 @@ namespace NAnt.VSNet {
             // create instance of License task
             LicenseTask lt = new LicenseTask();
 
+            // inherit project from solution task
+            lt.Project = _solutionTask.Project;
+
+            // inherit parent from solution task
+            lt.Parent = _solutionTask.Parent;
+
+            // inherit verbose setting from solution task
+            lt.Verbose = _solutionTask.Verbose;
+
             // make sure framework specific information is set
             lt.InitializeTaskConfiguration();
 
@@ -208,8 +217,6 @@ namespace NAnt.VSNet {
             lt.Input = _resourceSourceFile;
             lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFile + ".licenses");
             lt.Target = outputFile;
-            lt.Verbose = _solutionTask.Verbose;
-            lt.Project = _solutionTask.Project;
             lt.Assemblies = new FileSet();
 
             foreach (Reference reference in Project.References) {
@@ -220,6 +227,7 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // execute task
             lt.Project.Indent();
             lt.Execute();
             lt.Project.Unindent();
@@ -256,6 +264,15 @@ namespace NAnt.VSNet {
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
 
+            // inherit project from solution task
+            rt.Project = _solutionTask.Project;
+
+            // inherit parent from solution task
+            rt.Parent = _solutionTask.Parent;
+
+            // inherit verbose setting from solution task
+            rt.Verbose = _solutionTask.Verbose;
+
             // make sure framework specific information is set
             rt.InitializeTaskConfiguration();
 
@@ -263,9 +280,9 @@ namespace NAnt.VSNet {
             rt.Input = inFile;
             rt.Output = Path.GetFileName(outFile);
             rt.ToDirectory = Path.GetDirectoryName(outFile);
-            rt.Verbose = _solutionTask.Verbose;
-            rt.Project = _solutionTask.Project;
             rt.BaseDirectory = Path.GetDirectoryName(inFile);
+
+            // execute task
             rt.Project.Indent();
             rt.Execute();
             rt.Project.Unindent();
