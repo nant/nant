@@ -19,6 +19,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 
@@ -60,6 +61,7 @@ namespace NAnt.Zip.Tasks {
         private DateTime _stampDateTime = DateTime.MinValue;
         private string _comment = null;
         private bool _includeEmptyDirs = false;
+        private Hashtable _addedDirs = new Hashtable();
 
         #endregion Private Instance Fields
 
@@ -152,9 +154,6 @@ namespace NAnt.Zip.Tasks {
                 basePath = Path.GetDirectoryName(basePath + Path.DirectorySeparatorChar);
             }
 
-            // TO-DO check if all matching files and directories are located 
-            // under the base path and throw BuildException if not ?
-
             try {
                 zOutstream = new ZipOutputStream(File.Create(ZipFileName));
 
@@ -193,13 +192,21 @@ namespace NAnt.Zip.Tasks {
                             if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
                                 entryName = entryName.Substring(1);
                             }
+
+                            // remember that directory was added to zip file, so
+                            // that we won't add it again later
+                            string dir = Path.GetDirectoryName(file);
+                            if (_addedDirs[dir] == null) {
+                                _addedDirs[dir] = dir;
+                            }
                         } else {
+                            // flatten directory structure
                             entryName = Path.GetFileName(file);
                         }
 
                         // create zip entry
                         ZipEntry entry = new ZipEntry(entryName);
-                        
+
                         // set time/date stamp on zip entry
                         if (_stampDateTime != DateTime.MinValue) {
                             entry.DateTime = _stampDateTime;
@@ -229,6 +236,12 @@ namespace NAnt.Zip.Tasks {
                 // add (possibly empty) directories to zip
                 if (IncludeEmptyDirs) {
                     foreach (string directory in ZipFileSet.DirectoryNames) {
+                        // skip directories that were already added when the 
+                        // files were added
+                        if (_addedDirs[directory] != null) {
+                            continue;
+                        }
+
                         // skip directories that are not located beneath the base 
                         // directory
                         if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
