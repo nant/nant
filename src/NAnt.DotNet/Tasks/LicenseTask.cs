@@ -346,6 +346,11 @@ namespace NAnt.DotNet.Tasks {
                                 // output assembly from which license type was loaded
                                 licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
                                     + ((Type) licenseTypes[line]).Assembly.CodeBase);
+
+                                // TO-DO REMOVE DEBUG CODE
+                                licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
+                                    + "License type: '{0}'.", tp.AssemblyQualifiedName);
+                                // END REMOVE DEBUG CODE
                             }
 
                             // ensure that we've got a licensed component
@@ -353,6 +358,22 @@ namespace NAnt.DotNet.Tasks {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,  
                                     "Type {0} is not a licensed component.", tp.FullName), 
                                     licenseTask.Location);
+                            } else {
+                                // TO-DO REMOVE DEBUG CODE
+                                LicenseProviderAttribute[] licenseProviderAtts = (LicenseProviderAttribute[]) 
+                                    tp.GetCustomAttributes(typeof(LicenseProviderAttribute), true);
+                                foreach (LicenseProviderAttribute licenseProviderAttribute in licenseProviderAtts) {
+                                    licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
+                                        + "License provider attribute '{0}'.", licenseProviderAttribute.GetType().AssemblyQualifiedName);
+                                    if (licenseProviderAttribute.LicenseProvider != null) {
+                                        licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
+                                            + "License provider '{0}'.", licenseProviderAttribute.LicenseProvider.AssemblyQualifiedName);
+                                    }
+                                }
+
+                                licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
+                                    + "Is licensed : " + LicenseManager.IsLicensed(tp));
+                                // END REMOVE DEBUG CODE
                             }
 
                             try {
