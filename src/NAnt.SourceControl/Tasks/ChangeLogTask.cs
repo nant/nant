@@ -112,6 +112,33 @@ namespace NAnt.SourceControl.Tasks {
             set {SetCommandOption("end", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
         }
 
+        /// <summary>
+        /// Override the cvs root attribute to make it not required.  If the cvsroot
+        /// is not found then the directory specified by the Destinations
+        /// attribute is searched for CVS\Root.
+        /// </summary>
+        [TaskAttribute("cvsroot", Required=false)]
+        public override string Root {
+            get {
+                if (null == base.Root && this.DestinationDirectory.Exists) {
+                    try {
+                        ICSharpCode.SharpCvsLib.FileSystem.Manager manager = 
+                            new ICSharpCode.SharpCvsLib.FileSystem.Manager(this.DestinationDirectory.FullName);
+                        ICSharpCode.SharpCvsLib.FileSystem.Root root =
+                            manager.FetchRoot(this.DestinationDirectory.FullName);
+                        base.Root = root.FileContents;
+                    } catch (Exception e) {
+                        throw new BuildException (e.Message);
+                    }
+                }
+                return base.Root;
+            }
+            set {
+                base.Root = value;
+            }
+        }
+
+
         #endregion
     }
 }
