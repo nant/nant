@@ -1065,10 +1065,7 @@ namespace NAnt.Core {
             // load line and column number information into position map
             LocationMap.Add(doc);
 
-            //TODO: Add support after lazy target init is done.
-            //ArrayList globalTasks = new ArrayList();
-
-            // initialize targets and global tasks
+            // initialize targets 
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
                 if (childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Target target = new Target();
@@ -1076,13 +1073,18 @@ namespace NAnt.Core {
                     target.Parent = this;
                     target.Initialize(childNode);
                     Targets.Add(target);
-                } else if (!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
-                    if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
-                        Task task = CreateTask(childNode);
+                }
+            }
 
-                        //see comments below.
-                        //globalTasks.Add(task);
+            // initialize datatypes and execute global tasks
+            foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
+                if (!childNode.Name.StartsWith("#") && !childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
+                    if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+                        // create task instance
+                        Task task = CreateTask(childNode);
                         task.Parent = this;
+
+                        // execute task
                         task.Execute();
                     } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
                         // we are an datatype declaration
