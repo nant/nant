@@ -69,6 +69,15 @@ namespace NAnt.Core.Attributes {
             set { _expression = value; }
         }
 
+        /// <summary>
+        /// An optional error message that can be used to better describe the
+        /// regular expression error.
+        /// </summary>
+        public string ExpressionErrorMessage {
+            get { return this._expressionErrorMessage; }
+            set { this._expressionErrorMessage = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ValidatorAttribute
@@ -95,9 +104,13 @@ namespace NAnt.Core.Attributes {
 
             if (null != StringUtils.ConvertEmptyToNull(Expression)) {
                 if (!Regex.IsMatch(Convert.ToString(value), Expression)) {
-                    throw new ValidationException(
-                        String.Format("String {0} does not match expression {1}.",
-                            value, Expression));
+                    string msg = string.Format("String {0} does not match expression {1}.",
+                            value, Expression);
+                    if (null != this.ExpressionErrorMessage && 
+                        string.Empty != this.ExpressionErrorMessage) {
+                        msg = this.ExpressionErrorMessage;
+                    }
+                    throw new ValidationException(msg);
                 }
             }
         }
@@ -108,6 +121,7 @@ namespace NAnt.Core.Attributes {
 
         private bool _allowEmpty = true;
         private string _expression;
+        private string _expressionErrorMessage;
 
         #endregion Private Instance Fields
     }
