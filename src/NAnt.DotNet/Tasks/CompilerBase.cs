@@ -312,7 +312,7 @@ namespace NAnt.DotNet.Tasks {
                 _responseFileName = Path.GetTempFileName();
                 StreamWriter writer = new StreamWriter(_responseFileName);
                 Hashtable cultureResources = new Hashtable();
-                StringCollection compiledResourceFiles = new StringCollection();
+                Hashtable compiledResourceFiles = new Hashtable();
                 
                 try {
                     if (References.BaseDirectory == null) {
@@ -374,8 +374,8 @@ namespace NAnt.DotNet.Tasks {
                             string manifestResourceName = this.GetManifestResourceName(
                                 resources, fileName);
                             
-                            string tmpResourcePath = fileName.Replace(Path.GetFileName(fileName), manifestResourceName);
-                            compiledResourceFiles.Add(tmpResourcePath);
+                            string tmpResourcePath =  Path.ChangeExtension( fileName, ".resources" );
+                            compiledResourceFiles.Add(manifestResourceName, tmpResourcePath);
                             
                             // compile to a temp .resources file
                             CompileResxResource(fileName, tmpResourcePath);
@@ -386,15 +386,13 @@ namespace NAnt.DotNet.Tasks {
                                 if (!cultureResources.ContainsKey(resourceCulture.Name)) {
                                     // initialize collection for holding 
                                     // resource file for this culture
-                                    cultureResources.Add(resourceCulture.Name, new StringCollection());
+                                    cultureResources.Add(resourceCulture.Name, new Hashtable());
                                 }
-
                                 // store resulting .resources file for later linking 
-                                ((StringCollection) cultureResources[resourceCulture.Name]).Add(tmpResourcePath);
+                                ((Hashtable) cultureResources[resourceCulture.Name]).Add( manifestResourceName, tmpResourcePath );
                             } else {
-                                // regular embedded resources
-                                string resourceoption = tmpResourcePath;
-
+                                // regular embedded resources ( using filename and manifest resource name ).
+                                string resourceoption = string.Format( CultureInfo.InvariantCulture, "{0},{1}", tmpResourcePath, manifestResourceName );
                                 // write resource option to response file
                                 WriteOption(writer, "resource", resourceoption);
                             }
@@ -406,29 +404,18 @@ namespace NAnt.DotNet.Tasks {
                             string manifestResourceName = this.GetManifestResourceName(
                                 resources, fileName);
 
-                            string tmpResourcePath = fileName.Replace(Path.GetFileName(fileName), manifestResourceName);
-                            if (tmpResourcePath != fileName) {
-                                // copy resource file to filename matching 
-                                // manifest resource name
-                                File.Copy(fileName, tmpResourcePath, true);
-
-                                // make sure copy is removed later on
-                                compiledResourceFiles.Add(tmpResourcePath);
-                            }
-
                             // check if resource is localized
                             CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
                             if (resourceCulture != null) {
                                 if (!cultureResources.ContainsKey(resourceCulture.Name)) {
                                     // initialize collection for holding 
                                     // resource file for this culture
-                                    cultureResources.Add(resourceCulture.Name, new StringCollection());
+                                    cultureResources.Add(resourceCulture.Name, new Hashtable());
                                 }
-
-                                // store resource filename for later linking; 
-                                ((StringCollection) cultureResources[resourceCulture.Name]).Add(tmpResourcePath);
-                            } else {
-                                string resourceoption = tmpResourcePath;
+                                // store resource filename for later linking
+                                ((Hashtable) cultureResources[resourceCulture.Name]).Add(manifestResourceName, fileName);
+                            } else {                   
+                                string resourceoption = string.Format( CultureInfo.InvariantCulture, "{0},{1}",fileName, manifestResourceName );
                                 WriteOption(writer, "resource", resourceoption);
                             }
                         }
@@ -463,14 +450,15 @@ namespace NAnt.DotNet.Tasks {
                         // determine filename of satellite assembly
                         string outputFile =  Path.Combine(culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
                         // generate satellite assembly
-                        LinkResourceAssembly((StringCollection) cultureResources[culture], 
+                        LinkResourceAssembly((Hashtable)cultureResources[culture], 
                             outputFile, culture);
                     }
                 } finally {
                     // cleanup .resource files
-                    foreach (string fileName in compiledResourceFiles) {
-                        File.Delete(fileName); 
+                    foreach (string key in compiledResourceFiles.Keys) {
+                        File.Delete((string)compiledResourceFiles[key]); 
                     }
+                    
                     // make sure we delete response file even if an exception is thrown
                     writer.Close(); // make sure stream is closed or file cannot be deleted
                     File.Delete(_responseFileName);
@@ -915,7 +903,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="resourceFiles">The collection of resources.</param>
         /// <param name="outputFile">Resource assembly to generate</param>
         /// <param name="culture">Culture of the generated assembly.</param>
-        protected void LinkResourceAssembly(StringCollection resourceFiles, string outputFile, string culture) {
+        protected void LinkResourceAssembly(Hashtable resourceFiles, string outputFile, string culture) {
             // defer to the assembly linker task
             AssemblyLinkerTask alink = new AssemblyLinkerTask();
 
@@ -934,9 +922,13 @@ namespace NAnt.DotNet.Tasks {
             alink.OutputTarget = "lib";
             alink.Template = Output;
 
-            // add resource files
-            foreach (string resourceFile in resourceFiles) {
-                alink.Resources.FileNames.Add(resourceFile);
+            // add resource files using the Arguments collection.
+            foreach ( string manifestname in resourceFiles.Keys ) {
+                string resourcefile = (string)resourceFiles[manifestname];
+                // add resources to embed 
+                Argument arg = new Argument();
+                arg.Value = string.Format(CultureInfo.InvariantCulture, " /embed:\"{0}\",{1}", resourcefile, manifestname);
+                alink.Arguments.Add(arg);
             }
             
             // fix up the indent level
