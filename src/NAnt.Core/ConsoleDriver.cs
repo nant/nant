@@ -206,33 +206,33 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Prints help to Console. The <code>buildDoc</code> is loaded and transformed with 'ProjectHelp.xslt'
+        /// Prints the projecthelp to the console.
         /// </summary>
         /// <param name="buildDoc">The build file to show help for.</param>
+        /// <remarks>
+        /// <paramref name="buildDoc" /> is loaded and transformed with 
+        /// <c>ProjectHelp.xslt</c>, which is an embedded resource.
+        /// </remarks>
         public static void ShowProjectHelp(XmlDocument buildDoc) {
-
-            //string resourceDirectory =
-            //    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NAnt";
-
             // load our transform file out of the embedded resources
             Stream xsltStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProjectHelp.xslt");
-
             if(xsltStream == null) {
-                throw new ApplicationException("Missing 'ProjectHelp.xslt' Resource Stream");
+                throw new Exception("Missing 'ProjectHelp.xslt' Resource Stream");
             }
 
             XslTransform transform = new XslTransform();
-            XmlTextReader reader = new XmlTextReader( xsltStream, XmlNodeType.Document, null );
+            XmlTextReader reader = new XmlTextReader(xsltStream, XmlNodeType.Document, null);
             transform.Load(reader);
 
             StringBuilder sb = new StringBuilder();
-            StringWriter writer = new StringWriter(sb);
+            StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);
             XsltArgumentList arguments = new XsltArgumentList();
 
-            // Do transform
-            transform.Transform(buildDoc, arguments, writer );
-            string outstr = sb.ToString();
-            System.Console.WriteLine( sb.ToString() );
+            // Do transformation
+            transform.Transform(buildDoc, arguments, writer);
+
+            // Write projecthelp to console
+            Console.WriteLine(sb.ToString());
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace SourceForge.NAnt {
 
             object[] args = new object[1];
             args[0] = writer;
-            return (LogListener) Activator.CreateInstance(assembly.GetType(className, true), args);
+            return (LogListener) Activator.CreateInstance(assembly.GetType(className, true), BindingFlags.Public | BindingFlags.Instance, null, args, CultureInfo.InvariantCulture);
         }
 
         #endregion Public Static Methods

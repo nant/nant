@@ -75,7 +75,7 @@ namespace SourceForge.NAnt {
             foreach(string name in _unscannedNames) {
                 // Walk the paths, and see if the given file is on the path
                 foreach(string path in paths) {
-                    if ((path != String.Empty) && 
+                    if ((path.Length != 0) && 
                         (Directory.Exists(path))) {
 
                         if (Path.IsPathRooted(path))
