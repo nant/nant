@@ -617,11 +617,11 @@ namespace NAnt.VisualCpp.Tasks {
                         }
 
                         // if we could not locate include in include dirs
-                        // and INCLUDE env var then check for include in current 
-                        // directory
+                        // and INCLUDE env var then check for include in base
+                        // directory (which is used as working dir)
                         if (resolvedInclude == null) {
                             string foundIncludeFile = FileUtils.CombinePaths(
-                                Directory.GetCurrentDirectory(), includeFile);
+                                BaseDirectory.FullName, includeFile);
                             if (File.Exists(foundIncludeFile)) {
                                 resolvedInclude = foundIncludeFile;
                             }
