@@ -326,6 +326,7 @@ namespace NAnt.VSNet {
                                     // If we want a different behaviour, this should be controlled by a flag
                                     ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
                                     if (pRef != null) {
+                                        reference.Project = pRef;
                                         reference.Filename = pRef.GetOutputPath(configuration);
                                         Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", originalReference, pRef.Name);
                                     }
