@@ -10,7 +10,7 @@
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
     <property name="build.defines" value="" />
-    <property name="build.number" value="${math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01/01/2000')))}" dynamic="true" />
+    <property name="build.number" value="${math::abs(math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01/01/2000'))))}" />
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
 
