@@ -484,6 +484,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\Credential.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\FileList.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -520,6 +525,11 @@
                 />
                 <File
                     RelPath = "Types\OptionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\Proxy.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
