@@ -200,93 +200,16 @@ namespace NAnt.VSNet {
                         continue;
                     }
 
+                    bool failed = htFailedProjects.Contains(project.Guid);
+                    if (!failed) {
+                        // convert assembly references to project references
+                        //
+                        // this might affect the build order as it can add 
+                        // project dependencies
+                        FixProjectReferences(project, configuration);
+                    }
+
                     if (GetProjectDependencies(project.Guid).Length == 0) {
-                        bool failed = htFailedProjects.Contains(project.Guid);
-
-                        // check if project actually support the build configuration
-                        ConfigurationBase projectConfig = (ConfigurationBase) 
-                            project.ProjectConfigurations[configuration];
-
-                        if (!failed && projectConfig != null) {
-                            // Fixup references
-                            Log(Level.Verbose, "Fixing up references...");
-
-                            ArrayList projectReferences = (ArrayList) 
-                                project.References.Clone();
-
-                            foreach (ReferenceBase reference in projectReferences) {
-                                AssemblyReferenceBase assemblyReference = reference as 
-                                    AssemblyReferenceBase;
-                                if (assemblyReference == null) {
-                                    // project references don't need to be fixed
-                                    continue;
-                                }
-
-                                ProjectBase projectRef = null;
-
-                                string outputFile = assemblyReference.GetPrimaryOutputFile(
-                                    projectConfig);
-
-                                if (_htOutputFiles.Contains(outputFile)) {
-                                    // if the reference is an output file of
-                                    // another build configuration of a project
-                                    // and this output file wasn't built before
-                                    // then use the output file for the current 
-                                    // build configuration 
-                                    //
-                                    // eg. a project file might be referencing the
-                                    // the debug assembly of a given project as an
-                                    // assembly reference, but the projects are now 
-                                    // being built in release configuration, so
-                                    // instead of failing the build we use the 
-                                    // release assembly of that project
-
-                                    // Note that this was designed to intentionally 
-                                    // deviate from VS.NET's building strategy.
-
-                                    // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
-                                    // for why we must always convert file references to project references
-
-                                    // If we want a different behaviour, this 
-                                    // should be controlled by a flag
-
-                                    projectRef = (ProjectBase) _htProjects[
-                                        (string) _htOutputFiles[outputFile]];
-                                } else if (_outputDir != null) {
-                                    // if an output directory is set, then the 
-                                    // assembly reference might not have been 
-                                    // resolved during Reference initialization, 
-                                    // as the output file of the project might 
-                                    // not have existed at that time
-                                    //
-                                    // this will perform matching on file name
-                                    // only, so its really tricky (VS.NET does
-                                    // not support this)
-
-                                    string projectOutput = Path.Combine(
-                                        _outputDir.FullName, Path.GetFileName(
-                                        outputFile));
-                                    if (_htOutputFiles.Contains(projectOutput)) {
-                                        projectRef = (ProjectBase) _htProjects[
-                                            (string) _htOutputFiles[projectOutput]];
-                                    }
-                                }
-
-                                if (projectRef != null) {
-                                    ProjectReferenceBase projectReference = assemblyReference.
-                                        CreateProjectReference(projectRef);
-                                    Log(Level.Verbose, "Converted assembly reference to project reference: {0} -> {1}", 
-                                        assemblyReference.Name, projectReference.Name);
-
-                                    // remove assembly reference from project
-                                    project.References.Remove(assemblyReference);
-
-                                    // add project reference instead
-                                    project.References.Add(projectReference);
-                                }
-                            }
-                        }
-
                         try {
                             if (!_htReferenceProjects.Contains(project.Guid) && (failed || !project.Compile(configuration))) {
                                 if (!failed) {
@@ -568,6 +491,110 @@ namespace NAnt.VSNet {
             }
 
             return translatedPath;
+        }
+
+        /// <summary>
+        /// Converts assembly references to projects to project references, adding
+        /// a build dependency.
+        /// </summary>
+        /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
+        /// <param name="config">The build configuration.</param>
+        protected void FixProjectReferences(ProjectBase project, string config) {
+            // check if the project still has dependencies that have not been 
+            // built
+            if (GetProjectDependencies(project.Guid).Length > 0) {
+                return;
+            }
+
+            ConfigurationBase projectConfig = (ConfigurationBase) 
+                project.ProjectConfigurations[config];
+
+            // check if the project actually supports the build configuration
+            if (projectConfig == null) {
+                return;
+            }
+
+            // Fixup references
+            Log(Level.Verbose, "Fixing up references...");
+
+            ArrayList projectReferences = (ArrayList) 
+                project.References.Clone();
+
+            foreach (ReferenceBase reference in projectReferences) {
+                AssemblyReferenceBase assemblyReference = reference as 
+                    AssemblyReferenceBase;
+                if (assemblyReference == null) {
+                    // project references and wrappers don't 
+                    // need to be fixed
+                    continue;
+                }
+
+                ProjectBase projectRef = null;
+
+                string outputFile = assemblyReference.GetPrimaryOutputFile(
+                    projectConfig);
+
+                if (_htOutputFiles.Contains(outputFile)) {
+                    // if the reference is an output file of
+                    // another build configuration of a project
+                    // and this output file wasn't built before
+                    // then use the output file for the current 
+                    // build configuration 
+                    //
+                    // eg. a project file might be referencing the
+                    // the debug assembly of a given project as an
+                    // assembly reference, but the projects are now 
+                    // being built in release configuration, so
+                    // instead of failing the build we use the 
+                    // release assembly of that project
+
+                    // Note that this was designed to intentionally 
+                    // deviate from VS.NET's building strategy.
+
+                    // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
+                    // for why we must always convert file references to project references
+
+                    // If we want a different behaviour, this 
+                    // should be controlled by a flag
+
+                    projectRef = (ProjectBase) _htProjects[
+                        (string) _htOutputFiles[outputFile]];
+                } else if (_outputDir != null) {
+                    // if an output directory is set, then the 
+                    // assembly reference might not have been 
+                    // resolved during Reference initialization, 
+                    // as the output file of the project might 
+                    // not have existed at that time
+                    //
+                    // this will perform matching on file name
+                    // only, so its really tricky (VS.NET does
+                    // not support this)
+
+                    string projectOutput = Path.Combine(
+                        _outputDir.FullName, Path.GetFileName(
+                        outputFile));
+                    if (_htOutputFiles.Contains(projectOutput)) {
+                        projectRef = (ProjectBase) _htProjects[
+                            (string) _htOutputFiles[projectOutput]];
+                    }
+                }
+
+                if (projectRef != null) {
+                    ProjectReferenceBase projectReference = assemblyReference.
+                        CreateProjectReference(projectRef);
+                    Log(Level.Verbose, "Converted assembly reference to project reference: {0} -> {1}", 
+                        assemblyReference.Name, projectReference.Name);
+
+                    // remove assembly reference from project
+                    project.References.Remove(assemblyReference);
+
+                    // add project reference instead
+                    project.References.Add(projectReference);
+
+                    // add referenced project as project dependency
+                    AddProjectDependency(project.Guid, projectReference.Project.Guid);
+                }
+            }
         }
 
         #endregion Protected Instance Methods
