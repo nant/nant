@@ -451,6 +451,7 @@ namespace NAnt.Core {
                         Element childElement = (Element) Activator.CreateInstance(elementType); 
                         
                         childElement.Project = Project;
+						childElement.Parent = this;
                         childElement.Initialize(childNode);
                         list.SetValue(childElement, arrayIndex);
                         arrayIndex ++;
