@@ -37,14 +37,6 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of ExternalProgramBase
 
         /// <summary>
-        /// Gets the filename of the external program to start.
-        /// </summary>
-        /// <value>The filename of the external program.</value>
-        public override string ProgramFileName {
-            get { return DetermineFilePath(); }
-        }
-
-        /// <summary>
         /// Gets or sets the name of the executable that should be used to launch 
         /// the external program.
         /// </summary>
@@ -62,6 +54,14 @@ namespace NAnt.DotNet.Tasks {
             set { _exeName = value; }
         }
 
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
+        public override string ProgramFileName {
+            get { return DetermineFilePath(); }
+        }
+
         #endregion Override implementation of ExternalProgramBase
 
         #region Private Instance Methods
@@ -76,8 +76,8 @@ namespace NAnt.DotNet.Tasks {
             if (Project.CurrentFramework != null) {
                 if (ExeName != null) {
                     if (Project.CurrentFramework.SdkDirectory != null) {
-                        string SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName;
-                        return Path.Combine(SdkDirectory, ExeName +  ".exe" );
+                        string sdkDirectory = Project.CurrentFramework.SdkDirectory.FullName;
+                        return Path.Combine(sdkDirectory, ExeName +  ".exe" );
                     } else {
                         throw new BuildException(
                             string.Format(CultureInfo.InvariantCulture, 
@@ -91,7 +91,7 @@ namespace NAnt.DotNet.Tasks {
                         Name, Project.CurrentFramework.Name));
                 }
             } else {
-                return ExeName;
+                return (ExeName != null) ? ExeName : Name;
             }
         }
 

@@ -37,20 +37,13 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of ExternalProgramBase
 
         /// <summary>
-        /// Gets the filename of the external program to start.
-        /// </summary>
-        /// <value>The filename of the external program.</value>
-        public override string ProgramFileName  {
-            get { return DetermineFilePath(); }
-        }
-
-        /// <summary>
         /// Gets or sets the name of the executable that should be used to launch 
         /// the external program.
         /// </summary>
         /// <value>
         /// The name of the executable that should be used to launch the external
-        /// program, or a null reference if no name is configured or specified.
+        /// program, or <see langword="null" /> if no name is configured or 
+        /// specified.
         /// </value>
         /// <remarks>
         /// If available, the configured value in the NAnt configuration
@@ -60,6 +53,14 @@ namespace NAnt.DotNet.Tasks {
         public override string ExeName {
             get { return _exeName; }
             set { _exeName = value; }
+        }
+
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
+        public override string ProgramFileName  {
+            get { return DetermineFilePath(); }
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -75,9 +76,8 @@ namespace NAnt.DotNet.Tasks {
         private string DetermineFilePath() {
             if (Project.CurrentFramework != null) {
                 if (ExeName != null) {
-                    string FrameworkDir = "";
-                    FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                    return Path.Combine(FrameworkDir, ExeName + ".exe");
+                    string frameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                    return Path.Combine(frameworkDir, ExeName + ".exe");
                 } else {
                     throw new BuildException(
                         string.Format(CultureInfo.InvariantCulture, 
@@ -85,7 +85,7 @@ namespace NAnt.DotNet.Tasks {
                         Name, Project.CurrentFramework.Name));
                 }
             } else {
-                return ExeName;
+                return (ExeName != null) ? ExeName : Name;
             }
         }
 
