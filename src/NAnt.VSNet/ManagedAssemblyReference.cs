@@ -18,6 +18,8 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -202,58 +204,114 @@ namespace NAnt.VSNet {
 
         #endregion Override implementation of ReferenceBase
 
+        #region Private Instance Properties
+
+        /// <summary>
+        /// Gets the Visual Studio .NET AssemblyFolders registry key matching
+        /// the current target framework.
+        /// </summary>
+        /// <value>
+        /// The Visual Studio .NET AssemblyFolders registry key matching the 
+        /// current target framework.
+        /// </value>
+        /// <exception cref="BuildException">The current target framework is not supported.</exception>
+        /// <remarks>
+        /// We use the target framework instead of the product version of the 
+        /// containing project file to determine what registry key to scan, as
+        /// we don't want to use assemblies meant for uplevel framework versions.
+        /// </remarks>
+        private string AssemblyFoldersKey {
+            get {
+                string visualStudioVersion = Parent.SolutionTask.Project.
+                    TargetFramework.VisualStudioVersion.ToString();
+                return string.Format(CultureInfo.InvariantCulture, 
+                    @"SOFTWARE\Microsoft\VisualStudio\{0}\AssemblyFolders",
+                    visualStudioVersion);
+            }
+        }
+
+        #endregion Private Instance Properties
+
         #region Private Instance Methods
 
-        private string ResolveFromAssemblyFolders(XmlElement referenceElement, string fileName) {
-            string resolvedAssemblyFile = null;
-
+        private string GetComponentAssemblyFolder(XmlElement referenceElement) {
             if (referenceElement.Attributes["AssemblyFolderKey"] != null) {
                 string assemblyFolderKey = referenceElement.Attributes["AssemblyFolderKey"].Value;
 
-                try {
-                    RegistryKey registryHive = null;
+                RegistryKey registryHive = null;
+                
+                string[] assemblyFolderKeyParts = assemblyFolderKey.Split('\\');
+                if (assemblyFolderKeyParts.Length < 2 || assemblyFolderKeyParts.Length > 3) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Invalid AssemblyFolderKey \"{0}\" for assembly"
+                        + " reference \"{1}\", referenced by project"
+                        + " \"{2}\".", assemblyFolderKey, Name, Parent.Name),
+                        Location.UnknownLocation);
+                }
+                
+                switch (assemblyFolderKeyParts[0]) {
+                    case "hklm":
+                        registryHive = Registry.LocalMachine;
+                        break;
+                    case "hkcu":
+                        registryHive = Registry.CurrentUser;
+                        break;
+                    default:
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Invalid AssemblyFolderKey \"{0}\" for assembly"
+                            + " reference \"{1}\", referenced by project"
+                            + " \"{2}\".", assemblyFolderKey, Name, Parent.Name),
+                            Location.UnknownLocation);
+                }
 
-                    switch (assemblyFolderKey.Substring(0,4)) {
-                        case "hklm":
-                            registryHive = Registry.LocalMachine;
-                            break;
-                        case "hkcu":
-                            registryHive = Registry.CurrentUser;
-                            break;
-                    }
+                RegistryKey repositoryKey = null;
 
-                    if (registryHive != null) {
-                        foreach (string assemblyFolderRootKey in SolutionTask.AssemblyFolderRootKeys) {
-                            RegistryKey assemblyFolderRegistryRoot = registryHive.OpenSubKey(assemblyFolderRootKey);
-                            if (assemblyFolderRegistryRoot != null) {
-                                RegistryKey assemblyFolderRegistryKey = assemblyFolderRegistryRoot.OpenSubKey(assemblyFolderKey.Substring(5));
-                                if (assemblyFolderRegistryKey != null) {
-                                    string assemblyFolder = assemblyFolderRegistryKey.GetValue(string.Empty) as string;
-                                    if (assemblyFolder != null) {
-                                        resolvedAssemblyFile = Path.Combine(
-                                            assemblyFolder, fileName);
-                                        if (File.Exists(resolvedAssemblyFile)) {
-                                            return resolvedAssemblyFile;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                // if AssemblyFolderKey has three parts, then the second
+                // parts specifies the registry key to search
+                if (assemblyFolderKeyParts.Length == 3) {
+                    switch (assemblyFolderKeyParts[1]) {
+                        case "dn":
+                            repositoryKey = registryHive.OpenSubKey(@"SOFTWARE\Microsoft\.NETFramework\AssemblyFolders");
+                            break;
+                        default:
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Invalid AssemblyFolderKey \"{0}\" for assembly"
+                                + " reference \"{1}\", referenced by project"
+                                + " \"{2}\".", assemblyFolderKey, Name, Parent.Name),
+                                Location.UnknownLocation);
                     }
-                } catch (Exception ex) {
-                    Log(Level.Verbose, "Error resolve reference to '{0}' using"
-                        + " AssemblyFolderKey '{1}'.", fileName,
-                        assemblyFolderKey);
-                    Log(Level.Debug, ex.ToString());
+                } else {
+                    repositoryKey = registryHive.OpenSubKey(AssemblyFoldersKey);
+                }
+
+                RegistryKey componentKey = repositoryKey.OpenSubKey(assemblyFolderKeyParts[assemblyFolderKeyParts.Length - 1]);
+                if (componentKey != null) {
+                    string folder = componentKey.GetValue(string.Empty) as string;
+                    if (folder != null) {
+                        return folder;
+                    }
                 }
             }
+            return null;
+        }
 
-            resolvedAssemblyFile = ResolveFromFolderList(SolutionTask.
-                AssemblyFolders.DirectoryNames, fileName);
-            if (resolvedAssemblyFile == null) {
-                resolvedAssemblyFile = ResolveFromFolderList(SolutionTask.
-                    DefaultAssemblyFolders.DirectoryNames, fileName);
+        protected override string ResolveFromAssemblyFolders(XmlElement referenceElement, string fileName) {
+            string resolvedAssemblyFile = null;
+
+            string componentAssemblyFolder = GetComponentAssemblyFolder(
+                referenceElement);
+            if (componentAssemblyFolder != null) {
+                StringCollection folderList = new StringCollection();
+                folderList.Add(componentAssemblyFolder);
+                resolvedAssemblyFile = ResolveFromFolderList(folderList, 
+                    fileName);
             }
+
+            if (resolvedAssemblyFile == null) {
+                resolvedAssemblyFile = base.ResolveFromAssemblyFolders(
+                    referenceElement, fileName);
+            }
+
             return resolvedAssemblyFile;
         }
 

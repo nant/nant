@@ -413,7 +413,7 @@ namespace NAnt.VSNet {
                 string outputfile = (string) de.Key;
                 string folder = Path.GetDirectoryName(outputfile);
 
-                if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemblyFolders.DirectoryNames.Contains(folder)) {
+                if (_solutionTask.AssemblyFolderList.Contains(folder)) {
                     outputsInAssemblyFolders[Path.GetFileName(outputfile)] = de.Value;
                 }
             }

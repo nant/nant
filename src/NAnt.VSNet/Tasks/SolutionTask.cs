@@ -202,22 +202,6 @@ namespace NAnt.VSNet.Tasks {
 
         #endregion Public Instance Constructors
 
-        #region Static Constructor
-
-        /// <summary>
-        /// Initializes the static collection of root registry keys under which 
-        /// the <see cref="SolutionTask" /> should looks for assembly folders.
-        /// </summary>
-        static SolutionTask() {
-            _assemblyFolderRootKeys = new StringCollection();
-            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\.NETFramework\AssemblyFolders");
-            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\8.0\AssemblyFolders");
-            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders");
-            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\7.0\AssemblyFolders");
-        }
-
-        #endregion Static Constructor
-
         #region Public Instance Properties
 
         /// <summary>
@@ -305,7 +289,7 @@ namespace NAnt.VSNet.Tasks {
         /// Set of folders where references are searched when not found in path 
         /// from project file (HintPath).
         /// </summary>
-        [BuildElement("assemblyfolders", Required = false)]
+        [BuildElement("assemblyfolders", Required=false)]
         public FileSet AssemblyFolders {
             get { return _assemblyFolders; }
             set { _assemblyFolders = value; }
@@ -338,33 +322,32 @@ namespace NAnt.VSNet.Tasks {
             set { _enableWebDav = value; }
         }
 
-        /// <summary>
-        /// Set of folders where references are searched when not found in path 
-        /// from project file (HintPath) or <see cref="AssemblyFolders" />.
-        /// </summary>
-        public FileSet DefaultAssemblyFolders {
+        public StringCollection AssemblyFolderList {
             get {
-                if (IncludeVSFolders) {
-                    return FindDefaultAssemblyFolders();
-                } else {
-                    return new FileSet();
+                if (_assemblyFolderList == null) {
+                    _assemblyFolderList = new StringCollection();
+                    foreach (string folder in AssemblyFolders.DirectoryNames) {
+                        if (!_assemblyFolderList.Contains(folder)) {
+                            _assemblyFolderList.Add(folder);
+                        }
+                    }
+
+                    if (IncludeVSFolders) {
+                        StringCollection vsAssemblyFolders = BuildAssemblyFolders();
+                        foreach (string folder in vsAssemblyFolders) {
+                            if (!_assemblyFolderList.Contains(folder)) {
+                                _assemblyFolderList.Add(folder);
+                            }
+                        }
+                    }
                 }
+
+                return _assemblyFolderList;
             }
         }
 
+
         #endregion Public Instance Properties
-
-        #region Public Static Properties
-
-        /// <summary>
-        /// Gets the collection of root registry keys under which the 
-        /// <see cref="SolutionTask" /> should looks for assembly folders.
-        /// </summary>
-        public static StringCollection AssemblyFolderRootKeys {
-            get { return _assemblyFolderRootKeys; }
-        }
-
-        #endregion Public Static Properties
 
         #region Override implementation of Task
 
@@ -513,44 +496,77 @@ namespace NAnt.VSNet.Tasks {
 
         #region Private Instance Methods
 
-        private void ScanRegistryForAssemblyFolders(RegistryKey mainKey, FileSet fsFolders) {
-            if (mainKey == null) {
-                return;
+        private StringCollection BuildAssemblyFolders() {
+            StringCollection folderList = new StringCollection();
+
+            Version visualStudioVersion = Project.TargetFramework.VisualStudioVersion;
+
+            // check if we should scan Visual Studio .NET 2003 AssemblyFolders
+            if (visualStudioVersion >= new Version(7,1)) {
+                // check HKCU for VS.NET 2003 AssemblyFolders
+                BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
+                    visualStudioVersion.ToString(2));
+                // check HKCU for VS.NET 2002 AssemblyFolders
+                BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
+                    "7.0");
+                // check HKCU for .NET Framework AssemblyFolders
+                BuildDotNetAssemblyFolders(folderList, Registry.CurrentUser);
+                // check HKLM for VS.NET 2003 AssemblyFolders
+                BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
+                    visualStudioVersion.ToString(2));
+                // check HKLM for VS.NET 2002 AssemblyFolders
+                BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
+                    "7.0");
+                // check HKLM for .NET Framework AssemblyFolders
+                BuildDotNetAssemblyFolders(folderList, Registry.LocalMachine);
+            } else {
+                // check HKCU for VS.NET 2002
+                BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
+                    "7.0");
+                // check HKCU for .NET Framework AssemblyFolders
+                BuildDotNetAssemblyFolders(folderList, Registry.CurrentUser);
+                // check HKLM for VS.NET 2002
+                BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
+                    "7.0");
+                // check HKLM for .NET Framework AssemblyFolders
+                BuildDotNetAssemblyFolders(folderList, Registry.LocalMachine);
             }
 
-            foreach (string subkey in mainKey.GetSubKeyNames()) {
-                RegistryKey subKey = mainKey.OpenSubKey(subkey);
-                // the folder is stored in the default value of the registry key
-                object defaultValue = subKey.GetValue(string.Empty);
-                // skip registry keys without default value
-                if (defaultValue == null) {
-                    continue;
+            return folderList;
+        }
+
+        private void BuildVisualStudioAssemblyFolders(StringCollection folderList, RegistryKey hive, string visualStudioVersion) {
+            RegistryKey assemblyFolders = hive.OpenSubKey(@"SOFTWARE\Microsoft\VisualStudio\" 
+                + visualStudioVersion + @"\AssemblyFolders");
+            if (assemblyFolders == null) {
+                return;
+            }
+             
+            string[] subKeyNames = assemblyFolders.GetSubKeyNames();
+            foreach (string subKeyName in subKeyNames) {
+                RegistryKey subKey = assemblyFolders.OpenSubKey(subKeyName);
+                string folder = subKey.GetValue(string.Empty) as string;
+                if (folder != null && !folderList.Contains(folder)) {
+                    folderList.Add(folder);
                 }
-                // add folder to list of folders to scan for assembly references
-                fsFolders.Includes.Add(defaultValue.ToString());
             }
         }
 
-        private FileSet FindDefaultAssemblyFolders() {
-            // Have we cached the default assembly folders?
-            if (_defaultAssemblyFolders == null) {
-                FileSet fsFolders = new FileSet();
-
-                try {
-                    foreach (string assemblyFolderRootKey in AssemblyFolderRootKeys) {
-                        ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(assemblyFolderRootKey), fsFolders);
-                        ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(assemblyFolderRootKey), fsFolders);
-                    }
-                } catch (NotImplementedException) {
-                    // ignore this exception, as Mono currently has no implementation 
-                    // for registry related classes
-
-                    // TO-DO : make sure we remove this in the future if possible
-                }
-                _defaultAssemblyFolders = fsFolders;
+        private void BuildDotNetAssemblyFolders(StringCollection folderList, RegistryKey hive) {
+            RegistryKey assemblyFolders = hive.OpenSubKey(@"SOFTWARE\Microsoft\"
+                + @".NETFramework\AssemblyFolders");
+            if (assemblyFolders == null) {
+                return;
             }
-
-            return _defaultAssemblyFolders;
+             
+            string[] subKeyNames = assemblyFolders.GetSubKeyNames();
+            foreach (string subKeyName in subKeyNames) {
+                RegistryKey subKey = assemblyFolders.OpenSubKey(subKeyName);
+                string folder = subKey.GetValue(string.Empty) as string;
+                if (folder != null && !folderList.Contains(folder)) {
+                    folderList.Add(folder);
+                }
+            }
         }
 
         #endregion Private Instance Methods
@@ -564,17 +580,11 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _referenceProjects;
         private FileSet _excludeProjects;
         private FileSet _assemblyFolders;
-        private FileSet _defaultAssemblyFolders;
+        private StringCollection _assemblyFolderList;
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;
 
         #endregion Private Instance Fields
-
-        #region Private Static Fields
-
-        private static readonly StringCollection _assemblyFolderRootKeys;
-
-        #endregion Private Static Fields
     }
 }

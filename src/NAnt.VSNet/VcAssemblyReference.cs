@@ -23,8 +23,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-using Microsoft.Win32;
-
 using NAnt.Core;
 using NAnt.Core.Util;
 
@@ -117,7 +115,7 @@ namespace NAnt.VSNet {
             }
 
             // 5. AssemblyFolders
-            resolvedAssemblyFile = ResolveFromAssemblyFolders(
+            resolvedAssemblyFile = ResolveFromAssemblyFolders(referenceElement,
                 Path.GetFileName(assemblyFileName));
             if (resolvedAssemblyFile != null) {
                 return resolvedAssemblyFile;
@@ -146,47 +144,6 @@ namespace NAnt.VSNet {
         #endregion Override implementation of ReferenceBase
 
         #region Private Instance Methods
-
-        private string ResolveFromAssemblyFolders(string fileName) {
-            string resolvedAssemblyFile = null;
-
-            try {
-                foreach (string assemblyFolderRootKey in SolutionTask.AssemblyFolderRootKeys) {
-                    RegistryKey assemblyFolderRegistryRoot = Registry.LocalMachine.OpenSubKey(assemblyFolderRootKey);
-                    if (assemblyFolderRegistryRoot == null) {
-                        assemblyFolderRegistryRoot = Registry.CurrentUser.OpenSubKey(assemblyFolderRootKey);
-                    }
-                    if (assemblyFolderRegistryRoot != null) {
-                        string[] subKeys = assemblyFolderRegistryRoot.GetSubKeyNames();
-                        foreach (string subKey in subKeys) {
-                            RegistryKey assemblyFolderRegistryKey = assemblyFolderRegistryRoot.OpenSubKey(subKey);
-                            if (assemblyFolderRegistryKey != null) {
-                                string assemblyFolder = assemblyFolderRegistryKey.GetValue(string.Empty) as string;
-                                if (assemblyFolder != null) {
-                                    resolvedAssemblyFile = Path.Combine(
-                                        assemblyFolder, fileName);
-                                    if (File.Exists(resolvedAssemblyFile)) {
-                                        return resolvedAssemblyFile;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                Log(Level.Verbose, "Error resolve reference to '{0}' using"
-                    + " \"AssemblyFolders\".", fileName);
-                Log(Level.Debug, ex.ToString());
-            }
-
-            resolvedAssemblyFile = ResolveFromFolderList(SolutionTask.
-                AssemblyFolders.DirectoryNames, fileName);
-            if (resolvedAssemblyFile == null) {
-                resolvedAssemblyFile = ResolveFromFolderList(SolutionTask.
-                    DefaultAssemblyFolders.DirectoryNames, fileName);
-            }
-            return resolvedAssemblyFile;
-        }
 
         /// <summary>
         /// Is called each time a regular expression match is found during a 

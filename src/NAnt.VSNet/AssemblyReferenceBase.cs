@@ -187,9 +187,15 @@ namespace NAnt.VSNet {
         /// </returns>
         protected string ResolveFromFolderList(StringCollection folderList, string fileName) {
             foreach (string path in folderList) {
-                string assemblyFile = Path.Combine(path, fileName);
-                if (File.Exists(assemblyFile)) {
-                    return assemblyFile;
+                try {
+                    string assemblyFile = Path.Combine(path, fileName);
+                    if (File.Exists(assemblyFile)) {
+                        return assemblyFile;
+                    }
+                } catch (Exception ex) {
+                    Log(Level.Verbose, "Error resolve reference to \"{0}\""
+                        + " in directory \"{1}\".", fileName, path);
+                    Log(Level.Debug, ex.ToString());
                 }
             }
 
@@ -229,6 +235,11 @@ namespace NAnt.VSNet {
                     relativePath));
             }
             return null;
+        }
+
+        protected virtual string ResolveFromAssemblyFolders(XmlElement referenceElement, string fileName) {
+            return ResolveFromFolderList(SolutionTask.AssemblyFolderList, 
+                fileName);
         }
 
         #endregion Protected Instance Methods
