@@ -120,7 +120,7 @@
     </xsl:template>
 
     <xsl:template match="list[@type='bullet']" mode="slashdoc" doc:group="block" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrflist.htm">
-        <ul type="disc">
+        <ul style="list-style-type: disc;">
             <xsl:apply-templates select="item" mode="slashdoc" />
         </ul>
     </xsl:template>

@@ -95,7 +95,7 @@
         
         <xsl:if test="not($childElementName = '')">
             <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value"/> ... /&gt;</h5>        
-            <br/>
+            <p />
         </xsl:if>
         
         <div class="nested-element">
@@ -110,7 +110,7 @@
             <xsl:if test="$typeNode and not($DataTypeBase)"> 
                 <xsl:apply-templates select="$typeNode"/>
             </xsl:if>
-            <br />
+            <p />
         </div>
         
         <xsl:if test="not($childElementName = '')">
@@ -141,9 +141,9 @@
             <td>
                 <xsl:apply-templates mode="docstring" select="." />
                 <xsl:if test="attribute/property[@name='ExpandProperties' and @value='False']">
-                    <br />
+                    <p />
                     <b>Note:</b> This attribute's propeties will not be automatically expanded!
-                    <br />
+                    <p />
                 </xsl:if>
                 
             </td>
