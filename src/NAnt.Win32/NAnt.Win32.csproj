@@ -52,19 +52,6 @@
                     AssemblyName = "System.Xml"
                 />
                 <Reference
-                    Name = "System.Web"
-                    AssemblyName = "System.Web"
-                />
-                <Reference
-                    Name = "System.ServiceProcess"
-                    AssemblyName = "System.ServiceProcess"
-                />
-                <Reference
-                    Name = "Microsoft.JScript"
-                    AssemblyName = "Microsoft.JScript"
-                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\Microsoft.JScript.dll"
-                />
-                <Reference
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
@@ -89,23 +76,7 @@
                     BuildAction = "None"
                 />
                 <File
-                    RelPath = "Tasks\LicenseTask.cs"
-                    Link = "..\NAnt.DotNet\Tasks\LicenseTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Tasks\ReadRegistryTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tasks\ScriptTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tasks\ServiceControllerTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
