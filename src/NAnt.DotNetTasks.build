@@ -43,7 +43,7 @@
 
     <target name="test" depends="build">
          <nunit2>
-         	<test assemblyname="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" type="Plain"/>
+         	<test assemblyname="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
          </nunit2>
     </target>
 </project>

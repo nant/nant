@@ -27,7 +27,7 @@ using System.Xml;
 using System.Collections.Specialized;
 using System.Globalization;
 using Microsoft.Win32;
-
+using System.Configuration;
 
 namespace SourceForge.NAnt {
 
@@ -220,7 +220,7 @@ namespace SourceForge.NAnt {
             BaseDirectory = newBaseDir;
             
             // Load settings out of settings file                      
-            ProcessSettingsFile();
+            ProcessSettings();
             
             //set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
@@ -724,21 +724,21 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Load and process a settings file from the directory of the current Assembly
         /// </summary>
-        private void ProcessSettingsFile(){
+        private void ProcessSettings(){
             XmlDocument confdoc = new XmlDocument();
             _frameworkInfoTable = new FrameworkInfoHashTable();
             
-            string configpath = Path.GetDirectoryName(  Assembly.GetExecutingAssembly().Location ) + Path.DirectorySeparatorChar + "NAnt.settings";
+            object testobj = ConfigurationSettings.GetConfig("nantsettings");
+            XmlNode node = testobj as XmlNode;
             
-            if ( ! File.Exists(configpath) ){
+            //Log.WriteLine("Project: AppDom Config File: {0}", AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+
+            if (null == node){
                 // todo pull a settings file out of the assembly resource and copy to that location                          
-                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture, "settings file {0} not found. ", configpath ) );                
-            }                 
-            try {   
-                confdoc.Load( configpath );
-                // todo validate against .xsd
-                          
-                XmlNode node = confdoc.SelectSingleNode("nantsettings");
+                Log.WriteLine("Settings not found. Using none!");
+                return;
+            }
+            //try {   
                            
                 XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
                 ProcessFrameworkInfo(frameworkInfoNodes);
@@ -753,16 +753,16 @@ namespace SourceForge.NAnt {
                     CurrentFramework = _defaultFramework;                                                                              
                 }   
                 else {        
-                    throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the Nant.settings file. Defaulting to no known framework", defaultFramework ) );                  
+                    throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
                 }                              
                 
                 // now load the efault property set
                 XmlNodeList propertyNodes = node.SelectNodes("properties/property");
                 ProcessGlobalProperties( propertyNodes );
-            } 
+            /*} 
             catch ( Exception e)  {
-                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,   "Error loading settings file {0}." + e.Message,  configpath ), e ); 
-            }            
+                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,   "Error loading settings." + e.Message), e ); 
+            }*/            
         }
         #endregion
     }

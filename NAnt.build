@@ -47,7 +47,6 @@
                 <includes name="nunit.framework.dll" />
                 <includes name="NUnitCore.dll" />
                 <includes name="SharpZipLib.dll" />
-                <includes name="NAnt.settings" />
             </fileset>
         </copy>
         <!-- build NAnt.Core -->
@@ -119,8 +118,8 @@
 
     <target name="self-test" depends="init">
         <nunit2>
-            <test assemblyname="${build.dir}/bin/NAnt.Core.Tests.dll" />
-            <test assemblyname="${build.dir}/bin/NAnt.Console.Tests.dll" />
+            <test assemblyname="${build.dir}/bin/NAnt.Core.Tests.dll" appconfig="${nant.location}nant.exe.config"/>
+            <test assemblyname="${build.dir}/bin/NAnt.Console.Tests.dll" appconfig="${nant.location}nant.exe.config"/>
         </nunit2>
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
             <nant buildfile="src/${filename}.build" target="test" />

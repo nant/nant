@@ -39,15 +39,21 @@ namespace SourceForge.NAnt {
 
             string nantShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles");
             string nantCleanupShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles.cleanup");
-            
+
             if(nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
 
                 System.AppDomainSetup myDomainSetup = new System.AppDomainSetup();
 
                 myDomainSetup.PrivateBinPath = myDomainSetup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
                 myDomainSetup.ApplicationName = "NAnt";
+                
+                //copy the config file location
+                myDomainSetup.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                Console.WriteLine("Config File: {0}", myDomainSetup.ConfigurationFile); 
+
                 //yes, cache the files
                 myDomainSetup.ShadowCopyFiles = "true";
+
                 //but what files you say... everything in ".", "./bin", "./tasks" .
                 myDomainSetup.ShadowCopyDirectories=myDomainSetup.PrivateBinPath + ";" + Path.Combine(myDomainSetup.PrivateBinPath,"bin") + ";" + Path.Combine(myDomainSetup.PrivateBinPath,"tasks") + ";";
 

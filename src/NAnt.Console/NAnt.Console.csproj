@@ -111,7 +111,7 @@
                 />
                 <File
                     RelPath = "NAnt.Console.exe.config"
-                    BuildAction = "None"
+                    BuildAction = "Content"
                 />
             </Include>
         </Files>

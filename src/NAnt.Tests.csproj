@@ -227,6 +227,7 @@
                 />
                 <File
                     RelPath = "NAnt.Core.Tests\Tasks\MailTaskTest.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
