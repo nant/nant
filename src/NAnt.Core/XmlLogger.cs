@@ -277,6 +277,18 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to produce emacs (and other
+        /// editor) friendly output.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" /> as it has no meaning in XML format.
+        /// </value>
+        public virtual bool EmacsMode {
+            get { return false; }
+            set { }
+        }
+
+        /// <summary>
         /// Gets or sets the <see cref="TextWriter" /> to which the logger is 
         /// to send its output.
         /// </summary>

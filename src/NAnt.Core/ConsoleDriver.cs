@@ -462,6 +462,9 @@ namespace NAnt.Core {
             // set threshold of build logger equal to threshold of project
             buildLogger.Threshold = project.Threshold;
 
+            // set emacs mode
+            buildLogger.EmacsMode = cmdlineOptions.EmacsMode;
+
             // add build logger to listeners collection
             listeners.Add(buildLogger);
 

@@ -124,6 +124,21 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to produce emacs (and other
+        /// editor) friendly output.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if output is to be unadorned so that emacs 
+        /// and other editors can parse files names, etc. The default is
+        /// <see langword="false" />.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "emacs", ShortName="e", Description = "Produce logging information without adornments")]
+        public bool EmacsMode {
+            get { return _emacsMode; }
+            set { _emacsMode = value; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether parent directories should be searched
         /// for a buildfile.
         /// </summary>
@@ -280,6 +295,7 @@ namespace NAnt.Core {
         private bool _quiet;
         private bool _verbose;
         private bool _debug;
+        private bool _emacsMode;
         private int _indentationLevel = 0;
         private bool _findInParent;
         private StringCollection _properties = new StringCollection();

@@ -318,6 +318,19 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to produce emacs (and other
+        /// editor) friendly output.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if output is to be unadorned so that emacs 
+        /// and other editors can parse files names, etc.
+        /// </value>
+        bool EmacsMode {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the <see cref="TextWriter" /> to which the logger is 
         /// to send its output.
         /// </summary>
@@ -361,6 +374,20 @@ namespace NAnt.Core {
         public virtual Level Threshold {
             get { return _threshold; }
             set { _threshold = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to produce emacs (and other
+        /// editor) friendly output.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if output is to be unadorned so that emacs 
+        /// and other editors can parse files names, etc. The default is
+        /// <see langword="false" />.
+        /// </value>
+        public virtual bool EmacsMode {
+            get { return _emacsMode; }
+            set { _emacsMode = value; }
         }
 
         /// <summary>
@@ -609,7 +636,8 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private Level _threshold = Level.Info;
-        private TextWriter _outputWriter = null;
+        private TextWriter _outputWriter;
+        private bool _emacsMode;
 
         #endregion Private Instance Fields
 
