@@ -113,8 +113,10 @@ namespace NAnt.Core.Functions {
         /// <exception cref="DirectoryNotFoundException">The specified path was not found.</exception>
         [Function("get-parent-directory")]
         public string GetParentDirectory(string path) {
-            DirectoryInfo parentDirectory = Directory.GetParent(
-                Project.GetFullPath(path));
+            // do not use Directory.GetParent() as that will not return the
+            // parent if the directory ends with the directory separator
+            DirectoryInfo directory = new DirectoryInfo(Project.GetFullPath(path));
+            DirectoryInfo parentDirectory = directory.Parent;
             return parentDirectory != null ? parentDirectory.FullName 
                 : string.Empty;
         }
