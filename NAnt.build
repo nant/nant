@@ -342,10 +342,11 @@
         <property name="current.runtime.config.${current.runtime.config}" value="true" />
         <property name="current.runtime.net-1.0" value="false" />
         <property name="current.runtime.net-1.1" value="false" />
+        <property name="current.runtime.net-1.2" value="false" />
         <property name="current.runtime.netcf-1.0" value="false" />
         <property name="current.runtime.mono-1.0" value="false" />
         <property name="current.runtime.sscli-1.0" value="false" />
-        <property name="current.runtime.config.${current.runtime.config}-${current.runtime.version}" value="true" />
+        <property name="current.runtime.${current.runtime.config}-${current.runtime.version}" value="true" />
     </target>
     <target name="set-runtime-configuration">
         <ifnot propertyexists="current.runtime.config">
