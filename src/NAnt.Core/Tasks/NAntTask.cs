@@ -74,7 +74,8 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            Log(Level.Verbose, LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
+            Log(Level.Info, LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
+            Log(Level.Info, string.Empty);
 
             // create new prjoect with same threshold as current project and increased indentation level
             Project project = new Project(Project.GetFullPath(BuildFileName), Project.Threshold, Project.IndentationLevel + 1);
