@@ -653,7 +653,7 @@ namespace NAnt.VSNet {
             }
 
             string exceptionHandling = baseConfig.GetToolSetting(compilerTool, "ExceptionHandling");
-            if (exceptionHandling == null || exceptionHandling.ToUpper().Equals("TRUE")) {
+            if (exceptionHandling == null || string.Compare(exceptionHandling, "true", true, CultureInfo.InvariantCulture) == 0) {
                 clTask.Arguments.Add(new Argument("/EHsc"));
             }
 
@@ -780,7 +780,7 @@ namespace NAnt.VSNet {
             // Collect options
 
             string ignoreStandardIncludePath = fileConfig.GetToolSetting(compilerTool, "IgnoreStandardIncludePath");
-            if (ignoreStandardIncludePath != null && ignoreStandardIncludePath.ToUpper().Equals("TRUE")) {
+            if (ignoreStandardIncludePath != null && string.Compare(ignoreStandardIncludePath, "true", true, CultureInfo.InvariantCulture) == 0) {
                 options.Append("/X ");
             }
 
@@ -803,7 +803,7 @@ namespace NAnt.VSNet {
             }
 
             string showProgress = fileConfig.GetToolSetting(compilerTool, "ShowProgress");
-            if (showProgress != null && showProgress.ToUpper().Equals("TRUE")) {
+            if (showProgress != null && string.Compare(showProgress, "true", true, CultureInfo.InvariantCulture) == 0) {
                 rcTask.Verbose = true;
             }
 

@@ -131,12 +131,10 @@ namespace NAnt.VSNet {
 
             foreach (DictionaryEntry de in htBooleanSettings) {
                 string value = elemConfig.GetAttribute(de.Key.ToString());
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    if (value == "true") {
-                        _settings.Add(de.Value.ToString() + "+");
-                    } else if (value == "false") {
-                        _settings.Add(de.Value.ToString() + "-");
-                    }
+                if (string.Compare(value, "true", true, CultureInfo.InvariantCulture) == 0) {
+                    _settings.Add(de.Value.ToString() + "+");
+                } else if (string.Compare(value, "false", true, CultureInfo.InvariantCulture) == 0) {
+                    _settings.Add(de.Value.ToString() + "-");
                 }
             }
 

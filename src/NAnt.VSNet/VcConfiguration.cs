@@ -62,7 +62,7 @@ namespace NAnt.VSNet {
 
             string managedExtentions = GetXmlAttributeValue(elem, "ManagedExtensions");
             if (managedExtentions != null) {
-                _managedExtensions = managedExtentions.Trim().ToUpper(CultureInfo.InvariantCulture) == "TRUE";
+                _managedExtensions = string.Compare(managedExtentions.Trim(), "true", true, CultureInfo.InvariantCulture) == 0;
             } else if (_parentConfig != null) {
                 _managedExtensions = _parentConfig.ManagedExtensions;
             }
@@ -78,14 +78,14 @@ namespace NAnt.VSNet {
 
             string wholeProgramOptimization = GetXmlAttributeValue(elem, "WholeProgramOptimization");
             if (wholeProgramOptimization != null) {
-                _wholeProgramOptimization = wholeProgramOptimization.Trim().ToUpper(CultureInfo.InvariantCulture) == "TRUE";
+                _wholeProgramOptimization = string.Compare(wholeProgramOptimization.Trim(), "true", true, CultureInfo.InvariantCulture) == 0;
             } else if (_parentConfig != null) {
                 _wholeProgramOptimization = _parentConfig.WholeProgramOptimization;
             }
             
             string excludeFromBuild = GetXmlAttributeValue(elem, "ExcludedFromBuild");
             if (excludeFromBuild != null) {
-                _excludeFromBuild = excludeFromBuild.Trim().ToUpper(CultureInfo.InvariantCulture) == "TRUE";
+                _excludeFromBuild = string.Compare(excludeFromBuild.Trim(), "true", true, CultureInfo.InvariantCulture) == 0;
             }
             
             string characterSet = GetXmlAttributeValue(elem, "CharacterSet");

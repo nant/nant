@@ -525,7 +525,7 @@ namespace NAnt.VSNet {
             }
 
             internal override string MapValue(string propValue) {
-                if (String.Compare(propValue, "TRUE", true, CultureInfo.InvariantCulture) == 0) {
+                if (string.Compare(propValue, "true", true, CultureInfo.InvariantCulture) == 0) {
                     return FormatOption("");
                 }
                 return null;
