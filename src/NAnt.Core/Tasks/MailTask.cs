@@ -64,9 +64,9 @@ namespace NAnt.Core.Tasks {
     ///     <attachments>
     ///         <include name="*.zip" />
     ///     </attachments>
+    /// </mail>
     ///     ]]>
     ///   </code>
-    /// </mail>
     /// </example>
     [TaskName("mail")]
     public class MailTask : Task {
