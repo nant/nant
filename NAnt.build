@@ -61,6 +61,7 @@
             <fileset basedir="examples">
                 <includes name="UserTask/UserTask.dll"/>
                 <includes name="HelloWorld/*.exe"/>
+                <includes name="HelloWorld/*.pdb"/>
             </fileset>
         </delete>
         <delete file="${dist.name}" verbose="true" failonerror="false"/>
@@ -162,7 +163,7 @@
     </target>
 
     <target name="doc" depends="build" description="build documenation">
-        <echo message="Requires HtmlHelp compiler (hhc.exe) to be installed and in the system path"/>
+        <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc>
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.exe"/>
@@ -172,7 +173,7 @@
                 <documenter name="MSDN">
                     <property name="OutputDirectory" value="${build.dir}\docs\MSDN" />
                     <property name="HtmlHelpName" value="NAnt" />
-                    <property name="HtmlHelpCompilerFilename" value="C:\Program Files\HTML Help Workshop\hhc.exe" />
+                    <property name="HtmlHelpCompilerFilename" value="hhc.exe" />
                     <property name="IncludeFavorites" value="False" />
                     <property name="Title" value="An NDoc Documented Class Library" />
                     <property name="SplitTOCs" value="False" />
@@ -225,6 +226,7 @@
         <property name="debug" value="false"/>
         <echo message="Debug = ${debug}"/>
         <call target="build"/>
+        <call target="test"/>
         <copy file="${build.dir}\NAnt.exe" todir="${dist.dir}\bin"/>
         <copy file="${build.dir}\NAnt.xml" todir="${dist.dir}\bin"/>
 

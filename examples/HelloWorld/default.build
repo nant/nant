@@ -1,15 +1,12 @@
 <?xml version="1.0"?>
-
 <project name="Hello World" default="test" basedir=".">
-
 	<property name="basename" value="HelloWorld"/>
-
+	<property name="debug" value="true"/>
 	<target name="clean">
 		<delete file="${basename}-cs.exe" failonerror="false"/>
 		<delete file="${basename}-js.exe" failonerror="false"/>
 		<delete file="${basename}-vb.exe" failonerror="false"/>
 	</target>
-
 	<target name="build">
 		<csc target="exe" output="${basename}-cs.exe">
 			<sources>
@@ -26,9 +23,24 @@
 				<includes name="${basename}.vb"/>
 			</sources>
 		</vbc>
-
 	</target>
-
+	<target name="debug" depends="clean">
+		<csc target="exe" output="${basename}-cs.exe" debug="${debug}">
+			<sources>
+				<includes name="${basename}.cs"/>
+			</sources>
+		</csc>
+		<jsc target="exe" output="${basename}-js.exe" debug="${debug}">
+			<sources>
+				<includes name="${basename}.js"/>
+			</sources>
+		</jsc>
+		<vbc target="exe" output="${basename}-vb.exe" debug="${debug}">
+			<sources>
+				<includes name="${basename}.vb"/>
+			</sources>
+		</vbc>
+	</target>
 	<target name="test" depends="build">
 		<exec program="${basename}-cs.exe"/>
 		<exec program="${basename}-js.exe"/>
