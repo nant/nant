@@ -173,9 +173,9 @@ namespace SourceForge.NAnt.Tasks
 
             lt.Project = _nanttask.Project;
 
-            SourceForge.NAnt.Log.IndentLevel++;
+            lt.Project.Indent();
             lt.Execute();
-            SourceForge.NAnt.Log.IndentLevel--;
+            lt.Project.UnIndent();
 
             return lt.Output;
         }
@@ -201,9 +201,9 @@ namespace SourceForge.NAnt.Tasks
             rt.Verbose = false;
             rt.Project = _nanttask.Project;
 
-            SourceForge.NAnt.Log.IndentLevel++;
+            rt.Project.Indent();
             rt.Execute();
-            SourceForge.NAnt.Log.IndentLevel--;
+            rt.Project.UnIndent();
 
             return strOutFile;
         }
