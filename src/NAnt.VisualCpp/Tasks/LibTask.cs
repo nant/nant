@@ -30,6 +30,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
+using NAnt.VisualCpp.Util;
+
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
     /// Run <c>lib.exe</c>, Microsoft's Library Manager.
@@ -153,12 +155,14 @@ namespace NAnt.VisualCpp.Tasks {
 
                 // write each of the filenames
                 foreach (string filename in Sources.FileNames) {
-                    writer.WriteLine("\"{0}\"", filename);
+                    writer.WriteLine(ArgumentUtils.QuoteArgumentValue(filename, 
+                        BackslashProcessingMethod.None));
                 }
 
                 // write each of the libdirs
                 foreach (string libdir in LibDirs.DirectoryNames) {
-                    writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
+                    writer.WriteLine("/LIBPATH:{0}", ArgumentUtils.QuoteArgumentValue(
+                        libdir, BackslashProcessingMethod.None));
                 }
 
                 // suppresses display of the sign-on banner                    

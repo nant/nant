@@ -168,28 +168,7 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         #endregion Override implementation of ExternalProgramBase
-         
-        /// <summary>
-        /// Determines if the output needs linking.
-        /// </summary>
-        protected virtual bool NeedsLinking() {
-            // return true as soon as we know we need to compile
-
-            if (!OutputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
-                    OutputFile.FullName);
-                return true;
-            }
-
-            // check if sources were updated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, "'{0}' is out of date, relinking.", fileName);
-                return true;
-            }
-
-            return false;
-        }
+        
         #region Override implementation of Task
 
         /// <summary>
@@ -231,7 +210,7 @@ namespace NAnt.VisualCpp.Tasks {
   
                     // write each of the libdirs
                     foreach (string libdir in LibDirs.DirectoryNames) {
-                        writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
+                        writer.WriteLine("/LIBPATH:{0}", QuoteArgumentValue(libdir));
                     }
 
                     // write each of the module references
@@ -262,7 +241,7 @@ namespace NAnt.VisualCpp.Tasks {
 
                     // write each of the filenames
                     foreach (string filename in Sources.FileNames) {
-                        writer.WriteLine("\"{0}\"", filename);
+                        writer.WriteLine(QuoteArgumentValue(filename));
                     }
 
                     writer.Close();
@@ -289,6 +268,32 @@ namespace NAnt.VisualCpp.Tasks {
 
         #endregion Override implementation of Task
 
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Determines if the output needs linking.
+        /// </summary>
+        protected virtual bool NeedsLinking() {
+            // return true as soon as we know we need to compile
+
+            if (!OutputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
+                    OutputFile.FullName);
+                return true;
+            }
+
+            // check if sources were updated
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' is out of date, relinking.", fileName);
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion Protected Instance Methods
+
         #region Public Static Methods
 
         /// <summary>
@@ -299,17 +304,8 @@ namespace NAnt.VisualCpp.Tasks {
         /// The quotes argument value.
         /// </returns>
         public static string QuoteArgumentValue(string value) {
-            // duplicate trailing backslashes (even if value is quoted)
-            string quotedValue = ArgumentUtils.DuplicateTrailingBackSlash(value);
-            
-            // determine if value is already quoted
-            bool isQuoted = value.StartsWith("\"") && value.EndsWith("\"");
-
-            if (!isQuoted) {
-                quotedValue = "\"" + quotedValue + "\"";
-            }
-
-            return quotedValue;
+            return ArgumentUtils.QuoteArgumentValue(value, 
+                BackslashProcessingMethod.Duplicate);
         }
 
         #endregion Public Static Methods

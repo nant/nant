@@ -400,7 +400,7 @@ namespace NAnt.VisualCpp.Tasks {
                             writer.WriteLine("/D " + QuoteArgumentValue(define.OptionName));
                         } else {
                             writer.WriteLine("/D " + QuoteArgumentValue(define.OptionName 
-                                + "=" + ArgumentUtils.DuplicateTrailingBackSlash(define.Value)));
+                                + "=" + ArgumentUtils.DuplicateTrailingBackslash(define.Value)));
                         }
                     }
 
@@ -456,7 +456,7 @@ namespace NAnt.VisualCpp.Tasks {
 
                     // write each of the filenames
                     foreach (string filename in Sources.FileNames) {
-                        writer.WriteLine("\"{0}\"", filename);
+                        writer.WriteLine(QuoteArgumentValue(filename));
                     }
 
                     // tell compiler which character set to use
@@ -507,17 +507,8 @@ namespace NAnt.VisualCpp.Tasks {
         /// The quotes argument value.
         /// </returns>
         public static string QuoteArgumentValue(string value) {
-            // duplicate trailing backslashes (even if value is quoted)
-            string quotedValue = ArgumentUtils.DuplicateTrailingBackSlash(value);
-            
-            // determine if value is already quoted
-            bool isQuoted = value.StartsWith("\"") && value.EndsWith("\"");
-
-            if (!isQuoted) {
-                quotedValue = "\"" + quotedValue + "\"";
-            }
-
-            return quotedValue;
+            return ArgumentUtils.QuoteArgumentValue(value, 
+                BackslashProcessingMethod.Duplicate);
         }
 
         #endregion Public Static Methods
@@ -526,7 +517,6 @@ namespace NAnt.VisualCpp.Tasks {
         /// Defines the supported modes for the use of precompiled header files.
         /// </summary>
         public enum PrecompiledHeaderMode : int {
-
             /// <summary>
             /// Create a precompiled header file.
             /// </summary>
@@ -552,7 +542,7 @@ namespace NAnt.VisualCpp.Tasks {
             /// For further information on the use of this option
             /// see the Microsoft documentation on the C++ compiler flag /Yu.
             /// </remarks>
-            Use = 0,
+            Use = 0
         }
     }
 }

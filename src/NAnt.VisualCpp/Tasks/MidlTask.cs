@@ -421,7 +421,7 @@ namespace NAnt.VisualCpp.Tasks {
             if (_cstub != null)
                 writer.WriteLine("/cstub {0}", _cstub);
             if (_dlldata != null) {
-                writer.WriteLine("/dlldata \"{0}\"", DllData.FullName );
+                writer.WriteLine("/dlldata \"{0}\"", DllData.FullName);
             }
             if (_Oi != null)
                 writer.WriteLine("/Oi" + _Oi);
@@ -437,16 +437,17 @@ namespace NAnt.VisualCpp.Tasks {
             foreach (Option define in _defines) {
                 if (IfDefined && !UnlessDefined) {
                     if (define.Value == null) {
-                        writer.WriteLine("/D " + ArgumentUtils.FixTrailingBackSlash(define.OptionName));
+                        writer.WriteLine("/D " + ArgumentUtils.FixTrailingBackslash(define.OptionName));
                     } else {
-                        writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.FixTrailingBackSlash(define.Value));
+                        writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.FixTrailingBackslash(define.Value));
                     }
                 }
             }
 
             foreach (Option undefine in _undefines) {
                 if (IfDefined && !UnlessDefined) {
-                    writer.WriteLine("/U " + ArgumentUtils.FixTrailingBackSlash(undefine.OptionName));
+                    writer.WriteLine("/U " + ArgumentUtils.QuoteArgumentValue(
+                        undefine.OptionName, BackslashProcessingMethod.Fix));
                 }
             }
 
@@ -462,7 +463,8 @@ namespace NAnt.VisualCpp.Tasks {
 
             // append user provided include directories
             foreach (string include in IncludeDirs.DirectoryNames) {
-                writer.WriteLine("/I \"{0}\"", ArgumentUtils.CleanTrailingBackSlash(include));
+                writer.WriteLine("/I {0}", ArgumentUtils.QuoteArgumentValue(
+                    include, BackslashProcessingMethod.Clean));
             }
 
             writer.WriteLine("\"{0}\"", Filename.FullName);

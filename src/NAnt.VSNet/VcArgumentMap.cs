@@ -559,10 +559,10 @@ namespace NAnt.VSNet {
                 }
 
                 if (Name == null) {
-                    return ArgumentUtils.DuplicateTrailingBackSlash(value);
+                    return ArgumentUtils.DuplicateTrailingBackslash(value);
                 }
 
-                return Name + ArgumentUtils.DuplicateTrailingBackSlash(value);
+                return Name + ArgumentUtils.DuplicateTrailingBackslash(value);
             }
 
             #endregion Override implementation of VcArgument

@@ -166,15 +166,16 @@ namespace NAnt.VisualCpp.Tasks {
 
                 // append user provided include directories
                 foreach (string include in IncludeDirs.DirectoryNames) {
-                    str.AppendFormat("/i \"{0}\" ", ArgumentUtils.DuplicateTrailingBackSlash(include));
+                    str.AppendFormat("/i {0} ", ArgumentUtils.QuoteArgumentValue(
+                        include, BackslashProcessingMethod.Duplicate));
                 }
 
                 // append user definitions
                 foreach (Option define in _defines) {
                     if (define.Value == null) {
-                        str.AppendFormat("/d {0} ", ArgumentUtils.DuplicateTrailingBackSlash(define.OptionName));
+                        str.AppendFormat("/d {0} ", ArgumentUtils.DuplicateTrailingBackslash(define.OptionName));
                     } else {
-                        str.AppendFormat("/d {0}={1} ", define.OptionName, ArgumentUtils.DuplicateTrailingBackSlash(define.Value));
+                        str.AppendFormat("/d {0}={1} ", define.OptionName, ArgumentUtils.DuplicateTrailingBackslash(define.Value));
                     }
                 }
                 
