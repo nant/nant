@@ -10,41 +10,34 @@
 
     <script language="C#" mainclass="VersionReader">
         <code><![CDATA[
+		using System.IO;
 
-        using System.IO;
+		class VersionReader {
+			public static void ScriptMain(Project project) {
+				string assemblyInfoFileName = Path.Combine(project.BaseDirectory, @"src\NAnt\AssemblyInfo.cs");
+				StreamReader reader = File.OpenText(assemblyInfoFileName);
 
-        class VersionReader {
+				Regex commentRE = new Regex("^(\\s)*//");
+				Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d\\.\\d\\.\\d");
 
-            public static void ScriptMain(Project project) {
-                PropertyDictionary properties = project.Properties;
-
-                string asmInfo = properties["nant.base.dir"] + "\\src\\NAnt\\AssemblyInfo.cs";
-
-                FileStream asmInfoStream = null;
-                asmInfoStream = new FileStream(asmInfo, FileMode.Open);
-
-                StreamReader reader = new StreamReader(asmInfoStream);
-
-
-                Regex commentRE = new Regex("^(\\s)*//");
-                Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d\\.\\d\\.\\d");
-
-                string line = reader.ReadLine();
-                while (line != null) {
-                    if (!commentRE.Match(line).Success) {
-                        Match versionMatch = versionRE.Match(line);
-                        if (versionMatch.Success) {
-                            properties["project.version"] = versionMatch.Value;
-                            break;
-                        }
-                    }
-                    line = reader.ReadLine();
-                }
-            }
-
-        }
-
-        ]]></code>
+				string line = reader.ReadLine();
+				while (line != null) {
+					// make sure the line has not been commented out
+					if (!commentRE.Match(line).Success) {
+						// find version string
+						Match versionMatch = versionRE.Match(line);
+						if (versionMatch.Success) {
+							project.Properties["project.version"] = versionMatch.Value;
+							break;
+						}
+					}
+					line = reader.ReadLine();
+				}
+				// must remember to close the file or the compile may not work
+				reader.Close();
+			}
+		}
+		]]></code>
     </script>
 
 
