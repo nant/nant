@@ -22,6 +22,7 @@
 namespace SourceForge.NAnt.Tasks {
 
     using System;
+    using System.Globalization;
     using SourceForge.NAnt.Attributes;
 
     /// <summary>Sets a property in the current project.</summary>
@@ -58,6 +59,16 @@ namespace SourceForge.NAnt.Tasks {
 
 
         protected override void ExecuteTask() {
+            // Special check for framework setting.
+            // TODO design framework for handling special properties
+            if (_name == "nant.settings.currentframework"){               
+                if (  Project.FrameworkInfoTable.Contains( _value  )) {
+                    Project.CurrentFramework  = Project.FrameworkInfoTable[_value];
+                }
+                else {
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier.", _value ), Location );
+                }          
+            }        
             if(_ro)
                 Properties.AddReadOnly(_name, _value);
             else

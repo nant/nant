@@ -35,23 +35,30 @@ namespace SourceForge.NAnt {
         string          _resgenToolName; 
         DirectoryInfo   _frameworkDirectory;
         DirectoryInfo   _sdkDirectory;
+        DirectoryInfo   _frameworkAssemblyDirectory;
         
         public FrameworkInfo( string name, 
                                 string description, 
                                 string version, 
                                 string frameworkDir, 
                                 string sdkDir, 
+                                string frameworkAssemblyDir,
                                 string csharpCompilerName,
                                 string resgenToolName ) {
             _name = name;
             _description = description;
             _version = version;           
-            
-            // Does this need to be dir info.
+                        
             if (Directory.Exists(frameworkDir)) {
                 _frameworkDirectory = new DirectoryInfo(frameworkDir);
             } else {
-                throw new ArgumentException(string.Format("frameworkDir {} does not exist", frameworkDir) );
+                throw new ArgumentException(string.Format("frameworkDir {0} does not exist", frameworkDir) );
+            }
+            
+            if (Directory.Exists(frameworkAssemblyDir)) {
+                _frameworkAssemblyDirectory = new DirectoryInfo(frameworkAssemblyDir);
+            } else {
+                throw new ArgumentException(string.Format("framework Assembly Dir {0} does not exist", frameworkAssemblyDir) );
             }
             
             // check that the csharp compiler is present ??
@@ -92,23 +99,32 @@ namespace SourceForge.NAnt {
         }
         
         /// <summary>
-        /// name of the resgen tool for this runtime
+        /// name of the resgen tool for this framework
         /// </summary>
         public string ResGenToolName {
             get { return _resgenToolName; } 
         }
                 
         /// <summary>
-        /// 
+        /// Base directory of the framework tools
         /// </summary>
         public DirectoryInfo FrameworkDirectory {
             get {            
                 return _frameworkDirectory; 
             }           
         }
+       
+        /// <summary>
+        /// Directory where the System assemblies are located
+        /// </summary>
+        public DirectoryInfo FrameworkAssemblyDirectory {
+            get {            
+                return _frameworkAssemblyDirectory; 
+            }           
+        }
         
         /// <summary>
-        /// 
+        /// Director containing the framework SDK tools
         /// </summary>
         public DirectoryInfo SdkDirectory {
             get {                

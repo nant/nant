@@ -83,6 +83,7 @@ namespace SourceForge.NAnt {
         // info about framework information
         FrameworkInfoHashTable _frameworkInfoTable = new FrameworkInfoHashTable();
         FrameworkInfo _defaultFramework;
+        FrameworkInfo _currentFramework;
 
         public static event BuildEventHandler BuildStarted;
         public static event BuildEventHandler BuildFinished;
@@ -348,22 +349,20 @@ namespace SourceForge.NAnt {
         /// </summary>
         public FrameworkInfo DefaultFramework {
             get { return _defaultFramework; }  
+            set{ _defaultFramework = value; 
+                UpdateDefaultFrameworkProperties();
+            }
         }
         /// <summary>
         /// Current Framework to use for compilation. ie if its set to NET-1.0 then will will use compiler tools for that framework version
         /// </summary>
         public FrameworkInfo CurrentFramework {
             get {
-                FrameworkInfo cframework = null;
-                string frameworkKey = Properties["nant.settings.currentframework"];
-                if ( frameworkKey != null && _frameworkInfoTable.Contains( frameworkKey )) {
-                    cframework = _frameworkInfoTable[frameworkKey];
-                }
-                else {
-                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier.", frameworkKey ));
-                }            
-                return cframework;
+               return _currentFramework;              
             }            
+            set{ _currentFramework = value; 
+                UpdateCurrentFrameworkProperties();
+            }
         }
              
         /// <summary>
@@ -575,6 +574,31 @@ namespace SourceForge.NAnt {
             }
             return path;
         }
+        /// <summary>
+        /// update dependent properties when Default Framework is set
+        /// </summary>
+        private void UpdateDefaultFrameworkProperties() {      
+            Properties["nant.settings.defaultframework"] = DefaultFramework.Name;    
+            Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
+            Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
+            Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.SdkDirectory.FullName; 
+            Properties["nant.settings.defaultframework.csharpcompiler"] = DefaultFramework.CSharpCompilerName; 
+            Properties["nant.settings.defaultframework.resgentool"] = DefaultFramework.ResGenToolName; 
+            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;             
+        }
+        
+        /// <summary>
+        /// update dependent properties when Current Framework is set
+        /// </summary>
+        private void UpdateCurrentFrameworkProperties(){
+            Properties["nant.settings.currentframework"] = CurrentFramework.Name;
+            Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName; 
+            Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
+            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.SdkDirectory.FullName; 
+            Properties["nant.settings.currentframework.csharpcompiler"] = CurrentFramework.CSharpCompilerName; 
+            Properties["nant.settings.currentframework.resgentool"] = CurrentFramework.ResGenToolName; 
+            Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
+        }
         
         #region Settings file Load routines
         
@@ -610,6 +634,7 @@ namespace SourceForge.NAnt {
                 // load the runtimInfo stuff
                 XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("SdkDirectory");
                 XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkDirectory");
+                XmlNode frameworkAssemDirectoryNode = frameworkNode.SelectSingleNode("frameworkassemblydirectory");
                 
                 string name = frameworkNode.Attributes["name"].Value;
                 string description =  frameworkNode.Attributes["description"].Value;
@@ -619,6 +644,7 @@ namespace SourceForge.NAnt {
                                 
                 string sdkDirectory = "";
                 string frameworkDirectory = "";
+                string frameworkAssemblyDirectory = "";
                 
                 // Do some validation here on null or not null fields
                 if ( SdkDirectoryNode.Attributes["useregistry"] != null &&  SdkDirectoryNode.Attributes["useregistry"].Value == "true") {
@@ -644,13 +670,32 @@ namespace SourceForge.NAnt {
                 } else {
                     frameworkDirectory =  frameworkDirectoryNode.Attributes["dir"].Value;
                 }
+                
+                if ( frameworkAssemDirectoryNode.Attributes["useregistry"] != null &&  frameworkAssemDirectoryNode.Attributes["useregistry"].Value == "true"){
+                    string regKey = frameworkAssemDirectoryNode.Attributes["regkey"].Value;
+                    string regValue = frameworkAssemDirectoryNode.Attributes["regvalue"].Value;
+                    RegistryKey frameworkAssemKey = Registry.LocalMachine.OpenSubKey(regKey);
+                    
+                    if ( frameworkAssemKey  != null && frameworkAssemKey.GetValue(regValue) != null ) {                    
+                        frameworkAssemblyDirectory  = frameworkAssemKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
+                    }
+                } else {
+                    frameworkAssemblyDirectory =  frameworkAssemDirectoryNode.Attributes["dir"].Value;
+                }
+                
                 FrameworkInfo info = null;
                 try {
-                    info = new FrameworkInfo( name, description, version, frameworkDirectory, sdkDirectory, csharpCompilerName, resgenToolName );                
+                    info = new FrameworkInfo( name, 
+                                            description, 
+                                            version, 
+                                            frameworkDirectory, 
+                                            sdkDirectory, 
+                                            frameworkAssemblyDirectory, 
+                                            csharpCompilerName, 
+                                            resgenToolName );                
                 }
                 catch (Exception ){} // just ignore frameworks that don't validate
-                if ( info != null ) {
-                    // Add to our collection of framework info
+                if ( info != null ) {                    
                     _frameworkInfoTable.Add( info.Name, info );   
                 }                                            
             }
@@ -681,12 +726,12 @@ namespace SourceForge.NAnt {
                 string defaultFramework = node.Attributes["defaultframework"].Value;
                 if ( _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
                     
-                    // set the default framework.
-                    _defaultFramework = _frameworkInfoTable[defaultFramework];
-                    Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );            
-                    
-                    // Current Framework is the same as default when we start
+                    Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );                                                   
                     Properties.Add("nant.settings.currentframework", defaultFramework );
+                    
+                    // set the default framework.
+                    DefaultFramework = _frameworkInfoTable[defaultFramework];
+                    CurrentFramework = _defaultFramework;                                                                              
                 }   
                 else {        
                     throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the Nant.settings file. Defaulting to no known framework", defaultFramework ) );                  
