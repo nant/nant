@@ -366,7 +366,11 @@ namespace Tests.NAnt.Console {
                 logger = ConsoleDriver.CreateLogger(notLogger);
                 Assertion.Fail("Test_CreateLogger did not throw an exception.");
             } catch(Exception e) {
+#if (NET_2_0)
                 Assertion.AssertEquals(typeof(MemberAccessException), e.GetType());
+#else
+                Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());
+#endif
             }
         }
 
@@ -384,12 +388,8 @@ namespace Tests.NAnt.Console {
                 logger = ConsoleDriver.CreateLogger(xmlLogger);
                 Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
 
-                try {
-                    logger = ConsoleDriver.CreateLogger(consoleLogger);
-                    logger.OutputWriter = instanceFileStream;
-                } catch(Exception e) {
-                    Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());
-                }
+                logger = ConsoleDriver.CreateLogger(consoleLogger);
+                logger.OutputWriter = instanceFileStream;
             } finally {
                 instanceFileStream.Close();
                 File.Delete(streamFileName);
