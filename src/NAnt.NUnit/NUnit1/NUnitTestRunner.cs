@@ -244,9 +244,12 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             }
 
             if (outfile == null) {
-                retFormatter.SetOutput(new LogWriter());
+                // TO-DO : find solution for creating LogWriter without access to Task or Project 
+                // for dispatching logging events
+                // retFormatter.SetOutput(new LogWriter());
+                retFormatter.SetOutput(Console.Out);
             } else {
-                retFormatter.SetOutput( new StreamWriter( outfile.Create()));
+                retFormatter.SetOutput(new StreamWriter(outfile.Create()));
             }
             return retFormatter;
         }
