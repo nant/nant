@@ -70,19 +70,19 @@ a:hover {
     padding: 8px;
 }
 
-.Table-Section {
+div.table {
     text-align: center;
     font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
     font-size: 80%;
 }
 
-.Table {
+.table table {
     font-size: 100%;
     border-collapse: collapse;
     width: 93%;
 }
 
-.Table-Header {
+.table th {
     background-color: #eeeeee;
     color: #000000;
     font-weight: bolder;
@@ -91,7 +91,7 @@ a:hover {
     text-align: left;
 }
 
-.Table-Cell {
+.table td {
     border: 1px solid #999999;
     padding: 5px;
 }
