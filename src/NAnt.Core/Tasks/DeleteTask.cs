@@ -51,8 +51,8 @@ namespace SourceForge.NAnt.Tasks {
     [TaskName("delete")]
     public class DeleteTask : Task {
         
-        string _file = null;       
-        string _dir = null;               
+        string _file = null;
+        string _dir = null;
         FileSet _fileset = new FileSet();
 
         /// <summary>The file to delete.</summary>
@@ -98,12 +98,12 @@ namespace SourceForge.NAnt.Tasks {
                 try {
                     path = Project.GetFullPath(DirectoryName);
                 } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", DirectoryName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", DirectoryName);
                     throw new BuildException(msg, Location, e);
                 }
                 if (!Directory.Exists(path))
                 {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}.", path);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}. The directory does not exist.", path);
                     throw new BuildException(msg, Location);
                 }
                 
