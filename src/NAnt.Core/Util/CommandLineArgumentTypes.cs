@@ -30,7 +30,7 @@ namespace NAnt.Core.Util {
         /// if it is not present when parsing arguments.
         /// </summary>
         Required    = 0x01,
-		
+
         /// <summary>
         /// Only valid in conjunction with Multiple.
         /// Duplicate values will result in an error.

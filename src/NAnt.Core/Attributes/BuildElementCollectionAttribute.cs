@@ -75,7 +75,7 @@ namespace NAnt.Core.Attributes {
         #region Public Instance Constructors
 
         /// <summary>
-        /// The name of the child element within the collection		
+        /// The name of the child element within the collection.
         /// </summary>
         /// <value>
         /// The name to check for in the XML of the elements in the collection.

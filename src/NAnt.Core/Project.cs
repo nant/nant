@@ -396,7 +396,7 @@ namespace NAnt.Core {
                 } else {
                     // manually escape '#' in URI (why doesn't .NET do this?) to allow
                     // projects in paths containing a '#' character
-		            string escapedUri = Document.BaseURI.Replace("#", Uri.HexEscape('#'));
+                    string escapedUri = Document.BaseURI.Replace("#", Uri.HexEscape('#'));
                     // return escaped URI
                     return new Uri(escapedUri);
                 }

@@ -106,7 +106,7 @@ namespace NAnt.Core {
         }
 
         protected virtual Task CreateChildTask(XmlNode node) {
-			return Project.CreateTask(node);
+            return Project.CreateTask(node);
         }
         
         protected virtual bool IsPrivateXmlElement(XmlNode node) {

@@ -1,4 +1,4 @@
-// $Id: ConfigurationSection.cs,v 1.3 2003/05/25 08:20:24 drieseng Exp $
+// $Id: ConfigurationSection.cs,v 1.4 2004/04/28 07:36:11 drieseng Exp $
 // NAnt - A .NET build tool
 // Copyright (C) 2003 Scott Hernandez
 //
@@ -34,5 +34,5 @@ namespace NAnt.Core{
         public Object Create(Object parent, Object configContext, XmlNode node) {
             return node;
         }
-	}
+    }
 }

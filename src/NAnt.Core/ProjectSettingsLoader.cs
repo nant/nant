@@ -182,7 +182,7 @@ namespace NAnt.Core {
             foreach (XmlNode propertyNode in propertyNodes) {
                 //skip special elements like comments, pis, text, etc.
                 if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                    continue;	
+                    continue;
                 }
 
                 string propertyName = GetXmlAttributeValue(propertyNode, "name");
@@ -207,7 +207,7 @@ namespace NAnt.Core {
             foreach (XmlNode propertyNode in propertyNodes) {
                 //skip elements like comments, pis, text, etc.
                 if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                    continue;	
+                    continue;
                 }
 
                 string propertyName = GetXmlAttributeValue(propertyNode, "name");
@@ -317,10 +317,10 @@ namespace NAnt.Core {
                     info.TaskAssemblies.Parent = Project; // avoid warnings by setting the parent of the fileset
                     info.TaskAssemblies.ID = "internal-task-assemblies"; // avoid warnings by assigning an id
                     XmlNode taskAssembliesNode = frameworkNode.SelectSingleNode(
-						"nant:task-assemblies", NamespaceManager);
+                        "nant:task-assemblies", NamespaceManager);
                     if (taskAssembliesNode != null) {
                         info.TaskAssemblies.Initialize(taskAssembliesNode, 
-							info.Properties, info);
+                            info.Properties, info);
                     }
 
                     // framework is valid, so add it to framework dictionary
@@ -388,7 +388,7 @@ namespace NAnt.Core {
             foreach (XmlNode propertyNode in propertyNodes) {
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.
                 if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                    continue;	
+                    continue;
                 }
 
                 string propertyName = GetXmlAttributeValue(propertyNode, "name");
@@ -454,7 +454,7 @@ namespace NAnt.Core {
             foreach (XmlNode environmentNode in environmentNodes) {
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.
                 if (!(environmentNode.NodeType == XmlNodeType.Element)) {
-                    continue;	
+                    continue;
                 }
 
                 // initialize element

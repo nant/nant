@@ -128,53 +128,53 @@ namespace NAnt.Core {
 
         #endregion Private Static Fields
 
-		#region Implementation of ICloneable
+        #region Implementation of ICloneable
 
-		/// <summary>
-		/// Creates a shallow copy of the <see cref="DirectoryScanner" />.
-		/// </summary>
-		/// <returns>
-		/// A shallow copy of the <see cref="DirectoryScanner" />.
-		/// </returns>
-		public object Clone() {
-			DirectoryScanner clone = new DirectoryScanner();
-			if (_baseDirectory != null) {
-				clone._baseDirectory = new DirectoryInfo(_baseDirectory.FullName);
-			}
-			if (_directoryNames != null) {
-				clone._directoryNames = (DirScannerStringCollection) 
-					_directoryNames.Clone();
-			}
-			if (_excludePatterns != null) {
-				clone._excludePatterns = (StringCollectionWithGoodToString) 
-					_excludePatterns.Clone();
-			}
-			clone._excludes = (StringCollectionWithGoodToString) _excludes.Clone();
-			if (_fileNames != null) {
-				clone._fileNames = (StringCollectionWithGoodToString) 
-					_fileNames.Clone();
-			}
-			if (_includePatterns != null) {
-				clone._includePatterns = (StringCollectionWithGoodToString) 
-					_includePatterns.Clone();
-			}
-			clone._includes = (StringCollectionWithGoodToString) _includes.Clone();
-			if (_scannedDirectories != null) {
-				clone._scannedDirectories = (DirScannerStringCollection) 
-					_scannedDirectories.Clone();
-			}
-			if (_searchDirectories != null) {
-				clone._searchDirectories = (DirScannerStringCollection) 
-					_searchDirectories.Clone();
-			}
-			if (_searchDirIsRecursive != null) {
-				clone._searchDirIsRecursive = (ArrayList) 
-					_searchDirIsRecursive.Clone();
-			}
-			return clone;
-		}
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="DirectoryScanner" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="DirectoryScanner" />.
+        /// </returns>
+        public object Clone() {
+            DirectoryScanner clone = new DirectoryScanner();
+            if (_baseDirectory != null) {
+                clone._baseDirectory = new DirectoryInfo(_baseDirectory.FullName);
+            }
+            if (_directoryNames != null) {
+                clone._directoryNames = (DirScannerStringCollection) 
+                    _directoryNames.Clone();
+            }
+            if (_excludePatterns != null) {
+                clone._excludePatterns = (StringCollectionWithGoodToString) 
+                    _excludePatterns.Clone();
+            }
+            clone._excludes = (StringCollectionWithGoodToString) _excludes.Clone();
+            if (_fileNames != null) {
+                clone._fileNames = (StringCollectionWithGoodToString) 
+                    _fileNames.Clone();
+            }
+            if (_includePatterns != null) {
+                clone._includePatterns = (StringCollectionWithGoodToString) 
+                    _includePatterns.Clone();
+            }
+            clone._includes = (StringCollectionWithGoodToString) _includes.Clone();
+            if (_scannedDirectories != null) {
+                clone._scannedDirectories = (DirScannerStringCollection) 
+                    _scannedDirectories.Clone();
+            }
+            if (_searchDirectories != null) {
+                clone._searchDirectories = (DirScannerStringCollection) 
+                    _searchDirectories.Clone();
+            }
+            if (_searchDirIsRecursive != null) {
+                clone._searchDirIsRecursive = (ArrayList) 
+                    _searchDirIsRecursive.Clone();
+            }
+            return clone;
+        }
 
-		#endregion Implementation of ICloneable
+        #endregion Implementation of ICloneable
 
         #region Public Instance Properties
 
@@ -386,11 +386,11 @@ namespace NAnt.Core {
             
             //if the fs in case insensitive, make all the regex directories lowercase.
             regexPattern = ToRegexPattern(
-                            caseInsensitiveFS ? searchDirectory.ToLower(CultureInfo.InvariantCulture) : searchDirectory, 
-                            modifiedNAntPattern);
+                caseInsensitiveFS ? searchDirectory.ToLower(CultureInfo.InvariantCulture) : searchDirectory, 
+                modifiedNAntPattern);
 
 
-                // specify pattern as case-insensitive if appropriate to this file system.
+            // specify pattern as case-insensitive if appropriate to this file system.
             if (caseInsensitiveFS) {
                 regexPattern = "(?i)" + regexPattern;
             }
@@ -565,25 +565,25 @@ namespace NAnt.Core {
 
     [Serializable()]
     public class StringCollectionWithGoodToString : StringCollection, ICloneable {
-		#region Implementation of ICloneable
+        #region Implementation of ICloneable
 
-		/// <summary>
-		/// Creates a shallow copy of the <see cref="StringCollectionWithGoodToString" />.
-		/// </summary>
-		/// <returns>
-		/// A shallow copy of the <see cref="StringCollectionWithGoodToString" />.
-		/// </returns>
-		public virtual object Clone() {
-			string[] strings = new string[Count];
-			CopyTo(strings, 0);
-			StringCollectionWithGoodToString clone = new StringCollectionWithGoodToString();
-			clone.AddRange(strings);
-			return clone;
-		}
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="StringCollectionWithGoodToString" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="StringCollectionWithGoodToString" />.
+        /// </returns>
+        public virtual object Clone() {
+            string[] strings = new string[Count];
+            CopyTo(strings, 0);
+            StringCollectionWithGoodToString clone = new StringCollectionWithGoodToString();
+            clone.AddRange(strings);
+            return clone;
+        }
 
-		#endregion Implementation of ICloneable
+        #endregion Implementation of ICloneable
 
-		#region Override implemenation of Object
+        #region Override implemenation of Object
 
         /// <summary>
         /// Creates a string representing a list of the strings in the collection.
@@ -600,28 +600,28 @@ namespace NAnt.Core {
             return sb.ToString();
         }
 
-		#endregion Override implemenation of Object
+        #endregion Override implemenation of Object
     }
 
     [Serializable()]
     public class DirScannerStringCollection : StringCollectionWithGoodToString {
-		#region Override implementation of ICloneable
+        #region Override implementation of ICloneable
 
-		/// <summary>
-		/// Creates a shallow copy of the <see cref="DirScannerStringCollection" />.
-		/// </summary>
-		/// <returns>
-		/// A shallow copy of the <see cref="DirScannerStringCollection" />.
-		/// </returns>
-		public override object Clone() {
-			string[] strings = new string[Count];
-			CopyTo(strings, 0);
-			DirScannerStringCollection clone = new DirScannerStringCollection();
-			clone.AddRange(strings);
-			return clone;
-		}
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="DirScannerStringCollection" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="DirScannerStringCollection" />.
+        /// </returns>
+        public override object Clone() {
+            string[] strings = new string[Count];
+            CopyTo(strings, 0);
+            DirScannerStringCollection clone = new DirScannerStringCollection();
+            clone.AddRange(strings);
+            return clone;
+        }
 
-		#endregion Override implementation of ICloneable
+        #endregion Override implementation of ICloneable
 
         #region Override implementation of StringCollection
 
