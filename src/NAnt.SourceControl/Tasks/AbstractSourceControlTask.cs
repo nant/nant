@@ -197,7 +197,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The password for logging in to the repository.
         /// </value>
         [TaskAttribute("password", Required=false)]
-        [Obsolete("Use <cvs-pass> task instead.", false)]
+        [Obsolete("Use <cvs-pass> task instead.", true)]
         public virtual string Password {
             get { return _password;}
             set { _password = StringUtils.ConvertEmptyToNull(value); }
@@ -208,9 +208,9 @@ namespace NAnt.SourceControl.Tasks {
         /// environment variables are used to try and locate the file.
         /// </summary>
         [TaskAttribute("passfile")]
-        public FileInfo PassFile {
-            get {return _passFile;}
-            set {_passFile = value;}
+        public virtual FileInfo PassFile {
+            get { return _passFile; }
+            set { _passFile = value; }
         }
 
         /// <summary>
