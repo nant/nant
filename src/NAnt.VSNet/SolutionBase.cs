@@ -206,7 +206,7 @@ namespace NAnt.VSNet {
                         //
                         // this might affect the build order as it can add 
                         // project dependencies
-                        FixProjectReferences(project, configuration);
+                        FixProjectReferences(project, configuration, htProjectsDone);
                     }
 
                     if (GetProjectDependencies(project.Guid).Length == 0) {
@@ -499,7 +499,8 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
         /// <param name="config">The build configuration.</param>
-        protected void FixProjectReferences(ProjectBase project, string config) {
+        /// <param name="builtProjects"><see cref="Hashtable" /> containing list of projects that have been built.</param>
+        protected void FixProjectReferences(ProjectBase project, string config, Hashtable builtProjects) {
             // check if the project still has dependencies that have not been 
             // built
             if (GetProjectDependencies(project.Guid).Length > 0) {
@@ -591,8 +592,11 @@ namespace NAnt.VSNet {
                     // add project reference instead
                     project.References.Add(projectReference);
 
-                    // add referenced project as project dependency
-                    AddProjectDependency(project.Guid, projectReference.Project.Guid);
+                    // unless referenced project has already been build, add
+                    // referenced project as project dependency
+                    if (!builtProjects.Contains(projectReference.Project.Guid)) {
+                        AddProjectDependency(project.Guid, projectReference.Project.Guid);
+                    }
                 }
             }
         }
