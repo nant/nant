@@ -153,10 +153,6 @@ namespace NAnt.VSNet {
             get { return _isCreated; }
         }
 
-        public string Setting {
-            get { return string.Format(CultureInfo.InvariantCulture, @"/r:""{0}""", _referenceFile); }
-        }
-
         public string Filename {
             get { return _referenceFile; }
             set { 
@@ -286,6 +282,45 @@ namespace NAnt.VSNet {
                 return Project.GetConfiguration(configurationSettings.Name).OutputDir;
             }
             return _baseDirectory;
+        }
+
+        public StringCollection GetAssemblyReferences(ConfigurationBase configurationSettings) {
+            StringCollection assemblyReferences = null;
+
+            if (IsProjectReference) {
+                // if we're dealing with a project reference, then we need to
+                // reference all assembly references of that project
+                assemblyReferences = Project.GetAssemblyReferences(configurationSettings);
+
+                // and the project output file itself
+                string projectOutputFile = Project.GetConfiguration(
+                    configurationSettings.Name).OutputPath;
+                if (!File.Exists(projectOutputFile)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Output file '{0}' of project '{1}' does not exist.",
+                        projectOutputFile, Name), Location.UnknownLocation);
+                }
+
+                assemblyReferences.Add(projectOutputFile);
+            } else {
+                // if we're dealing with an assembly reference, then we only 
+                // need to reference that assembly itself as VS.NET forced users
+                // to add all dependent assemblies to the project itself
+
+                // ensure referenced assembly actually exists
+                FileInfo fi = new FileInfo(_referenceFile);
+                if (!fi.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Couldn't find referenced assembly '{0}'.", _referenceFile), 
+                        Location.UnknownLocation);
+                }
+
+                // add referenced assembly to list of reference assemblies
+                assemblyReferences = new StringCollection();
+                assemblyReferences.Add(fi.FullName);
+            }
+
+            return assemblyReferences;
         }
 
         public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings) {

@@ -367,7 +367,11 @@ namespace NAnt.VSNet {
                                 }
                             }
                         }
-                        sw.WriteLine(reference.Setting);
+                    }
+
+                    // wrtie assembly references to response file
+                    foreach (string assemblyReference in GetAssemblyReferences(cs)) {
+                        sw.WriteLine("/r:\"{0}\"", assemblyReference);
                     }
 
                     if (_htResources.Count > 0) {

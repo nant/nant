@@ -187,6 +187,25 @@ namespace NAnt.VSNet {
             return (ConfigurationBase) ProjectConfigurations[configuration];
         }
 
+        public StringCollection GetAssemblyReferences(ConfigurationBase configurationSettings) {
+            Hashtable uniqueReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+            foreach (Reference reference in References) {
+                StringCollection references = reference.GetAssemblyReferences(configurationSettings);
+                foreach (string assemblyReference in references) {
+                    if (!uniqueReferences.ContainsKey(assemblyReference)) {
+                        uniqueReferences.Add(assemblyReference, null);
+                    }
+                }
+            }
+
+            StringCollection assemblyReferences = new StringCollection();
+            foreach (string assemblyReference in uniqueReferences.Keys) {
+                assemblyReferences.Add(assemblyReference);
+            }
+            return assemblyReferences;
+        }
+
         #endregion Public Instance Methods
 
         #region Protected Internal Instance Methods
