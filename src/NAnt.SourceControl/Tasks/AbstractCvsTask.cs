@@ -71,6 +71,11 @@ namespace NAnt.SourceControl.Tasks {
 		///		ssh communication.
 		/// </summary>
 		protected const string CVS_RSH = "CVS_RSH";
+		/// <summary>
+		/// Property value used to specify on a project level whether sharpcvs is
+		///		used or not.
+		/// </summary>
+		protected const string USE_SHARPCVS = "sourcecontrol.usesharpcvslib";
 
 		#endregion
 
@@ -328,7 +333,13 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public bool UseSharpCvsLib {
-            get {return _useSharpCvsLib;}
+            get {
+				System.Console.WriteLine("_useSharpCvsLib: " + _useSharpCvsLib);
+				System.Console.WriteLine("Properties[USE_SHARPCVS]: " + 
+					System.Convert.ToString((null == Properties[USE_SHARPCVS] || 
+					System.Convert.ToBoolean(Properties[USE_SHARPCVS]))));
+				return (_useSharpCvsLib && (null != Properties[USE_SHARPCVS] && 
+					System.Convert.ToBoolean(Properties[USE_SHARPCVS])));}
             set {this._useSharpCvsLib = value;}
         }
 
@@ -400,6 +411,8 @@ namespace NAnt.SourceControl.Tasks {
 			if (this.UseSharpCvsLib) {
 				this.ExeName = 
 					Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
+			} else {
+				this.ExeName = CVS_EXE;
 			}
 			if (!Directory.Exists(this.DestinationDirectory.FullName)) {
 				Directory.CreateDirectory(this.DestinationDirectory.FullName);
