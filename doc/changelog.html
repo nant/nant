@@ -42,14 +42,18 @@ Change Log</td>
   <li>Changes for task item element initialization</li>
   <li>Read output of &lt;exec&gt;'d (and other external program)
 processes and insert into logfile</li>
-  <li>Added option to preserve basedir during include process</li>
-  <li>Changed logging level back to ERROR from NONE<br>
-  </li>
   <li>Fixed logging for regex task</li>
   <li>Made NAnt errors less chatty</li>
-  <li>log4net messages now logged to NAnt.log</li>
   <li>NAnt now works without Framework SDK installed</li>
-  <li>log4net property element is deprecated in favor of level element</li>
+  <li>Fixed bugs in Copy/Move task which caused exceptions when using
+todir and<br>
+a fileset, in certain cases.</li>
+  <li>New &lt;unzip&gt; task.new &lt;loadtasks&gt; task which replaces
+the functionality of taskdef (from<br>
+nantcontrib)</li>
+  <li>&lt;foreach&gt; supports &lt;in&gt;&lt;items&gt; fileset to work
+on files.<br>
+  </li>
 </ul>
 <h3>0.8.2-rc2 April 12, 2003</h3>
 <ul>
