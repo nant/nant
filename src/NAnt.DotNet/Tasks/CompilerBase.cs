@@ -57,7 +57,7 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The name of the output file created by the compiler. 
+        /// The name of the output file created by the compiler.
         /// </summary>
         [TaskAttribute("output", Required=true)]
         [StringValidator(AllowEmpty=false)]
@@ -67,7 +67,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Output type. Possible values are <c>exe</c>, <c>winexe</c>, 
+        /// Output type. Possible values are <c>exe</c>, <c>winexe</c>,
         /// <c>library</c> or <c>module</c>.
         /// </summary>
         [TaskAttribute("target", Required=true)]
@@ -116,7 +116,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Instructs the compiler to treat all warnings as errors. The default 
+        /// Instructs the compiler to treat all warnings as errors. The default
         /// is <see langword="false" />.
         /// </summary>
         /// <remarks>
@@ -124,8 +124,8 @@ namespace NAnt.DotNet.Tasks {
         /// Corresponds to the <c>/warnaserror[+|-]</c> flag of the compiler.
         /// </para>
         /// <para>
-        /// When this property is set to <see langword="true" />, any messages 
-        /// that would ordinarily be reported as warnings will instead be 
+        /// When this property is set to <see langword="true" />, any messages
+        /// that would ordinarily be reported as warnings will instead be
         /// reported as errors.
         /// </para>
         /// </remarks>
@@ -137,7 +137,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Specifies which type contains the Main method that you want to use 
+        /// Specifies which type contains the Main method that you want to use
         /// as the entry point into the program.
         /// </summary>
         /// <remarks>
@@ -145,8 +145,8 @@ namespace NAnt.DotNet.Tasks {
         /// Corresponds to the <c>/m[ain]:</c> flag of the compiler.
         /// </para>
         /// <para>
-        /// Use this property when creating an executable file. If this property 
-        /// is not set, the compiler searches for a valid Main method in all 
+        /// Use this property when creating an executable file. If this property
+        /// is not set, the compiler searches for a valid Main method in all
         /// public classes.
         /// </para>
         /// </remarks>
@@ -173,23 +173,23 @@ namespace NAnt.DotNet.Tasks {
         /// This can be a combination of resx files and file resources.
         /// </para>
         /// <para>
-        /// .resx files will be compiled by <see cref="ResGenTask" /> and then 
+        /// .resx files will be compiled by <see cref="ResGenTask" /> and then
         /// embedded into the resulting executable.
         /// </para>
         /// <para>
-        /// The <see cref="ResourceFileSet.Prefix" /> property is used to make 
-        /// up the resource name added to the assembly manifest for non-resx 
+        /// The <see cref="ResourceFileSet.Prefix" /> property is used to make
+        /// up the resource name added to the assembly manifest for non-resx
         /// files.
         /// </para>
         /// <para>
-        /// For .resx files the namespace from the matching source file is used 
-        /// as prefix. This matches the behaviour of Visual Studio. 
+        /// For .resx files the namespace from the matching source file is used
+        /// as prefix. This matches the behaviour of Visual Studio.
         /// </para>
         /// <para>
-        /// Multiple resources tags with different namespace prefixes may be 
+        /// Multiple resources tags with different namespace prefixes may be
         /// specified.
         /// </para>
-        /// </remarks>    
+        /// </remarks>
         [BuildElementArray("resources")]
         public ResourceFileSetCollection ResourcesList {
             get { return _resourcesList; }
@@ -267,7 +267,7 @@ namespace NAnt.DotNet.Tasks {
                     // specific compiler options
                     WriteOptions(writer);
 
-                    // suppresses display of the sign-on banner 
+                    // suppresses display of the sign-on banner
                     WriteOption(writer, "nologo");
 
                     // specify output file format
@@ -284,7 +284,7 @@ namespace NAnt.DotNet.Tasks {
                         WriteOption(writer, "win32icon", Win32Icon);
                     }
 
-                    // Writes the option that specifies the class containing the Main method that should 
+                    // Writes the option that specifies the class containing the Main method that should
                     // be called when the program starts.
                     if (this.MainType != null) {
                         WriteOption(writer, "main", this.MainType);
@@ -302,7 +302,7 @@ namespace NAnt.DotNet.Tasks {
                                 string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
                                 string localPath = Path.Combine( References.BaseDirectory, pattern);
                                 string fullPath = Path.Combine(frameworkDir, pattern);
-                                
+
                                 if (! File.Exists( localPath ) && File.Exists(  fullPath )) {
                                     // found a system reference
                                     References.FileNames.Add( fullPath );
@@ -333,7 +333,7 @@ namespace NAnt.DotNet.Tasks {
                             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                             string tmpResourcePath = Path.ChangeExtension(fileName, "resources");
                             string manifestResourceName = Path.GetFileName(tmpResourcePath);
-                            
+
                             // cater for asax/aspx special cases ...
                             if (manifestResourceName.IndexOf(".aspx") > -1){
                                 manifestResourceName = manifestResourceName.Replace(".aspx", "");
@@ -394,7 +394,7 @@ namespace NAnt.DotNet.Tasks {
         #endregion Override implementation of ExternalProgramBase
 
         #region Protected Instance Methods
-        
+
         /// <summary>Allows derived classes to provide compiler-specific options.</summary>
         protected virtual void WriteOptions(TextWriter writer) {
         }
@@ -413,7 +413,7 @@ namespace NAnt.DotNet.Tasks {
             // Always quote arguments ( )
             writer.WriteLine("\"/{0}:{1}\"", name, arg);
         }
-    
+
         /// <summary>
         /// Determines whether compilation is needed.
         /// </summary>
@@ -454,7 +454,7 @@ namespace NAnt.DotNet.Tasks {
                     return true;
                 }
             }
- 
+
             // check the args for /res or /resource options.
             StringCollection resourceFileNames = new StringCollection();
             foreach (Argument argument in Arguments) {
@@ -487,33 +487,33 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="resxPath"></param>
         /// <returns>
-        /// The namespace of the source file matching the resource, or 
+        /// The namespace of the source file matching the resource, or
         /// <see langword="null" /> if there's no matching source file.
         /// </returns>
         /// <remarks>
-        /// This behaviour may need to be overidden by a particular compiler 
+        /// This behaviour may need to be overidden by a particular compiler
         /// if the namespace syntax is different for that language.
         /// </remarks>
         protected virtual string GetFormNamespace(string resxPath){
             string retnamespace = "";
             StreamReader sr = null;
-            
+
             // open matching source file if it exists
             string sourceFile = resxPath.Replace("resx", Extension);
-        
+
             try {
                 sr = File.OpenText(sourceFile);
-             
+
                 while (sr.Peek() > -1) {
                     string str = sr.ReadLine();
                     string matchnamespace =  @"namespace ((\w+.)*)";
                     string matchnamespaceCaps =  @"Namespace ((\w+.)*)";
                     Regex matchNamespaceRE = new Regex(matchnamespace);
                     Regex matchNamespaceCapsRE = new Regex(matchnamespaceCaps);
-                    
+
                     if (matchNamespaceRE.Match(str).Success){
                         Match namematch = matchNamespaceRE.Match(str);
-                        retnamespace = namematch.Groups[1].Value; 
+                        retnamespace = namematch.Groups[1].Value;
                         retnamespace = retnamespace.Replace("{", "");
                         retnamespace = retnamespace.Trim();
                         break;
@@ -540,22 +540,27 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="resourceFileSet"></param>
         protected void CompileResxResources(FileSet resourceFileSet) {
-            ResGenTask resgen = new ResGenTask(); 
+            ResGenTask resgen = new ResGenTask();
             resgen.Project = this.Project;
             resgen.Parent = this.Parent;
 
-            // temporary hack to force configuration settings to be 
+            // temporary hack to force configuration settings to be
             // read from NAnt configuration file
             //
-            // TO-DO : Remove this temporary hack when a permanent solution is 
+            // TO-DO : Remove this temporary hack when a permanent solution is
             // available for loading the default values from the configuration
             // file if a build element is constructed from code.
             resgen.InitializeTaskConfiguration();
 
             // set the fileset
-            resgen.Resources = new ResourceFileSet(resourceFileSet); 
+            resgen.Resources = new ResourceFileSet(resourceFileSet);
+            foreach (string file in resourceFileSet.FileNames ) {
+                resgen.Resources.Includes.Add(file);
+            }
+            resgen.Resources.Scan();
+
             // inherit Verbose setting from current task
-            resgen.Verbose = this.Verbose; 
+            resgen.Verbose = this.Verbose;
 
             _resgenTask = resgen;
 
