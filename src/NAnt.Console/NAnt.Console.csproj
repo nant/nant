@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                RootNamespace = "SourceForge.NAnt"
+                RootNamespace = "NAnt.Console"
                 StartupObject = ""
             >
                 <Config
