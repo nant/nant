@@ -284,9 +284,12 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="nodes"><see cref="XmlNodeList" /> for which expansion should be performed.</param>
         private void ExpandPropertiesInNodes(XmlNodeList nodes) {
             foreach (XmlNode node in nodes) {
-                ExpandPropertiesInNodes(node.ChildNodes);
-                foreach (XmlAttribute attr in node.Attributes) {
-                    attr.Value = Project.ExpandProperties(attr.Value, Location);
+                // do not process comment nodes
+                if (node.NodeType != XmlNodeType.Comment) {
+                    ExpandPropertiesInNodes(node.ChildNodes);
+                    foreach (XmlAttribute attr in node.Attributes) {
+                        attr.Value = Project.ExpandProperties(attr.Value, Location);
+                    }
                 }
             }
         }
