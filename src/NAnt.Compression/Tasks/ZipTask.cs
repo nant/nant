@@ -131,7 +131,8 @@ namespace SourceForge.NAnt.Tasks {
             } else {
                 zOutstream.SetMethod(ZipOutputStream.STORED);
             }
-            string basePath = Path.GetDirectoryName(Project.GetFullPath(ZipFileSet.BaseDirectory));
+          
+            string basePath = Project.GetFullPath(  Path.GetFullPath( ZipFileSet.BaseDirectory)  );
             
             //set comment
             if (_comment != null) {
