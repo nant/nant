@@ -21,12 +21,19 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
+using NAnt.Core.Attributes;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Provides the abstract base class for a compiler task.
     /// </summary>
     public abstract class FXCompilerBase : CompilerBase {
+        #region Private Instance Fields
+
+        private string _exeName = null;
+
+        #endregion Private Instance Fields
+
         #region Override implementation of ExternalProgramBase
 
         /// <summary>
@@ -37,6 +44,24 @@ namespace NAnt.DotNet.Tasks {
             get { return DetermineFilePath(); }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the executable that should be used to launch 
+        /// the external program.
+        /// </summary>
+        /// <value>
+        /// The name of the executable that should be used to launch the external
+        /// program, or a null reference if no name is configured or specified.
+        /// </value>
+        /// <remarks>
+        /// If available, the configured value in the NAnt configuration
+        /// file will be used if no name is specified.
+        /// </remarks>
+        [FrameworkConfigurable("exename", Required=false)]
+        public override string ExeName {
+            get { return _exeName; }
+            set { _exeName = value; }
+        }
+
         #endregion Override implementation of ExternalProgramBase
 
         #region Private Instance Methods
@@ -44,7 +69,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Instead of relying on the .NET external program to be in the user's path, point
         /// to the compiler directly since it lives in the .NET Framework's bin directory.
-        /// </summary>       
+        /// </summary>
         /// <returns>A fully qualifies pathname including the program name.</returns>
         /// <exception cref="BuildException">The task is not available or not configured for the current framework.</exception>
         private string DetermineFilePath() {
