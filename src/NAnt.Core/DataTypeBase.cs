@@ -54,6 +54,18 @@ namespace NAnt.Core {
             set { _refID = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a reference to the type can be
+        /// defined.
+        /// </summary>
+        /// <remarks>
+        /// Only types with an <see cref="ElementNameAttribute" /> assigned 
+        /// to it, can be referenced.
+        /// </remarks>
+        public bool CanBeReferenced {
+            get { return Name != null; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Element
@@ -61,7 +73,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the name of the datatype.
         /// </summary>
-        /// <value>The name of the datatype.</value>
+        /// <value>
+        /// The name of the datatype.
+        /// </value>
         public override string Name {
             get {
                 string name = null;
