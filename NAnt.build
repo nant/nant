@@ -36,6 +36,32 @@
         <call target="${project.config}" />
         <call target="set-runtime-configuration" />
     </target>
+    <target name="create-common-assemblyinfo">
+        <!-- ensure src/CommonAssemblyInfo.cs is writable if it already exists -->
+        <attrib file="src/CommonAssemblyInfo.cs" readonly="false" if="${file::exists('src/CommonAssemblyInfo.cs')}" />
+        <!-- generate the source file holding the common assembly-level attributes -->
+        <asminfo output="src/CommonAssemblyInfo.cs" language="CSharp">
+            <imports>
+                <import name="System" />
+                <import name="System.Reflection" />
+                <import name="System.Runtime.InteropServices" />
+            </imports>
+            <attributes>
+                <attribute type="ComVisibleAttribute" value="false" />
+                <attribute type="CLSCompliantAttribute" value="true" />
+                <attribute type="AssemblyTitleAttribute" value="NAnt" />
+                <attribute type="AssemblyDescriptionAttribute" value="A .NET Build Tool" />
+                <attribute type="AssemblyConfigurationAttribute" value="${nant.settings.currentframework}.${nant.platform.name}; nightly" />
+                <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
+                <attribute type="AssemblyProductAttribute" value="NAnt" />
+                <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-2004 Gerry Shaw" />
+                <attribute type="AssemblyTrademarkAttribute" value="" />
+                <attribute type="AssemblyCultureAttribute" value="" />
+                <attribute type="AssemblyVersionAttribute" value="${project.version}.1447.0" />
+                <attribute type="AssemblyInformationalVersionAttribute" value="${project.version}" />
+            </attributes>
+        </asminfo>
+    </target>
     <target name="clean" depends="init" description="Deletes current build configuration">
         <delete dir="${build.dir}" failonerror="false" />
     </target>
@@ -43,7 +69,7 @@
         <echo message="Deleting all builds from all configurations" />
         <delete dir="build" failonerror="false" />
     </target>
-    <target name="build" depends="init" description="Builds current configuration">
+    <target name="build" depends="init, create-common-assemblyinfo" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
         <!-- prepare build directory -->
         <mkdir dir="${build.dir}/bin" />
