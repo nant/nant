@@ -116,10 +116,12 @@ Global
 		Item:3 = ..\bin\nant.exe.config
 		Item:4 = NAnt.NUnitTasks.build
 		Item:5 = NAnt.VisualCppTasks.build
-		Item:6 = NAnt.ZipTasks.build
-		Item:7 = ..\nightly.xml
-		Item:8 = ..\release.xml
-		Item:9 = ..\xsdTest.xml
+		Item:6 = NAnt.VSNetTasks.build
+		Item:7 = NAnt.Win32Tasks.build
+		Item:8 = NAnt.ZipTasks.build
+		Item:9 = ..\nightly.xml
+		Item:10 = ..\release.xml
+		Item:11 = ..\xsdTest.xml
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
