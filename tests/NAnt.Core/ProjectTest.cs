@@ -40,7 +40,7 @@ namespace Tests.NAnt.Core {
     /// nant.default
     /// nant.filename
     /// </summary>
-	[TestFixture]    
+    [TestFixture]
     public class ProjectTest : BuildTestBase {
         #region Private Instance Fields
 
@@ -58,7 +58,7 @@ namespace Tests.NAnt.Core {
 
         #region Public Instance Methods
 
-		[Test]
+        [Test]
         public void Test_Initialization_FSBuildFile() {
             // create the build file in the temp folder
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
@@ -77,7 +77,7 @@ namespace Tests.NAnt.Core {
             Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
         }
 
-		[Test]
+        [Test]
         public void Test_Initialization_DOMBuildFile() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
@@ -95,7 +95,7 @@ namespace Tests.NAnt.Core {
             Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
         }
 
-		[Test]
+        [Test]
         public void Test_OnBuildStarted() {
             MockBuildEventListener b = new MockBuildEventListener();
 
@@ -109,7 +109,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(b._buildStarted);
         }
 
-		[Test]
+        [Test]
         public void Test_OnBuildFinished() {
             MockBuildEventListener b = new MockBuildEventListener();
 
@@ -123,7 +123,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(b._buildFinished);
         }
 
-		[Test]
+        [Test]
         public void Test_OnTargetStarted() {
             MockBuildEventListener b = new MockBuildEventListener();
 
@@ -137,7 +137,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(b._targetStarted);
         }
 
-		[Test]
+        [Test]
         public void Test_OnTargetFinished() {
             MockBuildEventListener b = new MockBuildEventListener();
 
@@ -150,8 +150,8 @@ namespace Tests.NAnt.Core {
 
             Assertion.Assert(b._targetFinished);
         }
-        
-		[Test]
+
+        [Test]
         public void Test_OnTaskStarted() {
             MockBuildEventListener b = new MockBuildEventListener();
 
@@ -165,7 +165,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(b._taskStarted);
         }
 
-		[Test]
+        [Test]
         public void Test_OnTaskFinished() {
             MockBuildEventListener b = new MockBuildEventListener();
 

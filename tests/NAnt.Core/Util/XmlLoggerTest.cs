@@ -41,14 +41,13 @@ namespace Tests.NAnt.Core.Util {
                     {2}
                 </target>
             </project>";
-    	
 
         [SetUp]
         protected void SetUp() {
             _log = CreateXmlLogger();
             _tempDir = TempDir.Create("NAnt.Tests.XmlLoggerTest");
         }
-	
+
         [TearDown]
         protected void TearDown() {
             TempDir.Delete(_tempDir);
@@ -191,7 +190,7 @@ namespace Tests.NAnt.Core.Util {
             string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
-		
+
         [Test]
         public void Test_WriteEmbeddedMathFormulas() {
             string baseMessage = "this message has: x < 20 = y in it.";

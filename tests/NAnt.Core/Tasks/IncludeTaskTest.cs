@@ -30,7 +30,7 @@ using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
 
-	[TestFixture]
+    [TestFixture]
     public class IncludeTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0'?>
@@ -48,21 +48,21 @@ namespace Tests.NAnt.Core.Tasks {
 
         string _includeFileName;
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
-			_includeFileName = Path.Combine(TempDirName, "include.xml");
+            _includeFileName = Path.Combine(TempDirName, "include.xml");
             TempFile.CreateWithContents(_includedBuildFile, _includeFileName);
-		}
+        }
 
-		[Test]
+        [Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(_format));
             Assertion.Assert("Global task should have executed." + Environment.NewLine + result, result.IndexOf("Task executed") != -1);
             Assertion.Assert("Target should have executed." + Environment.NewLine + result, result.IndexOf("Target executed") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_NestedTask() {
             const string formatNestedTask = @"<?xml version='1.0' ?>
                <project basedir='{0}' default='test'>
@@ -79,7 +79,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_RecursiveInclude() {
             // modify included build file to recursively include itself
             string recursiveIncludedBuildFile = @"<?xml version='1.0'?><project><include buildfile='include.xml'/></project>";

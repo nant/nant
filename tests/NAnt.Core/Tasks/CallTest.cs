@@ -26,15 +26,15 @@ using System.Xml;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class CallTest : BuildTestBase {
     
-    	[SetUp]
-    	protected override void SetUp() {
-    		base.SetUp();
-    	}
+        [SetUp]
+        protected override void SetUp() {
+            base.SetUp();
+        }
 
-		[Test]
+        [Test]
         public void Test_Call() {
             // create new listener that allows us to track build events
             TestBuildListener listener = new TestBuildListener();

@@ -26,7 +26,7 @@ using NUnit.Framework;
 using NAnt.Core;
 
 namespace Tests.NAnt.Core {
-    [TestFixture]		
+    [TestFixture]
     public class TargetTest : BuildTestBase {
         #region Private Static Fields
 

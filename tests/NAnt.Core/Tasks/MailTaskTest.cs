@@ -48,7 +48,7 @@ namespace Tests.NAnt.Core.Tasks {
         StringCollection _fileList = new StringCollection();
         string _baseDirectory = @"c:\Temp\MailTest";
 
-		[SetUp]
+        [SetUp]
         protected void SetUp() {
 
             _emailAddress1 = "nAnt1@sourceforge.net";
@@ -82,7 +82,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         }
 
-		[TearDown]
+        [TearDown]
         protected void TearDown() {
             try {
                 Directory.Delete(_baseDirectory, true);
@@ -103,7 +103,7 @@ namespace Tests.NAnt.Core.Tasks {
         ///     
         /// </remarks>
 
-		[Test]
+        [Test]
         public void testSimpleMessage() {
 
             MailTask mailTask = new MailTask();
@@ -141,9 +141,9 @@ namespace Tests.NAnt.Core.Tasks {
             ///     message="Test message" 
             ///     mailhost="smtpserver.anywhere.com"/>
             ///     
-            /// </remarks>          
+            /// </remarks>
 
-			[Test]
+            [Test]
             public void testMultiToList() {
 
                 MailTask mailTask = new MailTask();
@@ -181,9 +181,9 @@ namespace Tests.NAnt.Core.Tasks {
         ///     message="Test message" 
         ///     mailhost="smtpserver.anywhere.com"/>
         ///     
-        /// </remarks>          
+        /// </remarks>
 
-		[Test]
+        [Test]
         public void testMultiBccList() {
 
             MailTask mailTask = new MailTask();
@@ -221,9 +221,9 @@ namespace Tests.NAnt.Core.Tasks {
         ///     message="Test message" 
         ///     mailhost="smtpserver.anywhere.com"/>
         ///     
-        /// </remarks>          
+        /// </remarks>
 
-		[Test]
+        [Test]
         public void testMultiCcList() {
 
             MailTask mailTask = new MailTask();
@@ -263,9 +263,9 @@ namespace Tests.NAnt.Core.Tasks {
         ///     message="Test message" 
         ///     mailhost="smtpserver.anywhere.com"/>
         ///     
-        /// </remarks>          
+        /// </remarks>
 
-		[Test]
+        [Test]
         public void testAllLists() {
 
             MailTask mailTask = new MailTask();
@@ -305,9 +305,9 @@ namespace Tests.NAnt.Core.Tasks {
         ///     files="body1.txt,body2.txt;body3.txt" 
         ///     mailhost="smtpserver.anywhere.com"/>
         ///     
-        /// </remarks>          
+        /// </remarks>
 
-		[Test]
+        [Test]
         public void testFilesAsBody() {
 
             MailTask mailTask = new MailTask();
@@ -351,9 +351,9 @@ namespace Tests.NAnt.Core.Tasks {
         ///     attachments="body1.txt,body2.txt;,body3.txt" 
         ///     mailhost="smtpserver.anywhere.com"/>
         ///     
-        /// </remarks>          
+        /// </remarks>
 
-		[Test]
+        [Test]
         public void testFilesAsAttach() {
 
             MailTask mailTask = new MailTask();

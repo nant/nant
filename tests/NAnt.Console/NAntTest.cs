@@ -278,7 +278,7 @@ namespace Tests.NAnt.Console {
                     <target name='build' description='compiles the source code'>
                         <csc target='exe' output='${basename}.exe'>
                             <sources>
-                                <includes name='${basename}.cs'/>
+                                <include name='${basename}.cs'/>
                             </sources>
                         </csc>
                     </target>
@@ -322,8 +322,8 @@ namespace Tests.NAnt.Console {
 
             // using a regular expression look for a plausible version number and valid copyright date
             // expression created by RegEx http://www.organicbit.com/regex/
-            string expression = @"Default Target:[\s]*(?<default>build)\s*compiles the source code[\s]*Main Targets:[\s]*(?<main1>build)\s*compiles the source code[\s]*(?<main2>clean)\s*cleans build directory[\s]*(?<main3>test)\s*run the program[\s]*Sub Targets:[\s]*(?<subtarget1>init)";			
-		
+            string expression = @"Default Target:[\s]*(?<default>build)\s*compiles the source code[\s]*Main Targets:[\s]*(?<main1>build)\s*compiles the source code[\s]*(?<main2>clean)\s*cleans build directory[\s]*(?<main3>test)\s*run the program[\s]*Sub Targets:[\s]*(?<subtarget1>init)";
+
             Match match = Regex.Match(result, expression);
             if (match.Success) {
                 Assertion.AssertEquals("build", match.Groups["default"].Value);

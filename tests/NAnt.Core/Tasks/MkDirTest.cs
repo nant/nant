@@ -32,8 +32,7 @@ namespace Tests.NAnt.Core.Tasks {
     /// </summary>
     [TestFixture]
     public class MkDirTest : BuildTestBase {
-
-		[Test]
+        [Test]
         public void Test_CreateDirectory() {
             string _xml= @"
             <project>

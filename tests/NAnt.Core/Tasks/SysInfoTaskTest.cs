@@ -30,8 +30,7 @@ using NUnit.Framework;
 using NAnt.Core;
 
 namespace Tests.NAnt.Core.Tasks {
-
-	[TestFixture]
+    [TestFixture]
     public class SysInfoTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0' ?>
@@ -39,20 +38,20 @@ namespace Tests.NAnt.Core.Tasks {
                 <sysinfo {0}/>
             </project>";
 
-		[Test]
+        [Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, ""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sysinfo]") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Verbose() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "verbose='true'"));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sysinfo]") != -1);
         }
 
 
-	[Test]
+        [Test]
         public void Test_DuplicateTasks() {
             //
             // ensure we can call sysinfo twice in during a buildfile
@@ -72,7 +71,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
     
 
-	[Test]       
+        [Test]
         public void Test_PropertiesNotReadOnly() {
             //
             // ensure properties set by sysinfo task are not readonly

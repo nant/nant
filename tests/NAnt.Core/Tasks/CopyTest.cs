@@ -46,7 +46,7 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <copy verbose='true' todir='{0}' {2}>
                     <fileset>
-                        <includes name='{1}' />
+                        <include name='{1}' />
                     </fileset>
                 </copy>
             </project>";
@@ -57,7 +57,7 @@ namespace Tests.NAnt.Core.Tasks {
                 <mkdir dir='{0}/source/test' />
                 <copy verbose='true' todir='{0}/destination' {1}>
                     <fileset basedir='{0}'>
-                        <includes name='{0}/source/*' />
+                        <include name='{0}/source/*' />
                     </fileset>
                 </copy>
             </project>
@@ -403,7 +403,7 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <copy todir='test' tofile='test.file'>
                     <fileset>
-                        <includes name='*.txt' />
+                        <include name='*.txt' />
                     </fileset>
                 </copy>
             </project>";
@@ -422,7 +422,7 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <copy tofile='test.file'>
                     <fileset>
-                        <includes name='*.txt' />
+                        <include name='*.txt' />
                     </fileset>
                 </copy>
             </project>";
@@ -441,7 +441,7 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <copy file='test.file' todir='test'>
                     <fileset>
-                        <includes name='*.txt' />
+                        <include name='*.txt' />
                     </fileset>
                 </copy>
             </project>";

@@ -46,7 +46,7 @@ namespace Tests.NAnt.Core {
 @"world.peace
 world.war
 reefer.maddness",
-				Path.Combine(TempDirName, "include.list")
+            Path.Combine(TempDirName, "include.list")
             );
             TempFile.Create(Path.Combine(TempDirName, "world.peace"));
             TempFile.Create(Path.Combine(TempDirName, "world.war"));
@@ -138,23 +138,23 @@ reefer.maddness",
 
         [Test]
         public void Test_Includes_List() {
-            FileSet.IncludesFileElement elem = new FileSet.IncludesFileElement();
+            FileSet.IncludesFile elem = new FileSet.IncludesFile();
             XmlDocument doc = new XmlDocument();
             doc.LoadXml( "<includesList name=\"" + Path.Combine(_fileSet.BaseDirectory.FullName, "include.list") + "\" />" );
             elem.Project = CreateFilebasedProject("<project/>" );
             elem.Initialize(doc.DocumentElement);
-            _fileSet.IncludesFiles = new FileSet.IncludesFileElement[] { elem };
+            _fileSet.IncludesFiles = new FileSet.IncludesFile[] { elem };
             Assertion.AssertEquals(3, _fileSet.FileNames.Count);
         }
 
         [Test]
         public void Test_Includes_File() {
-            FileSet.IncludesFileElement elem = new FileSet.IncludesFileElement();
+            FileSet.IncludesFile elem = new FileSet.IncludesFile();
             XmlDocument doc = new XmlDocument();
             doc.LoadXml( "<includesfile name=\"" + Path.Combine(_fileSet.BaseDirectory.FullName, "include.list") + "\" />" );
             elem.Project = CreateFilebasedProject("<project/>" );
             elem.Initialize(doc.DocumentElement);
-            _fileSet.IncludesFiles = new FileSet.IncludesFileElement[] { elem };
+            _fileSet.IncludesFiles = new FileSet.IncludesFile[] { elem };
             Assertion.AssertEquals(3, _fileSet.FileNames.Count);
         }
 

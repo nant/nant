@@ -10,17 +10,17 @@
         <!-- build test assembly -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
             <sources>
-                <includes name="**/*.cs" />
+                <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="../../src/CommonAssemblyInfo.cs" />
+                <include name="../../src/CommonAssemblyInfo.cs" />
             </sources>
             <references>
                 <!-- temporary workaround for Mono Runtime bug #57602 -->
-                <includes name="${lib.framework.dir}/log4net.dll" />
-		<!-- end workaround -->
-                <includes name="${build.dir}/bin/NAnt.Core.dll" />
-                <includes name="${build.dir}/bin/NAnt.Core.Tests.dll" />
-                <includes name="${lib.framework.dir}/nunit.framework.dll" />
+                <include name="${lib.framework.dir}/log4net.dll" />
+                <!-- end workaround -->
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${build.dir}/bin/NAnt.Core.Tests.dll" />
+                <include name="${lib.framework.dir}/nunit.framework.dll" />
             </references>
         </csc>
     </target>

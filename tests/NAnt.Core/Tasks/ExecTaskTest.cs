@@ -29,7 +29,7 @@ using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
 
-	[TestFixture]
+    [TestFixture]
     public class ExecTaskTest : BuildTestBase {
         const string _format = @"<?xml version='1.0' ?>
             <project>
@@ -39,7 +39,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         /// <summary>Test <arg> option.</summary>
         [Test]
-        public void Test_ArgOption() {            
+        public void Test_ArgOption() {
             string result = "";
             if (PlatformHelper.IsWin32) {
                 result = RunBuild(FormatBuildFile("program='cmd.exe'", "<arg value='/c echo Hello, World!'/>"));
@@ -62,7 +62,7 @@ namespace Tests.NAnt.Core.Tasks {
             for (int i = 0; i < 250; i++) {
                 contents.Append(line);
             }
-			string tempFileName = Path.Combine(TempDirName, "bigfile.txt");
+            string tempFileName = Path.Combine(TempDirName, "bigfile.txt");
             TempFile.Create(tempFileName);
 
             string result = "";

@@ -28,14 +28,13 @@ using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Zip.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class UnZipTaskTest : BuildTestBase {
-
         const string _projectXML = @"<?xml version='1.0'?>
             <project>
                 <zip zipfile='docs.zip'>
                     <fileset basedir='doc'>
-                        <includes name='**/*/**'/>
+                        <include name='**/*/**'/>
                     </fileset>
                 </zip>
                 <unzip zipfile='docs.zip'/>

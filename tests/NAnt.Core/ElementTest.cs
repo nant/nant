@@ -52,7 +52,7 @@ namespace Tests.NAnt.Core {
         #endregion Override implementation of Task
     }
 
-	[TestFixture]
+    [TestFixture]
     public class ElementTest : BuildTestBase {
         #region Public Instance Methods
 
@@ -66,7 +66,7 @@ namespace Tests.NAnt.Core {
                <project name='testing' default='test'>
                      <target name='test'>
                         <elementTest1>
-                           <fileset><includes name='*.cs'/></fileset>
+                           <fileset><include name='*.cs'/></fileset>
                         </elementTest1>
                      </target>
                   </project>";

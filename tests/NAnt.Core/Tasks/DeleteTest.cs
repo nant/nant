@@ -48,7 +48,7 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <delete verbose='true'>
                     <fileset>
-                        <includes name='{0}' />
+                        <include name='{0}' />
                     </fileset>
                 </delete>
             </project>";

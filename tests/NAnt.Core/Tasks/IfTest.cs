@@ -69,7 +69,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <project>
                         <if uptodatefile='{0}'>
                             <comparefiles>
-                                <includes name='{1}'/>
+                                <include name='{1}'/>
                             </comparefiles>
                             <echo message='{0} is same/newer than {1}'/>
                         </if>
@@ -84,10 +84,10 @@ namespace Tests.NAnt.Core.Tasks {
                     <project>
                         <ifnot >
                             <uptodatefiles>
-                                <includes name='{0}'/>
+                                <include name='{0}'/>
                             </uptodatefiles>
                             <comparefiles>
-                                <includes name='{1}'/>
+                                <include name='{1}'/>
                             </comparefiles>
                             <echo message='{0} is not same/newer than {1}'/>
                         </ifnot>
@@ -102,10 +102,10 @@ namespace Tests.NAnt.Core.Tasks {
                     <project>
                         <ifnot >
                             <uptodatefiles>
-                                <includes name='{0}'/>
+                                <include name='{0}'/>
                             </uptodatefiles>
                             <comparefiles>
-                                <includes name='{1}'/>
+                                <include name='{1}'/>
                             </comparefiles>
                             <echo message='{0} is not same/newer than {1}'/>
                         </ifnot>

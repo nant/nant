@@ -80,7 +80,7 @@ namespace Tests.NAnt.Core {
         #endregion Override implementation of Task
     }
 
-	[TestFixture]
+    [TestFixture]
     public class TaskTest : BuildTestBase {
         #region Private Static Fields
 
@@ -108,7 +108,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert("Verbose message should have been displayed." + Environment.NewLine + result, result.IndexOf("Verbose message") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_FailOnError() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" fail=\"true\" failonerror=\"false\""));
             Assertion.Assert("Task should have failed." + Environment.NewLine + result, result.IndexOf("TestTask failed") != -1);
@@ -120,31 +120,31 @@ namespace Tests.NAnt.Core {
             Assertion.Assert("Task should not have failed." + Environment.NewLine + result, result.IndexOf("TestTask failed") == -1);
         }
 
-		[Test]
+        [Test]
         public void Test_If_True() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" if=\"true\""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_If_False() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" if=\"false\""));
             Assertion.Assert("Task should not have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") == -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Unless_False() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" unless=\"false\""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Unless_True() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" unless=\"true\""));
             Assertion.Assert("Task should not have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") == -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Mixture() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" verbose=\"true\" if=\"true\" unless=\"false\""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);

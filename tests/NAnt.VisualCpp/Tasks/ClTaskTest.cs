@@ -40,7 +40,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
                     <cl outputdir=""objs""
                         options=""-Zi -MDd -GA -Gz -YX -DWIN32 -DUNICODE -DDEBUG -D_DEBUG"" >
                         <sources>
-                            <includes name=""src\HelloWorld.cpp"" />
+                            <include name=""src\HelloWorld.cpp"" />
                         </sources>
                     </cl>
                 </project>";
@@ -102,7 +102,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
                     <cl outputdir=""objs""
                         options=""-Zi -MDd -GA -Gz -YX -DWIN32 -DUNICODE -DDEBUG -D_DEBUG"" >
                         <sources>
-                            <includes name=""src\*.cpp"" />
+                            <include name=""src\*.cpp"" />
                         </sources>
                     </cl>
                 </project>";

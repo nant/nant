@@ -28,7 +28,7 @@ using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core {
-	[TestFixture]
+    [TestFixture]
     public class BuildFilesInResourcesTest {
         #region Private Instance Fields
         #endregion Private Instance Fields
@@ -38,34 +38,34 @@ namespace Tests.NAnt.Core {
 
         [Test]
         public void Test_FilesInResources() {
-			foreach (string resName in Assembly.GetExecutingAssembly().GetManifestResourceNames()){
-				if(resName.StartsWith("XML:.Build.Files")) {
-					TextReader file = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(resName));
-					bool success = false;
-					string exception = null;
-					string stuff = null;
+            foreach (string resName in Assembly.GetExecutingAssembly().GetManifestResourceNames()){
+                if (resName.StartsWith("XML:.Build.Files")) {
+                    TextReader file = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(resName));
+                    bool success = false;
+                    string exception = null;
+                    string stuff = null;
 
-					try {
-						System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-						doc.LoadXml(file.ReadToEnd());
-						Project p = new Project(doc, Level.Info, 0);
-						stuff = BuildTestBase.ExecuteProject(p);
-						success = true;
-					}
-					catch(Exception e){
-						exception = e.ToString();
-					}
-					finally {
-						if (resName.IndexOf(".Invalid.") > 0){
-							if(!success) stuff = "expected a failure:" + stuff;
-							success = !success;					
-						}
+                    try {
+                        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                        doc.LoadXml(file.ReadToEnd());
+                        Project p = new Project(doc, Level.Info, 0);
+                        stuff = BuildTestBase.ExecuteProject(p);
+                        success = true;
+                    }
+                    catch(Exception e){
+                        exception = e.ToString();
+                    }
+                    finally {
+                        if (resName.IndexOf(".Invalid.") > 0){
+                            if(!success) stuff = "expected a failure:" + stuff;
+                            success = !success;
+                        }
 
-						Assertion.Assert(resName + " " + stuff, success);
-					}
-				}
-			}
-		}
+                        Assertion.Assert(resName + " " + stuff, success);
+                    }
+                }
+            }
+        }
 
         #endregion Public Instance Methods
 

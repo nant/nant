@@ -38,7 +38,7 @@ namespace Tests.NAnt.Zip.Tasks {
             <project>
                 <zip zipfile='test.zip'>
                     <fileset basedir='src'>
-                        <includes name='**'/>
+                        <include name='**'/>
                     </fileset>
                 </zip>
             </project>";

@@ -26,7 +26,7 @@ using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.DotNet.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class JscTaskTest : BuildTestBase {
         #region Private Instance Fields
 
@@ -40,7 +40,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             <project>
                 <jsc target='exe' output='{0}.exe' {2}>
                     <sources basedir='{1}'>
-                        <includes name='{0}'/>
+                        <include name='{0}'/>
                     </sources>
                 </jsc>
             </project>";
@@ -51,12 +51,12 @@ namespace Tests.NAnt.DotNet.Tasks {
 
         #region Override implementation of BuildTestBase
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
-			_sourceFileName = Path.Combine(TempDirName, "HelloWorld.js");
+            _sourceFileName = Path.Combine(TempDirName, "HelloWorld.js");
             TempFile.CreateWithContents(_sourceCode, _sourceFileName);
-		}
+        }
 
         #endregion Override implementation of BuildTestBase
 

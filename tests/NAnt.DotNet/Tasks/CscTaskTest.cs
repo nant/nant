@@ -45,7 +45,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             <project>
                 <csc target='exe' output='{0}.exe' {2}>
                     <sources basedir='{1}'>
-                        <includes name='{0}'/>
+                        <include name='{0}'/>
                     </sources>
                 </csc>
             </project>";

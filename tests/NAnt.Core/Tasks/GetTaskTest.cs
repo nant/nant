@@ -27,10 +27,8 @@ using NUnit.Framework;
 using NAnt.Core.Tasks;
 
 namespace Tests.NAnt.Core.Tasks {
-
-	[TestFixture]
+    [TestFixture]
     public class GetTaskTest : BuildTestBase {
-
         string _proxy = null;
 
         /// <summary>

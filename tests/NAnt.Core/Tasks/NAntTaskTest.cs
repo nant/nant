@@ -30,9 +30,8 @@ using NUnit.Framework;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class NAntTaskTest : BuildTestBase {
-
         const string _format = @"
             <project>
                 <nant buildfile='{0}' {1}/>
@@ -61,28 +60,28 @@ namespace Tests.NAnt.Core.Tasks {
 
         string _externalBuildFileName;
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
             _externalBuildFileName = Path.Combine(TempDirName, "external.build");
             TempFile.CreateWithContents(_externalBuildFile, _externalBuildFileName);
         }
 
-		[Test]		
+        [Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(""));
             Assertion.Assert("External build should have executed." + Environment.NewLine + result, result.IndexOf("External build file executed") != -1);
             Assertion.Assert("External target should not have executed." + Environment.NewLine + result, result.IndexOf("External target executed") == -1);
         }
 
-		[Test]
+        [Test]
         public void Test_SingleTarget() {
             string result = RunBuild(FormatBuildFile("target='test'"));
             Assertion.Assert("External build should have executed." + Environment.NewLine + result, result.IndexOf("External build file executed") != -1);
             Assertion.Assert("External target should have executed." + Environment.NewLine + result, result.IndexOf("External target executed") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_MultipleTargets() {
             string result = RunBuild(FormatBuildFile("target='test t2 t3'"));
             Assertion.Assert("External build should have executed." + Environment.NewLine + result, result.IndexOf("External build file executed") != -1);
@@ -91,7 +90,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Third target should have executed." + Environment.NewLine + result, result.IndexOf("Third target executed") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_PropertyInherit() {
             string _xml = @"
                 <project>

@@ -27,10 +27,10 @@ using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
 
-	[TestFixture]
+    [TestFixture]
     public class LoopTest : BuildTestBase {
     
-    	[Test]
+        [Test]
         public void Test_Loop_String_Default_Delim() {
             string _xml = @"
                     <project>
@@ -44,9 +44,9 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert(result.IndexOf("Count:2") != -1);
             Assertion.Assert(result.IndexOf("Count:3") != -1);
             Assertion.Assert(result.IndexOf("Count:4") != -1);
-			Assertion.Assert(result.IndexOf("Count:5") != -1);
-		}
-        
+            Assertion.Assert(result.IndexOf("Count:5") != -1);
+        }
+
         [Test]
         public void Test_Loop_Files() {
             string _xml = @"
@@ -66,7 +66,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <foreach item='File' property='file'>
                             <in>
                                 <items basedir='${nant.project.basedir}'>
-                                    <includes name='*'/>
+                                    <include name='*'/>
                                 </items>
                             </in>
                             <do>
@@ -78,7 +78,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert(result.IndexOf("test.build") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Loop_Folders() {
             string _xml = @"
                     <project>
@@ -103,7 +103,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <foreach item='Folder' property='dir'>
                             <in>
                                 <items basedir='${nant.project.basedir}'>
-                                    <includes name='*'/>
+                                    <include name='*'/>
                                 </items>
                             </in>
                             <do>
@@ -117,59 +117,56 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
 
-		[Test]
+        [Test]
         public void Test_Loop_Lines() {
-			string strTempFile = CreateTempFile("looptest.loop_lines_test.txt");
-			using ( StreamWriter sw = new StreamWriter( strTempFile ) )
-			{
-				sw.WriteLine( "x,y" );
-				sw.WriteLine( "x2,y2  " );
-				sw.WriteLine( "x3  ,y3" );
-				sw.WriteLine( "x4,  y4" );
-				sw.Close();
+            string strTempFile = CreateTempFile("looptest.loop_lines_test.txt");
+            using ( StreamWriter sw = new StreamWriter( strTempFile ) ) {
+                sw.WriteLine( "x,y" );
+                sw.WriteLine( "x2,y2  " );
+                sw.WriteLine( "x3  ,y3" );
+                sw.WriteLine( "x4,  y4" );
+                sw.Close();
 
-				string _xml = String.Format( @"
-						<project>
-						<!-- Hello from inside -->
-							<foreach item='Line' delim=',;' trim='Both' in='{0}' property='x,y'>
-								<echo message='|${{x}}=${{y}}|'/>
-							</foreach>
-						</project>", strTempFile );
-				string result = RunBuild(_xml);
-				//Log.WriteLine(result);
-				Assertion.Assert(result.IndexOf("|x=y|") != -1);
-				Assertion.Assert(result.IndexOf("|x2=y2|") != -1);
-				Assertion.Assert(result.IndexOf("|x3=y3|") != -1);
-				Assertion.Assert(result.IndexOf("|x4=y4|") != -1);
-			}
+                string _xml = String.Format( @"
+                    <project>
+                        <!-- Hello from inside -->
+                        <foreach item='Line' delim=',;' trim='Both' in='{0}' property='x,y'>
+                            <echo message='|${{x}}=${{y}}|'/>
+                        </foreach>
+                    </project>", strTempFile );
+                string result = RunBuild(_xml);
+                //Log.WriteLine(result);
+                Assertion.Assert(result.IndexOf("|x=y|") != -1);
+                Assertion.Assert(result.IndexOf("|x2=y2|") != -1);
+                Assertion.Assert(result.IndexOf("|x3=y3|") != -1);
+                Assertion.Assert(result.IndexOf("|x4=y4|") != -1);
+            }
         }
 
-		[Test]
-		public void Test_Loop_Lines_No_Delim() 
-		{
-			string strTempFile = CreateTempFile("looptest.loop_lines_test.txt");
-			using ( StreamWriter sw = new StreamWriter( strTempFile ) )
-			{
-				sw.WriteLine( "x,y " );
-				sw.WriteLine( "x2,y2  " );
-				sw.WriteLine( "  x3  ,y3 " );
-				sw.WriteLine( "  x4,  y4 " );
-				sw.Close();
+        [Test]
+        public void Test_Loop_Lines_No_Delim() {
+            string strTempFile = CreateTempFile("looptest.loop_lines_test.txt");
+            using ( StreamWriter sw = new StreamWriter( strTempFile ) ) {
+                sw.WriteLine( "x,y " );
+                sw.WriteLine( "x2,y2  " );
+                sw.WriteLine( "  x3  ,y3 " );
+                sw.WriteLine( "  x4,  y4 " );
+                sw.Close();
 
-				string _xml = String.Format( @"
-						<project>
-						<!-- Hello from inside -->
-							<foreach item='Line' trim='Start' in='{0}' property='x'>
-								<echo message='|${{x}}|'/>
-							</foreach>
-						</project>", strTempFile );
-				string result = RunBuild(_xml);
-				//Log.WriteLine(result);
-				Assertion.Assert(result.IndexOf("|x,y |") != -1);
-				Assertion.Assert(result.IndexOf("|x2,y2  |") != -1);
-				Assertion.Assert(result.IndexOf("|x3  ,y3 |") != -1);
-				Assertion.Assert(result.IndexOf("|x4,  y4 |") != -1);
-			}
-		}	
-	}
+                string _xml = String.Format( @"
+                    <project>
+                        <!-- Hello from inside -->
+                        <foreach item='Line' trim='Start' in='{0}' property='x'>
+                            <echo message='|${{x}}|'/>
+                        </foreach>
+                    </project>", strTempFile );
+                string result = RunBuild(_xml);
+                //Log.WriteLine(result);
+                Assertion.Assert(result.IndexOf("|x,y |") != -1);
+                Assertion.Assert(result.IndexOf("|x2,y2  |") != -1);
+                Assertion.Assert(result.IndexOf("|x3  ,y3 |") != -1);
+                Assertion.Assert(result.IndexOf("|x4,  y4 |") != -1);
+            }
+        }
+    }
 }

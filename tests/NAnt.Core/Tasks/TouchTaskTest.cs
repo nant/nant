@@ -29,9 +29,8 @@ using NAnt.Core.Tasks;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class TouchTaskTest : BuildTestBase {
-
         const string _format = @"<?xml version='1.0' ?>
             <project>
                 <touch {0}>{1}</touch>
@@ -64,7 +63,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_File_DateTime() {
 
             DateTime newTouchDate = DateTime.Parse("01/01/1980");
@@ -84,7 +83,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Wrong file was touched", !newTouchDate.Equals(lastTouchDate));
         }
 
-		[Test]
+        [Test]
         public void Test_File_Millis() {
             // <touch file='myfile' millis='100000'/>
 
@@ -105,7 +104,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Wrong file touched", !newTouchDate.Equals(lastTouchDate));
         }
 
-		[Test]
+        [Test]
        public void Test_File_Default() {
             // sleep for a bit or this test will intermittently fail on fast machines
             System.Threading.Thread.Sleep(2000);
@@ -130,7 +129,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Wrong file touched", !newTouchDate.Equals(lastTouchDate));
         }
 
-		[Test]
+        [Test]
        public void Test_Same_File_Twice() {
             // <touch file='myfile' />
             // <touch file='myfile' />
@@ -151,14 +150,14 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
 
-		[Test]
+        [Test]
         public void Test_FileSet_DateTime() {
             // <touch datetime="01/01/1980 00:00">
             //   <fileset dir="src_dir"/>
             // </touch>
 
             DateTime newTouchDate = DateTime.Parse("01/01/1980");          
-            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><includes name='**' /></fileset>"));
+            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
                 FileInfo file = new FileInfo(_fileList[i]);
@@ -168,7 +167,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_FileSet_Millis() {
             // <touch millis="100000">
             //   <fileset dir="src_dir"/>
@@ -177,7 +176,7 @@ namespace Tests.NAnt.Core.Tasks {
             int milliSeconds = 100000;
             DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
           
-            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><includes name='**' /></fileset>"));
+            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
 
@@ -189,14 +188,14 @@ namespace Tests.NAnt.Core.Tasks {
 
         }
 
-		[Test]
+        [Test]
         public void Test_FileSet_Default() {
             // <touch>
             //  <fileset dir="src_dir"/>
             // </touch>
             DateTime newTouchDate = DateTime.Now;
           
-            RunBuild(FormatBuildFile("","<fileset basedir='" + TempDirName + "'><includes name='**' /></fileset>"));
+            RunBuild(FormatBuildFile("","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
                 FileInfo file = new FileInfo(_fileList[i]);

@@ -26,36 +26,34 @@ using System.Globalization;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
-
-	[TestFixture]
+    [TestFixture]
     public class TStampTaskTest : BuildTestBase {
-
         const string _format = @"<?xml version='1.0' ?>
             <project>
                 <tstamp {0}>{1}</tstamp>
             </project>";
 
-		[Test]
+        [Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "", ""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[tstamp]") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Custom() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, " verbose='true' property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[tstamp]") != -1);
             Assertion.Assert("build.date property should have been set." + Environment.NewLine + result, result.IndexOf("build.date") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_NoVerbose() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[tstamp]") != -1);
             Assertion.Assert("build.date property should not have been printed to log." + Environment.NewLine + result, result.IndexOf("build.date") == -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Formatter() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "verbose='true'", "<formatter property='TODAY' pattern='dd MMM yyyy'/><formatter property='DSTAMP' pattern='yyyyMMdd'/><formatter property='TSTAMP' pattern='HHmm'/>"));
             Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[tstamp]") != -1);

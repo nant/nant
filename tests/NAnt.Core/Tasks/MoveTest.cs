@@ -52,14 +52,14 @@ namespace Tests.NAnt.Core.Tasks {
 
         #endregion Private Static Fields
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
             _tempDirDest = CreateTempDir("foob");
             _tempFileSrc = CreateTempFile("foo.xml");
         }
 
-		[Test]
+        [Test]
         public void Test_Move() {
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 _xmlProjectTemplate, _tempFileSrc, Path.Combine(_tempDirDest, "foo.xml"),

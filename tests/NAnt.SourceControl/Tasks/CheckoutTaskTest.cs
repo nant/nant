@@ -65,9 +65,9 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 usesharpcvslib='false' />
             </project>";
 
-/*		private readonly string _useSharpCvsLibProjectXML = @"<?xml version='1.0'?>
+/*      private readonly string _useSharpCvsLibProjectXML = @"<?xml version='1.0'?>
             <project>
-				<property name='sourcecontrol.usesharpcvslib' value='{0}'/>
+                <property name='sourcecontrol.usesharpcvslib' value='{0}'/>
                 <cvs-checkout   module='{1}' 
                                 cvsroot='{2}'
                                 destination='{3}'

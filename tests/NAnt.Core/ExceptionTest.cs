@@ -45,14 +45,14 @@ namespace Tests.NAnt.Core {
     /// The test verifies:
     /// 1) The exception name ends in "Exception"...
     /// 2) The exception implements the 3 standard constructors:
-    ///		class();
-    ///		class(string message);
-    ///		class(string message, Exception inner);
+    ///    class();
+    ///    class(string message);
+    ///    class(string message, Exception inner);
     /// 3) The exception implements the deserialization constructor:
-    ///		class(SerializationInfo info, StreamingContext context);
+    ///    class(SerializationInfo info, StreamingContext context);
     /// 4) The exception has no public fields
     /// 5) If the exception has private fields, that it implements GetObjectData()
-    ///	  (there's no guarantee it does it *correctly*)
+    ///   (there's no guarantee it does it *correctly*)
     /// 6) If the exception has private fields, it overrides the Message property.
     /// 7) The exception is marked as serializable.
     /// </remarks>
@@ -302,7 +302,7 @@ namespace Tests.NAnt.Core {
         // to fetch the data from an object.
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {
             base.GetObjectData(info, context);
-            info.AddValue("Value", _value);		
+            info.AddValue("Value", _value);
         }
 
         // overridden Message property. This will give the

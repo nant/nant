@@ -137,7 +137,7 @@ namespace Tests.NAnt.Core.Tasks {
             string testFileName = Path.Combine(TempDirName, "myfile8.txt");
 
             Assertion.Assert(testFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(testFileName) & FileAttributes.ReadOnly) == 0);
-            string result = RunBuild(FormatBuildFile("verbose='true' readonly='true'", "<fileset basedir='" + TempDirName + "'><includes name='**/*.txt'/></fileset>"));
+            string result = RunBuild(FormatBuildFile("verbose='true' readonly='true'", "<fileset basedir='" + TempDirName + "'><include name='**/*.txt'/></fileset>"));
             Assertion.Assert(testFileName + " should have ReadOnly file attribute.", (File.GetAttributes(testFileName) & FileAttributes.ReadOnly) != 0);
 
             // check for valid output

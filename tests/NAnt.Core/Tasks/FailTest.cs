@@ -28,14 +28,14 @@ namespace Tests.NAnt.Core.Tasks {
     /// </summary>
     [TestFixture]
     public class FailTest : BuildTestBase {
-		[Test]
+        [Test]
         public void Test_FailMessage() {
             string _xml = @"
                     <project>
                         <fail message='Death Sucks!'/>
                     </project>";
             try {
-                string result = RunBuild(_xml);            
+                string result = RunBuild(_xml);
                 Assertion.Fail("Project should have failed:" + result);
             } catch (TestBuildException be) {
                 Assertion.Assert("Project did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);

@@ -26,7 +26,7 @@ using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.DotNet.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class VbcTaskTest : BuildTestBase {
         #region Private Instance Fields
 
@@ -40,7 +40,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             <project>
                 <vbc target='exe' output='{0}.exe' {2}>
                     <sources basedir='{1}'>
-                        <includes name='{0}'/>
+                        <include name='{0}'/>
                     </sources>
                 </vbc>
             </project>";
@@ -59,12 +59,12 @@ namespace Tests.NAnt.DotNet.Tasks {
 
         #region Override implementation of BuildTestBase
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
-			_sourceFileName = Path.Combine(TempDirName, "HelloWorld.vb");
+            _sourceFileName = Path.Combine(TempDirName, "HelloWorld.vb");
             TempFile.CreateWithContents(_sourceCode, _sourceFileName);
-		}
+        }
 
         #endregion Override implementation of BuildTestBase
 
