@@ -62,7 +62,7 @@ namespace NAnt.Zip.Tasks {
         }
 
         /// <summary>
-        /// The zip file to use.
+        /// The directory where the expanded files.should be stored.
         /// </summary>
         [TaskAttribute("todir", Required=false)]
         public string ToDirectory {
