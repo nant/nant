@@ -22,7 +22,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0"> 
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
-    <xsl:output method="html" indent="yes" />    
+    <xsl:output method="html" indent="yes" />
 
     <xsl:template match="/">
         <html>
@@ -53,43 +53,39 @@
                     <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
 
                     <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
-                    <xsl:variable name="preceding_cat" select="preceding-sibling::class[1]/attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
 
-                    <xsl:if test="position() = 1 or $this_cat != $preceding_cat">
-                        <a><xsl:attribute name="href">#<xsl:value-of select="$this_cat" /></xsl:attribute>
-                            <xsl:value-of select="$this_cat" /> Functions</a>
-                        <br/>
-                    </xsl:if>
+                    <!-- 'unique' - see above -->
+                    <a><xsl:attribute name="href">#<xsl:value-of select="$this_cat" /></xsl:attribute>
+                        <xsl:value-of select="$this_cat" /> Functions</a>
+                    <br/>
                 </xsl:for-each>
-                
+
                 <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']">
                     <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
                     <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
 
                     <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
-                    <xsl:variable name="preceding_cat" select="preceding-sibling::class[1]/attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
 
-                    <xsl:if test="position() = 1 or $this_cat != $preceding_cat">
-                        <a><xsl:attribute name="name"><xsl:value-of select="$this_cat" /></xsl:attribute></a>
-                        <h3><xsl:value-of select="$this_cat" /> Functions</h3>
-                        <div class="table">
-                            <table>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Summary</th>
-                                </tr>
-                                
-                                <!-- for each class having CustomFunctionSet attribute with this category, then for each method having CustomFunction attribute -->
-                                
-                                <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value=$this_cat]/method[attribute/@name='NAnt.Core.Attributes.CustomFunctionAttribute']">
-                                    <xsl:sort select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" order="ascending" />
-                                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" order="ascending" />
+                    <a><xsl:attribute name="name"><xsl:value-of select="$this_cat" /></xsl:attribute></a>
 
-                                    <xsl:apply-templates select="." />
-                                </xsl:for-each>
-                            </table>
-                        </div>
-                    </xsl:if>
+                    <h3><xsl:value-of select="$this_cat" /> Functions</h3>
+                    <div class="table">
+                        <table>
+                            <tr>
+                                <th>Name</th>
+                                <th>Summary</th>
+                            </tr>
+
+                            <!-- for each class having CustomFunctionSet attribute with this category, then for each method having CustomFunction attribute -->
+
+                            <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value=$this_cat]/method[attribute/@name='NAnt.Core.Attributes.CustomFunctionAttribute']">
+                                <xsl:sort select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" order="ascending" />
+                                <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" order="ascending" />
+
+                                <xsl:apply-templates select="." />
+                            </xsl:for-each>
+                        </table>
+                    </div>
                 </xsl:for-each>
             </body>
         </html>
@@ -106,9 +102,8 @@
 
         <tr>
             <td>
-                <a><xsl:attribute name="href">functions/<xsl:if test="$Prefix != ''"><xsl:value-of select="$Prefix" />.</xsl:if><xsl:value-of select="$Name" />.html</xsl:attribute>
-                <xsl:if test="$Prefix != ''"><xsl:value-of select="$Prefix" />.</xsl:if>
-                <xsl:value-of select="$Name" />
+                <a><xsl:attribute name="href">functions/<xsl:value-of select="$Prefix" />.<xsl:value-of select="$Name" />.html</xsl:attribute>
+                    <xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" />
                 </a>
             </td>
             <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>

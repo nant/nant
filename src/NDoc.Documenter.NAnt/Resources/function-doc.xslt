@@ -42,7 +42,7 @@
     <xsl:template match="method" mode="FunctionDoc">
         <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" />       
         <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" />
-        <xsl:variable name="name"><xsl:value-of select="$Prefix" /><xsl:if test="$Prefix != ''">.</xsl:if><xsl:value-of select="$Name" /></xsl:variable>
+        <xsl:variable name="name"><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
@@ -77,7 +77,7 @@
 
             <h3>Usage</h3>
             <code>
-                <xsl:value-of select="$name" />(<xsl:for-each select="parameter"><xsl:if test="position() != 1">, </xsl:if><xsl:value-of select="@name" /></xsl:for-each>)
+                <xsl:value-of select="$name" />(<xsl:for-each select="parameter"><xsl:if test="position() != 1">, </xsl:if><span class="parameter"><xsl:value-of select="@name" /></span></xsl:for-each>)
             </code>
             <p/>
 
