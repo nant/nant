@@ -194,7 +194,7 @@ namespace SourceForge.NAnt.Tasks {
                         // Gets the relative path and file info from the full source filepath
                         // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then dstRelFilePath=f3\file1`
                         string dstRelFilePath = "";
-                        if (srcInfo.FullName.IndexOf( "", 0) != -1 ) {
+                        if (srcInfo.FullName.IndexOf( srcBaseInfo.FullName, 0) != -1 ) {
                             dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
                         } else {
                             dstRelFilePath = srcInfo.Name;
