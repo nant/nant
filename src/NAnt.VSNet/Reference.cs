@@ -70,9 +70,7 @@ namespace NAnt.VSNet {
                 return;
             }
 
-            // TO-DO : check with Scott Ford (sford at RJKTECH.com) if this is
-            // really necessary
-            /*
+            // used by Visual C++ projects
             if (elemReference.Attributes["ReferencedProjectIdentifier"] != null) {
                 if (solution == null) {
                     throw new Exception(string.Format(CultureInfo.InvariantCulture,
@@ -81,8 +79,6 @@ namespace NAnt.VSNet {
                 }
 
                 string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("ReferencedProjectIdentifier"));
-
-              
 
                 TempFileCollection temporaryFiles = solution.TemporaryFiles;
                 if (ps != null) {
@@ -97,17 +93,14 @@ namespace NAnt.VSNet {
                     ((VcProject) project).Load(solution, projectFile);
                 }
 
+                // we don't know what the timestamp of the project is going to be, 
+                // because we don't know what configuration we will be building
+                _referenceTimeStamp = DateTime.MinValue;
 
-
-              // we don't know what the timestamp of the project is going to be, 
-              // because we don't know what configuration we will be building
-              _referenceTimeStamp = DateTime.MinValue;
-
-              _project = project;
-              _copyLocal = _privateSpecified ? _isPrivate : true;
-              return;
+                _project = project;
+                _copyLocal = _privateSpecified ? _isPrivate : true;
+                return;
             }
-            */
 
             if (elemReference.Attributes["WrapperTool"] != null) {
                 _importTool = elemReference.Attributes["WrapperTool"].Value;
