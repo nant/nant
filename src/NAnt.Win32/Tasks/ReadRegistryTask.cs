@@ -106,7 +106,7 @@ namespace NAnt.Win32.Tasks {
         }
 
         /// <summary>
-        /// Space separated list of registry hives to search for <see cref="RegistryKey" />.
+        /// Space separated list of registry hives to search for <see cref="ReadRegistryTask.RegistryKey" />.
         /// For a list of possible values, see <see cref="RegistryHive" />. The 
         /// default is <see cref="RegistryHive.LocalMachine" />.
         /// </summary>
