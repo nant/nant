@@ -57,7 +57,6 @@ namespace NAnt.DotNet.Tasks {
         private string _keyFilename = null;
         private string _keyContainer = null;
         private StringBuilder _argumentBuilder = null;
-        private string _exeName = "sn"; 
         
         #endregion Private Instance Fields
 
