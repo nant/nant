@@ -127,6 +127,10 @@
                     BuildAction = "Content"
                 />
                 <File
+                    RelPath = "Resources\filter-index.xslt"
+                    BuildAction = "Content"
+                />
+                <File
                     RelPath = "Resources\function-doc.xslt"
                     BuildAction = "Content"
                 />
