@@ -47,7 +47,7 @@ namespace SourceForge.NAnt.Attributes {
     /// InitializeTask.  Just before ExecuteTask is called NAnt will expand
     /// all the macros with the current values.
     /// </example>
-    [AttributeUsage( AttributeTargets.Property, Inherited=true)]
+    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class TaskAttributeAttribute : BuildAttributeAttribute {
         #region Public Instance Constructors
        

@@ -22,7 +22,7 @@ namespace SourceForge.NAnt.Attributes {
     using System;
 
     /// <summary>Indicates that field should be treated as a xml option set for the task.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
+    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class OptionSetAttribute : BuildElementAttribute {     
         #region Public Instance Constructors
 

@@ -24,6 +24,7 @@ namespace SourceForge.NAnt.Attributes {
     /// <summary>
     /// Base class for all validator attributes.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public abstract class ValidatorAttribute : Attribute {
         #region Public Instance Methods
 

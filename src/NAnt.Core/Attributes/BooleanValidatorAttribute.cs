@@ -25,7 +25,7 @@ namespace SourceForge.NAnt.Attributes {
     /// <summary>
     /// Used to indicate that a field should be able to be converted into a <see cref="bool" />.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
+    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class BooleanValidatorAttribute : ValidatorAttribute {
         #region Public Instance Constructors
 
@@ -48,7 +48,7 @@ namespace SourceForge.NAnt.Attributes {
         /// </returns>
         public override bool Validate(object value) {
             try {
-                Convert.ToBoolean(value);
+                Convert.ToBoolean(value, CultureInfo.InvariantCulture);
             } catch (Exception) {
                 throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve to '{0}' to Boolean value.", value.ToString()));
             }

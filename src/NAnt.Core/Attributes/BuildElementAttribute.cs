@@ -31,18 +31,18 @@ namespace SourceForge.NAnt.Attributes {
 
         #endregion Private Instance Fields
 
-        #region Public Instance Constructors
+        #region Protected Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildElementAttribute" /> with the 
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
-        public BuildElementAttribute(string name) {
+        protected BuildElementAttribute(string name) {
             Name = name;
         }
 
-        #endregion Public Instance Constructors
+        #endregion Protected Instance Constructors
 
         #region Public Instance Properties
 

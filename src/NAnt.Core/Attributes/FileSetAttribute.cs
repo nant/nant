@@ -25,7 +25,7 @@ namespace SourceForge.NAnt.Attributes {
     /// <summary>
     /// Indicates that a field should be treated as a xml file set for the task.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
+    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class FileSetAttribute : BuildElementAttribute {     
         #region Public Instance Constructors
 

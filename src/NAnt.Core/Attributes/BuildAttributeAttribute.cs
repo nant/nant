@@ -47,7 +47,7 @@ namespace SourceForge.NAnt.Attributes {
     /// InitializeTask.  Just before ExecuteTask is called NAnt will expand
     /// all the macros with the current values.
     /// </example>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field , Inherited=true)]
+    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public abstract class BuildAttributeAttribute : Attribute {
         #region Private Instance Fields
 
@@ -57,18 +57,18 @@ namespace SourceForge.NAnt.Attributes {
 
         #endregion Private Instance Fields
 
-        #region Public Instance Constructors
+        #region Protected Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildAttributeAttribute" /> with the 
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
-        public BuildAttributeAttribute(string name) {
+        protected BuildAttributeAttribute(string name) {
             _name = name;
         }
 
-        #endregion Public Instance Constructors
+        #endregion Protected Instance Constructors
 
         #region Public Instance Properties
 
