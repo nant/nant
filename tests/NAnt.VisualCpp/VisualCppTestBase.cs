@@ -166,11 +166,17 @@ namespace Tests.NAnt.VisualCpp {
                     FileFunctions.GetFileVersion(compiler));
                 // the MS compiler supports Managed Extensions starting from 
                 // version 13
-                if (majorVersion >= 13) {
-                    return true;
+                if (majorVersion < 13) {
+                    // stop at first compiler that does not meet the required
+                    // version, as we're not sure which entry in the PATH the
+                    // <cl> task will use
+                    return false;
                 }
             }
-            return false;
+
+            // if we made it here, and at least one compiler was on the PATH
+            // then we know its a supported compiler
+            return (compilers.Count > 0);
         }
 
         private static StringCollection GetCompilersOnPath() {
