@@ -182,7 +182,8 @@ namespace SourceForge.NAnt.Tasks
 			// This .license file will only be valid for this exe/dll
 			using ( FileStream fs = new FileStream( _output, FileMode.Create ) )
 			{
-				DesigntimeLicenseContextSerializer.Serialize( fs, _strTarget, dlc );
+				// Note the ToUpper() - this is the behaviour of VisualStudio
+				DesigntimeLicenseContextSerializer.Serialize( fs, _strTarget.ToUpper(), dlc );
 			}
 		}
 
