@@ -248,6 +248,7 @@
 		<delete if="false">
 			<fileset basedir="bin">
 				<includes name="NAnt*" />
+				<excludes name="NAnt.exe" />
 				<includes name="NDoc.Documenter.NAnt.dll" />
 			</fileset>
 		</delete>
@@ -256,7 +257,8 @@
 				<includes name="NAnt*" />
 				<includes name="NDoc.Documenter.NAnt.dll" />
 				<excludes name="*Test*" />
-				<excludes name="${nant.console.name}.xml" />
+				<excludes name="${nant.console.name}.xml" /> 
+				<excludes name="NAnt.exe" />
 			</fileset>
 		</copy>
 	</target>
@@ -276,6 +278,7 @@
 				<includes name="nunit.framework.dll" />
 				<includes name="NUnitCore.dll" />
 				<includes name="SharpZipLib.dll" />
+				
 			</fileset>
 		</copy>
 	</target>

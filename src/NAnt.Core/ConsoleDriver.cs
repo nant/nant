@@ -30,8 +30,7 @@ using System.Text.RegularExpressions;
 
 namespace SourceForge.NAnt {
 
-    [Serializable()]
-    public class ConsoleDriver : MarshalByRefObject {
+    public class ConsoleDriver {
 
         public static int Main(string[] args) {
             StreamWriter logFileStream = null;
@@ -139,7 +138,7 @@ namespace SourceForge.NAnt {
                     Console.WriteLine("NAnt version {0} Copyright (C) 2001-{1} Gerry Shaw",
                         info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart,
                         DateTime.Now.Year);
-                    Console.WriteLine(Assembly.GetExecutingAssembly().Location);
+                    Console.WriteLine(Assembly.GetExecutingAssembly().CodeBase);
                     Console.WriteLine("http://nant.sf.net");
                     Console.WriteLine();
                     Console.WriteLine("NAnt comes with ABSOLUTELY NO WARRANTY.");

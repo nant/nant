@@ -37,9 +37,9 @@ namespace SourceForge.NAnt {
             // initialize builtin tasks
             AddTasks(Assembly.GetExecutingAssembly());
             AddTasks(Assembly.GetCallingAssembly());
-            
-            // using Assembly.Location instead of AppDomain.Basedir to get around a mono bug.
-            string nantBinDir = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location ));           
+
+
+            string nantBinDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
             ScanDir(nantBinDir);
             ScanDir(Path.Combine(nantBinDir, "tasks"));                      
         }
@@ -55,7 +55,6 @@ namespace SourceForge.NAnt {
             // intialize tasks found in assemblies that end in Tasks.dll
             DirectoryScanner scanner = new DirectoryScanner();
             scanner.BaseDirectory = path;
-            //Log.WriteLine("Scanning Assemblies(*Tests, *Test, *Tasks):" + path);
             scanner.Includes.Add("*Tasks.dll");
             
             //needed for testing
@@ -63,8 +62,10 @@ namespace SourceForge.NAnt {
             scanner.Includes.Add("*Test.dll");
 
             foreach(string assemblyFile in scanner.FileNames) {
-                Log.WriteLine("Add Tasks from:" + assemblyFile);
+                //Log.WriteLine("{0}:Add Tasks from {1}", AppDomain.CurrentDomain.FriendlyName, assemblyFile);
+                
                 AddTasks(Assembly.LoadFrom(assemblyFile));
+                //AddTasks(AppDomain.CurrentDomain.Load(assemblyFile.Replace(AppDomain.CurrentDomain.BaseDirectory,"").Replace(".dll","")));
             }
 		
         }

@@ -57,11 +57,18 @@ namespace SourceForge.NAnt {
         }
 
         private Assembly GetAssembly() {
-            Assembly assembly;
+            Assembly assembly = null;
             if (AssemblyFileName == null) {
                 assembly = Assembly.GetExecutingAssembly();
             } else {
-                assembly = Assembly.LoadFrom(AssemblyFileName);
+                //check to see if it is loaded already
+                foreach(Assembly ass in AppDomain.CurrentDomain.GetAssemblies()){
+                    if(ass.Location.Equals(AssemblyFileName))
+                        assembly = ass;
+                }
+                //load if not loaded
+                if(assembly == null)
+                    assembly = Assembly.LoadFrom(AssemblyFileName);
             }
             return assembly;
         }
