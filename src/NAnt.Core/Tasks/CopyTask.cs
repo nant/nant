@@ -222,6 +222,9 @@ namespace NAnt.Core.Tasks {
                 CopyFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
+			// Clear previous copied files
+			_fileCopyMap = new Hashtable();
+
             // NOTE: when working with file and directory names its useful to 
             // use the FileInfo an DirectoryInfo classes to normalize paths like:
             // c:\work\nant\extras\buildserver\..\..\..\bin
