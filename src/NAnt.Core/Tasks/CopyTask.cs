@@ -223,7 +223,7 @@ namespace SourceForge.NAnt.Tasks {
                 foreach (string pathname in CopyFileSet.DirectoryNames) {
                     DirectoryInfo srcInfo = new DirectoryInfo(pathname);
                     string dstRelPath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
-                    if(dstRelPath[0] == Path.DirectorySeparatorChar ) {
+                    if(dstRelPath.Length > 0 && dstRelPath[0] == Path.DirectorySeparatorChar ) {
                         dstRelPath = dstRelPath.Substring(1);
                     }
 

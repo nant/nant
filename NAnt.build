@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="nant" default="test" xmlns-no="http://nant.sourceforge.net/schema/nant-current.xsd">
+<project name="nant" default="test">
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.2" />
@@ -115,7 +115,6 @@
         <echo message="Running unit tests with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
             <arg value="-buildfile:NAnt.build" />
-            <arg value="-logfile:NAnt.selftest.log" />
             <arg value="${project.config}" />
             <arg value="self-test" />
             <arg value="-D:project.version=${project.version}" />
@@ -225,15 +224,24 @@
             </documenters>
         </ndoc>
     </target>
+
+	<target name="schema">
+        <!-- generate schema -->
+        <mkdir dir="${build.dir}/schema"/>
+        <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
+	</target>
     <!--
         use the following command line to create a debug package:
         nant debug package
     -->
     <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
-        <!-- generate schema -->
-        <mkdir dir="${build.dir}/schema"/>
-        <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
-        
+        <exec program="${build.dir}/bin/${nant.console.name}.exe">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="${project.config}" />
+            <arg value="schema" />
+            <arg value="-D:project.version=${project.version}" />
+        </exec>
+
         <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
         

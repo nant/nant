@@ -179,9 +179,14 @@ namespace SourceForge.NAnt.Tasks {
                     Log.WriteLine(LogPrefix + "Number of bytes read: " + totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
                 }
 
+
                 // clean up response streams
                 destWriter.Close();
                 responseStream.Close();
+
+                //check to see if we actually have a file...
+                if(!File.Exists(Destination))
+                    throw new BuildException("Unable to download file:" + Source, Location);
 
                 //if (and only if) the use file time option is set, then the
                 //saved file now has its timestamp set to that of the downloaded file
@@ -198,6 +203,7 @@ namespace SourceForge.NAnt.Tasks {
                         TouchFile(Destination, remoteTimestamp);
                     }
                 }
+
             } catch (WebException webException) {
                 // If status is WebExceptionStatus.ProtocolError,
                 //   there has been a protocol error and a WebResponse
