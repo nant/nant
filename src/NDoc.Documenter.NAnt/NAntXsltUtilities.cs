@@ -30,17 +30,94 @@ namespace NDoc.Documenter.NAnt {
         /// Initializes a new instance of the <see cref="NAntXsltUtilities" />
         /// class.
         /// </summary>
-        public NAntXsltUtilities(StringDictionary fileNames, StringDictionary elementNames, StringDictionary namespaceNames, StringDictionary assemblyNames, StringDictionary taskNames) {
+        public NAntXsltUtilities(StringDictionary fileNames, StringDictionary elementNames, StringDictionary namespaceNames, StringDictionary assemblyNames, StringDictionary taskNames, SdkDocVersion linkToSdkDocVersion) {
             _fileNames = fileNames;
             _elementNames = elementNames;
             _namespaceNames = namespaceNames;
             _assemblyNames = assemblyNames;
             _taskNames = taskNames;
+            _linkToSdkDocVersion = linkToSdkDocVersion;
+
+            switch (linkToSdkDocVersion) {
+                case SdkDocVersion.SDK_v1_0:
+                    _sdkDocBaseUrl = SdkDoc10BaseUrl;
+                    _sdkDocExt = SdkDocPageExt;
+                    break;
+                case SdkDocVersion.SDK_v1_1:
+                    _sdkDocBaseUrl = SdkDoc11BaseUrl;
+                    _sdkDocExt = SdkDocPageExt;
+                    break;
+                case SdkDocVersion.MsdnOnline:
+                    _sdkDocBaseUrl = MsdnOnlineSdkBaseUrl;
+                    _sdkDocExt = MsdnOnlineSdkPageExt;
+                    break;
+            }
         }
 
         #endregion Public Instance Constructors
 
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets the base url for links to system types.
+        /// </summary>
+        /// <value>
+        /// The base url for links to system types.
+        /// </value>
+        public string SdkDocBaseUrl {
+            get { return _sdkDocBaseUrl; }
+        }
+
+        /// <summary>
+        /// Gets the page file extension for links to system types.
+        /// </summary>
+        public string SdkDocExt {
+            get { return _sdkDocExt; }
+        }
+
+        #endregion Public Instance Properties
+
         #region Public Instance Methods
+
+        /// <summary>
+        /// Returns an href for a cref.
+        /// </summary>
+        /// <param name="cref">The cref for which the href will be looked up.</param>
+        /// <returns>
+        /// The href for the specified cref.
+        /// </returns>
+        public string GetHRef(string cref) {
+            if ((cref.Length < 2) || (cref[1] != ':')) {
+                return string.Empty;
+            }
+
+            if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
+                string fileName = _fileNames[cref];
+                if (fileName == null && cref.StartsWith("F:")) {
+                    fileName = _fileNames["E:" + cref.Substring(2)];
+                }
+
+                if (fileName == null) {
+                    return string.Empty;
+                } else {
+                    return fileName;
+                }
+            } else {
+                switch (cref.Substring(0, 2)) {
+                    case "N:":	// Namespace
+                        return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + SdkDocExt;
+                    case "T:":	// Type: class, interface, struct, enum, delegate
+                        return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + "ClassTopic" + SdkDocExt;
+                    case "F:":	// Field
+                    case "P:":	// Property
+                    case "M:":	// Method
+                    case "E:":	// Event
+                        return GetFilenameForSystemMember(cref);
+                    default:
+                        return string.Empty;
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the name for a given cref.
@@ -50,8 +127,9 @@ namespace NDoc.Documenter.NAnt {
         /// The name for the specified cref.
         /// </returns>
         public string GetName(string cref) {
-            if (cref.Length < 2)
+            if (cref.Length < 2) {
                 return cref;
+            }
 
             if (cref[1] == ':') {
                 if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
@@ -83,7 +161,7 @@ namespace NDoc.Documenter.NAnt {
         /// </returns>
         public string GetAssemblyName(string cref) {
             string assemblyName = _assemblyNames[cref];
-            return assemblyName != null ? assemblyName : "";
+            return assemblyName != null ? assemblyName : string.Empty;
         }
 
         /// <summary>
@@ -95,7 +173,7 @@ namespace NDoc.Documenter.NAnt {
         /// </returns>
         public string GetNamespaceName(string cref) {
             string namespaceName = _namespaceNames[cref];
-            return namespaceName != null ? namespaceName : "";
+            return namespaceName != null ? namespaceName : string.Empty;
         }
 
         /// <summary>
@@ -107,10 +185,30 @@ namespace NDoc.Documenter.NAnt {
         /// </returns>
         public string GetTaskName(string cref) {
             string taskName = _taskNames[cref];
-            return taskName != null ? taskName : "";
+            return taskName != null ? taskName : string.Empty;
         }
 
         #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private string GetFilenameForSystemMember(string cref) {
+            string crefName;
+            int index;
+            if ((index = cref.IndexOf(".#c")) >= 0) {
+                crefName = cref.Substring(2, index - 2) + ".ctor";
+            } else if ((index = cref.IndexOf("(")) >= 0) {
+                crefName = cref.Substring(2, index - 2);
+            } else {
+                crefName = cref.Substring(2);
+            }
+            index = crefName.LastIndexOf(".");
+            string crefType = crefName.Substring(0, index);
+            string crefMember = crefName.Substring(index + 1);
+            return SdkDocBaseUrl + crefType.Replace(".", "") + "Class" + crefMember + "Topic" + SdkDocExt;
+        }
+
+        #endregion Private Instance Methods
 
         #region Private Instance Fields
 
@@ -119,11 +217,19 @@ namespace NDoc.Documenter.NAnt {
         private StringDictionary _namespaceNames;
         private StringDictionary _assemblyNames;
         private StringDictionary _taskNames;
+        private SdkDocVersion _linkToSdkDocVersion;
+        private string _sdkDocBaseUrl; 
+        private string _sdkDocExt; 
 
         #endregion Private Instance Fields
 
         #region Private Static Fields
 
+        private const string SdkDoc10BaseUrl = "ms-help://MS.NETFrameworkSDK/cpref/html/frlrf";
+        private const string SdkDoc11BaseUrl = "ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrf";
+        private const string SdkDocPageExt = ".htm";
+        private const string MsdnOnlineSdkBaseUrl = "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrf";
+        private const string MsdnOnlineSdkPageExt = ".asp";
         private const string SystemPrefix = "System.";
 
         #endregion Private Static Fields

@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-// File Maintainers:
+//
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Collections.Specialized;
@@ -28,6 +28,9 @@ using System.Xml;
 using System.Xml.Xsl;
 
 using NDoc.Core;
+
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
@@ -64,10 +67,26 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Gets the documenter's output directory.
         /// </summary>
-        /// <value>The documenter's output directory.</value>
+        /// <value>
+        /// The documenter's output directory.
+        /// </value>
         public string OutputDirectory { 
             get {
                 return ((NAntTaskDocumenterConfig) Config).OutputDirectory;
+            } 
+        }
+
+        /// <summary>
+        /// Gets the .NET Framework SDK version to provide links to for system 
+        /// types.
+        /// </summary>
+        /// <value>
+        /// The .NET Framework SDK version to provide links to for system types.
+        /// Default is <see cref="F:SdkDocVersion.MsdnOnline" />.
+        /// </value>
+        public SdkDocVersion LinkToSdkDocVersion {
+            get {
+                return ((NAntTaskDocumenterConfig) Config).LinkToSdkDocVersion;
             } 
         }
 
@@ -78,7 +97,9 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Gets the documenter's main output file.
         /// </summary>
-        /// <value>The documenter's main output file</value>
+        /// <value>
+        /// The documenter's main output file.
+        /// </value>
         public override string MainOutputFile { 
             get { return ""; } 
         }
@@ -93,7 +114,7 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Builds the documentation.
         /// </summary>
-        public override void Build(Project project) {
+        public override void Build(NDoc.Core.Project project) {
             OnDocBuildingStep(0, "Initializing...");
 
             _resourceDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NDoc\\NAntTasks\\";
@@ -136,7 +157,7 @@ namespace NDoc.Documenter.NAnt {
                 arguments.AddParam("class-id", String.Empty, classID);
 
                 // add extension object for NAnt utilities
-                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames);
+                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames, LinkToSdkDocVersion);
                 arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
                 // generate filename for page
@@ -179,7 +200,7 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList arguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames);
+            NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames, LinkToSdkDocVersion);
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
             TransformAndWriteResult(transform, arguments, filename);
@@ -203,19 +224,10 @@ namespace NDoc.Documenter.NAnt {
                 XmlNodeList types = namespaceNode.SelectNodes("*[@id]");
                 foreach (XmlElement typeNode in types) {
                     string typeId = typeNode.Attributes["id"].Value;
-//                    fileNames[typeId] = GetFilenameForType(typeNode);
-                    _elementNames[typeId] = typeNode.Attributes["name"].Value;
+                    _elementNames[typeId] = GetElementNameForType(typeNode);
                     _namespaceNames[typeId] = namespaceName;
                     _assemblyNames[typeId] = assemblyName;
-
-                    // check whether the type actually derives from NAnt.Core.Task
-                    if (typeNode.SelectSingleNode("descendant::base[@id='T:NAnt.Core.Task']") != null) {
-                        // get the actual task name
-                        XmlAttribute taskNameAttribute = typeNode.SelectSingleNode("attribute/property[@name='Name']/@value") as XmlAttribute;
-                        if (taskNameAttribute != null) {
-                            _taskNames[typeId] = taskNameAttribute.Value;
-                        }
-                    }
+                    _taskNames[typeId] = GetTaskNameForType(typeNode);
 
                     XmlNodeList members = typeNode.SelectNodes("*[@id]");
                     foreach (XmlElement memberNode in members) {
@@ -235,7 +247,7 @@ namespace NDoc.Documenter.NAnt {
                                 break;
                             case "property":
 //                                fileNames[id] = GetFilenameForProperty(memberNode);
-                                _elementNames[id] = memberNode.Attributes["name"].Value;
+                                _elementNames[id] = GetElementNameForProperty(memberNode);
                                 break;
                             case "method":
 //                                fileNames[id] = GetFilenameForMethod(memberNode);
@@ -258,6 +270,84 @@ namespace NDoc.Documenter.NAnt {
             }
         }
 
+        private string GetTaskNameForType(XmlNode typeNode) {
+            // make sure the type actually derives from NAnt.Core.Task
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Task).FullName + "']") != null) {
+                // make sure the type has a TaskNameAttribute assigned to it
+                XmlAttribute taskNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(TaskNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (taskNameAttribute != null) {
+                    return taskNameAttribute.Value;
+                }
+            }
+
+            return null;
+        }
+
+        private string GetElementNameForType(XmlNode typeNode) {
+            // if type is task use name set using TaskNameAttribute
+            string taskName = GetTaskNameForType(typeNode);
+            if (taskName != null) {
+                return taskName;
+            }
+
+            // use name of type
+            return typeNode.Attributes["name"].Value;
+        }
+
+        private string GetElementNameForProperty(XmlNode propertyNode) {
+            // check whether property is a task attribute
+            XmlAttribute taskAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(TaskAttributeAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (taskAttributeNode != null) {
+                return taskAttributeNode.Value;
+            }
+
+            // check whether property is a element array
+            XmlAttribute elementArrayNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementArrayAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementArrayNode != null) {
+                return elementArrayNode.Value;
+            }
+
+            // check whether property is a element collection
+            XmlAttribute elementCollectionNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementCollectionAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementCollectionNode != null) {
+                return elementCollectionNode.Value;
+            }
+
+            // check whether property is a FileSet
+            XmlAttribute fileSetNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FileSetAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (fileSetNode != null) {
+                return fileSetNode.Value;
+            }
+
+            // check whether property is a Framework configurable attribute
+            XmlAttribute frameworkConfigAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FrameworkConfigurableAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (frameworkConfigAttributeNode != null) {
+                return frameworkConfigAttributeNode.Value;
+            }
+
+            return propertyNode.Attributes["name"].Value;
+        }
+
         #endregion Private Instance Methods
+    }
+
+    /// <summary>
+    /// Specifies a version of the .NET Framework documentation.
+    /// </summary>
+    public enum SdkDocVersion {
+        /// <summary>
+        /// The SDK version 1.0.
+        /// </summary>
+        SDK_v1_0,
+
+        /// <summary>
+        /// The SDK version 1.1.
+        /// </summary>
+        SDK_v1_1,
+
+        /// <summary>
+        /// The online version of the SDK documentation.
+        /// </summary>
+        MsdnOnline
     }
 }

@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-// File Maintainers:
+//
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.ComponentModel;
@@ -35,7 +35,8 @@ namespace NDoc.Documenter.NAnt {
     public class NAntTaskDocumenterConfig : BaseDocumenterConfig {
         #region Private Instance Fields
 
-        string _outputDirectory = @"doc/help/tasks";
+        private string _outputDirectory = @"doc/help/tasks";
+        private SdkDocVersion _linkToSdkDocVersion = SdkDocVersion.MsdnOnline;
 
         #endregion Private Instance Fields
 
@@ -79,6 +80,24 @@ namespace NDoc.Documenter.NAnt {
             get { return _outputDirectory; }
             set  { 
                 _outputDirectory = value; 
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the .NET Framework SDK version to provide links to for
+        /// system types.
+        /// </summary>
+        /// <value>
+        /// The .NET Framework SDK version to provide links to for system types.
+        /// Default is <see cref="SdkDocVersion.MsdnOnline" />.
+        /// </value>
+        [Category("HTML Help Options")]
+        [Description("Specifies to which version of the .NET Framework SDK documentation the links to system types will be pointing.")]
+        public SdkDocVersion LinkToSdkDocVersion {
+            get { return _linkToSdkDocVersion; }
+            set {
+                _linkToSdkDocVersion = value;
                 SetDirty();
             }
         }
