@@ -33,7 +33,6 @@ namespace Tests.NAnt.VSNet.Tasks {
     public class CSharpSolutionTests : SolutionTestBase {
         #region Private Instance Fields
 
-        /*
         private string _solutionProject =
             @"<?xml version='1.0'?>
                 <project default='solution'>
@@ -41,7 +40,6 @@ namespace Tests.NAnt.VSNet.Tasks {
                         <solution solutionfile='{0}' configuration='{1}' />
                     </target>
                 </project>";
-        */
 
         #endregion Private Instance Fields
 
@@ -74,12 +72,8 @@ namespace Tests.NAnt.VSNet.Tasks {
         #region Public Instance Methods
 
         [Test]
+        [Ignore("Relies on cvs, and solution fails to build during nightly build.")]
         public void TestSharpscheduleBuild () {
-            return;
-
-            // TO-DO : re-enable test -> check why it fails during nightly build !!
-
-            /*
             DirectoryInfo destination = new DirectoryInfo(this.TempDirName);
 
             try {
@@ -95,7 +89,6 @@ namespace Tests.NAnt.VSNet.Tasks {
 
             string build = FormatBuildFile(_solutionProject, args);
             string result = RunBuild(build, Level.Info);
-            */
         }
 
         #endregion Public Instance Methods
