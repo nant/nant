@@ -65,7 +65,7 @@ namespace NAnt.Compression.Tasks {
         private FileInfo _zipfile;
         private int _ziplevel = 6; 
         private ZipFileSetCollection _filesets = new ZipFileSetCollection();
-        private DateTime _stampDateTime = DateTime.MinValue;
+        private DateTime _stampDateTime;
         private string _comment;
         private bool _includeEmptyDirs;
         private Hashtable _addedDirs = new Hashtable();
@@ -86,32 +86,27 @@ namespace NAnt.Compression.Tasks {
         /// <summary>
         /// The comment for the file.
         /// </summary>
-        [TaskAttribute("comment", Required=false)]
+        [TaskAttribute("comment")]
         public string Comment {
             get { return _comment; }
             set { _comment = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
-        /// An optional date/time stamp for the files.
+        /// Date/time stamp for the files in the format MM/DD/YYYY HH:MM:SS.
         /// </summary>
-        [TaskAttribute("stampdatetime", Required=false)]
-        public string Stamp { 
-            get { return _stampDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo); }
-            set {
-                try {
-                    _stampDateTime = DateTime.Parse(value, DateTimeFormatInfo.InvariantInfo);
-                } catch (FormatException ex) {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid string representation {0} of a DateTime value.", value), "Stamp", ex);
-                }
-            } 
+        [TaskAttribute("stampdatetime")]
+        [DateTimeValidator()]
+        public DateTime Stamp {
+            get { return _stampDateTime; }
+            set { _stampDateTime = value; }
         }
 
         /// <summary>
         /// Desired level of compression. Possible values are 0 (STORE only) 
         /// to 9 (highest). The default is <c>6</c>.
         /// </summary>
-        [TaskAttribute("ziplevel", Required=false)]
+        [TaskAttribute("ziplevel")]
         [Int32ValidatorAttribute(0, 9)]
         public int ZipLevel {
             get { return _ziplevel; }
@@ -122,7 +117,7 @@ namespace NAnt.Compression.Tasks {
         /// Include empty directories in the generated zip file. The default is
         /// <see langword="false" />.
         /// </summary>
-        [TaskAttribute("includeemptydirs", Required=false)]
+        [TaskAttribute("includeemptydirs")]
         [BooleanValidator()]
         public bool IncludeEmptyDirs {
             get { return _includeEmptyDirs; }
@@ -205,9 +200,9 @@ namespace NAnt.Compression.Tasks {
                             // create zip entry
                             ZipEntry entry = new ZipEntry(entryName);
 
-                            // set time/date stamp on zip entry
-                            if (_stampDateTime != DateTime.MinValue) {
-                                entry.DateTime = _stampDateTime;
+                            // set date/time stamp on zip entry
+                            if (Stamp != DateTime.MinValue) {
+                                entry.DateTime = Stamp;
                             } else {
                                 entry.DateTime = File.GetLastWriteTime(file);
                             }
