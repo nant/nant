@@ -18,12 +18,15 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
+
+using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -97,6 +100,28 @@ namespace NAnt.DotNet.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
+
+        /// <summary>
+        /// Link the specified modules into this assembly.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// compiler does not support linking modules.
+        /// </remarks>
+        public override AssemblyFileSet Modules {
+            get { return base.Modules; }
+            set { base.Modules = value; }
+        }
+
+        /// <summary>
+        /// Writes module references to the specified <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
+        protected override void WriteModuleReferences(TextWriter writer) {
+            if (Modules.FileNames.Count > 0) {
+                Log(Level.Warning, "The JScript.NET compiler does not support linking modules.");
+            }
+        }
 
         /// <summary>
         /// Writes the compiler options to the specified <see cref="TextWriter" />.
