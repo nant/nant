@@ -28,35 +28,35 @@ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Sets project properties based on the evaluatuion of a regular expression.
     /// </summary>
-    /// 
     /// <remarks>
-    /// The &quot;pattern&quot; attribute must contain one or more 
+    /// The <see cref="Pattern" /> attribute must contain one or more 
     /// <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpcongroupingconstructs.asp">named grouping constructs</a>, 
     /// which represents the names of the properties to be set.
     /// These named grouping constructs can be enclosed by angle brackets (?&lt;name&gt;) or single quotes (?'name').
     /// <note>In the build file, use the XML element <![CDATA[&lt;]]> to specify &lt;, and <![CDATA[&gt;]]> to specify &gt;.</note>
     /// <note>The named grouping construct must not contain any punctuation and it cannot begin with a number.</note>
     /// </remarks>
-    /// 
     /// <example>
-    ///     <para>Find the last word in the given string and stores it property lastword.</para>
-    ///     <code>
-    /// <![CDATA[
-    /// <regex pattern="(?'lastword'\w+)$" input="This is a test sentence"/>
-    /// <echo message="${lastword}"/>
-    ///  ]]>
-    ///     </code>
-    ///     <para>Splits the full filename and extension of a filename.</para>
-    ///     <code>
-    /// <![CDATA[
-    /// <regex pattern="^(?'filename'.*)\.(?'extension'\w+)$" input="d:\Temp\SomeDir\SomeDir\bla.xml"/>
-    ///  ]]>
-    ///     <para>Splits the path and the filename. (This checks for "/" or "\" as the path sep.)</para>
-    /// <![CDATA[
-    /// <regex pattern="^(?'path'.*(\\|/)|(/|\\))(?'file'.*)$" input="d:\Temp\SomeDir\SomeDir\bla.xml"/>
-    ///  ]]>
-    ///     </code>
-    ///     <para>Results in path=d:\Temp\SomeDir\SomeDir\ , file=bla.xml </para>
+    ///   <para>Finds the last word in the given string and stores it property lastword.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <regex pattern="(?'lastword'\w+)$" input="This is a test sentence" />
+    /// <echo message="${lastword}" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Splits the full filename and extension of a filename.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <regex pattern="^(?'filename'.*)\.(?'extension'\w+)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Splits the path and the filename. (This checks for "/" or "\" as the path sep.).</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <regex pattern="^(?'path'.*(\\|/)|(/|\\))(?'file'.*)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Results in path=d:\Temp\SomeDir\SomeDir\ , file=bla.xml.</para>
     /// </example>
     [TaskName("regex")]
     public class RegexTask : Task {

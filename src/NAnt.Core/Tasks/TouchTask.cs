@@ -31,17 +31,21 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <example>
     ///   <para>Touch the <c>Main.cs</c> file.  The current time is used.</para>
-    ///   <code><![CDATA[<touch file="Main.cs"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <touch file="Main.cs" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Touch all executable files in the current directory and its subdirectories.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <touch>
     ///     <fileset>
-    ///         <includes name="**/*.exe"/>
-    ///         <includes name="**/*.dll"/>
+    ///         <includes name="**/*.exe" />
+    ///         <includes name="**/*.dll" />
     ///     </fileset>
     /// </touch>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("touch")]

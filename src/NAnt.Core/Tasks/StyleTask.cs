@@ -40,11 +40,14 @@ namespace NAnt.Core.Tasks {
     /// <para>
     ///     Note: <![CDATA[<param name="" expression=""/>]]> are allowed.
     /// </para>
-    /// 
     /// </summary>
     /// <example>
     ///   <para>Create a report in HTML.</para>
-    ///   <code>&lt;style style="report.xsl" in="data.xml" out="report.html" /&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <style style="report.xsl" in="data.xml" out="report.html" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     /// <example>
     ///   <para>Create a report in HTML, with a param.</para>

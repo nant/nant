@@ -30,13 +30,21 @@ namespace NAnt.Core.Tasks {
     /// requires an interval between tasks.
     /// </summary>
     /// <example>
-    ///     <para>Sleep 1 hour, 2 minutes, 3 seconds and 4 milliseconds.</para>
-    ///     <code><![CDATA[<sleep hours="1" minutes="2" seconds="3" milliseconds="4" />]]></code>
-    ///     <para>Sleep 123 milliseconds.</para>
-    ///     <code><![CDATA[<sleep milliseconds="123" />]]></code>
+    ///   <para>Sleep 1 hour, 2 minutes, 3 seconds and 4 milliseconds.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <sleep hours="1" minutes="2" seconds="3" milliseconds="4" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Sleep 123 milliseconds.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <sleep milliseconds="123" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("sleep")]
-    public class SleepTask : Task   {
+    public class SleepTask : Task {
        
         int _hours = 0;
         int _minutes = 0;

@@ -40,16 +40,20 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>Set the build.date property.</para>
-    ///   <code><![CDATA[<tstamp property="build.date" pattern="yyyyMMdd" verbose="true"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <tstamp property="build.date" pattern="yyyyMMdd" verbose="true" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Set a number of properties for Ant like compatibility.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <tstamp verbose="true">
-    ///     <formatter property="TODAY" pattern="dd MMM yyyy"/>
-    ///     <formatter property="DSTAMP" pattern="yyyyMMdd"/>
-    ///     <formatter property="TSTAMP" pattern="HHmm"/>
+    ///     <formatter property="TODAY" pattern="dd MMM yyyy" />
+    ///     <formatter property="DSTAMP" pattern="yyyyMMdd" />
+    ///     <formatter property="TSTAMP" pattern="HHmm" />
     /// </tstamp>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("tstamp")]
