@@ -365,9 +365,14 @@ namespace NAnt.Core {
             //  - The pattern contains a directory wildcard ("**")
             recursive = (indexOfFirstWildcard != -1 && (indexOfFirstWildcard < indexOfLastOriginalDirectorySeparator )) || indexOfFirstDirectoryWildcard != -1;
 
-            // substring preceding the separator represents our search directory and the part following it represents nant search pattern relative to it            
+            // substring preceding the separator represents our search directory 
+            // and the part following it represents nant search pattern relative 
+            // to it
             if (indexOfLastDirectorySeparator != -1) {
-                s = originalNAntPattern.Substring(0, indexOfLastDirectorySeparator + 1);
+                s = originalNAntPattern.Substring(0, indexOfLastDirectorySeparator);
+                if (s.Length == 2 && s[1] == Path.VolumeSeparatorChar) {
+                    s += Path.DirectorySeparatorChar;
+                }
             } else {
                 s = "";
             }
