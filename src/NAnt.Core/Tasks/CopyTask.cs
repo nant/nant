@@ -110,7 +110,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Filesets are used to select files to copy. To use a fileset, the 
-        /// <see cref="P:ToDirectory" /> attribute must be set.
+        /// <see cref="ToDirectory" /> attribute must be set.
         /// </summary>
         [FileSet("fileset")]
         public FileSet CopyFileSet {

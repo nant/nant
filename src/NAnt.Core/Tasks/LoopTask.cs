@@ -150,9 +150,9 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The type of iteration that should be done - either <see cref="F:LoopItem.File" />,
-        /// <see cref="F:LoopItem.Folder" />, <see cref="F:LoopItem.String" /> or
-        /// <see cref="F:LoopItem.Line" />.
+        /// The type of iteration that should be done - either <see cref="LoopItem.File" />,
+        /// <see cref="LoopItem.Folder" />, <see cref="LoopItem.String" /> or
+        /// <see cref="LoopItem.Line" />.
         /// </summary>
         [TaskAttribute("item", Required=true)]
         public LoopItem ItemType {
@@ -162,9 +162,9 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// The type of whitespace trimming that should be done - either
-        /// <see cref="F:LoopTrim.None" />, <see cref="F:LoopTrim.End" />,
-        /// <see cref="F:LoopTrim.Start" /> or <see cref="F:LoopTrim.Both" />.
-        /// Default is <see cref="F:LoopTrim.None" />.
+        /// <see cref="LoopTrim.None" />, <see cref="LoopTrim.End" />,
+        /// <see cref="LoopTrim.Start" /> or <see cref="LoopTrim.Both" />.
+        /// Default is <see cref="LoopTrim.None" />.
         /// </summary>
         [TaskAttribute("trim")]
         public LoopTrim TrimType {
