@@ -9,7 +9,7 @@
     <property name="build.dir" value="build"/>
     <property name="dist.dir" value="${project.name}"/>
 
-    <property name="backup.name" value="..\${project.name}-backup-${nant.dstamp}-${nant.tstamp}.zip" />
+    <property name="backup.name" value="..\${project.name}-backup-${tstamp.date}-${tstamp.time}.zip" />
     <property name="project.version" value="x.x"/>
 
     <target name="release" description="makes a release, usage: 'nant clean release build'">
