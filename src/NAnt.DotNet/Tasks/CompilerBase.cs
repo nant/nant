@@ -48,6 +48,7 @@ namespace SourceForge.NAnt.Tasks {
         FileSet _modules = new FileSet();       
         FileSet _sources = new FileSet();        
         ResGenTask _resgenTask = null;
+        ResourceFileSet[] _resourcesList = null;
 
         /// <summary>Output directory for the compilation target.</summary>
         [TaskAttribute("output", Required=true)]
@@ -108,9 +109,9 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Set resources to embed.</summary>
         ///<remarks>This can be a combination of resx files and file resources. .resx files will be compiled by resgen and then embedded into the 
         ///resulting executable. The Prefix attribute is used to make up the resourcename added to the assembly manifest for non resx files. For resx files the namespace from the matching source file is used as the prefix. 
-        ///This matches the behaviour of Visual Studio </remarks>
-        [FileSet("resources")]
-        public ResourceFileSet Resources    { get { return _resources; } set { _resources = value; }}
+        ///This matches the behaviour of Visual Studio. Multiple resources tags with different namespace prefixes may be specified </remarks>    
+        [BuildElementArray( "resources")]
+        public ResourceFileSet[]  ResourcesList { get { return _resourcesList; } set { _resourcesList = value; }}
 
         /// <summary>Link the specified modules into this assembly.</summary>
         [FileSet("modules")]
@@ -176,11 +177,15 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             //Resources Updated?
-            fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, outputFileInfo.LastWriteTime);
-            if (fileName != null) {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
-                return true;
+            foreach ( ResourceFileSet resources in ResourcesList ) {
+                
+                fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, outputFileInfo.LastWriteTime);
+                if (fileName != null) {
+                    Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                    return true;
+                }
             }
+            
  
             // check the args for /res or /resource options.
             StringCollection resourceFileNames = new StringCollection();
@@ -269,46 +274,48 @@ namespace SourceForge.NAnt.Tasks {
                     foreach (string fileName in Modules.FileNames) {
                         WriteOption(writer, "addmodule", fileName);                        
                     }
-                    
                     // compile resources
-                    if( Resources.ResxFiles.FileNames.Count > 0 ) {
-                        CompileResxResources( Resources.ResxFiles );
-                    }
-                    
-                    // Resx args
-                    foreach (string fileName in Resources.ResxFiles.FileNames ) {
-                        string prefix = GetFormNamespace(fileName); // try and get it from matching form
-                        if (prefix == "")
-                            prefix = Resources.Prefix;                        
-                        string actualFileName = Path.GetFileNameWithoutExtension(fileName);
-                        string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
-                        string manifestResourceName = Path.GetFileName(tmpResourcePath);
+                    foreach ( ResourceFileSet resources in ResourcesList ){
                         
-                        // cater for asax/aspx special cases ...
-                        if (manifestResourceName.IndexOf(".aspx") > -1){
-                            manifestResourceName = manifestResourceName.Replace( ".aspx", "" );
-                            actualFileName = actualFileName.Replace( ".aspx", "" );
+                        if( resources.ResxFiles.FileNames.Count > 0 ) {
+                            CompileResxResources( resources.ResxFiles );
                         }
-                        else if (manifestResourceName.IndexOf(".asax") > -1){
-                            manifestResourceName = manifestResourceName.Replace( ".asax", "" );
-                            actualFileName = actualFileName.Replace( ".asax", "" );
+                                                          
+                        // Resx args
+                        foreach (string fileName in resources.ResxFiles.FileNames ) {
+                            string prefix = GetFormNamespace(fileName); // try and get it from matching form
+                            if (prefix == "")
+                                prefix = resources.Prefix;                        
+                            string actualFileName = Path.GetFileNameWithoutExtension(fileName);
+                            string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
+                            string manifestResourceName = Path.GetFileName(tmpResourcePath);
+                            
+                            // cater for asax/aspx special cases ...
+                            if (manifestResourceName.IndexOf(".aspx") > -1){
+                                manifestResourceName = manifestResourceName.Replace( ".aspx", "" );
+                                actualFileName = actualFileName.Replace( ".aspx", "" );
+                            }
+                            else if (manifestResourceName.IndexOf(".asax") > -1){
+                                manifestResourceName = manifestResourceName.Replace( ".asax", "" );
+                                actualFileName = actualFileName.Replace( ".asax", "" );
+                            }
+                            else if (manifestResourceName.IndexOf(".ascx") > -1) {
+                                manifestResourceName = manifestResourceName.Replace(".ascx", "");
+                                actualFileName = actualFileName.Replace(".ascx", "");
+                            }                        
+                            if(prefix != ""){
+                                //manifestResourceName = prefix + "." + manifestResourceName; 
+                                manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName );
+                            }
+                            string resourceoption = tmpResourcePath + "," + manifestResourceName;    
+                            WriteOption(writer, "resource", resourceoption);          
                         }
-                        else if (manifestResourceName.IndexOf(".ascx") > -1) {
-                            manifestResourceName = manifestResourceName.Replace(".ascx", "");
-                            actualFileName = actualFileName.Replace(".ascx", "");
-                        }                        
-                        if(prefix != ""){
-                            //manifestResourceName = prefix + "." + manifestResourceName; 
-                            manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName );          
+                        
+                        // other resources
+                        foreach (string fileName in resources.NonResxFiles.FileNames ) {
+                            string resourceoption = fileName + "," + resources.GetManifestResourceName(fileName);
+                            WriteOption(writer, "resource", resourceoption);     
                         }
-                        string resourceoption = tmpResourcePath + "," + manifestResourceName;    
-                        WriteOption(writer, "resource", resourceoption);          
-                    }
-                    
-                    // other resources
-                    foreach (string fileName in Resources.NonResxFiles.FileNames ) {                                                                                                                           
-                        string resourceoption = fileName + "," + Resources.GetManifestResourceName(fileName);                                                                                  
-                        WriteOption(writer, "resource", resourceoption);     
                     }
 
                     foreach (string fileName in Sources.FileNames) {                      
@@ -369,8 +376,8 @@ namespace SourceForge.NAnt.Tasks {
              
                 while ( sr.Peek() > -1 ) {                               
                 string str = sr.ReadLine();
-                string matchnamespace =  @"namespace ((\w+.)*)";   		    		
-                string matchnamespaceCaps =  @"Namespace ((\w+.)*)";   	
+                string matchnamespace =  @"namespace ((\w+.)*)";        
+                string matchnamespaceCaps =  @"Namespace ((\w+.)*)";    
                 Regex matchNamespaceRE = new Regex(matchnamespace);
                 Regex matchNamespaceCapsRE = new Regex(matchnamespaceCaps);
                     

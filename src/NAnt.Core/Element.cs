@@ -21,6 +21,7 @@
 using System;
 using System.Reflection;
 using System.Xml;
+using System.Collections;
 
 using SourceForge.NAnt.Attributes;
 
@@ -150,7 +151,7 @@ namespace SourceForge.NAnt {
                                 }
                             } else {
                                 
-                                //validate attribute value with custom ValidatorAttribute(ors)                                                            
+                                //validate attribute value with custom ValidatorAttribute(ors)
                                 object[] validateAttributes = (ValidatorAttribute[]) 
                                     Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
                                 try {
@@ -168,11 +169,54 @@ namespace SourceForge.NAnt {
                     }
                 }
 
+                // Do build Element Arrays ( assuming they are of a certain collection type.
+                BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
+                if (buildElementArrayAttribute != null) {
+                    
+                    // get collection of nodes  ( TODO - do this without using xpath )
+                    XmlNodeList nodes  = elementNode.SelectNodes( buildElementArrayAttribute.Name );
+                    
+                    // check if its required
+                    if (nodes == null && buildElementArrayAttribute.Required) {
+                        throw new BuildException(String.Format(" there must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                    }                                       
+                    string typeName = propertyInfo.PropertyType.FullName;               
+                    if (typeName.Substring( typeName.Length -2, 2 ) != "[]") {
+                        throw new BuildException(String.Format(" BuildElementArrayAttribute must be applied to array types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                    }
+                    // get the type of the array elements ( strip off the '[]' )
+                    string elementType = typeName.Substring( 0, typeName.Length - 2 );
+                    
+                    // create new array of the required size - even if size is 0
+                    object[] args = new object[1];
+                    args[0] = nodes.Count;
+                    
+                    System.Array list = (System.Array)propertyInfo.PropertyType.Assembly.CreateInstance( typeName, false, 
+                                                                        BindingFlags.CreateInstance, 
+                                                                        null, 
+                                                                        args, 
+                                                                        null, 
+                                                                        null );                 
+                    
+                    int arrayIndex =0;
+                    foreach ( XmlNode childNode in nodes ) {                        
+                        // Create a child element
+                        Element childElement = (Element)propertyInfo.PropertyType.Assembly.CreateInstance( elementType );                                           
+                        
+                        childElement.Project = Project;
+                        childElement.Initialize(childNode);
+                        list.SetValue(childElement, arrayIndex );
+                        arrayIndex ++;
+                    }
+                    // set the memvber array to our newly created array
+                    propertyInfo.SetValue(this, list, null );
+                }
                 // now do nested BuildElements
                 BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
 
-                if (buildElementAttribute != null) {
+                if (buildElementAttribute != null && buildElementArrayAttribute == null ) { // if we're not an array element either
                     // get value from xml node
                     XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
                     // check if its required
