@@ -6,8 +6,7 @@ NAnt is a .NET based build tool. In theory it is kind of like make without
 make's wrinkles. In practice it's a lot like Ant. 
   
 If you are not familiar with Jakarta Ant you can get more information at the
-Jakarta project web site.
-http://jakarta.apache.org/
+Ant project web site (http://ant.apache.org/).
 
 
 Why NAnt?
@@ -29,7 +28,7 @@ Documentation is available in HTML format, in the doc/ directory.
 
 License
 -------
-Copyright (C) 2001-2002 Gerry Shaw
+Copyright (C) 2001-2003 Gerry Shaw
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
