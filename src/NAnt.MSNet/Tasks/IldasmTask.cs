@@ -34,6 +34,20 @@ namespace NAnt.MSNet.Tasks {
     /// Disassembles any portable executable (PE) file that contains
     /// intermediate language (IL) code.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   Files are only disassembled if the input file is newer than the output
+    ///   file, or if the output file does not exist.  However, you can 
+    ///   explicitly force files to be disassembled with the 
+    ///   <see cref="ForceRebuild" /> attribute.
+    ///   </para>
+    ///   <para>
+    ///   A <see cref="FileSet" /> can be used to select files to disassemble. 
+    ///   To use a <see cref="FileSet" />, the <see cref="ToDirectory" /> 
+    ///   attribute must be set. The file name of the output file will be equal 
+    ///   to the file name of the input file, but with extension &quot;.il&quot;.
+    ///   </para>
+    /// </remarks>
     /// <example>
     ///   <para>
     ///   Disassembles <c>helloworld.exe</c> to <c>helloworld.il</c>.
@@ -92,7 +106,8 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should combine the
-        /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>/TOKENS</c> options.
+        /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>/TOKENS</c> options. The default 
+        /// is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the disassembler should combine the
@@ -115,6 +130,7 @@ namespace NAnt.MSNet.Tasks {
         /// <summary>
         /// Specifies whether or not the disassembler should generate the
         /// IL stream bytes (in hexadecimal notation) as instruction comments.
+        /// The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the IL stream bytes should be generated
@@ -135,7 +151,7 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Instructs NAnt to rebuild the output file regardless of the file
-        /// timestamps.
+        /// timestamps. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the output file should be rebuilt
@@ -151,7 +167,8 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should include PE header
-        /// information and runtime header information in the output.
+        /// information and runtime header information in the output. The default 
+        /// is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if PE header information and runtime header
@@ -185,7 +202,7 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should include
-        /// references to original source lines.
+        /// references to original source lines. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if references to original source lines
@@ -206,7 +223,7 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should suppress ILASM
-        /// code output.
+        /// code output. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if ILASM code output should be suppresses;
@@ -227,7 +244,8 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should disassemble
-        /// public items only. This is a shortcut for <c>visibility="pub"</c>.
+        /// public items only. This is a shortcut for <see cref="Visibility" />="pub".
+        /// The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if only public items should be
@@ -249,7 +267,8 @@ namespace NAnt.MSNet.Tasks {
         /// <summary>
         /// Specifies whether or not the disassembler should enclose all names
         /// in single quotation marks. By default, only names that don't match
-        /// the ILASM definition of a simple name are quoted.
+        /// the ILASM definition of a simple name are quoted. The default is 
+        /// <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if all names should be enclosed in single
@@ -271,6 +290,7 @@ namespace NAnt.MSNet.Tasks {
         /// <summary>
         /// Specifies whether or not the disassembler should generate
         /// structured exception handling clauses in canonical (label) form.
+        /// The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if structured exception handling clauses
@@ -291,7 +311,7 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should generate
-        /// original source lines as comments.
+        /// original source lines as comments. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if original source lines should be
@@ -312,7 +332,7 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should generate metadata
-        /// token values as comments.
+        /// token values as comments. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if metadata token values should be
@@ -394,13 +414,13 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Instructs the disassembler to disassemble only the items with the
-        /// specified visibility.
+        /// specified visibility. Possible values are <c>PUB</c>, <c>PRI</c>,
+        /// <c>FAM</c>, <c>ASM</c>, <c>FAA</c>, <c>FOA</c>, <c>PSC</c>,
+        /// or any combination of them separated by <c>+</c>.
         /// </summary>
         /// <value>
         /// A <see cref="System.String" /> that contains the visibility
-        /// suboptions. Possible values are <c>PUB</c>, <c>PRI</c>,
-        /// <c>FAM</c>, <c>ASM</c>, <c>FAA</c>, <c>FOA</c>, <c>PSC</c>,
-        /// or any combination of them separated by <c>+</c>.
+        /// suboptions.
         /// </value>
         /// <remarks>
         /// <para>
@@ -446,7 +466,8 @@ namespace NAnt.MSNet.Tasks {
         }
        
         /// <summary>
-        /// Specifies a list of PE files to disassemble.
+        /// Specifies a list of PE files to disassemble. To use a <see cref="FileSet" />, 
+        /// the <see cref="ToDirectory" /> attribute must be specified.
         /// </summary>
         /// <value>
         /// A <see cref="NAnt.Core.Types.FileSet" /> that represents the set
@@ -461,6 +482,17 @@ namespace NAnt.MSNet.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
+
+        /// <summary>
+        /// The command-line arguments for the external program.
+        /// </summary>
+        /// <remarks>
+        /// Overridden to ensure the &lt;arg&gt; elements would not be exposed
+        /// to build authors.
+        /// </remarks>
+        public override ArgumentCollection Arguments {
+            get { return base.Arguments; }
+        }
 
         /// <summary>
         /// Gets the command-line arguments for the external program.
@@ -504,7 +536,7 @@ namespace NAnt.MSNet.Tasks {
         }
 
         /// <summary>
-        /// Disassembles the PE files.
+        /// Disassembles the PE file(s).
         /// </summary>
         protected override void ExecuteTask() {
             // disassemble a single PE file
@@ -526,6 +558,13 @@ namespace NAnt.MSNet.Tasks {
         /// </summary>
         /// <param name="inputFile">The PE file to disassemble.</param>
         private void DisassemblyFile(FileInfo inputFile) {
+            // verify if input file actually exists
+            if (!inputFile.Exists) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Input file '{0}' does not exist.", inputFile.FullName), 
+                    Location);
+            }
+
             // determine output file corresponding with PE file
             FileInfo outputFile = GetOutputFile(inputFile);
 
@@ -556,7 +595,7 @@ namespace NAnt.MSNet.Tasks {
         /// </param>
         /// <returns>
         /// A <see cref="System.IO.FileInfo" /> that represents the full path
-        /// (with extensions) for the output file.
+        /// for the output file.
         /// </returns>
         /// <exception cref="BuildException">The path of the output file could not be determined.</exception>
         private FileInfo GetOutputFile(FileInfo inputFile) {
@@ -687,9 +726,7 @@ namespace NAnt.MSNet.Tasks {
         /// option which should be passed to the disassembler.
         /// </param>
         private void WriteOption(StringWriter writer, string name, string arg) {
-            //
             // always quote arguments
-            //
             writer.Write("\"/{0}={1}\" ", name, arg);
         }
 
