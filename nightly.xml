@@ -76,7 +76,7 @@
         <!-- copy the schema file to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/schema" program="scp">
             <arg value="-C" />
-            <arg value="${project.name}-${project.version}.xsd" />
+            <arg value="${project.name}-${project.version.full}.xsd" />
             <arg value="${serverpart}/${nightly.builds.path}/${project.name}.xsd" />
         </exec>
         <echo message="Copied schema over to SF.Net" />
