@@ -287,7 +287,15 @@ namespace NAnt.VSNet {
                                 string program, commandLine;
                                 reference.GetCreationCommand(cs, out program, out commandLine);
 
-                                // Append the correct SDK directory to the program
+                                // check that the SDK of the current target 
+                                // framework is available
+                                if (SolutionTask.Project.TargetFramework.SdkDirectory == null) {
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "The SDK for the '{0}' framework is not installed or not configured correctly.", 
+                                        SolutionTask.Project.TargetFramework.Name), Location.UnknownLocation);
+                                }
+
+                                // append the correct SDK directory to the program
                                 program = Path.Combine(SolutionTask.Project.TargetFramework.SdkDirectory.FullName, program);
                                 Log(Level.Verbose, LogPrefix + program + " " + commandLine);
 
