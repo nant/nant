@@ -197,19 +197,4 @@
             <arg value="find ${sf.net.web.path}/nightly -maxdepth 1 -type f -exec chgrp nant {} \;" />
         </exec>
     </target>
-    <!-- copies NAnt to install dir -->
-    <target name="install" depends="set-net-1.0-framework-configuration, package">
-        <!-- ensure install directory was specified -->
-        <if test="${not(property::exists('install.dir'))}">
-            <fail>Please specify the directory to where NAnt should be installed on the commandline.</fail>
-        </if>
-        <!-- ensure the install directory exists -->
-        <mkdir dir="${install.dir}" if="${not(directory::exists(install.dir))}"/>
-        <!-- copy files to install directory -->
-        <copy todir="${install.dir}" overwrite="true">
-            <fileset basedir="${build.dir}">
-                <include name="**/**" />
-            </fileset>
-        </copy>
-    </target>
 </project>
