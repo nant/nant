@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,19 +30,24 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <example>
     ///   <para>Ping nant.sourceforge.net.</para>
-    ///   <code><![CDATA[<exec program="ping" commandline="nant.sourceforge.net"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <exec program="ping" commandline="nant.sourceforge.net"/>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("exec")]
     public class ExecTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _program = null;
-        string _commandline = null;
-        string _baseDirectory = null;
-        string _workingDirectory = null;
-        string _outputFile = null;
-        bool _outputAppend = false;
-        OptionCollection _environment = new OptionCollection();
+        private string _program = null;
+        private string _commandline = null;
+        private string _baseDirectory = null;
+        private string _workingDirectory = null;
+        private string _outputFile = null;
+        private bool _outputAppend = false;
+        private OptionCollection _environment = new OptionCollection();
+        private bool _useRuntimeEngine = false;
 
         #endregion Private Instance Fields
 
@@ -54,7 +59,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("program", Required=true)]
         public string FileName {
             get { return _program; }
-            set { _program = value; }
+            set { _program = SetStringValue(value); }
         }
 
         /// <summary>
@@ -63,13 +68,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("commandline")]
         public string CommandLineArguments {
             get { return _commandline; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _commandline = value;
-                } else {
-                    _commandline = null;
-                }
-            }
+            set { _commandline = SetStringValue(value); }
         }
 
         /// <summary>
@@ -92,18 +91,27 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("workingdir")]
         public string WorkingDirectory {
             get { return Project.GetFullPath(_workingDirectory); }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _workingDirectory = value;
-                } else {
-                    _workingDirectory = null;
-                }
-            }
+            set { _workingDirectory = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
+
+        /// <summary>
+        /// Specifies whether the external program should be executed using a 
+        /// runtime engine, if configured. Default is <c>false</c>.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the external program should be executed using a 
+        /// runtime engine; otherwise, <c>false</c>.
+        /// </value>
+        [TaskAttribute("useruntimeengine")]
+        [FrameworkConfigurable("useruntimeengine")]
+        public override bool UseRuntimeEngine {
+            get { return _useRuntimeEngine; }
+            set { _useRuntimeEngine = value; }
+        }
 
         /// <summary>
         /// Gets the filename of the external program to start.
@@ -141,13 +149,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("basedir")]
         public override string BaseDirectory {
             get { return Project.GetFullPath(_baseDirectory); }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _baseDirectory = value;
-                } else {
-                    _baseDirectory = null;
-                }
-            }
+            set { _baseDirectory = SetStringValue(value); }
         }
 
         /// <summary>
@@ -159,13 +161,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("output", Required=false)]
         public override string OutputFile {
             get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _outputFile = value;
-                } else {
-                    _outputFile = null;
-                }
-            }
+            set { _outputFile = SetStringValue(value); }
         }
 
         /// <summary>
