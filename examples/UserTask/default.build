@@ -1,19 +1,18 @@
 <?xml version="1.0"?>
-
-<project name="NAnt" default="test">
+<project name="NAnt" default="run">
     <!-- Compile the test task and add it then use it. -->
     <target name="build">
         <csc target="library" output="UserTasks.dll">
             <sources>
-                <includes name="UserTask.cs"/>
+                <include name="UserTask.cs"/>
             </sources>
-            <references basedir="${nant.location}">
-                <includes name="NAnt.Core.dll"/>
+            <references basedir="${nant::get-base-directory()}">
+                <include name="NAnt.Core.dll"/>
             </references>
         </csc>
     </target>
 
-    <target name="test" depends="build">
+    <target name="run" depends="build">
         <!-- Dynamically load the tasks in the Task assembly. -->
         <loadtasks assembly="UserTasks.dll" />
 
@@ -23,6 +22,6 @@
 
     <target name="clean">
         <!-- Delete the build output. -->
-        <delete file="UserTasks.dll" />
+        <delete file="UserTasks.dll" if="${file::exists('UserTasks.dll')}" />
     </target>
 </project>
