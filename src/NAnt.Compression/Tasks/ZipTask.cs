@@ -121,7 +121,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             int fileCount = ZipFileSet.FileNames.Count;
-            Log.WriteLine(LogPrefix + "Zipping {0} files to {1}.", fileCount, ZipFileName);
+            Log(Level.Info, LogPrefix + "Zipping {0} files to {1}.", fileCount, ZipFileName);
 
             ZipOutputStream zOutstream = new ZipOutputStream(File.Create(ZipFileName));
             int zipLevel = ZipLevel;
@@ -158,9 +158,7 @@ namespace SourceForge.NAnt.Tasks {
                         entry.DateTime = File.GetLastWriteTime(file);
                     }
 
-                    if (Verbose) {
-                        Log.WriteLine(LogPrefix + "Adding {0}.", entryName);
-                    }
+                    Log(Level.Verbose, LogPrefix + "Adding {0}.", entryName);
                     
                     if (zipLevel == 0) {
                         entry.Size = fileSize;

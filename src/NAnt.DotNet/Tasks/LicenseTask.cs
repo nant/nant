@@ -134,7 +134,7 @@ namespace SourceForge.NAnt.Tasks {
                 throw new BuildException(msg, Location, e);
             }
 
-            Log.WriteLine(LogPrefix + "Compiling license file {0} to {1} using target {2}.", Path.GetFileName(_input), Path.GetFileName(strResourceFilename), _strTarget);
+            Log(Level.Verbose, LogPrefix + "Compiling license file {0} to {1} using target {2}.", Path.GetFileName(_input), Path.GetFileName(strResourceFilename), _strTarget);
 
             ArrayList alAssemblies = new ArrayList();
             ArrayList alAssemblyFilesLoaded = new ArrayList();
@@ -147,11 +147,9 @@ namespace SourceForge.NAnt.Tasks {
                     // Sometimes thrown by dynamic assemblies
                 }
             }
-            Log.WriteLineIf(Verbose, LogPrefix + "Loading assemblies:");
+            Log(Level.Verbose, LogPrefix + "Loading assemblies:");
             // First, load all the assemblies so that we can search for the licensed component
             foreach (string strAssembly in _assemblies.FileNames) {
-                Log.WriteIf(Verbose, LogPrefix + " - " + strAssembly);
-
                 Assembly asm = null;
 
                 try {
@@ -161,23 +159,23 @@ namespace SourceForge.NAnt.Tasks {
                     if (File.Exists(strRealAssemblyName)) {
                         // Don't load an assembly that has already been loaded (including assemblies loaded before this task)
                         if (!alAssemblyFilesLoaded.Contains(Path.GetFullPath(strRealAssemblyName).ToLower(CultureInfo.InvariantCulture))) {
-                            Log.WriteIf(Verbose, " (loaded with real filename)");
+                            Log(Level.Verbose, LogPrefix + " - " + strAssembly + " (loaded with real filename)");
                             asm = Assembly.LoadFrom(strRealAssemblyName);
                         } else {
-                            Log.WriteIf(Verbose, " (not loaded)");
+                            Log(Level.Verbose, LogPrefix + " - " + strAssembly + " (not loaded)");
                         }
                     } else {
                         // No absolute path, ask .NET to load it for us (use the original assembly name)
                         FileInfo fiAssembly = new FileInfo(strAssembly);
                         asm = Assembly.LoadWithPartialName(Path.GetFileNameWithoutExtension(fiAssembly.Name));
-                        Log.WriteIf(Verbose, " (loaded with partial name)");
+                        Log(Level.Verbose, LogPrefix + " - " + strAssembly + " (loaded with partial name)");
                     }
 
                     // This may sometimes be true if the assembly could not load
                     if (asm != null) {
                         alAssemblies.Add(asm);
                     }
-                    Log.WriteLineIf(Verbose, "");
+                    Log(Level.Verbose, "");
                 } catch (Exception e) {
                     throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Unable to load specified assembly: {0}", strAssembly), e);
                 }
@@ -202,7 +200,7 @@ namespace SourceForge.NAnt.Tasks {
                         continue;
                     }
                    
-                    Log.WriteIf (Verbose,  LogPrefix + strLine + ": ");
+                    Log(Level.Verbose, LogPrefix + strLine + ": ");
 
                     // Strip off the assembly name, if it exists
                     string strTypeName;
@@ -229,8 +227,8 @@ namespace SourceForge.NAnt.Tasks {
                         throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Failed to locate type: {0}", strTypeName), Location);
                     }
 
-                    if ( Verbose && tp != null) {
-                        Log.WriteLine(((Type) htLicenses[strLine]).Assembly.CodeBase);
+                    if (Verbose && tp != null) {
+                        Log(Level.Info, ((Type) htLicenses[strLine]).Assembly.CodeBase);
                     }
 
                     // Ensure that we've got a licensed component

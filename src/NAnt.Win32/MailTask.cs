@@ -207,7 +207,7 @@ namespace SourceForge.NAnt.Tasks {
                         mailMessage.Attachments.Add(attach);
                     } catch {
                         string msg = "WARNING! File \"" + fileName + "\" NOT attached to message. File does not exist or cannot be accessed. Check: " + Location.ToString() + "attachments=\"" + Attachments + "\"";
-                        Log.WriteLine(LogPrefix + msg);
+                        Log(Level.Info, LogPrefix + msg);
                     }
                 }
             }
@@ -240,7 +240,7 @@ namespace SourceForge.NAnt.Tasks {
              return reader.ReadToEnd();
           } catch {
              string msg = "WARNING! File \"" + filename + "\" NOT added to message body. File does not exist or is not readable. Check: " + Location.ToString() + "files=\"" + Files + "\"";
-             Log.WriteLine(LogPrefix + msg);
+             Log(Level.Warning, LogPrefix + msg);
              return null;
           } finally {
              if ( reader != null )

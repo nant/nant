@@ -19,10 +19,10 @@ using System;
 using System.ComponentModel;
 using System.Collections;
 using System.Diagnostics;
+
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Compiles VS.NET solutions (or sets of projects), automatically determining project dependencies from inter-project references.
     /// </summary>
@@ -77,36 +77,37 @@ namespace SourceForge.NAnt.Tasks
     ///   </code>
     /// </example>
     [TaskName("solution")]
-    public class SolutionTask : Task
-    {
-        public SolutionTask()
-        {
+    public class SolutionTask : Task {
+        public SolutionTask() {
             _strConfiguration = "";
             _fsProjects = new FileSet();
             _fsReferenceProjects = new FileSet();
         }
 
-        protected override void ExecuteTask()
-        {
-            Log.WriteLine( LogPrefix + "Starting solution build" );
+        protected override void ExecuteTask() {
+            Log(Level.Info, LogPrefix + "Starting solution build.");
         
             Solution sln;
-            if ( Verbose )
-            {
-                Log.WriteLine( LogPrefix + "Included projects:" );
-                foreach ( string strProject in _fsProjects.FileNames )
-                    Log.WriteLine( LogPrefix + " - " + strProject );
-                Log.WriteLine( LogPrefix + "Reference projects:" );
-                foreach ( string strProject in _fsReferenceProjects.FileNames )
-                    Log.WriteLine( LogPrefix + " - " + strProject );
+            if (Verbose) {
+                Log(Level.Info, LogPrefix + "Included projects:" );
+                foreach (string strProject in _fsProjects.FileNames) {
+                    Log(Level.Info, LogPrefix + " - " + strProject);
+                }
+
+                Log(Level.Info, LogPrefix + "Reference projects:");
+                foreach (string strProject in _fsReferenceProjects.FileNames) {
+                    Log(Level.Info, LogPrefix + " - " + strProject);
+                }
             }
             
-            if ( _strSolutionFile == null )
-                sln = new Solution( new ArrayList( _fsProjects.FileNames ), new ArrayList( _fsReferenceProjects.FileNames ), this );
-            else
-                sln = new Solution( _strSolutionFile, new ArrayList( _fsProjects.FileNames ), new ArrayList( _fsReferenceProjects.FileNames ), this );
-            if ( !sln.Compile( _strConfiguration, new ArrayList(), null, Verbose, false ) )
-                throw new BuildException( "Project build failed" );
+            if (_strSolutionFile == null) {
+                sln = new Solution(new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), this);
+            } else {
+                sln = new Solution(_strSolutionFile, new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), this);
+            }
+            if (!sln.Compile(_strConfiguration, new ArrayList(), null, Verbose, false)) {
+                throw new BuildException("Project build failed");
+            }
         }
 
         /// <summary>
@@ -118,8 +119,7 @@ namespace SourceForge.NAnt.Tasks
         /// </para>
         /// </remarks>
         [FileSet("projects", Required=false)]
-        public FileSet Projects
-        {
+        public FileSet Projects {
             get { return _fsProjects; }
             set { _fsProjects = value; }
         }
@@ -136,8 +136,7 @@ namespace SourceForge.NAnt.Tasks
         /// </para>
         /// </remarks>
         [FileSet("referenceprojects", Required=false)]
-        public FileSet ReferenceProjects
-        {
+        public FileSet ReferenceProjects {
             get { return _fsReferenceProjects; }
             set { _fsReferenceProjects = value; }
         }
@@ -151,8 +150,7 @@ namespace SourceForge.NAnt.Tasks
         /// </para>
         /// </remarks>
         [TaskAttribute("solutionfile", Required=false)]
-        public string SolutionFile
-        {
+        public string SolutionFile {
             set { _strSolutionFile = value; }
         }
 
@@ -165,8 +163,7 @@ namespace SourceForge.NAnt.Tasks
         /// </para>
         /// </remarks>
         [TaskAttribute("configuration")]
-        public string Configuration
-        {
+        public string Configuration {
             set { _strConfiguration = value; }
         }
 
