@@ -18,9 +18,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Ian MacLean (ian@maclean.ms)
-
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:output method="html" indent="yes" /> 
@@ -58,12 +57,12 @@
                         </td>
                     </tr>
                 </table>
-                <h1>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task</h1>
+                <h1>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Type</h1>
                 <p><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></p>
                 <!-- Remarks -->
                 <xsl:apply-templates select="documentation/remarks/node()" mode="slashdoc"/>
 
-                <xsl:variable name="properties" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttributeAttribute']"/>
+                <xsl:variable name="properties" select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']"/>
                 <xsl:if test="count($properties) != 0">
                     <h3>Parameters</h3>
                     <div class="table">
