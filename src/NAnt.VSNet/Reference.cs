@@ -43,7 +43,7 @@ namespace NAnt.VSNet {
     public class Reference {
         #region Public Instance Constructors
 
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, SolutionTask solutionTask, DirectoryInfo outputDir) {
+        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, ReferencesResolver refResolver, SolutionTask solutionTask, DirectoryInfo outputDir) {
             _projectSettings = ps;
             _solutionTask = solutionTask;
             _referenceTimeStamp = DateTime.MinValue;
@@ -51,6 +51,7 @@ namespace NAnt.VSNet {
             _name = (string) elemReference.Attributes["Name"].Value;
             _isCreated = false;
             _gacCache = gacCache;
+            _refResolver = refResolver;
 
             if (elemReference.Attributes["Project"] != null) {
                 if (solution == null) {
@@ -66,7 +67,7 @@ namespace NAnt.VSNet {
                     temporaryFiles = ps.TemporaryFiles;
                 }
 
-                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, outputDir, projectFile);
+                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, _refResolver, outputDir, projectFile);
 
                 // we don't know what the timestamp of the project is going to be, 
                 // because we don't know what configuration we will be building
@@ -92,7 +93,7 @@ namespace NAnt.VSNet {
                     temporaryFiles = ps.TemporaryFiles;
                 }
 
-                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, outputDir, projectFile);
+                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, _refResolver, outputDir, projectFile);
 
                 if (project is Project) {
                     ((Project) project).Load(solution, projectFile);
@@ -362,15 +363,7 @@ namespace NAnt.VSNet {
             Hashtable allReferences = new Hashtable();
             Hashtable unresolvedReferences = new Hashtable();
 
-            // create temporary domain
-            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
-                AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
-
             try {
-                ReferencesResolver referencesResolver =
-                    ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                    typeof(ReferencesResolver).FullName).Unwrap());
-
                 allReferences.Add(fullPathToModule, null);
                 unresolvedReferences.Add(fullPathToModule, null);
 
@@ -382,7 +375,7 @@ namespace NAnt.VSNet {
 
                     unresolvedReferences.Remove(referenceToResolve);
 
-                    referencesResolver.AppendReferencedModulesLocatedInGivenDirectory(moduleDirectory,
+                    _refResolver.AppendReferencedModulesLocatedInGivenDirectory(moduleDirectory,
                         referenceToResolve, ref allReferences, ref unresolvedReferences);
 
                 }
@@ -390,9 +383,6 @@ namespace NAnt.VSNet {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Error resolving module references of '{0}'.", fullPathToModule),
                     Location.UnknownLocation, ex);
-            } finally {
-                // unload temporary domain
-                AppDomain.Unload(temporaryDomain);
             }
 
             string[] result = new string[allReferences.Keys.Count];
@@ -695,17 +685,9 @@ namespace NAnt.VSNet {
                 if (registryKey != null && registryKey.GetValue("PrimaryInteropAssemblyName") != null) {
                     string primaryInteropAssemblyName = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
 
-                    // construct separate appdomain used to obtain information
-                    // on primary interop assembly
-                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
-                        AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
-
                     try {
-                        ReferencesResolver referencesResolver =
-                            ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                            typeof(ReferencesResolver).FullName).Unwrap());
                         // get filename of primary interop assembly
-                        _referenceFile = referencesResolver.GetAssemblyFileName(
+                        _referenceFile = _refResolver.GetAssemblyFileName(
                             primaryInteropAssemblyName);
                         // determine base directory of primary interop assembly
                         _baseDirectory = new DirectoryInfo(Path.GetDirectoryName(_referenceFile));
@@ -720,8 +702,6 @@ namespace NAnt.VSNet {
                             "Primary Interop Assembly '{0}' could not be loaded.", 
                             primaryInteropAssemblyName), Location.UnknownLocation, 
                             ex);
-                    } finally {
-                        AppDomain.Unload(temporaryDomain);
                     }
 
                     switch (_importTool) {
@@ -842,62 +822,8 @@ namespace NAnt.VSNet {
         private ProjectBase _project;
         private SolutionTask _solutionTask;
         private GacCache _gacCache;
+        private ReferencesResolver _refResolver;
 
         #endregion Private Instance Fields
-
-        private  class ReferencesResolver : MarshalByRefObject {
-            #region Override implementation of MarshalByRefObject
-
-            /// <summary>
-            /// Obtains a lifetime service object to control the lifetime policy for 
-            /// this instance.
-            /// </summary>
-            /// <returns>
-            /// An object of type <see cref="ILease" /> used to control the lifetime 
-            /// policy for this instance. This is the current lifetime service object 
-            /// for this instance if one exists; otherwise, a new lifetime service 
-            /// object initialized with a lease that will never time out.
-            /// </returns>
-            public override Object InitializeLifetimeService() {
-                ILease lease = (ILease) base.InitializeLifetimeService();
-                if (lease.CurrentState == LeaseState.Initial) {
-                    lease.InitialLeaseTime = TimeSpan.Zero;
-                }
-                return lease;
-            }
-
-            #endregion Override implementation of MarshalByRefObject
-
-            #region Public Instance Methods
-
-            public void AppendReferencedModulesLocatedInGivenDirectory(string moduleDirectory, string moduleName, ref Hashtable allReferences, ref Hashtable unresolvedReferences) {
-                Assembly module = Assembly.LoadFrom(moduleName);
-                AssemblyName[] referencedAssemblies = module.GetReferencedAssemblies();
-
-                foreach (AssemblyName referencedAssemblyName in referencedAssemblies) {
-                    string fullPathToReferencedAssembly = Path.Combine(moduleDirectory, referencedAssemblyName.Name + ".dll");
-
-                    // we only add referenced assemblies which are located in given directory
-                    if (File.Exists(fullPathToReferencedAssembly) && !allReferences.ContainsKey(fullPathToReferencedAssembly)) {
-                        allReferences.Add(fullPathToReferencedAssembly, null);
-                        unresolvedReferences.Add(fullPathToReferencedAssembly, null);
-                    }
-                }
-            }
-
-            /// <summary>
-            /// Gets the file name of the assembly with the given assembly name.
-            /// </summary>
-            /// <param name="assemblyName">The assembly name of the assembly of which the file name should be returned.</param>
-            /// <returns>
-            /// The file name of the assembly with the given assembly name.
-            /// </returns>
-            public string GetAssemblyFileName(string assemblyName) {
-                Assembly assembly = Assembly.Load(assemblyName);
-                return (new Uri(assembly.CodeBase)).LocalPath;
-            }
-
-            #endregion Public Instance Methods
-        }
     }
 }

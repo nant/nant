@@ -37,7 +37,7 @@ namespace NAnt.VSNet {
     public class Solution {
         #region Public Instance Constructors
 
-        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, GacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
+        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, GacCache gacCache, ReferencesResolver refResolver) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             _file = solutionFile;
 
             string fileContents;
@@ -127,14 +127,14 @@ namespace NAnt.VSNet {
 
             LoadProjectGuids(additionalProjects, false);
             LoadProjectGuids(referenceProjects, true);
-            LoadProjects(gacCache);
+            LoadProjects(gacCache, refResolver);
             GetDependenciesFromProjects();
         }
 
-        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, GacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
+        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, GacCache gacCache, ReferencesResolver refResolver) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             LoadProjectGuids(projects, false);
             LoadProjectGuids(referenceProjects, true);
-            LoadProjects(gacCache);
+            LoadProjects(gacCache, refResolver);
             GetDependenciesFromProjects();
         }
 
@@ -518,8 +518,9 @@ namespace NAnt.VSNet {
         /// instance variable.
         /// </summary>
         /// <param name="gacCache"><see cref="GacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
+        /// <param name="refResolver"><see cref="ReferencesResolver" /> instance to use to determine location and references of assemblies.</param>
         /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
-        private void LoadProjects(GacCache gacCache) {
+        private void LoadProjects(GacCache gacCache, ReferencesResolver refResolver) {
             Log(Level.Verbose, LogPrefix + "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;
@@ -554,7 +555,7 @@ namespace NAnt.VSNet {
                 }
 
                 Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
-                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, _outputDir, projectPath);
+                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, refResolver, _outputDir, projectPath);
                 if (p.Guid == null || p.Guid == string.Empty) {
                     p.Guid = FindGuidFromPath(projectPath);
                 }

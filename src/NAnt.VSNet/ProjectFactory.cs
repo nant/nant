@@ -82,7 +82,7 @@ namespace NAnt.VSNet {
             return (XmlDocument) _cachedProjectXml[path];
         }    
 
-        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, DirectoryInfo outputDir, string path) {
+        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
@@ -90,11 +90,11 @@ namespace NAnt.VSNet {
             // check if this a new project?
             if (!_cachedProjects.Contains(path)) {
                 if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                    Project p = new Project(slnTask, tfc, gacCache, outputDir);
+                    Project p = new Project(slnTask, tfc, gacCache, refResolver, outputDir);
                     p.Load(sln, path);
                     _cachedProjects[path] = p;
                 } else if (projectExt == ".vcproj") {
-                    VcProject p = new VcProject(slnTask, tfc, gacCache, outputDir);
+                    VcProject p = new VcProject(slnTask, tfc, gacCache, refResolver, outputDir);
                     p.Load(sln, path);
                     _cachedProjects[path] = p;
                 } else {
