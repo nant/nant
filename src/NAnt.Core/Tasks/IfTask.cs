@@ -152,7 +152,7 @@ namespace NAnt.Core.Tasks {
         /// The file to compare if uptodate.
         /// </summary>
         [TaskAttribute("uptodatefile")]
-        [System.Obsolete("Use <uptodate /> instead.", false)]
+        [System.Obsolete("Use <if test=\"${file::up-to-date(comparefile, uptodatefile)}\"> instead.", false)]
         public string UpToDateFile {
             set {
                 if (_uptodateFiles == null) {
@@ -169,7 +169,7 @@ namespace NAnt.Core.Tasks {
         /// The file to check against for the uptodate file.
         /// </summary>
         [TaskAttribute("comparefile")]
-        [System.Obsolete("Use <uptodate /> instead.", false)]
+        [System.Obsolete("Use <if test=\"${file::up-to-date(comparefile, uptodatefile)}\"> instead.", false)]
         public string CompareFile {
             set { 
                 if (_compareFiles == null) {
@@ -187,7 +187,7 @@ namespace NAnt.Core.Tasks {
         /// the <see cref="UpToDateFile" />(s) check.
         /// </summary>
         [BuildElement("comparefiles")]
-        [System.Obsolete("Use <uptodate /> instead.", false)]
+        [System.Obsolete("Use <uptodate /> task instead.", false)]
         public FileSet CompareFiles {
             get { return _compareFiles; }
             set { _compareFiles = value; }
@@ -198,7 +198,7 @@ namespace NAnt.Core.Tasks {
         /// the <see cref="CompareFile" />(s) check.
         /// </summary>
         [BuildElement("uptodatefiles")]
-        [System.Obsolete("Use <uptodate /> instead.", false)]
+        [System.Obsolete("Use <uptodate /> task instead.", false)]
         public FileSet UpToDateFiles {
             get { return _uptodateFiles; }
             set { _uptodateFiles = value; }
@@ -218,7 +218,7 @@ namespace NAnt.Core.Tasks {
         /// Used to test whether a property exists.
         /// </summary>
         [TaskAttribute("propertyexists")]
-        [System.Obsolete("Use <if test=\"${nant::property-exists('propertyname')}\"> instead.", false)]
+        [System.Obsolete("Use <if test=\"${property::exists('propertyname')}\"> instead.", false)]
         public string PropertyNameExists {
             get { return _propNameExists;}
             set { _propNameExists = StringUtils.ConvertEmptyToNull(value); }
@@ -228,7 +228,7 @@ namespace NAnt.Core.Tasks {
         /// Used to test whether a target exists.
         /// </summary>
         [TaskAttribute("targetexists")]
-        [System.Obsolete("Use <if test=\"${nant::target-exists('targetname')}\"> instead.", false)]
+        [System.Obsolete("Use <if test=\"${target::exists('targetname')}\"> instead.", false)]
         public string TargetNameExists {
             get { return _targetName; }
             set { _targetName = StringUtils.ConvertEmptyToNull(value); }
