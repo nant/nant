@@ -31,6 +31,6 @@
                 <include name="System.Xml.dll" />
             </references>
         </csc>
-        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="NAnt.Console.exe.config" />
+        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="App.config" />
     </target>
 </project>

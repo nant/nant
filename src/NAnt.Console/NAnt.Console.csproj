@@ -1,16 +1,15 @@
 <VisualStudioProject>
     <CSHARP
-       ProjectType = "Local"
-       ProductVersion = "7.0.9466"
-       SchemaVersion = "1.0"
-
+        ProjectType = "Local"
+        ProductVersion = "7.0.9466"
+        SchemaVersion = "1.0"
         ProjectGuid = "{859696F8-F405-4018-A155-D34561498A3E}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "NAnt Console"
+                AssemblyName = "NAnt"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -27,14 +26,14 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = "NAnt.Console.xml"
+                    DocumentationFile = "NAnt.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.Console\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -47,7 +46,7 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = "NAnt.Console.xml"
+                    DocumentationFile = "NAnt.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
@@ -65,7 +64,7 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = "NAnt.Console.xml"
+                    DocumentationFile = "NAnt.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
@@ -93,7 +92,68 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\bin\log4net.dll"
+                    HintPath = "..\..\lib\log4net.dll"
+                    Private = "True"
+                />
+                <Reference
+                    Name = "NAnt.Compression"
+                    Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.Core"
+                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.DotNet"
+                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.MSNet"
+                    Project = "{ED13C268-36DE-49CE-B347-C2BE03F814B9}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.NUnit"
+                    Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.NUnit1"
+                    Project = "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.NUnit2"
+                    Project = "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.SourceControl"
+                    Project = "{6B2EC648-8D69-4096-B4F9-6EDC0B2F98EF}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.VisualCpp"
+                    Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.VSNet"
+                    Project = "{DD434690-B4DF-4BF9-91FE-F139A41E2474}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.Win32"
+                    Project = "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NDoc.Documenter.NAnt"
+                    Project = "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
         </Build>
@@ -120,7 +180,7 @@
                     BuildAction = "None"
                 />
                 <File
-                    RelPath = "NAnt.Console.exe.config"
+                    RelPath = "App.config"
                     BuildAction = "Content"
                 />
             </Include>
