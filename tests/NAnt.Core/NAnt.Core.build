@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project name="NAnt.Core" default="test">
+    <!--
+        Required properties:
+            * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
+            * build.debug   - (true|false) debug build?
+            * mono          - (true|false) build using Mono?
+            * log4netdll    - name of the log4net assembly to reference
+    -->
+    <target name="build">
+        <!-- build test assembly -->
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+            <sources failonempty="true">
+                <includes name="**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="../../src/CommonAssemblyInfo.cs" />
+                <!-- requires internet access and server resources -->
+                <excludes name="/**/GetTaskTest.cs" />
+                <excludes name="/**/MailTaskTest.cs" />
+                <!-- ??? why excluded ??? -->
+                <excludes name="/**/TouchTaskTest.cs" />
+                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
+                <excludes name="/**/ScriptTest.cs" />
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll" />
+                <includes name="nunit.framework.dll" />
+                <includes name="${log4netdll}"/>
+            </references>
+            <arg value="/d:mono" if="${mono}" />
+        </csc>
+    </target>
+    <target name="test" depends="build">
+         <nunit2>
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+         </nunit2>
+    </target>
+</project>

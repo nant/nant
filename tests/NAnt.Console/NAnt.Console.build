@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project name="NAnt.Console" default="test">
+    <!--
+        Required properties:
+            * build.dir         - (path) root level to build to, assemblies will go in ${build.dir}/bin
+            * build.debug       - (true|false) debug build?
+            * log4netdll        - name of the log4net assembly to reference
+            * nant.console.name - assembly name for NAnt Console
+            * sourceconfig      - name of the application configuration file to use for launching NAnt
+    -->
+    <target name="build">
+        <!-- build test assembly -->
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.Tests.dll">
+            <sources failonempty="true">
+                <includes name="**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="../../src/CommonAssemblyInfo.cs" />
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll" />
+                <includes name="NAnt.Core.Tests.dll" />
+                <includes name="nunit.framework.dll" />
+                <includes name="${log4netdll}"/>
+            </references>
+        </csc>
+    </target>
+    <target name="test" depends="build">
+         <nunit2>
+            <test assemblyname="${build.dir}/bin/${nant.console.name}.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+         </nunit2>
+    </target>
+</project>
