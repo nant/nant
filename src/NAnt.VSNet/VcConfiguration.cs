@@ -152,12 +152,12 @@ namespace NAnt.VSNet {
             get { 
                 string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
-                    return Path.Combine(OutputDir.FullName, linkOutput);
+                    return Path.Combine(ProjectDir.FullName, linkOutput);
                 }
 
                 string librarianOutput = GetToolSetting("VCLibrarianTool", "OutputFile");
                 if (librarianOutput != null) {
-                    return Path.Combine(OutputDir.FullName, librarianOutput);
+                    return Path.Combine(ProjectDir.FullName, librarianOutput);
                 }
 
                 return OutputDir.Name;

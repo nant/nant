@@ -66,34 +66,34 @@ namespace NAnt.VSNet {
 
         public static VcArgumentMap CreateCLArgumentMap() {
             VcArgumentMap map = new VcArgumentMap();
-            map.AddEnum("AssemblerOutput", null, null, "FA", "FAcs", "FAc", "FAs");
-            map.AddBool("BufferSecurityCheck", "GS");
-            map.AddEnum("CompileAs", null, null, "TC", "TP");
-            map.AddEnum("DebugInformationFormat", null, null, "Z7", "Zd", "Zi", "ZI");
-            map.AddBool("EnableFunctionLevelLinking", "Gy");
-            map.AddBool("EnableIntrinsicFunctions", "Oi");
-            map.AddBool("ExceptionHandling", "EHsc");
-            map.AddBool("RuntimeTypeInfo", "GR");
-            map.AddEnum("FavorSizeOrSpeed", null, null, "Ot", "Os");
-            map.AddBool("GlobalOptimizations", "Og");
-            map.AddEnum("InlineFunctionExpansion", null, "Ob0", "Ob1", "Ob2");
-            map.AddBool("OmitFramePointers", "Oy");
-            map.AddEnum("Optimization", null, "Od", "O1", "O2", "Ox");
-            map.AddEnum("RuntimeLibrary", null, "MT", "MTd", "MD", "MDd", "ML", "MLd");
-            map.AddBool("StringPooling", "GF");
-            map.AddEnum("StructMemberAlignment", null, null, "Zp1", "Zp2", "Zp4", "Zp8", "Zp16");
-            map.AddEnum("UsePrecompiledHeader", null, null, "Yc", "YX", "Yu");
-            map.AddEnum("WarningLevel", null, "W0", "W1", "W2", "W3", "W4");
+            map.AddEnum("AssemblerOutput", null, null, "/FA", "/FAcs", "/FAc", "/FAs");
+            map.AddBool("BufferSecurityCheck", "/GS");
+            map.AddEnum("CompileAs", null, null, "/TC", "/TP");
+            map.AddEnum("DebugInformationFormat", null, null, "/Z7", "/Zd", "/Zi", "/ZI");
+            map.AddBool("EnableFunctionLevelLinking", "/Gy");
+            map.AddBool("EnableIntrinsicFunctions", "/Oi");
+            map.AddBool("ExceptionHandling", "/EHsc");
+            map.AddBool("RuntimeTypeInfo", "/GR");
+            map.AddEnum("FavorSizeOrSpeed", null, null, "/Ot", "/Os");
+            map.AddBool("GlobalOptimizations", "/Og");
+            map.AddEnum("InlineFunctionExpansion", null, "/Ob0", "/Ob1", "/Ob2");
+            map.AddBool("OmitFramePointers", "/Oy");
+            map.AddEnum("Optimization", null, "/Od", "/O1", "/O2", "/Ox");
+            map.AddEnum("RuntimeLibrary", null, "/MT", "/MTd", "/MD", "/MDd", "/ML", "/MLd");
+            map.AddBool("StringPooling", "/GF");
+            map.AddEnum("StructMemberAlignment", null, null, "/Zp1", "/Zp2", "/Zp4", "/Zp8", "/Zp16");
+            map.AddEnum("UsePrecompiledHeader", null, "", "/Yc", "/YX", "/Yu");
+            map.AddEnum("WarningLevel", null, "/W0", "/W1", "/W2", "/W3", "/W4");
             return map;
         }
 
         public static VcArgumentMap CreateLinkerArgumentMap() {
             VcArgumentMap map = new VcArgumentMap();
-            map.AddBool("GenerateDebugInformation", "DEBUG");
-            map.AddEnum("LinkIncremental", null, null, "INCREMENTAL:NO", "INCREMENTAL");
-            map.AddString("ModuleDefinitionFile", "DEF:");
-            map.AddEnum("OptimizeForWindows98", "OPT:", null, "NOWIN98", "WIN98");
-            map.AddEnum("SubSystem", "SUBSYSTEM:", null, "CONSOLE", "WINDOWS");
+            map.AddBool("GenerateDebugInformation", "/DEBUG");
+            map.AddEnum("LinkIncremental", null, null, "/INCREMENTAL:NO", "/INCREMENTAL");
+            map.AddString("ModuleDefinitionFile", "/DEF:");
+            map.AddEnum("OptimizeForWindows98", "/OPT:", null, "NOWIN98", "WIN98");
+            map.AddEnum("SubSystem", "/SUBSYSTEM:", null, "CONSOLE", "WINDOWS");
             return map;
         }
 
@@ -116,9 +116,9 @@ namespace NAnt.VSNet {
 
             protected string FormatOption(string value) {
                 if (_name == null) {
-                    return "/" + value;
+                    return value;
                 }
-                return "/" + _name + value;
+                return _name + value;
             }
         }
 
