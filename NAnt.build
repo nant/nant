@@ -84,6 +84,7 @@
                 <includes name="src/NAnt.Core/**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="src/CommonAssemblyInfo.cs" />
+                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
                 <excludes name="src/NAnt.Core/Tasks/ScriptTask.cs"/>
             </sources>
             <resources basedir="src/NAnt.Core/Resources">
@@ -106,6 +107,7 @@
                 <excludes name="/**/MailTaskTest.cs" />
                 <!-- ??? why excluded ??? -->
                 <excludes name="/**/TouchTaskTest.cs" />
+                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
                 <excludes name="/**/ScriptTest.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
@@ -185,15 +187,17 @@
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
-            <sources basedir="src/NDoc.Documenter.NAnt" failonempty="true">
-                <includes name="**/*.cs" />
+            <sources failonempty="true">
+                <includes name="src/NAnt.Documenter.NDoc/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references failonempty="true">
                 <includes name="${build.dir}/bin/NDoc.Core.dll" />
             </references>
-            <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\tags.xslt,Documenter.xslt.tags.xslt" />
-            <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\task-doc.xslt,Documenter.xslt.task-doc.xslt" />
-            <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\task-index.xslt,Documenter.xslt.task-index.xslt" />
+            <resources basedir="src/NAnt.Documenter.NDoc/Resources" prefix="Documenter.xslt.">
+                <includes name="**/*" />
+            </resources>
         </csc>
         <echo message="Documenting NAnt with just built version of NAnt.Documenter." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
@@ -270,7 +274,7 @@
                     <property name="DocumentProtected" value="True" />
                     <property name="DocumentEmptyNamespaces" value="False" />
                     <property name="IncludeAssemblyVersion" value="False" />
-                    <property name="CopyrightText" value="Copyright (C) 2001-2002 Gerry Shaw" />
+                    <property name="CopyrightText" value="Copyright (C) 2001-2003 Gerry Shaw" />
                     <property name="CopyrightHref" value="http://nant.sourceforge.net" />
                 </documenter>
             </documenters>
@@ -301,7 +305,7 @@
         <delete>
             <fileset basedir="${build.dir}/bin">
                 <includes name="*.Tests.*" />
-                <includes name="NAnt.Documenter.*" />
+                <includes name="NDoc.Documenter.NAnt" />
                 <includes name="NAnt.Console.*" />
             </fileset>
         </delete>
