@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="nant" default="builld-official-release">
+<project name="nant" default="build-official-release">
     <property name="sf.net.ssh.server" value="shell1.sf.net"/>
     <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs"/>
     <!-- retrieve system information and environment variables -->
@@ -9,20 +9,9 @@
     <!-- include master build file -->
     <include buildfile="nant.build"/>
     <!-- perform a 'release' package and upload to sf.net -->
-    <target name="builld-official-release" description="Perform a 'release' package and uploads to sf.net">
-        <!-- make sure NAnt is built using .NET Framework 1.0 -->
-        <call target="set-net-1.0-runtime-configuration" />
-        <!-- set active build configureation to 'release' -->
-        <call target="release" />
-        <!-- build NAnt -->
-        <call target="package" />
-        <!-- copy schema to sourceforge -->
-        <call target="deploy-schema" />
-        <!-- copy help to sourceforge -->
-        <call target="deploy-help" />
-        <!-- copy website to sourceforge -->
-        <call target="deploy-website" />
-    </target>
+    <target name="build-official-release" depends="set-net-1.0-runtime-configuration, release, package, deploy" description="Perform a 'release' package and uploads to sf.net" />
+    <!-- deploy website content to sourceforge -->
+    <target name="deploy" depends="deploy-schema, deploy-help, deploy-website" />
     <!-- copy schema to sourceforge -->
     <target name="deploy-schema" depends="set-net-1.0-runtime-configuration, release, package">
         <!-- make sure the directory tree exists -->
