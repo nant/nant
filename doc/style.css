@@ -159,7 +159,18 @@ pre.code {
     background-color: inherit;
     color: #0000AA;
     font-size: 100%;
-    margin-left: 50px;
+}
+
+pre.syntax {
+    background-color: #cccccc;
+    padding: 4px 8px;
+    cursor: text;
+    margin-top: 1em;
+    margin-bottom: 1em; 
+    color: #000000;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #999999;
 }
 
 span.code {
