@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,23 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian_maclean@another.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.IO;
-using System.Xml;
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
-using NUnit.Framework;
-using NUnit.Runner;
 using System.Reflection;
 using System.Runtime.Remoting;
+using System.Xml;
+
+using NUnit.Framework;
+
+using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Tasks.NUnit.Formatters;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-
-    /// <summary>Runs tests using the NUnit framework.</summary>
+    /// <summary>
+    /// Runs tests using the NUnit framework.
+    /// </summary>
     /// <remarks>
     ///   <para>See the <a href="http://nunit.sf.net">NUnit home page</a> for more information.</para>
     ///   <para>The <c>haltonfailure</c> or <c>haltonerror</c> are only used to stop more than one test suite to stop running.  If any test suite fails a build error will be thrown.  Use <c>failonerror="false"</c> to ignore test errors and continue build.</para>
@@ -50,20 +53,20 @@ namespace SourceForge.NAnt.Tasks.NUnit {
     /// </example>
     [TaskName("nunit")]
     public class NUnitTask : Task {
+        #region Private Instance Fields
 
         bool _haltOnError = false;
         bool _haltOnFailure = false;
         int _timeout = 0;
+        bool _failuresPresent = false;
+        bool _errorsPresent = false;
 
-        // If NUnit integrates the change that I posted this should be uncommented out
-        // See NUnit discussion board for post by gerry_shaw on October 10, 2001
-        // <summary>Break in the debugger whenever a test fails.</summary>
-        //[TaskAttribute("breakindebugger")]
-        //[BooleanValidator()]
-        //string _breakindebugger = Boolean.FalseString;
-        //public bool BreakInDebugger     { get { return Convert.ToBoolean(_breakindebugger); } }
+        NUnitTestCollection _tests = new NUnitTestCollection();
+        FormatterElementCollection _formatterElements = new FormatterElementCollection();
 
-        // Attribute properties
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>Stops running tests when a test causes an error.  Default is "false".</summary>
         /// <remarks>Implies haltonfailure.</remarks>
@@ -80,14 +83,44 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         [TaskAttribute("timeout")]
         public int  Timeout             { get { return _timeout; } set { _timeout = value; } }
 
-        // child element collections
-        NUnitTestCollection _tests = new NUnitTestCollection(); // TODO make a type safe collection
-        FormatterElementCollection _formatterElements = new FormatterElementCollection();
+        /// <summary>
+        /// Tests to run.
+        /// </summary>
+        [BuildElementArray("test")]
+        public NUnitTestCollection Tests {
+            get { return _tests; }
+        }
 
-        bool _failuresPresent = false;
-        bool _errorsPresent = false;
+        /// <summary>
+        /// Formatters to output results of unit tests 
+        /// </summary>
+        [BuildElementArray("formatter")]
+        public FormatterElementCollection FormatterElements {
+            get { return _formatterElements; }
+        }
 
-        void ExecuteTest(NUnitTest test) {
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
+        protected override void ExecuteTask() {
+            foreach (NUnitTest test in _tests) {
+                ExecuteTest(test);
+            }
+
+            if (_failuresPresent) {
+                throw new BuildException("Unit test failed, see build log.", Location);
+            }
+            if (_errorsPresent) {
+                throw new BuildException("Unit test had errors, see build log.", Location);
+            }
+        }
+
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        private void ExecuteTest(NUnitTest test) {
             // Set Defaults
             RunnerResult result = RunnerResult.Success;
 
@@ -98,7 +131,6 @@ namespace SourceForge.NAnt.Tasks.NUnit {
                 test.OutFile = "TEST-" + test.Class;
             }
             NUnitTestData testData = test.GetTestData();
-            mergeFormatters(testData);
 
             if (testData.Fork == true) {
                 result = ExecuteInAppDomain(testData);
@@ -129,7 +161,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         }
 
         // TODO implement launching in a seperate App Domain
-        RunnerResult ExecuteInAppDomain(NUnitTestData test) {
+        private RunnerResult ExecuteInAppDomain(NUnitTestData test) {
  
             // spawn new domain in specified directory
             AppDomainSetup domSetup = new AppDomainSetup();
@@ -141,12 +173,12 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             // instantiate subclassed test runner in new domain
             Type runnerType = typeof(RemoteNUnitTestRunner);
             ObjectHandle oh = newDomain.CreateInstance ( 
-                                       runnerType.Assembly.FullName,
-                                       runnerType.FullName,
-                                       false, 0, null, 
-                                       new object[] { test },
-                                       null, null, null
-                                    );
+                runnerType.Assembly.FullName,
+                runnerType.FullName,
+                false, 0, null, 
+                new object[] { test },
+                null, null, null
+                );
             RemoteNUnitTestRunner runner = (RemoteNUnitTestRunner)(oh.Unwrap());
             Log.WriteLine(LogPrefix + "Running {0} ", test.Class);
 
@@ -155,7 +187,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             return runner.ResultCode;
         }
 
-        RunnerResult ExecuteInProc(NUnitTestData test) {
+        private RunnerResult ExecuteInProc(NUnitTestData test) {
             try {
                 NUnitTestRunner runner = new NUnitTestRunner(test);
 
@@ -172,56 +204,6 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             }
         }
 
-        /// <param name="taskNode">Xml node used to initialize this task instance.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
-
-            // get all child tests
-            foreach (XmlNode testNode in taskNode) {
-                if(testNode.Name.Equals("test"))
-                {
-                    NUnitTest test = new NUnitTest();
-                    test.Project = Project; 
-                    test.Initialize(testNode);
-                    _tests.Add(test);
-                }
-            }
-
-            // now get formatters
-            foreach (XmlNode formatterNode in taskNode) {
-                if(formatterNode.Name.Equals("formatter"))
-                {
-                    FormatterElement formatter = new FormatterElement();
-                    formatter.Project = Project;
-                    formatter.Initialize(formatterNode);
-                    _formatterElements.Add(formatter);
-                }
-            }
-        }
-
-        protected override void ExecuteTask() {
-            // If NUnit integrates the change that I posted this should be uncommented out
-            // See NUnit discussion board for post by gerry_shaw on October 10, 2001
-            //Assertion.BreakInDebugger = BreakInDebugger;
-
-            foreach (NUnitTest test in _tests) {
-                //test.AutoExpandAttributes();
-                ExecuteTest(test);
-            }
-
-            // always throw a buildexception if tests failed (use failonerror="false" to continue building with failed tests).
-            if (_failuresPresent) {
-                throw new BuildException("Unit test failed, see build log.", Location);
-            }
-            if (_errorsPresent) {
-                throw new BuildException("Unit test had errors, see build log.", Location);
-            }
-        }
-
-
-        protected void mergeFormatters(NUnitTestData test){
-           foreach ( FormatterElement element in _formatterElements ) {
-              test.Formatters.Add(element.Data);
-           }
-        }
+        #endregion Private Instance Methods
     }
 }

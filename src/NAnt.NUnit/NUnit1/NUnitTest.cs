@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,29 +17,29 @@
 //
 // Ian MacLean (ian_maclean@another.com)
 
+using System;
+using System.Xml;
+
 using NUnit.Framework;
-using NUnit.Runner;
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
+
+using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-
-    using System;
-    using System.Xml;
-   
-    using SourceForge.NAnt.Attributes;
-    
     [ElementName("test")]
     public class NUnitTest : BaseTest {
-                  
-        string _todir = null;               
-        string _outfile = null;
-        FormatterElementCollection _formatterElements = new FormatterElementCollection(); 
+        #region Private Instance Fields
 
+        string _todir = null;
+        string _outfile = null;
         ITest _suite = null;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         public ITest Suite {
-           get { return _suite; }
-           set { _suite = value; }
+            get { return _suite; }
+            set { _suite = value; }
         }
              
         /// <summary>Base name of the test result. The full filename is determined by this attribute and the extension of formatter</summary>
@@ -49,12 +49,13 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         /// <summary>Directory to write the reports to.</summary>
         [TaskAttribute("todir")]
         public string ToDir { get { return _todir; } set {_todir = value;} }
-        
-        public FormatterElementCollection FormatterElements { get { return _formatterElements; }  }        
 
-        internal NUnitTestData GetTestData() 
-        {
-           NUnitTestData data = new NUnitTestData();
+        #endregion Public Instance Properties
+
+        #region Internal Instance Methods
+
+        internal NUnitTestData GetTestData() {
+            NUnitTestData data = new NUnitTestData();
             data.Suite = Suite;
             data.OutFile = OutFile;
             data.ToDir = ToDir;
@@ -64,13 +65,9 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             data.HaltOnError = HaltOnError;
             data.HaltOnFailure = HaltOnFailure;
             data.AppConfigFile = AppConfigFile;
-
-            foreach ( FormatterElement formatter in _formatterElements ) {
-               data.Formatters.Add(formatter.Data);
-            }
-           return data;
+            return data;
         }
 
-
-    }    
+        #endregion Internal Instance Methods
+    }
 }

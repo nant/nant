@@ -22,31 +22,31 @@ using System.Collections;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
     /// <summary>
-    /// Contains a strongly typed collection of <see cref="NUnitTest"/> objects.
+    /// Contains a strongly typed collection of <see cref="IResultFormatter"/> objects.
     /// </summary>
     [Serializable]
-    public class NUnitTestCollection : CollectionBase {
+    public class IResultFormatterCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NUnitTestCollection"/> class.
+        /// Initializes a new instance of the <see cref="IResultFormatterCollection"/> class.
         /// </summary>
-        public NUnitTestCollection() {
+        public IResultFormatterCollection() {
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="NUnitTestCollection"/> class
-        /// with the specified <see cref="NUnitTestCollection"/> instance.
+        /// Initializes a new instance of the <see cref="IResultFormatterCollection"/> class
+        /// with the specified <see cref="IResultFormatterCollection"/> instance.
         /// </summary>
-        public NUnitTestCollection(NUnitTestCollection value) {
+        public IResultFormatterCollection(IResultFormatterCollection value) {
             AddRange(value);
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="NUnitTestCollection"/> class
-        /// with the specified array of <see cref="NUnitTest"/> instances.
+        /// Initializes a new instance of the <see cref="IResultFormatterCollection"/> class
+        /// with the specified array of <see cref="IResultFormatter"/> instances.
         /// </summary>
-        public NUnitTestCollection(NUnitTest[] value) {
+        public IResultFormatterCollection(IResultFormatter[] value) {
             AddRange(value);
         }
 
@@ -59,8 +59,8 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         /// </summary>
         /// <param name="index">The zero-based index of the element to get or set.</param>
         [System.Runtime.CompilerServices.IndexerName("Item")]
-        public NUnitTest this[int index] {
-            get {return ((NUnitTest)(base.List[index]));}
+        public IResultFormatter this[int index] {
+            get {return ((IResultFormatter)(base.List[index]));}
             set {base.List[index] = value;}
         }
 
@@ -69,43 +69,43 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         #region Public Instance Methods
         
         /// <summary>
-        /// Adds a <see cref="NUnitTest"/> to the end of the collection.
+        /// Adds a <see cref="IResultFormatter"/> to the end of the collection.
         /// </summary>
-        /// <param name="item">The <see cref="NUnitTest"/> to be added to the end of the collection.</param> 
+        /// <param name="item">The <see cref="IResultFormatter"/> to be added to the end of the collection.</param> 
         /// <returns>The position into which the new element was inserted.</returns>
-        public int Add(NUnitTest item) {
+        public int Add(IResultFormatter item) {
             return base.List.Add(item);
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="NUnitTest"/> array to the end of the collection.
+        /// Adds the elements of a <see cref="IResultFormatter"/> array to the end of the collection.
         /// </summary>
-        /// <param name="items">The array of <see cref="NUnitTest"/> elements to be added to the end of the collection.</param> 
-        public void AddRange(NUnitTest[] items) {
+        /// <param name="items">The array of <see cref="IResultFormatter"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(IResultFormatter[] items) {
             for (int i = 0; (i < items.Length); i = (i + 1)) {
                 Add(items[i]);
             }
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="NUnitTestCollection"/> to the end of the collection.
+        /// Adds the elements of a <see cref="IResultFormatterCollection"/> to the end of the collection.
         /// </summary>
-        /// <param name="items">The <see cref="NUnitTestCollection"/> to be added to the end of the collection.</param> 
-        public void AddRange(NUnitTestCollection items) {
+        /// <param name="items">The <see cref="IResultFormatterCollection"/> to be added to the end of the collection.</param> 
+        public void AddRange(IResultFormatterCollection items) {
             for (int i = 0; (i < items.Count); i = (i + 1)) {
                 Add(items[i]);
             }
         }
         
         /// <summary>
-        /// Determines whether a <see cref="NUnitTest"/> is in the collection.
+        /// Determines whether a <see cref="IResultFormatter"/> is in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="NUnitTest"/> to locate in the collection.</param> 
+        /// <param name="item">The <see cref="IResultFormatter"/> to locate in the collection.</param> 
         /// <returns>
         /// <c>true</c> if <paramref name="item"/> is found in the collection;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public bool Contains(NUnitTest item) {
+        public bool Contains(IResultFormatter item) {
             return base.List.Contains(item);
         }
         
@@ -114,27 +114,27 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         /// </summary>
         /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
         /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        public void CopyTo(NUnitTest[] array, int index) {
+        public void CopyTo(IResultFormatter[] array, int index) {
             base.List.CopyTo(array, index);
         }
         
         /// <summary>
-        /// Retrieves the index of a specified <see cref="NUnitTest"/> object in the collection.
+        /// Retrieves the index of a specified <see cref="IResultFormatter"/> object in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="NUnitTest"/> object for which the index is returned.</param> 
+        /// <param name="item">The <see cref="IResultFormatter"/> object for which the index is returned.</param> 
         /// <returns>
-        /// The index of the specified <see cref="NUnitTest"/>. If the <see cref="NUnitTest"/> is not currently a member of the collection, it returns -1.
+        /// The index of the specified <see cref="IResultFormatter"/>. If the <see cref="IResultFormatter"/> is not currently a member of the collection, it returns -1.
         /// </returns>
-        public int IndexOf(NUnitTest item) {
+        public int IndexOf(IResultFormatter item) {
             return base.List.IndexOf(item);
         }
         
         /// <summary>
-        /// Inserts a <see cref="NUnitTest"/> into the collection at the specified index.
+        /// Inserts a <see cref="IResultFormatter"/> into the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="item">The <see cref="NUnitTest"/> to insert.</param>
-        public void Insert(int index, NUnitTest item) {
+        /// <param name="item">The <see cref="IResultFormatter"/> to insert.</param>
+        public void Insert(int index, IResultFormatter item) {
             base.List.Insert(index, item);
         }
         
@@ -142,17 +142,17 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         /// Returns an enumerator that can iterate through the collection.
         /// </summary>
         /// <returns>
-        /// A <see cref="NUnitTestEnumerator"/> for the entire collection.
+        /// A <see cref="IResultFormatterEnumerator"/> for the entire collection.
         /// </returns>
-        public new NUnitTestEnumerator GetEnumerator() {
-            return new NUnitTestEnumerator(this);
+        public new IResultFormatterEnumerator GetEnumerator() {
+            return new IResultFormatterEnumerator(this);
         }
         
         /// <summary>
         /// Removes a member from the collection.
         /// </summary>
-        /// <param name="item">The <see cref="NUnitTest"/> to remove from the collection.</param>
-        public void Remove(NUnitTest item) {
+        /// <param name="item">The <see cref="IResultFormatter"/> to remove from the collection.</param>
+        public void Remove(IResultFormatter item) {
             base.List.Remove(item);
         }
         
@@ -160,17 +160,17 @@ namespace SourceForge.NAnt.Tasks.NUnit {
     }
 
     /// <summary>
-    /// Enumerates the <see cref="NUnitTest"/> elements of a <see cref="NUnitTestCollection"/>.
+    /// Enumerates the <see cref="IResultFormatter"/> elements of a <see cref="IResultFormatterCollection"/>.
     /// </summary>
-    public class NUnitTestEnumerator : IEnumerator {
+    public class IResultFormatterEnumerator : IEnumerator {
         #region Internal Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NUnitTestEnumerator"/> class
-        /// with the specified <see cref="NUnitTestCollection"/>.
+        /// Initializes a new instance of the <see cref="IResultFormatterEnumerator"/> class
+        /// with the specified <see cref="IResultFormatterCollection"/>.
         /// </summary>
         /// <param name="arguments">The collection that should be enumerated.</param>
-        internal NUnitTestEnumerator(NUnitTestCollection arguments) {
+        internal IResultFormatterEnumerator(IResultFormatterCollection arguments) {
             IEnumerable temp = (IEnumerable) (arguments);
             _baseEnumerator = temp.GetEnumerator();
         }
@@ -185,8 +185,8 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         /// <returns>
         /// The current element in the collection.
         /// </returns>
-        public NUnitTest Current {
-            get { return (NUnitTest) _baseEnumerator.Current; }
+        public IResultFormatter Current {
+            get { return (IResultFormatter) _baseEnumerator.Current; }
         }
 
         object IEnumerator.Current {
