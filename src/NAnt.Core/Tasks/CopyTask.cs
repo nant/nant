@@ -55,14 +55,12 @@ namespace NAnt.Core.Tasks {
     public class CopyTask : Task {
         #region Private Instance Fields
 
-        string _sourceFile = null;
-        string _toFile = null;
-        string _toDirectory = null;
-        bool _overwrite = false;
-        //bool _includeEmptyDirs = false;
-        //bool _preserveLastModified = false;
-        FileSet _fileset = new FileSet();
-        Hashtable _fileCopyMap = new Hashtable();
+        private string _sourceFile = null;
+        private string _toFile = null;
+        private string _toDirectory = null;
+        private bool _overwrite = false;
+        private FileSet _fileset = new FileSet();
+        private Hashtable _fileCopyMap = new Hashtable();
 
         #endregion Private Instance Fields
 
@@ -73,8 +71,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("file")]
         public string SourceFile {
-            get { return _sourceFile; }
-            set {_sourceFile = value; }
+            get { return (_sourceFile != null) ? Project.GetFullPath(_sourceFile) : null; }
+            set { _sourceFile = SetStringValue(value); }
         }
 
         /// <summary>
@@ -82,8 +80,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("tofile")]
         public string ToFile {
-            get { return _toFile; }
-            set {_toFile = value; }
+            get { return (_toFile != null) ? Project.GetFullPath(_toFile) : null; }
+            set { _toFile = SetStringValue(value); }
         }
 
         /// <summary>
@@ -91,19 +89,9 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("todir")]
         public string ToDirectory {
-            get { return _toDirectory; }
-            set {_toDirectory = value; }
+            get { return Project.GetFullPath(_toDirectory); }
+            set { _toDirectory = SetStringValue(value); }
         }
-
-        // /// <summary>
-        // /// Copy empty directories included with the nested fileset(s). Defaults to "true".
-        // /// </summary>
-        //[TaskAttribute("includeEmptyDirs")]
-        //[BooleanValidator()]
-        //public bool IncludeEmptyDirs {
-        //    get { return (_includeEmptyDirs); }
-        //    set {_includeEmptyDirs = value; }
-        //}
 
         /// <summary>
         /// Overwrite existing files even if the destination files are newer. Defaults to "false".
@@ -112,18 +100,8 @@ namespace NAnt.Core.Tasks {
         [BooleanValidator()]
         public bool Overwrite {
             get { return (_overwrite); }
-            set {_overwrite = value; }
+            set { _overwrite = value; }
         }
-
-        // /// <summary>
-        // /// Give the copied files the same last modified time as the original files. Defaults to "false".
-        // /// </summary>
-        //[TaskAttribute("preserveLastModified")]
-        //[BooleanValidator()]
-        //public bool PreserveLastModified {
-        //    get { return (_preserveLastModified); }
-        //    set {_preserveLastModified = value; }
-        //}
 
         /// <summary>
         /// Filesets are used to select files to copy. To use a fileset, the todir attribute must be set.
@@ -158,16 +136,14 @@ namespace NAnt.Core.Tasks {
             if (SourceFile != null) {
                 // Copy single file.
 
-                FileInfo srcInfo = new FileInfo(Project.GetFullPath(SourceFile));
+                FileInfo srcInfo = new FileInfo(SourceFile);
                 if (srcInfo.Exists) {
                     FileInfo dstInfo = null;
                     if (ToFile != null) {
-                        dstInfo = new FileInfo(Project.GetFullPath(ToFile));
+                        dstInfo = new FileInfo(ToFile);
                     } else {
-                        string dstDirectoryPath = Project.GetFullPath(ToDirectory);
-                        string dstFilePath = Path.Combine(dstDirectoryPath, srcInfo.Name);
+                        string dstFilePath = Path.Combine(ToDirectory, srcInfo.Name);
                         dstInfo = new FileInfo(dstFilePath);
-
                     }
 
                     // do the outdated check
@@ -190,7 +166,7 @@ namespace NAnt.Core.Tasks {
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = new DirectoryInfo(CopyFileSet.BaseDirectory);
                 
-                DirectoryInfo dstBaseInfo = new DirectoryInfo(Project.GetFullPath(ToDirectory));
+                DirectoryInfo dstBaseInfo = new DirectoryInfo(ToDirectory);
 
                 // if source file not specified use fileset
                 foreach (string pathname in CopyFileSet.FileNames) {
@@ -237,10 +213,10 @@ namespace NAnt.Core.Tasks {
                     }
 
                     // The full filepath to copy to.
-                    string dstPath = Path.Combine(dstBaseInfo.FullName, dstRelPath);
-                    if (!Directory.Exists(dstPath)) {
-                        Log(Level.Verbose, LogPrefix + "Created directory {0}.", dstPath);
-                        Directory.CreateDirectory(dstPath);
+                    string destinationDirectory = Path.Combine(dstBaseInfo.FullName, dstRelPath);
+                    if (!Directory.Exists(destinationDirectory)) {
+                        Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
+                        Directory.CreateDirectory(destinationDirectory);
                     }
                 }
             }
@@ -259,40 +235,33 @@ namespace NAnt.Core.Tasks {
         protected virtual void DoFileOperations() {
             int fileCount = FileCopyMap.Keys.Count;
             if (fileCount > 0 || Verbose) {
-                if (ToDirectory != null) {
-                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", Project.GetFullPath(ToDirectory));
-                } else {
-                    Log(Level.Info, LogPrefix + "Copying {0} file{1}.", fileCount, (fileCount != 1) ? "s" : "");
-                }
+                Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
 
                 // loop thru our file list
-                foreach (string sourcePath in FileCopyMap.Keys) {
-                    string dstPath = (string)FileCopyMap[sourcePath];
-                    if (sourcePath == dstPath) {
-                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}.",sourcePath);
+                foreach (string sourceFile in FileCopyMap.Keys) {
+                    string destinationFile = (string) FileCopyMap[sourceFile];
+                    if (sourceFile == destinationFile) {
+                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}.", sourceFile);
                         continue;
                     }
 
                     try {
-                        Log(Level.Verbose, LogPrefix + "Copying {0} to {1}.", sourcePath, dstPath);
+                        Log(Level.Verbose, LogPrefix + "Copying {0} to {1}.", sourceFile, destinationFile);
 
                         // create directory if not present
-                        string dstDirectory = Path.GetDirectoryName(dstPath);
-                        if (!Directory.Exists(dstDirectory)) {
-                            Directory.CreateDirectory(dstDirectory);
-                            Log(Level.Verbose, LogPrefix + "Created directory {0}.", dstDirectory);
+                        string destinationDirectory = Path.GetDirectoryName(destinationFile);
+                        if (!Directory.Exists(destinationDirectory)) {
+                            Directory.CreateDirectory(destinationDirectory);
+                            Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
                         }
 
-                        File.Copy(sourcePath, dstPath, true);
-                    } catch (Exception e) {
-                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot copy {0} to {1}.", sourcePath, dstPath);
-                        throw new BuildException(msg, Location, e);
+                        File.Copy(sourceFile, destinationFile, true);
+                    } catch (Exception ex) {
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot copy {0} to {1}.", sourceFile, destinationFile);
+                        throw new BuildException(msg, Location, ex);
                     }
                 }
             }
-
-            // TODO: handle empty directories in the fileset, refer to includeEmptyDirs attribute at
-            // http://jakarta.apache.org/ant/manual/CoreTasks/copy.html
         }
         #endregion Protected Instance Methods
     }
