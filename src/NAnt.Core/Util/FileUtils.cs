@@ -46,8 +46,22 @@ namespace NAnt.Core.Util {
                 using (StreamReader sourceFileReader = new StreamReader(sourceFileName, filterChain.Encoding, true, 4096)) {
                     Filter baseFilter = filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
 
+                    Encoding outputEncoding = filterChain.OutputEncoding;
+                    if (outputEncoding == null) {
+                        // if no explicit output encoding is specified, we'll
+                        // just use the encoding of the input file as determined
+                        // by the runtime
+                        // 
+                        // Note : the input encoding as specified on the filterchain
+                        // might not match the current encoding of the streamreader
+                        //
+                        // eg. when specifing an ANSI encoding, the runtime might
+                        // still detect the file is using UTF-8 encoding
+                        outputEncoding = sourceFileReader.CurrentEncoding;
+                    }
+
                     // writer for destination file
-                    using (StreamWriter destFileWriter = new StreamWriter(destFileName, false, sourceFileReader.CurrentEncoding, 4096)) {
+                    using (StreamWriter destFileWriter = new StreamWriter(destFileName, false, outputEncoding, 4096)) {
                         bool atEnd = false;
                         int character;
                         while (!atEnd) {
