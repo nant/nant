@@ -20,6 +20,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -35,10 +36,15 @@ namespace NDoc.Documenter.NAnt {
     public class NAntTaskDocumenter : BaseDocumenter {
         #region Private Instance Fields
 
-        XslTransform _xsltTaskIndex;
-        XslTransform _xsltTaskDoc;
-        XmlDocument _xmlDocumentation;
-        string _resourceDirectory;
+        private XslTransform _xsltTaskIndex;
+        private XslTransform _xsltTaskDoc;
+        private XmlDocument _xmlDocumentation;
+        private string _resourceDirectory;
+        private StringDictionary _fileNames = new StringDictionary();
+        private StringDictionary _elementNames = new StringDictionary();
+        private StringDictionary _namespaceNames = new StringDictionary();
+        private StringDictionary _assemblyNames = new StringDictionary();
+        private StringDictionary _taskNames = new StringDictionary();
 
         #endregion Private Instance Fields
 
@@ -114,6 +120,10 @@ namespace NDoc.Documenter.NAnt {
             _xmlDocumentation = new XmlDocument();
             _xmlDocumentation.LoadXml(Document.OuterXml); 
 
+            // build the file mapping
+            OnDocBuildingStep(25, "Building mapping...");
+            MakeFilenames(_xmlDocumentation);
+
             // transform nant task index page transform (requires no arguments)
             TransformAndWriteResult(_xsltTaskIndex, "index.html");
 
@@ -124,6 +134,10 @@ namespace NDoc.Documenter.NAnt {
                 XsltArgumentList arguments = new XsltArgumentList();
                 string classID = node.ParentNode.Attributes["id"].Value;
                 arguments.AddParam("class-id", String.Empty, classID);
+
+                // add extension object for NAnt utilities
+                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames);
+                arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
                 // generate filename for page
                 XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
@@ -163,6 +177,11 @@ namespace NDoc.Documenter.NAnt {
 
         private void TransformAndWriteResult(XslTransform transform, string filename) {
             XsltArgumentList arguments = new XsltArgumentList();
+
+            // add extension object for NAnt utilities
+            NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames);
+            arguments.AddExtensionObject("urn:NAntUtil", utilities);
+
             TransformAndWriteResult(transform, arguments, filename);
         }
 
@@ -170,6 +189,72 @@ namespace NDoc.Documenter.NAnt {
             string path = Path.Combine(OutputDirectory, filename);
             using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII)) {
                 transform.Transform(_xmlDocumentation, arguments, writer);
+            }
+        }
+
+        private void MakeFilenames(XmlNode documentation) {
+            XmlNodeList namespaces = documentation.SelectNodes("/ndoc/assembly/module/namespace");
+            foreach (XmlElement namespaceNode in namespaces) {
+                string assemblyName = namespaceNode.SelectSingleNode("../../@name").Value;
+                string namespaceName = namespaceNode.Attributes["name"].Value;
+                string namespaceId = "N:" + namespaceName;
+                _elementNames[namespaceId] = namespaceName;
+
+                XmlNodeList types = namespaceNode.SelectNodes("*[@id]");
+                foreach (XmlElement typeNode in types) {
+                    string typeId = typeNode.Attributes["id"].Value;
+//                    fileNames[typeId] = GetFilenameForType(typeNode);
+                    _elementNames[typeId] = typeNode.Attributes["name"].Value;
+                    _namespaceNames[typeId] = namespaceName;
+                    _assemblyNames[typeId] = assemblyName;
+
+                    // check whether the type actually derives from NAnt.Core.Task
+                    if (typeNode.SelectSingleNode("descendant::base[@id='T:NAnt.Core.Task']") != null) {
+                        // get the actual task name
+                        XmlAttribute taskNameAttribute = typeNode.SelectSingleNode("attribute/property[@name='Name']/@value") as XmlAttribute;
+                        if (taskNameAttribute != null) {
+                            _taskNames[typeId] = taskNameAttribute.Value;
+                        }
+                    }
+
+                    XmlNodeList members = typeNode.SelectNodes("*[@id]");
+                    foreach (XmlElement memberNode in members) {
+                        string id = memberNode.Attributes["id"].Value;
+                        switch (memberNode.Name) {
+                            case "constructor":
+//                                fileNames[id] = GetFilenameForConstructor(memberNode);
+                                _elementNames[id] = _elementNames[typeId];
+                                break;
+                            case "field":
+                                if (typeNode.Name == "enumeration") {
+//                                    fileNames[id] = GetFilenameForType(typeNode);
+                                } else {
+//                                    fileNames[id] = GetFilenameForField(memberNode);
+                                }
+                                _elementNames[id] = memberNode.Attributes["name"].Value;
+                                break;
+                            case "property":
+//                                fileNames[id] = GetFilenameForProperty(memberNode);
+                                _elementNames[id] = memberNode.Attributes["name"].Value;
+                                break;
+                            case "method":
+//                                fileNames[id] = GetFilenameForMethod(memberNode);
+                                _elementNames[id] = memberNode.Attributes["name"].Value;
+                                break;
+                            case "operator":
+//                                fileNames[id] = GetFilenameForOperator(memberNode);
+                                _elementNames[id] = memberNode.Attributes["name"].Value;
+                                break;
+                            case "event":
+//                                fileNames[id] = GetFilenameForEvent(memberNode);
+                                _elementNames[id] = memberNode.Attributes["name"].Value;
+                                break;
+                        }
+
+                        _namespaceNames[id] = namespaceName;
+                        _assemblyNames[id] = assemblyName;
+                    }
+                }
             }
         }
 
