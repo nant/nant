@@ -40,7 +40,7 @@ namespace SourceForge.NAnt.Tasks
 	///   <para>Generate the file <c>component.exe.licenses</c> file from <c>component.licx</c>.</para>
 	///   <code>
 	///     <![CDATA[
-	///         <license input="component.licx" target="component.exe" />
+	///         <license input="component.licx" licensetarget="component.exe" />
 	///     ]]>
 	///   </code>
 	/// </example>
@@ -79,9 +79,12 @@ namespace SourceForge.NAnt.Tasks
 
 			ArrayList alAssemblies = new ArrayList();
 
+			Log.WriteLineIf( Verbose, LogPrefix + "Loading assemblies:" );
 			// First, load all the assemblies so that we can search for the licensed component
 			foreach ( string strAssembly in _assemblies.Includes )
 			{
+				Log.WriteLineIf( Verbose, LogPrefix + " - " + strAssembly );
+
 				Assembly asm;
 
 				try
@@ -100,7 +103,9 @@ namespace SourceForge.NAnt.Tasks
 						asm = Assembly.LoadWithPartialName( Path.GetFileNameWithoutExtension( fiAssembly.Name ) );
 					}
 
-					alAssemblies.Add( asm );
+                    // This may sometimes be true if the assembly could not load
+                    if ( asm != null )
+					    alAssemblies.Add( asm );
 				}
 				catch ( Exception e )
 				{
