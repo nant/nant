@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Tom Jordan (tdjordan@users.sourceforge.net)
 
-using System;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
@@ -179,7 +178,20 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Override implementation of ExternalProgramBase
 
-        public override string ExeName {
+        /// <summary>
+        /// Gets the name of the executable that should be used to launch the
+        /// external program.
+        /// </summary>
+        /// <value>
+        /// The name of the executable that should be used to launch the
+        /// external program.
+        /// </value>
+        /// <remarks>
+        /// If a current framework is defined, the name of the executable will
+        /// be retrieved from the configuration of the framework; otherwise the
+        /// <see cref="Task.Name" /> will be used.
+        /// </remarks>
+        protected override string ExeName {
             get {
                 if (Project.CurrentFramework != null) {
                     return Project.CurrentFramework.JSharpCompilerName;
@@ -239,8 +251,8 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        protected override string GetExtension() {
-            return "jsl";
+        protected override string Extension {
+            get { return "jsl"; }
         }
 
         #endregion Override implementation of CompilerBase

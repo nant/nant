@@ -18,7 +18,6 @@
 // Martin Baulig (martin@gnome.org)
 // Ian MacLean ( ian@maclean.ms )
 
-using System;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
@@ -93,6 +92,8 @@ namespace SourceForge.NAnt.Tasks {
             }
         }            
 
-        protected override string GetExtension(){ return "cs";}
+        protected override string Extension { 
+            get { return "cs"; }
+        }
     }
 }

@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 // Aaron A. Anderson (aaron@skypoint.com | aaron.anderson@farmcreditbank.com)
 
-using System;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
@@ -129,8 +128,21 @@ namespace SourceForge.NAnt.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
-           
-        public override string ExeName {
+
+        /// <summary>
+        /// Gets the name of the executable that should be used to launch the
+        /// external program.
+        /// </summary>
+        /// <value>
+        /// The name of the executable that should be used to launch the
+        /// external program.
+        /// </value>
+        /// <remarks>
+        /// If a current framework is defined, the name of the executable will
+        /// be retrieved from the configuration of the framework; otherwise the
+        /// <see cref="Task.Name" /> will be used.
+        /// </remarks>
+        protected override string ExeName {
             get {
                 if (Project.CurrentFramework != null) {
                     return Project.CurrentFramework.BasicCompilerName;
@@ -140,6 +152,14 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the external program should be executed
+        /// using a runtime engine, if configured.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the program should be executed using a runtime engine;
+        /// otherwise, <c>false</c>.
+        /// </value>
         protected override bool UsesRuntimeEngine { 
             get {
                 if (Project.CurrentFramework != null) {
@@ -220,8 +240,8 @@ namespace SourceForge.NAnt.Tasks {
             }
         }    
     
-        protected override string GetExtension() { 
-            return "vb";
+        protected override string Extension { 
+            get { return "vb"; }
         }
 
         #endregion Override implementation of CompilerBase
