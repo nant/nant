@@ -57,7 +57,7 @@
                 <Reference
                     Name = "nunit.framework"
                     AssemblyName = "nunit.framework"
-                    HintPath = "..\bin\nunit.framework.dll"
+                    HintPath = "..\lib\nunit.framework.dll"
                 />
                 <Reference
                     Name = "NAnt.Core"
@@ -339,6 +339,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.SourceControl\NAnt.SourceControl.build"
+                    SubType = "Content"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "NAnt.SourceControl\Tasks\CheckoutTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.SourceControl\Tasks\UpdateTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.VisualCpp\NAnt.VisualCpp.build"
                     SubType = "Content"
                     BuildAction = "None"
@@ -354,7 +369,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Zip\Tasks\UnZipTaskTest.cs"
+                    RelPath = "NAnt.VSNet\NAnt.VSNet.build"
+                    SubType = "Content"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "NAnt.VSNet\Tasks\NoTests.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -367,6 +387,11 @@
                     RelPath = "NAnt.Zip\NAnt.Zip.build"
                     SubType = "Content"
                     BuildAction = "None"
+                />
+                <File
+                    RelPath = "NAnt.Zip\Tasks\UnZipTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.Zip\Tasks\ZipTaskTest.cs"
