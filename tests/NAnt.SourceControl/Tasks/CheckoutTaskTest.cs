@@ -1,29 +1,49 @@
-using System;
+// NAnt - A .NET build tool
+// Copyright (C) 2001-2003 Gerry Shaw
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Clayton Harbour (claytonharbour@sporadicism.com)
+
+using System.Globalization;
 using System.IO;
 
 using NUnit.Framework;
+
 using NAnt.Core;
 using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
-
 namespace Tests.NAnt.SourceControl.Tasks {
-
     /// <summary>
     /// Test that the checkout command brings down the master.build
-    ///     file from the nant repository to the specified directory.
+    /// file from the nant repository to the specified directory.
     /// </summary>
     [TestFixture]
     public class CheckoutTaskTest : BuildTestBase {
-        private String destination;
+        #region Private Instance Fields
 
-        private readonly String MODULE = "sharpcvslib-test-repository";
-        private readonly String CHECK_FILE = "test-file.txt";
+        private string destination;
 
-        private readonly String CVSROOT = 
+        private readonly string MODULE = "sharpcvslib-test-repository";
+        private readonly string CHECK_FILE = "test-file.txt";
+
+        private readonly string CVSROOT = 
             ":pserver:anonymous@linux.sporadicism.com:/home/cvs/src";
 
-        private readonly String _projectXML = @"<?xml version='1.0'?>
+        private readonly string _projectXML = @"<?xml version='1.0'?>
             <project>
                 <cvs-checkout   module='{0}' 
                                 cvsroot='{1}'
@@ -31,6 +51,10 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 password='{3}'
                                 tag='{4}' />
             </project>";
+
+        #endregion Private Instance Fields
+
+        #region Override implementation of BuildTestBase
 
         /// <summary>
         /// Create the directory needed for the test if it does not exist.
@@ -49,31 +73,37 @@ namespace Tests.NAnt.SourceControl.Tasks {
             base.TearDown ();
         }
 
+        #endregion Override implementation of BuildTestBase
+
+        #region Public Instance Methods
+
         /// <summary>
-        /// Test that the directory for the cvs checkout gets created and
-        ///     that at least the master.build file comes down from the 
-        ///     repository.
+        /// Tests that the directory for the cvs checkout gets created and
+        /// that at least the master.build file comes down from the 
+        /// repository.
         /// </summary>
         [Test]
         public void Test_CvsCheckout () {
             object[] args = 
-                {MODULE, CVSROOT, this.destination, String.Empty, String.Empty};
+                {MODULE, CVSROOT, this.destination, string.Empty, string.Empty};
 
-            String checkoutPath = Path.Combine (this.destination, this.MODULE);
-            String checkFilePath = Path.Combine (checkoutPath, this.CHECK_FILE);
+            string checkoutPath = Path.Combine(this.destination, this.MODULE);
+            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
 
-            String result = 
-                this.RunBuild (FormatBuildFile (_projectXML, args), Level.Debug);
-            Assertion.Assert ("File does not exist, checkout probably did not work.", 
-                File.Exists (checkFilePath));
+            string result = 
+                this.RunBuild(FormatBuildFile(_projectXML, args), Level.Debug);
+            Assertion.Assert("File does not exist, checkout probably did not work.", 
+                File.Exists(checkFilePath));
         }
 
-        private String FormatBuildFile (String baseFile, object[] args) {
-            String buildFile = 
-                String.Format (baseFile, args);
+        #endregion Public Instance Methods
 
-            //System.Console.WriteLine (buildFile);
-            return buildFile;
+        #region Private Instance Methods
+
+        private string FormatBuildFile(string baseFile, object[] args) {
+            return string.Format(CultureInfo.InvariantCulture, baseFile, args);
         }
+
+        #endregion Private Instance Methods
     }
 }
