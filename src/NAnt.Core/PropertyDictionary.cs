@@ -59,15 +59,7 @@ namespace NAnt.Core {
                 }
             }
             set {
-                ValidatePropertyName(name, Location.UnknownLocation);
-                if (!IsReadOnlyProperty(name)) {
-                    Dictionary[name] = value;
-                } 
-                /* // tomasr: Should this throw an error? I think so
-                                else {
-                                  throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Property '{0}' is read-only!", name));
-                                }
-                */
+                Dictionary[name] = value;
             }
         }
 
@@ -87,28 +79,59 @@ namespace NAnt.Core {
 
         protected override void OnClear() {
             _readOnlyProperties.Clear();
+            _dynamicProperties.Clear();
         }
 
-        protected override void OnInsert(Object key, Object value)  {
+        protected override void OnSet(object key, object oldValue, object newValue) {
+            // at this point we're sure the key is valid, as it has already
+            // been verified by OnValidate
+            string propertyName = (string) key;
+
+            // do not allow value of read-only property to be overwritten
+            if (IsReadOnlyProperty(propertyName)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Read-only property '{0}' cannot be overwritten.", propertyName));
+            }
+
+            base.OnSet(key, oldValue, newValue);
+        }
+
+        /// <summary>
+        /// Performs additional custom processes before inserting a new element 
+        /// into the <see cref="DictionaryBase" /> instance.
+        /// </summary>
+        /// <param name="key">The key of the element to insert.</param>
+        /// <param name="value">The value of the element to insert.</param>
+        protected override void OnInsert(object key, object value)  {
+            // at this point we're sure the key is valid, as it has already
+            // been verified by OnValidate
+            string propertyName = (string) key;
+
+            // ensure property doesn't already exist
+            if (Contains(propertyName)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Property '{0}' already exists.",
+                    propertyName), Location.UnknownLocation);
+            }
+        }
+
+        /// <summary>
+        /// Performs additional custom processes when validating the element 
+        /// with the specified key and value.
+        /// </summary>
+        /// <param name="key">The key of the element to validate.</param>
+        /// <param name="value">The value of the element to validate.</param>
+        protected override void OnValidate(object key, object value) {
             string propertyName = key as string;
             if (propertyName == null) {
                 throw new ArgumentException("Property name must be a string.", "key");
             }
 
-            if (value != null) {
-                if (!(value is string)) {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                        "Property value must be a string, was '{0}'.", value.GetType()), 
-                        "value");
-                }
-            } else {
-                // TODO: verify this
-                // throw new ArgumentException("Property value '" + propertyName + "' must not be null", "value");
-                return;
-            }
-
             ValidatePropertyName(propertyName, Location.UnknownLocation);
+            ValidatePropertyValue(value, Location.UnknownLocation);
+            base.OnValidate(key, value);
         }
+
 
         #endregion Override implementation of DictionaryBase
 
@@ -125,9 +148,8 @@ namespace NAnt.Core {
         /// </remarks>
         public virtual void AddReadOnly(string name, string value) {
             if (!IsReadOnlyProperty(name)) {
-                ValidatePropertyName(name, Location.UnknownLocation);
-                _readOnlyProperties.Add(name);
                 Dictionary.Add(name, value);
+                _readOnlyProperties.Add(name);
             }
         }
 
@@ -138,7 +160,12 @@ namespace NAnt.Core {
         /// <param name="name">The name of the property to mark as dynamic.</param>
         public virtual void MarkDynamic(string name) {
             if (!IsDynamicProperty(name)) {
-                ValidatePropertyName(name, Location.UnknownLocation);
+                // check if the property actually exists
+                if (!Contains(name)) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                        "Property '{0}' does not exist.", name), "name");
+                }
+
                 _dynamicProperties.Add(name);
             }
         }
@@ -149,25 +176,7 @@ namespace NAnt.Core {
         /// <param name="name">The name of the property.</param>
         /// <param name="value">The value to assign to the property.</param>
         public virtual void Add(string name, string value) {
-            if (!IsReadOnlyProperty(name)) {
-                ValidatePropertyName(name, Location.UnknownLocation);
-                Dictionary.Add(name, value);
-            }
-        }
-
-        /// <summary>
-        /// Sets the specified property to the given value.
-        /// </summary>
-        /// <param name="name">The name of the property.</param>
-        /// <param name="value">The value to assign to the property.</param>
-        /// <remarks>
-        /// For read-only properties, the value will not be changed.
-        /// </remarks>
-        public virtual void SetValue(string name, string value) {
-            if (!IsReadOnlyProperty(name)) {
-                ValidatePropertyName(name, Location.UnknownLocation);
-                Dictionary[name] = value;
-            } 
+            Dictionary.Add(name, value);
         }
 
         /// <summary>
@@ -380,11 +389,27 @@ namespace NAnt.Core {
             // validate property name
             //
             if (!Regex.IsMatch(propertyName, propertyNamePattern)) {
-                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Property name '{0}' is invalid.", propertyName), location);
             }
             if (propertyName.EndsWith("-") || propertyName.EndsWith(".")) {
                 // this additional rule helps simplify the regex pattern
-                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Property name '{0}' is invalid.", propertyName), location);
+            }
+        }
+
+        private static void ValidatePropertyValue(object value, Location location) {
+            if (value != null) {
+                if (!(value is string)) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                        "Property value must be a string, was '{0}'.", value.GetType()), 
+                        "value");
+                }
+            } else {
+                // TODO: verify this
+                // throw new ArgumentException("Property value '" + propertyName + "' must not be null", "value");
+                return;
             }
         }
 
