@@ -82,30 +82,26 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Get the argument string from its name and its value
+        /// Gets the argument string corresponding with a configuration property 
+        /// named <paramref name="propName" /> with value <paramref name="propValue" />.
+        /// An ignore mask can be used to eliminate some arguments from the search.
         /// </summary>
-        /// <param name="propName">the name of the argument.</param>
-        /// <param name="propValue">the value of the argument.</param>
-        /// <returns>The argument string.</returns>
-        public string GetArgument(string propName, string propValue) {
-            return GetArgument(propName, propValue, ArgGroup.Unassigned);
-        }
-
-        /// <summary>
-        /// Get the argument string from its name and its value. An ignore mask could be used
-        /// to eliminate some arguments from the search.
-        /// </summary>
-        /// <param name="propName">the name of the argument.</param>
-        /// <param name="propValue">the value of the argument.</param>
+        /// <param name="propName">The name of the configuration property.</param>
+        /// <param name="propValue">The value of the configuration property.</param>
         /// <param name="useIgnoreGroup">Specify any groups that needs to be ignored.</param>
-        /// <returns>The argument string</returns>
+        /// <returns>
+        /// The argument string corresponding with a configuration property 
+        /// named <paramref name="propName" /> with value <paramref name="propValue" />,
+        /// or <see langword="null" /> if no corresponding argument exists.
+        /// </returns>
         public string GetArgument(string propName, string propValue, ArgGroup useIgnoreGroup) {
             VcArgument arg = (VcArgument) _htArgs [propName];
-            if (arg == null)
+            if (arg == null) {
                 return null;
-            if (arg.Group != ArgGroup.Unassigned && 
-                (arg.Group & useIgnoreGroup) != 0)
+            }
+            if (arg.Group != ArgGroup.Unassigned && (arg.Group & useIgnoreGroup) != 0) {
                 return null;
+            }
             return arg.MapValue(propValue);
         }
 
@@ -232,17 +228,17 @@ namespace NAnt.VSNet {
             map.AddBool("DefaultCharIsUnsigned", "/J");
             map.AddBool("TreatWChar_tAsBuiltInType", "/Zc:wchar_t");
             map.AddBool("ForceConformanceInForLoopScope", "/Zc:forScope");
-            map.AddBool("RuntimeTypeInfo", "/GR");  
+            map.AddBool("RuntimeTypeInfo", "/GR");
 
             // Output Files
-            map.AddBool("ExpandAttributedSource", "/Fx");  
+            map.AddBool("ExpandAttributedSource", "/Fx");
             map.AddEnum("AssemblerOutput", null, null, "/FA", "/FAcs", "/FAc", "/FAs");
 
             // Advanced
             map.AddEnum("CallingConvention", null, null, "/Gr", "/Gz");
             map.AddEnum("CompileAs", null, null, "/TC", "/TP");
             map.AddBool("ShowIncludes", "/showIncludes");  
-            map.AddBool("UndefineAllPreprocessorDefinitions", "/u");  
+            map.AddBool("UndefineAllPreprocessorDefinitions", "/u");
 
             return map;
         }
@@ -559,18 +555,18 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Allow us to assign any argument to a specific group.
+        /// Allow us to assign an argument to a specific group.
         /// </summary>
         [Flags]
         public enum ArgGroup {
             /// <summary>
-            /// The argument is Unassigned to any group
+            /// The argument is not assigned to any group.
             /// </summary>
             Unassigned = 0,
 
             /// <summary>
-            /// Arguments to this group are ignored when the optimization level is set
-            /// to 1 or 2.
+            /// The argument is ignored when the optimization level is set to 
+            /// <b>Minimum Size</b> (1) or <b>Maximum Size</b> (2).
             /// </summary>
             OptiIgnoreGroup = 1
         }
