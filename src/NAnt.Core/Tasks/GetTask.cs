@@ -18,13 +18,14 @@
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.IO;
-using System.Net;
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt;
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Net;
+
+    using SourceForge.NAnt.Attributes;
 
     /// <summary>Get a particular file from a URL source.</summary>
     /// <remarks>
@@ -39,21 +40,25 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("get")]
     public class GetTask : Task {
+        #region Private Instance Fields
 
         string _src = null;
         string _dest = null;
         string _proxy = null;
         bool _ignoreErrors = false;
         bool _useTimeStamp = false;
-
         FileSet _fileset = new FileSet();
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         /// <summary>The URL from which to retrieve a file.</summary>
-        [TaskAttribute("src", Required=true )]
+        [TaskAttribute("src", Required=true)]
         public string Source { get { return _src; } set { _src = value; } }
 
         /// <summary>The file where to store the retrieved file.</summary>
-        [TaskAttribute("dest", Required=true )]
+        [TaskAttribute("dest", Required=true)]
         public string Destination { get { return _dest; } set { _dest = value; }}
 
         /// <summary>If inside a firewall, proxy server/port information
@@ -65,22 +70,24 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Log errors but don't treat as fatal. ("true"/"false"). Default is "false".</summary>
         [TaskAttribute("ignoreerrors")]
         [BooleanValidator()]
-        public bool ignoreErrors {  get { return _ignoreErrors; } set { _ignoreErrors = value; } }
+        public bool IgnoreErrors {  get { return _ignoreErrors; } set { _ignoreErrors = value; } }
 
         /// <summary>Conditionally download a file based on the timestamp of the local copy. HTTP only. ("true"/"false"). Default is "false".</summary>
         [TaskAttribute("usetimestamp")]
         [BooleanValidator()]
-        public bool useTimeStamp { get { return _useTimeStamp; }  set { _useTimeStamp = value; } }
-
+        public bool UseTimeStamp { get { return _useTimeStamp; }  set { _useTimeStamp = value; } }
 
         /// <summary>FileSets are used to select files to get.</summary>
         [FileSet("fileset")]
         public FileSet FileSet { get { return _fileset; }  }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         ///<summary>Initializes task and ensures the supplied attributes are valid.</summary>
         ///<param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-
             if (Source == null) {
                 throw new BuildException("src attribute is required.", Location);
             }
@@ -100,18 +107,17 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>This is where the work is done </summary>
         protected override void ExecuteTask() {
-
             try {
                 //set the timestamp to the file date.
                 DateTime fileTimeStamp = new DateTime();
 
-                if (useTimeStamp && File.Exists(Destination)) {
+                if (UseTimeStamp && File.Exists(Destination)) {
                     fileTimeStamp = File.GetLastWriteTime(Destination);
-                    Log.WriteLineIf(Verbose, LogPrefix + "Local file time stamp: " + fileTimeStamp.ToString());
+                    Log.WriteLineIf(Verbose, LogPrefix + "Local file time stamp: " + fileTimeStamp.ToString(CultureInfo.InvariantCulture));
                 }
 
                 //set up the URL connection
-                WebRequest webRequest = getWebRequest(Source, fileTimeStamp);
+                WebRequest webRequest = GetWebRequest(Source, fileTimeStamp);
                 WebResponse webResponse = webRequest.GetResponse();
 
                 // Get stream
@@ -128,7 +134,7 @@ namespace SourceForge.NAnt.Tasks {
 
                 if (responseStream == null) {
                     Log.WriteLine(LogPrefix + "Cannot get " + Source + " to " + Destination);
-                    if (ignoreErrors) {
+                    if (IgnoreErrors) {
                         return;
                     }
                     throw new BuildException( "Cannot get " + Source + " to " + Destination, Location);
@@ -169,7 +175,7 @@ namespace SourceForge.NAnt.Tasks {
                     if (totalBytesReadFromStream > bufferSize) {
                         Log.WriteLine();
                     }
-                    Log.WriteLine(LogPrefix + "Number of bytes read: " + totalBytesReadFromStream.ToString());
+                    Log.WriteLine(LogPrefix + "Number of bytes read: " + totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
                 }
 
                 // clean up response streams
@@ -178,7 +184,7 @@ namespace SourceForge.NAnt.Tasks {
 
                 //if (and only if) the use file time option is set, then the
                 //saved file now has its timestamp set to that of the downloaded file
-                if (useTimeStamp)  {
+                if (UseTimeStamp)  {
                     // HTTP only
                     if (webRequest is HttpWebRequest) {
 
@@ -187,8 +193,8 @@ namespace SourceForge.NAnt.Tasks {
                         // get timestamp of remote file
                         DateTime remoteTimestamp = httpResponse.LastModified;
 
-                        Log.WriteLineIf(Verbose, LogPrefix + Destination + " last modified on " + remoteTimestamp.ToString() );
-                        touchFile(Destination,remoteTimestamp);
+                        Log.WriteLineIf(Verbose, LogPrefix + Destination + " last modified on " + remoteTimestamp.ToString(CultureInfo.InvariantCulture) );
+                        TouchFile(Destination, remoteTimestamp);
                     }
                 }
             } catch (WebException webException) {
@@ -205,7 +211,7 @@ namespace SourceForge.NAnt.Tasks {
                         //and trace out something so the user doesn't think that the
                         //download happened when it didn't
 
-                        Log.WriteLineIf(Verbose, LogPrefix + Destination + " not downloaded.  Not modified since " + httpResponse.LastModified.ToString());
+                        Log.WriteLineIf(Verbose, LogPrefix + Destination + " not downloaded.  Not modified since " + httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
                         return;
                     } else {
                         Log.WriteLine(LogPrefix + (int)httpResponse.StatusCode + ": " + httpResponse.StatusDescription);
@@ -222,14 +228,35 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        private WebRequest getWebRequest(string url, DateTime fileLastModified) {
+        #endregion Override implementation of Task
 
+        #region Protected Instance Methods
+
+        /// <summary>Set the timestamp of a named file to a specified time.</summary>
+        protected void TouchFile(string fileName, DateTime touchDateTime) {
+            try {
+                if (File.Exists(fileName)) {
+                    Log.WriteLineIf(Verbose, LogPrefix + "Touching file {0} with {1}", fileName, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                    File.SetLastWriteTime(fileName, touchDateTime);
+                } else {
+                    throw new FileNotFoundException();
+                }
+            } catch (Exception e) {
+                // swallow any errors and move on
+                Log.WriteLineIf(Verbose, LogPrefix + "Error: {0}", e.ToString());
+            }
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        private WebRequest GetWebRequest(string url, DateTime fileLastModified) {
             Uri uri = new Uri(url);
 
             // conditionally determine type of connection
             // if HTTP, cast to an HttpWebRequest so that IfModifiedSince can be set
             if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) {
-
                 HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(uri);
 
                 if (Proxy != null) {
@@ -239,7 +266,6 @@ namespace SourceForge.NAnt.Tasks {
                 //modify the headers
                 //things like user authentication could go in here too.
                 if (!fileLastModified.Equals(new DateTime())) {
-
                     // When IfModifiedSince is set, it internally converts the local time
                     // to UTC (or, for us old farts, GMT). For all locations behind UTC
                     // (US and Canada), this causes the IfModifiedSince time to always be
@@ -266,7 +292,6 @@ namespace SourceForge.NAnt.Tasks {
                     }
 
                     return webRequest;
-
                 } catch (Exception e) {
                     string msg = uri.Scheme + " protocol is not supported.";
                     Log.WriteLine(LogPrefix + msg);
@@ -275,21 +300,7 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        /// <summary>Set the timestamp of a named file to a specified time.</summary>
-        protected void touchFile(string fileName, DateTime touchDateTime) {
-
-            try {
-                if (File.Exists(fileName)) {
-                    Log.WriteLineIf(Verbose, LogPrefix + "Touching file {0} with {1}", fileName, touchDateTime.ToString());
-                    File.SetLastWriteTime(fileName, touchDateTime);
-                } else {
-                    throw new FileNotFoundException();
-                }
-            } catch (Exception e) {
-                // swallow any errors and move on
-                Log.WriteLineIf(Verbose, LogPrefix + "Error: {0}", e.ToString());
-            }
-        }
+        #endregion Private Instance Methods
     }
 }
 
