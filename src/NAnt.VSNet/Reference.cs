@@ -38,7 +38,7 @@ namespace NAnt.VSNet.Tasks {
             _bIsSystem = false;
 
             _bIsCreated = false;
-            FileInfo fiGAC = new FileInfo( new Uri( typeof( System.Object ).Assembly.CodeBase ).PathAndQuery );
+            FileInfo fiGAC = new FileInfo( nanttask.Project.CurrentFramework.FrameworkDirectory.FullName );
             _strName = ( string )elemReference.Attributes[ "Name" ].Value;
 
             if ( elemReference.Attributes[ "Project" ] != null ) {
