@@ -117,6 +117,33 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // process VB.NET specific project settings
+            if (type == ProjectType.VBNet) {
+                if (elemSettings.Attributes["OptionExplicit"] != null) {
+                    if (elemSettings.Attributes ["OptionExplicit"].Value == "Off") {
+                        _settings.Add("/optionexplicit-");
+                    } else {
+                        _settings.Add("/optionexplicit+");
+                    }
+                }
+
+                if (elemSettings.Attributes["OptionStrict"] != null) {
+                    if (elemSettings.Attributes ["OptionStrict"].Value == "Off") {
+                        _settings.Add("/optionstrict-");
+                    } else {
+                        _settings.Add("/optionstrict+");
+                    }
+                }
+
+                if (elemSettings.Attributes["OptionCompare"] != null) {
+                    if (elemSettings.Attributes ["OptionCompare"].Value == "Text") {
+                        _settings.Add("/optioncompare:text");
+                    } else {
+                        _settings.Add("/optioncompare:binary");
+                    }
+                }
+            }
+
             foreach (DictionaryEntry de in htStringSettings) {
                 string value = elemSettings.GetAttribute(de.Key.ToString());
                 if (StringUtils.IsNullOrEmpty(value)) {
