@@ -41,13 +41,13 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private string _responseFileName;
-        private FileInfo _outputFile = null;
-        private string _target = null;
-        private bool _debug = false;
-        private string _define = null;
-        private string _win32icon = null;
-        private bool _warnAsError = false;
-        private string _mainType = null;
+        private FileInfo _outputFile;
+        private string _target;
+        private bool _debug;
+        private string _define;
+        private FileInfo _win32icon;
+        private bool _warnAsError;
+        private string _mainType;
         private FileSet _references = new FileSet();
         private FileSet _lib = new FileSet();
         private FileSet _modules = new FileSet();
@@ -142,9 +142,9 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("win32icon")]
-        public string Win32Icon {
-            get { return (_win32icon != null) ? Project.GetFullPath(_win32icon) : null; }
-            set { _win32icon = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo Win32Icon {
+            get { return _win32icon; }
+            set { _win32icon = value; }
         }
 
         /// <summary>
@@ -349,7 +349,7 @@ namespace NAnt.DotNet.Tasks {
                     WriteOption(writer, "out", OutputFile.FullName);
 
                     if (Win32Icon != null) {
-                        WriteOption(writer, "win32icon", Win32Icon);
+                        WriteOption(writer, "win32icon", Win32Icon.FullName);
                     }
 
                     // writes the option that specifies the class containing 
