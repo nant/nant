@@ -49,7 +49,6 @@ namespace NAnt.DotNet.Tasks {
     public class JscTask : CompilerBase {
         #region Private Instance Fields
 
-        private bool _debug;
         private string _warningLevel;
         private string _codepage;
 
@@ -63,16 +62,6 @@ namespace NAnt.DotNet.Tasks {
         #endregion Private Static Fields
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// Specifies whether to emit debugging information. The default is 
-        /// <see langword="false" />.
-        /// </summary>
-        [TaskAttribute("debug")]
-        public bool Debug {
-            get { return _debug; }
-            set { _debug = value; }
-        }
 
         /// <summary>
         /// Specifies the warning level for the compiler to display. Valid 

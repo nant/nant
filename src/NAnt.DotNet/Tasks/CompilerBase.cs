@@ -44,6 +44,7 @@ namespace NAnt.DotNet.Tasks {
         private string _responseFileName;
         private FileInfo _outputFile;
         private string _target;
+        private bool _debug;
         private string _define;
         private FileInfo _win32icon;
         private bool _warnAsError;
@@ -108,6 +109,20 @@ namespace NAnt.DotNet.Tasks {
         #endregion Static Constructor
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// Generate debug output. The default is <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        /// Only used for &lt;jsc&gt; tasks, but retained for backward 
+        /// compatibility (Clover.NET).
+        /// </remarks>
+        [TaskAttribute("debug")]
+        [BooleanValidator()]
+        public virtual bool Debug {
+            get { return _debug; }
+            set { _debug = value; }
+        }
 
         /// <summary>
         /// The output file created by the compiler.

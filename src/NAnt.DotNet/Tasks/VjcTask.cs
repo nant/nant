@@ -116,6 +116,15 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// No longer expose this to build authors. Use <see cref="DebugOutput" />
+        /// instead.
+        /// </summary>
+        public override bool Debug {
+            get { return DebugOutput != DebugOutput.None; }
+            set { DebugOutput = DebugOutput.@true; }
+        }
+
+        /// <summary>
         /// Specifies whether package-scoped members are accessible outside of 
         /// the assembly. In other words, package scope is treated as assembly 
         /// scope when emitting metadata. The default is <see langword="false" />.

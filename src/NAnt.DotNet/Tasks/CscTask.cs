@@ -129,6 +129,15 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// No longer expose this to build authors. Use <see cref="DebugOutput" />
+        /// instead.
+        /// </summary>
+        public override bool Debug {
+            get { return DebugOutput != DebugOutput.None; }
+            set { DebugOutput = DebugOutput.@true; }
+        }
+
+        /// <summary>
         /// The name of the XML documentation file to generate.
         /// </summary>
         /// <remarks>
