@@ -365,9 +365,9 @@ namespace NAnt.Core {
             IBuildLogger buildLogger = null;
             TextWriter outputWriter = Console.Out;
 
-            if(cmdlineOptions.LogFile != null) {
+            if (cmdlineOptions.LogFile != null) {
                 try {
-                    outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
+                    outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read));
                 } catch (Exception ex) {
                     logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}.", cmdlineOptions.LogFile.FullName), ex);
                     Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}: {1}", cmdlineOptions.LogFile.FullName, ex.Message));
