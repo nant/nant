@@ -449,6 +449,27 @@ namespace NAnt.VSNet {
                     }
                 }
             }
+
+            // remove dependencies on projects that are no longer included in 
+            // solution
+            foreach (DictionaryEntry de in _htProjectDependencies) {
+                string projectGuid = (string) de.Key;
+                string projectName = ((ProjectBase) _htProjects[projectGuid]).Name;
+
+                Hashtable projectDependencies = (Hashtable) de.Value;
+
+                foreach (string dependentProject in ((Hashtable) projectDependencies.Clone()).Keys) {
+                    // check whether dependent project is actually loaded
+                    if (!_htProjects.ContainsKey(dependentProject)) {
+                        Log(Level.Warning, "Project \"{0}\": removed dependency"
+                            + " on project \"{1}\", which is not included.", 
+                            projectName, dependentProject);
+
+                        // remove dependency on project that's not included
+                        projectDependencies.Remove(dependentProject);
+                    }
+                }
+            }
         }
 
         /// <summary>
