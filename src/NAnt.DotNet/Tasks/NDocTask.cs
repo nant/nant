@@ -133,12 +133,16 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
-            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             // Expand and store the xml node
             _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", Project.NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
             // check for valid documenters (any other validation can be done by NDoc itself at project load time)
             foreach (XmlNode node in _docNodes) {
+				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
+				if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+					continue;	
+				} 
+
                 string documenterName = node.Attributes["name"].Value;
             }
         }
@@ -210,7 +214,11 @@ namespace NAnt.DotNet.Tasks {
             // write out the documenters section
             writer.WriteStartElement("documenters");
             foreach (XmlNode node in _docNodes) {
-                writer.WriteRaw(node.OuterXml);
+				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
+				if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+					continue;	
+				}
+				writer.WriteRaw(node.OuterXml);
             }
             writer.WriteEndElement();
 
@@ -230,7 +238,12 @@ namespace NAnt.DotNet.Tasks {
             project.Read(projectFileName);
 
             foreach (XmlNode node in _docNodes) {
-                string documenterName = node.Attributes["name"].Value;
+				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
+				if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+					continue;	
+				}
+            
+				string documenterName = node.Attributes["name"].Value;
                 IDocumenter documenter = GetDocumenter(project, documenterName);
                 if (documenter == null) {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Error loading documenter {0}.", documenterName);
@@ -301,8 +314,8 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="nodes"><see cref="XmlNodeList" /> for which expansion should be performed.</param>
         private void ExpandPropertiesInNodes(XmlNodeList nodes) {
             foreach (XmlNode node in nodes) {
-                // do not process comment nodes
-                if (node.NodeType != XmlNodeType.Comment) {
+                // do not process comment nodes, or entities and other internal element types.
+                if (node.NodeType == XmlNodeType.Element) {
                     ExpandPropertiesInNodes(node.ChildNodes);
                     foreach (XmlAttribute attr in node.Attributes) {
                         attr.Value = Project.ExpandProperties(attr.Value, Location);
