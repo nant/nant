@@ -126,7 +126,8 @@ namespace NAnt.VSNet {
                     try {
                         Uri uri = new Uri(subProjectFilename);
                         if (uri.Scheme == Uri.UriSchemeFile) {
-                            fullPath = FileUtils.CombinePaths(Path.GetDirectoryName(fileName), uri.LocalPath);
+                            fullPath = FileUtils.GetFullPath(FileUtils.CombinePaths(
+                                Path.GetDirectoryName(fileName), uri.LocalPath));
                         } else {
                             fullPath = subProjectFilename;
 
@@ -139,7 +140,8 @@ namespace NAnt.VSNet {
                             }
                         }
                     } catch (UriFormatException) {
-                        fullPath = FileUtils.CombinePaths(Path.GetDirectoryName(fileName), subProjectFilename);
+                        fullPath = FileUtils.GetFullPath(FileUtils.CombinePaths(
+                            Path.GetDirectoryName(fileName), subProjectFilename));
                     }
 
                     if (ManagedProjectBase.IsEnterpriseTemplateProject(fullPath)) {
@@ -481,7 +483,8 @@ namespace NAnt.VSNet {
             try {
                 Uri uri = new Uri(translatedPath);
                 if (uri.Scheme == Uri.UriSchemeFile) {
-                    translatedPath = FileUtils.CombinePaths(solutionDir, uri.LocalPath);
+                    translatedPath = FileUtils.GetFullPath(FileUtils.CombinePaths(
+                        solutionDir, uri.LocalPath));
                 } else {
                     if (!_solutionTask.EnableWebDav) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
@@ -492,7 +495,8 @@ namespace NAnt.VSNet {
                     }
                 }
             } catch (UriFormatException) {
-                translatedPath = FileUtils.CombinePaths(solutionDir, translatedPath);
+                translatedPath = FileUtils.GetFullPath(FileUtils.CombinePaths(
+                    solutionDir, translatedPath));
             }
 
             return translatedPath;
