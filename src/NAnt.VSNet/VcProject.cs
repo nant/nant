@@ -934,13 +934,14 @@ namespace NAnt.VSNet {
                 rcTask.Verbose = true;
             }
 
-            string addIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
+            string addIncludeDirs = MergeToolSetting(projectConfig, fileConfig, compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(addIncludeDirs)) {
-                foreach (string addIncludeDir in addIncludeDirs.Split(';')) {
-                    if (addIncludeDir.Length == 0) {
+                foreach (string includeDir in addIncludeDirs.Split(';')) {
+                    if (includeDir.Length == 0) {
                         continue;
                     }
-                    rcTask.IncludeDirs.DirectoryNames.Add(CleanPath(addIncludeDir));
+                    rcTask.IncludeDirs.DirectoryNames.Add(FileUtils.CombinePaths(
+                        ProjectDirectory.FullName, CleanPath(includeDir)));
                 }
             }
 
@@ -1119,11 +1120,12 @@ namespace NAnt.VSNet {
             string additionalIncludeDirs = MergeToolSetting(projectConfig, fileConfig,
                 compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(additionalIncludeDirs)) {
-                foreach (string additionalIncludeDir in additionalIncludeDirs.Split(';')) {
-                    if (additionalIncludeDir.Length == 0) {
+                foreach (string includeDir in additionalIncludeDirs.Split(';')) {
+                    if (includeDir.Length == 0) {
                         continue;
                     }
-                    midlTask.IncludeDirs.DirectoryNames.Add(CleanPath(additionalIncludeDir));
+                    midlTask.IncludeDirs.DirectoryNames.Add(FileUtils.CombinePaths(
+                        ProjectDirectory.FullName, CleanPath(includeDir)));
                 }
             }
 
