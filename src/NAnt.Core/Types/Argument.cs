@@ -123,9 +123,8 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// A string that will be treated as a path-like string as a single 
-        /// command-line argument; you can use <code>;</code> or <code>:</code>
-        /// as path separators and NAnt will convert it to the platform's local 
-        /// conventions.
+        /// command-line argument; you can use <code>;</code> as path separator
+        /// and NAnt will convert it to the platform's local conventions.
         /// </summary>
         [TaskAttribute("path")]
         public PathList Path {

@@ -93,8 +93,8 @@ namespace NAnt.Core.Types {
         #region Public Static Methods
 
         /// <summary>
-        /// Splits a PATH (with ; or : as separators) into its parts, while 
-        /// resolving references to environment variables.
+        /// Splits a PATH (with ; as separators) into its parts, while resolving 
+        /// references to environment variables.
         /// </summary>
         /// <param name="project">The <see cref="Project" /> to be used to resolve relative paths.</param>
         /// <param name="source">The path to translate.</param>
@@ -109,7 +109,7 @@ namespace NAnt.Core.Types {
                 return result;
             }
 
-            string[] parts = source.Split(';', ':');
+            string[] parts = source.Split(';');
             foreach (string part in parts) {
                 // expand env variables in part
                 string expandedPart = Environment.ExpandEnvironmentVariables(part);
