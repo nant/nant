@@ -28,6 +28,15 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {
 
+    /// <summary>
+    /// The FileSet element.
+    /// </summary>
+    /// <remarks>
+    /// Used as a child element in various file-related tasks, including delete, copy, touch, get, atrrib, move...
+    /// </remarks>
+    /// <history>
+    /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
+    /// </history>
     public class FileSet : Element {
 
         // copy constructor 
@@ -62,11 +71,23 @@ namespace SourceForge.NAnt {
 
         bool _hasScanned = false;
         bool _defaultExcludes = true;
+        bool _failOnEmpty = false;
         DirectoryScanner _scanner = new DirectoryScanner();
         StringCollection _asis = new StringCollection();
         PathScanner _pathFiles = new PathScanner();		
 
         public FileSet() {
+        }
+
+        /// <summary>
+        /// When set to true, causes the fileset element to throw a ValidationException when no files match 
+        /// the includes and excludes criteria. Default "false".
+        /// </summary>
+        [TaskAttribute("failonempty")]
+        [BooleanValidator()]
+        public bool FailOnEmpty {
+            get { return _failOnEmpty; }
+            set { _failOnEmpty = value; }
         }
 
         /// <summary>Indicates whether default excludes should be used or not.  Default "true".</summary>
@@ -123,11 +144,14 @@ namespace SourceForge.NAnt {
                 foreach (string name in PathFiles.Scan()) {
                     _scanner.FileNames.Add(name);
                 }
-
             } catch (Exception e) {
                 throw new BuildException("Error creating file set.", Location, e);
             }
             _hasScanned = true;
+
+            if (FailOnEmpty && _scanner.FileNames.Count == 0) {
+                throw new ValidationException("The fileset specified is empty.", Location);
+            }
         }
 
         protected override void InitializeElement(XmlNode elementNode)  {

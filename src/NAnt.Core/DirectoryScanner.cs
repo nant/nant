@@ -87,6 +87,9 @@ namespace SourceForge.NAnt {
     /// <history>
     ///     <change date="20020220" author="Ari Hännikäinen">Added support for absolute paths and relative paths refering to parent directories ( ../ )</change>
     ///     <change date="20020221" author="Ari Hännikäinen">Changed implementation because of performance reasons - now scanning each directory only once</change>
+    ///     <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com)">
+    ///         Fixed a bug that was causing absolute pathnames to turn into an invalid regex pattern, and thus never match.
+    ///     </change>
     /// </history>
     public class DirectoryScanner {
 
@@ -161,7 +164,7 @@ namespace SourceForge.NAnt {
             _directoryNames = new StringCollection();
             _searchDirectories = new StringCollection();
             _pathsAlreadySearched = new StringCollection();
-            
+
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
             convertPatterns(_includes, _includePatterns);
@@ -206,6 +209,11 @@ namespace SourceForge.NAnt {
         /// <history>
         ///     <change date="20020220" author="Ari Hännikäinen">Created</change>
         ///     <change date="20020221" author="Ari Hännikäinen">Returning absolute regex patterns instead of relative nant patterns</change>
+        ///     <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com)">
+        ///     Added replacing of slashes with Path.DirectorySeparatorChar to make this OS-agnostic.  Also added the Path.IsPathRooted check
+        ///     to support absolute pathnames to prevent basedir = "/foo/bar" and pattern="/fudge/nugget" from being incorrectly turned into 
+        ///     "/foo/bar/fudge/nugget".  (pattern = "fudge/nugget" would still be treated as relative to basedir)
+        ///     </change>
         /// </history>
         public void parseSearchDirectoryAndPattern(string originalNAntPattern, out string searchDirectory, out string regexPattern) {
             string s = originalNAntPattern;
@@ -215,33 +223,43 @@ namespace SourceForge.NAnt {
             if (indexOfFirstWildcard != -1) { // if found any wildcard characters
                 s = s.Substring(0, indexOfFirstWildcard);
             }
-            
+
+            s = s.Replace('\\', Path.DirectorySeparatorChar);
+            s= s.Replace('/', Path.DirectorySeparatorChar);
             // find the last DirectorySeparatorChar (if any) and exclude the rest of the string
             int indexOfLastDirectorySeparator = s.LastIndexOf(Path.DirectorySeparatorChar);
 
-            // substring preceding the separator represents our search directory and the part following it represents nant search pattern relative to it
-            
+            // substring preceding the separator represents our search directory and the part following it represents nant search pattern relative to it            
             if (indexOfLastDirectorySeparator != -1) {
                 s = originalNAntPattern.Substring(0, indexOfLastDirectorySeparator);
             } else {
                 s = "";
             }
-            // combine the relative path with the base directory and canonize the resulting path
-            searchDirectory = new DirectoryInfo(Path.Combine(BaseDirectory, s)).FullName;
+            
+            //We only prepend BaseDirectory when s represents a relative path.
+            if (Path.IsPathRooted(s)) {
+                searchDirectory = new DirectoryInfo(s).FullName;
+            }
+            else {
+                //We also (correctly) get to this branch of code when s == ""
+                searchDirectory = new DirectoryInfo(Path.Combine(BaseDirectory, s)).FullName;
+            }
             
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
+            regexPattern = ToRegexPattern(searchDirectory, modifiedNAntPattern);
 
-            //Now checks for casesensitive filesystem and does a corresponding sensitivity search.
-            regexPattern = (IsCaseSensitiveFileSystem() ? "" : "(?i)") + //specify case-insensitive matching
-                ToRegexPattern(searchDirectory, modifiedNAntPattern);
+            //Specify pattern as case-insensitive if appropriate to this file system.
+            if (!IsCaseSensitiveFileSystem()) {
+                regexPattern = "(?i)" + regexPattern;
+            }
+            
+            
         }
 
         bool IsCaseSensitiveFileSystem() {
             //Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
             return (Path.DirectorySeparatorChar != '\\'); 
         }
-
-
 
         /// <summary>
         ///     Searches a directory recursively for files and directories matching the search criteria
@@ -332,8 +350,6 @@ namespace SourceForge.NAnt {
             return included;
         }
 
-
-        
         /// <summary>
         ///     Converts NAnt search pattern to a regular expression pattern
         /// </summary>
