@@ -31,7 +31,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.Compression\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -49,7 +49,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.Compression\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -74,7 +74,7 @@
                 <Reference
                     Name = "ICSharpCode.SharpZipLib"
                     AssemblyName = "ICSharpCode.SharpZipLib"
-                    HintPath = "..\..\bin\lib\ICSharpCode.SharpZipLib.dll"
+                    HintPath = "..\..\lib\ICSharpCode.SharpZipLib.dll"
                 />
             </References>
         </Build>
