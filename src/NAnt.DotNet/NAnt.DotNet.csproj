@@ -1,8 +1,5 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
+<VisualStudioProject>    <CSHARP        ProjectType = "Local"        ProductVersion = "7.0.9466"
+        SchemaVersion = "1.0"
         ProjectGuid = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
     >
         <Build>
@@ -15,11 +12,8 @@
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
+                OutputType = "Library"             
                 RootNamespace = "NAnt.DotNet"
-                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
                 <Config
@@ -33,8 +27,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
@@ -53,8 +45,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
