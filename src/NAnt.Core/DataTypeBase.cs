@@ -117,5 +117,20 @@ namespace NAnt.Core {
         }
 
         #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Copies all instance data of the <see cref="DataTypeBase" /> to a given
+        /// <see cref="DataTypeBase" />.
+        /// </summary>
+        protected void CopyTo(DataTypeBase clone) {
+            base.CopyTo(clone);
+
+            clone._id = _id;
+            clone._refID = _refID;
+        }
+
+        #endregion Protected Instance Methods
     }
 }

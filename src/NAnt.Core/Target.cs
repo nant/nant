@@ -219,17 +219,13 @@ namespace NAnt.Core {
         /// </returns>
         public Target Clone() {
             Target clone = new Target();
+            base.CopyTo(clone);
             clone._dependencies = _dependencies;
             clone._description = _description;
             clone._executed = _executed;
             clone._ifCondition = _ifCondition;
             clone._name = _name;
             clone._unlessCondition = _unlessCondition;
-            clone.Project = Project;
-            clone.NamespaceManager = NamespaceManager;
-            clone.XmlNode = XmlNode;
-            clone.Location = Location;
-            clone.Parent = Parent;
             return clone;
         }
 

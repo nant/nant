@@ -246,6 +246,20 @@ namespace NAnt.Core {
         protected virtual void InitializeElement(XmlNode elementNode) {
         }
 
+        /// <summary>
+        /// Copies all instance data of the <see cref="Element" /> to a given
+        /// <see cref="Element" />.
+        /// </summary>
+        protected void CopyTo(Element clone) {
+            clone._location = _location;
+            clone._nsMgr = _nsMgr;
+            clone._parent = _parent;
+            clone._project = _project;
+            if (_xmlNode != null) {
+                clone._xmlNode = _xmlNode.Clone();
+            }
+        }
+
         #endregion Protected Instance Methods
 
         #region Internal Instance Methods
