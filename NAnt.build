@@ -4,6 +4,11 @@
     <tstamp/>
     <property name="debug" value="true"/>
     <property name="project.name" value="nant"/>
+    <property name="project.FormalName" value="NAnt"/>
+
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="dist.dir" value="${project.name}"/>
 
     <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
     <property name="project.version" value="x.x.x"/>
@@ -14,11 +19,12 @@
 
 		class VersionReader {
 			public static void ScriptMain(Project project) {
-				string assemblyInfoFileName = Path.Combine(project.BaseDirectory, @"src\NAnt\AssemblyInfo.cs");
+			    string sourcePath = Path.Combine(project.BaseDirectory, Path.Combine(project.Properties["src.dir"], project.Properties["project.FormalName"]));
+				string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
 				StreamReader reader = File.OpenText(assemblyInfoFileName);
 
 				Regex commentRE = new Regex("^(\\s)*//");
-				Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d\\.\\d\\.\\d");
+				Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d+\\.\\d+\\.\\d+");
 
 				string line = reader.ReadLine();
 				while (line != null) {
@@ -39,14 +45,19 @@
 		}
 		]]></code>
     </script>
-
-
-    <property name="dist.dir" value="${project.name}"/>
-    <property name="build.dir" value="build"/>
+	
     <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
-    <property name="backup.name" value="..\nant-backup-${nant.dstamp}-${nant.tstamp}.zip" />
+    <property name="backup.name" value="..\${project.name}-backup-${nant.dstamp}-${nant.tstamp}.zip" />
 
     <echo message="Building ${project.name}-${project.version}"/>
+
+	<target name="debug">
+		<property name="debug" value="true"/>
+	</target>
+
+	<target name="release">
+		<property name="debug" value="false"/>
+	</target>
 
     <target name="clean">
         <delete dir="${build.dir}" verbose="true" failonerror="false"/>
@@ -63,24 +74,47 @@
 
     <target name="build">
         <mkdir dir="${build.dir}"/>
+		<!-- copy the assemblies required to build NAnt to the build folder -->
         <copy todir="${build.dir}">
             <fileset basedir="bin">
                 <includes name="DocNet*.*"/>
-                <includes name="NUnitCore.dll"/>
+               <includes name="NUnitCore.dll"/>
             </fileset>
         </copy>
-        <csc target="exe" output="${build.dir}\NAnt.exe" debug="${debug}" doc="${build.dir}\NAnt.xml">
-            <sources basedir="src\NAnt">
+
+		<!-- compile NAnt.exe -->
+        <csc target="exe" output="${build.dir}\${project.FormalName}.exe" debug="${debug}" doc="${build.dir}\${project.FormalName}.xml">
+            <sources basedir="${src.dir}\${project.FormalName}">
                 <includes name="**/*.cs"/>
             </sources>
             <references>
-                <includes name="build/DocNet.dll"/>
-                <includes name="build/DocNet.Msdn.dll"/>
-                <includes name="build/NUnitCore.dll"/>
+                <includes name="${build.dir}/DocNet.dll"/>
+                <includes name="${build.dir}/DocNet.Msdn.dll"/>
+                <includes name="${build.dir}/NUnitCore.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
             <arg value="/reference:Microsoft.JScript.dll"/>
         </csc>
+
+		<!-- compile NAnt.Tests.dll -->
+		<csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
+			<sources basedir="${src.dir}\${project.FormalName}.Tests">
+				<includes name="*.cs"/>
+			</sources>
+			<references>
+				<includes name="${build.dir}/NUnitCore.dll"/>
+				<includes name="${build.dir}/${project.name}.exe"/>
+			</references>
+		</csc>
+
+		<!-- 
+			Perform unit tests.  If a unit test fails, the build fails.
+			The base directory is set to the Test directory so that tests can easily
+			load external data files wihtout having to worry about complicated paths.
+		-->
+		<nunit basedir="${src.dir}\${project.FormalName}.Tests" printsummary="true" haltonerror="true" haltonfailure="true">          
+            <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" />
+		</nunit>
     </target>
 
     <target name="examples" depends="build">
@@ -99,12 +133,6 @@
         </docnet>
         <copy file="${build.dir}/docs/NAnt.chm" todir="${build.dir}"/>
     </target>
-
-<!--
-    <target name="test" depends="build">
-        <exec program="build\nant.exe" commandline="-buildfile:test.build dist"/>
-    </target>
--->
 
     <target name="backup" depends="clean">
         <exec program="bin/zip.exe" commandline="-r -q ${backup.name} *"/>
