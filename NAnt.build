@@ -117,8 +117,12 @@
 		<csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
 			<sources basedir="${src.dir}\${project.FormalName}.Tests">
 				<includes name="*.cs"/>
-                <excludes name="GetTest.cs"/>
+
+				<!-- this test is broken as of December 19, 2001 -->
                 <excludes name="TouchTest.cs"/>
+
+				<!-- these tests should be run only under extreme testing conditions due to the nature of them -->
+                <excludes name="GetTest.cs"/>
 				<excludes name="MailTest.cs"/>
 			</sources>
 			<references>
