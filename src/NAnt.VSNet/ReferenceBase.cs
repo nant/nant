@@ -204,6 +204,9 @@ namespace NAnt.VSNet {
                 return relatedFiles;
             }
 
+            // file itself should always be added
+            relatedFiles[file] = Path.GetFileName(file);
+
             // pattern indicating what files to scan
             string relatedFilesPattern = Path.GetFileName(Path.ChangeExtension(file, ".*"));
 
