@@ -322,6 +322,12 @@ namespace NAnt.VSNet.Tasks {
             set { _enableWebDav = value; }
         }
 
+        /// <summary>
+        /// Gets the list of folders to scan for assembly references.
+        /// </summary>
+        /// <value>
+        /// The list of folders to scan for assembly references.
+        /// </value>
         public StringCollection AssemblyFolderList {
             get {
                 if (_assemblyFolderList == null) {
@@ -496,41 +502,31 @@ namespace NAnt.VSNet.Tasks {
 
         #region Private Instance Methods
 
+        /// <summary>
+        /// Builds the list of folders that should be scanned for assembly 
+        /// references.
+        /// </summary>
+        /// <returns>
+        /// The list of folders that should be scanned for assembly references.
+        /// </returns>
         private StringCollection BuildAssemblyFolders() {
             StringCollection folderList = new StringCollection();
 
+            // determine version of Visual Studio .NET corresponding with 
+            // current target framework
             Version visualStudioVersion = Project.TargetFramework.VisualStudioVersion;
 
-            // check if we should scan Visual Studio .NET 2003 AssemblyFolders
-            if (visualStudioVersion >= new Version(7,1)) {
-                // check HKCU for VS.NET 2003 AssemblyFolders
-                BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
-                    visualStudioVersion.ToString(2));
-                // check HKCU for VS.NET 2002 AssemblyFolders
-                BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
-                    "7.0");
-                // check HKCU for .NET Framework AssemblyFolders
-                BuildDotNetAssemblyFolders(folderList, Registry.CurrentUser);
-                // check HKLM for VS.NET 2003 AssemblyFolders
-                BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
-                    visualStudioVersion.ToString(2));
-                // check HKLM for VS.NET 2002 AssemblyFolders
-                BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
-                    "7.0");
-                // check HKLM for .NET Framework AssemblyFolders
-                BuildDotNetAssemblyFolders(folderList, Registry.LocalMachine);
-            } else {
-                // check HKCU for VS.NET 2002
-                BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
-                    "7.0");
-                // check HKCU for .NET Framework AssemblyFolders
-                BuildDotNetAssemblyFolders(folderList, Registry.CurrentUser);
-                // check HKLM for VS.NET 2002
-                BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
-                    "7.0");
-                // check HKLM for .NET Framework AssemblyFolders
-                BuildDotNetAssemblyFolders(folderList, Registry.LocalMachine);
-            }
+            // check HKCU
+            BuildVisualStudioAssemblyFolders(folderList, Registry.CurrentUser, 
+                visualStudioVersion.ToString(2));
+            // check HKLM
+            BuildVisualStudioAssemblyFolders(folderList, Registry.LocalMachine, 
+                visualStudioVersion.ToString(2));
+
+            // check HKCU for .NET Framework AssemblyFolders
+            BuildDotNetAssemblyFolders(folderList, Registry.CurrentUser);
+            // check HKLM for .NET Framework AssemblyFolders
+            BuildDotNetAssemblyFolders(folderList, Registry.LocalMachine);
 
             return folderList;
         }
