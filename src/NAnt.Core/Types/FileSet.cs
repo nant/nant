@@ -29,14 +29,162 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
     /// <summary>
-    /// The FileSet element.
+    /// Filesets are groups of files.  These files can be found in a directory 
+    /// tree starting in a base directory and are matched by patterns taken 
+    /// from a number of patterns.  Filesets can appear inside tasks that support 
+    /// this feature or at the project level, i.e., as children of <c>&lt;project&gt;</c>.
     /// </summary>
     /// <remarks>
-    /// Used as a child element in various file-related tasks, including delete, copy, touch, get, atrrib, move...
+    /// <h3>Patterns</h3>
+    /// <para>
+    /// As described earlier, patterns are used for the inclusion and exclusion. 
+    /// These patterns look very much like the patterns used in DOS and UNIX:
+    /// </para>
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>
+    ///             <para>'<c>*</c>' matches zero or more characters</para>
+    ///             <para>For example:</para>
+    ///             <para>
+    ///             <c>*.cs</c> matches <c>.cs</c>, <c>x.cs</c> and <c>FooBar.cs</c>, 
+    ///             but not <c>FooBar.xml</c> (does not end with <c>.cs</c>).
+    ///             </para>
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///             <para>'<c>?</c>' matches one character</para>
+    ///             <para>For example:</para>
+    ///             <para>
+    ///             <c>?.cs</c> matches <c>x.cs</c>, <c>A.cs</c>, but not 
+    ///             <c>.cs</c> or <c>xyz.cs</c> (both don't have one character
+    ///             before <c>.cs</c>).
+    ///             </para>
+    ///         </description>
+    ///     </item>
+    /// </list>
+    /// <para>
+    /// Combinations of <c>*</c>'s and <c>?</c>'s are allowed.
+    /// </para>
+    /// <para>
+    /// Matching is done per-directory. This means that first the first directory 
+    /// in the pattern is matched against the first directory in the path to match. 
+    /// Then the second directory is matched, and so on. For example, when we have 
+    /// the pattern <c>/?abc/*/*.cs</c> and the path <c>/xabc/foobar/test.cs</c>, 
+    /// the first <c>?abc</c> is matched with <c>xabc</c>, then <c>*</c> is matched 
+    /// with <c>foobar</c>, and finally <c>*.cs</c> is matched with <c>test.cs</c>. 
+    /// They all match, so the path matches the pattern.
+    /// </para>
+    /// <para>
+    /// To make things a bit more flexible, we added one extra feature, which makes 
+    /// it possible to match multiple directory levels. This can be used to match a 
+    /// complete directory tree, or a file anywhere in the directory tree. To do this, 
+    /// <c>**</c> must be used as the name of a directory. When <c>**</c> is used as 
+    /// the name of a directory in the pattern, it matches zero or more directories. 
+    /// For example: <c>/test/**</c> matches all files/directories under <c>/test/</c>, 
+    /// such as <c>/test/x.cs</c>, or <c>/test/foo/bar/xyz.html</c>, but not <c>/xyz.xml</c>.
+    /// </para>
+    /// <para>
+    /// There is one "shorthand" - if a pattern ends with <c>/</c> or <c>\</c>, then 
+    /// <c>**</c> is appended. For example, <c>mypackage/test/</c> is interpreted as 
+    /// if it were <c>mypackage/test/**</c>.
+    /// </para>
     /// </remarks>
     /// <history>
     /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
     /// </history>
+    /// <example>
+    /// <list type="table">
+    ///     <listheader>
+    ///         <term>Pattern</term>
+    ///         <description>Match</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term><c>**/CVS/*</c></term>
+    ///         <description>
+    ///             <para>
+    ///             Matches all files in <c>CVS</c> directories that can be 
+    ///             located anywhere in the directory tree.
+    ///             </para>
+    ///             <para>Matches:</para>
+    ///             <list type="bullet">
+    ///                 <item>
+    ///                     <description>CVS/Repository</description>
+    ///                 </item>
+    ///                 <item>
+    ///                     <description>org/apache/CVS/Entries</description>
+    ///                 </item>
+    ///                 <item>
+    ///                     <description>org/apache/jakarta/tools/ant/CVS/Entries</description>
+    ///                 </item>
+    ///             </list>
+    ///             <para>But not:</para>
+    ///             <list type="bullet">
+    ///                 <item>
+    ///                     <description>org/apache/CVS/foo/bar/Entries (<c>foo/bar/</c> part does not match)</description>
+    ///                 </item>
+    ///             </list>
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term><c>org/apache/jakarta/**</c></term>
+    ///         <description>
+    ///             <para>
+    ///             Matches all files in the <c>org/apache/jakarta</c> directory 
+    ///             tree.
+    ///             </para>
+    ///             <para>Matches:</para>
+    ///             <list type="bullet">
+    ///                 <item>
+    ///                     <description>org/apache/jakarta/tools/ant/docs/index.html</description>
+    ///                 </item>
+    ///                 <item>
+    ///                     <description>org/apache/jakarta/test.xml</description>
+    ///                 </item>
+    ///             </list>
+    ///             <para>But not:</para>
+    ///             <list type="bullet">
+    ///                 <item>
+    ///                     <description>org/apache/xyz.java (<c>jakarta/</c> part is missing)</description>
+    ///                 </item>
+    ///             </list>
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term><c>org/apache/**/CVS/*</c></term>
+    ///         <description>
+    ///             <para>
+    ///             Matches all files in <c>CVS</c> directories that are located 
+    ///             anywhere in the directory tree under <c>org/apache</c>.
+    ///             </para>
+    ///             <para>Matches:</para>
+    ///             <list type="bullet">
+    ///                 <item>
+    ///                     <description>org/apache/CVS/Entries</description>
+    ///                 </item>
+    ///                 <item>
+    ///                     <description>org/apache/jakarta/tools/ant/CVS/Entries</description>
+    ///                 </item>
+    ///             </list>
+    ///             <para>But not:</para>
+    ///             <list type="bullet">
+    ///                 <item>
+    ///                     <description>org/apache/CVS/foo/bar/Entries (<c>foo/bar/</c> part does not match)</description>
+    ///                 </item>
+    ///             </list>
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term><c>**/test/**</c></term>
+    ///         <description>
+    ///             <para>
+    ///             Matches all files that have a <c>test</c> element in their 
+    ///             path, including <c>test</c> as a filename.
+    ///             </para>
+    ///         </description>
+    ///     </item>
+    /// </list>
+    /// </example>
     [Serializable()]
     [ElementName("fileset")]
     public class FileSet : DataTypeBase {
