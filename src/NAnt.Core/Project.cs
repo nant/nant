@@ -647,7 +647,7 @@ namespace SourceForge.NAnt {
             foreach ( XmlNode frameworkNode in frameworkInfoNodes ) {
             
                 // load the runtimInfo stuff
-                XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("sdkirectory");
+                XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("sdkdirectory");
                 XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkdirectory");
                 XmlNode frameworkAssemDirectoryNode = frameworkNode.SelectSingleNode("frameworkassemblydirectory");
                 
