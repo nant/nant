@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
@@ -30,11 +30,37 @@ namespace NAnt.Core {
     /// </summary>
     /// <remarks>A task is a piece of code that can be executed.</remarks>
     public abstract class DataTypeBase : Element {
+        #region Private Instance Fields
     
         private string _id = "";
         private string _ref = "";
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>The base of the directory of this file set.  Default is project base directory.</summary>
+        [TaskAttribute("id" )]
+        public string Id {
+            get { return _id; }
+            set { _id = value; }
+        }
+
+        // todo if ref has value then load it from collection ...
+        [TaskAttribute("refid")]
+        public string Ref {
+            get { return _ref; }
+            set { _ref = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Element
         
-        /// <summary>The name of the datatype.</summary>
+        /// <summary>
+        /// Gets the name of the datatype.
+        /// </summary>
+        /// <value>The name of the datatype.</value>
         public override string Name {
             get {
                 string name = null;
@@ -45,51 +71,36 @@ namespace NAnt.Core {
                 return name;
             }
         }
-               /// <summary>The base of the directory of this file set.  Default is project base directory.</summary>
-        [TaskAttribute("id" )]
-        public string Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
-        // todo if ref has value then load it from collection ...
-        [TaskAttribute("refid")]
-        public string Ref 
-        {
-            get { return _ref; }  
-            set { _ref = value; }            
-        }
-		
-		/// <summary>
-		/// Should be overridden by derived classes. clones the referenced types data into the current instance
-		/// </summary>		
-		public virtual void Reset( ) {			
-		}     
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="elementNode"></param>
+
         protected override void InitializeElement(XmlNode elementNode) {
-            // only allow 
-            Console.WriteLine( Parent.ToString());
-            if (  Parent.GetType()  ==  typeof(Project) || Parent.GetType()  ==  typeof(Target)) {
-                if (Id.Length  == 0 ) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "'id' is a required attribute for a <{0}> datatype declaration.", Name );
-				    throw new BuildException( msg, Location );
+            if (Parent.GetType() == typeof(Project) || Parent.GetType() == typeof(Target)) {
+                if (Id.Length == 0) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "'id' is a required attribute for a <{0}> datatype declaration.", Name);
+                    throw new BuildException(msg, Location);
                 }
-                if ( Ref.Length  > 0 ){
-                    string msg = String.Format(CultureInfo.InvariantCulture, "'refid' attribute is invalid for a <{0}> datatype declaration.", Name );
-				    throw new BuildException( msg, Location );
+                if (Ref.Length  > 0) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "'refid' attribute is invalid for a <{0}> datatype declaration.", Name);
+                    throw new BuildException(msg, Location);
                 }
-                    
-            } 
-            else {
-                  if (elementNode.ChildNodes.Count  == 0 &&  Ref.Length  == 0 ) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "'refid' is a required attribute for a <{0}> reference.", Name );
-				    throw new BuildException( msg, Location );
-                  }
+            } else {
+                if (elementNode.ChildNodes.Count == 0 && Ref.Length  == 0) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "'refid' is a required attribute for a <{0}> reference.", Name);
+                    throw new BuildException(msg, Location);
+                }
             }
         }
-		
+
+        #endregion Override implementation of Element
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Should be overridden by derived classes. clones the referenced types 
+        /// data into the current instance.
+        /// </summary>
+        public virtual void Reset( ) {
+        }
+
+        #endregion Public Instance Methods
     }
 }
