@@ -799,30 +799,39 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
-            //Sources Updated?
+            // check if sources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
-            //References Updated?
+            // check if reference assemblies were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
-            //Modules Updated?
+            // check if modules were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
-            //Resources Updated?
+            // check if resources were updated
             foreach (ResourceFileSet resources in ResourcesList) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // check if win32icon was updated
+            if (Win32Icon != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(Win32Icon.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                     return true;
