@@ -103,7 +103,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("tolist", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string ToList {
-            get { return _toList.Replace("," , ";"); }
+            get { return _toList; }
             set { 
                 if (!StringUtils.IsNullOrEmpty(value)) {
                     // convert to semicolon delimited
