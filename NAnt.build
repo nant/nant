@@ -474,13 +474,16 @@
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
+                <include name="*" />
                 <include name="doc/**" />
                 <include name="src/**" />
                 <include name="tests/**" />
                 <include name="examples/**" />
                 <include name="schema/**" />
+                <!-- website -->
                 <include name="web/**" />
-                <include name="*" />
+                <!-- docs -->
+                <include name="doc/**" />
                 <!-- exclude static html pages as these will be filter-copied -->
                 <exclude name="doc/**/*.html" />
                 <!-- exclude nighlty build file -->
@@ -561,15 +564,15 @@
                 <!-- third party assemblies -->
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
-                <!-- NAnt license & release notes -->
+                <!-- license & release notes -->
                 <include name="doc/*" />
-                <!-- NAnt user manual (no SDK) -->
+                <!-- user manual (no SDK) -->
                 <include name="doc/help/**" />
-                <!-- NAnt examples -->
+                <!-- examples -->
                 <include name="examples/**/*" />
-                <!-- NAnt sources -->
+                <!-- sources -->
                 <include name="src/**/*" />
-                <!-- NAnt unit tests -->
+                <!-- unit tests -->
                 <include name="tests/**/*" />
             </fileset>
         </zip>
@@ -585,7 +588,7 @@
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
-                <!-- NAnt assemblies necessary for bootstrap -->
+                <!-- assemblies necessary for bootstrap -->
                 <include name="bin/NAnt.exe" />
                 <include name="bin/NAnt.exe.config" />
                 <include name="bin/NAnt.Core.dll" />
@@ -595,15 +598,15 @@
                 <!-- third party assemblies -->
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
-                <!-- NAnt license & release notes -->
+                <!-- license & release notes -->
                 <include name="doc/*" />
-                <!-- NAnt user manual (no SDK) -->
+                <!-- user manual (no SDK) -->
                 <include name="doc/help/**" />
-                <!-- NAnt examples -->
+                <!-- examples -->
                 <include name="examples/**/*" />
-                <!-- NAnt sources -->
+                <!-- sources -->
                 <include name="src/**/*" />
-                <!-- NAnt unit tests -->
+                <!-- unit tests -->
                 <include name="tests/**/*" />
             </fileset>
         </tar>
@@ -621,11 +624,11 @@
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
                 <include name="bin/**/*" />
-                <!-- NAnt license & release notes -->
+                <!-- license & release notes -->
                 <include name="doc/*" />
-                <!-- NAnt user manual -->
+                <!-- user manual -->
                 <include name="doc/help/**" />
-                <!-- NAnt SDK (in HTML Help format) -->
+                <!-- SDK (in HTML Help format) -->
                 <include name="doc/sdk/NAnt-SDK.chm" />
                 <!-- examples -->
                 <include name="examples/**/*" />
@@ -643,11 +646,11 @@
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
                 <include name="bin/**/*" />
-                <!-- NAnt license & release notes -->
+                <!-- license & release notes -->
                 <include name="doc/*" />
-                <!-- NAnt user manual -->
+                <!-- user manual -->
                 <include name="doc/help/**" />
-                <!-- NAnt SDK (in plain HTML format) -->
+                <!-- SDK (in plain HTML format) -->
                 <include name="doc/sdk/*" />
                 <exclude name="doc/sdk/NAnt-SDK.chm" />
                 <!-- examples -->

@@ -9,9 +9,9 @@
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- perform a 'release' package and upload to sf.net -->
-    <target name="build-release" depends="set-net-1.0-framework-configuration, release, package, deploy-sf, install" description="Perform a 'release' package, uploads to sf.net and installs it" />
+    <target name="build-release" depends="deploy-sf, install" description="Perform a 'release' package, uploads to sf.net and installs it" />
     <!-- deploy content to sourceforge -->
-    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-doc-sf">
+    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-doc-sf, deploy-web-sf">
         <!-- remove existing symlink, if it exists -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
@@ -22,9 +22,19 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="ln -s ${sf.net.web.path}/release/${project.version.full} ${sf.net.web.path}/release/latest" />
         </exec>
-    </target>    
+        <!-- make sure permissions are set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod -R 775 ${sf.net.web.path}/release/latest" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp -R nant ${sf.net.web.path}/release/latest" />
+        </exec>
+    </target>
     <!-- copy the release distributions, release notes and license to sourceforge -->
-    <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, package">
+    <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -36,7 +46,7 @@
             <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
         <!-- copy the source gzipped tar distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
+        <exec workingdir="${path::get-directory-name(project.gzip-path.src)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.src)}" />
             <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
@@ -46,7 +56,7 @@
             <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
         <!-- copy the binary gzipped tar distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
+        <exec workingdir="${path::get-directory-name(project.gzip-path.bin)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.bin)}" />
             <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>

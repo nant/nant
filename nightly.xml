@@ -140,7 +140,7 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec rm --force {} \;" />
         </exec>
-        <!-- copy images for website to sourceforge (using compression) -->
+        <!-- copy images and html files for website to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/web" program="scp">
             <arg value="-C" />
             <arg value="*" />
