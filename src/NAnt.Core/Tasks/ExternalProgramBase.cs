@@ -165,13 +165,14 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the external program should 
-        /// be executed using a runtime engine, if configured.
+        /// Specifies whether the external program should be executed using a 
+        /// runtime engine, if configured. Default is "false".
         /// </summary>
         /// <value>
         /// <c>true</c> if the external program should be executed using a runtime
         /// engine; otherwise, <c>false</c>.
         /// </value>
+        [TaskAttribute("useruntimeengine")]
         [FrameworkConfigurable("useruntimeengine")]
         public virtual bool UseRuntimeEngine {
             get { return _useRuntimeEngine; }
@@ -182,6 +183,14 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Starts the external process and captures its output.
+        /// </summary>
+        /// <exception cref="BuildException">
+        ///   <para>The external process did not finish within the configured timeout.</para>
+        ///   <para>-or-</para>
+        ///   <para>The exit code of the external process indicates a failure.</para>
+        /// </exception>
         protected override void ExecuteTask() {
             try {
                 // Start the external process
