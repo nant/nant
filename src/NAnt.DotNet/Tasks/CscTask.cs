@@ -49,6 +49,7 @@ namespace SourceForge.NAnt.Tasks {
         bool _noconfig = false;
         bool _checked = false;
         bool _unsafe = false;
+        bool _optionOptimize = false;
 
         #endregion Private Instance Fields
 
@@ -88,9 +89,9 @@ namespace SourceForge.NAnt.Tasks {
         public bool NoConfig     { get { return _noconfig; } set {_noconfig = value; } }
 
         /// <summary>
-        /// Specifies whether an integer arithmetic statement that is not in the scope of the 
-        /// <c>checked</c> or <c>unchecked</c> keywords and that results in a value outside the 
-        /// range of the data type should cause a run-time exception (<c>true</c>/<c>false</c>). 
+        /// Specifies whether an integer arithmetic statement that is not in the scope of the
+        /// <c>checked</c> or <c>unchecked</c> keywords and that results in a value outside the
+        /// range of the data type should cause a run-time exception (<c>true</c>/<c>false</c>).
         /// Default is <c>&quot;false&quot;</c>.</summary>
         /// <remarks>
         /// <para>
@@ -101,7 +102,7 @@ namespace SourceForge.NAnt.Tasks {
         public bool Checked     { get { return _checked; } set {_checked = value; } }
 
         /// <summary>
-        /// Instructs the compiler to allow code that uses the <c>unsafe</c> keyword 
+        /// Instructs the compiler to allow code that uses the <c>unsafe</c> keyword
         /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
         /// <remarks>
         /// <para>
@@ -111,14 +112,21 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("unsafe")]
         public bool Unsafe      { get { return _unsafe; } set {_unsafe = value; } }
 
+        /// <summary>Specifies whether the <c>/optimize</c> option gets passed to the compiler.</summary>
+        /// <remarks></remarks>
+        /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
+        [TaskAttribute("optionoptimize")]
+        [BooleanValidator()]
+        public bool   OptionOptimize{ get { return _optionOptimize; } set {_optionOptimize = value;}}
+
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
 
         public override string ExeName {
-            get { 
+            get {
                 if (Project.CurrentFramework != null) {
-                    return Project.CurrentFramework.CSharpCompilerName; 
+                    return Project.CurrentFramework.CSharpCompilerName;
                 } else {
                     return Name;
                 }
@@ -166,12 +174,16 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "unsafe");
             }
 
+            if (OptionOptimize) {
+                WriteOption(writer, "optimize");
+            }
+
             if (NoConfig && ! Args.Contains("/noconfig")) {
                 Args.Add("/noconfig");
             }
         }
 
-        protected override string GetExtension() { 
+        protected override string GetExtension() {
             return "cs";
         }
 
