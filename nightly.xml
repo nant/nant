@@ -4,10 +4,8 @@
     <property name="project.release.type" value="nightly" />
     <property name="sf.net.ssh.server" value="shell1.sourceforge.net" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
-    <!-- retrieve system information and environment variables -->
-    <sysinfo />
     <!-- setup property that holds partial path to be used by scp -->
-    <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.web.path}" />
+    <property name="serverpart" value="${environment::get-user-name() + '@' + sf.net.ssh.server + ':' + sf.net.web.path}" />
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- determine path for nightly build dist packages on sf.net relative to web path -->
