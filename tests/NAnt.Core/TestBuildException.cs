@@ -47,7 +47,7 @@ namespace Tests.NAnt.Core {
         /// class with a descriptive message.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
-        public TestBuildException(String message) : base(message) {
+        public TestBuildException(string message) : base(message) {
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Tests.NAnt.Core {
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
         /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
-        public TestBuildException(String message, Exception innerException) : base(message, innerException) {
+        public TestBuildException(string message, Exception innerException) : base(message, innerException) {
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Tests.NAnt.Core {
         /// that caused the exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
-        public TestBuildException(String message, string buildResult) : base(message) {
+        public TestBuildException(string message, string buildResult) : base(message) {
             _buildResults = buildResult;
         }
 
@@ -76,7 +76,7 @@ namespace Tests.NAnt.Core {
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
-        public TestBuildException(String message, string buildResult, Exception innerException) : base(message, innerException) {
+        public TestBuildException(string message, string buildResult, Exception innerException) : base(message, innerException) {
             _buildResults = buildResult;
         }
 
@@ -91,6 +91,7 @@ namespace Tests.NAnt.Core {
         /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
         protected TestBuildException(SerializationInfo info, StreamingContext context) : base(info, context) {
+            _buildResults = (string) info.GetValue("BuildResults", typeof(string));
         }
 
         #endregion Protected Instance Constructors
@@ -104,27 +105,7 @@ namespace Tests.NAnt.Core {
         /// <param name="context">The destination for this serialization.</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {
             base.GetObjectData(info, context);
-        }
-
-        public override string Message {
-            get {
-                // TO-DO : just output base.Message when NUnit is fixed to also
-                // output message of innerexception.  This should be fixed in
-                // NUnit 2.1
-
-                string message = string.Empty;
-
-                Exception innerException = InnerException;
-                while (innerException != null) {
-                    if (innerException.Message != null && innerException.Message.Length != 0) {
-                        message += Environment.NewLine + innerException.Message;
-                    }
-
-                    innerException = innerException.InnerException;
-                }
-
-                return base.Message + message;
-            }
+            info.AddValue("BuildResults", _buildResults);
         }
 
         #endregion Override implementation of ApplicationException
