@@ -29,19 +29,19 @@
 
     <xsl:template match="/">
         <html>
-            <xsl:apply-templates select="//class[@id=$class-id]" />
+            <xsl:apply-templates select="//class[@id = $class-id]" />
         </html>
     </xsl:template>
 
     <!-- match class tag -->
     <xsl:template match="class">
-        <xsl:variable name="attr" select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/@name" />
+        <xsl:variable name="attr" select="attribute[@name = 'NAnt.Core.Attributes.ElementNameAttribute']/@name" />
         <xsl:if test="string-length(string($attr)) != 0">
             <head>
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
                 <link rel="stylesheet" type="text/css" href="../style.css" />
-                <title>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Type</title>
+                <title>&lt;<xsl:value-of select="attribute/property[@name = 'Name']/@value" />&gt; Type</title>
             </head>
             <body>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
@@ -53,11 +53,20 @@
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="type-index.html">Type Reference</a>
                             <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
-                            &lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Type
+                            &lt;<xsl:value-of select="attribute/property[@name = 'Name']/@value" />&gt; Type
                         </td>
                     </tr>
                 </table>
-                <h1>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Type</h1>
+                <h1>&lt;<xsl:value-of select="attribute/property[@name = 'Name']/@value" />&gt; Type</h1>
+                
+                <!-- output whether type is deprecated -->
+                <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+                <xsl:if test="count($ObsoleteAttribute) > 0">
+                    <p>
+                        <i>(Deprecated)</i>
+                    </p>
+                </xsl:if>
+                
                 <p><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></p>
                 <!-- Remarks -->
                 <xsl:apply-templates select="documentation/remarks/node()" mode="slashdoc"/>
@@ -80,7 +89,7 @@
                     </div>
                 </xsl:if>
 
-                <xsl:variable name="FrameworkProperties" select="property[attribute/@name='NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
+                <xsl:variable name="FrameworkProperties" select="property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
                 <xsl:if test="count($FrameworkProperties) != 0">
                     <h3>Framework-configurable parameters</h3>
                     <div class="table">
@@ -119,11 +128,11 @@
 
     <!-- match TaskAttribute property tag -->
     <xsl:template match="property" mode="TaskAttribute">
-        <xsl:variable name="TaskAttr" select="attribute[@name='NAnt.Core.Attributes.TaskAttributeAttribute']"/>
+        <xsl:variable name="TaskAttr" select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']"/>
         <xsl:if test="count($TaskAttr) = 1">
-            <xsl:variable name="Required" select="$TaskAttr/property[@name='Required']/@value"/>
+            <xsl:variable name="Required" select="$TaskAttr/property[@name = 'Required']/@value"/>
             <tr>
-                <td valign="top"><xsl:value-of select="$TaskAttr/property[@name='Name']/@value"/> </td>
+                <td valign="top"><xsl:value-of select="$TaskAttr/property[@name = 'Name']/@value"/></td>
                 <td style="text-align: center;">
                     <xsl:call-template name="value">
                         <xsl:with-param name="type" select="@type" />
@@ -137,11 +146,11 @@
 
     <!-- match FrameworkConfigurable property tag -->
     <xsl:template match="property" mode="FrameworkConfigurableAttribute">
-        <xsl:variable name="FrameworkConfigurableAttribute" select="attribute[@name='NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
+        <xsl:variable name="FrameworkConfigurableAttribute" select="attribute[@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
         <xsl:if test="count($FrameworkConfigurableAttribute) = 1">
-            <xsl:variable name="Required" select="$FrameworkConfigurableAttribute/property[@name='Required']/@value"/>
+            <xsl:variable name="Required" select="$FrameworkConfigurableAttribute/property[@name = 'Required']/@value"/>
             <tr>
-                <td valign="top"><xsl:value-of select="$FrameworkConfigurableAttribute/property[@name='Name']/@value"/></td>
+                <td valign="top"><xsl:value-of select="$FrameworkConfigurableAttribute/property[@name = 'Name']/@value"/></td>
                 <td style="text-align: center;">
                     <xsl:call-template name="value">
                         <xsl:with-param name="type" select="@type" />
@@ -155,22 +164,22 @@
 
     <!-- match fileset property tag -->
     <xsl:template match="property" mode="FileSet">
-        <xsl:variable name="FileSetAttr" select="attribute[@name='NAnt.Core.Attributes.FileSetAttribute']"/>
-        <h4><xsl:value-of select="$FileSetAttr/property[@name='Name']/@value" /> (FileSet)</h4>
+        <xsl:variable name="FileSetAttr" select="attribute[@name = 'NAnt.Core.Attributes.FileSetAttribute']"/>
+        <h4><xsl:value-of select="$FileSetAttr/property[@name = 'Name']/@value" /> (FileSet)</h4>
         <p><xsl:call-template name="docstring" /></p> 
     </xsl:template> 
 
     <!-- match BuildElementArray property tag -->
     <xsl:template match="property" mode="BuildElementArrayAttribute">
-        <xsl:variable name="BuildElementArrayAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementArrayAttribute']"/>
-        <h4><xsl:value-of select="$BuildElementArrayAttr/property[@name='Name']/@value" /> (Array)</h4>
+        <xsl:variable name="BuildElementArrayAttr" select="attribute[@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute']"/>
+        <h4><xsl:value-of select="$BuildElementArrayAttr/property[@name = 'Name']/@value" /> (Array)</h4>
         <p><xsl:call-template name="docstring" /></p> 
     </xsl:template> 
 
     <!-- match BuildElementCollection property tag -->
     <xsl:template match="property" mode="BuildElementCollectionAttribute">
-        <xsl:variable name="BuildElementCollectionAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementCollectionAttribute']"/>
-        <h4><xsl:value-of select="$BuildElementCollectionAttr/property[@name='Name']/@value" /> (Collection)</h4>
+        <xsl:variable name="BuildElementCollectionAttr" select="attribute[@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute']"/>
+        <h4><xsl:value-of select="$BuildElementCollectionAttr/property[@name = 'Name']/@value" /> (Collection)</h4>
         <p><xsl:call-template name="docstring" /></p> 
     </xsl:template> 
 
@@ -178,9 +187,19 @@
     <xsl:template name="docstring" >
         <xsl:choose>
             <xsl:when test="@declaringType">
-                <xsl:apply-templates select="//class[@id=concat('T:', current()/@declaringType)]/*[@name=current()/@name]/documentation/summary/node()" mode="slashdoc" />
+                <xsl:variable name="ObsoleteAttribute" select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/attribute[@name = 'System.ObsoleteAttribute']"/>
+                <xsl:if test="count($ObsoleteAttribute) > 0">
+                    <i>Deprecated.</i>
+                    <xsl:text> </xsl:text>
+                </xsl:if>
+                <xsl:apply-templates select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/documentation/summary/node()" mode="slashdoc" />
             </xsl:when>
             <xsl:otherwise>
+                <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+                <xsl:if test="count($ObsoleteAttribute) > 0">
+                    <i>Deprecated.</i>
+                    <xsl:text> </xsl:text>
+                </xsl:if>
                 <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />
             </xsl:otherwise>
         </xsl:choose>
