@@ -63,17 +63,38 @@ Compilation and Installation
     b. Building the Software
     ------------------------
       
-    Windows (with Microsoft .NET)
-        bin\NAnt.exe
-        bin\NAnt.exe install -D:install.prefix="c:\Program Files"
+    Build NAnt using Microsoft .NET
 
-    Windows (with Mono)
-        mono bin\NAnt.exe
-        mono bin\NAnt.exe install -D:install.prefix="c:\Program Files"
-    
-    Linux/Unix
-        make
-        make install prefix=/usr/local
+	GNU Make
+	--------
+
+	make install MONO= MCS=csc prefix=<installation path>
+
+	eg. make install MONO= MCS=csc prefix="c:\Program Files"
+
+	NMake
+	-----
+
+	nmake -f Makefile.nmake install prefix=<installation path>
+	
+	eg. nmake -f Makefile.nmake install prefix="c:\Program Files"
+
+
+    Building NAnt using Mono
+
+	GNU Make
+	--------
+
+	make install prefix=<installation path>
+
+	eg. make install prefix="c:\Program Files"
+
+	NMake
+	-----
+
+	nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<installation path>
+	
+	eg. nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/
 
 Note: 
 
@@ -88,7 +109,7 @@ Documentation is available in HTML format, in the doc/ directory.
 
 License
 -------
-Copyright (C) 2001-2004 Gerry Shaw
+Copyright (C) 2001-2005 Gerry Shaw
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -104,14 +125,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-In addition, as a special exception, Gerry Shaw gives permission to link the 
-code of this program with the Microsoft .NET library (or with modified versions 
-of Microsoft .NET library that use the same license as the Microsoft .NET 
-library), and distribute linked combinations including the two.  You must obey 
-the GNU General Public License in all respects for all of the code used other 
-than the Microsoft .NET library.  If you modify this file, you may extend this 
-exception to your version of the file, but you are not obligated to do so.  If 
-you do not wish to do so, delete this exception statement from your version.
+As a special exception, the copyright holders of this software give you
+permission to link the assemblies with independent modules to produce new
+assemblies, regardless of the license terms of these independent modules,
+and to copy and distribute the resulting assemblies under terms of your
+choice, provided that you also meet, for each linked independent module,
+the terms and conditions of the license of that module. An independent
+module is a module which is not derived from or based on these assemblies.
+If you modify this software, you may extend this exception to your version
+of the software, but you are not obligated to do so. If you do not wish to
+do so, delete this exception statement from your version. 
 
 A copy of the GNU General Public License is available in the COPYING.txt file 
 included with all NAnt distributions.
