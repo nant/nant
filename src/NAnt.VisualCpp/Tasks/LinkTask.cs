@@ -106,7 +106,12 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         [TaskAttribute("pdbfile")]
         public FileInfo ProgramDatabaseFile {
-            get { return _pdbFile; }
+            get { 
+                if (Debug && _pdbFile == null) {
+                    _pdbFile = new FileInfo(Path.ChangeExtension(OutputFile.FullName, ".pdb"));
+                }
+                return _pdbFile; 
+            }
             set { _pdbFile = value; }
         }
 
@@ -229,10 +234,7 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // write program database file
-                    if (ProgramDatabaseFile == null && OutputFile != null && Debug) {
-                        writer.WriteLine("/PDB:{0}", QuoteArgumentValue(
-                            Path.ChangeExtension(OutputFile.FullName, ".pdb")));
-                    } else if (ProgramDatabaseFile != null) {
+                    if (ProgramDatabaseFile != null) {
                         writer.WriteLine("/PDB:{0}", QuoteArgumentValue(
                             ProgramDatabaseFile.FullName));
                     }
