@@ -327,7 +327,7 @@ namespace NAnt.DotNet.Tasks {
                 // this .license file will only be valid for this exe/dll
                 using (FileStream fs = new FileStream(licenseFile, FileMode.Create)) {
                     // note the ToUpper() - this is the behaviour of VisualStudio
-                    DesigntimeLicenseContextSerializer.Serialize(fs, licenseTask.Target.ToUpper(CultureInfo.InvariantCulture), dlc);
+                    DesigntimeLicenseContextSerializer.Serialize(fs, Path.GetFileName(licenseTask.Target.ToUpper(CultureInfo.InvariantCulture)), dlc);
                     licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + "Created new license file {0}.", licenseFile);
                 }
 
