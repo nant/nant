@@ -773,6 +773,18 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
+                
+                  <File
+                    RelPath = "Types\XsltExtensionObject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\XsltExtensionObjectCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                
                 <File
                     RelPath = "Util\AssemblyResolver.cs"
                     SubType = "Code"
