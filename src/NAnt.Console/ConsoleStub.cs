@@ -19,10 +19,11 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
-using System.IO;
 using System.Configuration;
-using System.Reflection;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Runtime.Remoting.Lifetime;
 using System.Xml;
 
 namespace NAnt.Console {
@@ -277,6 +278,28 @@ namespace NAnt.Console {
             }
 
             #endregion Public Instance Properties
+
+            #region Override implementation of MarshalByRefObject
+
+            /// <summary>
+            /// Obtains a lifetime service object to control the lifetime policy for 
+            /// this instance.
+            /// </summary>
+            /// <returns>
+            /// An object of type <see cref="ILease" /> used to control the lifetime 
+            /// policy for this instance. This is the current lifetime service object 
+            /// for this instance if one exists; otherwise, a new lifetime service 
+            /// object initialized with a lease that will never time out.
+            /// </returns>
+            public override Object InitializeLifetimeService() {
+                ILease lease = (ILease) base.InitializeLifetimeService();
+                if (lease.CurrentState == LeaseState.Initial) {
+                    lease.InitialLeaseTime = TimeSpan.Zero;
+                }
+                return lease;
+            }
+
+            #endregion Override implementation of MarshalByRefObject
 
             #region Public Instance Methods
 
