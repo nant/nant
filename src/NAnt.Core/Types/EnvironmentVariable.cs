@@ -39,7 +39,7 @@ namespace NAnt.Core.Types {
         private DirectoryInfo _directory;
         private PathSet _path;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 
@@ -95,8 +95,8 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// The value for a PATH like environment variable. You can use 
-        /// you can use <c>:</c> or <c>;</c> as path separators and NAnt will 
-        /// convert it to the platform's local conventions.
+        /// <c>:</c> or <c>;</c> as path separators and NAnt will convert it to 
+        /// the platform's local conventions.
         /// </summary>
         [TaskAttribute("path")]
         public PathSet Path {
