@@ -39,7 +39,7 @@ namespace NAnt.DotNet.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   See the <see href="http://ndoc.sf.net">NDoc home page</see> for more 
+    ///   See the <see href="http://ndoc.sourceforge.net/">NDoc home page</see> for more 
     ///   information.
     ///   </para>
     /// </remarks>
@@ -106,6 +106,7 @@ namespace NAnt.DotNet.Tasks {
         private XmlNodeList _docNodes;
         private FileSet _assemblies = new FileSet();
         private FileSet _summaries = new FileSet();
+        private RawXml _documenters;
 
         #endregion Private Instance Fields
 
@@ -114,7 +115,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The set of assemblies to document.
         /// </summary>
-        [BuildElement("assemblies")]
+        [BuildElement("assemblies", Required=true)]
         public FileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
@@ -129,6 +130,15 @@ namespace NAnt.DotNet.Tasks {
             set { _summaries = value; }
         }
 
+        /// <summary>
+        /// Specifies the formats in which the documentation should be generated.
+        /// </summary>
+        [BuildElement("documenters", Required=true)]
+        public RawXml Documenters {
+            get { return _documenters; }
+            set { _documenters = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -139,7 +149,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
             // Expand and store the xml node
-            _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", 
+            _docNodes = Documenters.Xml.SelectNodes("nant:documenter", 
                 NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
         }
