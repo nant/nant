@@ -396,7 +396,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         private void LogCvsMessage(string message) {
-            Log(Level.Info, LogPrefix + message);
+            Log(Level.Debug, LogPrefix + message);
         }
 
         #endregion Private Instance Methods
