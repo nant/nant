@@ -493,26 +493,16 @@ namespace NAnt.DotNet.Tasks {
                     + "Loading assemblies ...");
 
                 try {
-                    using (GacCache gacCache = new GacCache(licenseTask.Project)) {
-                        // first, load all the assemblies so that we can search for the 
-                        // licensed component
-                        foreach (string assemblyFileName in licenseTask.Assemblies.FileNames) {
-                            // only load assemblies that are not located in the
-                            // Global Assembly Cache
-                            if (!gacCache.IsAssemblyInGac(assemblyFileName)) {
-                                Assembly assembly = Assembly.LoadFrom(assemblyFileName);
-                                if (assembly != null) {
-                                    // output assembly filename to build log
-                                    licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                                        + "{0} (loaded)", assemblyFileName);
-                                    // add assembly to list of loaded assemblies
-                                    assemblies.Add(assembly);
-                                }
-                            } else {
-                                // output assembly filename to build log
-                                licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                                    + "{0} (skipped)", assemblyFileName);
-                            }
+                    // first, load all the assemblies so that we can search for the 
+                    // licensed component
+                    foreach (string assemblyFileName in licenseTask.Assemblies.FileNames) {
+                        Assembly assembly = Assembly.LoadFrom(assemblyFileName);
+                        if (assembly != null) {
+                            // output assembly filename to build log
+                            licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
+                                + "{0} (loaded)", assemblyFileName);
+                            // add assembly to list of loaded assemblies
+                            assemblies.Add(assembly);
                         }
                     }
 
