@@ -370,7 +370,6 @@ namespace NAnt.DotNet.Tasks {
 
                     // compile resources
                     foreach (ResourceFileSet resources in ResourcesList) {
-
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames) {
                             // try and get it from matching form
@@ -380,8 +379,8 @@ namespace NAnt.DotNet.Tasks {
                                 resourceLinkage.NamespaceName = resources.Prefix;
                             }
 
-                            string actualFileName = Path.GetFileNameWithoutExtension(fileName);                           
-                            string manifestResourceName = Path.ChangeExtension(Path.GetFileName(fileName), ".resources" );
+                            string actualFileName = Path.GetFileNameWithoutExtension(fileName);
+                            string manifestResourceName = Path.ChangeExtension(Path.GetFileName(fileName), ".resources");
 
                             // cater for asax/aspx special cases ...
                             foreach (string extension in CodebehindExtensions){
@@ -392,50 +391,49 @@ namespace NAnt.DotNet.Tasks {
                                 }
                             }
                             
-                            if ( resourceLinkage != null && !resourceLinkage.HasClassName ) {
+                            if (resourceLinkage != null && !resourceLinkage.HasClassName) {
                                 resourceLinkage.ClassName = actualFileName;
                             }
 
                             if (resourceLinkage != null && resourceLinkage.IsValid) {
-                                manifestResourceName = manifestResourceName.Replace(actualFileName, resourceLinkage.ToString());
+                                manifestResourceName = manifestResourceName.Replace(
+                                    actualFileName, resourceLinkage.ToString());
                             }
 
                             if (resourceLinkage == null) {
                                 manifestResourceName = Path.ChangeExtension(resources.GetManifestResourceName(fileName), "resources");
                             }
                             
-                            string tmpResourcePath = fileName.Replace( Path.GetFileName(fileName), manifestResourceName );                            
-                            compiledResourceFiles.Add( tmpResourcePath );
+                            string tmpResourcePath = fileName.Replace(Path.GetFileName(fileName), manifestResourceName);
+                            compiledResourceFiles.Add(tmpResourcePath);
                             
                             // compile to a temp .resources file
-                            CompileResxResource( fileName, tmpResourcePath);
+                            CompileResxResource(fileName, tmpResourcePath);
                             
-                            // Check for internationalised resource files.
-                            string culture = "";
-                            if ( ContainsCulture( fileName, ref culture )) {
-                                if (! cultureResources.ContainsKey( culture ) )  {
-                                    cultureResources.Add( culture, new StringCollection() );
+                            // check if resource is localized
+                            CultureInfo resourceCulture = GetResourceCulture(fileName);
+                            if (resourceCulture != null) {
+                                if (!cultureResources.ContainsKey(resourceCulture.Name)) {
+                                    cultureResources.Add(resourceCulture.Name, new StringCollection());
                                 }
                                 
                                 // store resulting .resoures file for later linking 
-                                ((StringCollection)cultureResources[culture]).Add( tmpResourcePath );
+                                ((StringCollection) cultureResources[resourceCulture.Name]).Add(tmpResourcePath);
                             } else {
-                                
                                 // regular embedded resources
                                 string resourceoption = tmpResourcePath + "," + manifestResourceName;
 
                                 // write resource option to response file
-                                WriteOption(writer, "resource", resourceoption );
+                                WriteOption(writer, "resource", resourceoption);
                             }
                         }
                         
                         // create a localised resource dll for each culture name
-                        foreach (string culture in cultureResources.Keys ) {
-                
-                            string culturedir =  Path.GetDirectoryName( Output )  + Path.DirectorySeparatorChar +  culture;
-                            Directory.CreateDirectory( culturedir );
-                            string outputFile =  Path.Combine( culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");                            
-                            LinkResourceAssembly( (StringCollection)cultureResources[culture],outputFile, culture );                                                       
+                        foreach (string culture in cultureResources.Keys) {
+                            string culturedir = Path.GetDirectoryName(Output) + Path.DirectorySeparatorChar + culture;
+                            Directory.CreateDirectory(culturedir);
+                            string outputFile =  Path.Combine(culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
+                            LinkResourceAssembly((StringCollection) cultureResources[culture], outputFile, culture);
                         }
                         
                         // other resources
@@ -463,12 +461,10 @@ namespace NAnt.DotNet.Tasks {
 
                     // call base class to do the work
                     base.ExecuteTask();
-                 
                 } finally {
-                    
                     // cleanup .resource files
-                    foreach( string fileName in compiledResourceFiles ) {
-                        File.Delete( fileName ); 
+                    foreach (string fileName in compiledResourceFiles) {
+                        File.Delete(fileName); 
                     }
                     // make sure we delete response file even if an exception is thrown
                     writer.Close(); // make sure stream is closed or file cannot be deleted
@@ -571,26 +567,25 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Determines if a given file is a localised resource file.
+        /// Determines the culture associated with a given resource file by
+        /// scanning the filename for valid culture names.
         /// </summary>
-        /// <param name="resXFile">The resx file path to check for culture info.</param>   
-        /// <param name="foundCulture">The name of the culture that was located.</param>
+        /// <param name="resXFile">The resx file path to check for culture info.</param>
         /// <returns>
-        /// <see langword="true" /> if we found a culture name; otherwise,
-        /// <see langword="false" />.
+        /// A valid <see cref="CultureInfo" /> instance if the resource is 
+        /// associated with a specific culture; otherwise, <see langword="null" />.
         /// </returns>
-        protected bool ContainsCulture(string resXFile, ref string foundCulture) {
+        protected CultureInfo GetResourceCulture(string resXFile) {
             string noextpath = Path.GetFileNameWithoutExtension(resXFile);
             int index = noextpath.LastIndexOf('.');
             if (index >= 0 && index <= noextpath.Length) {
                 string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));
                 // check that its in our list of culture names
                 if (CultureNames.Contains(possibleculture)) {
-                    foundCulture = possibleculture;
-                    return true;
+                    return new CultureInfo(possibleculture);
                 }
             }
-            return false;
+            return null;
         }
 
         /// <summary>
@@ -602,7 +597,7 @@ namespace NAnt.DotNet.Tasks {
         /// <returns>
         /// The namespace/classname of the source file matching the resource.
         /// </returns>
-        public virtual ResourceLinkage PerformSearchForResourceLinkage(TextReader sr){
+        public virtual ResourceLinkage PerformSearchForResourceLinkage(TextReader sr) {
             Regex matchNamespaceRE = NamespaceRegex;  
             Regex matchClassNameRE = ClassNameRegex;
             
@@ -651,22 +646,26 @@ namespace NAnt.DotNet.Tasks {
             // open matching source file if it exists
             string sourceFile = resxPath.Replace("resx", Extension);
             
-            // check if this is a localised resx file
-            string culture = "";
-            if (ContainsCulture(sourceFile, ref culture)) {
+            // check if we're dealing with a localized resource
+            CultureInfo resourceCulture = GetResourceCulture(resxPath);
+            if (resourceCulture != null) {
                 sourceFile = sourceFile.Replace(string.Format(CultureInfo.InvariantCulture,
-                    ".{0}", culture), "");
+                    ".{0}", resourceCulture.Name), "");
             }
 
             StreamReader sr = null;
             ResourceLinkage resourceLinkage  = null; 
   
             try {
+                // open matching source file
                 sr = File.OpenText(sourceFile);
+                // get resource linkage
                 resourceLinkage = PerformSearchForResourceLinkage(sr);
+                // set resource culture
+                resourceLinkage.Culture = resourceCulture;
             } catch (FileNotFoundException) { // if no matching file, dump out
                 Log(Level.Debug, LogPrefix + "Did not find associated source file for resource {0}.", resxPath);
-                return resourceLinkage;
+                return null;
             } finally {
                 if (sr != null) {
                     sr.Close();
@@ -732,7 +731,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="inputFile"></param>
         /// <param name="outputFile"></param>
-        protected void CompileResxResource(string inputFile, string outputFile )  {
+        protected void CompileResxResource(string inputFile, string outputFile) {
             ResGenTask resgen = new ResGenTask();
             resgen.Project = this.Project;
             resgen.Parent = this.Parent;
@@ -768,6 +767,7 @@ namespace NAnt.DotNet.Tasks {
             
             private string _namespaceName;
             private string _className;
+            private CultureInfo _culture;
 
             #endregion Private Instance Fields
 
@@ -781,13 +781,13 @@ namespace NAnt.DotNet.Tasks {
             /// <param name="className">The class name the resource is associated with.</param>
             public ResourceLinkage(string namespaceName, string className) {
                 _namespaceName = namespaceName;
-                _className     = className;
+                _className = className;
             }
 
             #endregion Public Instance Constructors
 
             #region Override implementation of Object
-  
+ 
             /// <summary>
             /// Returns the resource linkage as a string.
             /// </summary>
@@ -795,16 +795,27 @@ namespace NAnt.DotNet.Tasks {
             /// A string representation of the resource linkage.
             /// </returns>
             public override string ToString() {
+                string resourceName;
+
                 if (!IsValid) {
                     return string.Empty;
                 }
-                if (HasNamespaceName && HasClassName) {
-                    return NamespaceName + "." + ClassName;
+
+                if (HasNamespaceName) {
+                    if (HasClassName) {
+                        resourceName = NamespaceName + "." + ClassName;
+                    } else {
+                        resourceName = NamespaceName;
+                    }
+                } else {
+                    resourceName = ClassName;
                 }
-                if (HasNamespaceName) { 
-                    return NamespaceName;
-                }    
-                return ClassName;
+
+                if (Culture != null) {
+                    resourceName = string.Format("{0}.{1}", resourceName, Culture.Name);
+                }
+
+                return resourceName;
             }
 
             #endregion Override implementation of Object
@@ -870,6 +881,17 @@ namespace NAnt.DotNet.Tasks {
             public string ClassName {
                 get { return _className; }
                 set { _className = (value != null) ? value.Trim() : null; }
+            }
+
+            /// <summary>
+            /// Gets the culture that the resource is associated with.
+            /// </summary>
+            /// <value>
+            /// The culture that the resource is associated with.
+            /// </value>
+            public CultureInfo Culture {
+                get { return _culture; }
+                set { _culture = value; }
             }
 
             #endregion Public Instance Properties
