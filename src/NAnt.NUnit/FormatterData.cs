@@ -18,41 +18,46 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
-using System.Collections;
+
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tasks.NUnit.Formatters 
-{
+namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
+    /// <summary>
+    /// Carries data specified through the formatter element.
+    /// </summary>
+    [Serializable]
+    public class FormatterData {
+        #region Private Instance Fields
 
-   /// <summary>
-   /// Carries data specified through the formatter element
-   /// </summary>
-   [Serializable]
-   public class FormatterData
-   {
-        string _classname = null;               
-        string _extension = null;               
+        string _classname = null;
+        string _extension = null;
         bool _usefile = true;
         FormatterType _formatterType = FormatterType.Plain;
 
-      public FormatterType Type {
-         get { return _formatterType; }
-         set { _formatterType = value; }
-      }
+        #endregion Private Instance Fields
 
-      public string ClassName {
-         get { return _classname; }
-         set { _classname = value; }
-      }
+        #region Public Instance Properties
 
-      public bool UseFile {
-         get { return _usefile; }
-         set { _usefile = value; }
-      }
+        public FormatterType Type {
+            get { return _formatterType; }
+            set { _formatterType = value; }
+        }
 
-      public string Extension {
-         get { return _extension; }
-         set { _extension = value; }
-      }
-   }    
+        public string ClassName {
+            get { return _classname; }
+            set { _classname = value; }
+        }
+
+        public bool UseFile {
+            get { return _usefile; }
+            set { _usefile = value; }
+        }
+
+        public string Extension {
+            get { return _extension; }
+            set { _extension = value; }
+        }
+
+        #endregion Public Instance Properties
+    }
 }
