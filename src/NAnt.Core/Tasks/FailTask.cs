@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
@@ -26,29 +26,55 @@ namespace NAnt.Core.Tasks {
     /// Exits the current build.
     /// </summary>
     /// <remarks>
-    ///   <para>Exits the current build by throwing a BuildException, optionally printing additional information.</para>
+    /// Exits the current build by throwing a <see cref="BuildException" />, 
+    /// optionally printing additional information.
     /// </remarks>
     /// <example>
-    ///   <para>Will exit the current build with no further information given.</para>
-    ///   <code>&lt;fail/&gt;</code>
-    ///   <para>Will exit the current build and write message to build log.</para>
-    ///   <code>&lt;fail message="Something wrong here."/&gt;</code>
+    ///   <para>Exits the current build without giving further information.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <fail />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Exits the current build and writes a message to the build log.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <fail message="Something wrong here." />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("fail")]
     public class FailTask : Task {
-       
-        string _message = null;
+        #region Private Instance Fields
 
-        /// <summary>A message giving further information on why the build exited.</summary>
+        private string _message = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// A message giving further information on why the build exited.
+        /// </summary>
         [TaskAttribute("message")]
-        public string Message       { get { return _message; } set {_message = value; } }
+        public string Message {
+            get { return _message; }
+            set {_message = SetStringValue(value); }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             string message = Message;
+
             if (message == null) {
                 message = "No message";
             }
             throw new BuildException(message);
         }
+
+        #endregion Override implementation of Task
     }
 }
