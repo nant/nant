@@ -44,8 +44,7 @@ namespace NAnt.Core.Util {
         public GacCache(Project project) {
             _project = project;
             _gacQueryCache = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _domain = AppDomain.CreateDomain("temporaryDomain", 
-                AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+            RecreateDomain();
         }
 
         #endregion Public Instance Constructors
@@ -105,6 +104,20 @@ namespace NAnt.Core.Util {
 
         #region Public Instance Methods
 
+        public void RecreateDomain() {
+            // don't recreate this domain unless it has actually loaded an assembly
+            if (!_hasLoadedAssembly && _domain != null)
+                return;
+
+            if (_domain != null)
+                AppDomain.Unload(_domain);
+
+            _resolver = null;
+            _domain = AppDomain.CreateDomain("temporaryDomain", 
+                AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+            _hasLoadedAssembly = false;
+        }
+
         /// <summary>
         /// Determines whether an assembly is installed in the Global
         /// Assembly Cache given its file name or path.
@@ -140,6 +153,7 @@ namespace NAnt.Core.Util {
                 return (bool) _gacQueryCache[assemblyFilePath];
             }
 
+            _hasLoadedAssembly = true;
             _gacQueryCache[assemblyFilePath] = Resolver.IsAssemblyInGac(assemblyFilePath);
             return (bool) _gacQueryCache[assemblyFilePath];
         }
@@ -171,6 +185,8 @@ namespace NAnt.Core.Util {
         /// </para>
         /// </remarks>
         private Hashtable _gacQueryCache;
+        
+        private bool _hasLoadedAssembly;
 
         private GacResolver _resolver;
 
