@@ -309,11 +309,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Attributes\TaskOptionSetAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Attributes\ValidatorAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
