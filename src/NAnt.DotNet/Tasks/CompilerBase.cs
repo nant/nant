@@ -367,6 +367,9 @@ namespace NAnt.DotNet.Tasks {
 
                     // compile resources
                     foreach (ResourceFileSet resources in ResourcesList) {
+                        // initialize hashtable for holding localized resources
+                        Hashtable localizedResources = new Hashtable();
+
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames) {
                             // try and get it from matching form
@@ -410,12 +413,25 @@ namespace NAnt.DotNet.Tasks {
                             // check if resource is localized
                             CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
                             if (resourceCulture != null) {
-                                if (!cultureResources.ContainsKey(resourceCulture.Name)) {
-                                    cultureResources.Add(resourceCulture.Name, new StringCollection());
+                                if (!localizedResources.ContainsKey(resourceCulture.Name)) {
+                                    // initialize resourcefileset for holding 
+                                    // resources for this resource culture
+                                    ResourceFileSet currentCultureResources = new ResourceFileSet();
+
+                                    // inherit setting from current resourcefileset
+                                    currentCultureResources.Parent = resources.Parent;
+                                    currentCultureResources.Project = resources.Project;
+                                    currentCultureResources.BaseDirectory =  resources.BaseDirectory;
+                                    currentCultureResources.Prefix = resources.Prefix;
+                                    currentCultureResources.DynamicPrefix = resources.DynamicPrefix;
+
+                                    // add resourcefileset to set of localized 
+                                    // resources for current resourcefileset
+                                    localizedResources.Add(resourceCulture.Name, currentCultureResources);
                                 }
                                 
                                 // store resulting .resources file for later linking 
-                                ((StringCollection) cultureResources[resourceCulture.Name]).Add(tmpResourcePath);
+                                ((ResourceFileSet) localizedResources[resourceCulture.Name]).FileNames.Add(tmpResourcePath);
                             } else {
                                 // regular embedded resources
                                 string resourceoption = tmpResourcePath + "," + manifestResourceName;
@@ -430,26 +446,42 @@ namespace NAnt.DotNet.Tasks {
                             // check if resource is localized
                             CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
                             if (resourceCulture != null) {
-                                if (!cultureResources.ContainsKey(resourceCulture.Name)) {
-                                    cultureResources.Add(resourceCulture.Name, new StringCollection());
+                                if (!localizedResources.ContainsKey(resourceCulture.Name)) {
+                                    // initialize resourcefileset for holding 
+                                    // resources for this resource culture
+                                    ResourceFileSet currentCultureResources = new ResourceFileSet();
+
+                                    // inherit setting from current resourcefileset
+                                    currentCultureResources.Parent = resources.Parent;
+                                    currentCultureResources.Project = resources.Project;
+                                    currentCultureResources.BaseDirectory =  resources.BaseDirectory;
+                                    currentCultureResources.Prefix = resources.Prefix;
+                                    currentCultureResources.DynamicPrefix = resources.DynamicPrefix;
+
+                                    // add resourcefileset to set of localized 
+                                    // resources for current resourcefileset
+                                    localizedResources.Add(resourceCulture.Name, currentCultureResources);
                                 }
 
                                 // store resource filename for later linking; 
                                 // the resource name will be determined in the
                                 // AssemblyLinkerTask
-                                ((StringCollection) cultureResources[resourceCulture.Name]).Add(fileName);
+                                ((ResourceFileSet) localizedResources[resourceCulture.Name]).FileNames.Add(fileName);
                             } else {
                                 string resourceoption = fileName + "," + resources.GetManifestResourceName(fileName);
                                 WriteOption(writer, "resource", resourceoption);
                             }
                         }
-                        
-                        // create a localised resource dll for each culture name
-                        foreach (string culture in cultureResources.Keys) {
-                            string culturedir = Path.GetDirectoryName(Output) + Path.DirectorySeparatorChar + culture;
-                            Directory.CreateDirectory(culturedir);
-                            string outputFile =  Path.Combine(culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
-                            LinkResourceAssembly(resources, (StringCollection) cultureResources[culture], outputFile, culture);
+
+                        foreach (string culture in localizedResources.Keys) {
+                            if (!cultureResources.ContainsKey(culture)) {
+                                cultureResources[culture] = new ResourceFileSetCollection();
+                            }
+
+                            // add resourcefileset for current resourcefileset
+                            // to collection
+                            ((ResourceFileSetCollection) cultureResources[culture]).Add(
+                                (ResourceFileSet) localizedResources[culture]);
                         }
                     }
 
@@ -472,6 +504,19 @@ namespace NAnt.DotNet.Tasks {
 
                     // call base class to do the work
                     base.ExecuteTask();
+
+                    // create a satellite assembly for each culture name
+                    foreach (string culture in cultureResources.Keys) {
+                        // determine directory for satellite assembly
+                        string culturedir = Path.GetDirectoryName(Output) + Path.DirectorySeparatorChar + culture;
+                        // ensure diretory for satellite assembly exists
+                        Directory.CreateDirectory(culturedir);
+                        // determine filename of satellite assembly
+                        string outputFile =  Path.Combine(culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
+                        // generate satellite assembly
+                        LinkResourceAssembly((ResourceFileSetCollection) 
+                            cultureResources[culture], outputFile, culture);
+                    }
                 } finally {
                     // cleanup .resource files
                     foreach (string fileName in compiledResourceFiles) {
@@ -763,11 +808,10 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Link a list of files into a resource assembly.
         /// </summary>
-        /// <param name="resourceFileSet">The <see cref="ResourceFileSet" /> from which to inherit settings.</param>
-        /// <param name="resourceFiles">List of files to bind into</param>
+        /// <param name="resourcesList">The collection <see cref="ResourceFileSet" /> instances containing resources.</param>
         /// <param name="outputFile">Resource assembly to generate</param>
         /// <param name="culture">Culture of the generated assembly.</param>
-        protected void LinkResourceAssembly(ResourceFileSet resourceFileSet, StringCollection resourceFiles, string outputFile, string culture) {
+        protected void LinkResourceAssembly(ResourceFileSetCollection resourcesList, string outputFile, string culture) {
             // defer to the assembly linker task
             AssemblyLinkerTask alink = new AssemblyLinkerTask();
 
@@ -784,21 +828,10 @@ namespace NAnt.DotNet.Tasks {
             alink.Output = outputFile;
             alink.Culture = culture;
             alink.OutputTarget = "lib";
+            alink.Template = Output;
 
             // set parent of child elements
-            alink.Sources.Parent = alink;
-
-            // child elements inherit project from current task
-            alink.Sources.Project = this.Project;
-
-            // inherit setting from given ResourceFileSet
-            alink.Sources.BaseDirectory = resourceFileSet.BaseDirectory;
-            alink.Sources.Prefix = resourceFileSet.Prefix;
-            alink.Sources.DynamicPrefix = resourceFileSet.DynamicPrefix;
-            
-            foreach (string resource in resourceFiles) {
-                alink.Sources.FileNames.Add(resource);
-            }
+            alink.EmbeddedResourcesList.AddRange(resourcesList);
             
             // fix up the indent level
             Project.Indent();
