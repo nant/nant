@@ -135,9 +135,7 @@ namespace SourceForge.NAnt.Tasks {
             }
             _code = codeList.Item(0).InnerText;
 
-            _rootClassName = /*Target.Name*/ "xx" + "_script_" +
-                (taskNode.GetHashCode() ^ (taskNode.ParentNode.GetHashCode() << 1)).ToString("X");
-
+            _rootClassName = "nant" + System.Guid.NewGuid().ToString().Replace("-", "");
 
             _imports.Clear();
             XmlNodeList importsList = taskNode.SelectNodes("imports/import");
@@ -164,7 +162,9 @@ namespace SourceForge.NAnt.Tasks {
 
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
-                options.ReferencedAssemblies.Add(asm.Location);
+                if (asm.Location != "") {
+                    options.ReferencedAssemblies.Add(asm.Location);
+                }
             }
 
             if (References.BaseDirectory == null) {
@@ -172,7 +172,9 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             foreach (string assemblyName in References.Includes) {
-                options.ReferencedAssemblies.Add(assemblyName);
+                if (assemblyName != "") {
+                    options.ReferencedAssemblies.Add(assemblyName);
+                }
             }
 
             string code = compilerInfo.GenerateCode(_rootClassName, _code, _imports);

@@ -40,26 +40,6 @@
             </Settings>
             <References>
                 <Reference
-                    Name = "NAnt.Core"
-                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.DotNetTasks"
-                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.VisualCppTasks"
-                    Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.ZipTasks"
-                    Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
                     Name = "mscorlib"
                     AssemblyName = "mscorlib"
                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\mscorlib.dll"
@@ -80,24 +60,44 @@
                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
                 />
                 <Reference
-                    Name = "NUnitCore"
-                    AssemblyName = "NUnitCore"
-                    HintPath = "..\bin\NUnitCore.dll"
+                    Name = "nunit.framework"
+                    AssemblyName = "nunit.framework"
+                    HintPath = "..\bin\nunit.framework.dll"
                 />
                 <Reference
-                    Name = "NAnt.NUnitFormatters"
-                    AssemblyName = "NAnt.NUnitFormatters"
-                    HintPath = "..\bin\NAnt.NUnitFormatters.dll"
+                    Name = "NAnt.Core"
+                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
-                    Name = "NAnt.NUnit2Tasks"
-                    AssemblyName = "NAnt.NUnit2Tasks"
-                    HintPath = "..\bin\NAnt.NUnit2Tasks.dll"
+                    Name = "NAnt.DotNetTasks"
+                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
                     Name = "NAnt.NUnit1Tasks"
-                    AssemblyName = "NAnt.NUnit1Tasks"
-                    HintPath = "..\bin\NAnt.NUnit1Tasks.dll"
+                    Project = "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.NUnit2Tasks"
+                    Project = "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.NUnitFormatters"
+                    Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.VisualCppTasks"
+                    Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "NAnt.ZipTasks"
+                    Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
         </Build>
@@ -166,18 +166,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core.Tests\CVS\Entries"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\CVS\Repository"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\CVS\Root"
-                    BuildAction = "None"
-                />
-                <File
                     RelPath = "NAnt.Core.Tests\Tasks\AttribTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -208,11 +196,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core.Tests\Tasks\GetTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.Core.Tests\Tasks\IfTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -224,11 +207,6 @@
                 />
                 <File
                     RelPath = "NAnt.Core.Tests\Tasks\LoopTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\Tasks\MailTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -258,6 +236,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core.Tests\Tasks\ScriptTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core.Tests\Tasks\SleepTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core.Tests\Tasks\SysInfoTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -271,18 +259,6 @@
                     RelPath = "NAnt.Core.Tests\Tasks\TStampTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\Tasks\CVS\Entries"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\Tasks\CVS\Repository"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\Tasks\CVS\Root"
-                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Core.Tests\Util\ConsoleCapture.cs"
@@ -379,18 +355,6 @@
                     RelPath = "NAnt.ZipTasks.Tests\ZipTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.ZipTasks.Tests\CVS\Entries"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.ZipTasks.Tests\CVS\Repository"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.ZipTasks.Tests\CVS\Root"
-                    BuildAction = "None"
                 />
             </Include>
         </Files>

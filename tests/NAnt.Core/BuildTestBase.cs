@@ -53,8 +53,9 @@ namespace SourceForge.NAnt.Tests {
         /// <remarks>
         ///   <para>Super classes that override must call the base class last.</para>
         /// </remarks>
+        [TearDown]
         protected virtual void TearDown() {
-            TempDir.Delete(_tempDirName);
+            TempDir.Delete(TempDirName);
         }
 
         /// <summary>

@@ -16,20 +16,41 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Scott Hernandez (ScottHernandez@hotmail.com)
+
+using System;
+using System.Collections;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
 
-    using System;
-    using System.Collections;
-
     public class TargetCollection : ArrayList {
 
+        public virtual int Add(Target t){
+            //throw an exception if an attempt is made to add a null target
+            if(t == null)
+                throw new BuildException("Null Target!");
+
+            //check for existing target with same name.
+            if(Find(t.Name) == null) {
+                return base.Add(t);
+            } else {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Duplicate Target Named '{0}'!", t.Name));
+            }
+        }
+
         public Target Find(string targetName) {
+            //find target by name
             foreach(Target target in this) {
                 if (target.Name == targetName)
                     return target;
             }
             return null;
+        }
+
+        public override int Add(object value) {
+            //call typed version above.
+            return Add(value as Target);
         }
     }
 }
