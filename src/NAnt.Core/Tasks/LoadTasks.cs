@@ -95,7 +95,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>
         /// Executes the Load Tasks task.
         /// </summary>
-        /// <exception cref="BuildException">A file that has to be copied does not exist or could not be copied.</exception>
+        /// <exception cref="BuildException">Specified Assembly does not exist or specified directory does not exist.</exception>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         protected override void ExecuteTask() {
             ValidateAttributes();
