@@ -46,10 +46,18 @@ namespace NAnt.Core.Tasks {
     ///     </p>
     /// </remarks>
     /// <example>
-    ///     <para>Reads a single value from the registry</para>
-    ///     <code><![CDATA[<readregistry property="sdkRoot" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />]]></code>
-    ///     <para>Reads all the registry values in a key</para>
-    ///     <code><![CDATA[<readregistry prefix="dotNetFX" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />]]></code>
+    ///   <para>Reads a single value from the registry</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <readregistry property="sdkRoot" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Reads all the registry values in a key</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <readregistry prefix="dotNetFX" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("readregistry")]
     public class ReadRegistryTask : Task {

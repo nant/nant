@@ -35,20 +35,25 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>Move a single file.</para>
-    ///   <code>&lt;move file="myfile.txt" tofile="mytarget.txt"/&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <move file="myfile.txt" tofile="mytarget.txt" />
+    ///     ]]>
+    ///   </code>
     ///   <para>Move a set of files.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <move todir="${build.dir}">
     ///     <fileset basedir="bin">
-    ///         <includes name="*.dll"/>
+    ///         <includes name="*.dll" />
     ///     </fileset>
     /// </move>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("move")]
     public class MoveTask : CopyTask {
+        #region Override implementation of CopyTask
 
         /// <summary>
         /// Actually does the file (and possibly empty directory) moves.
@@ -90,5 +95,7 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Info, LogPrefix + "{0} files moved.", FileCopyMap.Count);
             }
         }
+
+        #endregion Override implementation of CopyTask
     }
 }

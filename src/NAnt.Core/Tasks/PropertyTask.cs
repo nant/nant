@@ -47,7 +47,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>Define a read-only property.</para><para>This is just like passing in the param on the command line.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <property name="do_not_touch_ME" value="hammer" readonly="true"/>
+    /// <property name="do_not_touch_ME" value="hammer" readonly="true" />
     ///     ]]>
     ///   </code>
     /// </example>

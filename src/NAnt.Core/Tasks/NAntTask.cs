@@ -35,15 +35,17 @@ namespace NAnt.Core.Tasks {
     public class NAntTask : Task {
         #region Private Instance Fields
 
-        string _buildFileName = null;
-        string _target = null;
-        bool _inheritAll = true;
+        private string _buildFileName = null;
+        private string _target = null;
+        private bool _inheritAll = true;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        /// <summary>The build file to build. If not specified, use the current build file.</summary>
+        /// <summary>
+        /// The build file to build. If not specified, use the current build file.
+        /// </summary>
         [TaskAttribute("buildfile")]
         public string BuildFileName {
             get { 
@@ -55,14 +57,21 @@ namespace NAnt.Core.Tasks {
             set { _buildFileName = value; }
         }
 
-        /// <summary>The target to execute.  To specify more than one target seperate targets with a space.  Targets are executed in order if possible.  Default to use target specified in the project's default attribute.</summary>
+        /// <summary>
+        /// The target to execute. To specify more than one target seperate 
+        /// targets with a space. Targets are executed in order if possible. 
+        /// Defaults to use target specified in the project's default attribute.
+        /// </summary>
         [TaskAttribute("target")]
         public string DefaultTarget {
             get { return _target; }
             set { _target = value; }
         }
 
-        /// <summary>Specifies whether current property values should be inherited by the executed project. Default is false.</summary>
+        /// <summary>
+        /// Specifies whether current property values should be inherited by 
+        /// the executed project. Default is <c>false</c>.
+        /// </summary>
         [TaskAttribute("inheritall"), BooleanValidator()]
         public bool InheritAll {
             get { return _inheritAll; }
