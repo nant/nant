@@ -25,6 +25,7 @@
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll">
             <sources basedir="NAnt.DotNetTasks.Tests">
                 <includes name="**/*.cs"/>
+                
                 <excludes name="**/GetTaskTest.cs"/>
                 <excludes name="**/MailTaskTest.cs"/>
                 <excludes name="**/TouchTaskTest.cs"/>

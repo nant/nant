@@ -1,0 +1,5 @@
+*.dat
+*.suo
+*.user
+obj
+bin

@@ -59,6 +59,7 @@
 		<csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
 			<sources basedir="src/NAnt.Core.Tests">
 				<includes name="**/*.cs" />
+				
 				<excludes name="**/GetTaskTest.cs" />
 				<excludes name="**/MailTaskTest.cs" />
 				<excludes name="**/TouchTaskTest.cs" />
@@ -82,6 +83,7 @@
 		<csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
 			<sources basedir="src/NAnt.Console.Tests">
 				<includes name="**/*.cs" />
+				
 				<excludes name="**/AllTests.cs" />
 			</sources>
 			<references basedir="${build.dir}/bin">
