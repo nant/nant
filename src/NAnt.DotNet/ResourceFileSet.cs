@@ -45,10 +45,10 @@ namespace SourceForge.NAnt.Tasks {
         bool _dynamicprefix = false;
         
         /// <summary>Indicates the prefix to prepend to the actual resource.  This is usually the default namspace of the assembly.</summary>
-        [TaskAttribute("prefix")]	
+        [TaskAttribute("prefix")]
         public string Prefix {
                 get { return _prefix; }
-                set { _prefix = value; }	    
+                set { _prefix = value; } 
         }
             
          /// <summary>
@@ -128,6 +128,7 @@ namespace SourceForge.NAnt.Tasks {
             }   
             retFileSet.Scan();
             return retFileSet;
-        }	    	   
+        } 
     }
  }
+ 

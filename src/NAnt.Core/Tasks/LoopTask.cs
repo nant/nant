@@ -56,11 +56,11 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     ///   <para>Loops over lines in the file "properties.csv", where each line is of the format name,value.</para>
     ///   <code>
-    ///		<![CDATA[
-	///	<foreach item="Line" in="properties.csv" delim="," property="x,y">
-	///		<echo message="Read pair ${x}=${y}"/>
-	///	</foreach>
-	///		]]>
+    ///     <![CDATA[
+    /// <foreach item="Line" in="properties.csv" delim="," property="x,y">
+    ///     <echo message="Read pair ${x}=${y}"/>
+    /// </foreach>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("foreach")]
@@ -72,17 +72,17 @@ namespace SourceForge.NAnt.Tasks {
             String,
             Line
         }
-		public enum TrimTypes {
-			None,
-			End,
-			Start,
-			Both
-		}
+        public enum TrimTypes {
+            None,
+            End,
+            Start,
+            Both
+        }
 
         string _prop = null;
-		string[] _props = null;
+        string[] _props = null;
         ItemTypes _itemType = ItemTypes.None;
-		TrimTypes _trimType = TrimTypes.None;
+        TrimTypes _trimType = TrimTypes.None;
         string _source = null;
         string _delim = null;
 
@@ -93,14 +93,14 @@ namespace SourceForge.NAnt.Tasks {
             get { return _prop; } 
             set {
                 _prop = value;
-				_props = _prop.Split( ',' );
-				foreach ( string prop in _props )
-				{
-					if(Properties.IsReadOnlyProperty(prop)) 
-					{
-						throw new BuildException("Property is readonly! :" + prop, Location); 
-					}
-				}
+                _props = _prop.Split( ',' );
+                foreach ( string prop in _props )
+                {
+                    if(Properties.IsReadOnlyProperty(prop)) 
+                    {
+                        throw new BuildException("Property is readonly! :" + prop, Location); 
+                    }
+                }
             }
         }
 
@@ -110,13 +110,13 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("item", Required=true)]
         public ItemTypes ItemType   { get { return _itemType;} set {_itemType = value; }}
 
-		/// <summary>
-		/// The type of whitespace trimming that should be done.
-		/// </summary>
-		[TaskAttribute("trim")]
-		public TrimTypes TrimType   { get { return _trimType;} set {_trimType = value; }}
+        /// <summary>
+        /// The type of whitespace trimming that should be done.
+        /// </summary>
+        [TaskAttribute("trim")]
+        public TrimTypes TrimType   { get { return _trimType;} set {_trimType = value; }}
 
-		/// <summary>
+        /// <summary>
         /// The source of the iteration.
         /// </summary>
         [TaskAttribute("in", Required=true)]
@@ -129,11 +129,11 @@ namespace SourceForge.NAnt.Tasks {
         public string Delimiter { get { return _delim;} set {_delim = value; }}
 
         protected override void ExecuteTask() {
-			string[] oldPropVals = new string[ _props.Length ];
-			// Save all of the old property values
-			for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
-				oldPropVals[ nIndex ] = Properties[ _props[ nIndex ] ];
-			}
+            string[] oldPropVals = new string[ _props.Length ];
+            // Save all of the old property values
+            for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
+                oldPropVals[ nIndex ] = Properties[ _props[ nIndex ] ];
+            }
             
             try {
                 switch(ItemType) {
@@ -142,9 +142,9 @@ namespace SourceForge.NAnt.Tasks {
                     case ItemTypes.File: {
                         if(!Directory.Exists(Project.GetFullPath(_source)))
                             throw new BuildException("Invalid Source: " + _source, Location);
-						if(_props.Length != 1)
-							throw new BuildException(@"Only one property is valid for item=""File""");
-						DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_source));
+                        if(_props.Length != 1)
+                            throw new BuildException(@"Only one property is valid for item=""File""");
+                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_source));
                         FileInfo[] files = dirInfo.GetFiles();
                         foreach(FileInfo file in files) {
                             DoWork(file.FullName);
@@ -154,8 +154,8 @@ namespace SourceForge.NAnt.Tasks {
                     case ItemTypes.Folder: {
                         if(!Directory.Exists(Project.GetFullPath(_source)))
                             throw new BuildException("Invalid Source: " + _source, Location);
-						if(_props.Length != 1)
-							throw new BuildException(@"Only one property is valid for item=""Folder""");
+                        if(_props.Length != 1)
+                            throw new BuildException(@"Only one property is valid for item=""Folder""");
                         DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_source));
                         DirectoryInfo[] dirs = dirInfo.GetDirectories();
                         foreach(DirectoryInfo dir in dirs) {
@@ -166,27 +166,27 @@ namespace SourceForge.NAnt.Tasks {
                     case ItemTypes.Line: {
                         if(!File.Exists(Project.GetFullPath(_source)))
                             throw new BuildException("Invalid Source: " + _source, Location);
-						if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0 ) )
-							throw new BuildException("Delimiter(s) must be specified if multiple properties are specified");
+                        if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0 ) )
+                            throw new BuildException("Delimiter(s) must be specified if multiple properties are specified");
 
-						StreamReader sr = File.OpenText(Project.GetFullPath(_source));
+                        StreamReader sr = File.OpenText(Project.GetFullPath(_source));
                         while(true) {
                             string line = sr.ReadLine();
                             if (line ==null)
                                 break;
-							if (Delimiter == null || Delimiter.Length == 0)
-								DoWork(line);
-							else
-								DoWork(line.Split(Delimiter.ToCharArray()));
+                            if (Delimiter == null || Delimiter.Length == 0)
+                                DoWork(line);
+                            else
+                                DoWork(line.Split(Delimiter.ToCharArray()));
                         }
                         sr.Close();
                         break;
                     }
                     case ItemTypes.String: {
-						if(_props.Length > 1)
-							throw new BuildException(@"Only one property may be specified for item=""String""");
-						if(Delimiter == null || Delimiter.Length == 0)
-							throw new BuildException(@"Delimiter must be specified for item=""String""");
+                        if(_props.Length > 1)
+                            throw new BuildException(@"Only one property may be specified for item=""String""");
+                        if(Delimiter == null || Delimiter.Length == 0)
+                            throw new BuildException(@"Delimiter must be specified for item=""String""");
                         string[] items = _source.Split(Delimiter.ToCharArray());
                         foreach(string s in items)
                             DoWork(s);
@@ -195,32 +195,32 @@ namespace SourceForge.NAnt.Tasks {
                 }
             }
             finally {
-				// Restore all of the old property values
-				for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
-					Properties[ _props[ nIndex ] ] = oldPropVals[ nIndex ];
-				}
+                // Restore all of the old property values
+                for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
+                    Properties[ _props[ nIndex ] ] = oldPropVals[ nIndex ];
+                }
             }
         }
 
         protected virtual void DoWork(params string[] propVals) {
-			for ( int nIndex = 0; nIndex < propVals.Length; nIndex++ ) {
-				string propValue = propVals[ nIndex ];
-				if ( nIndex >= _props.Length )
-					throw new BuildException("Too many items on line");
-				switch (_trimType)
-				{
-					case TrimTypes.Both:
-						propValue = propValue.Trim();
-						break;
-					case TrimTypes.Start:
-						propValue = propValue.TrimStart();
-						break;
-					case TrimTypes.End:
-						propValue = propValue.TrimEnd();
-						break;
-				}
-				Properties[ _props[ nIndex ] ] = propValue;
-			}
+            for ( int nIndex = 0; nIndex < propVals.Length; nIndex++ ) {
+                string propValue = propVals[ nIndex ];
+                if ( nIndex >= _props.Length )
+                    throw new BuildException("Too many items on line");
+                switch (_trimType)
+                {
+                    case TrimTypes.Both:
+                        propValue = propValue.Trim();
+                        break;
+                    case TrimTypes.Start:
+                        propValue = propValue.TrimStart();
+                        break;
+                    case TrimTypes.End:
+                        propValue = propValue.TrimEnd();
+                        break;
+                }
+                Properties[ _props[ nIndex ] ] = propValue;
+            }
             base.ExecuteTask();
         }
     }

@@ -87,13 +87,13 @@ namespace SourceForge.NAnt {
     /// Represents the different types of drives that may exist in a system.
     /// </summary>
     public enum VolumeTypes {
-        Unknown,	// The drive type cannot be determined. 
-        Invalid,	// The root path is invalid. For example, no volume is mounted at the path. 
-        Removable,	// The disk can be removed from the drive. 
-        Fixed,		// The disk cannot be removed from the drive. 
-        Remote,		// The drive is a remote (network) drive. 
-        CDROM,		// The drive is a CD-ROM drive. 
-        RAMDisk		// The drive is a RAM disk. 
+        Unknown,    // The drive type cannot be determined. 
+        Invalid,    // The root path is invalid. For example, no volume is mounted at the path. 
+        Removable,  // The disk can be removed from the drive. 
+        Fixed,      // The disk cannot be removed from the drive. 
+        Remote,     // The drive is a remote (network) drive. 
+        CDROM,      // The drive is a CD-ROM drive. 
+        RAMDisk     // The drive is a RAM disk. 
     };
 
     /// <summary>
@@ -101,20 +101,20 @@ namespace SourceForge.NAnt {
     /// </summary>
     [Flags]
     public enum VolumeFlags {
-        Unknown					= 0x0,
-        CaseSensitive			= 0x00000001,
-        Compressed				= 0x00008000,
-        PersistentACLS			= 0x00000008,
-        PreservesCase			= 0x00000002,
-        ReadOnly				= 0x00080000,
-        SupportsEncryption		= 0x00020000,
-        SupportsFileCompression	= 0x00000010,
-        SupportsNamedStreams	= 0x00040000,
-        SupportsObjectIDs		= 0x00010000,
-        SupportsQuotas			= 0x00000020,
-        SupportsReparsePoints	= 0x00000080,
-        SupportsSparseFiles		= 0x00000040,
-        SupportsUnicodeOnVolume	= 0x00000004
+        Unknown                 = 0x0,
+        CaseSensitive           = 0x00000001,
+        Compressed              = 0x00008000,
+        PersistentACLS          = 0x00000008,
+        PreservesCase           = 0x00000002,
+        ReadOnly                = 0x00080000,
+        SupportsEncryption      = 0x00020000,
+        SupportsFileCompression = 0x00000010,
+        SupportsNamedStreams    = 0x00040000,
+        SupportsObjectIDs       = 0x00010000,
+        SupportsQuotas          = 0x00000020,
+        SupportsReparsePoints   = 0x00000080,
+        SupportsSparseFiles     = 0x00000040,
+        SupportsUnicodeOnVolume = 0x00000004
 };
 
     /// <summary>
@@ -199,9 +199,9 @@ namespace SourceForge.NAnt {
                 //We're on some version of Windows, so the PInvoke is OK.
 
                 // Declare Receiving Variables
-                StringBuilder VolLabel = new StringBuilder(256);	// Label
+                StringBuilder VolLabel = new StringBuilder(256);    // Label
                 UInt32 VolFlags = new UInt32();
-                StringBuilder FSName = new StringBuilder(256);	// File System Name
+                StringBuilder FSName = new StringBuilder(256);  // File System Name
                 UInt32 SerNum = 0;
                 UInt32 MaxCompLen = 0;
             

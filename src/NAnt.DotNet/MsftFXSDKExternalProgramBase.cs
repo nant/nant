@@ -17,16 +17,7 @@
 
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
-using System.Collections.Specialized;
-using System.Collections;
-using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
-using Microsoft.Win32;
-using System.Configuration;
-
-using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
 

@@ -24,7 +24,7 @@ using System.Globalization;
 namespace SourceForge.NAnt.Attributes {
 
     /// <summary>Indicates that field should be able to be converted into a Boolean.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property	, Inherited=true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property    , Inherited=true)]
     public class BooleanValidatorAttribute : ValidatorAttribute {
 
         public BooleanValidatorAttribute() {

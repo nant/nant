@@ -55,7 +55,7 @@ namespace SourceForge.NAnt {
     ///     <code>
     ///         while(true) {
     ///             DirectoryScanner scanner = new DirectoryScanner();
-    ///    			
+    ///
     ///             Console.Write("Scan Basedirectory : ");
     ///             string s = Console.ReadLine();
     ///             if (s == "") break;
@@ -74,7 +74,7 @@ namespace SourceForge.NAnt {
     ///                 if (s == "") break;
     ///                 scanner.Excludes.Add(s);
     ///             }
-    ///				
+    ///
     ///             foreach (string name in scanner.FileNames)
     ///                 Console.WriteLine("file:" + name);
     ///             foreach (string name in scanner.DirectoryNames)

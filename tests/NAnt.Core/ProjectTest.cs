@@ -64,7 +64,7 @@ namespace SourceForge.NAnt.Tests {
             // create the build file in the temp folder
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
 
-            Project p = new Project(_buildFileName);
+            Project p = new Project(_buildFileName, false );
 
             Assertion.AssertNotNull("Property ('nant.version') not defined.", p.Properties["nant.version"]);
             Assertion.AssertNotNull("Property ('nant.location') not defined.", p.Properties["nant.location"]);
@@ -82,7 +82,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_Initialization_DOMBuildFile() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc);
+            Project p = new Project(doc, false);
 
             Assertion.AssertNotNull("Property not defined.", p.Properties["nant.version"]);
 

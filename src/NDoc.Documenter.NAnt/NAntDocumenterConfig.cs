@@ -30,12 +30,12 @@ using NDoc.Core;
 
 namespace Sourceforge.NAnt.Documenter {
 
-	/// <summary>NAntDocumenterConfig Config class for NAntDocumenter.</summary>
-	public class NAntTaskDocumenterConfig : BaseDocumenterConfig {
+    /// <summary>NAntDocumenterConfig Config class for NAntDocumenter.</summary>
+    public class NAntTaskDocumenterConfig : BaseDocumenterConfig {
         string _outputDirectory = @"doc/help/tasks";
-		
-		/// <summary>Initializes a new instance of the NAntDocumenterConfig class.</summary>
-		public NAntTaskDocumenterConfig() : base("NAntTask") {
+        
+        /// <summary>Initializes a new instance of the NAntDocumenterConfig class.</summary>
+        public NAntTaskDocumenterConfig() : base("NAntTask") {
             // set reasonable ndoc defaults so we don't have to do this in the build file
 
             CopyrightText = String.Format(CultureInfo.InvariantCulture, "Copyright (C) 2001-{0} Gerry Shaw", DateTime.Now.Year);
@@ -56,23 +56,23 @@ namespace Sourceforge.NAnt.Documenter {
             DocumentProtected = true;
             IncludeAssemblyVersion = false;
             SkipNamespacesWithoutSummaries = false;
-		}
-		
-		/// <summary>Gets or sets the OutputFile property.</summary>
-		[
-			Category("Output"),
-			Description("The path to the Output Directory where the generated doc will be placed."),
+        }
+        
+        /// <summary>Gets or sets the OutputFile property.</summary>
+        [
+            Category("Output"),
+            Description("The path to the Output Directory where the generated doc will be placed."),
 #if (!BuildWithVSNet)
          Editor(typeof(FileNameEditor), typeof(UITypeEditor))
 #endif
-		]
-		/// <summary>Gets or sets the OutputDirectory property.</summary>
-		public string OutputDirectory {
-			get { return _outputDirectory; }
-			set  { 
-				_outputDirectory = value; 
-				SetDirty();
-			}
-		}
-	}
+        ]
+        /// <summary>Gets or sets the OutputDirectory property.</summary>
+        public string OutputDirectory {
+            get { return _outputDirectory; }
+            set  { 
+                _outputDirectory = value; 
+                SetDirty();
+            }
+        }
+    }
 }

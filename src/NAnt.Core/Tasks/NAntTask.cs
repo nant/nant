@@ -73,8 +73,8 @@ namespace SourceForge.NAnt.Tasks {
             try {
                 Log.WriteLine(LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
                 Log.Indent();
-                Project project = new Project(Project.GetFullPath(BuildFileName));
-                project.Verbose = Verbose;
+                Project project = new Project(Project.GetFullPath(BuildFileName), Verbose);
+                //project.Verbose = Verbose;
 
                 if ( _inheritAll ) {
                     StringCollection excludes = new StringCollection();

@@ -159,12 +159,12 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             try {
                 NUnitTestRunner runner = new NUnitTestRunner(test);
 
-				if (runner.NeedsRunning()) {
-					Log.WriteLine(LogPrefix + "Running {0}", test.Class);
-					runner.Run(LogPrefix, Verbose);
-				} else {
-					Log.WriteLine(LogPrefix + "Skipping {0} because tests haven't changed.", test.Class);
-				}
+                if (runner.NeedsRunning()) {
+                    Log.WriteLine(LogPrefix + "Running {0}", test.Class);
+                    runner.Run(LogPrefix, Verbose);
+                } else {
+                    Log.WriteLine(LogPrefix + "Skipping {0} because tests haven't changed.", test.Class);
+                }
                 return runner.ResultCode;
 
             } catch (Exception e) {
@@ -177,24 +177,24 @@ namespace SourceForge.NAnt.Tasks.NUnit {
 
             // get all child tests
             foreach (XmlNode testNode in taskNode) {
-				if(testNode.Name.Equals("test"))
-				{
-					NUnitTest test = new NUnitTest();
-					test.Project = Project; 
-					test.Initialize(testNode);
-					_tests.Add(test);
-				}
+                if(testNode.Name.Equals("test"))
+                {
+                    NUnitTest test = new NUnitTest();
+                    test.Project = Project; 
+                    test.Initialize(testNode);
+                    _tests.Add(test);
+                }
             }
 
             // now get formatters
             foreach (XmlNode formatterNode in taskNode) {
-				if(formatterNode.Name.Equals("formatter"))
-				{
-					FormatterElement formatter = new FormatterElement();
-					formatter.Project = Project;
-					formatter.Initialize(formatterNode);
-					_formatterElements.Add(formatter);
-				}
+                if(formatterNode.Name.Equals("formatter"))
+                {
+                    FormatterElement formatter = new FormatterElement();
+                    formatter.Project = Project;
+                    formatter.Initialize(formatterNode);
+                    _formatterElements.Add(formatter);
+                }
             }
         }
 
@@ -208,7 +208,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
                 ExecuteTest(test);
             }
 
-			// always throw a buildexception if tests failed (use failonerror="false" to continue building with failed tests).
+            // always throw a buildexception if tests failed (use failonerror="false" to continue building with failed tests).
             if (_failuresPresent) {
                 throw new BuildException("Unit test failed, see build log.", Location);
             }

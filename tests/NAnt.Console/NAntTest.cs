@@ -31,10 +31,10 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-	[TestFixture]
+    [TestFixture]
     public class NAntTest : BuildTestBase {
 
-		[Test]
+        [Test]
         public void Test_BuildFileOption() {
             string filename = "file1.ha";
             string baseDirectory = TempDir.Create(Path.Combine(TempDirName, "foo"));
@@ -68,7 +68,7 @@ namespace SourceForge.NAnt.Tests {
             Environment.CurrentDirectory = oldCurrDir;
         }
  /*
- 		[Test]
+         [Test]
         public void Test_BuildFileDoubleOption() {
             string filename1 = "file1.ha";
             string filename2 = "file2.ha";
@@ -98,7 +98,7 @@ namespace SourceForge.NAnt.Tests {
             }
         }
  */
- 		[Test]
+        [Test]
         public void Test_GetBuildFileName() {
             try {
                 ConsoleDriver.GetBuildFileName(null, null, false);
@@ -131,7 +131,7 @@ namespace SourceForge.NAnt.Tests {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_FindInParentOption() {
             string baseDirectory = TempDir.Create(Path.Combine(TempDirName,"Find"));
             string buildFileName = Path.Combine(baseDirectory, "file.build");
@@ -200,7 +200,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(DateTime.Now.Year, year);
         }
 
-		[Test]
+        [Test]
         public void Test_BadArgument() {
             string[] args = { "-asdf", "-help", "-verbose" };
 
@@ -217,7 +217,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert("Argument did not cause an error.", match.Success);
         }
 
-		[Test]
+        [Test]
         public void Test_DefineProperty() {
             string buildFileContents = @"<?xml version='1.0' ?>
                 <project name='Test' default='test' basedir='.'>
@@ -252,7 +252,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(buildFileName + " exists.", !File.Exists(buildFileName));
         }
 
-		[Test]
+        [Test]
         public void Test_ShowProjectHelp() {
             string buildFileContents = @"<?xml version='1.0' ?>
                 <project name='Hello World' default='build' basedir='.'>
@@ -329,7 +329,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(buildFileName + " exists.", !File.Exists(buildFileName));
         }
 
-		[Test]
+        [Test]
         public void Test_CreateLogger() {
             string xmlLogger = "SourceForge.NAnt.XmlLogger";
             string consoleLogger = "SourceForge.NAnt.ConsoleLogger";
@@ -359,7 +359,7 @@ namespace SourceForge.NAnt.Tests {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_CreateLoggerWithFile() {
             string xmlLogger = "SourceForge.NAnt.XmlLogger";
             string consoleLogger = "SourceForge.NAnt.ConsoleLogger";

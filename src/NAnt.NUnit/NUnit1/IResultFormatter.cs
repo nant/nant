@@ -23,10 +23,10 @@ using System.IO;
 using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-		
-	/// <summary>Summary description for IResultFormatter.</summary>
-	public interface IResultFormatter : ITestListener {
-		
+        
+    /// <summary>Summary description for IResultFormatter.</summary>
+    public interface IResultFormatter : ITestListener {
+        
         /// <summary>The whole test suite started.</summary>
         void StartTestSuite(NUnitTestData suite); // not sure we need to be passing this at all
 
@@ -35,5 +35,5 @@ namespace SourceForge.NAnt.Tasks.NUnit {
 
         /// <summary>Sets the Writer the formatter is supposed to write its results to.</summary>
         void SetOutput(TextWriter writer);
-	}
+    }
 }

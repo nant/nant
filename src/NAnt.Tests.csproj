@@ -181,6 +181,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core.Tests\Tasks\CopyTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core.Tests\Tasks\DeleteTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -201,6 +206,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core.Tests\Tasks\GetTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core.Tests\Tasks\IfTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -213,6 +223,10 @@
                 <File
                     RelPath = "NAnt.Core.Tests\Tasks\LoopTest.cs"
                     SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core.Tests\Tasks\MailTaskTest.cs"
                     BuildAction = "Compile"
                 />
                 <File

@@ -69,7 +69,6 @@ namespace SourceForge.NAnt {
                 AddTasks(Assembly.LoadFrom(assemblyFile));
                 //AddTasks(AppDomain.CurrentDomain.Load(assemblyFile.Replace(AppDomain.CurrentDomain.BaseDirectory,"").Replace(".dll","")));
             }
-		
         }
         /// <summary> Adds any Task Assemblies in the Project.BaseDirectory.</summary>
         /// <param name="project">The project to work from.</param>

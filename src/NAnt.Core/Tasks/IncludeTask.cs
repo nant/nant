@@ -59,7 +59,7 @@ namespace SourceForge.NAnt.Tasks {
             /*
             // load line and column number information into Project's map
             Project.LocationMap.Add(doc);
-			
+            
             // initialize targets and global tasks
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
                 //add targets to list

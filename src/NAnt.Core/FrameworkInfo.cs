@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Globalization;
     
 namespace SourceForge.NAnt {
    
@@ -32,10 +33,11 @@ namespace SourceForge.NAnt {
         string          _description;
         string          _version;
         string          _csharpCompilerName; // move this to task specific section..
-        string          _resgenToolName; 
+        string          _resgenToolName;         
         DirectoryInfo   _frameworkDirectory;
         DirectoryInfo   _sdkDirectory;
         DirectoryInfo   _frameworkAssemblyDirectory;
+        FileInfo        _runtimEngine;
         
         public FrameworkInfo( string name, 
                                 string description, 
@@ -44,7 +46,8 @@ namespace SourceForge.NAnt {
                                 string sdkDir, 
                                 string frameworkAssemblyDir,
                                 string csharpCompilerName,
-                                string resgenToolName ) {
+                                string resgenToolName,
+                                string runtimeEngine ) {
             _name = name;
             _description = description;
             _version = version;           
@@ -52,22 +55,29 @@ namespace SourceForge.NAnt {
             if (Directory.Exists(frameworkDir)) {
                 _frameworkDirectory = new DirectoryInfo(frameworkDir);
             } else {
-                throw new ArgumentException(string.Format("frameworkDir {0} does not exist", frameworkDir) );
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "frameworkDir {0} does not exist", frameworkDir) );
             }
             
             if (Directory.Exists(frameworkAssemblyDir)) {
                 _frameworkAssemblyDirectory = new DirectoryInfo(frameworkAssemblyDir);
             } else {
-                throw new ArgumentException(string.Format("framework Assembly Dir {0} does not exist", frameworkAssemblyDir) );
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "framework Assembly Dir {0} does not exist", frameworkAssemblyDir) );
             }
-            
-            // check that the csharp compiler is present ??
+                                   
             if (Directory.Exists(sdkDir)) {
                 _sdkDirectory = new DirectoryInfo(sdkDir);
             } else {
-                throw new ArgumentException(string.Format("sdkDirectory {0} does not exist", sdkDir)  );
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "sdkDirectory {0} does not exist", sdkDir)  );
             }           
-            
+            // if runtime engine is blank assume we aren't using one
+            if ( runtimeEngine != "" ) {
+                string runtimeEnginePath = _frameworkDirectory.FullName + Path.DirectorySeparatorChar + runtimeEngine;
+                if ( File.Exists(runtimeEnginePath ) ){
+                    _runtimEngine = new FileInfo( runtimeEnginePath );
+                } else {
+                    throw new ArgumentException(string.Format( CultureInfo.InvariantCulture, "runtime Engine {0} does not exist", runtimeEnginePath )  );            
+                }
+            }
             // Validate that these tools exist ..
             _csharpCompilerName = csharpCompilerName;
             _resgenToolName = resgenToolName;
@@ -111,6 +121,14 @@ namespace SourceForge.NAnt {
         public DirectoryInfo FrameworkDirectory {
             get {            
                 return _frameworkDirectory; 
+            }           
+        }
+        /// <summary>
+        /// Path to the runtime engine for this framework. ( not required for many frameworks )
+        /// </summary>
+        public FileInfo RuntimeEngine {
+            get {            
+                return _runtimEngine; 
             }           
         }
        

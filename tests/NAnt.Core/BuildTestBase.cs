@@ -113,7 +113,7 @@ namespace SourceForge.NAnt.Tests {
             string buildFileName = Path.Combine(TempDirName, "test.build");
             TempFile.CreateWithContents(xml, buildFileName);
 
-            return new Project(buildFileName);
+            return new Project(buildFileName, false);
         }
 
         /// <summary>

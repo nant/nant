@@ -48,7 +48,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>The file to which the standard output will be redirected.</summary>
         /// <remarks>By default, the standard output is redirected to the console.</remarks>
         [TaskAttribute("output", Required=false)]public string Output { set { _outputFile = value; } }
-		
+        
         /// <summary>true if the output file is to be appended to.</summary>
         /// <remarks>False by default.</remarks>
         [TaskAttribute("append", Required=false)]

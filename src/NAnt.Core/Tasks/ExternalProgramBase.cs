@@ -62,10 +62,17 @@ namespace SourceForge.NAnt.Tasks {
         public virtual string ExeName {
             get { return Name; }
         }
+        
+        /// <summary>
+        /// Override in a derived class to 
+        /// </summary>
+        protected virtual bool UsesRuntimeEngine {
+            get { return false; }
+        }
         /// <summary>The maximum amount of time the application is allowed to execute, expressed in milliseconds.  Defaults to no time-out.</summary>
         public virtual int TimeOut { get { return Int32.MaxValue;  } set{} }
 
-        StringCollection _args = new StringCollection();
+        StringCollection _args = new StringCollection();       
 
         /// <summary>Get the command line arguments for the application.</summary>
         protected StringCollection Args {
@@ -122,8 +129,13 @@ namespace SourceForge.NAnt.Tasks {
         /// <returns>new Process with information about programs to run, etc.</returns>
         protected virtual void PrepareProcess(ref Process process){
             // create process (redirect standard output to temp buffer)
-            process.StartInfo.FileName = ProgramFileName;
-            process.StartInfo.Arguments = GetCommandLine();
+            if ( UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null ) {
+                process.StartInfo.FileName = Project.CurrentFramework.RuntimeEngine.FullName;
+                process.StartInfo.Arguments = ProgramFileName + " " + GetCommandLine();
+            } else {
+                process.StartInfo.FileName = ProgramFileName;
+                process.StartInfo.Arguments = GetCommandLine();
+            }
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = false;
             //required to allow redirects

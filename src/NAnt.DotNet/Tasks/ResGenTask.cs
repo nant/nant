@@ -21,13 +21,9 @@
 // Klemen Zagar (klemen@zagar.ws)
 // Ian MacLean (ian_maclean@another.com)
 
+using SourceForge.NAnt.Attributes;
 using System;
 using System.IO;
-using System.Text;
-using SourceForge.NAnt;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
-using System.Globalization;
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -162,6 +158,16 @@ namespace SourceForge.NAnt.Tasks {
                     }
                 }
             }                     
+        }
+        // 
+        protected override bool UsesRuntimeEngine{ 
+            get {                 
+                // uncomment this when monoresgen no longer crashes when run with the mono runtime.
+                //if ( Project.CurrentFramework.Name.IndexOf( "mono", 0 ) != -1 ) { // remove hardcoded ness
+                //    return true;
+                //}                
+                return false;                
+            }
         }
     }
 }

@@ -53,14 +53,14 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
     public class NUnit2Task : Task {
         private bool _haltOnFailure;
         private ArrayList tests = new ArrayList();
-		
+        
         /// <summary>Stop the build process if a test fails.</summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
         public bool HaltOnFailure       { get { return _haltOnFailure; } set { _haltOnFailure = value; }}
-	    
+        
         FormatterElementCollection _formatterElements = new FormatterElementCollection();
-	    
+        
         protected override void InitializeTask(XmlNode taskNode) {
             foreach (XmlNode testNode in taskNode) {
                 if(testNode.Name.Equals("test")) {
@@ -70,7 +70,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                     tests.Add(test);
                 }
             }
-			
+            
             // now get formatters
             foreach (XmlNode formatterNode in taskNode) {
                 if(formatterNode.Name.Equals("formatter")) {
@@ -92,13 +92,13 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             foreach (NUnit2Test test in tests) {
                 EventListener listener = new NullListener();
                 TestResult result = RunRemoteTest(test, listener);
-	    			
-                string xmlResultFile = test.AssemblyName + "-results.xml";	    			
-							
+                    
+                string xmlResultFile = test.AssemblyName + "-results.xml";                  
+                            
                 XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
                 result.Accept(resultVisitor);
-                resultVisitor.Write();	
-				
+                resultVisitor.Write();  
+                
                 foreach (FormatterElement formatter in _formatterElements) {
                     if (formatter.Type == FormatterType.Xml) {
                         if (!formatter.UseFile) {
@@ -124,10 +124,10 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                 }
                 if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
                     throw new BuildException("Tests Failed");
-                }		
+                }       
             }
         }
-	    
+        
         private TestResult RunRemoteTest(NUnit2Test test, EventListener listener) {
             LogWriter writer = new LogWriter();
             NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
@@ -137,17 +137,17 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                 return domain.Run(test.AssemblyName, test.AppConfigFile, listener);
             }
         }
-	    
+        
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
             XPathDocument originalXPathDocument = new XPathDocument (resultFile);
             XslTransform summaryXslTransform = new XslTransform();
             XmlTextReader transformReader = GetTransformReader(test);
             summaryXslTransform.Load(transformReader);
-			
+            
             summaryXslTransform.Transform(originalXPathDocument,null,writer);
         }
-		
-		
+        
+        
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
             if(test.TransformFile == null) {
@@ -165,26 +165,26 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 
                 transformReader = new XmlTextReader(xsltInfo.FullName);
             }
-			
+            
             return transformReader;
         }
-		
+        
         private class LogWriter : TextWriter {
-			
+            
             public override Encoding Encoding { get { return Encoding.UTF8; } }
-			
-			
+            
+            
             public override void Write(char[] chars) {
                 Log.WriteLine(new String(chars, 0, chars.Length -1));
             }
-			
+            
             public override void WriteLine(string line) {
                 Log.WriteLine(line);
             }
-			
+            
             public override void WriteLine(string line, params object[] args) {
                 Log.WriteLine(line, args);
-            }				
+            }               
         }
     }
 }

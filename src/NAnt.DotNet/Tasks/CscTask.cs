@@ -23,6 +23,7 @@ namespace SourceForge.NAnt.Tasks {
     using System;
     using System.IO;
     using SourceForge.NAnt.Attributes;
+    using System.Text.RegularExpressions;
 
     /// <summary>Compiles C# programs.</summary>
     /// <example>
@@ -126,7 +127,18 @@ namespace SourceForge.NAnt.Tasks {
                 Args.Add("/noconfig");
             }
         }
-
+        #region overrides      
         protected override string GetExtension(){ return "cs";}
+        
+        protected override bool UsesRuntimeEngine { 
+            get {                
+                // find better way of doing this
+                if ( Project.CurrentFramework.Name.IndexOf( "mono", 0 ) != -1 ) {          
+                    return true;
+                }                
+                return false;                
+            }
+        }
+        #endregion
     }
 }

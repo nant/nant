@@ -24,20 +24,20 @@ using NUnit.Framework;
 using NUnit.Runner;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-	
-	/// <summary>
-	/// Class to represent a test element of an NUnit task  
-	/// </summary>
-	public class BaseTest : Element {
-		    
+    
+    /// <summary>
+    /// Class to represent a test element of an NUnit task  
+    /// </summary>
+    public class BaseTest : Element {
+            
         string _class = null;                
-        string _assembly = null;        	    
+        string _assembly = null;                
         bool _fork = false;                
         bool _haltonerror = false;                
         bool _haltonfailure = false;
         string _appConfigFile = null;
-		
-		// Attribute properties		   
+        
+        // Attribute properties        
         /// <summary>Class Name of the test</summary>
         [TaskAttribute("class", Required=true)]
         public string Class             { get { return _class; } set { _class = value; } }
@@ -61,10 +61,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         [BooleanValidator()]
         public bool HaltOnFailure       { get { return _haltonfailure; } set { _haltonfailure = value; }}
 
-		  [TaskAttribute("appconfig")]
+          [TaskAttribute("appconfig")]
         public string AppConfigFile {
            get { return _appConfigFile; }
            set { _appConfigFile = value; }
         }
-	}
+    }
 }

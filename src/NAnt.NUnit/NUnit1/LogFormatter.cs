@@ -27,8 +27,8 @@ using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
 
-	/// <summary>Prints information about running tests directly to the Log class.</summary>
-	public class LogFormatter : IResultFormatter	{
+    /// <summary>Prints information about running tests directly to the Log class.</summary>
+    public class LogFormatter : IResultFormatter    {
 
         string _prefix;
         bool _verbose;
@@ -51,14 +51,14 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         }
 
         //-------------------------------------------------------------
-		// IResultFormatter interface methods
-		//-------------------------------------------------------------
+        // IResultFormatter interface methods
+        //-------------------------------------------------------------
 
         /// <summary>Not used, all output goes to Log class.</summary>
         public void SetOutput(TextWriter writer) {
         }
 
-		/// <summary>Called when the whole test suite has started.</summary>
+        /// <summary>Called when the whole test suite has started.</summary>
         public void StartTestSuite(NUnitTestData suite) {
             Log.WriteLineIf(Verbose, Prefix + "------------------------------------------");
         }
@@ -75,8 +75,8 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         }
 
         //-------------------------------------------------------------
-		// ITestListener interface methods
-		//-------------------------------------------------------------
+        // ITestListener interface methods
+        //-------------------------------------------------------------
 
         // NOTE: When test.ToString() displays something less stupid than 
         // MethodName(Namespace.ClassName) think about changing to that.  As it 
@@ -86,7 +86,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             string nunitInfo = test.ToString();
             return test.GetType().Name + "." + nunitInfo.Substring(0, nunitInfo.IndexOf('('));
         }
-		
+        
         public void AddError(ITest test, Exception e) {
             Log.WriteLine(Prefix + "ERROR: " + GetTestSummary(test));
             Log.WriteLine(FormatError(e.StackTrace, e.Message));

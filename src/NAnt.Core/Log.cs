@@ -251,7 +251,6 @@ namespace SourceForge.NAnt {
                 Flush();
             }
         }
-	
         /// <summary>Writes the given message to the log if condition is true.</summary>
         public static void WriteLineIf(bool condition, string message) {
             if (condition) {

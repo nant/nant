@@ -27,7 +27,7 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tasks { 
 
-	/// <summary>A task to send SMTP email.</summary>
+    /// <summary>A task to send SMTP email.</summary>
     /// <remarks>
     /// Text and text files to include in the message body may be specified as well as binary attachments.
     /// </remarks>

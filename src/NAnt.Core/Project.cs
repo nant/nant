@@ -132,8 +132,9 @@ namespace SourceForge.NAnt {
         /// Constructs a new Project with the given document.
         /// </summary>
         /// <param name="doc">Any valid build format will do.</param>
-        public Project(XmlDocument  doc) {
-            ctorHelper(doc);
+        /// <param name="verbose">Verbose Flag</param>
+        public Project(XmlDocument  doc, bool verbose) {
+            ctorHelper(doc, verbose);
         }
 
         /// <summary>
@@ -143,8 +144,9 @@ namespace SourceForge.NAnt {
         /// <para> The Source should be the full path to the build file.</para>
         /// <para> This can be of any form that XmlDocument.Load(string url) accepts.</para>
         /// </param>
+        /// <param name="verbose"></param>
         /// <remarks><para>If the source is a uri of form 'file:///path' then use the path part.</para></remarks>
-        public Project(string source) {
+        public Project(string source, bool verbose) {
             string path = source;
             //if the source is not a valid uri, pass it thru.
             //if the source is a file uri, pass the localpath of it thru.
@@ -163,7 +165,7 @@ namespace SourceForge.NAnt {
                     path=source;
             }
 
-            ctorHelper(LoadBuildFile(path));
+            ctorHelper(LoadBuildFile(path), verbose);
         }
 
         /// <summary>
@@ -185,11 +187,13 @@ namespace SourceForge.NAnt {
         ///     </list>
         /// </summary>
         /// <param name="doc">The Project Document.</param>
-        protected virtual void ctorHelper(XmlDocument doc) {
+        /// <param name="verbose">Verbose output.</param>
+        protected virtual void ctorHelper(XmlDocument doc, bool verbose ) {
             TaskFactory.AddProject(this);
             Log.IndentSize = 12;
             _doc = doc;
-
+            _verbose = verbose;
+            
             string newBaseDir = null;
 
             //check to make sure that the root element in named correctly
@@ -579,12 +583,17 @@ namespace SourceForge.NAnt {
         /// </summary>
         private void UpdateDefaultFrameworkProperties() {      
             Properties["nant.settings.defaultframework"] = DefaultFramework.Name;    
+            Properties["nant.settings.defaultframework.version"] = DefaultFramework.Version;
+            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;             
             Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
             Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
             Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.defaultframework.csharpcompiler"] = DefaultFramework.CSharpCompilerName; 
-            Properties["nant.settings.defaultframework.resgentool"] = DefaultFramework.ResGenToolName; 
-            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;             
+            Properties["nant.settings.defaultframework.resgentool"] = DefaultFramework.ResGenToolName;         
+            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;     
+            if (DefaultFramework.RuntimeEngine != null) {
+                Properties["nant.settings.defaultframework.runtimeengine"] = DefaultFramework.RuntimeEngine.Name; 
+            }        
         }
         
         /// <summary>
@@ -592,12 +601,18 @@ namespace SourceForge.NAnt {
         /// </summary>
         private void UpdateCurrentFrameworkProperties(){
             Properties["nant.settings.currentframework"] = CurrentFramework.Name;
+            Properties["nant.settings.currentframework.version"] = CurrentFramework.Version;
+            Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
             Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName; 
             Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
+           
             Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.currentframework.csharpcompiler"] = CurrentFramework.CSharpCompilerName; 
-            Properties["nant.settings.currentframework.resgentool"] = CurrentFramework.ResGenToolName; 
+            Properties["nant.settings.currentframework.resgentool"] = CurrentFramework.ResGenToolName;             
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
+            if (CurrentFramework.RuntimeEngine != null) {
+                Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name; 
+            }
         }
         
         #region Settings file Load routines
@@ -632,16 +647,18 @@ namespace SourceForge.NAnt {
             foreach ( XmlNode frameworkNode in frameworkInfoNodes ) {
             
                 // load the runtimInfo stuff
-                XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("SdkDirectory");
-                XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkDirectory");
+                XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("sdkirectory");
+                XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkdirectory");
                 XmlNode frameworkAssemDirectoryNode = frameworkNode.SelectSingleNode("frameworkassemblydirectory");
                 
                 string name = frameworkNode.Attributes["name"].Value;
                 string description =  frameworkNode.Attributes["description"].Value;
                 string version = frameworkNode.Attributes["version"].Value;
-                string csharpCompilerName = frameworkNode.Attributes["CsharpCompilerName"].Value;
-                string resgenToolName = frameworkNode.Attributes["ResGenName"].Value;
-                                
+                string csharpCompilerName = frameworkNode.Attributes["csharpcompilername"].Value;
+                string resgenToolName = frameworkNode.Attributes["resgenname"].Value;
+                string runtimeEngine = ( frameworkNode.Attributes["runtimeengine"] != null ) ? frameworkNode.Attributes["runtimeengine"].Value : "";
+                
+                                            
                 string sdkDirectory = "";
                 string frameworkDirectory = "";
                 string frameworkAssemblyDirectory = "";
@@ -659,7 +676,7 @@ namespace SourceForge.NAnt {
                     sdkDirectory =  SdkDirectoryNode.Attributes["dir"].Value;
                 }
                 
-                if ( frameworkDirectoryNode.Attributes["useregistry"] != null &&  frameworkDirectoryNode.Attributes["useregistry"].Value == "true"){
+                if ( frameworkDirectoryNode.Attributes["useregistry"] != null &&  frameworkDirectoryNode.Attributes["useregistry"].Value == "true" ) {
                     string regKey = frameworkDirectoryNode.Attributes["regkey"].Value;
                     string regValue = frameworkDirectoryNode.Attributes["regvalue"].Value;
                     RegistryKey frameworkKey = Registry.LocalMachine.OpenSubKey(regKey);
@@ -692,12 +709,15 @@ namespace SourceForge.NAnt {
                                             sdkDirectory, 
                                             frameworkAssemblyDirectory, 
                                             csharpCompilerName, 
-                                            resgenToolName );                
+                                            resgenToolName,
+                                            runtimeEngine );                
                 }
-                catch (Exception ){} // just ignore frameworks that don't validate
+                catch (Exception e ) {
+                    Log.WriteLineIf(Verbose, string.Format(CultureInfo.InvariantCulture, "settings warning: frameworkinfo {0} is invalid and has not been loaded: ", name ) + e.Message );
+                } // just ignore frameworks that don't validate
                 if ( info != null ) {                    
                     _frameworkInfoTable.Add( info.Name, info );   
-                }                                            
+                }                                                            
             }
         }
                 
@@ -729,7 +749,6 @@ namespace SourceForge.NAnt {
                     Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );                                                   
                     Properties.Add("nant.settings.currentframework", defaultFramework );
                     
-                    // set the default framework.
                     DefaultFramework = _frameworkInfoTable[defaultFramework];
                     CurrentFramework = _defaultFramework;                                                                              
                 }   
@@ -744,6 +763,7 @@ namespace SourceForge.NAnt {
             catch ( Exception e)  {
                 throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,   "Error loading settings file {0}." + e.Message,  configpath ), e ); 
             }
+            Log.WriteLineIf(Verbose, "");
         }
         #endregion
     }

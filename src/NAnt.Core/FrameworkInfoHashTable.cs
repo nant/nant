@@ -12,314 +12,314 @@ using System.Collections;
 
 namespace SourceForge.NAnt
 {
-	public 
-	class FrameworkInfoHashTable : IDictionary, ICollection, IEnumerable, ICloneable
-	{
-		protected Hashtable innerHash;
-		
-		#region "Constructors"
-		public  FrameworkInfoHashTable()
-		{
-			innerHash = new Hashtable();
-		}
-		public FrameworkInfoHashTable(FrameworkInfoHashTable original)
-		{
-			innerHash = new Hashtable (original.innerHash);
-		}
-		public FrameworkInfoHashTable(IDictionary dictionary)
-		{
-			innerHash = new Hashtable (dictionary);
-		}
-
-		public FrameworkInfoHashTable(int capacity)
-		{
-			innerHash = new Hashtable(capacity);
-		}
-
-		public FrameworkInfoHashTable(IDictionary dictionary, float loadFactor)
-		{
-			innerHash = new Hashtable(dictionary, loadFactor);
-		}
-
-		public FrameworkInfoHashTable(IHashCodeProvider codeProvider, IComparer comparer)
-		{
-			innerHash = new Hashtable (codeProvider, comparer);
-		}
-
-		public FrameworkInfoHashTable(int capacity, int loadFactor)
-		{
-			innerHash = new Hashtable(capacity, loadFactor);
-		}
-
-		public FrameworkInfoHashTable(IDictionary dictionary, IHashCodeProvider codeProvider, IComparer comparer)
-		{
-			innerHash = new Hashtable (dictionary, codeProvider, comparer);
-		}
-		
-		public FrameworkInfoHashTable(int capacity, IHashCodeProvider codeProvider, IComparer comparer)
-		{
-			innerHash = new Hashtable (capacity, codeProvider, comparer);
-		}
-
-		public FrameworkInfoHashTable(IDictionary dictionary, float loadFactor, IHashCodeProvider codeProvider, IComparer comparer)
-		{
-			innerHash = new Hashtable (dictionary, loadFactor, codeProvider, comparer);
-		}
-
-		public FrameworkInfoHashTable(int capacity, float loadFactor, IHashCodeProvider codeProvider, IComparer comparer)
-		{
-			innerHash = new Hashtable (capacity, loadFactor, codeProvider, comparer);
-		}
-
-		
-#endregion
-
-		#region Implementation of IDictionary
-        public FrameworkInfoHashTableEnumerator GetEnumerator()
+    public 
+    class FrameworkInfoHashTable : IDictionary, ICollection, IEnumerable, ICloneable
+    {
+        protected Hashtable innerHash;
+        
+        #region "Constructors"
+        public  FrameworkInfoHashTable()
         {
-	        return new FrameworkInfoHashTableEnumerator(this);
+            innerHash = new Hashtable();
+        }
+        public FrameworkInfoHashTable(FrameworkInfoHashTable original)
+        {
+            innerHash = new Hashtable (original.innerHash);
+        }
+        public FrameworkInfoHashTable(IDictionary dictionary)
+        {
+            innerHash = new Hashtable (dictionary);
+        }
+
+        public FrameworkInfoHashTable(int capacity)
+        {
+            innerHash = new Hashtable(capacity);
+        }
+
+        public FrameworkInfoHashTable(IDictionary dictionary, float loadFactor)
+        {
+            innerHash = new Hashtable(dictionary, loadFactor);
+        }
+
+        public FrameworkInfoHashTable(IHashCodeProvider codeProvider, IComparer comparer)
+        {
+            innerHash = new Hashtable (codeProvider, comparer);
+        }
+
+        public FrameworkInfoHashTable(int capacity, int loadFactor)
+        {
+            innerHash = new Hashtable(capacity, loadFactor);
+        }
+
+        public FrameworkInfoHashTable(IDictionary dictionary, IHashCodeProvider codeProvider, IComparer comparer)
+        {
+            innerHash = new Hashtable (dictionary, codeProvider, comparer);
         }
         
-		System.Collections.IDictionaryEnumerator IDictionary.GetEnumerator()
-		{
-			return new FrameworkInfoHashTableEnumerator(this);
-		}
-		
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+        public FrameworkInfoHashTable(int capacity, IHashCodeProvider codeProvider, IComparer comparer)
+        {
+            innerHash = new Hashtable (capacity, codeProvider, comparer);
+        }
 
-		public void Remove(string key)
-		{
-			innerHash.Remove (key);
-		}
-		void IDictionary.Remove(object key)
-		{
-			Remove ((string)key);
-		}
+        public FrameworkInfoHashTable(IDictionary dictionary, float loadFactor, IHashCodeProvider codeProvider, IComparer comparer)
+        {
+            innerHash = new Hashtable (dictionary, loadFactor, codeProvider, comparer);
+        }
 
-		public bool Contains(string key)
-		{
-			return innerHash.Contains(key);
-		}
-		bool IDictionary.Contains(object key)
-		{
-			return Contains((string)key);
-		}
+        public FrameworkInfoHashTable(int capacity, float loadFactor, IHashCodeProvider codeProvider, IComparer comparer)
+        {
+            innerHash = new Hashtable (capacity, loadFactor, codeProvider, comparer);
+        }
 
-		public void Clear()
-		{
-			innerHash.Clear();		
-		}
-
-		public void Add(string key, SourceForge.NAnt.FrameworkInfo value)
-		{
-			innerHash.Add (key, value);
-		}
-		void IDictionary.Add(object key, object value)
-		{
-			Add ((string)key, (SourceForge.NAnt.FrameworkInfo)value);
-		}
-
-		public bool IsReadOnly
-		{
-			get
-			{
-				return innerHash.IsReadOnly;
-			}
-		}
-
-		public SourceForge.NAnt.FrameworkInfo this[string key]
-		{
-			get
-			{
-				return (SourceForge.NAnt.FrameworkInfo) innerHash[key];
-			}
-			set
-			{
-				innerHash[key] = value;
-			}
-		}
-		object IDictionary.this[object key]
-		{
-			get
-			{
-				return this[(string)key];
-			}
-			set
-			{
-				this[(string)key] = (SourceForge.NAnt.FrameworkInfo)value;
-			}
-		}
         
-		public System.Collections.ICollection Values
-		{
-			get
-			{
-				return innerHash.Values;
-			}
-		}
+#endregion
 
-		public System.Collections.ICollection Keys
-		{
-			get
-			{
-				return innerHash.Keys;
-			}
-		}
+        #region Implementation of IDictionary
+        public FrameworkInfoHashTableEnumerator GetEnumerator()
+        {
+            return new FrameworkInfoHashTableEnumerator(this);
+        }
+        
+        System.Collections.IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
+            return new FrameworkInfoHashTableEnumerator(this);
+        }
+        
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
-		public bool IsFixedSize
-		{
-			get
-			{
-				return innerHash.IsFixedSize;
-			}
-		}
-		#endregion
+        public void Remove(string key)
+        {
+            innerHash.Remove (key);
+        }
+        void IDictionary.Remove(object key)
+        {
+            Remove ((string)key);
+        }
 
-		#region Implementation of ICollection
-		public void CopyTo(System.Array array, int index)
-		{
-			innerHash.CopyTo (array, index);
-		}
+        public bool Contains(string key)
+        {
+            return innerHash.Contains(key);
+        }
+        bool IDictionary.Contains(object key)
+        {
+            return Contains((string)key);
+        }
 
-		public bool IsSynchronized
-		{
-			get
-			{
-				return innerHash.IsSynchronized;
-			}
-		}
+        public void Clear()
+        {
+            innerHash.Clear();      
+        }
 
-		public int Count
-		{
-			get
-			{
-				return innerHash.Count;
-			}
-		}
+        public void Add(string key, SourceForge.NAnt.FrameworkInfo value)
+        {
+            innerHash.Add (key, value);
+        }
+        void IDictionary.Add(object key, object value)
+        {
+            Add ((string)key, (SourceForge.NAnt.FrameworkInfo)value);
+        }
 
-		public object SyncRoot
-		{
-			get
-			{
-				return innerHash.SyncRoot;
-			}
-		}
-		#endregion
+        public bool IsReadOnly
+        {
+            get
+            {
+                return innerHash.IsReadOnly;
+            }
+        }
 
-		#region Implementation of ICloneable
-		public FrameworkInfoHashTable Clone()
-		{
-			FrameworkInfoHashTable clone = new FrameworkInfoHashTable();
-			clone.innerHash = (Hashtable) innerHash.Clone();
-			
-			return clone;
-		}
-		object ICloneable.Clone()
-		{
-			return Clone();
-		}
-		#endregion
-		
-		#region "HashTable Methods"
-		public bool ContainsKey (string key)
-		{
-			return innerHash.ContainsKey(key);
-		}
-		public bool ContainsValue (SourceForge.NAnt.FrameworkInfo value)
-		{
-			return innerHash.ContainsValue(value);
-		}
-		public static FrameworkInfoHashTable Synchronized(FrameworkInfoHashTable nonSync)
-		{
-			FrameworkInfoHashTable sync = new FrameworkInfoHashTable();
-			sync.innerHash = Hashtable.Synchronized(nonSync.innerHash);
+        public SourceForge.NAnt.FrameworkInfo this[string key]
+        {
+            get
+            {
+                return (SourceForge.NAnt.FrameworkInfo) innerHash[key];
+            }
+            set
+            {
+                innerHash[key] = value;
+            }
+        }
+        object IDictionary.this[object key]
+        {
+            get
+            {
+                return this[(string)key];
+            }
+            set
+            {
+                this[(string)key] = (SourceForge.NAnt.FrameworkInfo)value;
+            }
+        }
+        
+        public System.Collections.ICollection Values
+        {
+            get
+            {
+                return innerHash.Values;
+            }
+        }
 
-			return sync;
-		}
-		#endregion
+        public System.Collections.ICollection Keys
+        {
+            get
+            {
+                return innerHash.Keys;
+            }
+        }
 
-		internal Hashtable InnerHash
-		{
-			get
-			{
-				return innerHash;
-			}
-		}
-	}
-	
-	public class FrameworkInfoHashTableEnumerator : IDictionaryEnumerator
-	{
-		private IDictionaryEnumerator innerEnumerator;
-			
-		internal FrameworkInfoHashTableEnumerator (FrameworkInfoHashTable enumerable)
-		{
-			innerEnumerator = enumerable.InnerHash.GetEnumerator();
-		}
+        public bool IsFixedSize
+        {
+            get
+            {
+                return innerHash.IsFixedSize;
+            }
+        }
+        #endregion
 
-		#region Implementation of IDictionaryEnumerator
-		public string Key
-		{
-			get
-			{
-				return (string)innerEnumerator.Key;
-			}
-		}
-		object IDictionaryEnumerator.Key
-		 {
-			 get
-			 {
-				 return Key;
-			 }
-		 }
+        #region Implementation of ICollection
+        public void CopyTo(System.Array array, int index)
+        {
+            innerHash.CopyTo (array, index);
+        }
+
+        public bool IsSynchronized
+        {
+            get
+            {
+                return innerHash.IsSynchronized;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                return innerHash.Count;
+            }
+        }
+
+        public object SyncRoot
+        {
+            get
+            {
+                return innerHash.SyncRoot;
+            }
+        }
+        #endregion
+
+        #region Implementation of ICloneable
+        public FrameworkInfoHashTable Clone()
+        {
+            FrameworkInfoHashTable clone = new FrameworkInfoHashTable();
+            clone.innerHash = (Hashtable) innerHash.Clone();
+            
+            return clone;
+        }
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+        #endregion
+        
+        #region "HashTable Methods"
+        public bool ContainsKey (string key)
+        {
+            return innerHash.ContainsKey(key);
+        }
+        public bool ContainsValue (SourceForge.NAnt.FrameworkInfo value)
+        {
+            return innerHash.ContainsValue(value);
+        }
+        public static FrameworkInfoHashTable Synchronized(FrameworkInfoHashTable nonSync)
+        {
+            FrameworkInfoHashTable sync = new FrameworkInfoHashTable();
+            sync.innerHash = Hashtable.Synchronized(nonSync.innerHash);
+
+            return sync;
+        }
+        #endregion
+
+        internal Hashtable InnerHash
+        {
+            get
+            {
+                return innerHash;
+            }
+        }
+    }
+    
+    public class FrameworkInfoHashTableEnumerator : IDictionaryEnumerator
+    {
+        private IDictionaryEnumerator innerEnumerator;
+            
+        internal FrameworkInfoHashTableEnumerator (FrameworkInfoHashTable enumerable)
+        {
+            innerEnumerator = enumerable.InnerHash.GetEnumerator();
+        }
+
+        #region Implementation of IDictionaryEnumerator
+        public string Key
+        {
+            get
+            {
+                return (string)innerEnumerator.Key;
+            }
+        }
+        object IDictionaryEnumerator.Key
+         {
+             get
+             {
+                 return Key;
+             }
+         }
 
 
-		public SourceForge.NAnt.FrameworkInfo Value
-		{
-			get
-			{
-				return (SourceForge.NAnt.FrameworkInfo)innerEnumerator.Value;
-			}
-		}
-		object IDictionaryEnumerator.Value
-		{
-			get
-			{
-				return Value;
-			}
-		}
+        public SourceForge.NAnt.FrameworkInfo Value
+        {
+            get
+            {
+                return (SourceForge.NAnt.FrameworkInfo)innerEnumerator.Value;
+            }
+        }
+        object IDictionaryEnumerator.Value
+        {
+            get
+            {
+                return Value;
+            }
+        }
 
-		public System.Collections.DictionaryEntry Entry
-		{
-			get
-			{
-				return innerEnumerator.Entry;
-			}
-		}
+        public System.Collections.DictionaryEntry Entry
+        {
+            get
+            {
+                return innerEnumerator.Entry;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Implementation of IEnumerator
-		public void Reset()
-		{
-			innerEnumerator.Reset();
-		}
+        #region Implementation of IEnumerator
+        public void Reset()
+        {
+            innerEnumerator.Reset();
+        }
 
-		public bool MoveNext()
-		{
-			return innerEnumerator.MoveNext();
-		}
+        public bool MoveNext()
+        {
+            return innerEnumerator.MoveNext();
+        }
 
-		public object Current
-		{
-			get
-			{
-				return innerEnumerator.Current;
-			}
-		}
-		#endregion
-	}
+        public object Current
+        {
+            get
+            {
+                return innerEnumerator.Current;
+            }
+        }
+        #endregion
+    }
 
 }

@@ -162,13 +162,13 @@ namespace SourceForge.NAnt.Tasks {
 
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
-				try {
-					if (asm.Location != "") {
-						options.ReferencedAssemblies.Add(asm.Location);
-					}
-				} catch ( NotSupportedException ) {
-					// Ignore - this error is sometimes thrown by asm.Location for certain dynamic assemblies
-				}
+                try {
+                    if (asm.Location != "") {
+                        options.ReferencedAssemblies.Add(asm.Location);
+                    }
+                } catch ( NotSupportedException ) {
+                    // Ignore - this error is sometimes thrown by asm.Location for certain dynamic assemblies
+                }
             }
 
             if (References.BaseDirectory == null) {

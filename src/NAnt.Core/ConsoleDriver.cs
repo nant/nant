@@ -137,7 +137,7 @@ namespace SourceForge.NAnt {
                             if(project != null ) {
                                 Log.WriteLine("Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'",arg.Substring(arg.IndexOf(":") + 1), project.BuildFileURI);                         
                             }
-                            project = new Project(arg.Substring(arg.IndexOf(":") + 1));
+                            project = new Project(arg.Substring(arg.IndexOf(":") + 1), verbose );
                             break;
                         case CommandLineOption.OPTION_FIND:
                             findInParent = true;
@@ -213,11 +213,9 @@ namespace SourceForge.NAnt {
                     // Get build file name if the project has not been created.
                     // If a build file was not specified on the command line.
                     if(project == null) {
-                        project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, findInParent));
-                    }
-                    
-                    project.Verbose = verbose;
-                   
+                        project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, findInParent), verbose);
+                    }                    
+                                       
                     // copy cmd line targets
                     foreach( string target in targets ){
                         project.BuildTargets.Add( target );
