@@ -815,6 +815,9 @@ namespace NAnt.Core {
 
             if(sb.Length > 0) {
                 Log(Level.Info, "Target(s) specified: " + sb.ToString());
+                Log(Level.Info, string.Empty);
+            } else {
+                Log(Level.Info, string.Empty);
             }
             
             // initialize the list of Targets, and execute any global tasks.
@@ -888,6 +891,8 @@ namespace NAnt.Core {
 
             try {
                 OnBuildStarted(this, new BuildEventArgs(this));
+
+                Log(Level.Info, string.Empty);
                 Log(Level.Info, "Buildfile: {0}", BuildFileUri);
 
                 // write verbose project information after Initialize to make 

@@ -68,6 +68,8 @@ namespace NAnt.Core {
                 }
 
                 if (cmdlineOptions.ShowHelp) {
+                    // insert empty line
+                    Console.WriteLine();
                     ConsoleDriver.ShowHelp(commandLineParser);
                     return 0;
                 }
@@ -82,7 +84,9 @@ namespace NAnt.Core {
                 }
 
                 if (cmdlineOptions.BuildFile != null) {
-                    if(project != null) {
+                    if (project != null) {
+                        // insert empty line
+                        Console.WriteLine();
                         Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileUri));
                     }
 
@@ -137,17 +141,19 @@ namespace NAnt.Core {
                     if (frameworkInfo != null) {
                         project.TargetFramework = frameworkInfo; 
                     } else {
-                        logger.Fatal("Invalid framework name specified: '" + cmdlineOptions.TargetFramework + "'");
-                        Console.WriteLine(string.Format(
-                            CultureInfo.InvariantCulture, 
-                            "Invalid framework '{0}' specified.", 
-                            cmdlineOptions.TargetFramework));
+                        // insert empty line
+                        Console.Error.WriteLine();
+                        Console.Error.WriteLine("Invalid framework '{0}' specified.", 
+                            cmdlineOptions.TargetFramework);
+
+                        // insert empty line
                         Console.Error.WriteLine();
 
                         if (project.Frameworks.Count == 0) {
                             Console.Error.WriteLine("There are no supported frameworks available on your system.");
                         } else {
                             Console.Error.WriteLine("Possible values include:");
+                            // insert empty line
                             Console.Error.WriteLine();
 
                             foreach (string framework in project.Frameworks.Keys) {
@@ -160,6 +166,7 @@ namespace NAnt.Core {
                 }
 
                 if (cmdlineOptions.ShowProjectHelp) {
+                    Console.WriteLine();
                     ConsoleDriver.ShowProjectHelp(project.Document);
                 } else {
                     if (!project.Run()) {
@@ -169,12 +176,12 @@ namespace NAnt.Core {
                 // signal success
                 return 0;
             } catch (CommandLineArgumentException ex) {
-                // Log exception to internal log
-                logger.Warn("Invalid command line specified.", ex);
                 // Write logo banner to console if parser was created successfully
                 if (commandLineParser != null) {
                     Console.WriteLine(commandLineParser.LogoBanner);
                 }
+                // insert empty line
+                Console.Error.WriteLine();
                 // Write message of exception to console
                 Console.Error.WriteLine(ex.Message);
                 // insert empty line
@@ -184,6 +191,9 @@ namespace NAnt.Core {
                 // signal error
                 return 1;
             } catch (ApplicationException ex) {
+                // insert empty line
+                Console.Error.WriteLine();
+                // output build result
                 Console.Error.WriteLine("BUILD FAILED");
                 // insert empty line
                 Console.Error.WriteLine();
@@ -227,6 +237,8 @@ namespace NAnt.Core {
                 // signal error
                 return 1;
             } catch (Exception ex) {
+                // insert empty line
+                Console.Error.WriteLine();
                 // all other exceptions should have been caught
                 Console.Error.WriteLine("INTERNAL ERROR");
                 // insert empty line
@@ -244,7 +256,7 @@ namespace NAnt.Core {
                     // output full stacktrace
                     Console.Error.WriteLine(ex.ToString());
                 } else {
-                    // insert empty line
+                    // insert xempty line
                     Console.WriteLine();
                     // output help text
                     Console.WriteLine("For more information regarding the cause of the " +
