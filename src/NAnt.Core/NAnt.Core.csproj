@@ -679,6 +679,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\DirSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\EnvironmentVariable.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
