@@ -30,6 +30,7 @@ namespace NAnt.Core.Types {
     /// <remarks>
     /// A filter set may have begintoken and endtokens defined.
     /// </remarks>
+    [ElementName("filterset")]
     public class FilterSet : DataTypeBase {
         #region Private Instance Fields
 
