@@ -77,8 +77,13 @@ namespace NAnt.Core {
                     Uri uri = new Uri(fileName);
                     fileName = uri.LocalPath;
                 } catch {
-                    // must be a simple filename
-                    fileName = Path.GetFullPath(fileName);
+                    try {
+                        // must be a simple filename
+                        fileName = Path.GetFullPath(fileName);
+                    } catch (ArgumentException) {
+                        // when filename is an invalid path, just leave it as 
+                        // is
+                    }
                 }
             }
             _fileName = fileName;
