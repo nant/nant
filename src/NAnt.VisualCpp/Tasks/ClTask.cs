@@ -189,6 +189,19 @@ namespace NAnt.VisualCpp.Tasks {
 
         #endregion Override implementation of ExternalProgramBase
 
+        /// <summary>
+        /// Determines whether the precompiled header file is up-to-date.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if no precompiled header file was specified;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// In order to determine accurately whether the precompile header file
+        /// is up-to-date, we'd need scan all the header files that are pulled 
+        /// in. As this is not implemented right now, its safer to always
+        /// recompile.
+        /// </remarks>
         private bool IsPchfileUpToDate() {
             // if no pch file, then then it is theoretically up to date
             if (PchFile == null) {
@@ -203,7 +216,6 @@ namespace NAnt.VisualCpp.Tasks {
                 return false;
             }
 
-/*
             // if sources fresher than pch file,
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
             if (fileName != null) {
@@ -211,8 +223,9 @@ namespace NAnt.VisualCpp.Tasks {
                     fileName);
                 return false;
             }
-+*/
-            return true;
+
+            // for now, always return false, thereby forcing recompile
+            return false;
         }
 
         private bool IsObjUpToDate(string srcFileName) {
