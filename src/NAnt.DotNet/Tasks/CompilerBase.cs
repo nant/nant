@@ -248,7 +248,7 @@ namespace NAnt.DotNet.Tasks {
         /// The command-line arguments for the external program.
         /// </value>
         public override string ProgramArguments {
-            get { return "@" + _responseFileName; }
+            get { return "@" + "\"" + _responseFileName + "\""; }
         }
 
         /// <summary>

@@ -192,7 +192,7 @@ namespace NAnt.DotNet.Tasks {
         public override string ProgramArguments {
             get { 
                 if (_responseFileName != null) {
-                    return "@" + _responseFileName; 
+                    return "@" + "\"" + _responseFileName + "\""; 
                 } else {
                     return null;
                 }
