@@ -148,7 +148,7 @@
 
     <!-- build Extra task libraries -->
     <target name="extras" depends="clean" description="">
-        <nant buildfile="${src.dir}\Extras\Sourcesafe\Sourcesafe.build" basedir="" />       
+        <nant buildfile="Sourcesafe.build" basedir="${src.dir}\Extras\Sourcesafe\" />       
     </target>
     
     <target name="doc" depends="build" description="build documenation">
