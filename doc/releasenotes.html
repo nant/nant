@@ -35,6 +35,19 @@
         </table>
         <h2>
             0.85-rc 3 (TBD)</h2>
+        <h3>
+            Breaking&nbsp;changes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/nant.html">&lt;nant&gt;</a></h5>
+            <ul>
+                <li>
+                    References are no longer copied to the new projects by default. 
+                    This is now controlled using the &quot;inheritrefs&quot; attribute.
+                </li>
+            </ul>
+        </div>
          <h3>
             Bug fixes</h3>
         <h4>Tasks</h4>
@@ -45,6 +58,20 @@
                 <li>
                     Additional include directory containing spaces leads to build failures (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1117794&amp;group_id=31650&amp;atid=402868">
                         #1117794</a>). This bug also affects the <code><a href="help/tasks/solution.html">&lt;solution&gt;</a></code> task.
+                </li>
+            </ul>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/nant.html">&lt;nant&gt;</a></h5>
+            <ul>
+                <li>
+                    Default value of &quot;inheritall&quot; attribute does not match documentation (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1146121&amp;group_id=31650&amp;atid=402868">
+                        #1146121</a>).
+                </li>
+                <li>
+                    Documentation does not describe behavior of <code><a href="help/tasks/nant.html">&lt;nant&gt;</a></code> task for references (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1146176&amp;group_id=31650&amp;atid=402868">
+                        #1146176</a>).
                 </li>
             </ul>
         </div>
@@ -63,7 +90,7 @@
                 <a class="heading" href="help/tasks/resgen.html">&lt;resgen&gt;</a></h5>
             <ul>
                 <li>
-                    The "dynamicprefix" attribute is not honored when determining the name of the compiled resource file (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1150186&amp;group_id=31650&amp;atid=402868">
+                    The &quot;dynamicprefix&quot; attribute is not honored when determining the name of the compiled resource file (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1150186&amp;group_id=31650&amp;atid=402868">
                         #1150186</a>).
                 </li>
             </ul>
@@ -85,6 +112,10 @@
                     A relative path specified in the <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemReflectionAssemblyKeyFileAttributeClassTopic.asp">AssemblyKeyFile</a>
                     attribute must be resolved using either the solution directory or the intermediate
                     output directory.
+                </li>
+                <li>
+                    Changes to C++ source files or headers do not trigger a recompile (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1155919&amp;group_id=31650&amp;atid=402868">
+                        #1155919</a>).
                 </li>
             </ul>
         </div>
