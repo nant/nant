@@ -38,7 +38,10 @@ namespace NAnt.DotNet.Tasks {
     /// Runs NDoc to create documentation.
     /// </summary>
     /// <remarks>
-    ///   <para>See the <a href="http://ndoc.sf.net">NDoc home page</a> for more information.</para>
+    ///   <para>
+    ///   See the <see href="http://ndoc.sf.net">NDoc home page</see> for more 
+    ///   information.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>
