@@ -18,13 +18,11 @@ windows-bootstrap:
 	echo Windows-based make is not yet supported; exit 1; \
 
 linux-bootstrap-nant:
-	# temporary workaround for Mono Runtime bug #57602
-	cp bin/lib/mono/1.0/log4net.dll bin
-	$(MCS) -target:exe -define:MONO -debug -o bin/NAnt.exe -r:bin/lib/mono/1.0/log4net.dll -recurse:src/NAnt.Console/*.cs src/CommonAssemblyInfo.cs
+	$(MCS) -target:exe -define:MONO -debug -o bin/NAnt.exe -r:bin/log4net.dll -recurse:src/NAnt.Console/*.cs src/CommonAssemblyInfo.cs
 	cp src/NAnt.Console/NAnt.Console.exe.config bin/NAnt.exe.config
 
 linux-bootstrap-nant.core:
-	$(MCS) -target:library -define:MONO -debug -o bin/NAnt.Core.dll -r:bin/lib/mono/1.0/log4net.dll -r:System.Web.dll -recurse:src/NAnt.Core/*.cs src/CommonAssemblyInfo.cs
+	$(MCS) -target:library -define:MONO -debug -o bin/NAnt.Core.dll -r:bin/log4net.dll -r:System.Web.dll -recurse:src/NAnt.Core/*.cs src/CommonAssemblyInfo.cs
 
 linux-bootstrap-nant.dotnet:
 	$(MCS) -target:library -define:MONO -debug -o bin/NAnt.DotNetTasks.dll -r:bin/NAnt.Core.dll -r:bin/lib/mono/1.0/NDoc.Core.dll -recurse:src/NAnt.DotNet/*.cs src/CommonAssemblyInfo.cs

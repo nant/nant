@@ -112,18 +112,12 @@
                 <include name="scvs.exe" />
             </fileset>
         </copy>
+        <!-- copy log4net assembly, workaround for Mono bug #57602 -->
+        <copy file="bin/log4net.dll" todir="${build.dir}/bin" />
         <!-- copy third party assemblies -->
         <copy todir="${build.dir}/bin/lib">
             <fileset basedir="bin/lib">
                 <include name="**/*" />
-            </fileset>
-        </copy>
-        <!-- workaround for mono bug #57602-->
-        <copy todir="${build.dir}/bin"
-              flatten="true"
-              if="${framework::get-family(framework::get-target-framework())='mono'}">
-            <fileset>
-                <include name="${lib.framework.dir}/log4net.dll" />
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
