@@ -1,7 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 7.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Console", "src\Nant.Console\NAnt.Console.csproj", "{859696F8-F405-4018-A155-D34561498A3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Tests", "src\NAnt.Tests.csproj", "{F77EA08E-9473-436A-BBA3-880139A341B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Tests", "tests\NAnt.Tests.csproj", "{F77EA08E-9473-436A-BBA3-880139A341B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.DotNet", "src\NAnt.DotNet\NAnt.DotNetTasks.csproj", "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
 EndProject
