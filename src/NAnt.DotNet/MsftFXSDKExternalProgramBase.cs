@@ -17,9 +17,10 @@
 
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System.IO;
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System.Globalization;
+    using System.IO;
 
     /// <summary>Provides the abstract base class for a Microsoft .Net Framework SDK external program task.</summary>
     public abstract class MsftFXSDKExternalProgramBase : ExternalProgramBase {
@@ -35,15 +36,26 @@ namespace SourceForge.NAnt.Tasks {
         /// <note>If the file path returned does not exist then there is some issue with the users framework setup</note>
         /// </summary>       
         /// <returns>A fully qualifies pathname including the program name.</returns>
-        private string determineFilePath(){
-            if (Project.CurrentFramework != null ) {
-                string SdkDirectory = "";           
-                SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName; //   always returns a valid current Runtime
-                                
-                return Path.Combine(SdkDirectory, ExeName +  ".exe" );               
+        private string determineFilePath() {
+            if (ExeName != null) {
+                if (Project.CurrentFramework != null ) {
+                    if (Project.CurrentFramework.SdkDirectory != null) {
+                        string SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName; 
+                        return Path.Combine(SdkDirectory, ExeName +  ".exe" );               
+                    } else {
+                        throw new BuildException(
+                            string.Format(CultureInfo.InvariantCulture, 
+                                "The SDK for the ({0} framework is not available or not configured.", 
+                                Project.CurrentFramework.Name
+                            )                            
+                        );
+                    }
+                } else {
+                    return ExeName;
+                }    
             } else {
-                return ExeName;
-            }                                     
+                throw new BuildException("This task is not available or not configured for the current framework.");
+            }
         }            
     }
 }
