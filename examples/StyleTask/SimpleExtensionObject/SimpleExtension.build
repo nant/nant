@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project name="Simple" default="build">
+    <property name="debug" value="true"/>
+    
+    <target name="build" description="compiles the source code">
+        <csc target="library" output="SimpleExtension.dll" debug="${debug}">
+            <sources>
+                <include name="SimpleExtension.cs" />
+            </sources>
+        </csc>
+                
+        <style style='circle.xsl' in='circles.xml' out='circle-out.xml' >
+            <extensionobjects>
+                <extensionobject namespaceuri="urn:Calculate" typename="Calculate" assembly="SimpleExtension.dll" />
+            </extensionobjects>
+            </style>
+    </target>
+       
+</project>
