@@ -297,6 +297,7 @@
             <arg value="-buildfile:NAnt.build" />
             <arg value="${project.config}" />
             <arg value="self-sdkdoc" />
+            <arg value="changelog" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
@@ -378,6 +379,41 @@
             <arg value="-D:project.version=${project.version}" />
             <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
+    </target>
+    
+    <target name="changelog" depends="init">
+        <property name="start.date" value="2003/12/26"/>
+        <property name="now" value="${datetime::now()}"/>
+        <property name="end.date" value="${datetime::get-year(now)}/${datetime::get-month(now)}/${datetime::get-day(now)}"/>
+        
+        <property name="changes.name-without-extension" value="changelog_${string::replace(start.date, '/', '-')}_to_${string::replace(end.date, '/', '-')}"/>
+        
+        <property name="cvsroot" value="${file::get-content(nant.project.basedir + '/CVS/Root')}"/>
+        <echo message="Using cvsroot: ${cvsroot}"/>
+
+        <cvs-changelog  start="${start.date}"
+                        end="${end.date}"
+                        xmlfile="${build.dir}/${changes.name-without-extension}.xml"
+                        destination="${nant.project.basedir}"
+                        cvsroot="${cvsroot}"
+                        module="nant"
+                        />
+        <style  style="etc/changelog.xsl" 
+                in="${build.dir}/${changes.name-without-extension}.xml" 
+                out="${build.dir}/${changes.name-without-extension}.html" 
+                >
+            <parameters>
+                <parameter name="module" value="nant"/>
+                <parameter name="title" value="NAnt Changelog ( ${project.version} )" />
+                <parameter name="logo" value="doc/logo.gif"/>
+                <parameter name="cvsweb" value="http://cvs.sourceforge.net/viewcvs.py/nant/" />
+                <parameter name="start-date" value="${start.date}"/>
+                <parameter name="end-date" value="${end.date}"/>
+            </parameters>
+        </style> 
+        
+        <delete file="${build.dir}/${changes.name-without-extension}.xml"/>
+
     </target>
     
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
@@ -642,8 +678,14 @@
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
     </target>
     
-    <target name="rpm" depends="init">
+    <target name="rpm" depends="init, build">
         <echo message="Build dir: ${build.dir}"/>
+        <copy todir="${build.dir}">
+            <fileset>
+                <include name="NAnt.spec" />
+            </fileset>
+        </copy>
+
         <nant buildfile="release.xml" target="prepare-rpm"/>
         <nant buildfile="release.xml" target="binary-rpm"/>
     </target>

@@ -134,15 +134,15 @@
         <mkdir dir="${rpm.base}/SOURCES"/>
         <mkdir dir="${rpm.base}/SPECS"/>
         <mkdir dir="${rpm.base}/SRPMS"/>
-        <mkdir dir="${rpm.working}/tmp"/>
+        <mkdir dir="${rpm.base}/tmp"/>
         
-        <mkdir dir="${rpm.working}/tmp/NAnt-src"/>
-        <mkdir dir="${rpm.working}/tmp/NAnt-tar"/>
+        <mkdir dir="${rpm.base}/tmp/NAnt-src"/>
+        <mkdir dir="${rpm.base}/tmp/NAnt-tar"/>
         
     </target>    
 
     <target name="prepare-rpm" depends="setup-rpm" description="Prepare the binaries for packaging.">
-        <copy todir="${rpm.working}/tmp/NAnt-src">
+        <copy todir="${rpm.base}/tmp/NAnt-src">
             <fileset basedir="${build.dir}">
                 <include name="bin/**"/>
                 <!--include name="doc/**"/-->
@@ -152,15 +152,15 @@
 
         <exec program="bash">
             <arg value="-c -o onecmd"/>
-            <arg value="'tar -cvzf ${cygwin.rpm.working}/tmp/NAnt-tar/NAnt.tar.gz -C${cygwin.rpm.working}/tmp/NAnt-src bin'"/>
+            <arg value="'tar -cvzf ${cygwin.rpm.base}/tmp/NAnt-tar/NAnt.tar.gz -C${cygwin.rpm.base}/tmp/NAnt-src bin'"/>
         </exec>
         
-        <copy file="${rpm.working}/tmp/NAnt-tar/NAnt.tar.gz" tofile="${rpm.base}/SOURCES/NAnt.tar.gz" overwrite="true"/>
+        <copy file="${rpm.base}/tmp/NAnt-tar/NAnt.tar.gz" tofile="${rpm.base}/SOURCES/NAnt.tar.gz" overwrite="true"/>
         <copy file="${build.dir}/NAnt.spec" tofile="${rpm.base}/SPECS/NAnt.spec" overwrite="true"/>
     </target>
     
     <target name="binary-rpm" description="Build the binary rpm for NAnt.">
-        <property name="commandline" value="rpmbuild -ba --buildroot=${cygwin.rpm.working} ${cygwin.rpm.base}/SPECS/NAnt.spec"/>
+        <property name="commandline" value="rpmbuild -ba --buildroot=${cygwin.rpm.base}/tmp ${cygwin.rpm.base}/SPECS/NAnt.spec"/>
         <echo file="${rpm.base}/build.bat">bash -c '${commandline}'</echo>
 
         <exec program="bash">
