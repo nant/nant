@@ -31,9 +31,13 @@ using System.Xml;
 using Microsoft.Win32;
 
 using NAnt.Core;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
+    /// <summary>
+    /// Represents a reference to a project or assembly.
+    /// </summary>
     public class Reference {
         #region Public Instance Constructors
 
@@ -47,9 +51,9 @@ namespace NAnt.VSNet {
 
             if (elemReference.Attributes["Project"] != null) {
                 if (solution == null) {
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "External reference '{0}' found, but no solution was specified.",
-                        _name));
+                        _name), Location.UnknownLocation);
                 }
 
                 string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("Project"));
@@ -102,10 +106,6 @@ namespace NAnt.VSNet {
                 return;
             }
 
-            if (elemReference.Attributes["WrapperTool"] != null) {
-                _importTool = elemReference.Attributes["WrapperTool"].Value;
-            }
-                
             // Read the private flag
             _privateSpecified = (elemReference.Attributes["Private"] != null);
             if (_privateSpecified) {
@@ -114,54 +114,15 @@ namespace NAnt.VSNet {
                 _isPrivate = false;
             }
 
+            if (elemReference.Attributes["WrapperTool"] != null) {
+                _importTool = elemReference.Attributes["WrapperTool"].Value;
+            }
+                
             if (_importTool == "tlbimp" || _importTool == "primary" || _importTool == "aximp") {
                 HandleWrapperImport(elemReference);
             } else {
-                _referenceFile = elemReference.Attributes["AssemblyName"].Value + ".dll";
-
-                // TO-DO : implement the same search MS uses for VS.NET, which is :
-                // 1.)  The project directory.
-                // 2.)  The directories specified in the "ReferencePath" property, which is 
-                //      stored in the .USER file. (NOT SURE WE SHOULD DO THIS ONE)
-                // 3.)  The .NET Framework directory.
-                // 4.)  The directories specified under the following registry keys:
-                //          HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\AssemblyFolders
-                //          HKEY_CURRENT_USER\SOFTWARE\Microsoft\.NETFramework\AssemblyFolders
-                //          HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
-                //          HKEY_CURRENT_USER\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
-                //
-                //      Future versions of VS.NET will also check in :
-                //          HKCU\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
-                //          HKLM\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
-                // 5.)  The HintPath
-
-                DirectoryInfo frameworkAssemblyDirectory = new DirectoryInfo(_solutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName);
-                string systemAssembly = Path.Combine(frameworkAssemblyDirectory.FullName, _referenceFile);
-                if (File.Exists(systemAssembly)) {
-                    // this file is a system assembly
-                    _baseDirectory = frameworkAssemblyDirectory;
-                    _copyLocal = _privateSpecified ? _isPrivate : false;
-                    _referenceFile = systemAssembly;
-                    _isSystem = true;
-                    _referenceTimeStamp = GetTimestamp(_referenceFile);
-                } else {
-                    if (elemReference.Attributes["HintPath"] != null) {
-                        FileInfo fiRef = new FileInfo(Path.Combine(ps.RootDirectory, elemReference.Attributes["HintPath"].Value));
-                        _baseDirectory = fiRef.Directory;
-                        _referenceFile = fiRef.FullName;
-                        _referenceTimeStamp = GetTimestamp(_referenceFile);
-
-                        if (!_privateSpecified) {
-                            // assembly should only be copied locally if its not
-                            // installed in the GAC
-                            _copyLocal = !IsAssemblyInGac(_referenceFile);
-                        } else {
-                            _copyLocal = _isPrivate;
-                        }
-                    } else {
-                        _copyLocal = _privateSpecified ? _isPrivate : true;
-                    }
-                }
+                // we're dealing with an assembly reference
+                ResolveAssemblyReference(elemReference);
             }
         }
 
@@ -224,7 +185,14 @@ namespace NAnt.VSNet {
         public bool IsSystem {
             get { return _isSystem; }
         }
-        
+
+        /// <summary>
+        /// Gets the project which is referenced by this <see cref="Reference" />.
+        /// </summary>
+        /// <value>
+        /// The project which is referenced by this <see cref="Reference" />, or
+        /// <see langword="null" /> if this is not a project reference.
+        /// </value>
         public ProjectBase Project {
             get { return _project; }
         }
@@ -252,6 +220,10 @@ namespace NAnt.VSNet {
                 // return timestamp of reference file
                 return _referenceTimeStamp; 
             }
+        }
+
+        public SolutionTask SolutionTask {
+            get { return _solutionTask; }
         }
 
         #endregion Public Instance Properties
@@ -363,29 +335,6 @@ namespace NAnt.VSNet {
             return referencedFiles;
         }
 
-        /// <summary>
-        /// Searches for the reference file.
-        /// </summary>
-        public void ResolveFolder() {
-            if (IsSystem || IsProjectReference) {
-                // do not resolve system assemblies or project references
-                return;
-            }
-
-            FileInfo fiRef = new FileInfo(_referenceFile);
-            if (fiRef.Exists) {
-                // referenced file found - no other tasks required
-                return;
-            }
-
-            if (ResolveFolderFromList(_solutionTask.AssemblyFolders.DirectoryNames, fiRef.Name)) {
-                return;
-            }
-
-            ResolveFolderFromList(_solutionTask.DefaultAssemblyFolders.DirectoryNames, fiRef.Name);
-        }
-
-
         #endregion Public Instance Methods
 
         #region Private Instance Methods
@@ -428,6 +377,117 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// <para>
+        /// Resolves an assembly reference.
+        /// </para>
+        /// </summary>
+        /// <param name="referenceElement">The <see cref="XmlElement" /> of the assembly reference that should be resolved.</param>
+        /// <remarks>
+        /// <para>
+        /// Visual Studio .NET uses the following search mechanism :
+        /// </para>
+        /// <list type="number">
+        ///     <item>
+        ///         <term>
+        ///             The project directory.
+        ///         </term>
+        ///     </item>
+        ///     <item>
+        ///         <term>
+        ///             The directories specified in the "ReferencePath" property, 
+        ///             which is stored in the .USER file.
+        ///         </term>
+        ///     </item>
+        ///     <item>
+        ///         <term>
+        ///             The .NET Framework directory.
+        ///         </term>
+        ///     </item>
+        ///     <item>
+        ///         <term>
+        ///             <para>
+        ///                 The directories specified under the following registry 
+        ///                 keys:
+        ///             </para>
+        ///             <list type="bullet">
+        ///                 <item>
+        ///                     <term>
+        ///                         HKLM\SOFTWARE\Microsoft\.NETFramework\AssemblyFolders
+        ///                     </term>
+        ///                 </item>
+        ///                 <item>
+        ///                     <term>
+        ///                         HKCU\SOFTWARE\Microsoft\.NETFramework\AssemblyFolders
+        ///                     </term>
+        ///                 </item>
+        ///                 <item>
+        ///                     <term>
+        ///                         HKLM\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
+        ///                     </term>
+        ///                 </item>
+        ///                 <item>
+        ///                     <term>
+        ///                         HKCU\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
+        ///                     </term>
+        ///                 </item>
+        ///             </list>
+        ///             <para>
+        ///                 Future versions of Visual Studio .NET will also check 
+        ///                 in:
+        ///             </para>
+        ///             <list type="bullet">
+        ///                 <item>
+        ///                     <term>
+        ///                         HKLM\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
+        ///                     </term>
+        ///                 </item>
+        ///                 <item>
+        ///                     <term>
+        ///                         HKCU\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
+        ///                     </term>
+        ///                 </item>
+        ///             </list>
+        ///         </term>
+        ///     </item>
+        ///     <item>
+        ///         <term>
+        ///             The HintPath.
+        ///         </term>
+        ///     </item>
+        /// </list>
+        /// </remarks>
+        private void ResolveAssemblyReference(XmlElement referenceElement) {
+            // determine assembly name
+            _referenceFile = referenceElement.Attributes["AssemblyName"].Value + ".dll";
+
+            // 1. The project directory
+            // NOT SURE IF THIS IS CORRECT
+
+            // 2. The ReferencePath
+            // NOT SURE WE SHOULD DO THIS ONE
+
+            // 3. The .NET Framework directory
+            if (ResolveFromFramework()) {
+                return;
+            }
+
+            // 4. AssemblyFolders
+            if (ResolveFromAssemblyFolders(referenceElement)) {
+                return;
+            }
+
+            // 5. The HintPath
+            if (ResolveFromHintPath(referenceElement)) {
+                return;
+            }
+
+            _copyLocal = _privateSpecified ? _isPrivate : true;
+
+            // TO-DO : Is there actually any hope past this point or should
+            // we just throw an exception ?
+        }
+
+        /// <summary>
         /// Searches for the given file in all paths in <paramref name="folderList" />.
         /// </summary>
         /// <param name="folderList">The folders to search.</param>
@@ -436,22 +496,9 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if <paramref name="fileName" /> was found
         /// in <paramref name="folderList" />.
         /// </returns>
-        private bool ResolveFolderFromList(StringCollection folderList, string fileName) {
+        private bool ResolveFromFolderList(StringCollection folderList, string fileName) {
             foreach (string path in folderList) {
-                FileInfo fiRef = new FileInfo(Path.Combine(path, fileName));
-
-                if (fiRef.Exists) {
-                    _referenceFile = fiRef.FullName;
-                    _baseDirectory = fiRef.Directory;
-                    _referenceTimeStamp = GetTimestamp(_referenceFile);
-
-                    if (!_privateSpecified) {
-                        // assembly should only be copied locally if its not
-                        // installed in the GAC
-                        _copyLocal = !IsAssemblyInGac(_referenceFile);
-                    } else {
-                        _copyLocal = _isPrivate;
-                    }
+                if (ResolveFromPath(Path.Combine(path, fileName))) {
                     return true;
                 }
             }
@@ -459,6 +506,129 @@ namespace NAnt.VSNet {
             return false;
         }
 
+        /// <summary>
+        /// Resolves an assembly reference in the framework assembly directory
+        /// of the target framework.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the assembly could be located in the
+        /// framework assembly directory; otherwise, see langword="false" />.
+        /// </returns>
+        private bool ResolveFromFramework() {
+            DirectoryInfo frameworkAssemblyDirectory = new DirectoryInfo(
+                SolutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName);
+            string systemAssembly = Path.Combine(frameworkAssemblyDirectory.FullName, _referenceFile);
+            if (File.Exists(systemAssembly)) {
+                // this file is a system assembly
+                _baseDirectory = frameworkAssemblyDirectory;
+                _copyLocal = _privateSpecified ? _isPrivate : false;
+                _referenceFile = systemAssembly;
+                _isSystem = true;
+                _referenceTimeStamp = GetTimestamp(_referenceFile);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Resolves an assembly reference in the directory pointed to by the 
+        /// <c>HintPath</c> attribute of reference element.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the assembly could be located in the
+        /// <c>HintPath</c> directory; otherwise, see langword="false" />.
+        /// </returns>
+        private bool ResolveFromHintPath(XmlElement referenceElement) {
+            if (referenceElement.Attributes["HintPath"] != null) {
+                return ResolveFromPath(Path.Combine(_projectSettings.RootDirectory, 
+                    referenceElement.Attributes["HintPath"].Value));
+            }
+            return false;
+        }
+
+        private bool ResolveFromAssemblyFolders(XmlElement referenceElement) {
+            if (referenceElement.Attributes["AssemblyFolderKey"] != null) {
+                string assemblyFolderKey = referenceElement.Attributes["AssemblyFolderKey"].Value;
+
+                try {
+                    RegistryKey registryHive = null;
+
+                    switch (assemblyFolderKey.Substring(0,4)) {
+                        case "hklm":
+                            registryHive = Registry.LocalMachine;
+                            break;
+                        case "hkcu":
+                            registryHive = Registry.CurrentUser;
+                            break;
+                    }
+
+                    if (registryHive != null) {
+                        foreach (string assemblyFolderRootKey in SolutionTask.AssemblyFolderRootKeys) {
+                            RegistryKey assemblyFolderRegistryRoot = registryHive.OpenSubKey(assemblyFolderRootKey);
+                            if (assemblyFolderRegistryRoot != null) {
+                                RegistryKey assemblyFolderRegistryKey = assemblyFolderRegistryRoot.OpenSubKey(assemblyFolderKey.Substring(5));
+                                if (assemblyFolderRegistryKey != null) {
+                                    string assemblyFolder = assemblyFolderRegistryKey.GetValue(string.Empty) as string;
+                                    if (assemblyFolder != null) {
+                                        if (ResolveFromPath(Path.Combine(assemblyFolder, _referenceFile))) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    Log(Level.Verbose, "Error resolve reference to '{0}' using"
+                        + " AssemblyFolderKey '{1}'.", _referenceFile,
+                        assemblyFolderKey);
+                    Log(Level.Debug, ex.ToString());
+                }
+            }
+
+            if (ResolveFromFolderList(SolutionTask.AssemblyFolders.DirectoryNames, _referenceFile)) {
+                return true;
+            }
+
+            return ResolveFromFolderList(SolutionTask.DefaultAssemblyFolders.DirectoryNames, _referenceFile);
+        }
+
+        /// <summary>
+        /// Resolves an assembly reference using the specified file path.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the assembly exists at the specified 
+        /// location; otherwise, see langword="false" />.
+        /// </returns>
+        private bool ResolveFromPath(string path) {
+            FileInfo fileReference = new FileInfo(path);
+            if (fileReference.Exists) {
+                _referenceFile = fileReference.FullName;
+                _baseDirectory = fileReference.Directory;
+                _referenceTimeStamp = GetTimestamp(_referenceFile);
+
+                if (!_privateSpecified) {
+                    // assembly should only be copied locally if its not
+                    // installed in the GAC
+                    _copyLocal = !IsAssemblyInGac(_referenceFile);
+                } else {
+                    _copyLocal = _isPrivate;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the date and time the specified file was last written to.
+        /// </summary>
+        /// <param name="fileName">The file for which to obtain write date and time information.</param>
+        /// <returns>
+        /// A <see cref="DateTime" /> structure set to the date and time that 
+        /// the specified file was last written to, or 
+        /// <see cref="DateTime.MaxValue" /> if the specified file does not
+        /// exist.
+        /// </returns>
         private DateTime GetTimestamp(string fileName) {
             if (!File.Exists(fileName)) {
                 return DateTime.MaxValue;
@@ -592,6 +762,35 @@ namespace NAnt.VSNet {
                 return referencesResolver.IsAssemblyInGac(assemblyFile);
             } finally {
                 AppDomain.Unload(temporaryDomain);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the underlying task.
+        /// </remarks>
+        private void Log(Level messageLevel, string message) {
+            if (SolutionTask != null) {
+                SolutionTask.Log(messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the underlying task.
+        /// </remarks>
+        private void Log(Level messageLevel, string message, params object[] args) {
+            if (SolutionTask != null) {
+                SolutionTask.Log(messageLevel, message, args);
             }
         }
 

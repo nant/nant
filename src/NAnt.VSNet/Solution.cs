@@ -36,21 +36,8 @@ namespace NAnt.VSNet {
     public class Solution {
         #region Public Instance Constructors
 
-        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMappings, FileSet excludesProjects, DirectoryInfo outputDir) {
+        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             _file = solutionFile;
-            _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectBuildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _tfc = tfc;
-            _solutionTask = solutionTask;
-            _outputDir = outputDir;
-            _excludesProjects = excludesProjects;
-            _webMaps = webMappings;
-            ProjectFactory.ClearCache();
 
             string fileContents;
 
@@ -138,20 +125,7 @@ namespace NAnt.VSNet {
             GetDependenciesFromProjects();
         }
 
-        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) {
-            _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _tfc = tfc;
-            _solutionTask = solutionTask;
-            _excludesProjects = excludesProjects;
-            _webMaps = webMaps;
-            _outputDir = outputDir;
-            ProjectFactory.ClearCache();
-
+        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             LoadProjectGuids(projects, false);
             LoadProjectGuids(referenceProjects, true);
             LoadProjects();
@@ -159,6 +133,26 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Constructors
+
+        #region Private Instance Constructors
+
+        private Solution(TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) {
+            _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectBuildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _tfc = tfc;
+            _solutionTask = solutionTask;
+            _outputDir = outputDir;
+            _excludesProjects = excludesProjects;
+            _webMaps = webMaps;
+            ProjectFactory.ClearCache();
+        }
+
+        #endregion Private Instance Constructors
 
         #region Public Instance Properties
 
@@ -259,24 +253,25 @@ namespace NAnt.VSNet {
                                 // store original reference filename
                                 string originalReference = reference.Filename;
 
-                                // resolving path, where reference file is (find that file in search paths)
-                                reference.ResolveFolder();
-
                                 if (reference.IsProjectReference) {
-                                    ProjectBase pRef = GetProjectFromGuid(reference.Project.Guid);
-                                    if (pRef == null) {
+                                    // at the time when the reference was constructed,
+                                    // the configuration was not known, so we need to
+                                    // set the Filename of the reference now
+                                    ProjectBase projectReference = GetProjectFromGuid(reference.Project.Guid);
+                                    if (projectReference == null) {
                                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                             "Unable to locate referenced project '{0}' while loading '{1}'.",
                                             reference.Name, p.Name), Location.UnknownLocation);
                                     }
-                                    string outputPath = pRef.GetOutputPath(configuration);
+                                    string outputPath = projectReference.GetOutputPath(configuration);
                                     if (outputPath == null) {
                                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                             "Unable to find '{0}' configuration for project '{1}'.",
-                                            configuration, pRef.Name), Location.UnknownLocation);
+                                            configuration, projectReference.Name), Location.UnknownLocation);
                                     }
                                     reference.Filename = outputPath;
                                 } else if (_htOutputFiles.Contains(reference.Filename)) {
+                                    // TO-DO : Not sure why we would need this ??
                                     ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
                                     if (pRef != null) {
                                         reference.Filename = pRef.GetOutputPath(configuration);
