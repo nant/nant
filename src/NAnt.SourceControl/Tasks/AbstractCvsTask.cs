@@ -337,7 +337,7 @@ namespace NAnt.SourceControl.Tasks {
         [BooleanValidator()]
         public bool ReadOnly {
             get {return ((Option)GlobalOptions["readonly"]).IfDefined;}
-            set {SetGlobalOption("readonly-attribute", "-r", value);}
+            set {SetGlobalOption("readonly", "-r", value);}
         }
 
         /// <summary>
