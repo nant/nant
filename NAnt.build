@@ -397,10 +397,10 @@
             <property name="schema.ns" value="http://nant.sf.net/${project.release.type + '/' + build.date + '-' + project.version + '/nant.xsd'}" />
         </if>
         <if test="${project.release.type != 'nightly'}">
-            <property name="project.version.full" value="http://nant.sf.net/${project.release.type + '/' + project.version.full + '/nant.xsd'}" />
+            <property name="schema.ns" value="http://nant.sf.net/release/${project.version.full}/nant.xsd" />
         </if>
         <!-- generate schema -->
-        <nantschema output="${schema.output}" target-ns="http://nant.sf.net/${project.release.type + '/' + project.version.full + '/nant.xsd'}" />
+        <nantschema output="${schema.output}" target-ns="${schema.ns}" />
     </target>
 
     <target name="schema" depends="build">
