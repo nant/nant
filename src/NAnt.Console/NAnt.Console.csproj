@@ -89,7 +89,7 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\lib\log4net.dll"
+                    HintPath = "..\..\lib\net\1.0\log4net.dll"
                 />
             </References>
         </Build>
