@@ -18,6 +18,8 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
@@ -118,7 +120,6 @@ namespace NAnt.Core.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of Task
-
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
             Log(Level.Info, string.Empty);
@@ -172,8 +173,19 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
-            if (!project.Run()) {
-                throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
+            string oldCurrentDirectory = Directory.GetCurrentDirectory();
+            try {
+                string newDir = Path.GetDirectoryName(Project.GetFullPath(BuildFileName));
+                Directory.SetCurrentDirectory(newDir);
+                if (!project.Run()) {
+                    throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
+                }
+            } catch (Exception ) {
+                throw; // just re-throw to be handled by the standard exception handlers
+            }
+            finally {
+                // set the current directory back to the original value.
+                Directory.SetCurrentDirectory(oldCurrentDirectory);
             }
         }
 
