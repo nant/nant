@@ -12,7 +12,6 @@
 
     <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
     <property name="project.version" value="x.x.x"/>
-
     <script language="C#" mainclass="VersionReader">
         <code><![CDATA[
 		using System.IO;
@@ -51,11 +50,11 @@
 
     <echo message="Building ${project.name}-${project.version}"/>
 
-	<target name="debug">
+	<target name="debug" depends="clean">
 		<property name="debug" value="true"/>
 	</target>
 
-	<target name="release">
+	<target name="release" depends="clean">
 		<property name="debug" value="false"/>
 	</target>
 
@@ -96,6 +95,8 @@
             <arg value="/reference:Microsoft.JScript.dll"/>
         </csc>
 
+		<!--<copy file="build\NAnt.exe" tofile="build\NAnt.Core.dll"/>-->
+
 		<!-- compile NAnt.Tests.dll -->
 		<csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
 			<sources basedir="${src.dir}\${project.FormalName}.Tests">
@@ -103,7 +104,8 @@
 			</sources>
 			<references>
 				<includes name="${build.dir}/NUnitCore.dll"/>
-				<includes name="${build.dir}/${project.name}.exe"/>
+				<includes name="${build.dir}/${project.FormalName}.exe"/>
+				<!--<includes name="${build.dir}/${project.FormalName}.Core.dll"/>-->
 			</references>
 		</csc>
 
