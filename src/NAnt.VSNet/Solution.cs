@@ -28,6 +28,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Types;
+
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
 
@@ -66,11 +67,9 @@ namespace NAnt.VSNet {
 
                 // only C#, VB.NET and C++ projects are supported at this moment
                 if (!ProjectFactory.IsSupportedProjectType(project)) {
-
                     // output a warning message in the build log
                     Log(Level.Warning, LogPrefix + "Only C#, VB.NET and C++ projects" +
                         " are supported.  Skipping project '{0}'.", project);
-
                     // skip the project
                     continue;
                 }
@@ -414,32 +413,39 @@ namespace NAnt.VSNet {
             foreach (DictionaryEntry de in _htProjectFiles) {
                 string projectPath = (string) de.Value;
 
+                // determine whether project is on case-sensitive filesystem,
+                bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
+
                 // check whether project should be excluded from build
-                if (!excludes.FileNames.Contains(projectPath)) {
-                    Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
-                    ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, _outputDir, projectPath);
-                    if (p.Guid == null || p.Guid == string.Empty) {
-                        p.Guid = FindGuidFromPath(projectPath);
+                foreach (string excludedProjectFile in excludes.FileNames) {
+                    if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
+                        Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
+                            projectPath);
+                        // do not load project
+                        return;
                     }
-
-                    // If the project GUID from the sln file doesn't match the project GUID
-                    // from the project file we will run into problems. Alert the user to fix this
-                    // as it is basically a corruption probably caused by user manipulation of the sln
-                    // included projects. I.e. copy and paste issue.
-                    if (!p.Guid.Equals(de.Key.ToString())) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "GUID corruption detected for project '{0}'. GUID values" 
-                            + " in project file and solution file do not match ('{1}'" 
-                            + " and '{2}'). Please correct this manually.", p.Name, 
-                            p.Guid, de.Key.ToString()), Location.UnknownLocation);
-                    }
-
-                    // add project to hashtable
-                    _htProjects[de.Key] = p;
-                } else {
-                    Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
-                        (string) de.Value);
                 }
+
+                Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
+                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, _outputDir, projectPath);
+                if (p.Guid == null || p.Guid == string.Empty) {
+                    p.Guid = FindGuidFromPath(projectPath);
+                }
+
+                // If the project GUID from the sln file doesn't match the project GUID
+                // from the project file we will run into problems. Alert the user to fix this
+                // as it is basically a corruption probably caused by user manipulation of the sln
+                // included projects. I.e. copy and paste issue.
+                if (!p.Guid.Equals(de.Key.ToString())) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "GUID corruption detected for project '{0}'. GUID values" 
+                        + " in project file and solution file do not match ('{1}'" 
+                        + " and '{2}'). Please correct this manually.", p.Name, 
+                        p.Guid, de.Key.ToString()), Location.UnknownLocation);
+                }
+
+                // add project to hashtable
+                _htProjects[de.Key] = p;
             }
         }
 
