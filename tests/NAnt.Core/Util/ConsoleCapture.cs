@@ -47,8 +47,10 @@ namespace Tests.NAnt.Core.Util {
         /// </summary>
         public ConsoleCapture() {
             _oldWriter = System.Console.Out;
+            _oldErrorWriter = System.Console.Error;
             _writer = new StringWriter();
             System.Console.SetOut(_writer);
+            System.Console.SetError(_writer);
         }
 
         #endregion Public Instance Constructors
@@ -68,6 +70,8 @@ namespace Tests.NAnt.Core.Util {
                 _writer.Flush();
                 _writer.Close();
                 System.Console.SetOut(_oldWriter);
+                System.Console.SetError(_oldErrorWriter);
+                
             }
             _disposed = true;
             GC.SuppressFinalize(this);
@@ -109,6 +113,7 @@ namespace Tests.NAnt.Core.Util {
         private bool _disposed = false;
         private StringWriter _writer;
         private TextWriter   _oldWriter;
+        private TextWriter   _oldErrorWriter;
 
         #endregion Private Instance Fields
     }
