@@ -685,6 +685,7 @@ namespace NAnt.Core {
                 OnBuildFinished(this, buildFinishedArgs);
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -698,6 +699,7 @@ namespace NAnt.Core {
             type.Initialize(elementNode);
             return type;
         }
+
         /// <summary>
         /// Creates a new <see ref="Task" /> from the given <see cref="XmlNode" />.
         /// </summary>
@@ -1047,11 +1049,11 @@ namespace NAnt.Core {
                 doc.Load(source);
                 // TODO: validate against xsd schema
             } catch (XmlException e) {
-                string message = "Error loading buildfile";
+                string message = "Error loading buildfile.";
                 Location location = new Location(source, e.LineNumber, e.LinePosition);
                 throw new BuildException(message, location, e);
             } catch (Exception e) {
-                string message = "Error loading buildfile";
+                string message = "Error loading buildfile.";
                 Location location = new Location(source);
                 throw new BuildException(message, location, e);
             }
@@ -1310,7 +1312,7 @@ namespace NAnt.Core {
                 DefaultFramework = _frameworkInfoDictionary[defaultFramework];
                 CurrentFramework = _defaultFramework;
             } else {
-                Log(Level.Warning, "Framework {0} does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
+                Log(Level.Warning, "Framework '{0}' does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
             }
 
             // process global properties

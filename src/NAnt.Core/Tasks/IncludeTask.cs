@@ -105,6 +105,8 @@ namespace NAnt.Core.Tasks {
             _nestinglevel ++;
             
             Log(Level.Verbose, LogPrefix + "Including file {0}.", includedFileName);
+
+            // store original base directory
             string oldBaseDir = Project.BaseDirectory;
             
             // set basedir to be used by the nested calls (if any)
@@ -115,15 +117,18 @@ namespace NAnt.Core.Tasks {
                 doc.Load(includedFileName);
                 Project.InitializeProjectDocument(doc);
             } catch (BuildException) {
+                // rethrow exception
                 throw;
-            } catch (Exception e) {
-                throw new BuildException("Could not include build file " + includedFileName, Location, e);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not include build file {0}.", includedFileName),
+                    Location, ex);
             } finally {
                 // pop off the stack
                 _includedFileNames.Pop();
                 _nestinglevel--;
                 
-                 // reset base\dir
+                 // restore original base directory
                 _currentBasedir = oldBaseDir;
            }
         }

@@ -67,8 +67,8 @@ namespace NAnt.Core {
             }
 
             if (_fileMap.ContainsKey(fileName)) {
-                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "XmlDocument '{0}' already mapped.", fileName), "doc");
-            }
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "XML document '{0}' has already been mapped.", fileName));
+           }
 
             Hashtable map = new Hashtable();
 

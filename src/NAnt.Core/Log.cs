@@ -408,7 +408,7 @@ namespace NAnt.Core {
                             OutputMessage(Level.Error, error.Message, indentationLevel);
                         }
                         if (error.InnerException != null && error.InnerException.Message != null) {
-                            OutputMessage(Level.Error, error.InnerException.Message, indentationLevel);
+                            OutputMessage(Level.Error, " " + error.InnerException.Message, indentationLevel);
                         } 
                     }
                 } else {

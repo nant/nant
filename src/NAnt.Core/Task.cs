@@ -132,19 +132,23 @@ namespace NAnt.Core {
                 try {
                     Project.OnTaskStarted(this, new BuildEventArgs(this));
                     ExecuteTask();
-                } catch (Exception e) {
+                } catch (Exception ex) {
                     logger.Error(string.Format(
                         CultureInfo.InvariantCulture,
                         "{0} Generated Exception", 
-                        Name), e);
+                        Name), ex);
 
                     if (FailOnError) {
                         throw;
                     } else {
                         if (this.Verbose) {
-                            Log(Level.Error, LogPrefix + e.ToString());
+                            Log(Level.Error, LogPrefix + ex.ToString());
                         } else {
-                            Log(Level.Error, LogPrefix + e.Message);
+                            if (ex.InnerException != null && ex.InnerException.Message != null) {
+                                Log(Level.Error, ex.Message + "\n " + ex.InnerException.Message);
+                            } else {
+                                Log(Level.Error, ex.Message);
+                            }
                         }
                     }
                 } finally {
