@@ -88,7 +88,7 @@ namespace NAnt.Core {
                     project = new Project(cmdlineOptions.BuildFile, projectThreshold, cmdlineOptions.IndentationLevel);
                 }
 
-                // Get build file name if the project has not been created.
+                // get build file name if the project has not been created.
                 // If a build file was not specified on the command line.
                 if (project == null) {
                     project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
@@ -211,7 +211,7 @@ namespace NAnt.Core {
                     Console.Error.WriteLine(ex.ToString());
                 } else {
                     // insert empty line
-                    Console.WriteLine();
+                    Console.WriteLine(string.Empty);
                     // output help text
                     Console.WriteLine("For more information regarding the cause of the " +
                         "build failure, run the build again in debug mode.");
