@@ -41,25 +41,10 @@ namespace NAnt.Core.Tasks {
     /// <note>
     /// In the build file, use the XML element <![CDATA[&lt;]]> to specify &lt;, 
     /// and <![CDATA[&gt;]]> to specify &gt;.
-    /// </note>    
+    /// </note>
     /// <note>
     /// The named grouping construct must not contain any punctuation and it 
     /// cannot begin with a number.
-    /// </note>
-    /// <note>
-    /// valid values for the option attribute are :
-    ///     <ul>
-    ///        <li>Compiled</li>
-    ///        <li>CultureInvariant</li>
-    ///        <li>ECMAScript</li>
-    ///        <li>ExplicitCapture</li>
-    ///        <li>IgnoreCase</li>
-    ///        <li>IgnorePatternWhitespace</li>
-    ///        <li>Multiline</li>
-    ///        <li>RightToLeft</li>
-    ///        <li>Singleline</li>
-    ///        <li>None</li>
-    ///     </ul>
     /// </note>
     /// </remarks>
     /// <example>
@@ -100,7 +85,7 @@ namespace NAnt.Core.Tasks {
 
         private string _pattern;
         private string _input;
-        private string _option = "";
+        private RegexOptions _options = RegexOptions.None;
 
         #endregion Private Instance Fields
 
@@ -110,7 +95,7 @@ namespace NAnt.Core.Tasks {
         /// Represents the regular expression to be evalued.
         /// </summary>
         /// <value>
-        /// Represents the regular expression to be evalued.
+        /// The regular expression to be evalued.
         /// </value>
         /// <remarks>
         /// The pattern must contain one or more named constructs, which may 
@@ -124,15 +109,14 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// allow Regex options to be passed in. A comma separated list of options to pass to the regex engine. 
+        /// A comma separated list of options to pass to the regex engine. The
+        /// default is <see cref="RegexOptions.None" />.
         /// </summary>
-        /// <value>
-        /// </value>
-        [TaskAttribute("option", Required=false)]
+        [TaskAttribute("options", Required=false)]
         [StringValidator(AllowEmpty=true)]
-        public string Option {
-            get { return _option;}
-            set { _option = value; }
+        public RegexOptions Options {
+            get { return _options;}
+            set { _options = value; }
         }
 
         /// <summary>
@@ -156,31 +140,7 @@ namespace NAnt.Core.Tasks {
         /// Executes the task.
         /// </summary>
         protected override void ExecuteTask() {
-            Regex regex = null;
-            RegexOptions opt = RegexOptions.None; // Regex object defaults to None
-            if (Option.Length > 0) {
-                string [] a = Option.Split(',');
-                
-                foreach (string s in a) {
-                    try {
-                        RegexOptions localopt =  (RegexOptions)Enum.Parse(typeof(RegexOptions), s );
-                        opt |= localopt;
-                    } catch (ArgumentException) {
-                        string message = string.Format(CultureInfo.InvariantCulture, 
-                            "'{0}' is not a valid regex option. Valid values are: ", 
-                            s);
-                        foreach (object field in Enum.GetValues(typeof(RegexOptions) )) {
-                            message += field.ToString() + ", ";
-                        }
-
-                        // strip last ,
-                        message = message.Substring(0, message.Length - 2);
-                        throw new BuildException(message, Location);
-                    }
-                }
-            }
-
-            regex = new Regex(Pattern, opt);
+            Regex regex = new Regex(Pattern, Options);
             Match match = regex.Match(Input);
 
             if (match.Groups.Count == 0) {

@@ -39,7 +39,8 @@ namespace NAnt.Core.Tasks {
     ///   Macros in the message will be expanded.
     ///   </para>
     ///   <para>
-    ///   When writing to a file, the <see cref="Level" /> attribute is ignored.
+    ///   When writing to a file, the <see cref="MessageLevel" /> attribute is
+    ///   ignored.
     ///   </para>
     /// </remarks>
     /// <example>
@@ -162,10 +163,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The logging level with which the message should be output - either 
-        /// <see cref="Level.Debug" />, <see cref="Level.Verbose" />,
-        /// <see cref="Level.Info" />, <see cref="Level.Warning" /> or 
-        /// <see cref="Level.Error" />. The default is <see cref="Level.Info" />.
+        /// The logging level with which the message should be output. The default 
+        /// is <see cref="Level.Info" />.
         /// </summary>
         [TaskAttribute("level")]
         public Level MessageLevel {

@@ -55,8 +55,7 @@ namespace NAnt.NUnit.Types {
         #region Public Instance Properties
         
         /// <summary>
-        /// Type of formatter - either <see cref="FormatterType.Plain" /> or
-        /// <see cref="FormatterType.Xml" />. 
+        /// Type of formatter.
         /// </summary>
         [TaskAttribute("type", Required=true)]
         public FormatterType Type {

@@ -105,9 +105,7 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
-        /// Tells the compiler to use the specified character set - either
-        /// <see cref="NAnt.VisualCpp.Types.CharacterSet.Unicode" /> or 
-        /// <see cref="NAnt.VisualCpp.Types.CharacterSet.MultiByte" />.
+        /// Tells the compiler to use the specified character set.
         /// </summary>
         [TaskAttribute("characterset", Required=false)]
         public CharacterSet CharacterSet {

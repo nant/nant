@@ -112,10 +112,7 @@ namespace NAnt.MSNet.Tasks {
         }
 
         /// <summary>
-        /// The action that should be performed on the service - either 
-        /// <see cref="ActionType.Start" />, <see cref="ActionType.Stop" />,
-        /// <see cref="ActionType.Restart" />, <see cref="ActionType.Pause" /> 
-        /// or <see cref="ActionType.Continue" />.
+        /// The action that should be performed on the service.
         /// </summary>
         [TaskAttribute("action", Required=true)]
         public ActionType Action {

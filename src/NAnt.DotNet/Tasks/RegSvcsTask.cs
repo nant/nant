@@ -135,9 +135,8 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Defines the action to take with the assembly. Supported actions are: 
-        /// <see cref="ActionType.FindOrCreate" /> (the default), <see cref="ActionType.Create" />, 
-        /// or <see cref="ActionType.Uninstall" />.
+        /// Defines the action to take with the assembly. The default is 
+        /// <see cref="ActionType.FindOrCreate" />.
         /// </summary>
         [TaskAttribute("action")]
         public ActionType Action {

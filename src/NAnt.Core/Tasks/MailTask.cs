@@ -174,8 +174,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Format of the message - either <see cref="MailFormat.Html" />
-        /// or <see cref="MailFormat.Text" />. Defaults is <see cref="MailFormat.Text" />.
+        /// Format of the message. The default is <see cref="MailFormat.Text" />.
         /// </summary>
         [TaskAttribute("format")]
         public MailFormat Format {

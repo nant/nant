@@ -106,10 +106,9 @@ namespace NAnt.Win32.Tasks {
         }
 
         /// <summary>
-        /// The registry hive to use - either <see cref="RegistryHive.LocalMachine" />,
-        /// <see cref="RegistryHive.Users" />, <see cref="RegistryHive.CurrentUser" /> or
-        /// <see cref="RegistryHive.ClassesRoot" />. 
-        /// The default is <see cref="RegistryHive.LocalMachine" />.
+        /// Space separated list of registry hives to search for <see cref="RegistryKey" />.
+        /// For a list of possible values, see <see cref="RegistryHive" />. The 
+        /// default is <see cref="RegistryHive.LocalMachine" />.
         /// </summary>
         /// <remarks>
         /// <seealso cref="RegistryHive" />
@@ -163,14 +162,16 @@ namespace NAnt.Win32.Tasks {
 
         #endregion Override implementation of Task
 
-        #region Protected Static Methods
-        
+        #region Protected Instance Methods
+
         /// <summary>
-        /// return the hive for a given key
+        /// Returns the hive for a given key.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="registries"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// The hive for a given key.
+        /// </returns>
         protected RegistryKey LookupRegKey(string key, RegistryHive[] registries) {
             foreach (RegistryHive hive in registries) {
                 Log(Level.Verbose, "Opening {0}:{1}.", hive.ToString(CultureInfo.InvariantCulture), key);
@@ -179,14 +180,18 @@ namespace NAnt.Win32.Tasks {
                     return returnkey;
                 }
             }
-            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                "Registry Path Not Found! - key='{0}';hive='{1}';", key, 
+                registries.ToString()));
         }
-        
+
         /// <summary>
-        /// return the key for a given registry hive
+        /// Returns the key for a given registry hive.
         /// </summary>
-        /// <param name="hive"></param>
-        /// <returns></returns>
+        /// <param name="hive">The registry hive to return the key for.</param>
+        /// <returns>
+        /// The key for a given registry hive.
+        /// </returns>
         protected RegistryKey GetHiveKey(RegistryHive hive) {
             switch(hive) {
                 case RegistryHive.LocalMachine:
@@ -198,11 +203,12 @@ namespace NAnt.Win32.Tasks {
                 case RegistryHive.ClassesRoot:
                     return Registry.ClassesRoot;
                 default:
-                    Log(Level.Verbose, "Registry not found for {0}.", hive.ToString(CultureInfo.InvariantCulture));
+                    Log(Level.Verbose, "Registry not found for {0}.", 
+                        hive.ToString(CultureInfo.InvariantCulture));
                     return null;
             }
         }
 
-        #endregion Protected Static Methods
+        #endregion Protected Instance Methods
     }
 }
