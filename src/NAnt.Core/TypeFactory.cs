@@ -61,15 +61,33 @@ namespace NAnt.Core {
 
             AddFunctionSets(Assembly.GetExecutingAssembly());
             AddFunctionSets(Assembly.GetCallingAssembly());
-
-            string nantBinDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
-            ScanDir(nantBinDir);
-            ScanDir(Path.Combine(nantBinDir, "tasks"));
         }
 
         #endregion Static Constructor
 
         #region Public Static Methods
+
+        /// <summary>
+        /// Scans the given assembly for extensions.
+        /// </summary>
+        /// <param name="assemblyFile">The assembly to scan for extensions.</param>
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
+        public static void ScanAssembly(string assemblyFile) {
+            logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                "Scanning '{0}' for extensions.", assemblyFile));
+
+            try {
+                Assembly assembly = Assembly.LoadFrom(assemblyFile);
+
+                AddTasks(assembly);
+                AddDataTypes(assembly);
+                AddFunctionSets(assembly);
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error scanning '{0}' for extensions.", 
+                    assemblyFile), ex);
+            }
+        }
 
         /// <summary>
         /// Scans the path for any task assemblies and adds them.
@@ -82,44 +100,28 @@ namespace NAnt.Core {
                 return;
             }
 
-            // intialize tasks found in assemblies that end in Tasks.dll
+            // scan all dll's for extensions
             DirectoryScanner scanner = new DirectoryScanner();
             scanner.BaseDirectory = new DirectoryInfo(path);
-            scanner.Includes.Add("*Tasks.dll");
-
-            //needed for testing
-            scanner.Includes.Add("*Tests.dll");
-            scanner.Includes.Add("*Test.dll");
+            scanner.Includes.Add("*.dll");
 
             foreach (string assemblyFile in scanner.FileNames) {
-                try {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                                "Scanning assembly '{0}' for tasks, types and functions.", assemblyFile));
-
-                    Assembly asm = Assembly.LoadFrom(assemblyFile);
-
-                    AddTasks(asm);
-                    AddDataTypes(asm);
-                    AddFunctionSets(asm);
-                }
-                catch (Exception ex) {
-                    logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                                "Cannot load '{0}' for tasks, types and functions.", assemblyFile), ex);
-                }
+                TypeFactory.ScanAssembly(assemblyFile);
             }
         }
 
         /// <summary>
-        /// Adds any task assemblies in the project base directory.
+        /// Adds any extension assemblies in the project base directory
+        /// and its <c>extensions</c> subdirectory.
         /// </summary>
         /// <param name="project">The project to work from.</param>
         public static void AddProject(Project project) {
             if (!StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
                 ScanDir(project.BaseDirectory);
-                ScanDir(Path.Combine(project.BaseDirectory, "tasks"));
+                ScanDir(Path.Combine(project.BaseDirectory, "extensions"));
             }
-            // create weakref to project. It is possible that project may go away, 
-            // we don't want to hold it.
+            // create weakref to project. It is possible that project may go 
+            // away, we don't want to hold it
             _projects.Add(new WeakReference(project));
             foreach (TaskBuilder tb in TaskBuilders) {
                 UpdateProjectWithBuilder(project, tb);
