@@ -254,7 +254,7 @@
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-                <a>
+                <xsl:element name="a">
                     <xsl:attribute name="href">
                         <xsl:value-of select="$href" />
                     </xsl:attribute>
@@ -266,7 +266,7 @@
                             <xsl:value-of select="string(NAntUtil:GetName($cref))" />
                         </xsl:otherwise>
                     </xsl:choose>
-                </a>
+                </xsl:element>
                 <!-- if this is a task add suffix task-->
                 <xsl:if test="boolean(NAntUtil:GetTaskName($cref))">
                     <xsl:text> </xsl:text>task
@@ -313,14 +313,14 @@
                 </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
-                <a>
+                <xsl:element name="a">
                     <xsl:attribute name="href">
                         <xsl:value-of select="$href" />
                     </xsl:attribute>
                     <xsl:call-template name="get-type-name">
                         <xsl:with-param name="type" select="substring($cref, 3, string-length($cref) - 2)" />
                     </xsl:call-template>
-                </a>
+                </xsl:element>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
