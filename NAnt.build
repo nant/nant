@@ -153,7 +153,7 @@
     
     <target name="doc" depends="build" description="build documenation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
-        <ndoc>
+        <ndoc failonerror="false">
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.exe"/>
                 <includes name="NAnt.Core.dll"/>
@@ -183,7 +183,7 @@
                  </documenter>             
             </documenters> 
         </ndoc>
-        <copy file="${build.dir}/docs/MSDN/NAnt-Developer.chm" todir="${build.dir}"/>
+        <copy file="${build.dir}/docs/MSDN/NAnt.chm" todir="${build.dir}"/>
     </target>
 
     <target name="userdoc" depends="build" description="build documenation">
