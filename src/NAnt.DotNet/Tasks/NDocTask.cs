@@ -110,7 +110,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Updates the progress bar representing a building step.</summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void OnDocBuildingStep(object sender, ProgressArgs e) {
+        private void OnDocBuildingStep(object sender, ProgressArgs e) {
             Log.WriteLine(LogPrefix + e.Status);
         }
 
