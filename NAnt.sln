@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.DotNet", "src\NAnt.Dot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VisualCpp", "src\NAnt.VisualCpp\NAnt.VisualCpp.csproj", "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Zip", "src\NAnt.Zip\NAnt.Zip.csproj", "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Compression", "src\NAnt.Compression\NAnt.Compression.csproj", "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDoc.Documenter.NAnt", "src\NDoc.Documenter.NAnt\NDoc.Documenter.NAnt.csproj", "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
 EndProject

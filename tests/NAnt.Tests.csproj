@@ -90,7 +90,7 @@
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
-                    Name = "NAnt.ZipTasks"
+                    Name = "NAnt.CompressionTasks"
                     Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
@@ -479,17 +479,17 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Zip\NAnt.Zip.build"
+                    RelPath = "NAnt.Compression\NAnt.Compression.build"
                     SubType = "Content"
                     BuildAction = "None"
                 />
                 <File
-                    RelPath = "NAnt.Zip\Tasks\UnZipTaskTest.cs"
+                    RelPath = "NAnt.Compression\Tasks\UnZipTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Zip\Tasks\ZipTaskTest.cs"
+                    RelPath = "NAnt.Compression\Tasks\ZipTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
