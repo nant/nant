@@ -414,6 +414,73 @@ namespace NAnt.Core {
 
         #endregion Protected Instance Methods
 
+        #region Public Static Methods
+
+        public static Element InitializeBuildElement(Element parent, XmlNode childNode, Element buildElement, Type elementType) {
+            // if subtype of DataTypeBase
+            DataTypeBase dataType = buildElement as DataTypeBase;
+                                    
+            if (dataType != null && dataType.CanBeReferenced && childNode.Attributes["refid"] != null ) {
+                dataType.RefID = childNode.Attributes["refid"].Value;
+
+                if (!StringUtils.IsNullOrEmpty(dataType.ID)) {
+                    // throw exception because of id and ref
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Datatype references cannot contain an id attribute."),
+                        dataType.Location);
+                }
+
+                if (parent.Project.DataTypeReferences.Contains(dataType.RefID)) {
+                    dataType = parent.Project.DataTypeReferences[dataType.RefID];
+                    // clear any instance specific state
+                    dataType.Reset();
+                } else {
+                    // reference not found exception
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "{0} reference '{1}' not defined.", dataType.Name, dataType.RefID), 
+                        dataType.Location);
+                }
+                if (!elementType.IsAssignableFrom(dataType.GetType())) {
+                    // see if we have a valid copy constructor
+                    ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});
+                    if (constructor != null){
+                        dataType = (DataTypeBase) constructor.Invoke(new object[] {dataType});
+                    } else {
+                        ElementNameAttribute dataTypeAttr = (ElementNameAttribute) 
+                            Attribute.GetCustomAttribute(dataType.GetType(), typeof(ElementNameAttribute));
+                        ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
+                            Attribute.GetCustomAttribute(elementType, typeof(ElementNameAttribute));
+
+                        // throw error wrong type definition
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Attempting to use a <{0}> reference where a <{1}> is required.", 
+                            dataTypeAttr.Name, elementTypeAttr.Name), Location.UnknownLocation);
+                    }
+                }
+                // re-initialize the object with current context
+                dataType.Project = parent.Project;
+                dataType.Parent = parent;
+                dataType.NamespaceManager = parent.NamespaceManager;
+                dataType.Location = parent.Project.LocationMap.GetLocation(childNode);
+
+                // return initialized data type
+                return dataType;
+            } else {
+                // initialize the object with context
+                buildElement.Project = parent.Project;
+                buildElement.Parent = parent;
+                buildElement.NamespaceManager = parent.NamespaceManager;
+
+                // initialize element from XML
+                buildElement.Initialize(childNode);
+
+                // return initialize build element
+                return buildElement;
+            }
+        }
+
+        #endregion Public Static Methods
+
         #region Private Static Methods
 
         /// <summary>
@@ -1233,70 +1300,7 @@ namespace NAnt.Core {
                     | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
 
                 // initialize the element
-                return InitializeBuildElement(childNode, childElement, elementType);
-            }
-
-            protected virtual Element InitializeBuildElement(XmlNode childNode, Element buildElement, Type elementType) {
-                // if subtype of DataTypeBase
-                DataTypeBase dataType = buildElement as DataTypeBase;
-                                    
-                if (dataType != null && dataType.CanBeReferenced && childNode.Attributes["refid"] != null ) {
-                    dataType.RefID = childNode.Attributes["refid"].Value;
-
-                    if (!StringUtils.IsNullOrEmpty(dataType.ID)) {
-                        // throw exception because of id and ref
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Datatype references cannot contain an id attribute."),
-                            dataType.Location);
-                    }
-
-                    if (Project.DataTypeReferences.Contains(dataType.RefID)) {
-                        dataType = Project.DataTypeReferences[dataType.RefID];
-                        // clear any instance specific state
-                        dataType.Reset();
-                    } else {
-                        // reference not found exception
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "{0} reference '{1}' not defined.", dataType.Name, dataType.RefID), 
-                            dataType.Location);
-                    }
-                    if (!elementType.IsAssignableFrom(dataType.GetType())) {
-                        // see if we have a valid copy constructor
-                        ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});
-                        if (constructor != null){
-                            dataType = (DataTypeBase) constructor.Invoke(new object[] {dataType});
-                        } else {
-                            ElementNameAttribute dataTypeAttr = (ElementNameAttribute) 
-                                Attribute.GetCustomAttribute(dataType.GetType(), typeof(ElementNameAttribute));
-                            ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
-                                Attribute.GetCustomAttribute(elementType, typeof(ElementNameAttribute));
-
-                            // throw error wrong type definition
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Attempting to use a <{0}> reference where a <{1}> is required.", 
-                                dataTypeAttr.Name, elementTypeAttr.Name), Location);
-                        }
-                    }
-                    // re-initialize the object with current context
-                    dataType.Project = Project;
-                    dataType.Parent = Element;
-                    dataType.NamespaceManager = NamespaceManager;
-                    dataType.Location = Project.LocationMap.GetLocation(childNode);
-
-                    // return initialized data type
-                    return dataType;
-                } else {
-                    // initialize the object with context
-                    buildElement.Project = Project;
-                    buildElement.Parent = Element;
-                    buildElement.NamespaceManager = NamespaceManager;
-
-                    // initialize element from XML
-                    buildElement.Initialize(childNode);
-
-                    // return initialize build element
-                    return buildElement;
-                }
+                return Element.InitializeBuildElement(Element, childNode, childElement, elementType);
             }
 
             #endregion Public Instance Methods
@@ -1358,7 +1362,7 @@ namespace NAnt.Core {
                 }
 
                 // initialize the child element
-                childElement = InitializeBuildElement(xml, childElement, elementType);
+                childElement = Element.InitializeBuildElement(Element, xml, childElement, elementType);
                 
                 // check if we're dealing with a reference to a data type
                 DataTypeBase dataType = childElement as DataTypeBase;
