@@ -160,7 +160,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The command-line arguments for the external program.
         /// </summary>
-        [BuildElementArray("arg")]
+        [BuildElementArray("arg", typeof(Argument))]
         public virtual ArgumentCollection Arguments {
             get { return _arguments; }
         }

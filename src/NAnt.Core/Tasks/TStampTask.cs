@@ -163,7 +163,7 @@ namespace NAnt.Core.Tasks {
             set { _pattern = value; }
         }
 
-        [BuildElementArray("formatter")]
+        [BuildElementArray("formatter", typeof(Formatter))]
         public FormatterCollection Formatters {
             get { return _formatters; }
         }

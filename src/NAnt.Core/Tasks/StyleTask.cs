@@ -175,7 +175,7 @@ namespace NAnt.Core.Tasks {
         protected override void InitializeTask(XmlNode taskNode) {
             // Load parameters
             foreach (XmlNode node in taskNode) {
-                if (node.Name.Equals("param")) {
+                if (node.LocalName.Equals("param")) {
                     string paramname = Project.ExpandProperties(node.Attributes["name"].Value, Location );
                     string paramval = Project.ExpandProperties(node.Attributes["expression"].Value, Location);
                     _params[paramname] = paramval;

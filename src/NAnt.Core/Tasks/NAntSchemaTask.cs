@@ -55,7 +55,7 @@ namespace NAnt.Core.Tasks {
 
         private string _outputFile = null;
         private string _forType = null;
-        private string _targetNamespace = null;
+        private string _targetNamespace = "http://tempuri.org/nant-donotuse.xsd";
 
         #endregion Private Instance Fields
 
@@ -78,7 +78,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The target namespace for the output.
+        /// The target namespace for the output. Defaults to "http://tempuri.org/nant-donotuse.xsd"
         /// </summary>
         [TaskAttribute("target-ns", Required=false)]
         public virtual string TargetNamespace {
@@ -105,15 +105,24 @@ namespace NAnt.Core.Tasks {
             ArrayList taskTypes;
 
             if (ForType == null) {
-                taskTypes = new ArrayList(TypeFactory.TaskBuilders.Count);
+                taskTypes = new ArrayList(TypeFactory.TaskBuilders.Count + TypeFactory.DataTypeBuilders.Count - 1);
 
                 foreach (TaskBuilder tb in TypeFactory.TaskBuilders) {
                     taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
                 }
+				/*
+				foreach (DataTypeBaseBuilder tb in TypeFactory.DataTypeBuilders) {
+					taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
+				}
+				*/
+
             } else {
                 taskTypes = new ArrayList(1);
                 taskTypes.Add(Type.GetType(ForType, true, true));
             }
+			
+			FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile); 
+			FilePermission.Assert();
 
             using (FileStream file = File.Open(OutputFile, FileMode.Create, FileAccess.Write, FileShare.Read)) {
                 WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)), TargetNamespace);
@@ -122,7 +131,7 @@ namespace NAnt.Core.Tasks {
                 file.Close();
             }
 
-            Log(Level.Info, "Wrote schema to '{0}'.", OutputFile);
+            Log(Level.Info, LogPrefix + "Wrote schema to '{0}'.", OutputFile);
         }
 
         #endregion Override implementation of Task
@@ -379,13 +388,32 @@ namespace NAnt.Core.Tasks {
 
                 //create temp list of task Complex Types
                 IList taskCTs = new ArrayList(tasks.Length);
+				IList taskContainCTs = new ArrayList(15);
 
                 foreach (Type t in tasks) {
                     XmlSchemaComplexType taskCT = CreateComplexType(t, ((TaskNameAttribute) GetDerivedAttribute(t, typeof(TaskNameAttribute), false, true)).Name, true);
-                    taskCTs.Add(taskCT);
+					taskCTs.Add(taskCT);
+	
+					//allow any tasks...
+					if(t.IsSubclassOf(typeof(TaskContainer)))
+						taskContainCTs.Add(taskCT);
                 }
 
                 Compile();
+				
+				//update the taskcontainerCTs to allow any other task and the list of tasks generated.
+				foreach(XmlSchemaComplexType ct in taskContainCTs) {
+					XmlSchemaSequence seq = ct.Particle as XmlSchemaSequence;
+
+					if (seq != null) {
+						seq.Items.Add(CreateTaskListComplexType(taskCTs).Particle);
+					}
+					else {
+						logger.Error("Unable to fixup complextype with children. Particle is not XmlSchemaSequence");
+					}
+				}
+				
+				Compile();
 
                 //create target ComplexType
                 XmlSchemaComplexType targetCT = CreateTaskListComplexType(taskCTs);
@@ -504,10 +532,9 @@ namespace NAnt.Core.Tasks {
                 if (useRefs) {
                     //lookup the type to see if we have done this already.
                     ct = FindComplexTypeByID(GenerateIDFromType(t));
-                }
-
-                if (ct != null) {
-                    return ct;
+					if (ct != null) {
+						return ct;
+					}
                 }
 
                 ct = CreateXsdComplexType(name, GenerateIDFromType(t), null);
@@ -523,45 +550,49 @@ namespace NAnt.Core.Tasks {
 
                     //Add Attributes
                     TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute)Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
-                    BuildElementAttribute  buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute ), true);
+                    BuildElementCollectionAttribute buildElemCollAttr = (BuildElementCollectionAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementCollectionAttribute), true);
+					BuildElementAttribute  buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
 
-                    if (taskAttrAttr != null) {
-                        XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
-                        ct.Attributes.Add(newAttr);
-                    } else if (buildElemAttr != null) {
-                        // Create individial choice for any individual child Element
-                        Decimal min = 0;
+					if (taskAttrAttr != null) {
+						XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
+						ct.Attributes.Add(newAttr);
+					}  else if (buildElemAttr != null) {
+						// Create individial choice for any individual child Element
+						Decimal min = 0;
 
-                        if (buildElemAttr.Required) {
-                            min = 1;
-                        }
+						if (buildElemAttr.Required) {
+							min = 1;
+						}
 
-                        XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
-                        XmlSchemaElement childElement = new XmlSchemaElement();
-                        childElement.Name = buildElemAttr.Name;
+						XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
+						XmlSchemaElement childElement = new XmlSchemaElement();
+						childElement.Name = buildElemAttr.Name;
 
-                        Type childType;
+						Type childType;
 
-                        // We will only process child elements if they are defined for Properties or Fields, this should be enforced by the AttributeUsage on the Attribute class
-                        if (memInfo is PropertyInfo) {
-                            childType = ((PropertyInfo) memInfo).PropertyType;
-                        } else if (memInfo is FieldInfo) {
-                            childType = ((FieldInfo) memInfo).FieldType;
-                        } else {
-                            throw new ApplicationException("Member Type != Field/Property");
-                        }
+						// We will only process child elements if they are defined for Properties or Fields, this should be enforced by the AttributeUsage on the Attribute class
+						if (memInfo is PropertyInfo) {
+							childType = ((PropertyInfo) memInfo).PropertyType;
+						} else if (memInfo is FieldInfo) {
+							childType = ((FieldInfo) memInfo).FieldType;
+						} else {
+							throw new ApplicationException("Member Type != Field/Property");
+						}
 
-                        //In xsd we use choices to define the array property. So we should treat this as the element type, not an array.
-                        if (childType.IsArray) {
-                            childType = childType.GetElementType();
-                        }
+						//In xsd we use choices to define the array property. So we should treat this as the element type, not an array.
+						if (childType.IsArray) {
+							childType = childType.GetElementType();
+						}
+						if (buildElemCollAttr != null) {
+							childType = buildElemCollAttr.ElementType;	 
+						}
 
-                        childElement.SchemaTypeName = CreateComplexType(childType, buildElemAttr.Name, useRefs).QualifiedName;
+						childElement.SchemaTypeName = CreateComplexType(childType, buildElemAttr.Name, useRefs).QualifiedName;
 
-                        elementGroup.Items.Add(childElement);
+						elementGroup.Items.Add(childElement);
 
-                        group1.Items.Add(elementGroup);
-                    }
+						group1.Items.Add(elementGroup);
+					}
                 }
 
                 if (group1.Items.Count > 0) {

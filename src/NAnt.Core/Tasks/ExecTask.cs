@@ -76,7 +76,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Environment variables to pass to the program.
         /// </summary>
-        [BuildElementCollection("environment")]
+        [BuildElementCollection("environment", "option", typeof(Option))]
         public OptionCollection Environment {
             get { return _environment; }
         }

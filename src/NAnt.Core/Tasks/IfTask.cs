@@ -261,7 +261,16 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Override implementation of TaskContainer
-    }
+    
+		protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+			base.InitializeTask (taskNode);
+			
+			//check that we have something to do.
+			if(_primaryFile == null && _propNameExists == null && _propNameTrue == null && _targetName == null) {
+				throw new BuildException(LogPrefix + " atleast one if condition must be set (propertytrue, targetexists, etc...):");	
+			}
+		}
+	}
 
     /// <summary>
     /// The opposite of the <c>if</c> task.
