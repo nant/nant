@@ -69,6 +69,18 @@ namespace NAnt.Core.Functions {
             return date.AddSeconds(seconds);
         }
 
+        /// <summary>
+        /// Gets the year component of the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the year component.</param>
+        /// <returns>
+        /// The year component of the specified date.
+        /// </returns>
+        [Function("get-year")]
+        public static int GetYear(DateTime date) {
+            return date.Year;
+        }
+
         #endregion Public Static Methods
     }
 }
