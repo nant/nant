@@ -25,6 +25,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -45,7 +46,7 @@ namespace NAnt.Core.Tasks {
     ///     <code>
     ///         <![CDATA[
     /// <?xml version="1.0" encoding="utf-8" ?>
-    /// <configuration>
+    /// <configuration xmlns="http://www.gordic.cz/shared/project-config/v_1.0.0.0">
     ///     <appSettings>
     ///         <add key="server" value="testhost.somecompany.com" />
     ///     </appSettings>
@@ -60,19 +61,24 @@ namespace NAnt.Core.Tasks {
     ///         <![CDATA[
     /// <xmlpeek
     ///     file="App.config"
-    ///     xpath="/configuration/appSettings/add[@key = 'server']/@value"
-    ///     property="configuration.server" />
+    ///     xpath="/x:configuration/x:appSettings/x:add[@key = 'server']/@value"
+    ///     property="configuration.server">
+    ///     <namespaces>
+    ///         <namespace prefix="x" uri="http://www.gordic.cz/shared/project-config/v_1.0.0.0" />
+    ///     </namespaces>
+    /// </xmlpeek>
     ///         ]]>
     ///     </code>
     /// </example>
     [TaskName("xmlpeek")]
-    public class XmlPeekTask : Task  {
+    public class XmlPeekTask : Task {
         #region Private Instance Fields
 
         private FileInfo _xmlFile;
         private int _nodeIndex = 0;
         private string _property;
         private string _xPath;
+        private XmlNamespaceCollection _namespaces = new XmlNamespaceCollection();
 
         #endregion Private Instance Fields
 
@@ -115,11 +121,20 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("xpath", Required=true)]
         [StringValidator(AllowEmpty=false)]
-        public string XPath  {
+        public string XPath {
             get { return _xPath; }
             set { _xPath = value; }
         }
-        
+
+        /// <summary>
+        /// Namespace definitions to resolve prefixes in the XPATH expression.
+        /// </summary>
+        [BuildElementCollection("namespaces", "namespace")]
+        public XmlNamespaceCollection Namespaces {
+            get { return _namespaces; }
+            set { _namespaces = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -189,7 +204,13 @@ namespace NAnt.Core.Tasks {
             XmlNodeList nodes;
 
             try {
-                nodes = document.SelectNodes(xpath);
+                XmlNamespaceManager nsMgr = new XmlNamespaceManager(document.NameTable);
+                foreach (XmlNamespace xmlNamespace in Namespaces) {
+                    if (xmlNamespace.IfDefined && !xmlNamespace.UnlessDefined) {
+                        nsMgr.AddNamespace(xmlNamespace.Prefix, xmlNamespace.Uri);
+                    }
+                }
+                nodes = document.SelectNodes(xpath, nsMgr);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Failed to select node with XPath expression '{0}'.", xpath), 
