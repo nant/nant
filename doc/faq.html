@@ -37,6 +37,10 @@
                     <a href="#building-mono-1">How can I avoid getting a NullReferenceException when building
                         NAnt on Mono?</a>
                 </div>
+                <a href="#building-vsnet">Visual Studio.NET</a>
+                <div style="margin-left: 20px;">
+                    <a href="#building-vsnet-1">How can I debug NAnt using Visual Studio.NET?</a>
+                </div>
             </div>
             <a href="#general">General</a>
             <div style="margin-left: 20px;">
@@ -73,6 +77,30 @@ $ make clean
 $ make
 $ mono bin/NAnt.exe clean build
                     </pre>
+                </div>
+            </div>
+            <h4 style="margin-left: 20px;">
+                <a id="building-vsnet" />Visual Studio.NET</h4>
+            <div style="margin-left: 20px;">
+                <h5>
+                    <a id="building-vsnet-1" />How can I debug NAnt using Visual Studio.NET?</h5>
+                <div style="margin-left: 20px;">
+                    <p>
+                        NAnt cannot be built using VS.NET, as VS.NET (prior to VS.NET 2005) is unable to handle dependencies between projects very well.
+                    </p>
+                    <p>
+                        However, you can compile NAnt using the NAnt build scripts, and then debug NAnt using VS.NET. To do this, open the NAnt solution file in VS.NET and change the
+                        following debugging properties of the <code>NAnt.Console</code> project (using Project -> Properties -> Configuration Properties -> Debugging):
+                    </p>
+                    <ul>
+                        <li>Debug Mode: <i>Program</i></li>
+                        <li>Start Application: &lt;<i>select NAnt.exe that you just compiled</i>&gt;</li>
+                    </ul>
+                    <p>
+                        Finally, just run NAnt in VS.NET (using Debug -> Start or just F5), and when VS.NET
+                        informs you that there were build errors, and asks whether you still want to
+                        continue : select <code>Yes</code>.
+                    </p>
                 </div>
             </div>
         </div>
