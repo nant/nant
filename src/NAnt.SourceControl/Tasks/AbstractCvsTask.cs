@@ -88,8 +88,9 @@ namespace NAnt.SourceControl.Tasks {
         private OptionCollection _commandOptions = new OptionCollection();
 		private string _commandLineArguments;
         private OptionCollection _globalOptions = new OptionCollection();
-		private string _cvsRsh;
 
+		private string _exeName = CVS_EXE;
+		private string _cvsRsh;
         private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
@@ -117,7 +118,8 @@ namespace NAnt.SourceControl.Tasks {
 		/// The name of the cvs executable.
 		/// </summary>
 		public override string ExeName {
-			get {return CVS_EXE;}
+			get {return _exeName;}
+			set {this._exeName = value;}
 		}
 
         /// <summary>
@@ -358,6 +360,65 @@ namespace NAnt.SourceControl.Tasks {
 
         #endregion Public Instance Properties
 
+		#region Override Task Implementation
+		/// <summary>
+		/// 
+		/// </summary>
+		protected override void ExecuteTask () {
+			try {
+				base.ExecuteTask();
+				
+			} catch (Exception e) {
+				Logger.Error(e);
+				throw e;
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="process"></param>
+		protected override void PrepareProcess (Process process) {
+			
+			Logger.Debug("number of arguments: " + Arguments.Count);
+			if (null == this.Arguments || 0 == this.Arguments.Count) {
+				this.Arguments.Add(new Argument("-d" + this.CvsRoot));
+				this.AppendGlobalOptions();
+				this.Arguments.Add(new Argument(this.CommandName));
+
+				Logger.Debug("commandline args null: " + ((null == this.CommandLineArguments) ? "yes" : "no"));
+				if (null == this.CommandLineArguments) {
+					this.AppendCommandOptions();
+				}
+
+				this.AppendFiles();
+				if (this.IsModuleNeeded) {
+					this.Arguments.Add(new Argument(this.Module));
+				}
+			}
+			System.Console.WriteLine("Using sharpcvs" + this.UseSharpCvsLib);
+			if (this.UseSharpCvsLib) {
+				this.ExeName = 
+					Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
+			}
+			if (!Directory.Exists(this.DestinationDirectory.FullName)) {
+				Directory.CreateDirectory(this.DestinationDirectory.FullName);
+			}
+			base.PrepareProcess(process);
+			System.Console.WriteLine("exe name: " + process.StartInfo.FileName);
+
+			if (this.CvsRsh != null ) {
+				process.StartInfo.EnvironmentVariables.Add(CVS_RSH, this.CvsRsh);				
+			}
+
+			process.StartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
+			Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
+			Logger.Debug("executable: " + process.StartInfo.FileName);
+			Logger.Debug("arguments: " + process.StartInfo.Arguments);
+		}
+
+		#endregion
+
         #region Private Instance Methods
 
         private void LogCvsMessage(string message) {
@@ -475,55 +536,6 @@ namespace NAnt.SourceControl.Tasks {
 			foreach (string pathname in this.CvsFileSet.FileNames) {
 				Arguments.Add(new Argument(pathname));
 			}
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		protected override void ExecuteTask () {
-			try {
-				base.ExecuteTask();
-				
-			} catch (Exception e) {
-				Logger.Error(e);
-				throw e;
-			}
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="process"></param>
-		protected override void PrepareProcess (Process process) {
-			Logger.Debug("number of arguments: " + Arguments.Count);
-			if (null == this.Arguments || 0 == this.Arguments.Count) {
-				this.Arguments.Add(new Argument("-d" + this.CvsRoot));
-				this.AppendGlobalOptions();
-				this.Arguments.Add(new Argument(this.CommandName));
-
-				Logger.Debug("commandline args null: " + ((null == this.CommandLineArguments) ? "yes" : "no"));
-				if (null == this.CommandLineArguments) {
-					this.AppendCommandOptions();
-				}
-
-				this.AppendFiles();
-				if (this.IsModuleNeeded) {
-					this.Arguments.Add(new Argument(this.Module));
-				}
-			}
-			if (!Directory.Exists(this.DestinationDirectory.FullName)) {
-				Directory.CreateDirectory(this.DestinationDirectory.FullName);
-			}
-			base.PrepareProcess(process);
-
-			if (this.CvsRsh != null ) {
-				process.StartInfo.EnvironmentVariables.Add(CVS_RSH, this.CvsRsh);				
-			}
-
-			process.StartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
-			Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
-			Logger.Debug("executable: " + process.StartInfo.FileName);
-			Logger.Debug("arguments: " + process.StartInfo.Arguments);
 		}
 
 		private bool IsModuleNeeded {
