@@ -1,0 +1,11 @@
+<project name="Solution Build Example" default="build">
+    <property name="configuration" value="release"/>
+    <target name="build" description="Build all targets.">
+        <call target="build.winforms"/>
+    </target>
+    
+    <target name="build.winforms">
+        <solution configuration="${configuration}" solutionfile="WinForms.sln" />
+    </target>
+    
+</project>

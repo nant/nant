@@ -4,8 +4,10 @@
         <nant target="${target::get-current-target()}">
             <buildfiles>
                 <include name="**/*.build" />
-                <exclude name="ScriptTask/script-sample.build" />
                 <exclude name="examples.build" />
+                
+                <exclude name="ScriptTask/script-sample.build" />
+                <exclude name="Solution/**/*.build"/>
             </buildfiles>
         </nant>
     </target>

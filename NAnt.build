@@ -51,7 +51,7 @@
         <include name="NAnt.NUnit/NAnt.NUnit.build" />
         <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
         -->
-    </fileset>
+    </fileset>    
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
@@ -155,6 +155,18 @@
     </target>
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
+        <echo message="Examples: Copy local and build."/>
+        <copy todir="${build.dir}">
+            <fileset>
+                <include name="examples/**" />
+            </fileset>
+        </copy>    
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" workingdir="${build.dir}/examples" useruntimeengine="true">
+            <arg value="-buildfile:examples.build" />
+            <arg value="build"/>
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+        </exec>    
+    
         <echo message="Running unit tests with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
