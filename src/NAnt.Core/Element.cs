@@ -29,7 +29,10 @@ using SourceForge.NAnt.Attributes;
 namespace SourceForge.NAnt {
     /// <summary>Models a NAnt XML element in the build file.</summary>
     /// <remarks>
-    ///   <para>Automatically validates attributes in the element based on Attribute settings in the derived class.</para>
+    /// <para>
+    /// Automatically validates attributes in the element based on attributes 
+    /// applied to members in derived classes.
+    /// </para>
     /// </remarks>
     public class Element {
         #region Private Instance Fields
@@ -154,7 +157,7 @@ namespace SourceForge.NAnt {
 
         #endregion Protected Instance Properties
 
-        #region Public Instance Methods            
+        #region Public Instance Methods
 
         /// <summary>
         /// Performs default initialization.
@@ -184,7 +187,7 @@ namespace SourceForge.NAnt {
             InitializeElement(elementNode);
         }
 
-        #endregion Public Instance Methods            
+        #endregion Public Instance Methods
 
         #region Protected Instance Methods
 
@@ -220,26 +223,27 @@ namespace SourceForge.NAnt {
             PropertyInfo[] propertyInfoArray = currentType.GetProperties(BindingFlags.Public|BindingFlags.Instance);
 
             #region Create Collections for Attributes and Element Names Tracking
+
             //collect a list of attributes, we will check to see if we use them all.
             System.Collections.Specialized.StringCollection attribs = new System.Collections.Specialized.StringCollection();
-            foreach(XmlAttribute xmlattr in _xmlNode.Attributes)
+            foreach (XmlAttribute xmlattr in _xmlNode.Attributes) {
                 attribs.Add(xmlattr.Name);
-
+            }
 
             //create collection of element names. We will remove 
             System.Collections.Specialized.StringCollection childElementsRemaining = new System.Collections.Specialized.StringCollection();
-            foreach(XmlNode childNode in _xmlNode) {
+            foreach (XmlNode childNode in _xmlNode) {
                 //skip existing names. We only need unique names.
                 if(childElementsRemaining.Contains(childNode.Name))
                     continue;
 
                 childElementsRemaining.Add(childNode.Name);
-            }            
+            }
+
             #endregion Create Collections for Attributes and Element Names Tracking
 
             //Loop through all the properties in the derived class.
-            foreach (PropertyInfo propertyInfo in propertyInfoArray ) {
-
+            foreach (PropertyInfo propertyInfo in propertyInfoArray) {
                 #region Initiliaze all the Attributes
 
                 // process all BuildAttribute attributes
@@ -248,7 +252,6 @@ namespace SourceForge.NAnt {
 
                 if (buildAttribute != null) {
                     XmlAttribute attributeNode = _xmlNode.Attributes[buildAttribute.Name];
-
 
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
@@ -262,15 +265,13 @@ namespace SourceForge.NAnt {
                     }
 
                     if (attributeNode != null) {
-                        
                         //remove processed attribute name
                         attribs.Remove(attributeNode.Name);
                         
                         string attrValue = attributeNode.Value;
                         if (buildAttribute.ExpandProperties) {
                             // expand attribute properites
-                            attrValue = Project.ExpandProperties(attrValue, this.Location );
-                            
+                            attrValue = Project.ExpandProperties(attrValue, this.Location);
                         }
 
                         logger.Debug(string.Format(
@@ -293,7 +294,7 @@ namespace SourceForge.NAnt {
                             object[] validateAttributes = (ValidatorAttribute[]) 
                                 Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
                             try {
-                                foreach(ValidatorAttribute validator in validateAttributes) {
+                                foreach (ValidatorAttribute validator in validateAttributes) {
                                     logger.Info(string.Format(
                                         CultureInfo.InvariantCulture,
                                         "Validating <{1} {2}='...'> with {0}", 
@@ -301,7 +302,7 @@ namespace SourceForge.NAnt {
 
                                     validator.Validate(attrValue);
                                 }
-                            } catch(ValidationException ve) {
+                            } catch (ValidationException ve) {
                                 logger.Error("Validation Exception", ve);
                                 throw new ValidationException("Validation failed on" + propertyInfo.DeclaringType.FullName, Location, ve);
                             }
@@ -328,23 +329,24 @@ namespace SourceForge.NAnt {
                         }
                     }
                 }
+
                 #endregion Initiliaze all the Attributes
 
                 #region Initiliaze the Nested BuildArrayElements (Child xmlnodes)
 
-                // Do build Element Arrays ( assuming they are of a certain collection type.)
+                // Do build Element Arrays (assuming they are of a certain collection type.)
                 BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
                 if (buildElementArrayAttribute != null) {
-                    if(!propertyInfo.PropertyType.IsArray) {
+                    if (!propertyInfo.PropertyType.IsArray) {
                         throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute must be applied to array types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
                     
-                    // get collection of nodes  ( TODO - do this without using xpath )
-                    XmlNodeList nodes  = elementNode.SelectNodes( "nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
+                    // get collection of nodes  (TODO - do this without using xpath)
+                    XmlNodeList nodes  = elementNode.SelectNodes("nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
 
                     //remove this node name from the list. This name has been accounted for.
-                    if(nodes != null && nodes.Count > 1)
+                    if (nodes != null && nodes.Count > 1)
                         childElementsRemaining.Remove(nodes[0].Name);
 
                     // check if its required
@@ -357,8 +359,8 @@ namespace SourceForge.NAnt {
                     // create new array of the required size - even if size is 0
                     System.Array list = Array.CreateInstance(elementType, nodes.Count);
 
-                    int arrayIndex =0;
-                    foreach ( XmlNode childNode in nodes ) {
+                    int arrayIndex = 0;
+                    foreach (XmlNode childNode in nodes) {
                         // Create a child element
                         Element childElement = (Element) Activator.CreateInstance(elementType); 
                         
@@ -371,14 +373,16 @@ namespace SourceForge.NAnt {
                     // set the memvber array to our newly created array
                     propertyInfo.SetValue(this, list, null);
                 }
+
                 #endregion Initiliaze the Nested BuildArrayElements (Child xmlnodes)
 
                 #region Initiliaze the Nested BuildElements (Child xmlnodes)
+
                 // now do nested BuildElements
                 BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
 
-                if (buildElementAttribute != null && buildElementArrayAttribute == null ) { // if we're not an array element either
+                if (buildElementAttribute != null && buildElementArrayAttribute == null) { // if we're not an array element either
                     // get value from xml node
                     XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
 
@@ -387,20 +391,20 @@ namespace SourceForge.NAnt {
                         throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required element of <{1} ...//>.", buildElementAttribute.Name, this.Name), Location);
                     }
                     if (nestedElementNode != null) {
-                        
                         //remove item from list. Used to account for each child xmlelement.
                         childElementsRemaining.Remove(nestedElementNode.Name);
                         
                         //create the child build element; not needed directly. It will be assigned to the local property.
                         CreateChildBuildElement(propertyInfo, nestedElementNode);
-                    }                        
+                    }
                 }
+
                 #endregion Initiliaze the Nested BuildElements (Child xmlnodes)
 
             }
             
             //skip checking for anything in target.
-            if( !(currentType.Equals(typeof(Target)) || currentType.IsSubclassOf(typeof(Target))) ) {
+            if(!(currentType.Equals(typeof(Target)) || currentType.IsSubclassOf(typeof(Target)))) {
                 #region Check Tracking Collections for Attribute and Element use
                 foreach(string attr in attribs) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "{2}:Did not use {0} of <{1} ...>?", attr, currentType.Name, Location);
@@ -411,28 +415,29 @@ namespace SourceForge.NAnt {
                     string msg = string.Format(CultureInfo.InvariantCulture, "Did not use <{0} .../> under <{1}/>?", element, currentType.Name);
                     //Log.WriteLine(msg);
                     logger.Info(msg);
-                }        
+                }
                 #endregion Check Tracking Collections for Attribute and Element use
             }
 
         }
 
-        /// <summary>        /// Creates a child BuildElement using property set/get methods.        /// </summary>        /// <param name="propInf">The PropertyInfo object that represents the property of the current class</param>        /// <param name="xml">The XMLNode used to init the new object</param>        /// <returns>Returns the Element child.</returns>
+        /// <summary>        /// Creates a child <see cref="Element" /> using property set/get methods.        /// </summary>        /// <param name="propInf">The <see cref="PropertyInfo" /> instance that represents the property of the current class.</param>        /// <param name="xml">The <see cref="XmlNode" /> used to initialize the new <see cref="Element" /> instance.</param>        /// <returns>The <see cref="Element" /> child.</returns>
         private Element CreateChildBuildElement(PropertyInfo propInf, XmlNode xml) {
-            MethodInfo setter, getter;
+            MethodInfo getter = null;
+            MethodInfo setter = null;
+            Element childElement = null;
+
             setter = propInf.GetSetMethod(true);
             getter = propInf.GetGetMethod(true);
-
-            Element childElement = null;
-            
+           
             //if there is a getter, then get the current instance of the object, and use that.
-            if(getter != null) {
-                childElement = (Element)propInf.GetValue(this, null);
-                if (childElement == null && setter == null){
+            if (getter != null) {
+                childElement = (Element) propInf.GetValue(this, null);
+                if (childElement == null && setter == null) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "Property {0} cannot return null (if there is no set method) for class {1}", propInf.Name, this.GetType().FullName);
                     logger.Error(msg);
                     throw new BuildException(msg, Location);
-                }else if (childElement == null && setter != null){
+                } else if (childElement == null && setter != null) {
                     //fake the getter as null so we process the rest like there is no getter.
                     getter = null;
                     logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}_get() returned null; will go the route of set method to populate.", propInf.Name));
@@ -440,11 +445,12 @@ namespace SourceForge.NAnt {
             }
             
             //create a new instance of the object if there is not a get method. (or the get object returned null... see above)
-            if(getter == null && setter != null) {
+            if (getter == null && setter != null) {
                 Type elemType = setter.GetParameters()[0].ParameterType;
-                if(elemType.IsAbstract)
-                    throw new InvalidOperationException(string.Format("abstract type: {0} for {2}.{1}", elemType.Name, propInf.Name, this.Name));
-                childElement = (Element)Activator.CreateInstance(elemType, true);
+                if (elemType.IsAbstract) {
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "abstract type: {0} for {2}.{1}", elemType.Name, propInf.Name, this.Name));
+                }
+                childElement = (Element) Activator.CreateInstance(elemType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null , CultureInfo.InvariantCulture);
             }
 
             //initialize the object with context.
@@ -454,12 +460,13 @@ namespace SourceForge.NAnt {
 
             //call the set method if we created the object
             if(setter != null && getter == null) {
-                setter.Invoke(this,new object[] {childElement});
+                setter.Invoke(this, new object[] {childElement});
             }
             
             //return the new/used object
             return childElement;
         }
+
         #endregion Private Instance Methods
     }
 }
