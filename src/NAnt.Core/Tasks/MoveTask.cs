@@ -64,15 +64,6 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("move")]
     public class MoveTask : CopyTask {
-
-        
-        #region Private Instance Fields
-
-        FilterChain _moveFilterChain = null;
-
-        #endregion
-
-        
         #region Override implementation of CopyTask
 
         /// <summary>
@@ -128,9 +119,9 @@ namespace NAnt.Core.Tasks {
         /// as it is moved.
         /// </summary>
         [BuildElement("filterchain")]
-        public FilterChain MoveFilterChain {
-            get { return _moveFilterChain; }
-            set { _moveFilterChain = value; }
+        public override FilterChain Filters {
+            get { return base.Filters; }
+            set { base.Filters = value; }
         }
 
         /// <summary>
@@ -173,8 +164,7 @@ namespace NAnt.Core.Tasks {
                             }
                             
                             // move the file and apply filters
-                            FileUtils.MoveWithFilters(sourcePath, destinationPath, _moveFilterChain);
-
+                            FileUtils.MoveWithFilters(sourcePath, destinationPath, Filters, Encoding);
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
