@@ -31,7 +31,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
-[assembly: AssemblyConfiguration("net-1.0.win32; rc 1")]
+[assembly: AssemblyConfiguration("net-1.0.win32; rc 2")]
 [assembly: AssemblyCompany("http://nant.sourceforge.net")]
 [assembly: AssemblyProduct("NAnt")]
 [assembly: AssemblyCopyright("Copyright (C) 2001-2003 Gerry Shaw")]
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 // build number expressed in number of days since 1/1/2000
-[assembly: AssemblyVersion("0.84.1435.0")]
+[assembly: AssemblyVersion("0.84.1450.0")]
 [assembly: AssemblyInformationalVersion("0.84")]
