@@ -40,7 +40,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 try {
                     String result = this.RunBuild (_projectXML);
                     good = true;
-                } catch (Exception e) {
+                } catch (Exception) {
                     run++;
                 }
             }
