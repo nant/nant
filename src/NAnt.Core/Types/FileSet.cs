@@ -193,7 +193,7 @@ namespace NAnt.Core.Types {
                 }
             }        }
 
-        [BuildElementArray("includesList",typeof(IncludesElement))]
+        [BuildElementArray("includesList",typeof(IncludesListElement))]
         public IncludesListElement[] SetIncludesList {
             set {
                 foreach (IncludesListElement includeList in value){
