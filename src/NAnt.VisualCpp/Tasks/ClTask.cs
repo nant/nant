@@ -20,6 +20,7 @@
 // Ian MacLean (ian@maclean.ms)
 // Eric V. Smith (ericsmith@windsor.com)
 // Anthony LoveFrancisco (ants@fu.org)
+// Hani Atassi (haniatassi@users.sourceforge.net)
 //
 // TODO: review interface for future compatibility/customizations issues
 
@@ -34,6 +35,7 @@ using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.VisualCpp.Types;
+using NAnt.VisualCpp.Util;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
@@ -61,15 +63,17 @@ namespace NAnt.VisualCpp.Tasks {
         private string _responseFileName;
         private DirectoryInfo _outputDir;
         private string _pchFile;
-		private PrecompiledHeaderMode _precompileHeaderMode = PrecompiledHeaderMode.Use;
-		private string _pchThroughFile;
-		private FileSet _sources = new FileSet();
+        private PrecompiledHeaderMode _precompileHeaderMode = PrecompiledHeaderMode.Use;
+        private string _pchThroughFile;
+        private FileSet _sources = new FileSet();
         private FileSet _includeDirs = new FileSet();
         private FileSet _metaDataIncludeDirs = new FileSet();
         private FileSet _forcedUsingFiles = new FileSet();
         private bool _managedExtensions;
         private CharacterSet _characterSet = CharacterSet.NotSet;
         private string _options;
+        private OptionCollection _defines = new OptionCollection();
+        private OptionCollection _undefines = new OptionCollection();
 
         #endregion Private Instance Fields
 
@@ -95,35 +99,34 @@ namespace NAnt.VisualCpp.Tasks {
             set { _pchFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
-		
-		/// <summary>
-		/// The path of the boundary file when generating/using the 
-		/// specified <see cref="PchFile" />.  If a precompiled header file is
-		/// not specified then this attribute is ignored.
-		/// </summary>
-		[TaskAttribute("pchthroughfile")]
-		public string PchThroughFile {
-			get { return _pchThroughFile; }
-			set { _pchThroughFile = StringUtils.ConvertEmptyToNull(value); }
-		}
+        /// <summary>
+        /// The path of the boundary file when generating/using the 
+        /// specified <see cref="PchFile" />.  If a precompiled header file is
+        /// not specified then this attribute is ignored.
+        /// </summary>
+        [TaskAttribute("pchthroughfile")]
+        public string PchThroughFile {
+            get { return _pchThroughFile; }
+            set { _pchThroughFile = StringUtils.ConvertEmptyToNull(value); }
+        }
 
-		/// <summary>
-		/// The mode in which the specified <see cref="PchFile" /> (if any) is
-		/// used. The default is <see cref="PrecompiledHeaderMode.Use" />.
-		/// </summary>
-		[TaskAttribute("pchmode")]
-		public PrecompiledHeaderMode PchMode {
-			get { return _precompileHeaderMode; }
-			set { 
-				if (!Enum.IsDefined(typeof(PrecompiledHeaderMode), value)) {
-					throw new ArgumentException(string.Format(
-						CultureInfo.InvariantCulture, 
-						"An invalid type {0} was specified.", value)); 
-				} else {
-					_precompileHeaderMode = value;
-				}
-			}
-		}
+        /// <summary>
+        /// The mode in which the specified <see cref="PchFile" /> (if any) is
+        /// used. The default is <see cref="PrecompiledHeaderMode.Use" />.
+        /// </summary>
+        [TaskAttribute("pchmode")]
+        public PrecompiledHeaderMode PchMode {
+            get { return _precompileHeaderMode; }
+            set { 
+                if (!Enum.IsDefined(typeof(PrecompiledHeaderMode), value)) {
+                    throw new ArgumentException(string.Format(
+                        CultureInfo.InvariantCulture, 
+                        "An invalid type {0} was specified.", value)); 
+                } else {
+                    _precompileHeaderMode = value;
+                }
+            }
+        }
 
 
         /// <summary>
@@ -198,6 +201,23 @@ namespace NAnt.VisualCpp.Tasks {
         public FileSet ForcedUsingFiles {
             get { return _forcedUsingFiles; }
             set { _forcedUsingFiles = value; }
+        }
+
+        /// <summary>
+        /// Macro definitions to pass to cl.exe.
+        /// Each entry will generate a /D
+        /// </summary>
+        [BuildElementCollection("defines", "define")]
+        public OptionCollection Defines {
+            get { return _defines; }
+        }
+
+        /// <summary>
+        /// Macro undefines (/U) to pass to cl.exe.
+        /// </summary>
+        [BuildElementCollection("undefines", "undefine")]
+        public OptionCollection Undefines {
+            get { return _undefines; }
         }
 
         #endregion Public Instance Properties
@@ -302,9 +322,9 @@ namespace NAnt.VisualCpp.Tasks {
             return true;
         }
 
-         /// <summary>
-         /// Determines if the sources need compiling.
-         /// </summary>
+        /// <summary>
+        /// Determines if the sources need compiling.
+        /// </summary>
         protected virtual bool NeedsCompiling() {
             return !(IsPchfileUpToDate() && AreObjsUpToDate() && AreSourcesUpToDate());
         }
@@ -352,22 +372,36 @@ namespace NAnt.VisualCpp.Tasks {
                         writer.WriteLine("/clr");
                     }
 
+                    // write preprocesser define(s)
+                    foreach (Option define in _defines) {
+                        if (define.Value == null)  {
+                            writer.WriteLine("/D " + ArgumentUtils.DuplicateTrailingBackSlash(define.OptionName));
+                        } else {
+                            writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.DuplicateTrailingBackSlash(define.Value));
+                        }
+                    }
+
+                    // write preprocesser undefine(s)
+                    foreach (Option undefine in _undefines) {
+                        writer.WriteLine("/U " + ArgumentUtils.DuplicateTrailingBackSlash(undefine.OptionName));
+                    }
+
                     // write user provided include directories
                     foreach (string include in IncludeDirs.DirectoryNames) {
-                        writer.WriteLine("/I \"{0}\"", include);
+                        writer.WriteLine("/I \"{0}\"", ArgumentUtils.DuplicateTrailingBackSlash(include));
                     }
 
                     // write directories that the compiler will search to resolve 
                     // file references  passed to the #using directive
                     foreach (string metaDataIncludeDir in MetaDataIncludeDirs.DirectoryNames) {
-                        writer.WriteLine("/AI \"{0}\"", metaDataIncludeDir);
+                        writer.WriteLine("/AI \"{0}\"", ArgumentUtils.DuplicateTrailingBackSlash(metaDataIncludeDir));
                     }
 
                     // writes metadata files to reference in this compilation 
                     // as an alternative to passing a file name to #using in 
                     // source code
                     foreach (string forcedUsingFile in ForcedUsingFiles.FileNames) {
-                        writer.WriteLine("/FU \"{0}\"", forcedUsingFile);
+                        writer.WriteLine("/FU \"{0}\"", ArgumentUtils.DuplicateTrailingBackSlash(forcedUsingFile));
                     }
  
                     // specify output directories.  note that these need to end 
@@ -381,23 +415,23 @@ namespace NAnt.VisualCpp.Tasks {
 
                     // specify pch file, if user specified one
                     if (PchFile != null) {
-						writer.WriteLine("/Fp\"{0}\"", PchFile);
+                        writer.WriteLine("/Fp\"{0}\"", PchFile);
 
-						switch (PchMode) {
-							case PrecompiledHeaderMode.Use:
-								writer.Write("/Yu");
-								break;
-							case PrecompiledHeaderMode.Create:
-								writer.Write("/Yc");
-								break;
-							case PrecompiledHeaderMode.AutoCreate:
-								writer.Write("/YX");
-								break;
-						}
+                        switch (PchMode) {
+                            case PrecompiledHeaderMode.Use:
+                                writer.Write("/Yu");
+                                break;
+                            case PrecompiledHeaderMode.Create:
+                                writer.Write("/Yc");
+                                break;
+                            case PrecompiledHeaderMode.AutoCreate:
+                                writer.Write("/YX");
+                                break;
+                        }
 
-						if (PchThroughFile != null) {
-							writer.WriteLine("\"{0}\"", PchThroughFile);
-						}
+                        if (PchThroughFile != null) {
+                            writer.WriteLine("\"{0}\"", PchThroughFile);
+                        }
                     }
 
                     // write each of the filenames
@@ -437,44 +471,44 @@ namespace NAnt.VisualCpp.Tasks {
                     writer.Close(); // make sure stream is closed or file cannot be deleted
                     File.Delete(_responseFileName);
                     _responseFileName = null;
-               }
-           }
+                }
+            }
         }
 
         #endregion Override implementation of Task
 
-		/// <summary>
-		/// Defines the supported modes for the use of precompiled header files.
-		/// </summary>
-		public enum PrecompiledHeaderMode : int {
+        /// <summary>
+        /// Defines the supported modes for the use of precompiled header files.
+        /// </summary>
+        public enum PrecompiledHeaderMode : int {
 
-			/// <summary>
-			/// Create a precompiled header file.
-			/// </summary>
-			/// <remarks>
-			/// For further information on the use of this option
-			/// see the Microsoft documentation on the C++ compiler flag /Yc.
-			/// </remarks>
-			Create = 1,
+            /// <summary>
+            /// Create a precompiled header file.
+            /// </summary>
+            /// <remarks>
+            /// For further information on the use of this option
+            /// see the Microsoft documentation on the C++ compiler flag /Yc.
+            /// </remarks>
+            Create = 1,
 
-			/// <summary>
-			/// Automatically create a precompiled header file if necessary.
-			/// </summary>
-			/// <remarks>
-			/// For further information on the use of this option
-			/// see the Microsoft documentation on the C++ compiler flag /YX.
-			/// </remarks>
-			AutoCreate = 2,
+            /// <summary>
+            /// Automatically create a precompiled header file if necessary.
+            /// </summary>
+            /// <remarks>
+            /// For further information on the use of this option
+            /// see the Microsoft documentation on the C++ compiler flag /YX.
+            /// </remarks>
+            AutoCreate = 2,
 
-			/// <summary>
-			/// Use a (previously generated) precompiled header file.
-			/// </summary>
-			/// <remarks>
-			/// For further information on the use of this option
-			/// see the Microsoft documentation on the C++ compiler flag /Yu.
-			/// </remarks>
-			Use = 0,
-		}
+            /// <summary>
+            /// Use a (previously generated) precompiled header file.
+            /// </summary>
+            /// <remarks>
+            /// For further information on the use of this option
+            /// see the Microsoft documentation on the C++ compiler flag /Yu.
+            /// </remarks>
+            Use = 0,
+        }
     }
 }
 #if unused

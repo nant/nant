@@ -18,17 +18,21 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean ( ian@maclean.ms )
 // Eric V. Smith (ericsmith@windsor.com)
+// Hani Atassi (haniatassi@users.sourceforge.net)
 
 // TODO: review interface for future compatibility/customizations issues
 
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+
+using NAnt.VisualCpp.Util;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
@@ -61,7 +65,10 @@ namespace NAnt.VisualCpp.Tasks {
 
         private FileInfo _outputFile;
         private string _options;
+        private int _langId = 0;
         private FileInfo _rcFile;
+        private FileSet _includeDirs = new FileSet();
+        private OptionCollection _defines = new OptionCollection();
 
         #endregion Private Instance Fields
 
@@ -94,6 +101,33 @@ namespace NAnt.VisualCpp.Tasks {
             set { _rcFile = value; }
         }
 
+        /// <summary>
+        /// Default language ID.
+        /// </summary>
+        [TaskAttribute("langid", Required=false)]
+        public int LangId {
+            get { return _langId; }
+            set { _langId = value; }
+        }
+
+        /// <summary>
+        /// The list of directories in which to search for include files.
+        /// </summary>
+        [BuildElement("includedirs")]
+        public FileSet IncludeDirs {
+            get { return _includeDirs; }
+            set { _includeDirs = value; }
+        }
+
+        /// <summary>
+        /// Macro definitions to pass to rc.exe.
+        /// Each entry will generate a /d
+        /// </summary>
+        [BuildElementCollection("defines", "define")]
+        public OptionCollection Defines {
+            get { return _defines; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
@@ -110,23 +144,41 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         public override string ProgramArguments {
             get {
-                string str = "";
+                StringBuilder str = new StringBuilder();
 
                 if (Verbose) {
-                    str += "/v ";
+                    str.Append("/v ");
                 }
 
                 if (OutputFile != null) {
-                    str += string.Format(CultureInfo.InvariantCulture, 
+                    str.AppendFormat(CultureInfo.InvariantCulture, 
                         "/fo\"{0}\" ", OutputFile.FullName);
                 }
 
                 if (Options != null) {
-                    str += string.Format(CultureInfo.InvariantCulture,
+                    str.AppendFormat(CultureInfo.InvariantCulture,
                         "{0} ", Options);
                 }
+
+                if (LangId != 0) {
+                    str.AppendFormat("/l 0x{0:X} ", LangId);
+                }
+
+                // append user provided include directories
+                foreach (string include in IncludeDirs.DirectoryNames) {
+                    str.AppendFormat("/i \"{0}\" ", ArgumentUtils.DuplicateTrailingBackSlash(include));
+                }
+
+                // append user definitions
+                foreach (Option define in _defines) {
+                    if (define.Value == null) {
+                        str.AppendFormat("/d {0} ", ArgumentUtils.DuplicateTrailingBackSlash(define.OptionName));
+                    } else {
+                        str.AppendFormat("/d {0}={1} ", define.OptionName, ArgumentUtils.DuplicateTrailingBackSlash(define.Value));
+                    }
+                }
                 
-                str += string.Format(CultureInfo.InvariantCulture,
+                str.AppendFormat(CultureInfo.InvariantCulture,
                         "\"{0}\" ", RcFile.FullName);
 
                 return str.ToString();
@@ -137,7 +189,13 @@ namespace NAnt.VisualCpp.Tasks {
         /// Compile the resource file
         /// </summary>
         protected override void ExecuteTask() {
-            if (NeedsCompiling()) {
+
+            if (IncludeDirs.BaseDirectory == null) {
+                IncludeDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
+            if (NeedsCompiling()) 
+            {
                 string message = string.Format(CultureInfo.InvariantCulture, 
                     "Compiling '{0}'", RcFile.FullName);
 

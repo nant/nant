@@ -604,8 +604,9 @@ namespace NAnt.VSNet {
             if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     if (def.Length != 0) {
-                        clTask.Arguments.Add(new Argument("/D"));
-                        clTask.Arguments.Add(new Argument(def));
+                        Option op = new Option();
+                        op.OptionName = def;
+                        clTask.Defines.Add(op);
                     }
                 }
             }
@@ -613,11 +614,11 @@ namespace NAnt.VSNet {
             string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
             if (!StringUtils.IsNullOrEmpty(undefinePreprocessorDefs)) { 
                 foreach (string def in undefinePreprocessorDefs.Split(';', ',')) { 
-                    clTask.Arguments.Add(new Argument("/U"));
-                    clTask.Arguments.Add(new Argument(def));
+                    Option op = new Option();
+                    op.OptionName = def;
+                    clTask.Defines.Add(op);
                 }
             }
-
 
             string addOptions = baseConfig.GetToolSetting(compilerTool, "AdditionalOptions");
             if (addOptions != null) {
@@ -726,6 +727,18 @@ namespace NAnt.VSNet {
             // make sure framework specific information is set
             rcTask.InitializeTaskConfiguration();
 
+            // set parent of child elements
+            rcTask.IncludeDirs.Parent = rcTask;
+
+            // inherit project from solution task for child elements
+            rcTask.IncludeDirs.Project = rcTask.Project;
+
+            // set namespace manager of child elements
+            rcTask.IncludeDirs.NamespaceManager = rcTask.NamespaceManager;
+
+            // set base directories
+            rcTask.IncludeDirs.BaseDirectory = fileConfig.ProjectDir;
+
             // Store the options to pass to the resource compiler in the options variable
             StringBuilder options = new StringBuilder();
 
@@ -739,7 +752,7 @@ namespace NAnt.VSNet {
             string culture = fileConfig.GetToolSetting(compilerTool, "Culture");
             if (culture != null) {
                 int cultureId = Convert.ToInt32(culture);
-                options.AppendFormat("/l 0x{0:X} ", cultureId);
+                rcTask.LangId = cultureId;
             }
 
             string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
@@ -748,13 +761,15 @@ namespace NAnt.VSNet {
                     if (preprocessorDef.Length == 0) {
                         continue;
                     }
-                    options.AppendFormat("/d \"{0}\" ", preprocessorDef);
+                    Option op = new Option();
+                    op.OptionName = preprocessorDef;
+                    rcTask.Defines.Add(op);
                 }
             }
 
             string showProgress = fileConfig.GetToolSetting(compilerTool, "ShowProgress");
             if (showProgress != null && showProgress.ToUpper().Equals("TRUE")) {
-                options.Append("/v ");
+                rcTask.Verbose = true;
             }
 
             string addIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
@@ -763,7 +778,7 @@ namespace NAnt.VSNet {
                     if (addIncludeDir.Length == 0) {
                         continue;
                     }
-                    options.AppendFormat("/I \"{0}\" ", addIncludeDir);
+                    rcTask.IncludeDirs.DirectoryNames.Add(CleanPath(addIncludeDir));
                 }
             }
 
@@ -820,6 +835,18 @@ namespace NAnt.VSNet {
 
             // make sure framework specific information is set
             midlTask.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            midlTask.IncludeDirs.Parent = midlTask;
+
+            // inherit project from solution task for child elements
+            midlTask.IncludeDirs.Project = midlTask.Project;
+
+            // set namespace manager of child elements
+            midlTask.IncludeDirs.NamespaceManager = midlTask.NamespaceManager;
+
+            // set base directories
+            midlTask.IncludeDirs.BaseDirectory = fileConfig.ProjectDir;
 
             // If outputDirectory is not supplied in the configuration, assume 
             // it's the project directory
@@ -897,9 +924,8 @@ namespace NAnt.VSNet {
                     if (additionalIncludeDir.Length == 0) {
                         continue;
                     }
-                    midlTask.Arguments.Add(new Argument("/I"));
-                    midlTask.Arguments.Add(new Argument(additionalIncludeDir));
-                }            
+                    midlTask.IncludeDirs.DirectoryNames.Add(CleanPath(additionalIncludeDir));
+                }
             }
 
             string cPreprocessOptions = fileConfig.GetToolSetting(compilerTool, "CPreprocessOptions");

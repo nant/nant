@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // original author unknown
 // Ian MacLean (ian_maclean@another.com)
+// Hani Atassi (haniatassi@users.sourceforge.net)
 
 using System;
 using System.IO;
@@ -25,6 +26,8 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+
+using NAnt.VisualCpp.Util;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
@@ -85,6 +88,7 @@ namespace NAnt.VisualCpp.Tasks {
         private OptionCollection _options = new OptionCollection();
         private OptionCollection _defines = new OptionCollection();
         private OptionCollection _undefines = new OptionCollection();
+        private FileSet _includeDirs = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -280,6 +284,15 @@ namespace NAnt.VisualCpp.Tasks {
             get { return _undefines; }
         }
 
+        /// <summary>
+        /// The list of directories in which to search for include files.
+        /// </summary>
+        [BuildElement("includedirs")]
+        public FileSet IncludeDirs {
+            get { return _includeDirs; }
+            set { _includeDirs = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
@@ -305,6 +318,11 @@ namespace NAnt.VisualCpp.Tasks {
         /// This is where the work is done.
         /// </summary>
         protected override void ExecuteTask() {
+
+            if (IncludeDirs.BaseDirectory == null) {
+                IncludeDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (NeedsCompiling()) {
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
@@ -419,16 +437,16 @@ namespace NAnt.VisualCpp.Tasks {
             foreach (Option define in _defines) {
                 if (IfDefined && !UnlessDefined) {
                     if (define.Value == null) {
-                        writer.WriteLine("/D " + define.OptionName);
+                        writer.WriteLine("/D " + ArgumentUtils.FixTrailingBackSlash(define.OptionName));
                     } else {
-                        writer.WriteLine("/D " + define.OptionName + "=" + define.Value);
+                        writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.FixTrailingBackSlash(define.Value));
                     }
                 }
             }
 
             foreach (Option undefine in _undefines) {
                 if (IfDefined && !UnlessDefined) {
-                    writer.WriteLine("/U " + undefine.OptionName);
+                    writer.WriteLine("/U " + ArgumentUtils.FixTrailingBackSlash(undefine.OptionName));
                 }
             }
 
@@ -440,6 +458,11 @@ namespace NAnt.VisualCpp.Tasks {
                         writer.WriteLine(option.OptionName + " " + option.Value);
                     }
                 }
+            }
+
+            // append user provided include directories
+            foreach (string include in IncludeDirs.DirectoryNames) {
+                writer.WriteLine("/I \"{0}\"", ArgumentUtils.CleanTrailingBackSlash(include));
             }
 
             writer.WriteLine("\"{0}\"", Filename.FullName);
