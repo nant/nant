@@ -45,7 +45,7 @@ namespace NAnt.Core {
                 }
             }
             set {
-                if (!_readOnlyProperties.Contains(name)) {
+                if (!IsReadOnlyProperty(name)) {
                     Dictionary[name] = value;
                 } 
                 /* // tomasr: Should this throw an error? I think so
@@ -70,7 +70,7 @@ namespace NAnt.Core {
         /// they are removed if the <see cref="DictionaryBase.Clear" /> method is called.
         /// </remarks>
         public virtual void AddReadOnly(string name, string value) {
-            if (!_readOnlyProperties.Contains(name)) {
+            if (!IsReadOnlyProperty(name)) {
                 _readOnlyProperties.Add(name);
                 Dictionary.Add(name, value);
             }
@@ -82,7 +82,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="name">The name of the property to mark as dynamic.</param>
         public virtual void MarkDynamic(string name) {
-            if (!_dynamicProperties.Contains(name)) {
+            if (!IsDynamicProperty(name)) {
                 _dynamicProperties.Add(name);
             }
         }
@@ -93,7 +93,7 @@ namespace NAnt.Core {
         /// <param name="name">The name of the property.</param>
         /// <param name="value">The value to assign to the property.</param>
         public virtual void Add(string name, string value) {
-            if (!_readOnlyProperties.Contains(name)) {
+            if (!IsReadOnlyProperty(name)) {
                 Dictionary.Add(name, value);
             }
         }
@@ -107,7 +107,7 @@ namespace NAnt.Core {
         /// For read-only properties, the value will not be changed.
         /// </remarks>
         public virtual void SetValue(string name, string value) {
-            if (!_readOnlyProperties.Contains(name)) {
+            if (!IsReadOnlyProperty(name)) {
                 Dictionary[name] = value;
             } 
         }
@@ -143,17 +143,29 @@ namespace NAnt.Core {
         /// <param name="excludes">The list of properties to exclude during inheritance.</param>
         public virtual void Inherit(PropertyDictionary source, StringCollection excludes) {
             foreach (DictionaryEntry entry in source.Dictionary) {
-                if (excludes != null && excludes.Contains((string) entry.Key)) {
+                string propertyName = (string) entry.Key;
+
+                if (excludes != null && excludes.Contains(propertyName)) {
                     continue;
                 }
 
-                Dictionary[entry.Key] = entry.Value;
-                if (source.IsReadOnlyProperty((string) entry.Key)) {
-                    _readOnlyProperties.Add((string) entry.Key);
+                // do not overwrite an existing read-only property
+                if (IsReadOnlyProperty(propertyName)) {
+                    continue;
                 }
 
-                if (source.IsDynamicProperty((string) entry.Key)) {
-                    _dynamicProperties.Add((string) entry.Key);
+                // add property to dictionary
+                Dictionary[propertyName] = entry.Value;
+
+                // if property is readonly, add to collection of readonly properties
+                if (source.IsReadOnlyProperty(propertyName)) {
+                    _readOnlyProperties.Add(propertyName);
+                }
+
+                // if property is dynamic, add to collection of dynamic properties
+                // if it was not already in that collection
+                if (source.IsDynamicProperty(propertyName) && !IsDynamicProperty(propertyName)) {
+                    _dynamicProperties.Add(propertyName);
                 }
             }
         }
