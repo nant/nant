@@ -21,6 +21,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -28,12 +29,14 @@ namespace NAnt.Core {
     /// <summary>
     /// Used to wrap log messages in xml &lt;message/&gt; elements.
     /// </summary>
-    public class XmlLogger : IBuildLogger {
+    [Serializable()]
+    public class XmlLogger : IBuildLogger, ISerializable {
         #region Private Instance Fields
 
         private TextWriter _writer = Console.Out;
-        private XmlTextWriter _xmlWriter = new XmlTextWriter(Console.Out);
         private Level _threshold = Level.Info;
+        [NonSerialized()]
+        private XmlTextWriter _xmlWriter;
 
         #endregion Private Instance Fields
 
@@ -43,9 +46,41 @@ namespace NAnt.Core {
         /// Initializes a new instance of the <see cref="XmlLogger" /> class.
         /// </summary>
         public XmlLogger() {
+            _xmlWriter = new XmlTextWriter(_writer);
         }
 
         #endregion Public Instance Constructors
+
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XmlLogger" /> class 
+        /// with serialized data.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data.</param>
+        /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
+        protected XmlLogger(SerializationInfo info, StreamingContext context) {
+            _writer = info.GetValue("Writer", typeof(TextWriter)) as TextWriter;
+            _threshold = (Level) info.GetValue("Threshold", typeof(Level));
+            _xmlWriter = new XmlTextWriter(_writer);
+        }
+
+        #endregion Protected Instance Constructors
+
+        #region Implementation of ISerializable
+
+        /// <summary>
+        /// Populates <paramref name="info" /> with the data needed to serialize 
+        /// the <see cref="XmlLogger" /> instance.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo" /> to populate with data.</param>
+        /// <param name="context">The destination for this serialization.</param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            info.AddValue("Writer", _writer);
+            info.AddValue("Threshold", _threshold);
+        }
+
+        #endregion Implementation of ISerializable
 
         #region Override implementation of Object
 
@@ -215,7 +250,7 @@ namespace NAnt.Core {
             Regex r = new Regex(@"(?ms)^\s*?\[[\s\w\d]+\](.+)");
 
             Match m = r.Match(message);
-            if(m.Success) {
+            if (m.Success) {
                 return m.Groups[1].Captures[0].Value.Trim();
             }
             return message;
@@ -234,10 +269,11 @@ namespace NAnt.Core {
             if (Regex.Match(message, @"^<.*>").Success) {
                 // validate xml
                 XmlValidatingReader reader = new XmlValidatingReader(message, XmlNodeType.Element, null);
+
                 try { 
                     while (reader.Read()) {
                     } 
-                } catch (Exception) { 
+                } catch { 
                     return false; 
                 } finally { 
                     reader.Close(); 
