@@ -46,10 +46,10 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         /// <summary>
-        /// Holds a value indicating whether a scan for tasks has already been 
-        /// performed on the configured task path.
+        /// Holds a value indicating whether a scan for extensions has already 
+        /// been performed for the current runtime framework.
         /// </summary>
-        private static bool ScannedTaskPath = false;
+        private static bool ScannedExtensions = false;
 
         /// <summary>
         /// Holds the logger instance for this class.
@@ -88,7 +88,7 @@ namespace NAnt.Core {
         #region Private Instance Properties
 
         private PropertyDictionary Properties {
-            get { return Project.Properties;}	
+            get { return Project.Properties; }
         }
 
         #endregion Private Instance Properties
@@ -103,51 +103,35 @@ namespace NAnt.Core {
             logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
 
             if (nantNode == null) { 
-                // todo pull a settings file out of the assembly resource and copy to that location
-                Project.Log(Level.Warning, "NAnt settings not found. Defaulting to no known framework.");
-                logger.Info("NAnt settings not found. Defaulting to no known framework.");
-                return;
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The NAnt configuration settings in file '{0}' could not be" +
+                    " located.  Please ensure this file is available and contains" 
+                    + " a 'nant' settings node."));
             }
 
             // process the framework-neutral properties
             ProcessFrameworkNeutralProperties(nantNode.SelectNodes("frameworks/properties/property"));
 
-            // process the defined frameworks
-            ProcessFrameworks(nantNode.SelectNodes("frameworks/platform[@name='" + Project.PlatformName + "']/framework"));
+            // process the framework nodes of the current platform
+            ProcessFrameworks(nantNode.SelectSingleNode("frameworks/platform[@name='" + Project.PlatformName + "']"));
 
-            // determine default framework
-            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode(
-                "frameworks/platform[@name='" + Project.PlatformName + "']"), 
-                "default");
-
-            if (defaultFramework != null && Project.FrameworkInfoDictionary.ContainsKey(defaultFramework)) {
-                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
-                Properties.Add("nant.settings.currentframework", defaultFramework);
-                Project.DefaultFramework = Project.FrameworkInfoDictionary[defaultFramework];
-                Project.CurrentFramework = Project.DefaultFramework;
-            } else {
-                Project.Log(Level.Warning, "Framework '{0}' does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
-            }
-
-            // get taskpath setting to load external tasks and types from
-            string taskPath = GetXmlAttributeValue(nantNode, "taskpath");
-
-            if (taskPath != null && ScannedTaskPath == false) {
-                string[] paths = taskPath.Split(';');
-
-                foreach (string path in paths) {
-                    string fullpath = path;
-
-                    if (!Directory.Exists(path)) {
-                        // try relative path 
-                        fullpath = Path.GetFullPath(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path));
-                    }
-
-                    TypeFactory.ScanDir(fullpath);
+            // only scan the extension assemblies for the runtime framework once
+            if (!ScannedExtensions) {
+                foreach (string extensionAssembly in Project.RuntimeFramework.Extensions.FileNames) {
+                    TypeFactory.ScanAssembly(extensionAssembly);
                 }
 
-                ScannedTaskPath = true; // so we only load tasks once 
+                foreach (string extensionDir in Project.RuntimeFramework.Extensions.DirectoryNames) {
+                    TypeFactory.ScanDir(extensionDir);
+                }
+
+                // ensure we don't scan the extension assemblies for the current
+                // runtime framework again
+                ScannedExtensions = true;
             }
+
+            // TO-DO : should we rename the <loadtasks> task to <load-extensions>
+            // and have it scan not only for tasks but also for types and functions ?
 
             // process global properties
             ProcessGlobalProperties(nantNode.SelectNodes("properties/property"));
@@ -213,24 +197,33 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Processes the framework nodes.
+        /// Processes the framework nodes of the given platform node.
         /// </summary>
-        /// <param name="frameworkNodes">An <see cref="XmlNodeList" /> representing supported frameworks.</param>
-        private void ProcessFrameworks(XmlNodeList frameworkNodes) {
-            //deals with xml info from the config file, not build document.
-            foreach (XmlNode frameworkNode in frameworkNodes) {
-                //skip special elements like comments, pis, text, etc.
+        /// <param name="platformNode">An <see cref="XmlNode" /> representing the platform on which NAnt is running.</param>
+        private void ProcessFrameworks(XmlNode platformNode) {
+            // determine the framework family name
+            string frameworkFamily = PlatformHelper.IsMono ? "mono" : "net";
+            // determine the version of the current runtime framework
+            string frameworkVersion = Environment.Version.ToString(3);
+            // determine default targetframework
+            string defaultTargetFramework = GetXmlAttributeValue(platformNode, "default");
+
+            // deals with xml info from the config file, not build document.
+            foreach (XmlNode frameworkNode in platformNode.SelectNodes("framework")) {
+                // skip special elements like comments, pis, text, etc.
                 if (!(frameworkNode.NodeType == XmlNodeType.Element)) {
                     continue;
                 }
 
                 string name = null;
+                bool isRuntimeFramework = false;
 
                 try {
                     // get framework attributes
                     name = GetXmlAttributeValue(frameworkNode, "name");
 
                     string description = GetXmlAttributeValue(frameworkNode, "description");
+                    string family = GetXmlAttributeValue(frameworkNode, "family");
                     string version = GetXmlAttributeValue(frameworkNode, "version");
                     string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
                     string frameworkDir = GetXmlAttributeValue(frameworkNode, "frameworkdirectory");
@@ -243,9 +236,30 @@ namespace NAnt.Core {
                     // process framework property nodes
                     PropertyDictionary frameworkProperties = ProcessFrameworkProperties(propertyNodes);
 
+                    // expanded properties in framework attribute values
+                    name = frameworkProperties.ExpandProperties(name, Location.UnknownLocation);
+                    description = frameworkProperties.ExpandProperties(description, Location.UnknownLocation);
+                    version = frameworkProperties.ExpandProperties(version, Location.UnknownLocation);
+                    frameworkDir = frameworkProperties.ExpandProperties(frameworkDir, Location.UnknownLocation);
+                    frameworkAssemblyDir = frameworkProperties.ExpandProperties(frameworkAssemblyDir, Location.UnknownLocation);
+
+                    try {
+                        sdkDir = frameworkProperties.ExpandProperties(sdkDir, Location.UnknownLocation);
+                    } catch (BuildException) {
+                        // do nothing with this exception as a framework is still
+                        // considered valid if the sdk directory is not available
+                        // or not configured correctly
+                    }
+
+                    // check if we're processing the current runtime framework
+                    if (family == frameworkFamily && version == frameworkVersion) {
+                        isRuntimeFramework = true;
+                    }
+
                     // create new FrameworkInfo instance, this will throw an
                     // an exception if the framework is not valid
                     FrameworkInfo info = new FrameworkInfo(name, 
+                        family,
                         description, 
                         version, 
                         frameworkDir, 
@@ -272,13 +286,49 @@ namespace NAnt.Core {
 
                     // framework is valid, so add it to framework dictionary
                     Project.FrameworkInfoDictionary.Add(info.Name, info);
-                } catch (Exception ex) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, 
-                        "Framework {0} is invalid and has not been loaded : {1}", 
-                        name, ex.Message);
 
-                    Project.Log(Level.Verbose, msg);
-                    logger.Info(msg, ex);
+                    if (isRuntimeFramework) {
+                        // framework matches current runtime, so set it as 
+                        // current target framework
+                        Project.RuntimeFramework = Project.TargetFramework = info;
+                    }
+                } catch (Exception ex) {
+                    if (isRuntimeFramework) {
+                        // current runtime framework is not correctly configured
+                        // in NAnt configuration file
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "The current runtime framework '{0}' is not correctly" 
+                            + " configured in the NAnt configuration file.", 
+                            name, ex));
+                    } else {
+                        if (name != null && name == defaultTargetFramework) {
+                            Project.Log(Level.Warning, "The default targetframework" +
+                                " '{0}' is invalid and has not been loaded : {1}", 
+                                name, ex.Message);
+                        } else {
+                            Project.Log(Level.Verbose, "Framework '{0}' is invalid" 
+                                + " and has not been loaded : {1}", name, ex.Message);
+                        }
+                    }
+                }
+            }
+
+            if (Project.RuntimeFramework == null) {
+                // information about the current runtime framework should
+                // be added to the NAnt configuration file
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "The NAnt configuration file does not contain a framework" 
+                    + " definition for the current runtime framework (family '{0}'" 
+                    + ", version '{1}').", frameworkFamily, frameworkVersion));
+            }
+
+            if (defaultTargetFramework != null && defaultTargetFramework != "auto") {
+                if (Project.FrameworkInfoDictionary.ContainsKey(defaultTargetFramework)) {
+                    Project.TargetFramework = Project.FrameworkInfoDictionary[defaultTargetFramework];
+                } else {
+                    Project.Log(Level.Warning, "The default targetframework" +
+                        " '{0}' is not valid. Defaulting to the runtime framework" 
+                        + " ({1}).", Project.RuntimeFramework.Name);
                 }
             }
         }

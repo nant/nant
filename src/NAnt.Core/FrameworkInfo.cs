@@ -34,6 +34,7 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private readonly string _name;
+        private readonly string _family;
         private readonly string _description;
         private readonly string _version;
         private readonly DirectoryInfo _frameworkDirectory;
@@ -54,6 +55,7 @@ namespace NAnt.Core {
         /// and properties.
         /// </summary>
         /// <param name="name">The name of the framework.</param>
+        /// <param name="family">The family of the framework.</param>
         /// <param name="description">The description of the framework.</param>
         /// <param name="version">The version number of the framework.</param>
         /// <param name="frameworkDir">The directory of the framework.</param>
@@ -61,20 +63,27 @@ namespace NAnt.Core {
         /// <param name="frameworkAssemblyDir">The directory containing the system assemblies for the framework.</param>
         /// <param name="runtimeEngine">The name of the runtime engine, if required.</param>
         /// <param name="properties">Collection of framework specific properties.</param>
-        public FrameworkInfo(string name, string description, string version, 
+        public FrameworkInfo(string name, string family, string description, string version, 
             string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
             string runtimeEngine, PropertyDictionary properties) {
 
             _extensions = new FileSet();
             _extensions.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 
+            _family = family;
+            _description = description;
+
             if (name == null) {
                 throw new ArgumentNullException("name", "Framework name not configured.");
+            } else {
+                _name = name;
             }
 
             if (version == null) {
                 throw new ArgumentNullException("version", string.Format(
                     CultureInfo.InvariantCulture, "Version not configured for framework '{0}'.", name));
+            } else {
+                _version = version;
             }
 
             if (frameworkDir == null) {
@@ -90,24 +99,18 @@ namespace NAnt.Core {
             if (properties == null) {
                 throw new ArgumentNullException("properties", string.Format(
                     CultureInfo.InvariantCulture, "Framework properties not configured for framework '{0}'.", name));
+            } else {
+                _properties = properties;
             }
 
-            _name = properties.ExpandProperties(name, Location.UnknownLocation);
-            _description = properties.ExpandProperties(description, Location.UnknownLocation);
-            _version = properties.ExpandProperties(version, Location.UnknownLocation);
-            _properties = properties;
-
-            frameworkDir = properties.ExpandProperties(frameworkDir, Location.UnknownLocation);
             // ensure the framework directory exists
             if (Directory.Exists(frameworkDir)) {
                 _frameworkDirectory = new DirectoryInfo(frameworkDir);
-
             } else {
                 throw new ArgumentException(string.Format(
                     CultureInfo.InvariantCulture, "Framework directory '{0}' does not exist.", frameworkDir));
             }
 
-            frameworkAssemblyDir = properties.ExpandProperties(frameworkAssemblyDir, (Location) null);
             // ensure the framework assembly directory exists
             if (Directory.Exists(frameworkAssemblyDir)) {
                 _frameworkAssemblyDirectory = new DirectoryInfo(frameworkAssemblyDir);
@@ -124,15 +127,10 @@ namespace NAnt.Core {
                     CultureInfo.InvariantCulture, "Framework assembly directory '{0}' does not exist.", frameworkAssemblyDir));
             }
 
-            try {
-                sdkDir = properties.ExpandProperties(sdkDir, Location.UnknownLocation);
-                if (sdkDir != null && Directory.Exists(sdkDir)) {
-                    _sdkDirectory = new DirectoryInfo(sdkDir);
-                }
-            } catch (BuildException) {
-                // do nothing with this exception as a framework is still
-                // considered valid if the sdk directory is not available
-                // or not configured correctly
+            // the sdk directory does not actually have to exist for a framework
+            // to be considered valid
+            if (sdkDir != null && Directory.Exists(sdkDir)) {
+                _sdkDirectory = new DirectoryInfo(sdkDir);
             }
 
             // if runtime engine is blank assume we aren't using one
@@ -157,6 +155,16 @@ namespace NAnt.Core {
         /// <value>The name of the framework.</value>
         public string Name {
             get { return _name; }
+        }
+
+        /// <summary>
+        /// Gets the family of the framework.
+        /// </summary>
+        /// <value>
+        /// The family of the framework.
+        /// </value>
+        public string Family {
+            get { return _family; }
         }
 
         /// <summary>
@@ -225,7 +233,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the properties defined for this framework.
         /// </summary>
-        /// <value>The properties defined for this framework.</value>
+        /// <value>
+        /// The properties defined for this framework.
+        /// </value>
         /// <remarks>
         /// <para>
         /// This is the collection of properties for this framework in the 
