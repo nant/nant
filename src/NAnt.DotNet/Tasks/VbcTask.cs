@@ -39,25 +39,25 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <project name="Hello World" default="build" basedir=".">
     ///   <property name="basename" value="HelloWorld" />
-    ///   <property name="debug" value="true" />
     ///   <target name="clean">
     ///      <delete file="${basename}-vb.exe" failonerror="false" />
     ///      <delete file="${basename}-vb.pdb" failonerror="false" />
     ///   </target>
     ///   <target name="build">
-    ///      <vbc target="exe" output="${basename}-vb.exe">
+    ///      <vbc target="exe" output="${basename}-vb.exe" rootnamespace="${basename}">
     ///         <sources>
     ///            <include name="${basename}.vb" />
     ///         </sources>
+    ///         <resources dynamicprefix="true">
+    ///             <include name="**/*.resx" />
+    ///         </resources>
+    ///         <references>
+    ///             <include name="System.dll" />
+    ///             <include name="System.Data.dll" />
+    ///         </references>
     ///      </vbc>
     ///   </target>
-    ///   <target name="debug" depends="clean">
-    ///      <vbc target="exe" output="${basename}-vb.exe" debug="${debug}">
-    ///         <sources>
-    ///            <include name="${basename}.vb" />
-    ///         </sources>
-    ///      </vbc>
-    ///   </target>
+    ///   <target name="rebuild" depends="clean, build" />
     /// </project>
     ///    ]]>
     ///   </code>

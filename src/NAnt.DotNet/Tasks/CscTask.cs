@@ -39,14 +39,17 @@ namespace NAnt.DotNet.Tasks {
     ///   <para>Compile <c>helloworld.cs</c> to <c>helloworld.exe</c>.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <csc target="exe" output="helloworld.exe" debug="true">
+    /// <csc target="exe" output="HelloWorld.exe" debug="true">
     ///     <nowarn>
     ///         <!-- do not report warnings for missing XML comments -->
     ///         <warning number="0519" />
     ///     </nowarn>
     ///     <sources>
-    ///         <include name="helloworld.cs" />
+    ///         <include name="**/*.cs" />
     ///     </sources>
+    ///     <resources dynamicprefix="true" prefix="HelloWorld">
+    ///         <include name="**/*.resx" />
+    ///     </resources>
     ///     <references>
     ///         <include name="System.dll" />
     ///         <include name="System.Data.dll" />
