@@ -141,7 +141,7 @@ namespace NAnt.Core.Tasks {
             foreach (string assemblyPath in TaskFileSet.FileNames) {
                 Log(Level.Info, LogPrefix + "Loading tasks from assembly '{0}'.", 
                     assemblyPath);
-                TypeFactory.AddTasks(Assembly.LoadFrom(assemblyPath));
+                TypeFactory.ScanAssembly(assemblyPath);
             }
             // now the filenames
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
