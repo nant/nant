@@ -244,6 +244,29 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of CompilerBase
 
         /// <summary>
+        /// Reference packages 
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the Visual J#
+        /// compiler does not support package references.
+        /// </remarks>
+        public override PackageCollection Packages {
+            get { return base.Packages; }
+            set { base.Packages = value; }
+        }
+
+        /// <summary>
+        /// Writes package references to the specified <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the package references should be written.</param>
+        protected override void WritePackageReferences(TextWriter writer) {
+            if (Packages.Count > 0) {
+                Log(Level.Warning, LogPrefix + "The Visual J# compiler does not" 
+                    + " support package references.");
+            }
+        }
+
+        /// <summary>
         /// Link the specified modules into this assembly.
         /// </summary>
         /// <remarks>
@@ -261,7 +284,8 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
         protected override void WriteModuleReferences(TextWriter writer) {
             if (Modules.FileNames.Count > 0) {
-                Log(Level.Warning, "The Visual J# compiler does not support linking modules.");
+                Log(Level.Warning, LogPrefix + "The Visual J# compiler does not" 
+                    + " support linking modules.");
             }
         }
 
@@ -348,6 +372,19 @@ namespace NAnt.DotNet.Tasks {
         /// </value>
         protected override Regex NamespaceRegex {
             get { return _namespaceRegex; }
+        }
+
+        /// <summary>
+        /// Override to avoid exposing the configuration setting for this
+        /// task as Visual J# will never support package references.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />, as the Visual J# compiler will never
+        /// support package references.
+        /// </value>
+        public override bool SupportsPackageReferences {
+            get { return false; }
+            set { }
         }
 
         #endregion Override implementation of CompilerBase

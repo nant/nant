@@ -55,6 +55,10 @@ namespace NAnt.DotNet.Tasks {
         private AssemblyFileSet _modules = new AssemblyFileSet();
         private FileSet _sources = new FileSet();
         private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
+        private PackageCollection _packages = new PackageCollection();
+
+        // framework configuration settings
+        private bool _supportsPackageReferences;
 
         #endregion Private Instance Fields
 
@@ -239,6 +243,15 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Reference packages 
+        /// </summary>
+        [BuildElement("pkg-references")]
+        public virtual PackageCollection Packages {
+            get { return _packages; }
+            set { _packages = value; }
+        }
+
+        /// <summary>
         /// Resources to embed.
         /// </summary>
         /// <remarks>
@@ -286,6 +299,16 @@ namespace NAnt.DotNet.Tasks {
             set { _sources = value; }
         }
 
+        /// <summary>
+        /// Indicates whether package references are supported by compiler for 
+        /// a given target framework. The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportspackagereferences")]
+        public virtual bool SupportsPackageReferences {
+            get { return _supportsPackageReferences; }
+            set { _supportsPackageReferences = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
@@ -317,7 +340,6 @@ namespace NAnt.DotNet.Tasks {
         #endregion Protected Instance Properties
 
         #region Override implementation of ExternalProgramBase
-
 
         /// <summary>
         /// Gets the command-line arguments for the external program.
@@ -403,6 +425,9 @@ namespace NAnt.DotNet.Tasks {
                     if (this.WarnAsError) {
                         WriteOption(writer, "warnaserror");
                     }
+
+                    // writes package references to the response file
+                    WritePackageReferences(writer);
 
                     // writes assembly references to the response file
                     foreach (string fileName in References.FileNames) {
@@ -729,6 +754,32 @@ namespace NAnt.DotNet.Tasks {
         #endregion Public Instance Methods
 
         #region Protected Instance Methods
+
+        /// <summary>
+        /// Writes package references to the specified <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the package references should be written.</param>
+        protected virtual void WritePackageReferences(TextWriter writer) {
+            StringCollection packages = new StringCollection();
+
+            foreach (Package package in Packages) {
+                if (package.IfDefined && !package.UnlessDefined) {
+                    packages.AddRange(package.PackageName.Split(';'));
+                }
+            }
+
+            if (packages.Count == 0) {
+                return;
+            }
+
+            if (SupportsPackageReferences) {
+                // write package references to the TextWriter
+                WriteOption(writer, "pkg", StringUtils.Join(",", packages));
+            } else {
+                Log(Level.Warning, LogPrefix + "The compiler for {0} does not support"
+                    + " package references.", Project.TargetFramework.Description);
+            }
+        }
 
         /// <summary>
         /// Writes module references to the specified <see cref="TextWriter" />.

@@ -49,8 +49,8 @@ namespace NAnt.DotNet.Tasks {
     public class JscTask : CompilerBase {
         #region Private Instance Fields
 
-        private string _warningLevel = null;
-        private string _codepage = null;
+        private string _warningLevel;
+        private string _codepage;
 
         #endregion Private Instance Fields
         
@@ -119,7 +119,8 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
         protected override void WriteModuleReferences(TextWriter writer) {
             if (Modules.FileNames.Count > 0) {
-                Log(Level.Warning, "The JScript.NET compiler does not support linking modules.");
+                Log(Level.Warning, LogPrefix + "The JScript.NET compiler does not"
+                    + " support linking modules.");
             }
         }
 
