@@ -249,6 +249,13 @@ namespace NAnt.Core {
                     return ;
                 }
 
+                if (ch == '=' && PeekChar() == (int)'=') {
+                    _tokenType = TokenType.EQ;
+                    _tokenText = "==";
+                    ReadChar();
+                    return ;
+                }
+
                 if (ch == '<' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.LE;
                     _tokenText = "<=";
@@ -330,7 +337,6 @@ namespace NAnt.Core {
             new CharToTokenType('%', TokenType.Mod),
             new CharToTokenType('<', TokenType.LT),
             new CharToTokenType('>', TokenType.GT),
-            new CharToTokenType('=', TokenType.EQ),
             new CharToTokenType('(', TokenType.LeftParen),
             new CharToTokenType(')', TokenType.RightParen),
             new CharToTokenType('{', TokenType.LeftCurlyBrace),
