@@ -11,7 +11,9 @@ mininant.exe: src/NAnt.Core/ConsoleDriver.cs
 	'./src/NAnt.Core/Util/*.cs' \
 	'./src/NAnt.Core/Attributes/*.cs' \
 	'./src/NAnt.Core/Tasks/*.cs' \
-	'./src/NAnt.DotNetTasks/*.cs'
+	'./src/NAnt.DotNet/Types/*.cs' \
+	'./src/NAnt.DotNet/*.cs' \
+	'./src/NAnt.DotNet/Tasks/*.cs'
 	
 clean:
 	bin/linux/mininant.exe 	
