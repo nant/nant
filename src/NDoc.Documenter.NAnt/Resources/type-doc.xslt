@@ -82,9 +82,9 @@
                         <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                         <xsl:value-of select="$name" /> <xsl:value-of select="$refType"/>
-                        <td class="NavBar-Cell" align="right">
-                            <xsl:value-of select="ancestor::assembly/@name" />(<xsl:value-of select="ancestor::assembly/@version" />)
-                        </td>
+                    </td>                       
+                    <td class="NavBar-Cell" align="right">
+                        <xsl:value-of select="ancestor::assembly/@name" />(<xsl:value-of select="ancestor::assembly/@version" />)
                     </td>
                 </tr>
             </table>
