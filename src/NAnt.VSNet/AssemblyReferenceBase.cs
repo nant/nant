@@ -193,7 +193,7 @@ namespace NAnt.VSNet {
                         return assemblyFile;
                     }
                 } catch (Exception ex) {
-                    Log(Level.Verbose, "Error resolve reference to \"{0}\""
+                    Log(Level.Verbose, "Error resolving reference to \"{0}\""
                         + " in directory \"{1}\".", fileName, path);
                     Log(Level.Debug, ex.ToString());
                 }
@@ -231,8 +231,16 @@ namespace NAnt.VSNet {
         /// </returns>
         protected string ResolveFromRelativePath(string relativePath) {
             if (!StringUtils.IsNullOrEmpty(relativePath)) {
-                return Path.GetFullPath(Path.Combine(Parent.ProjectDirectory.FullName, 
-                    relativePath));
+                string combinedPath = Path.Combine(Parent.ProjectDirectory.FullName, 
+                    relativePath);
+
+                try {
+                    return Path.GetFullPath(combinedPath);
+                } catch (PathTooLongException ex) {
+                    Log(Level.Verbose, "Error resolving reference to \"{0}\""
+                        + " using path \"{1}\" ({2}).", Name, combinedPath,
+                        ex.Message);
+                }
             }
             return null;
         }
