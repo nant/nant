@@ -18,12 +18,14 @@
 
 using System;
 using System.Text;
-using NAnt.Core.Filters;
+
 using NUnit.Framework;
+
+using NAnt.Core.Filters;
 
 namespace Tests.NAnt.Core.Filters {
     /// <summary>
-    /// Tests the FilterChain classes.
+    /// Tests the <see cref="FilterChain" /> class.
     /// </summary>
     [TestFixture]
     public class FilterChainTest : FilterTestBase {

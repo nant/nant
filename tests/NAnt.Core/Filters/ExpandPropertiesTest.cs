@@ -25,7 +25,7 @@ using NAnt.Core.Filters;
 
 namespace Tests.NAnt.Core.Filters {
     /// <summary>
-    /// Tests the ExpandProperties filter.
+    /// Tests the <see cref="ExpandProperties" /> filter.
     /// </summary>
     [TestFixture]
     public class ExpandPropertiesTest : FilterTestBase {

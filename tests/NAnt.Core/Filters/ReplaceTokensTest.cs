@@ -18,12 +18,14 @@
 
 using System;
 using System.Text;
-using NAnt.Core.Filters;
+
 using NUnit.Framework;
+
+using NAnt.Core.Filters;
 
 namespace Tests.NAnt.Core.Filters {
     /// <summary>
-    /// Tests the ReplaceTokens class.
+    /// Tests the <see cref="ReplaceTokens" /> filter.
     /// </summary>
     [TestFixture]
     public class ReplaceTokensTest : FilterTestBase {
