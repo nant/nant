@@ -45,53 +45,15 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>Used to check for recursived includes.</summary>
         static Stack _includedFileNames = new Stack();
-
-        string _buildFileName = null;
-        bool _keepBaseDir = false;
+        static string _currentBasedir = "";     
+        string _buildFileName = null;       
 
         /// <summary>Build file to include.</summary>
         [TaskAttribute("buildfile", Required=true)]
         public string BuildFileName {
             get { return _buildFileName; }
             set { _buildFileName = value; }
-        }
-
-        /// <summary>
-        /// If set to false (the default), any references to ${nant.project.basedir} in the included build file are resolved to the location of this external build file.
-        /// If set to true, any references to ${nant.project.basedir} in the includes build file are resolved to the location of the build file which contains the &lt;include&gt; statement.
-        /// </summary>
-        [TaskAttribute("keepbasedir")]
-        [BooleanValidator]
-        public bool KeepBaseDir {
-            get { return _keepBaseDir; }
-            set { _keepBaseDir = value; }
-        }
-
-        public void InitializeIncludedDocument(XmlDocument doc) {
-            
-            Project.InitializeProjectDocument(doc);
-
-            /*
-            // load line and column number information into Project's map
-            Project.LocationMap.Add(doc);
-            
-            // initialize targets and global tasks
-            foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-                //add targets to list
-                if(childNode.Name.Equals("target") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
-                    Target target = new Target();
-                    target.Project = Project;
-                    target.Initialize(childNode);
-                    Project.Targets.Add(target);
-                }
-                    //execute any global tasks
-                else if(!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
-                    Task task = Project.CreateTask(childNode);
-                    task.Execute();
-                }
-            }
-            */
-        }
+        }       
 
         /// <summary>Verify parameters.</summary>
         /// <param name="taskNode">Xml taskNode used to define this task instance.</param>
@@ -102,26 +64,30 @@ namespace SourceForge.NAnt.Tasks {
             if (Parent != null && !(Parent is Project)) {
                 throw new BuildException("Task not allowed in targets.  Must be at project level.", Location);
             }
-
-            // Check for recursive include.
-            string buildFileName = Project.GetFullPath(BuildFileName);
+            if ( _currentBasedir == "" ){
+                _currentBasedir = Project.BaseDirectory;
+            }
+            // Check for recursive include.           
+            string buildFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));           
+            
             foreach (string currentFileName in _includedFileNames) {
                 if (currentFileName == buildFileName) {
                     throw new BuildException("Recursive includes are not allowed.", Location);
                 }
             }
-        }
+        } 
 
         protected override void ExecuteTask() {
-            // push ourselves onto the stack (prevents recursive includes)
-            string includedFileName = Project.GetFullPath(BuildFileName);
-            _includedFileNames.Push(includedFileName);
-            string oldBaseDir = Project.BaseDirectory;
             
-            if (!_keepBaseDir) {
-                // set the base dir so that paths are relative to the include file and not the main build-file
-                Project.BaseDirectory = Path.GetDirectoryName( includedFileName );
-            }
+            // push ourselves onto the stack (prevents recursive includes)                     
+            string includedFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
+            _includedFileNames.Push(includedFileName);
+            
+            Log.WriteLineIf(Verbose, LogPrefix + "including file {0}", includedFileName );
+            string oldBaseDir = Project.BaseDirectory;           
+            
+            // set basedir to be used by the nested calls ( if any )
+            _currentBasedir = Path.GetDirectoryName( includedFileName );
             
             try {
                 XmlDocument doc = new XmlDocument();
@@ -135,8 +101,10 @@ namespace SourceForge.NAnt.Tasks {
                 
                 // pop off the stack
                 _includedFileNames.Pop();
-                Project.BaseDirectory = oldBaseDir;  // reset base\dir
-            }
+                
+                 // reset base\dir   
+                _currentBasedir = oldBaseDir;             
+           }
         }
     }
 }
