@@ -38,7 +38,7 @@ namespace NAnt.SourceControl.Types {
     public class CvsFileSet : FileSet {
         #region Private Instance Fields
 
-        private bool _useCvsIgnore;
+        private bool _useCvsIgnore = true;
 
         #endregion Private Instance Fields
 
