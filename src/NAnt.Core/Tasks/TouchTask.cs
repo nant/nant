@@ -28,8 +28,11 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Touches a file or set of files -- corresponds to the Unix touch command.
+    /// Touches a file or set of files -- corresponds to the Unix touch command.  
     /// </summary>
+    /// <remarks>
+    /// If the file specified in the single-file case does not exist, the task will create it.
+    /// </remarks>
     /// <example>
     ///   <para>Touch the <c>Main.cs</c> file.  The current time is used.</para>
     ///   <code>
@@ -152,10 +155,11 @@ namespace NAnt.Core.Tasks {
             try {
                 if (File.Exists(path)) {
                     Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
-                    File.SetLastWriteTime(path, touchDateTime);
                 } else {
-                    throw new FileNotFoundException();
+                    Log(Level.Verbose, LogPrefix + "Creating file {0} with {1}.", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                    File.Create(path);
                 }
+                File.SetLastWriteTime(path, touchDateTime);
             } catch (Exception e) {
                 // swallow any errors and move on
                 Log(Level.Verbose, LogPrefix + "Error: {0}.", e.ToString());
