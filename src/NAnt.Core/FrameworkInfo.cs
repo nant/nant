@@ -37,10 +37,11 @@ namespace NAnt.Core {
         private readonly string _family;
         private readonly string _description;
         private readonly string _version;
+        private readonly string _clrVersion;
         private readonly DirectoryInfo _frameworkDirectory;
         private readonly DirectoryInfo _sdkDirectory;
         private readonly DirectoryInfo _frameworkAssemblyDirectory;
-        private readonly FileInfo _runtimEngine;
+        private readonly FileInfo _runtimeEngine;
         private readonly PropertyDictionary _properties;
         private EnvironmentVariableCollection _environmentVariables;
         private FileSet _extensions;
@@ -58,13 +59,14 @@ namespace NAnt.Core {
         /// <param name="family">The family of the framework.</param>
         /// <param name="description">The description of the framework.</param>
         /// <param name="version">The version number of the framework.</param>
+        /// <param name="clrVersion">The Common Language Runtime version of the framework.</param>
         /// <param name="frameworkDir">The directory of the framework.</param>
         /// <param name="sdkDir">The directory containing the SDK tools for the framework, if available.</param>
         /// <param name="frameworkAssemblyDir">The directory containing the system assemblies for the framework.</param>
         /// <param name="runtimeEngine">The name of the runtime engine, if required.</param>
         /// <param name="properties">Collection of framework specific properties.</param>
         public FrameworkInfo(string name, string family, string description, string version, 
-            string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
+            string clrVersion, string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
             string runtimeEngine, PropertyDictionary properties) {
 
             _extensions = new FileSet();
@@ -72,6 +74,7 @@ namespace NAnt.Core {
 
             _family = family;
             _description = description;
+            _clrVersion = clrVersion;
 
             if (name == null) {
                 throw new ArgumentNullException("name", "Framework name not configured.");
@@ -137,7 +140,7 @@ namespace NAnt.Core {
             if (!StringUtils.IsNullOrEmpty(runtimeEngine)) {
                 string runtimeEnginePath = _frameworkDirectory.FullName + Path.DirectorySeparatorChar + runtimeEngine;
                 if (File.Exists(runtimeEnginePath)) {
-                    _runtimEngine = new FileInfo(runtimeEnginePath);
+                    _runtimeEngine = new FileInfo(runtimeEnginePath);
                 } else {
                     throw new ArgumentException(string.Format(
                         CultureInfo.InvariantCulture, "Runtime engine '{0}' does not exist.", runtimeEnginePath));
@@ -186,6 +189,16 @@ namespace NAnt.Core {
         public string Version {
             get { return _version; }
         }
+
+        /// <summary>
+        /// Gets the Common Language Runtime of the framework.
+        /// </summary>
+        /// <value>
+        /// The Common Language Runtime of the framework.
+        /// </value>
+        public string ClrVersion {
+            get { return _clrVersion; }
+        }
         
         /// <summary>
         /// Gets the base directory of the framework tools for the framework.
@@ -204,7 +217,7 @@ namespace NAnt.Core {
         /// runtime gine is configured for the framework.
         /// </value>
         public FileInfo RuntimeEngine {
-            get { return _runtimEngine; }
+            get { return _runtimeEngine; }
         }
        
         /// <summary>
