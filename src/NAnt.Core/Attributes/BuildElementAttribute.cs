@@ -61,7 +61,7 @@ namespace NAnt.Core.Attributes {
         /// </summary>
         /// <value>
         /// <c>true</c> if the attribute is required; otherwise, <c>false</c>. 
-        /// The default is <c>false</c>.
+        /// Default is <c>false</c>.
         /// </value>
         public bool Required {
             get { return _required; }

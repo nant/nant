@@ -80,7 +80,7 @@ namespace NAnt.Core.Attributes {
         /// </summary>
         /// <value>
         /// <c>true</c> if the configuration attribute is required; otherwise, 
-        /// <c>false</c>. The default is <c>false</c>.
+        /// <c>false</c>. Default is <c>false</c>.
         /// </value>
         public bool Required {
             get { return _required; }
@@ -95,7 +95,7 @@ namespace NAnt.Core.Attributes {
         /// </summary>
         /// <value>
         /// <c>true</c> if properties should be expanded; otherwise <c>false</c>.
-        /// The default is <c>true</c>.
+        /// Default is <c>true</c>.
         /// </value>
         public bool ExpandProperties {
             get { return _expandProperties; }
