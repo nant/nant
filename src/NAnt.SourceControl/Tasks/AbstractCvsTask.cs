@@ -315,7 +315,7 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool Quiet {
 			get {return ((Option)this.GlobalOptions["quiet"]).IfDefined;}
-			set {this.SetGlobalOption("quiet", "q", value);}
+			set {this.SetGlobalOption("quiet", "-q", value);}
 		}
 
 		/// <summary>
@@ -326,7 +326,7 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool ReallyQuiet {
 			get {return ((Option)this.GlobalOptions["reallyquiet"]).IfDefined;}
-			set {this.SetGlobalOption("reallyquiet", "Q", value);}
+			set {this.SetGlobalOption("reallyquiet", "-Q", value);}
 		}
 
 		/// <summary>
@@ -337,7 +337,7 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool ReadOnly {
 			get {return ((Option)this.GlobalOptions["readonly"]).IfDefined;}
-			set {this.SetGlobalOption("readonly", "r", value);}
+			set {this.SetGlobalOption("readonly", "-r", value);}
 		}
 
 		/// <summary>
@@ -355,7 +355,7 @@ namespace NAnt.SourceControl.Tasks {
 					value == true) {
 					throw new BuildException ("Cannot set readonly and read/ write.");
 				}
-				this.SetGlobalOption("readwrite", "w", value);
+				this.SetGlobalOption("readwrite", "-w", value);
 			}
 		}
 
@@ -459,13 +459,8 @@ namespace NAnt.SourceControl.Tasks {
 		}
 
 		private void AddArg (String arg) {
-			if (arg.IndexOf("-") != 0) {
-				Arguments.Add(new Argument(String.Format("{0}{1}",
-					"-", arg)));
-			} else {
-				Arguments.Add(new Argument(String.Format("{1}",
-					arg)));
-			}
+			Arguments.Add(new Argument(String.Format("{0}",
+				arg)));
 		}
 
 		private bool IsModuleNeeded {

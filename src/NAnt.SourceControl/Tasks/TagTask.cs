@@ -29,27 +29,24 @@ using ICSharpCode.SharpCvsLib.Util;
 namespace NAnt.SourceControl.Tasks
 {
     /// <summary>
-    /// Tags all sources in the remote repository with a given tag.
+    /// Tags all local sources with the specified tag.  
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Unlike tag, the rtag command acts only on sources that are in the repository.  
-    /// Any modified sources on the local file system will NOT be tagged with this
-    /// command, so a commit should be performed before an rtag is done.
-    /// </para>
-    /// <para>
-    /// NOTE: Although a working directory is not necessary to perform the command 
-    /// one must be specified in order to remain in compliance with the cvs library.
+    /// This differs from the
+    /// <see cref="RTagTask"/> in that it acts on references to the cvs files
+    /// contained in your local filesystem.  As such the sticky tags and local
+    /// revisions can be considered in commits.  It also allows you to verify that
+    /// all local files have been checked in before a tag is performed.    
     /// </para>
     /// </remarks>
     /// <example>
     ///   <para>Tag NAnt sources remotely.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvs-rtag 
+    /// <cvs-tag 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     destination="."
-    ///     password="" 
     ///     module="nant"
     ///     tagname="v0_8_4"
     ///      />
@@ -60,20 +57,20 @@ namespace NAnt.SourceControl.Tasks
     ///   <para>Remove a tag from the remote repository.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvs-rtag 
+    /// <cvs-tag 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     destination="."
-    ///     password="" 
     ///     module="nant"
     ///     tagname="v0_8_4"
     ///     remove="true"
+    ///     fail-if-modified="true"
     ///      />
     ///     ]]>
     ///   </code>
     /// </example>
-    [TaskName("cvs-rtag")]
-    public class RTagTask : AbstractCvsTask {
-		private const string COMMAND_NAME = "rtag";
+    [TaskName("cvs-tag")]
+    public class TagTask : AbstractCvsTask {
+		private const string COMMAND_NAME = "tag";
 		/// <summary>
 		/// The name of the cvs command that is going to be executed.
 		/// </summary>
@@ -89,19 +86,6 @@ namespace NAnt.SourceControl.Tasks
         #endregion Private Static Fields
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// The name of the tag to assign or remove.
-        /// </summary>
-        /// <value>
-        /// The name of the tag to assign or remove.
-        /// </value>
-        [TaskAttribute("tagname", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string TagName {
-            get { return this.Tag; }
-            set { this.Tag = value; }
-        }
 
         /// <summary>
         /// The name of the tag to assign or remove.
@@ -125,7 +109,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("remove", Required=false)]
-        [BooleanValidator()]
+		[BooleanValidator()]
         public bool Remove {
             get {return ((Option)this.CommandOptions["remove"]).IfDefined;}
             set {this.SetCommandOption("remove", "-d", value);}
@@ -141,7 +125,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("move-if-exists", Required=false)]
-        [BooleanValidator()]
+		[BooleanValidator()]
         public bool MoveIfExists {
             get {return ((Option)this.CommandOptions["move-if-exists"]).IfDefined;}
             set {this.SetCommandOption("move-if-exists", "-F", value);}
@@ -156,7 +140,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="true" />.
         /// </value>
         [TaskAttribute("recursive", Required=false)]
-        [BooleanValidator()]
+		[BooleanValidator()]
         public bool Recursive {
             get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
             set {
@@ -206,10 +190,26 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("force-head", Required=false)]
-        [BooleanValidator()]
+		[BooleanValidator()]
         public bool ForceHead {
             get {return ((Option)this.CommandOptions["force-head"]).IfDefined;}
             set {this.SetCommandOption("force-head", "-f", value);}
+        }
+
+        /// <summary>
+        /// Indicates whether the head revision should be used if the 
+        /// <see cref="ActOnTag"/> or the <see cref="ActOnDate"/> tags are not
+        /// found. 
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the specified tag should be moved; 
+        /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
+        /// </value>
+        [TaskAttribute("fail-if-modified", Required=false)]
+		[BooleanValidator()]
+        public bool FailIfModified {
+            get {return ((Option)this.CommandOptions["fail-if-modified"]).IfDefined;}
+            set {this.SetCommandOption("fail-if-modified", "-c", value);}
         }
 
         #endregion Public Instance Properties
@@ -217,10 +217,10 @@ namespace NAnt.SourceControl.Tasks
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RTagTask" /> 
+        /// Initializes a new instance of the <see cref="TagTask" /> 
         /// class.
         /// </summary>
-        public RTagTask() {
+        public TagTask() {
         }
 
         #endregion Public Instance Constructors

@@ -97,9 +97,10 @@ namespace NAnt.SourceControl.Tasks {
         ///     of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
+		[StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
             get {return ((Option)this.CommandOptions["revision"]).Value;}
-            set {this.SetCommandOption("revision", String.Format("r {0}", value), true);}
+            set {this.SetCommandOption("revision", String.Format("-r {0}", value), true);}
         }
 
         /// <summary>
@@ -112,13 +113,26 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
+        /// Specify the revision date to checkout.  The date specified is validated
+        ///     and then passed to the cvs binary in a standard format recognized by
+        ///     cvs.
+        /// </summary>
+        [TaskAttribute("date", Required=false)]
+        [DateTimeValidator()]
+        public DateTime Date {
+            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
+            set {this.SetCommandOption("date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
+        }
+
+        /// <summary>
         /// Specify a directory name to replace the module name.  Valid names
         ///     include any valid filename, excluding path information.
         /// </summary>
         [TaskAttribute("overridedir", Required=false)]
+		[StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string OverrideDir {
             get {return ((Option)this.CommandOptions["overridedir"]).Value;}
-            set {this.SetCommandOption("overridedir", String.Format("d{0}", value), true);}
+            set {this.SetCommandOption("overridedir", String.Format("-d{0}", value), true);}
         }
 
         /// <summary>
@@ -129,19 +143,6 @@ namespace NAnt.SourceControl.Tasks {
         public string OverrideDirectory {
             get {return this.OverrideDir;}
             set {this.OverrideDir = value;}
-        }
-
-
-        /// <summary>
-        /// Specify the revision date to checkout.  The date specified is validated
-        ///     and then passed to the cvs binary in a standard format recognized by
-        ///     cvs.
-        /// </summary>
-        [TaskAttribute("date", Required=false)]
-        [DateTimeValidator()]
-        public DateTime Date {
-            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
-            set {this.SetCommandOption("date", String.Format("D {0}", DateParser.GetCvsDateString(value)), true);}
         }
 
         #endregion

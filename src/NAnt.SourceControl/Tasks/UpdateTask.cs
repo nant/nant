@@ -21,9 +21,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
-using ICSharpCode.SharpCvsLib.Commands;
-using ICSharpCode.SharpCvsLib.Misc;
-using ICSharpCode.SharpCvsLib.FileSystem;
+using ICSharpCode.SharpCvsLib.Util;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -55,31 +53,9 @@ namespace NAnt.SourceControl.Tasks {
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     password="" 
-    ///     module="nant">
-    ///     <options>
-    ///         <option name="sticky-tag" value="your_favorite_revision_here" />
-    ///         <option name="override-directory" value="replacement_for_module_directory_name" />
-    ///     </options>
-    /// </cvs-update>
-    ///     ]]>
-    ///   </code>
-    /// </example>
-    /// <example>
-    ///   <para>
-    ///   Update your NAnt revision named <c>your_favorite_revision_here</c> in 
-    ///   the folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
-    ///   </para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <cvs-update 
-    ///     destination="c:\src\nant\" 
-    ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///     password="" 
-    ///     module="nant">
-    ///     <options>
-    ///         <option name="-r" value="your_favorite_revision_here" />
-    ///         <option name="-d" value="replacement_for_module_directory_name" />
-    ///     </options>
+    ///     module="nant"
+    ///     revision="your_favorite_revision_here"
+    ///     overridedir="replacement_for_module_directory_name">
     /// </cvs-update>
     ///     ]]>
     ///   </code>
@@ -119,7 +95,7 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool BuildDirs {
 			get {return ((Option)this.CommandOptions["builddirs"]).IfDefined;}
-			set {this.SetCommandOption("builddirs", "d", value);}
+			set {this.SetCommandOption("builddirs", "-d", value);}
 		}
 
 		/// <summary>
@@ -132,7 +108,7 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool PruneEmpty {
 			get {return ((Option)this.CommandOptions["pruneempty"]).IfDefined;}
-			set {this.SetCommandOption("pruneempty", "P", value);}
+			set {this.SetCommandOption("pruneempty", "-P", value);}
 		}
 
 		/// <summary>
@@ -145,7 +121,7 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool OverwriteLocal {
 			get {return ((Option)this.CommandOptions["overwritelocal"]).IfDefined;}
-			set {this.SetCommandOption("overwritelocal", "C", value);}
+			set {this.SetCommandOption("overwritelocal", "-C", value);}
 		}
 
 		/// <summary>
@@ -155,8 +131,46 @@ namespace NAnt.SourceControl.Tasks {
 		[BooleanValidator()]
 		public bool Recursive {
 			get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
-			set {this.SetCommandOption("recursive", "R", value);}
+			set {this.SetCommandOption("recursive", "-R", value);}
 		}
+
+        /// <summary>
+        /// Specify the revision to update the file to.  This corresponds to the "sticky-tag"
+        ///     of the file.
+        /// </summary>
+        [TaskAttribute("revision", Required=false)]
+		[StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        public string Revision {
+            get {return ((Option)this.CommandOptions["revision"]).Value;}
+            set {this.SetCommandOption("revision", String.Format("-r {0}", value), true);}
+        }
+
+        /// <summary>
+        /// Sticky tag or revision to update the local file to.
+        /// </summary>
+        /// <value>
+        /// A valid cvs tag.
+        /// </value>
+        [TaskAttribute("sticky-tag", Required=false)]
+        public string StickyTag {
+            get {return this.Revision;}
+            set {this.Revision = value;}
+        }
+
+        /// <summary>
+        /// Specify the revision date to update to.  The version of the file that
+        /// existed at the date specified is retrieved.
+        /// </summary>
+        /// <value>
+        /// A valid date time value, which is then converted to a format that
+        /// cvs can parse.
+        /// </value>
+        [TaskAttribute("date", Required=false)]
+        [DateTimeValidator()]
+        public DateTime Date {
+            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
+            set {this.SetCommandOption("date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
+        }
 
 		#endregion
 
@@ -184,29 +198,5 @@ namespace NAnt.SourceControl.Tasks {
 
         #endregion Public Instance Constructors
 
-        #region Private Instance Methods
-
-        /// <summary>
-        /// Creates a list of files that need to be compared against the server 
-        /// and updated if necessary.
-        /// </summary>
-        /// <param name="workingDirectory">The directory to use in the comparison.</param>
-        private void PopulateFolders (WorkingDirectory workingDirectory) {
-            Logger.Debug(string.Format(CultureInfo.InvariantCulture,
-                "Reading all directory entries from working directory '{0}'.",
-                workingDirectory.WorkingDirectoryName));
-
-            Manager manager = new Manager(workingDirectory.WorkingPath);
-            try {
-                workingDirectory.FoldersToUpdate = manager.FetchFilesToUpdate(
-                    workingDirectory.WorkingPath);
-            } catch (CvsFileNotFoundException e) {
-                System.Console.WriteLine(workingDirectory.WorkingPath);
-                System.Console.WriteLine(e.ToString());
-                throw e;
-            }
-        }
-
-        #endregion Private Instance Methods
     }
 }

@@ -190,7 +190,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <value>
         /// The password for logging in to the repository.
         /// </value>
-        [TaskAttribute("password")]
+        [TaskAttribute("password", Required=false)]
         public virtual string Password {
             get { return _password;}
             set { _password = StringUtils.ConvertEmptyToNull(value); }
@@ -461,7 +461,13 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected void AppendFiles () {
 			foreach (string pathname in this.VcsFileSet.FileNames) {
-				Arguments.Add(new Argument(pathname));
+                string relativePath = pathname.Substring(this.DestinationDirectory.FullName.Length + 1,
+                        pathname.Length - this.DestinationDirectory.FullName.Length - 1).Replace("\\", "/");
+                try {
+                    Arguments.Add(new Argument(relativePath));
+                } catch (Exception e) {
+                    System.Console.WriteLine("Unable to parse file: " + e.Message);
+                }
 			}
 		}
 
