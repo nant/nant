@@ -36,12 +36,7 @@ namespace NAnt.NUnit.Types {
         /// <summary>
         /// An XML formatter.
         /// </summary>
-        Xml,
-
-        /// <summary>
-        /// A custom formatter.
-        /// </summary>
-        Custom
+        Xml
     }
     
     /// <summary>
@@ -58,25 +53,15 @@ namespace NAnt.NUnit.Types {
         #region Public Instance Properties
         
         /// <summary>
-        /// Type of formatter - either <see cref="FormatterType.Plain" />, 
-        /// <see cref="FormatterType.Xml" /> or <see cref="FormatterType.Custom" />.
-        /// Default is <see cref="FormatterType.Plain" />.
+        /// Type of formatter - either <see cref="FormatterType.Plain" /> or
+        /// <see cref="FormatterType.Xml" />. 
         /// </summary>
-        [TaskAttribute("type", Required=false)]
+        [TaskAttribute("type", Required=true)]
         public FormatterType Type {
             get { return _data.Type; }
             set { _data.Type = value; }
         }
                          
-        /// <summary>
-        /// Name of a custom formatter class.
-        /// </summary> 
-        [TaskAttribute("classname", Required=false)]
-        public string ClassName {
-            get { return _data.ClassName; }
-            set { _data.ClassName = value; }
-        }
-
         /// <summary>
         /// Extension to append to the output filename.
         /// </summary> 
@@ -104,19 +89,5 @@ namespace NAnt.NUnit.Types {
         }
 
         #endregion Public Instance Properties
-
-        #region Override implementation of Element
-
-        /// <summary>
-        /// Initializes the element using the specified XML node.
-        /// </summary>
-        /// <param name="elementNode"><see cref="XmlNode" /> containing the XML fragment used to initialize this element instance.</param>
-        protected override void InitializeElement(XmlNode elementNode) {
-            if (Type != FormatterType.Custom && ClassName != null) {
-                throw new BuildException("The classname attribute should only be specified for a custom formatter.", Location);
-            }
-        }
-
-        #endregion Override implementation of Element
     }
 }
