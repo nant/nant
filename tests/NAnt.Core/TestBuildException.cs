@@ -111,11 +111,19 @@ namespace Tests.NAnt.Core {
                 // TO-DO : just output base.Message when NUnit is fixed to also
                 // output message of innerexception.  This should be fixed in
                 // NUnit 2.1
-                if(InnerException != null) {
-                    return base.Message + Environment.NewLine + InnerException.Message;
-                } else {
-                    return base.Message;
+
+                string message = string.Empty;
+
+                Exception innerException = InnerException;
+                while (innerException != null) {
+                    if (innerException.Message != null && innerException.Message.Length != 0) {
+                        message += Environment.NewLine + innerException.Message;
+                    }
+
+                    innerException = innerException.InnerException;
                 }
+
+                return base.Message + message;
             }
         }
 
@@ -125,8 +133,10 @@ namespace Tests.NAnt.Core {
         /// <summary>
         /// Creates and returns a string representation of the current exception.
         /// </summary>
-        /// <returns>A string representation of the current exception.</returns>
-        public override string ToString() {            return string.Format(CultureInfo.InvariantCulture,"{0}:{1}{2}{1}Build Log:{1}{3}", Message, Environment.NewLine, base.ToString(), _buildResults);        }
+        /// <returns>
+        /// A string representation of the current exception.
+        /// </returns>
+        public override string ToString() {            return string.Format(CultureInfo.InvariantCulture, "{0}:{1}{2}{1}Build Log:{1}{3}",                 Message, Environment.NewLine, base.ToString(), _buildResults);        }
 
         #endregion Override implementation of Object
     }
