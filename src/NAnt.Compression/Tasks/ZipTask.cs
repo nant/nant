@@ -28,6 +28,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Zip.Tasks {
     /// <summary>
@@ -70,7 +71,7 @@ namespace NAnt.Zip.Tasks {
         [TaskAttribute("zipfile", Required=true)]
         public string ZipFileName {
             get { return (_zipfile != null) ? Project.GetFullPath(_zipfile) : null; }
-            set { _zipfile = SetStringValue(value); }
+            set { _zipfile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace NAnt.Zip.Tasks {
         [TaskAttribute("comment", Required=false)]
         public string Comment {
             get { return _comment; }
-            set { _comment = SetStringValue(value); }
+            set { _comment = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace NAnt.Zip.Tasks {
                 }
 
                 // set comment
-                if (Comment != null) {
+                if (!StringUtils.IsNullOrEmpty(Comment)) {
                     zOutstream.SetComment(Comment);
                 }
 
