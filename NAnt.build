@@ -11,6 +11,10 @@
     <property name="build.number" value="${math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01-01-2000')))}" dynamic="true" />
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
+    <!-- MSNetTaskAssemblies (tas.msnet) -->
+    <!-- These will be used in this order -->
+    <property name="tas.msnet" value="NAnt.MSNet" />
+    <property name="tas.msnet.tests" value="${tas.msnet}" />
     <!-- Win32TaskAssemblies (tas.win32) -->
     <!-- These will be used in this order -->
     <property name="tas.win32" value="NAnt.Win32,NAnt.VisualCpp,NAnt.VSNet" />
@@ -98,6 +102,20 @@
         <foreach item="String" delim="," property="filename" in="${tas.core}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" />
         </foreach>
+        <!-- build Microsoft.NET specific task assemblies if we are on win32-->
+        <if test="${nant.platform.win32 and framework::exists('net-1.0')}">
+            <!-- store current framework -->
+            <property name="original.framework" value="${nant.settings.currentframework}" />
+            <!-- change framework to .NET 1.0 -->
+            <property name="nant.settings.currentframework" value="net-1.0" />
+            <!-- build all Microsoft.NET specific task assemblies -->            
+            <foreach item="String" delim="," property="filename" in="${tas.msnet}">
+                <!-- build NAnt.MSNetTasks assembly -->
+                <nant buildfile="src/${filename}/${filename}.build" target="build" />
+            </foreach>
+            <!-- restore original framework -->
+            <property name="nant.settings.currentframework" value="${original.framework}" />
+        </if>            
         <!-- build win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
@@ -110,6 +128,17 @@
         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
         </foreach>
+        <!-- build tests for Microsoft.NET task assemblies if we are on win32-->
+        <if test="${nant.platform.win32 and framework::exists('net-1.0')}">
+            <!-- store current framework -->
+            <property name="original.framework" value="${nant.settings.currentframework}" />
+            <!-- build tests for Microsoft.NET specific task assemblies if we are on win32 -->
+            <foreach item="String" delim="," property="filename" in="${tas.msnet.tests}">
+                <nant buildfile="tests/${filename}/${filename}.build" target="build" />
+            </foreach>
+            <!-- restore original framework -->
+            <property name="nant.settings.currentframework" value="${original.framework}" />
+        </if>            
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
@@ -144,6 +173,17 @@
         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" />
         </foreach>
+        <!-- test Microsoft.NET specific task assemblies -->
+        <if test="${nant.platform.win32 and framework::exists('net-1.0')}">
+            <!-- store current framework -->
+            <property name="original.framework" value="${nant.settings.currentframework}" />
+            <!-- test win32 specific task assemblies -->
+            <foreach item="String" delim="," property="filename" in="${tas.msnet.tests}">
+                <nant buildfile="tests/${filename}/${filename}.build" target="test" />
+            </foreach>
+            <!-- restore original framework -->
+            <property name="nant.settings.currentframework" value="${original.framework}" />
+        </if>            
         <!-- test win32 specific task assemblies -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${nant.platform.win32}" />
