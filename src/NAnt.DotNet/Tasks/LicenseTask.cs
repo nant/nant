@@ -38,6 +38,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -65,7 +66,7 @@ namespace NAnt.DotNet.Tasks {
     public class LicenseTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private FileSet _assemblies = new FileSet();
+        private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileInfo _inputFile;
         private FileInfo _outputFile;
         private string _target;
@@ -80,12 +81,6 @@ namespace NAnt.DotNet.Tasks {
 
         #region Public Instance Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LicenseTask" /> class.
-        /// </summary>
-        public LicenseTask() {
-            _assemblies = new FileSet();
-        }
 
         #endregion Public Instance Constructors
 
@@ -113,7 +108,7 @@ namespace NAnt.DotNet.Tasks {
         /// Names of the references to scan for the licensed component.
         /// </summary>
         [BuildElement("assemblies")]
-        public FileSet Assemblies {
+        public AssemblyFileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
         }
@@ -315,21 +310,6 @@ namespace NAnt.DotNet.Tasks {
                 Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            // fix references to system assemblies
-            if (Project.TargetFramework != null) {
-                foreach (string pattern in Assemblies.Includes) {
-                    if (Path.GetFileName(pattern) == pattern) {
-                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                        string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
-                        string fullPath = Path.Combine(frameworkDir, pattern);
-
-                        if (!File.Exists(localPath) && File.Exists(fullPath)) {
-                            // found a system reference
-                            Assemblies.FileNames.Add(fullPath);
-                        }
-                    }
-                }
-            }
 
             // get the output .licenses file
             if (OutputFile == null) {
