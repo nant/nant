@@ -71,8 +71,8 @@ namespace NAnt.Core.Tasks {
     public class LoadTasksTask : Task {
         #region Private Instance Fields
 
-        private string _assembly = null;
-        private string _path = null;
+        private FileInfo _assembly;
+        private DirectoryInfo _path;
         private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
@@ -83,7 +83,7 @@ namespace NAnt.Core.Tasks {
         /// An assembly to load tasks from.
         /// </summary>
         [TaskAttribute("assembly")]
-        public string AssemblyPath {
+        public FileInfo AssemblyPath {
             get { return _assembly; }
             set { _assembly = value; }
         }
@@ -92,7 +92,7 @@ namespace NAnt.Core.Tasks {
         /// A directory to scan for task assemblies.
         /// </summary>
         [TaskAttribute("path")]
-        public string Path {
+        public DirectoryInfo Path {
             get { return _path; }
             set { _path = value; }
         }
@@ -113,52 +113,49 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Executes the Load Tasks task.
         /// </summary>
-        /// <exception cref="BuildException">Specified Assembly does not exist or specified directory does not exist.</exception>
+        /// <exception cref="BuildException">Specified assembly or path does not exist.</exception>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         protected override void ExecuteTask() {
-            ValidateAttributes();
-            // single file case
-            if (AssemblyPath != null) {
-                if (!File.Exists(Project.GetFullPath(AssemblyPath))) {
-                    string msg = String.Format(CultureInfo.InvariantCulture,"Assembly {0} does not exist. Can't scan for tasks.", AssemblyPath);
-                    throw new BuildException(msg, Location);
+            if (AssemblyPath != null) { // single file case
+                if (!AssemblyPath.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Assembly '{0}' does not exist. Can't scan for extensions.", 
+                        AssemblyPath.FullName), Location);
                 }  
-                TaskFileSet.FileNames.Add(Project.GetFullPath(AssemblyPath));
+                TaskFileSet.FileNames.Add(AssemblyPath.FullName);
             } else if (Path != null) {
-                if (!Directory.Exists(Project.GetFullPath(Path))) {
-                    string msg = String.Format(CultureInfo.InvariantCulture,"Path {0} does not exist. Can't scan for tasks.", Path);
-                    throw new BuildException(msg, Location);
+                if (!Path.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Path '{0}' does not exist. Can't scan for extensions.", 
+                        Path), Location);
                 }
-                TaskFileSet.DirectoryNames.Add(Project.GetFullPath(Path));
+                TaskFileSet.DirectoryNames.Add(Path.FullName);
             }
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
-                Log(Level.Info, LogPrefix + "Loading tasks from assembly {0}.", assemblyPath);
+                Log(Level.Info, LogPrefix + "Loading tasks from assembly '{0}'.", 
+                    assemblyPath);
                 TypeFactory.AddTasks(Assembly.LoadFrom(assemblyPath));
             }
             // now the filenames
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
-                Log(Level.Info, LogPrefix + "Scanning directory {0} for task assemblies.", scanPath);
+                Log(Level.Info, LogPrefix + "Scanning directory '{0}' for extension assemblies.", scanPath);
                 TypeFactory.ScanDir(scanPath);
             }
         }
-
-        #endregion Override implemenation of Task
-
-        #region Protected Instance Methods
 
         /// <summary>
         /// Validates the attributes.
         /// </summary>
         /// <exception cref="BuildException">Both <see cref="AssemblyPath" /> and <see cref="Path" /> are set.</exception>
-        protected void ValidateAttributes(){ 
+        protected override void InitializeTask(XmlNode taskNode) {
             //verify that our params are correct
-            if (AssemblyPath != null  && Path != null) {
-                string msg = "Both asssembly and path attributes are set. Use one or the other.";
-                throw new BuildException(msg, Location);
+            if (AssemblyPath != null && Path != null) {
+                throw new BuildException("Both asssembly and path attributes are set." 
+                    + " Use one or the other.", Location);
             }
         }
 
-        #endregion Protected Instance Methods
+        #endregion Override implemenation of Task
     }
 }
