@@ -49,6 +49,23 @@ namespace NAnt.Core {
 
         #endregion Private Instance Fields
 
+        #region Override implementation of Element
+
+        /// <summary>
+        /// Gets a value indicating whether the element is performing additional
+        /// processing using the <see cref="XmlNode" /> that was use to 
+        /// initialize the element.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" />, as a <see cref="TaskContainer" /> is
+        /// responsable for creating tasks from the nested build elements.
+        /// </value>
+        protected override bool CustomXmlProcessing {
+            get { return true;}
+        }
+
+        #endregion Override implementation of Element
+
         #region Override implementation of Task
 
         protected override void InitializeTask(XmlNode taskNode) {
@@ -98,7 +115,7 @@ namespace NAnt.Core {
 
                 Task task = CreateChildTask(childNode);
                 // for now, we should assume null tasks are because of incomplete metadata about the XML.
-                if(task != null) {
+                if (task != null) {
                     task.Parent = this;
                     task.Execute();
                 }
