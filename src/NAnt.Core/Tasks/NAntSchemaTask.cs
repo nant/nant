@@ -549,9 +549,9 @@ namespace NAnt.Core.Tasks {
                     //Check for any return type that is derived from Element
 
                     //Add Attributes
-                    TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute)Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
-                    BuildElementCollectionAttribute buildElemCollAttr = (BuildElementCollectionAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementCollectionAttribute), true);
-					BuildElementAttribute  buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
+                    TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute) Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
+                    BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementArrayAttribute), true);
+					BuildElementAttribute buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
 
 					if (taskAttrAttr != null) {
 						XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
@@ -579,13 +579,38 @@ namespace NAnt.Core.Tasks {
 							throw new ApplicationException("Member Type != Field/Property");
 						}
 
-						//In xsd we use choices to define the array property. So we should treat this as the element type, not an array.
-						if (childType.IsArray) {
-							childType = childType.GetElementType();
-						}
-						if (buildElemCollAttr != null) {
-							childType = buildElemCollAttr.ElementType;	 
-						}
+                        // determine type of child elements
+                        if (buildElementArrayAttribute != null) {
+                            if (buildElementArrayAttribute.ElementType == null) {
+                                if (childType.IsArray) {
+                                    childType = childType.GetElementType();
+                                } else {
+                                    Type elementType = null;
+
+                                    // locate Add method with 1 parameter, type of that parameter is parameter type
+                                    foreach (MethodInfo method in childType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                                        Console.WriteLine("IN LOOP");
+
+                                        if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                                            ParameterInfo parameter = method.GetParameters()[0];
+                                            elementType = parameter.ParameterType;
+                                            break;
+                                        }
+                                    }
+
+                                    childType = elementType;
+                                }
+                            } else {
+                                childType = buildElementArrayAttribute.ElementType;
+                            }
+
+                            if (childType == null || !typeof(Element).IsAssignableFrom(childType)) {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
+                                    " should have an element type assigned that derives from Element" +
+                                    " for {0}.{1}.", memInfo.DeclaringType.FullName, memInfo.Name));
+                            }
+                        }
 
 						childElement.SchemaTypeName = CreateComplexType(childType, buildElemAttr.Name, useRefs).QualifiedName;
 
