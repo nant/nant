@@ -80,7 +80,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <move todir="${build.dir}">
     ///     <fileset basedir="bin">
-    ///         <includes name="*.dll" />
+    ///         <include name="*.dll" />
     ///     </fileset>
     /// </move>
     ///     ]]>
