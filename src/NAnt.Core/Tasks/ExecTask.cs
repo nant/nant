@@ -56,14 +56,20 @@ namespace NAnt.Core.Tasks {
             get { return _program; }
             set { _program = value; }
         }
-                
+
         /// <summary>
         /// The command-line arguments for the program.
         /// </summary>
         [TaskAttribute("commandline")]
         public string CommandLineArguments {
             get { return _commandline; }
-            set { _commandline = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _commandline = value;
+                } else {
+                    _commandline = null;
+                }
+            }
         }
 
         /// <summary>
@@ -85,8 +91,14 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [TaskAttribute("workingdir")]
         public string WorkingDirectory {
-            get { return Project.GetFullPath(_workingDirectory); }
-            set { _workingDirectory = value; }
+            get { return _workingDirectory; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _workingDirectory = Project.GetFullPath(value);
+                } else {
+                    _workingDirectory = null;
+                }
+            }
         }
 
         #endregion Public Instance Properties
@@ -128,8 +140,14 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [TaskAttribute("basedir")]
         public override string BaseDirectory {
-            get { return Project.GetFullPath(_baseDirectory); }
-            set { _baseDirectory = value; }
+            get { return _baseDirectory; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _baseDirectory = Project.GetFullPath(value);
+                } else {
+                    _baseDirectory = null;
+                }
+            }
         }
 
         /// <summary>
@@ -139,11 +157,18 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("output", Required=false)]
         public override string OutputFile {
             get { return _outputFile; }
-            set { _outputFile = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _outputFile = Project.GetFullPath(value);
+                } else {
+                    _outputFile = null;
+                }
+            }
         }
 
         /// <summary>
-        /// true if the output file is to be appended to. Default value is <c>false</c>.
+        /// Gets or sets a value indicating whether output should be appended 
+        /// to the output file. Default value is <c>false</c>.
         /// </summary>
         /// <value>
         /// <c>true</c> if output should be appended to the <see cref="OutputFile" />; 
@@ -155,6 +180,9 @@ namespace NAnt.Core.Tasks {
             set { _outputAppend = value; }
         }
 
+        /// <summary>
+        /// Executes the external program.
+        /// </summary>
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "{0} {1}", ProgramFileName, CommandLine);
             base.ExecuteTask();
@@ -162,7 +190,7 @@ namespace NAnt.Core.Tasks {
 
         protected override void PrepareProcess(System.Diagnostics.Process process) {
             base.PrepareProcess(process);
-            if (_workingDirectory != null) {
+            if (WorkingDirectory != null) {
                 process.StartInfo.WorkingDirectory = WorkingDirectory;
             }
 
