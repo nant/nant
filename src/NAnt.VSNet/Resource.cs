@@ -194,11 +194,13 @@ namespace NAnt.VSNet {
 
         private string CompileResx() {
             FileInfo outputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(
-                Path.Combine(Path.GetDirectoryName(_resourceSourceFileRelativePath), Path.GetFileNameWithoutExtension(
-                    InputFile.Name) + ".resources")));
+                Path.Combine(Project.Name, Path.Combine(Path.GetDirectoryName(
+                    _resourceSourceFileRelativePath), Path.GetFileNameWithoutExtension(
+                        InputFile.Name) + ".resources"))));
 
             // ensure output directory exists
             if (!outputFile.Directory.Exists) {
+                Console.WriteLine(outputFile.Directory.FullName);
                 outputFile.Directory.Create();
             }
 
