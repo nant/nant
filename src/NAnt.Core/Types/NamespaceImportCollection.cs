@@ -144,6 +144,12 @@ namespace NAnt.Core.Types {
             get { return _list; }
         }
 
+        /// <summary>
+        /// Gets the <see cref="Type" /> of the items in this collection.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Type" /> of the items in this collection.
+        /// </value>
         protected abstract Type ItemType {
             get;
         }
@@ -265,6 +271,12 @@ namespace NAnt.Core.Types {
 
         #region Override implementation of DataTypeCollectionBase
 
+        /// <summary>
+        /// Gets the <see cref="Type" /> of the items in this collection.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Type" /> of the items in this collection.
+        /// </value>
         protected override Type ItemType {
             get { return typeof(NamespaceImport); }
         }
@@ -332,7 +344,7 @@ namespace NAnt.Core.Types {
         /// the collection, -1 is returned.
         /// </remarks>
         int IList.IndexOf(object value) {
-            ValidateType(value);        
+            ValidateType(value);
             return IndexOf((NamespaceImport) value);
         }
 
@@ -344,7 +356,7 @@ namespace NAnt.Core.Types {
         /// The position into which the new item was inserted.
         /// </returns>
         int IList.Add(object value) {
-            ValidateType(value);        
+            ValidateType(value);
             return Add((NamespaceImport) value);
         }
 
