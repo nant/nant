@@ -1004,7 +1004,6 @@ namespace NAnt.Core {
 
             // initialize targets and global tasks
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-                //add targets to list
                 if (childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Target target = new Target();
                     target.Project = this;
@@ -1012,7 +1011,6 @@ namespace NAnt.Core {
                     target.Initialize(childNode);
                     Targets.Add(target);
                 } else if (!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
-                    
                     if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
                         Task task = CreateTask(childNode);
 
@@ -1038,24 +1036,26 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         /// <summary>
-        /// Creates a new <see cref="XmlDocument" /> based on the project definition.
+        /// Creates a new <see cref="XmlDocument" /> based on the project 
+        /// definition.
         /// </summary>
         /// <param name="source">The source of the document.<para>Any form that is valid for <see cref="XmlDocument.Load(string)" /> can be used here.</para></param>
-        /// <returns>An <see cref="XmlDocument" /> based on the specified project definition.</returns>
+        /// <returns>
+        /// An <see cref="XmlDocument" /> based on the specified project 
+        /// definition.
+        /// </returns>
         private XmlDocument LoadBuildFile(string source) {
             XmlDocument doc = new XmlDocument();
             //Uri srcURI = new Uri(source);
             try {
                 doc.Load(source);
                 // TODO: validate against xsd schema
-            } catch (XmlException e) {
-                string message = "Error loading buildfile.";
-                Location location = new Location(source, e.LineNumber, e.LinePosition);
-                throw new BuildException(message, location, e);
-            } catch (Exception e) {
-                string message = "Error loading buildfile.";
+            } catch (XmlException ex) {
+                Location location = new Location(source, ex.LineNumber, ex.LinePosition);
+                throw new BuildException("Error loading buildfile.", location, ex);
+            } catch (Exception ex) {
                 Location location = new Location(source);
-                throw new BuildException(message, location, e);
+                throw new BuildException("Error loading buildfile.", location, ex);
             }
             return doc;
         }
