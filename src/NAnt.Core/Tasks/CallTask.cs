@@ -73,8 +73,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Force an execute even if the target has already been executed. The 
-        /// default is <see langword="false" />. <see langword="deprecated" /> as
-        /// of NAnt 0.8.4.
+        /// default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("force")]
         [System.Obsolete("The <call> task will now always force execution of the specified target, and its dependencies.", false)]
