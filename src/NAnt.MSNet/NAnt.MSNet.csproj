@@ -94,11 +94,17 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.MSNet.build"
                     BuildAction = "None"
+                />
+                <File
+                    RelPath = "Tasks\IldasmTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Tasks\ScriptTask.cs"
