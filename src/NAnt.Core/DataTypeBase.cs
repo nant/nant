@@ -31,9 +31,9 @@ namespace NAnt.Core {
     /// <remarks>A task is a piece of code that can be executed.</remarks>
     public abstract class DataTypeBase : Element {
         #region Private Instance Fields
-    
-        private string _id = "";
-        private string _ref = "";
+
+        private string _id;
+        private string _refID;
 
         #endregion Private Instance Fields
 
@@ -41,16 +41,16 @@ namespace NAnt.Core {
 
         /// <summary>The base of the directory of this file set.  Default is project base directory.</summary>
         [TaskAttribute("id" )]
-        public string Id {
+        public string ID {
             get { return _id; }
             set { _id = value; }
         }
 
         // todo if ref has value then load it from collection ...
         [TaskAttribute("refid")]
-        public string Ref {
-            get { return _ref; }
-            set { _ref = value; }
+        public string RefID {
+            get { return _refID; }
+            set { _refID = value; }
         }
 
         #endregion Public Instance Properties
@@ -74,17 +74,17 @@ namespace NAnt.Core {
 
         protected override void InitializeElement(XmlNode elementNode) {
             if (Parent.GetType() == typeof(Project) || Parent.GetType() == typeof(Target)) {
-                if (Id.Length == 0) {
+                if (ID == null || ID.Length == 0) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "'id' is a required attribute for a <{0}> datatype declaration.", Name);
                     throw new BuildException(msg, Location);
                 }
-                if (Ref.Length  > 0) {
+                if (RefID != null && RefID.Length > 0) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "'refid' attribute is invalid for a <{0}> datatype declaration.", Name);
                     throw new BuildException(msg, Location);
                 }
             } else {
-                  if (Id.Length > 0 ) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "'id' is an invalid attribute for a <{0}> tag. Datatypes can only be declared at Project or Task level.", Name );
+                  if (ID != null && ID.Length > 0 ) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "'id' is an invalid attribute for a <{0}> tag. Datatypes can only be declared at Project or Task level.", Name);
                     throw new BuildException(msg, Location);
                 }
             }
