@@ -82,22 +82,23 @@ namespace NAnt.Core {
                     }
 
                     if (!SyntaxCheckOnly()) {
-                        if (!(o is bool))
-                            return ReportParseError("Boolean value expected");
+                        if (!(o is bool)) {
+                            return ReportParseError("Boolean value expected.");
+                        }
                     }
 
                     _tokenizer.GetNextToken();
                     object o2 = ParseBooleanAnd();
                     if (!SyntaxCheckOnly()) {
-                        if (!(o2 is bool))
-                            return ReportParseError("Boolean value expected");
+                        if (!(o2 is bool)) {
+                            return ReportParseError("Boolean value expected.");
+                        }
 
-                        o = (bool)o || (bool)o2;
+                        o = (bool) o || (bool) o2;
                     }
                 }
                 return o;
-            }
-            finally {
+            } finally {
                 _evalMode = oldEvalMode;
             }
         }
@@ -117,7 +118,7 @@ namespace NAnt.Core {
 
                     if (!SyntaxCheckOnly()) {
                         if (!(o is bool)) {
-                            ReportParseError("Boolean value expected");
+                            ReportParseError("Boolean value expected.");
                         }
                     }
 
@@ -125,7 +126,7 @@ namespace NAnt.Core {
                     object o2 = ParseRelationalExpression();
                     if (!SyntaxCheckOnly()) {
                         if (!(o2 is bool)) {
-                            ReportParseError("Boolean value expected");
+                            ReportParseError("Boolean value expected.");
                         }
 
                         o = (bool) o && (bool) o2;
@@ -307,11 +308,13 @@ namespace NAnt.Core {
         }
 
         private object ParseConditional() {
-            if (_tokenizer.TokenText != "if")
-                ReportParseError("'if' expected");
+            if (_tokenizer.TokenText != "if") {
+                ReportParseError("'if' expected.");
+            }
             _tokenizer.GetNextToken();
-            if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen)
-                ReportParseError("'(' expected");
+            if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
+                ReportParseError("'(' expected.");
+            }
             _tokenizer.GetNextToken();
 
             object val = ParseExpression();
