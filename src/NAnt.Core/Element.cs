@@ -433,7 +433,8 @@ namespace NAnt.Core {
             }
 
             ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
-                Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
+                Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute),
+                false);
 
             if (elementNameAttribute != null) {
                 return elementNameAttribute.Name;
@@ -618,7 +619,8 @@ namespace NAnt.Core {
                 #region Initialize property using framework configuration
 
                 FrameworkConfigurableAttribute frameworkAttribute = (FrameworkConfigurableAttribute) 
-                    Attribute.GetCustomAttribute(propertyInfo, typeof(FrameworkConfigurableAttribute));
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(FrameworkConfigurableAttribute),
+                    false);
 
                 if (frameworkAttribute != null) {
                     // locate XML configuration node for current attribute
@@ -663,7 +665,8 @@ namespace NAnt.Core {
 
                 // process all BuildAttribute attributes
                 BuildAttributeAttribute buildAttribute = (BuildAttributeAttribute) 
-                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute));
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute),
+                    false);
 
                 if (buildAttribute != null) {
                     logger.Debug(string.Format(
@@ -782,7 +785,7 @@ namespace NAnt.Core {
                 // if a BuildAttribute was assigned to the property, then 
                 // there's no need to try to initialize this property as a 
                 // collection or nested element
-                return (buildAttribute != null);            
+                return (buildAttribute != null);
             }
 
             protected virtual bool InitializeBuildElementCollection(PropertyInfo propertyInfo) {
@@ -791,9 +794,11 @@ namespace NAnt.Core {
 
                 // do build element arrays (assuming they are of a certain collection type.)
                 buildElementArrayAttribute = (BuildElementArrayAttribute) 
-                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute),
+                    false);
                 buildElementCollectionAttribute = (BuildElementCollectionAttribute) 
-                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementCollectionAttribute));
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementCollectionAttribute),
+                    false);
 
                 if (buildElementArrayAttribute == null && buildElementCollectionAttribute == null) {
                     // continue trying to initialize property
@@ -1058,7 +1063,8 @@ namespace NAnt.Core {
             protected virtual bool InitializeChildElement(PropertyInfo propertyInfo) {
                 // now do nested BuildElements
                 BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
-                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute),
+                    false);
 
                 if (buildElementAttribute == null) {
                     return false;
@@ -1179,7 +1185,7 @@ namespace NAnt.Core {
                     // should be processed
                     BuildElementAttribute buildElementAttribute = (BuildElementAttribute)
                         Attribute.GetCustomAttribute(method, typeof(BuildElementAttribute), 
-                        true);
+                        false);
                     if (!buildElementAttribute.ProcessXml) {
                         continue;
                     }
@@ -1256,7 +1262,7 @@ namespace NAnt.Core {
                     }
                     if (!elementType.IsAssignableFrom(dataType.GetType())) {
                         // see if we have a valid copy constructor
-                        ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});                      
+                        ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});
                         if (constructor != null){
                             dataType = (DataTypeBase) constructor.Invoke(new object[] {dataType});
                         } else {
@@ -1264,7 +1270,7 @@ namespace NAnt.Core {
                                 Attribute.GetCustomAttribute(dataType.GetType(), typeof(ElementNameAttribute));
                             ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
                                 Attribute.GetCustomAttribute(elementType, typeof(ElementNameAttribute));
-                                            
+
                             // throw error wrong type definition
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 "Attempting to use a <{0}> reference where a <{1}> is required.", 
