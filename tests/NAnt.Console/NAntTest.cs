@@ -188,17 +188,19 @@ namespace Tests.NAnt.Console {
             }
 
             // using a regular expression look for a plausible version number and valid copyright date
-            string expression = @"^NAnt version (?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+) Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
+            string expression = @"^NAnt version (?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+).(?<revision>[0-9]+) Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
 
             Match match = Regex.Match(result, expression);
             Assertion.Assert("Help text does not appear to be valid.", match.Success);
             int major = Int32.Parse(match.Groups["major"].Value);
             int minor = Int32.Parse(match.Groups["minor"].Value);
             int build = Int32.Parse(match.Groups["build"].Value);
+            int revision = Int32.Parse(match.Groups["revision"].Value);
             int year  = Int32.Parse(match.Groups["year"].Value);
             Assertion.Assert("Version numbers must be positive.", major >= 0);
             Assertion.Assert("Version numbers must be positive.", minor >= 0);
             Assertion.Assert("Version numbers must be positive.", build >= 0);
+            Assertion.Assert("Version numbers must be positive.", revision >= 0);
             Assertion.AssertEquals(DateTime.Now.Year, year);
         }
 
