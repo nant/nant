@@ -1129,26 +1129,45 @@ namespace NAnt.Core {
 
             private class FileAttributeSetter : IAttributeSetter {
                 public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
-                    try {
-                        object propertyValue = new FileInfo(parent.Project.GetFullPath(value));
-                        property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
-                    } catch (Exception ex) {
+                    string path = StringUtils.ConvertEmptyToNull(value);
+                    if (path != null) {
+                        try {
+                            object propertyValue = new FileInfo(parent.Project.GetFullPath(value));
+                            property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                        } catch (Exception ex) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                value, attributeNode.Name, parent.Name), parent.Location, ex);
+                        }
+                    } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
-                            value, attributeNode.Name, parent.Name), parent.Location, ex);
+                            "An empty string is not a valid value for attribute" 
+                            + " '{0}' of <{1} ... />.", 
+                            attributeNode.Name, parent.Name), parent.Location);
                     }
                 }
             }
 
             private class DirectoryAttributeSetter : IAttributeSetter {
                 public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
-                    try {
-                        object propertyValue = new DirectoryInfo(parent.Project.GetFullPath(value));
-                        property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
-                    } catch (Exception ex) {
+                    string path = StringUtils.ConvertEmptyToNull(value);
+                    if (path != null) {
+                        try {
+                            object propertyValue = new DirectoryInfo(
+                                parent.Project.GetFullPath(value));
+                            property.SetValue(parent, propertyValue, 
+                                BindingFlags.Public | BindingFlags.Instance, 
+                                null, null, CultureInfo.InvariantCulture);
+                        } catch (Exception ex) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                value, attributeNode.Name, parent.Name), parent.Location, ex);
+                        }
+                    } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
-                            value, attributeNode.Name, parent.Name), parent.Location, ex);
+                            "An empty string is not a valid value for attribute" 
+                            + " '{0}' of <{1} ... />.", 
+                            attributeNode.Name, parent.Name), parent.Location);
                     }
                 }
             }
