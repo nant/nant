@@ -484,6 +484,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\EnvironmentVariable.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\EnvironmentVariableCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\FileSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -535,6 +545,11 @@
                 />
                 <File
                     RelPath = "Types\OptionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\PathList.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
