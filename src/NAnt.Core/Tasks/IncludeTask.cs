@@ -45,12 +45,24 @@ namespace SourceForge.NAnt.Tasks {
         static Stack _includedFileNames = new Stack();
 
         string _buildFileName = null;
+        bool _keepBaseDir = false;
 
         /// <summary>Build file to include.</summary>
         [TaskAttribute("buildfile", Required=true)]
         public string BuildFileName {
             get { return _buildFileName; }
             set { _buildFileName = value; }
+        }
+
+        /// <summary>
+        /// If set to false (the default), any references to ${nant.project.basedir} in the included build file are resolved to the location of this external build file.
+        /// If set to true, any references to ${nant.project.basedir} in the includes build file are resolved to the location of the build file which contains the &lt;include&gt; statement.
+        /// </summary>
+        [TaskAttribute("keepbasedir")]
+        [BooleanValidator]
+        public bool KeepBaseDir {
+            get { return _keepBaseDir; }
+            set { _keepBaseDir = value; }
         }
 
         public void InitializeIncludedDocument(XmlDocument doc) {
@@ -104,8 +116,10 @@ namespace SourceForge.NAnt.Tasks {
             _includedFileNames.Push(includedFileName);
             string oldBaseDir = Project.BaseDirectory;
             
-            // set the base dir so that paths are relative to the include file and not the main build-file
-            Project.BaseDirectory = Path.GetDirectoryName( includedFileName );
+            if (!_keepBaseDir) {
+                // set the base dir so that paths are relative to the include file and not the main build-file
+                Project.BaseDirectory = Path.GetDirectoryName( includedFileName );
+            }
             
             try {
                 XmlDocument doc = new XmlDocument();
