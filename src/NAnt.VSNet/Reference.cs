@@ -21,6 +21,7 @@
 
 using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -151,10 +152,6 @@ namespace NAnt.VSNet {
                     _isSystem = true;
                 } else {
                     FileInfo fiRef = new FileInfo(Path.Combine(ps.RootDirectory, elemReference.Attributes["HintPath"].Value));
-                    // We may be loading a project whose references are not compiled yet
-                    //if ( !fiRef.Exists )
-                    //    throw new Exception( "Couldn't find referenced assembly: " + _strReferenceFile );
-
                     _baseDirectory = fiRef.Directory;
                     _referenceFile = fiRef.FullName;
                     _copyLocal = _privateSpecified ? _isPrivate : true;
@@ -168,6 +165,14 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets a value indicating whether the output file(s) of this reference 
+        /// should be copied locally.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the output file(s) of this reference 
+        /// should be copied locally; otherwise, <see langword="false" />.
+        /// </value>
         public bool CopyLocal {
             get { return _copyLocal; }
         }
@@ -194,10 +199,24 @@ namespace NAnt.VSNet {
             set { _configurationSettings = value; }
         }
 
+        /// <summary>
+        /// Gets the name of the reference.
+        /// </summary>
+        /// <value>
+        /// The name of the reference.
+        /// </value>
         public string Name {
             get { return _name; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this reference represents a system 
+        /// assembly.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if this reference represents a system 
+        /// assembly; otherwise, <see langword="false" />.
+        /// </value>
         public bool IsSystem {
             get { return _isSystem; }
         }
@@ -206,6 +225,14 @@ namespace NAnt.VSNet {
             get { return _project; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this is a reference to another
+        /// project.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if this is a reference to another project;
+        /// otherwise, <see langword="false" />.
+        /// </value>
         public bool IsProjectReference {
             get { return _project != null; }
         }
@@ -252,16 +279,19 @@ namespace NAnt.VSNet {
         public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings) {
             StringCollection referencedFiles = new StringCollection();
 
-            if (Project != null) {
+            // check if we're dealing with a project reference
+            if (IsProjectReference) {
+                // get output file of project
                 _referenceFile = Project.GetConfiguration(
                     configurationSettings.Name).OutputPath; 
             }
 
             FileInfo fi = new FileInfo(_referenceFile);
             if (!fi.Exists) {
-                if (Project == null) {
+                if (!IsProjectReference) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Couldn't find referenced assembly '{0}'.", _referenceFile), Location.UnknownLocation);
+                        "Couldn't find referenced assembly '{0}'.", _referenceFile), 
+                        Location.UnknownLocation);
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Couldn't find referenced project '{0}' output file, '{1}'.",
@@ -270,7 +300,7 @@ namespace NAnt.VSNet {
             }
 
             // get a list of the references in the output directory
-            foreach (string referenceFile in Directory.GetFiles(fi.DirectoryName, "*.dll")) {
+            foreach (string referenceFile in GetAllReferencedModules(_referenceFile)) {
                 // now for each reference, get the related files (.xml, .pdf, etc...)
                 string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
 
@@ -288,19 +318,18 @@ namespace NAnt.VSNet {
             return referencedFiles;
         }
 
-
         /// <summary>
         /// Searches for the reference file.
         /// </summary>
         public void ResolveFolder() {
             if (IsSystem || IsProjectReference) {
-                //do not resolve system assemblies or project references
+                // do not resolve system assemblies or project references
                 return;
             }
 
             FileInfo fiRef = new FileInfo(_referenceFile);
             if (fiRef.Exists) {
-                //referenced file found - no other tasks required
+                // referenced file found - no other tasks required
                 return;
             }
 
@@ -315,6 +344,43 @@ namespace NAnt.VSNet {
         #endregion Public Instance Methods
 
         #region Private Instance Methods
+
+        private string[] GetAllReferencedModules(string module) {
+            string fullPathToModule = Path.GetFullPath(module);
+            string moduleDirectory = Path.GetDirectoryName(fullPathToModule);
+            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+
+            Hashtable allReferences = new Hashtable();
+            Hashtable unresolvedReferences = new Hashtable();
+
+            try {
+                ReferencesResolver referencesResolver =
+                    ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                        typeof(ReferencesResolver).FullName).Unwrap());
+
+                allReferences.Add(fullPathToModule, null);
+                unresolvedReferences.Add(fullPathToModule, null);
+
+                while (unresolvedReferences.Count > 0) {
+                    IDictionaryEnumerator unresolvedEnumerator = unresolvedReferences.GetEnumerator();
+                    unresolvedEnumerator.MoveNext();
+
+                    string referenceToResolve = (string) unresolvedEnumerator.Key;
+
+                    unresolvedReferences.Remove(referenceToResolve);
+
+                    referencesResolver.AppendReferencedModulesLocatedInGivenDirectory(moduleDirectory,
+                        referenceToResolve, ref allReferences, ref unresolvedReferences);
+
+                }
+            } finally {
+                AppDomain.Unload(temporaryDomain);
+            }
+
+            string[] result = new string[allReferences.Keys.Count];
+            allReferences.Keys.CopyTo(result, 0);
+            return result;
+        }
 
         /// <summary>
         /// Searches for the given file in all paths in <paramref name="folderList" />.
@@ -420,5 +486,23 @@ namespace NAnt.VSNet {
         private SolutionTask _solutionTask;
 
         #endregion Private Instance Fields
+    }
+
+    // Placed here because you cannot instantiate type nested in another type by using AppDomain methods
+    public class ReferencesResolver : MarshalByRefObject {
+        public void AppendReferencedModulesLocatedInGivenDirectory(string moduleDirectory, string moduleName, ref Hashtable allReferences, ref Hashtable unresolvedReferences) {
+            Assembly module = Assembly.LoadFrom(moduleName);
+            AssemblyName[] referencedAssemblies = module.GetReferencedAssemblies();
+
+            foreach (AssemblyName referencedAssemblyName in referencedAssemblies) {
+                string fullPathToReferencedAssembly = Path.Combine(moduleDirectory, referencedAssemblyName.Name + ".dll");
+
+                // we only add referenced assemblies which are located in given directory
+                if (File.Exists(fullPathToReferencedAssembly) && !allReferences.ContainsKey(fullPathToReferencedAssembly)) {
+                    allReferences.Add(fullPathToReferencedAssembly, null);
+                    unresolvedReferences.Add(fullPathToReferencedAssembly, null);
+                }
+            }
+        }
     }
 }
