@@ -581,7 +581,7 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.defaultframework"] = DefaultFramework.Name;    
             Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
             Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
-            Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.SdkDirectory.FullName; 
+            Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.defaultframework.csharpcompiler"] = DefaultFramework.CSharpCompilerName; 
             Properties["nant.settings.defaultframework.resgentool"] = DefaultFramework.ResGenToolName; 
             Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;             
@@ -594,7 +594,7 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.currentframework"] = CurrentFramework.Name;
             Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName; 
             Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
-            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.SdkDirectory.FullName; 
+            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.currentframework.csharpcompiler"] = CurrentFramework.CSharpCompilerName; 
             Properties["nant.settings.currentframework.resgentool"] = CurrentFramework.ResGenToolName; 
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
