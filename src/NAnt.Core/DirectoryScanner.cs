@@ -305,7 +305,7 @@ namespace SourceForge.NAnt {
 
         private bool IsCaseSensitiveFileSystem(string path) {
             //Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
-            return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetDirectoryName(path) + Path.DirectorySeparatorChar))); 
+            return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar))); 
         }
 
         /// <summary>
@@ -331,7 +331,7 @@ namespace SourceForge.NAnt {
             // get info for the current directory
             DirectoryInfo currentDirectoryInfo = new DirectoryInfo(path);
             
-            bool caseSensitive = VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetDirectoryName(path) + Path.DirectorySeparatorChar));
+            bool caseSensitive = VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar));
 
             foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
                 if (recursive) {
