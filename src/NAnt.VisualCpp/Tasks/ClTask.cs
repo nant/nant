@@ -91,7 +91,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         public ClTask() {
             _resolvedIncludes = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _includeRegex = new Regex("^[\\S\\s]*#include[\\S\\s]*\"(?'includefile'[^\"]+)\"[\\S\\s]*$");
+            _includeRegex = new Regex("^[\\s]*#include[\\s]*[\"<](?'includefile'[^\">]+)[\">][\\S\\s]*$");
         }
 
         #endregion Public Instance Constructors
@@ -604,16 +604,6 @@ namespace NAnt.VisualCpp.Tasks {
                             }
                         }
 
-                        // if we could not locate include in include dirs
-                        // then check for include in source directory
-                        if (resolvedInclude == null) {
-                            string foundIncludeFile = FileUtils.CombinePaths(
-                                Path.GetDirectoryName(srcFileName), includeFile);
-                            if (File.Exists(foundIncludeFile)) {
-                                resolvedInclude = foundIncludeFile;
-                            }
-                        }
-
                         // if we could not locate include in include dirs and
                         // source dir, then try to locate include in INCLUDE 
                         // env var
@@ -623,6 +613,17 @@ namespace NAnt.VisualCpp.Tasks {
                             StringCollection includes = pathScanner.Scan("INCLUDE");
                             if (includes.Count > 0) {
                                 resolvedInclude = includes[0];
+                            }
+                        }
+
+                        // if we could not locate include in include dirs
+                        // and INCLUDE env var then check for include in current 
+                        // directory
+                        if (resolvedInclude == null) {
+                            string foundIncludeFile = FileUtils.CombinePaths(
+                                Directory.GetCurrentDirectory(), includeFile);
+                            if (File.Exists(foundIncludeFile)) {
+                                resolvedInclude = foundIncludeFile;
                             }
                         }
 
