@@ -96,6 +96,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "Tasks\GUnzip.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\TarTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
