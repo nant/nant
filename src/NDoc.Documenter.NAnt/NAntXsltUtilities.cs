@@ -596,6 +596,11 @@ namespace NDoc.Documenter.NAnt {
                 return partialURL;
             }
 
+            // check if type derives from NAnt.Core.Element
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) {
+                return "elements/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+            }
+
             return "../sdk/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
         }
 
