@@ -56,7 +56,7 @@
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/nightly/builds/${sf.net.deploy.path}" />
+            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/${nightly.builds.path}" />
         </exec>
         <!-- copy the schema file to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/schema" program="scp">
