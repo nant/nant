@@ -2,16 +2,16 @@
 <html>
 <head>
   <title>NAnt Change Log</title>
-		 		
+
   <meta http-equiv="Content-Language" content="en-ca">
-		
+
   <meta http-equiv="Content-Type"
  content="text/html; charset=windows-1252">
-		
+
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-		
+
 <table width="100%" border="0" cellspacing="0" cellpadding="2"
  class="NavBar">
 			<tbody>
@@ -20,24 +20,278 @@
  href="index.html"><b>NAnt</b></a> 					<img src="arrow.gif" alt="-&gt;">
 Change Log</td>
 			</tr>
-		
+
   </tbody>
 </table>
-		
+
 <table align="right">
 			<tbody>
     <tr>
 				<td><a href="index.html"><img border="0"
  alt="NAnt logo (link to home page)" src="logo.gif"></a></td>
 			</tr>
-		
+
   </tbody>
 </table>
-		
-<h1><span class="N">N</span><span class="Ant">Ant</span> 			Change Log</h1>
+
+<h1><span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
+<h3>0.8.3-rc1 July 10, 2003</h3>
+<h4>USER-VISIBLE CHANGES</h4>
+ <ul>
+ <li>
+ <dt>NAntContrib is now distributed with NAnt.</dt>
+  <dd>To better support the frequently-used NAntContrib extensions, the library
+is now distributed as part of the NAnt release.</dd>
+</li>
+ <li>
+ <dt>Preliminary Linux support with Mono 0.25.</dt>
+   <dd>This is the first release with Linux support, so please report any issues
+you encounter. The next release will be fully tested and documented on both
+Linux and Windows.</dd>
+</li>
+<li> <dt>New Tasks</dt>
+   <dd>See the user documentation for usage details.</dd>
+   <ul>
+   <li>cvs:  Performs various CVS tasks.</li>
+   <li>cvs-checkout:  Checkout source from CVS.</li>
+   <li>cvs-update:  Update source from CVS.</li>
+   <li>solution: compile .sln directly.  In most cases, this means you no
+longer have to preprocess a solution with the slingshot tool. Supports both
+Visual Studio .NET and Visual Studio 2003.</li>
+</ul>
+
+</li>
+ <li>  <dt>Changed Tasks</dt>
+   <dd>See the section below for details.</dd>
+</li>
+ <li>  <dt>Fileset References</dt>
+   <dd>You can now define a named fileset and refer to it anywhere a fileset is
+used.</dd>
+</li>
+</ul>
+<h4>DEVELOPER-VISIBLE CHANGES</h4>
+ <ul>
+ <li><dt>Namespace changes</dt>
+   <dd>There have been major code reorganizations since the last release.</dd>
+   <ul>
+   <li>  "SourceForge" is no longer part of the NAnt namespaces.</li>
+   <li>  Split classes up into Tasks and Types.</li>
+   <li>  Task assemblies now have their own namespaces.</li>
+   <li>  Removed Msft prefix from base classes.</li>
+   </ul>
+   </li>
+  <li>  <dt>Logging framework changed</dt>
+  <ul>
+  <li>The logging framework is now based on
+Log4Net.</li>
+  <li>  Refactored NAnt (build) logging system : moved to an event driver
+logging system, and allow thresholds to be set.  The build outcome is now
+completely handled by the loggers.</li>
+   <li>  Replaced the LogListener with an IBuildLogger interface for loggers
+and an IBuildListener interface for build listeners.</li>
+   <li>  The ConsoleLogger is replaced by a DefaultLogger, which always logs to
+the console, and which can also be configured to log to a file (using the
+-logfile option).</li>
+   <li>  The static Log class is removed and replaced by instance methods on
+the Project and Task classes.  These instance methods actually fire events
+that get handled by the build logger and buid listeners.</li>
+   <li>  Added a Level enum that is used to assign a priority (level) to a
+message.  This allows messages to be filtered on their priority.</li>
+   <li>  Added a strongly typed collection for the build listeners.</li>
+   <li>  Updated all existing logging statements to use the new logging system
+instead of the static Log class.  Assigned levels to the existing logging
+statements.</li>
+   <li>  Added MailLogger that can be used to send the build results as an
+email, see xml docs for how its to be configured</li>
+</ul>
+</li>
+  <li>  Many, many style/structure/documentation fixes.  More that are worth
+listing here.</li>
+
+  <li>  Fixed NUnit2 support for filesets.</li>
+
+  <li>  Prevent warnings for using obsolete methods to allow NDoc Document.Nant
+to build on .NET 1.1 runtime.</li>
+
+  <li>  Nightly.xml No longer depends on NAntContrib tasks.</li>
+  <li>  Moved mail task and test back into core as its working fine on linux
+now.</li>
+
+  <li> New attribute-driven command-line parser.
+</li>
+</ul>
+<h4>SLINGSHOT CHANGES</h4>
+ <ul>
+ <li>Fixed defect: slingshot now handles the fact that sln/proj files might
+have a disparate list of configurations.</li>
+
+ <li> Fixed defect: if a configuration name contains whitespace, it is
+referenced in the slingshot output .build file w/ hyphens replacing
+whitespace, as nant can't deal w/ blanks in target names.</li>
+
+ <li>  Added flexibility: the Clean.* targets are generated from the existing
+list of configurations, in addition to the only hardcoded DebugClean and
+ReleaseClean targets.</li>
+
+ <li> Fixed limitation around references: references that are set to "Copy
+Local=true" get copied to the build directory before compilation. Otherwise,
+the reference paths are explicitly listed in &lt;references>&lt;includes>.
+
+ <li>  New parameter: (per a suggestion from a user who replied to my notice of
+impending changes) starting slingshot with the parameter replacerefs=...
+triggers the reference paths to be replaced with the name of the build
+configuration. For example, if projB references
+d:\proj\projA\bin\Debug\projA.dll, when you slingshot projB with parameter
+"replacerefs=Debug", the reference to projA will look like
+d:\proj\projA\bin\${slingshot.config}\projA.dll. when you then build
+projB.build for config Release, the projA reference will look like this:
+d:\proj\projA\bin\Release\projA.dll.</li>
+
+ <li>  Added support for WarningLevel (now that it's available in nant)</li>
+ </ul>
+<h4>COMMAND-LINE CLIENT CHANGES</h4>
+<ul>
+ <li>  Changed target back to the default argument.</li>
+
+ <li>  Moved company information (http://nant.sourceforge.net) from help text
+to logo banner</li>
+
+ <li>  Added support for running default.build if there are multiple build
+files in a directory.</li>
+
+ <li>  Added support for collection-based command-line options, with the
+following restrictions :
+<ul>
+	<li> property type should implement ICollection</li>
+	<li> collection should have an Add method with one parameter</li>
+	<li> The parameter of the Add method should be strongly-typed</li>
+	<li> collection should have a default public constructor</li>
+	<li> the property should have a setter if the collection is not
+initialized (null reference)</li>
+</ul>
+</li>
+
+ <li>  Fixed "bug" where ApplicationException would no longer be throw when no
+matching buildfile is found after searching the directory tree upwards.</li>
+
+ <li>  Updated short form of buildfile to -f.</li>
+
+ <li>  Added -q shortname for -quiet command-line option.</li>
+
+ <li>  Changed description of -indent command-line option.</li>
+
+ <li>  Added command-line option for adding build listeners.</li>
+
+ <li>  Updated xml documentation.</li>
+
+ <li>  Added command-line options for filtering build output (-debug and
+-quiet).</li>
+
+ <li>  Jarek's patch to allow setting of the default framework from the command
+line, fixes bug 729778.</li>
+
+ <li>  Always use identifier mono-1.0 for mono framework, no use in always
+creating new framework configurations for every mono release</li>
+ </ul>
+
+<h4>CHANGED TASKS</h4>
+<h5>&lt;exec&gt;</h5>
+  <ul><li> added support for an environment optionset to the exec task</li>
+  <li> fixed optionset so that it correctly returns optionvalues</li>
+<li> remove Timeout from ExecTask, make Timeout in ExternalProgramBase a task
+attribute and make it writable.</li>
+<li> Throw buildexception is process has not exited after timeout.</li>
+</ul>
+<h5>&lt;VJC&gt;</h5>
+  <ul><li> added attribute for setting the warninglevel (0-4)</li>
+  <li> added attribute for specifiying list of warnings that should be
+suppressed by the compiler.</li>
+</ul>
+
+<h5>&lt;JSC&gt;</h5>
+<ul><li> added support for codepage compiler flag to csc and jsc tasks</li>
+<li> added attribute for setting the warninglevel (0-4)
+</li>
+</ul>
+<h5>&lt;CSC&gt;</h5>
+<ul><li> added support for codepage compiler flag to csc and jsc tasks</li>
+<li> renamed optionoptimize attribute to optimize</li>
+<li> added attribute for setting the warninglevel (0-4)</li>
+<li> added attribute for specifiying list of warnings that should be suppressed
+by the compiler</li>
+<li>patch from Justin Santa Barbara to add optimize flag to csc</li>
+<li> fixed csc example
+</li>
+</ul>
+<h5>&lt;nantSchema&gt;</h5>
+<ul><li> added makefile for building on linux. Also a new bin directory for lnx
+specific binaries
+</li>
+</ul>
+<h5>&lt;mcs&gt;</h5>
+<ul><li> removed mcs task. the csc task in combination with the framework support
+should be used instead.
+</li>
+</ul>
+<h5>&lt;nant&gt;</h5>
+<ul><li> fixed problem with basedir in nested <nant> build being incorrect if
+basedir="." is used</li>
+<li> have the new project inherit the default framework from the current
+project
+</li>
+</ul>
+<h5>&lt;MSI&gt;</h5>
+<ul><li> Only creates msm com class if needed. Patch by Justin Santa Barbara
+justinsb@consonica.com</li>
+<li> Commit to the database more often, to help narrow failure points.  Also, I
+removed re-initializing the database object after commits.
+</li>
+</ul>
+<h5>&lt;delete&gt;</h5>
+<ul><li> added #if mono statements to work around a File.SetAttributes bug in mono</li>
+<li> reenabled File.SetAttributes on Mono build as bug #41999 has been fixed
+</li>
+</ul>
+<h5>&lt;copy&gt;</h5>
+<ul><li> fix for copytask breakage on linux</li>
+<li> reenabled File.SetAttributes on Mono build as bug #41999 has been fixed
+</li>
+</ul>
+<h5>&lt;if&gt;</h5>
+<ul><li> fixed logging bug with parenthesis instead of brace. Caused &lt;if
+uptodate...> to fail erroneously.
+</li>
+</ul>
+<h5>&lt;gac&gt;</h5>
+<ul><li> Tom jordans Patch for gactask
+</li>
+</ul>
+<h5>&lt;CL> and &lt;LINK&gt;</h5>
+<ul><li> on demand compile support for link and cl tasks</li>
+<li> unit tests for the cl and link tasks</li>
+<li> moved visualCpptasks into Win32Assemblies so it doesn't get built in a
+mono/linux build
+</li>
+</ul>
+<h5>&lt;fileset&gt;</h5>
+<ul><li> added support for fileset references. Framework for making all types
+referencable but only implemented forfilesets right now
+</li>
+</ul>
+<h5>&lt;mail&gt;</h5>
+<ul><li> re-enabled usage of StringWriter constructor with CultureInfo as this bug
+in Mono is fixed</li>
+<li> code restructure</li>
+<li> no longer have empty strings as default.</li>
+<li> bcc and cc are no longer set to an empty string when not specified in
+buildfile, thereby preventing problems with bug #45746.
+</li>
+</ul>
+<hr />
 <h3>0.8.2 April 24, 2003</h3>
 <ul>
   <li>Misc bugfixes</li>
+</ul>
 <h3>0.8.2-rc3 April 17, 2003</h3>
 <ul>
   <li>&lt;if&gt; task changes to support the uptodate test<br>
@@ -92,7 +346,7 @@ LoopTask's file line mode.</li>
   </li>
 </ul>
 <h3>0.7.9 June 11, 2002</h3>
-		
+
 <ul>
 			<li> 			If more than one build file matches the criteria, e.g. two
 files ending in 			.build than nant will report an error. 			</li>
@@ -136,7 +390,7 @@ added asis 			attribute) 			</li>
 attributes 			</li>
   <li> 			SLiNgshoT - a Visual Studio.NET solution,&nbsp;and make,
 converter&nbsp;- was 			donated to the NAnt Extras by Jason Diamond. 			</li>
-  <li> 				New Unit Tests added 				
+  <li> 				New Unit Tests added
     <ul>
 					<li> 					CallTest.cs 					</li>
       <li> 					DeleteTest.cs 					</li>
@@ -147,7 +401,7 @@ converter&nbsp;- was 			donated to the NAnt Extras by Jason Diamond. 			</li>
       <li> 						PropertyTest.cs</li>
     </ul>
 			</li>
-  <li> 				New Properties added during project initilization 				
+  <li> 				New Properties added during project initilization
     <ul>
 					<li> 					nant.location points to nant.exe directory 					</li>
       <li> 						nant.tasks.[TaskName].location points to [TaskName]
@@ -155,7 +409,7 @@ host assembly</li>
     </ul>
 			</li>
   <li> 			NAnt task now inherits properties to new project 			</li>
-  <li> 				Tasks moved to NAntContrib Project 				
+  <li> 				Tasks moved to NAntContrib Project
     <ul>
 					<li> 					GacTask.cs 					</li>
       <li> 					RcTask.cs 					</li>
@@ -168,11 +422,11 @@ host assembly</li>
 			</li>
   <li> 			NUnit XML format updated 			</li>
   <li> 				Many, many, many bugs fixed</li>
-		
+
 </ul>
-		
+
 <h3>0.7.749 January 19, 2002</h3>
-		
+
 <ul>
 			<li> 			Extra SourceSafe task added to src\Extras folder - thanks to
 Jason Reimer 			</li>
@@ -190,14 +444,14 @@ thanks to Mike 			Krueger 			</li>
 exceptions and 			program return codes now 			</li>
   <li> 			Unit tests are now run as part of the buid process 			</li>
   <li> 			Touch task added - thanks to Jay Turpin 			</li>
-  <li> 				NUnit overhaul 				
+  <li> 				NUnit overhaul
     <ul>
 					<li> 					camelCase'ed attributes, haltOnFailure, haltOnError 					</li>
       <li> 					renamed printsummary to verbose 					</li>
       <li> 					replaced SummaryResultFormatter with improved
 SummaryFormatter 					</li>
       <li> 						added VerboseFormatter</li>
-				
+
     </ul>
 			</li>
   <li> 			Get task added - thanks to Jay Turpin 			</li>
@@ -207,14 +461,14 @@ SummaryFormatter 					</li>
   <li> 			NAnt.exe split into NAnt.exe and NAnt.Core.dll 			</li>
   <li> 			Al task added - thanks to Joe Jones 			</li>
   <li> 			ResGen task added - thanks to Joe Jones 			</li>
-  <li> 			Zip task added - thanks to Mike Krüger 			</li>
+  <li> 			Zip task added - thanks to Mike Krger 			</li>
   <li> 			cl task added - thanks to Shawn Van Ness 			</li>
   <li> 				.NET v1.0.3705 (RTM) support</li>
-		
+
 </ul>
-		
+
 <h3>0.6.0 September 18, 2001</h3>
-		
+
 <ul>
 			<li> 			report build file xml errors in a useful way 			</li>
   <li> 			report error location when tasks are missing required
@@ -242,11 +496,11 @@ Sergey Chaban for 			reporting 			</li>
   <li> 			-verbose command line option added 			</li>
   <li> 				build file can now build complete distribution, try 'nant
 dist'</li>
-		
+
 </ul>
-		
+
 <h3>0.5.0 August 22, 2001</h3>
-		
+
 <ul>
 			<li> 			complete overhaul of the web site and doc folder (all html
 files) 			</li>
@@ -273,11 +527,11 @@ where errors 			occur - thanks to Ian MacLean 			</li>
   <li> 			added -set option (try 'nant -set:debug=true clean build') 			</li>
   <li> 				changed verions number to 0.5 to reflect the number of
 changes in the code base</li>
-		
+
 </ul>
-		
+
 <h3>0.1.5 July 22, 2001</h3>
-		
+
 <ul>
 			<li> 			only compiles program if source file last write time &gt;
 output last write 			time 			</li>
@@ -297,7 +551,7 @@ value) 			</li>
   <li> 			changes to Project class on how to initialize a project and
 run it 			</li>
   <li> 			right aligned task prefixes to clean up output 			</li>
-  <li> 				added or enhanced these tasks 				
+  <li> 				added or enhanced these tasks
     <ul>
 					<li> 					vbc, jsc, csc 					</li>
       <li> 					move 					</li>
@@ -305,16 +559,16 @@ run it 			</li>
       <li> 					taskdef 					</li>
       <li> 					tstamp 					</li>
       <li> 						exec (failonerror attribute)</li>
-				
+
     </ul>
 			</li>
-		
+
 </ul>
-		
+
 <h3>0.1.4 July 19, 2001</h3>
-		
+
 <ul>
-			<li> 				added or enhanced these tasks 				
+			<li> 				added or enhanced these tasks
     <ul>
 					<li> 					echo 					</li>
       <li> 					fail 					</li>
@@ -323,14 +577,14 @@ run it 			</li>
       <li> 					delete (respects basedir) 					</li>
       <li> 					mkdir (respects basedir) 					</li>
       <li> 						exec</li>
-				
+
     </ul>
 			</li>
-		
+
 </ul>
-		
+
 <h3>0.1.3 July 18, 2001</h3>
-		
+
 <ul>
 			<li> 			dependencies working via depends attribute on targets 			</li>
   <li> 			changed name from NBuild to NAnt 			</li>
@@ -342,22 +596,22 @@ would autoinit 			</li>
   <li> 			broke into seperate source files (one per class) 			</li>
   <li> 				changed default build file from Project.xml to the first file
 with a .build 				extension</li>
-		
+
 </ul>
-		
+
 <h3>0.1.2 July 16, 2001</h3>
-		
+
 <ul>
 			<li> 				basic functionality to have NAnt build itself (csc task)</li>
-		
+
 </ul>
-		
+
 <h3>0.1.1 July 5, 2001</h3>
-		
+
 <ul>
 			<li> 				initial test version</li>
-		
+
 </ul>
-	
+
 </body>
 </html>
