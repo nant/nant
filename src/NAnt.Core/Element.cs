@@ -117,7 +117,7 @@ namespace SourceForge.NAnt {
 
                     // check if its required
                     if (attributeNode == null && buildAttribute.Required) {
-                        throw new BuildException(String.Format("'{0}' is a required attribute.", buildAttribute.Name), Location);
+                        throw new BuildException(String.Format("'{0}' is a required attribute of <{1} ... \\>.", buildAttribute.Name, this.Name), Location);
                     }
 
                     if (attributeNode != null) {
@@ -177,13 +177,13 @@ namespace SourceForge.NAnt {
                     XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
                     // check if its required
                     if (nestedElementNode == null && buildElementAttribute.Required) {
-                        throw new BuildException(String.Format("'{0}' is a required element.", buildElementAttribute.Name), Location);
+                        throw new BuildException(String.Format("'{0}' is a required element of <{1} ...//>.", buildElementAttribute.Name, this.Name), Location);
                     }
                     if (nestedElementNode != null) {
                         Element childElement = (Element)propertyInfo.GetValue(this, null);
                         // Sanity check: Ensure property wasn't null.
                         if ( childElement == null )
-                            throw new BuildException(String.Format("Property '{0}' value cannot be null", propertyInfo.Name), Location);
+                            throw new BuildException(String.Format("Property '{0}' value cannot be null for <{1} ...//>", propertyInfo.Name, this.Name), Location);
                         childElement.Project = Project;
                         childElement.Initialize(nestedElementNode);
                     }                        
