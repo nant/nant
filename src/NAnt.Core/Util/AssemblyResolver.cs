@@ -118,13 +118,24 @@ namespace NAnt.Core.Util {
                 }
             }
 
-            // find assembly in cache
+            // find assembly in cache (considering args.Name is full assembly name)
             if (_assemblyCache.Contains(args.Name)) {
                 // output debug message
                 Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from cache.", 
                     args.Name);
-                // return assembly from cache                
+                // return assembly from cache
                 return (Assembly) _assemblyCache[args.Name];
+            }
+
+            // find assembly in cache (considering args.Name is simple assembly name)
+            foreach (Assembly assembly in _assemblyCache) {
+                if (assembly.GetName(false).Name == args.Name) {
+                    // output debug message
+                    Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from cache.", 
+                        args.Name);
+                    // return assembly from cache
+                    return assembly;
+                }
             }
 
             // output debug message
