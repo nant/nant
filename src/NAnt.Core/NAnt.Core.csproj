@@ -587,26 +587,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Types\Filter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Types\FilterCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Types\FilterSet.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Types\FilterSetCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Types\Formatter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -703,11 +683,6 @@
                 />
                 <File
                     RelPath = "Util\DefaultCommandLineArgumentAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Util\FileUtils.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
