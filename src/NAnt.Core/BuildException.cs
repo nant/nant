@@ -33,6 +33,9 @@ namespace NAnt.Core {
     public class BuildException : ApplicationException {
         #region Private Instance Fields
 
+        /// <summary>
+        /// The location of the exception in the build document (xml file).
+        /// </summary>
         private Location _location = Location.UnknownLocation;
 
         #endregion Private Instance Fields
