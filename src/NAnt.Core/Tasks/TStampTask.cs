@@ -58,7 +58,7 @@ namespace SourceForge.NAnt.Tasks {
 
         string _property = null;
         string _pattern = null;
-        TimestampFormatterElementCollection _timestampFormatterElements = new TimestampFormatterElementCollection();
+        TimestampFormatterElementCollection _formatters = new TimestampFormatterElementCollection();
 
         #endregion Private Instance Fields
 
@@ -146,8 +146,8 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         [BuildElementArray("formatter")]
-        public TimestampFormatterElement[] SetFormatters {
-            set { _timestampFormatterElements.AddRange(value); }
+        public TimestampFormatterElementCollection Formatters {
+            get { return _formatters; }
         }
 
         #endregion Public Instance Properties
@@ -171,16 +171,13 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             // set properties set in formatters nested elements
-            foreach (TimestampFormatterElement f in _timestampFormatterElements) {
+            foreach (TimestampFormatterElement f in Formatters) {
                 Properties[f.Property] = now.ToString(f.Pattern, CultureInfo.InvariantCulture);
                 Log.WriteLineIf(Verbose, LogPrefix + f.Property + " = " + Properties[f.Property].ToString(CultureInfo.InvariantCulture));
             }
         }
 
         #endregion Override implementation of Task
-
-        private class TimestampFormatterElementCollection : ArrayList {
-        }
 
     }
 
@@ -214,5 +211,213 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         #endregion Public Instance Properties
+    }
+
+    /// <summary>
+    /// Contains a strongly typed collection of <see cref="TimestampFormatterElement"/> objects.
+    /// </summary>
+    [Serializable]
+    public class TimestampFormatterElementCollection : CollectionBase {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimestampFormatterElementCollection"/> class.
+        /// </summary>
+        public TimestampFormatterElementCollection() {
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimestampFormatterElementCollection"/> class
+        /// with the specified <see cref="TimestampFormatterElementCollection"/> instance.
+        /// </summary>
+        public TimestampFormatterElementCollection(TimestampFormatterElementCollection value) {
+            AddRange(value);
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimestampFormatterElementCollection"/> class
+        /// with the specified array of <see cref="TimestampFormatterElement"/> instances.
+        /// </summary>
+        public TimestampFormatterElementCollection(TimestampFormatterElement[] value) {
+            AddRange(value);
+        }
+
+        #endregion Public Instance Constructors
+        
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the element to get or set.</param>
+        [System.Runtime.CompilerServices.IndexerName("Item")]
+        public TimestampFormatterElement this[int index] {
+            get {return ((TimestampFormatterElement)(base.List[index]));}
+            set {base.List[index] = value;}
+        }
+
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+        
+        /// <summary>
+        /// Adds a <see cref="TimestampFormatterElement"/> to the end of the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="TimestampFormatterElement"/> to be added to the end of the collection.</param> 
+        /// <returns>The position into which the new element was inserted.</returns>
+        public int Add(TimestampFormatterElement item) {
+            return base.List.Add(item);
+        }
+
+        /// <summary>
+        /// Adds the elements of a <see cref="TimestampFormatterElement"/> array to the end of the collection.
+        /// </summary>
+        /// <param name="items">The array of <see cref="TimestampFormatterElement"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(TimestampFormatterElement[] items) {
+            for (int i = 0; (i < items.Length); i = (i + 1)) {
+                Add(items[i]);
+            }
+        }
+
+        /// <summary>
+        /// Adds the elements of a <see cref="TimestampFormatterElementCollection"/> to the end of the collection.
+        /// </summary>
+        /// <param name="items">The <see cref="TimestampFormatterElementCollection"/> to be added to the end of the collection.</param> 
+        public void AddRange(TimestampFormatterElementCollection items) {
+            for (int i = 0; (i < items.Count); i = (i + 1)) {
+                Add(items[i]);
+            }
+        }
+        
+        /// <summary>
+        /// Determines whether a <see cref="TimestampFormatterElement"/> is in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="TimestampFormatterElement"/> to locate in the collection.</param> 
+        /// <returns>
+        /// <c>true</c> if <paramref name="item"/> is found in the collection;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(TimestampFormatterElement item) {
+            return base.List.Contains(item);
+        }
+        
+        /// <summary>
+        /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
+        /// </summary>
+        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
+        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+        public void CopyTo(TimestampFormatterElement[] array, int index) {
+            base.List.CopyTo(array, index);
+        }
+        
+        /// <summary>
+        /// Retrieves the index of a specified <see cref="TimestampFormatterElement"/> object in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="TimestampFormatterElement"/> object for which the index is returned.</param> 
+        /// <returns>
+        /// The index of the specified <see cref="TimestampFormatterElement"/>. If the <see cref="TimestampFormatterElement"/> is not currently a member of the collection, it returns -1.
+        /// </returns>
+        public int IndexOf(TimestampFormatterElement item) {
+            return base.List.IndexOf(item);
+        }
+        
+        /// <summary>
+        /// Inserts a <see cref="TimestampFormatterElement"/> into the collection at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="item">The <see cref="TimestampFormatterElement"/> to insert.</param>
+        public void Insert(int index, TimestampFormatterElement item) {
+            base.List.Insert(index, item);
+        }
+        
+        /// <summary>
+        /// Returns an enumerator that can iterate through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="TimestampFormatterElementEnumerator"/> for the entire collection.
+        /// </returns>
+        public new TimestampFormatterElementEnumerator GetEnumerator() {
+            return new TimestampFormatterElementEnumerator(this);
+        }
+        
+        /// <summary>
+        /// Removes a member from the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="TimestampFormatterElement"/> to remove from the collection.</param>
+        public void Remove(TimestampFormatterElement item) {
+            base.List.Remove(item);
+        }
+        
+        #endregion Public Instance Methods
+    }
+
+    /// <summary>
+    /// Enumerates the <see cref="TimestampFormatterElement"/> elements of a <see cref="TimestampFormatterElementCollection"/>.
+    /// </summary>
+    public class TimestampFormatterElementEnumerator : IEnumerator {
+        #region Internal Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimestampFormatterElementEnumerator"/> class
+        /// with the specified <see cref="TimestampFormatterElementCollection"/>.
+        /// </summary>
+        /// <param name="arguments">The collection that should be enumerated.</param>
+        internal TimestampFormatterElementEnumerator(TimestampFormatterElementCollection arguments) {
+            IEnumerable temp = (IEnumerable) (arguments);
+            _baseEnumerator = temp.GetEnumerator();
+        }
+
+        #endregion Internal Instance Constructors
+
+        #region Implementation of IEnumerator
+            
+        /// <summary>
+        /// Gets the current element in the collection.
+        /// </summary>
+        /// <returns>
+        /// The current element in the collection.
+        /// </returns>
+        public TimestampFormatterElement Current {
+            get { return (TimestampFormatterElement) _baseEnumerator.Current; }
+        }
+
+        object IEnumerator.Current {
+            get { return _baseEnumerator.Current; }
+        }
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the enumerator was successfully advanced to the next element; 
+        /// <c>false</c> if the enumerator has passed the end of the collection.
+        /// </returns>
+        public bool MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+
+        bool IEnumerator.MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+            
+        /// <summary>
+        /// Sets the enumerator to its initial position, which is before the 
+        /// first element in the collection.
+        /// </summary>
+        public void Reset() {
+            _baseEnumerator.Reset();
+        }
+            
+        void IEnumerator.Reset() {
+            _baseEnumerator.Reset();
+        }
+
+        #endregion Implementation of IEnumerator
+
+        #region Private Instance Fields
+    
+        private IEnumerator _baseEnumerator;
+
+        #endregion Private Instance Fields
     }
 }
