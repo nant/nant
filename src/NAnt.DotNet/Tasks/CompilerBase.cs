@@ -87,7 +87,7 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("sources")]
         public FileSet Sources { get { return _sources; } set { _sources = value; }}
 
-        public override string ProgramFileName  { 
+        public override string ProgramFileName  {
             get { 
                 // Instead of relying on the .NET compilers to be in the user's path point
                 // to the compiler directly since it lives in the .NET Framework's runtime directory
@@ -238,7 +238,9 @@ namespace SourceForge.NAnt.Tasks {
                             prefix = Resources.Prefix;                        
                         string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                         string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
-                        string manifestResourceName = Path.GetFileName(tmpResourcePath).Replace(actualFileName, prefix + "." + actualFileName );          
+                        string manifestResourceName = Path.GetFileName(tmpResourcePath);
+                        if(prefix != "")
+                            manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName );          
                         string resourceoption = tmpResourcePath + "," + manifestResourceName;    
                         WriteOption(writer, "resource", resourceoption);          
                     }
@@ -246,7 +248,9 @@ namespace SourceForge.NAnt.Tasks {
                     // other resources
                     foreach (string fileName in Resources.NonResxFiles.FileNames ) {                                                                                                        
                         string actualFileName = Path.GetFileNameWithoutExtension(fileName);                                                                                  
-                        string manifestResourceName = Path.GetFileName(fileName).Replace(actualFileName, Resources.Prefix + "." + actualFileName );                      
+                        string manifestResourceName = Path.GetFileName(fileName);
+                        if(Resources.Prefix != "")
+                            manifestResourceName = manifestResourceName.Replace(actualFileName, Resources.Prefix + "." + actualFileName );                       
                         string resourceoption = fileName + "," + manifestResourceName;                                                                                                                   
                         WriteOption(writer, "resource", resourceoption);     
                     }
@@ -295,23 +299,25 @@ namespace SourceForge.NAnt.Tasks {
         /// <param name="resxPath"></param>
         /// <returns></returns>
         protected virtual string GetFormNamespace(string resxPath){
-        
+            
             // Determine Extension for compiler type
             string extension = GetExtension();
             string retnamespace = "";
             
             // open matching source file if it exists
             string sourceFile = resxPath.Replace( "resx", extension );
-
-            StreamReader sr = File.OpenText( sourceFile );
-                         
-            while ( sr.Peek() > -1 ) {                               
+        
+            StreamReader sr=null;
+            try {
+                sr = File.OpenText( sourceFile );
+             
+                while ( sr.Peek() > -1 ) {                               
                 string str = sr.ReadLine();
                 string matchnamespace =  @"namespace ((\w+.)*)";   		    		
                 string matchnamespaceCaps =  @"Namespace ((\w+.)*)";   	
                 Regex matchNamespaceRE = new Regex(matchnamespace);
                 Regex matchNamespaceCapsRE = new Regex(matchnamespaceCaps);
-                
+                    
                 if (matchNamespaceRE.Match(str).Success ){
                     Match namematch = matchNamespaceRE.Match(str);
                     retnamespace = namematch.Groups[1].Value; 
@@ -319,15 +325,19 @@ namespace SourceForge.NAnt.Tasks {
                     retnamespace = retnamespace.Trim();
                     break;
                 }
-                else  if (matchNamespaceCapsRE.Match(str).Success )
-                {
+                else  if (matchNamespaceCapsRE.Match(str).Success ) {
                     Match namematch = matchNamespaceCapsRE.Match(str);
                     retnamespace = namematch.Groups[1].Value;                     
                     retnamespace = retnamespace.Trim();
                     break;
                 }
+              }
+            } catch(System.IO.FileNotFoundException) { // if no matching file, dump out
+                return "";
+            } finally {
+                if(sr != null)
+                    sr.Close();
             }
-            sr.Close();
             return retnamespace;
         }
 
