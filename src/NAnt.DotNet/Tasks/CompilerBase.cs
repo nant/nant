@@ -312,20 +312,11 @@ namespace NAnt.DotNet.Tasks {
                 _responseFileName = Path.GetTempFileName();
                 StreamWriter writer = new StreamWriter(_responseFileName);
                 Hashtable cultureResources = new Hashtable();
-                Hashtable compiledResourceFiles = new Hashtable();
+                StringCollection compiledResourceFiles = new StringCollection();
                 
                 try {
-                    if (References.BaseDirectory == null) {
-                        References.BaseDirectory = BaseDirectory;
-                    }
-                    if (Modules.BaseDirectory == null) {
-                        Modules.BaseDirectory = BaseDirectory;
-                    }
-                    if (Sources.BaseDirectory == null) {
-                        Sources.BaseDirectory = BaseDirectory;
-                    }
-
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Output);
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", 
+                        Sources.FileNames.Count, Output);
 
                     // specific compiler options
                     WriteOptions(writer);
@@ -374,8 +365,8 @@ namespace NAnt.DotNet.Tasks {
                             string manifestResourceName = this.GetManifestResourceName(
                                 resources, fileName);
                             
-                            string tmpResourcePath =  Path.ChangeExtension( fileName, ".resources" );
-                            compiledResourceFiles.Add(manifestResourceName, tmpResourcePath);
+                            string tmpResourcePath = Path.ChangeExtension(fileName, ".resources");
+                            compiledResourceFiles.Add(tmpResourcePath);
                             
                             // compile to a temp .resources file
                             CompileResxResource(fileName, tmpResourcePath);
@@ -389,10 +380,10 @@ namespace NAnt.DotNet.Tasks {
                                     cultureResources.Add(resourceCulture.Name, new Hashtable());
                                 }
                                 // store resulting .resources file for later linking 
-                                ((Hashtable) cultureResources[resourceCulture.Name]).Add( manifestResourceName, tmpResourcePath );
+                                ((Hashtable) cultureResources[resourceCulture.Name])[manifestResourceName] = tmpResourcePath;
                             } else {
-                                // regular embedded resources ( using filename and manifest resource name ).
-                                string resourceoption = string.Format( CultureInfo.InvariantCulture, "{0},{1}", tmpResourcePath, manifestResourceName );
+                                // regular embedded resources (using filename and manifest resource name).
+                                string resourceoption = string.Format(CultureInfo.InvariantCulture, "{0},{1}", tmpResourcePath, manifestResourceName);
                                 // write resource option to response file
                                 WriteOption(writer, "resource", resourceoption);
                             }
@@ -413,9 +404,9 @@ namespace NAnt.DotNet.Tasks {
                                     cultureResources.Add(resourceCulture.Name, new Hashtable());
                                 }
                                 // store resource filename for later linking
-                                ((Hashtable) cultureResources[resourceCulture.Name]).Add(manifestResourceName, fileName);
+                                ((Hashtable) cultureResources[resourceCulture.Name])[manifestResourceName] = fileName;
                             } else {                   
-                                string resourceoption = string.Format( CultureInfo.InvariantCulture, "{0},{1}",fileName, manifestResourceName );
+                                string resourceoption = string.Format(CultureInfo.InvariantCulture, "{0},{1}",fileName, manifestResourceName);
                                 WriteOption(writer, "resource", resourceoption);
                             }
                         }
@@ -455,8 +446,8 @@ namespace NAnt.DotNet.Tasks {
                     }
                 } finally {
                     // cleanup .resource files
-                    foreach (string key in compiledResourceFiles.Keys) {
-                        File.Delete((string)compiledResourceFiles[key]); 
+                    foreach (string compiledResourceFile in compiledResourceFiles) {
+                        File.Delete(compiledResourceFile);
                     }
                     
                     // make sure we delete response file even if an exception is thrown
@@ -777,7 +768,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="name">The name of the option which should be passed to the compiler.</param>
         /// <param name="arg">The value of the option which should be passed to the compiler.</param>
         protected virtual void WriteOption(TextWriter writer, string name, string arg) {
-            // Always quote arguments ( )
+            // always quote arguments
             writer.WriteLine("\"/{0}:{1}\"", name, arg);
         }
 
@@ -923,7 +914,7 @@ namespace NAnt.DotNet.Tasks {
             alink.Template = Output;
 
             // add resource files using the Arguments collection.
-            foreach ( string manifestname in resourceFiles.Keys ) {
+            foreach (string manifestname in resourceFiles.Keys) {
                 string resourcefile = (string)resourceFiles[manifestname];
                 // add resources to embed 
                 Argument arg = new Argument();
@@ -960,7 +951,8 @@ namespace NAnt.DotNet.Tasks {
             resgen.Input = inputFile;
             resgen.Output = Path.GetFileName(outputFile);
             resgen.ToDirectory = Path.GetDirectoryName(outputFile);
-            resgen.BaseDirectory = Path.GetDirectoryName(inputFile);
+            resgen.BaseDirectory = new DirectoryInfo(Project.GetFullPath(
+                Path.GetDirectoryName(inputFile)));
 
             // fix up the indent level
             Project.Indent();
