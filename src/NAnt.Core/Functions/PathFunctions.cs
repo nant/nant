@@ -49,6 +49,9 @@ namespace NAnt.Core.Functions {
         /// A string containing the fully qualified location of <paramref name="path" />,
         /// such as "C:\MyFile.txt".
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="path" /> contains a colon (":").</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-full-path")]
         public string GetFullPath(string path) {
             return Project.GetFullPath(path);
@@ -69,6 +72,7 @@ namespace NAnt.Core.Functions {
         /// <paramref name="path2" /> contains an absolute path, this method 
         /// returns <paramref name="path2" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path1" /> or <paramref name="path2" /> contain one or more invalid characters.</exception>
         [Function("combine")]
         public static string Combine(string path1, string path2) {
             return Path.Combine(path1, path2);
@@ -93,9 +97,10 @@ namespace NAnt.Core.Functions {
         /// appended to the end of <paramref name="path" />.
         /// </para>
         /// </returns>
-        ///<remarks>
-        ///For more information see the <see cref="System.IO.Path"/> documentation.
-        ///</remarks>
+        /// <remarks>
+        /// For more information see the <see cref="System.IO.Path"/> documentation.
+        /// </remarks>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("change-extension")]
         public static string ChangeExtension(string path, string extension) {
             return Path.ChangeExtension(path, extension);
@@ -111,6 +116,7 @@ namespace NAnt.Core.Functions {
         /// <paramref name="path" /> denotes a root directory, or does not
         /// contain directory information.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains invalid characters, is empty, or contains only white spaces.</exception>
         [Function("get-directory-name")]
         public static string GetDirectoryName(string path) {
             string dirName = Path.GetDirectoryName(path);
@@ -127,6 +133,7 @@ namespace NAnt.Core.Functions {
         /// <see cref="string" /> if <paramref name="path" /> does not have 
         /// extension information.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("get-extension")]
         public static string GetExtension(string path) {
             return Path.GetExtension(path);
@@ -146,6 +153,7 @@ namespace NAnt.Core.Functions {
         /// volume separator character, an empty <see cref="string" /> is returned.
         /// </para>
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("get-file-name")]
         public static string GetFileName(string path) {
             return Path.GetFileName(path);
@@ -160,6 +168,7 @@ namespace NAnt.Core.Functions {
         /// by <see cref="GetFileName" />, minus the last period (.) and all 
         /// characters following it.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("get-file-name-without-extension")]
         public static string GetFileNameWithoutExtension(string path) {
             return Path.GetFileNameWithoutExtension(path);
@@ -174,6 +183,7 @@ namespace NAnt.Core.Functions {
         /// <paramref name="path" />, such as "C:\", or an empty <see cref="string" /> 
         /// if <paramref name="path" /> does not contain root directory information.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains invalid characters, or is empty.</exception>
         [Function("get-path-root")]
         public static string GetPathRoot(string path) {
             string pathRoot = Path.GetPathRoot(path);
@@ -213,6 +223,7 @@ namespace NAnt.Core.Functions {
         /// include a period (.) followed by one or more characters; 
         /// otherwise, <see langword="false" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("has-extension")]
         public static bool HasExtension(string path) {
             return Path.HasExtension(path);
@@ -226,6 +237,7 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if path contains an absolute <paramref name="path" />; 
         /// otherwise, <see langword="false" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("is-path-rooted")]
         public static bool IsPathRooted(string path) {
             return Path.IsPathRooted(path);

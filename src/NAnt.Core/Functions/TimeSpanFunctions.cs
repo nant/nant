@@ -277,6 +277,8 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// A <see cref="TimeSpan" /> that corresponds to <paramref name="s" />.
         /// </returns>
+        /// <exception cref="FormatException"><paramref name="s" /> has an invalid format.</exception>
+        /// <exception cref="OverflowException">At least one of the hours, minutes, or seconds components is outside its valid range.</exception>
         [Function("parse")]
         public static TimeSpan Parse(string s) {
             return TimeSpan.Parse(s);

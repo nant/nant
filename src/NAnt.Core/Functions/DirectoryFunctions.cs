@@ -48,21 +48,18 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The creation date and time of the specified directory.
         /// </returns>
+        /// <exception cref="IOException">The specified directory does not exist.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-creation-time")]
         public DateTime GetCreationTime(string path) {
-            string dirPath = Project.GetFullPath(path);
-
-            if (!Directory.Exists(dirPath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Directory '{0}' does not exist.", dirPath));
-            }
-
-            return Directory.GetCreationTime(dirPath);
+            return Directory.GetCreationTime(Project.GetFullPath(path));
         }       
         /// <summary>
         /// Gets the current working directory.
         /// </summary>
-        /// <returns>A <see cref="string" /> containing the path of the current working 
+        /// <returns>
+        /// A <see cref="string" /> containing the path of the current working 
         /// directory.
         ///</returns>
         [Function("get-current-directory")]
@@ -77,16 +74,12 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The date and time the specified directory was last written to.
         /// </returns>
+        /// <exception cref="IOException">The specified directory does not exist.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-last-write-time")]
         public DateTime GetLastWriteTime(string path) {
-            string dirPath = Project.GetFullPath(path);
-
-            if (!Directory.Exists(dirPath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Directory '{0}' does not exist.", dirPath));
-            }
-
-            return Directory.GetLastWriteTime(dirPath);
+            return Directory.GetLastWriteTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -96,16 +89,13 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The date and time the specified directory was last accessed.
         /// </returns>
+        /// <exception cref="IOException">The specified directory does not exist.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
+        /// <exception cref="NotSupportedException">The <paramref name="path" /> parameter is in an invalid format.</exception>
         [Function("get-last-access-time")]
         public DateTime GetLastAccessTime(string path) {
-            string dirPath = Project.GetFullPath(path);
-
-            if (!Directory.Exists(dirPath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Directory '{0}' does not exist.", dirPath));
-            }
-
-            return Directory.GetLastAccessTime(dirPath);
+            return Directory.GetLastAccessTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -117,6 +107,10 @@ namespace NAnt.Core.Functions {
         /// <paramref name="path" /> is the root directory, including the root 
         /// of a UNC server or share name.
         /// </returns>
+        /// <exception cref="IOException">The directory specified by <paramref name="path" /> is read-only.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
+        /// <exception cref="DirectoryNotFoundException">The specified path was not found.</exception>
         [Function("get-parent-directory")]
         public string GetParentDirectory(string path) {
             DirectoryInfo parentDirectory = Directory.GetParent(
@@ -134,6 +128,8 @@ namespace NAnt.Core.Functions {
         /// A string containing the volume information, root information, or 
         /// both for the specified path.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-directory-root")]
         public string GetDirectoryRoot(string path) {
             string directoryRoot = Directory.GetDirectoryRoot(

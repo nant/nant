@@ -48,16 +48,13 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The creation date and time of the specified file.
         /// </returns>
+        /// <exception cref="IOException">The specified file does not exist.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
+        /// <exception cref="NotSupportedException">The <paramref name="path" /> parameter is in an invalid format.</exception>
         [Function("get-creation-time")]
         public DateTime GetCreationTime(string path) {
-            string filePath = Project.GetFullPath(path);
-
-            if (!File.Exists(filePath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "File '{0}' does not exist.", filePath));
-            }
-
-            return File.GetCreationTime(filePath);
+            return File.GetCreationTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -67,16 +64,12 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The date and time the specified file was last written to.
         /// </returns>
+        /// <exception cref="IOException">The specified file does not exist.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-last-write-time")]
         public DateTime GetLastWriteTime(string path) {
-            string filePath = Project.GetFullPath(path);
-
-            if (!File.Exists(filePath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "File '{0}' does not exist.", filePath));
-            }
-
-            return File.GetLastWriteTime(filePath);
+            return File.GetLastWriteTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -86,16 +79,13 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The date and time the specified file was last accessed.
         /// </returns>
+        /// <exception cref="IOException">The specified file does not exist.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
+        /// <exception cref="NotSupportedException">The <paramref name="path" /> parameter is in an invalid format.</exception>
         [Function("get-last-access-time")]
         public DateTime GetLastAccessTime(string path) {
-            string filePath = Project.GetFullPath(path);
-
-            if (!File.Exists(filePath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "File '{0}' does not exist.", filePath));
-            }
-
-            return File.GetLastAccessTime(filePath);
+            return File.GetLastAccessTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -105,9 +95,16 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The file version of the given file.
         /// </returns>
+        /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
         [Function("get-file-version")]
-        public static string GetFileVersion(string fileName) {
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fileName);
+        public string GetFileVersion(string fileName) {
+            string fullPath = Project.GetFullPath(fileName);
+            if (!File.Exists(fullPath)) {
+                throw new FileNotFoundException(string.Format(CultureInfo.InvariantCulture, 
+                    "Could not find file '{0}'.", fullPath));
+            }
+
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fullPath);
             return fileVersionInfo.FileVersion;
         }
 
@@ -118,9 +115,16 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The product version of the given file.
         /// </returns>
+        /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
         [Function("get-product-version")]
-        public static string GetProductVersion(string fileName) {
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fileName);
+        public string GetProductVersion(string fileName) {
+            string fullPath = Project.GetFullPath(fileName);
+            if (!File.Exists(fullPath)) {
+                throw new FileNotFoundException(string.Format(CultureInfo.InvariantCulture, 
+                    "Could not find file '{0}'.", fullPath));
+            }
+
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fullPath);
             return fileVersionInfo.ProductVersion;
         }
 
@@ -148,6 +152,8 @@ namespace NAnt.Core.Functions {
         /// or equal up-to-date than <paramref name="srcFile" />; otherwise,
         /// <see langword="false" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="srcFile" /> or <paramref name="targetFile" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both of either <paramref name="srcFile" /> or <paramref name="targetFile" /> exceed the system-defined maximum length.</exception>
         [Function("up-to-date")]
         public bool UpToDate(string srcFile, string targetFile) {
             string srcPath = Project.GetFullPath(srcFile);
@@ -177,16 +183,11 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// Length in bytes, of the file named <paramref name="file" />.
         /// </returns>
+        /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
         [Function("get-length")]
-        public int Length(string file) {
+        public long Length(string file) {
             FileInfo fi = new FileInfo(Project.GetFullPath(file));
-
-            if (!fi.Exists) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "File '{0}' does not exist.", fi.FullName));
-            }
-
-            return (int) fi.Length;
+            return fi.Length;
         }
 
         #endregion Public Instance Methods

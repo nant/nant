@@ -45,49 +45,61 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the version of the given assembly file.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
+        /// <param name="assemblyFile">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// The full version of the given assembly file.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
+        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
         [Function("get-version")]
-        public static string GetVersion(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).Version.ToString(); 
+        public static string GetVersion(string assemblyFile) {
+            return AssemblyName.GetAssemblyName(assemblyFile).Version.ToString(); 
         }
         
         /// <summary>
         /// Gets the full name of the assembly, also known as the display name.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get the full name for.</param>
+        /// <param name="assemblyFile">The file name of the assembly to get the full name for.</param>
         /// <returns>
         /// The full name of the assembly, also known as the display name.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
+        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
         [Function("get-full-name")]
-        public static string GetFullName(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).FullName;
+        public static string GetFullName(string assemblyFile) {
+            return AssemblyName.GetAssemblyName(assemblyFile).FullName;
         }
         
         /// <summary>
         /// Gets the simple, unencrypted name of the assembly.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get the name for.</param>
+        /// <param name="assemblyFile">The file name of the assembly to get the name for.</param>
         /// <returns>
         /// The simple, unencrypted name of the assembly.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
+        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
         [Function("get-name")]
-        public static string GetName(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).Name;
+        public static string GetName(string assemblyFile) {
+            return AssemblyName.GetAssemblyName(assemblyFile).Name;
         }
         
         /// <summary>
         /// Gets the culture supported by the assembly.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get the culture for.</param>
+        /// <param name="assemblyFile">The file name of the assembly to get the culture for.</param>
         /// <returns>
         /// Display name of the assembly's culture.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
+        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
         [Function("get-culture")]
-        public static string GetCulture(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).CultureInfo.DisplayName;
+        public static string GetCulture(string assemblyFile) {
+            return AssemblyName.GetAssemblyName(assemblyFile).CultureInfo.DisplayName;
         }
 
         #endregion Public Static Methods

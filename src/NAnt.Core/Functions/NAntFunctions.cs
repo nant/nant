@@ -17,16 +17,18 @@
 //
 // Ian Maclean (ian_maclean@another.com)
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
-using System.IO;
 using System.Collections;
-using System.Reflection;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 
 using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 //
 // This file defines functions for the NAnt category. 
@@ -145,11 +147,12 @@ namespace NAnt.Core.Functions {
         /// </summary>
         /// <returns>
         /// The name of the target that will be executed when no other build
-        /// targets are specified.
+        /// targets are specified, or an empty <see cref="string" /> if no
+        /// default target is defined for the project.
         /// </returns>
         [Function("get-default-target")]
         public string GetDefaultTarget() {
-            return Project.DefaultTargetName;
+            return StringUtils.ConvertNullToEmpty(Project.DefaultTargetName);
         }
 
         /// <summary>
@@ -215,12 +218,13 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the specified target has already been 
         /// executed; otherwise, <see langword="false" />.
         /// </returns>
+        /// <exception cref="ArgumentException">Target <paramref name="name" /> does not exist.</exception>
         [Function("has-executed")]
         public bool HasExecuted(string name) {
             Target target = Project.Targets.Find(name);
             if (target == null) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Target '{0}' does not exist.", name));
+                    "Target \"{0}\" does not exist.", name));
             }
 
             return target.Executed;
@@ -262,6 +266,7 @@ namespace NAnt.Core.Functions {
         /// The filename of the assembly from which the specified task was 
         /// loaded.
         /// </returns>
+        /// <exception cref="ArgumentException">Task <paramref name="name" /> is not available.</exception>
         [Function("get-location")]
         public string GetLocation(string name) {
             TaskBuilder task = TypeFactory.TaskBuilders[name];
@@ -308,6 +313,7 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the specified property is read-only; 
         /// otherwise, <see langword="false" />.
         /// </returns>
+        /// <exception cref="ArgumentException">Property <paramref name="name" /> has not been set.</exception>
         [Function("is-readonly")]
         public bool IsReadOnly(string name) {
             if (!Project.Properties.Contains(name)) {
@@ -326,6 +332,7 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the specified property is a dynamic
         /// property; otherwise, <see langword="false" />.
         /// </returns>
+        /// <exception cref="ArgumentException">Property <paramref name="name" /> has not been set.</exception>
         [Function("is-dynamic")]
         public bool IsDynamic(string name) {
             if (!Project.Properties.Contains(name)) {
@@ -409,6 +416,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The family of the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-family")]
         public string GetFamily(string framework) {
             // ensure the framework is valid
@@ -424,6 +432,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The version of the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-version")]
         public string GetVersion(string framework) {
             // ensure the framework is valid
@@ -439,6 +448,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The description of the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-description")]
         public string GetDescription(string framework) {
             // ensure the framework is valid
@@ -454,6 +464,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The Common Language Runtime version of the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-clr-version")]
         public string GetClrVersion(string framework) {
             // ensure the framework is valid
@@ -469,6 +480,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The framework directory of the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-framework-directory")]
         public string GetFrameworkDirectory(string framework) {
             // ensure the framework is valid
@@ -484,6 +496,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The assembly directory of the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-assembly-directory")]
         public string GetAssemblyDirectory(string framework) {
             // ensure the framework is valid
@@ -501,6 +514,7 @@ namespace NAnt.Core.Functions {
         /// <see cref="string" /> if the SDK of the specified framework is not 
         /// installed.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-sdk-directory")]
         public string GetSdkDirectory(string framework) {
             // ensure the framework is valid
@@ -520,6 +534,7 @@ namespace NAnt.Core.Functions {
         /// an empty <see cref="string" /> if no runtime engine is defined
         /// for the specified framework.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         [Function("get-runtime-engine")]
         public string GetRuntimeEngine(string framework) {
             // ensure the framework is valid
@@ -538,11 +553,11 @@ namespace NAnt.Core.Functions {
         /// Checks whether the specified framework is valid.
         /// </summary>
         /// <param name="framework">The framework to check.</param>
-        /// <exception cref="ArgumentException">The framework is not valid.</exception>
+        /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
         private void CheckFramework(string framework) {
             if (!Project.Frameworks.ContainsKey(framework)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' is not a valid framework identifier.", framework));
+                    "\"{0}\" is not a valid framework identifier.", framework));
             }
         }
 
@@ -620,11 +635,12 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The value of the specified environment variable.
         /// </returns>
+        /// <exception cref="ArgumentException">Environment variable <paramref name="name" /> does not exist.</exception>
         [Function("get-variable")]
         public static string GetVariable(string name) {
             if (!VariableExists(name)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Environment variable '{0}' does not exist.", name));
+                    "Environment variable \"{0}\" does not exist.", name));
             }
 
             return Environment.GetEnvironmentVariable(name);

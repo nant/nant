@@ -60,38 +60,34 @@ namespace NAnt.Core.Functions {
         /// Returns a substring of the specified string.
         /// </summary>
         /// <param name="str">input string</param>
-        /// <param name="start">position of the start of the substring</param>
+        /// <param name="startIndex">position of the start of the substring</param>
         /// <param name="length">the length of the substring</param>
         /// <returns>
         /// <para>
         /// If the <paramref name="length" /> is greater than zero, the
         /// function returns a substring starting at character position
-        /// <paramref name="start" /> with a length of <paramref name="length" />
+        /// <paramref name="startIndex" /> with a length of <paramref name="length" />
         /// characters.
-        /// </para>
-        /// <para>
-        /// If the <paramref name="length" /> is less than zero, the returned
-        /// substring will start at character position <paramref name="start" />
-        /// and continue to the end of <paramref name="str" />.
         /// </para>
         /// <para>
         /// If the <paramref name="length" /> is equal to zero, the function
         /// returns an empty string.
         /// </para>
         /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex" /> or <paramref name="length" /> is less than zero.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex" /> is greater than the length of <paramref name="str" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex" /> plus <paramref name="length" /> indicates a position not within <paramref name="str" />.</exception>
         /// <example>
         /// <code>string::substring('testing string', 0, 4) ==> 'test'</code>
         /// <code>string::substring('testing string', 8, 3) ==> 'str'</code>
         /// <code>string::substring('testing string', 8, 0) ==> ''</code>
-        /// <code>string::substring('testing string', 8, -1) ==> 'string'</code>
+        /// <code>string::substring('testing string', -1, 5) ==> ERROR</code>
+        /// <code>string::substring('testing string', 8, -1) ==> ERROR</code>
+        /// <code>string::substring('testing string', 5, 17) ==> ERROR</code>
         /// </example>
         [Function("substring")]
-        public static string Substring(string str, int start, int length) {
-            if (length < 0) {
-                return str.Substring(start);
-            } else {
-                return str.Substring(start, length);
-            }
+        public static string Substring(string str, int startIndex, int length) {
+            return str.Substring(startIndex, length);
         }
 
         /// <summary>
@@ -106,6 +102,10 @@ namespace NAnt.Core.Functions {
         /// beginning of <paramref name="s1" /> are identical to
         /// <paramref name="s2" />; otherwise, <see langword="false" />.
         /// </returns>
+        /// <remarks>
+        /// This function performs a word (case-sensitive and culture-sensitive) 
+        /// search using the current culture.
+        /// </remarks>
         /// <example>
         /// <code>string::starts-with('testing string', 'test') ==> true</code>
         /// <code>string::starts-with('testing string', 'testing') ==> true</code>
@@ -129,6 +129,10 @@ namespace NAnt.Core.Functions {
         /// end of <paramref name="s1" /> are identical to 
         /// <paramref name="s2" />; otherwise, <see langword="false" />.
         /// </returns>
+        /// <remarks>
+        /// This function performs a word (case-sensitive and culture-sensitive) 
+        /// search using the current culture.
+        /// </remarks>
         /// <example>
         /// <code>string::ends-with('testing string', 'string') ==> true</code>
         /// <code>string::ends-with('testing string', '') ==> true</code>
@@ -141,12 +145,16 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Returns the specified string converted to lower case.
+        /// Returns the specified string converted to lowercase.
         /// </summary>
         /// <param name="s">input string</param>
         /// <returns>
-        /// The string <paramref name="s" /> converted to lower case.
+        /// The string <paramref name="s" /> in lowercase.
         /// </returns>
+        /// <remarks>
+        /// The casing rules of the invariant culture are used to convert the
+        /// <paramref name="s" /> to lowercase.
+        /// </remarks>
         /// <example>
         /// <code>string::to-lower('testing string') ==> 'testing string'</code>
         /// <code>string::to-lower('Testing String') ==> 'testing string'</code>
@@ -156,13 +164,18 @@ namespace NAnt.Core.Functions {
         public static string ToLower(string s) {
             return s.ToLower(CultureInfo.InvariantCulture);
         }
+
         /// <summary>
-        /// Returns the specified string converted to upper case.
+        /// Returns the specified string converted to uppercase.
         /// </summary>
         /// <param name="s">input string</param>
         /// <returns>
-        /// The string <paramref name="s" /> converted to upper case.
+        /// The string <paramref name="s" /> in uppercase.
         /// </returns>
+        /// <remarks>
+        /// The casing rules of the invariant culture are used to convert the
+        /// <paramref name="s" /> to uppercase.
+        /// </remarks>
         /// <example>
         /// <code>string::to-upper('testing string') ==> 'TESTING STRING'</code>
         /// <code>string::to-upper('Testing String') ==> 'TESTING STRING'</code>
@@ -172,17 +185,24 @@ namespace NAnt.Core.Functions {
         public static string ToUpper(string s) {
             return s.ToUpper(CultureInfo.InvariantCulture);
         }
+        
         /// <summary>
         /// Returns a string corresponding to the replacement of a given string
         /// with another in the specified string.
         /// </summary>
         /// <param name="str">input string</param>
-        /// <param name="strold">search string</param>
-        /// <param name="strnew">replacement string</param>
+        /// <param name="oldValue">A <see cref="string" /> to be replaced.</param>
+        /// <param name="newValue">A <see cref="string" /> to replace all occurrences of <paramref name="oldValue" />.</param>
         /// <returns>
-        /// The result of replacing every instance of <paramref name="strold" />
-        /// in <paramref name="str" /> with <paramref name="strnew" />.
+        /// A <see cref="String" /> equivalent to <paramref name="str" /> but 
+        /// with all instances of <paramref name="oldValue" /> replaced with 
+        /// <paramref name="newValue" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="oldValue" /> is an empty string.</exception>
+        /// <remarks>
+        /// This function performs a word (case-sensitive and culture-sensitive) 
+        /// search to find <paramref name="oldValue" />.
+        /// </remarks>
         /// <example>
         /// <code>string::replace('testing string', 'test', 'winn') ==> 'winning string'</code>
         /// <code>string::replace('testing string', 'foo', 'winn') ==> 'testing string'</code>
@@ -190,8 +210,8 @@ namespace NAnt.Core.Functions {
         /// <code>string::replace('banana', 'ana', 'ana') ==> 'banana'</code>
         /// </example>
         [Function("replace")]
-        public static string Replace(string str, string strold, string strnew) {
-            return str.Replace(strold, strnew);
+        public static string Replace(string str, string oldValue, string newValue) {
+            return str.Replace(oldValue, newValue);
         }
         /// <summary>
         /// Tests whether the specified string contains the given search string.
@@ -202,6 +222,10 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if <paramref name="substr" /> is found in 
         /// <paramref name="str" />; otherwise, <see langword="false" />.
         /// </returns>
+        /// <remarks>
+        /// This function performs a word (case-sensitive and culture-sensitive) 
+        /// search using the current culture.
+        /// </remarks>
         /// <example>
         /// <code>string::contains('testing string', 'test') ==> true</code>
         /// <code>string::contains('testing string', '') ==> true</code>
@@ -230,6 +254,10 @@ namespace NAnt.Core.Functions {
         /// will always be <c>0</c>.
         /// </para>
         /// </returns>
+        /// <remarks>
+        /// This function performs a word (case-sensitive and culture-sensitive) 
+        /// search using the current culture.
+        /// </remarks>
         /// <example>
         /// <code>string::index-of('testing string', 'test') ==> 0</code>
         /// <code>string::index-of('testing string', '') ==> 0</code>
@@ -255,9 +283,13 @@ namespace NAnt.Core.Functions {
         /// </para>
             /// <para>
         /// If <paramref name="substr" /> is an empty string, the return value
-        /// will always be <c>0</c>.
+        /// is the last index position in <paramref name="str" />.
         /// </para>
         /// </returns>
+        /// <remarks>
+        /// This function performs a word (case-sensitive and culture-sensitive) 
+        /// search using the current culture.
+        /// </remarks>
         /// <example>
         /// <code>string::last-index-of('testing string', 'test') ==> 0</code>
         /// <code>string::last-index-of('testing string', '') ==> 0</code>
@@ -272,16 +304,17 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Returns the given string left-padded to the given length.
         /// </summary>
-        /// <param name="s">input string</param>
-        /// <param name="width">required length</param>
-        /// <param name="paddingChar">string containing padding character</param>
+        /// <param name="s">The <see cref="string" /> that needs to be left-padded.</param>
+        /// <param name="totalWidth">The number of characters in the resulting string, equal to the number of original characters plus any additional padding characters.</param>
+        /// <param name="paddingChar">A Unicode padding character.</param>
         /// <returns>
         /// If the length of <paramref name="s" /> is at least 
-        /// <paramref name="width" />, then it is returned. Otherwise,
-        /// <paramref name="s" /> will be continually prepended with the padding
-        /// character obtained from <paramref name="paddingChar" /> until it
-        /// is of the required length.
+        /// <paramref name="totalWidth" />, then a new <see cref="string" /> identical
+        /// to <paramref name="s" /> is returned. Otherwise, <paramref name="s" /> 
+        /// will be padded on the left with as many <paramref name="paddingChar" />
+        /// characters as needed to create a length of <paramref name="totalWidth" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="totalWidth" /> is less than zero.</exception>
         /// <remarks>
         /// Note that only the first character of <paramref name="paddingChar" />
         /// will be used when padding the result.
@@ -290,25 +323,27 @@ namespace NAnt.Core.Functions {
         /// <code>string::pad-left('test', 10, ' ') ==> '      test'</code>
         /// <code>string::pad-left('test', 10, 'test') ==> 'tttttttest'</code>
         /// <code>string::pad-left('test', 3, ' ') ==> 'test'</code>
+        /// <code>string::pad-left('test', -4, ' ') ==> ERROR</code>
         /// </example>
         [Function("pad-left")]
-        public static string PadLeft(string s, int width, string paddingChar) {
-            return s.PadLeft(width, paddingChar[0]);
+        public static string PadLeft(string s, int totalWidth, string paddingChar) {
+            return s.PadLeft(totalWidth, paddingChar[0]);
         }
 
         /// <summary>
         /// Returns the given string right-padded to the given length.
         /// </summary>
-        /// <param name="s">input string</param>
-        /// <param name="width">required length</param>
-        /// <param name="paddingChar">string containing padding character</param>
+        /// <param name="s">The <see cref="string" /> that needs to be right-padded.</param>
+        /// <param name="totalWidth">The number of characters in the resulting string, equal to the number of original characters plus any additional padding characters.</param>
+        /// <param name="paddingChar">A Unicode padding character.</param>
         /// <returns>
         /// If the length of <paramref name="s" /> is at least 
-        /// <paramref name="width" />, then it is returned. Otherwise,
-        /// <paramref name="s" /> will be continually appended with the padding
-        /// character obtained from <paramref name="paddingChar" /> until it
-        /// is of the required length.
+        /// <paramref name="totalWidth" />, then a new <see cref="string" /> identical
+        /// to <paramref name="s" /> is returned. Otherwise, <paramref name="s" /> 
+        /// will be padded on the right with as many <paramref name="paddingChar" />
+        /// characters as needed to create a length of <paramref name="totalWidth" />.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="totalWidth" /> is less than zero.</exception>
         /// <remarks>
         /// Note that only the first character of <paramref name="paddingChar" />
         /// will be used when padding the result.
@@ -317,10 +352,11 @@ namespace NAnt.Core.Functions {
         /// <code>string::pad-right('test', 10, ' ') ==> 'test      '</code>
         /// <code>string::pad-right('test', 10, 'abcd') ==> 'testaaaaaa'</code>
         /// <code>string::pad-right('test', 3, ' ') ==> 'test'</code>
+        /// <code>string::pad-right('test', -3, ' ') ==> ERROR</code>
         /// </example>
         [Function("pad-right")]
-        public static string PadRight(string s, int width, string paddingChar) {
-            return s.PadRight(width, paddingChar[0]);
+        public static string PadRight(string s, int totalWidth, string paddingChar) {
+            return s.PadRight(totalWidth, paddingChar[0]);
         }
 
         /// <summary>
@@ -329,7 +365,7 @@ namespace NAnt.Core.Functions {
         /// <param name="s">input string</param>
         /// <returns>
         /// The string <paramref name="s" /> with any leading or trailing
-        /// whitespace characters removed.
+        /// white space characters removed.
         /// </returns>
         /// <example>
         /// <code>string::trim('  test  ') ==> 'test'</code>
@@ -346,7 +382,7 @@ namespace NAnt.Core.Functions {
         /// <param name="s">input string</param>
         /// <returns>
         /// The string <paramref name="s" /> with any leading
-        /// whitespace characters removed.
+        /// whites pace characters removed.
         /// </returns>
         /// <example>
         /// <code>string::trim-start('  test  ') ==> 'test  '</code>
@@ -363,7 +399,7 @@ namespace NAnt.Core.Functions {
         /// <param name="s">input string</param>
         /// <returns>
         /// The string <paramref name="s" /> with any trailing
-        /// whitespace characters removed.
+        /// white space characters removed.
         /// </returns>
         /// <example>
         /// <code>string::trim-end('  test  ') ==> '  test'</code>

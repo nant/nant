@@ -184,6 +184,7 @@ namespace NAnt.Core.Functions {
         /// The number of days in <paramref name="month" /> for the specified 
         /// <paramref name="year" />.
         /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="month" /> is less than 1 or greater than 12.</exception>
         [Function("get-days-in-month")]
         public static int GetDaysInMonth(int year, int month) {
             return DateTime.DaysInMonth(year, month);
@@ -212,6 +213,7 @@ namespace NAnt.Core.Functions {
         /// A <see cref="DateTime" /> equivalent to the date and time contained 
         /// in <paramref name="s" />.
         /// </returns>
+        /// <exception cref="FormatException"><paramref name="s" /> does not contain a valid string representation of a date and time.</exception>
         [Function("parse")]
         public static DateTime Parse(string s) {
             return DateTime.Parse(s);
