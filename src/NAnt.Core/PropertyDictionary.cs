@@ -262,8 +262,16 @@ namespace NAnt.Core {
         /// <see langword="true" /> if the specified property already exists; 
         /// otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool Contains(string name) {
-            return Dictionary.Contains(name) || IsReadOnlyProperty(name);
+        public bool Contains(string name) {
+            return Dictionary.Contains(name);
+        }
+
+        /// <summary>
+        /// Removes the property with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the property to remove.</param>
+        public void Remove(string name) {
+            Dictionary.Remove(name);
         }
 
         #endregion Public Instance Methods
