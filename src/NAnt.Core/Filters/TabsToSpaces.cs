@@ -27,19 +27,20 @@ namespace NAnt.Core.Filters {
     /// Converts tabs to spaces.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The <see cref="TabsToSpaces" /> filter replaces tabs in a text file 
     /// with spaces.
-	/// <para>
-	/// Filters are intended to be used as a element of a <see cref="FilterChain"/>. A FilterChain can 
-	/// be applied to a given task.
-	/// </para>
+    /// </para>
+    /// <para>
+    /// Filters are intended to be used as a element of a <see cref="FilterChain"/>.
+    /// </para>
     /// </remarks>
     /// <example>
     ///  <para>Replace all tabs with four spaces.</para>
     ///  <code>
-    ///  <![CDATA[
-    ///  <tabtospaces tablength="4" />
-    ///  ]]>
+    ///    <![CDATA[
+    /// <tabtospaces tablength="4" />
+    ///    ]]>
     ///  </code>
     /// </example>
     [ElementName("tabstospaces")]

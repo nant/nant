@@ -35,14 +35,13 @@ namespace NAnt.Core.Filters {
     /// Note: Due to limitations on buffering, expressions longer than 2048 
     /// characters are not guaranteed to be expanded.
     /// </para>
-	/// Filters are intended to be used as a element of a <see cref="FilterChain"/>. A FilterChain can 
-	/// be applied to a given task.
+    /// Filters are intended to be used as a element of a <see cref="FilterChain"/>.
     /// </remarks>
     /// <example>
-    ///   <para>Standard Syntax</para>
+    ///   <para>Replace all properties with their corresponding values.</para>
     ///   <code>
     ///     <![CDATA[
-    ///       <expandexpressions />
+    /// <expandexpressions />
     ///     ]]>
     ///   </code>
     /// </example>
