@@ -166,11 +166,14 @@ namespace SourceForge.NAnt {
                     if(project == null) {
                         project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, findInParent));
                     }
-
+                    
                     project.Verbose = verbose;
-                    string[] buildTargets = (string[])Array.CreateInstance(typeof(string), targets.Count);
-                    targets.CopyTo(buildTargets,0);
-                    project.BuildTargets.AddRange(buildTargets);
+                   
+                    // copy cmd line targets
+                    foreach( string target in targets ){
+                        project.BuildTargets.Add( target );
+                    }
+                    
                     foreach(System.Collections.DictionaryEntry de in buildOptionProps) {
                         project.Properties.AddReadOnly((string)de.Key, (string)de.Value);
                     }
