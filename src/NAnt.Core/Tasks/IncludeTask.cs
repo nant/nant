@@ -61,11 +61,11 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
-    [TaskName("include")] // TODO make into ant:include
+    [TaskName("include")]
     public class IncludeTask : Task {
         #region Private Instance Fields
 
-        string _buildFileName = null;
+        private string _buildFileName = null;
 
         #endregion Private Instance Fields
 
@@ -74,10 +74,10 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Used to check for recursived includes.
         /// </summary>
-        static Stack _includedFileNames = new Stack();
+        private static Stack _includedFileNames = new Stack();
 
-        static string _currentBasedir = "";
-        static int _nestinglevel = 0;
+        private static string _currentBasedir = "";
+        private static int _nestinglevel = 0;
 
         #endregion Private Static Fields
 
@@ -132,6 +132,8 @@ namespace NAnt.Core.Tasks {
             
             // push ourselves onto the stack (prevents recursive includes)
             _includedFileNames.Push(includedFileName);
+
+            // increment the nesting level
             _nestinglevel ++;
             
             Log(Level.Verbose, LogPrefix + "Including file {0}.", includedFileName);
@@ -156,6 +158,8 @@ namespace NAnt.Core.Tasks {
             } finally {
                 // pop off the stack
                 _includedFileNames.Pop();
+
+                // decrease the nesting level
                 _nestinglevel--;
                 
                  // restore original base directory
