@@ -71,12 +71,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <value></value>
         [TaskAttribute("passfile", Required=false)]
         public override FileInfo PassFile {
-            get { 
-                // TODO: if passfile is not explicitly set by the user, try to discover 
-                // the .cvspass file using either CVS_PASSFILE environment variable or
-                // HOME (or USERPROFILE)/.cvspass.
-                return base.PassFile; 
-            }
+            get { return base.PassFile; }
             set { base.PassFile = value; }
         }
 
@@ -117,16 +112,28 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Update the .cvspass file with the given password.
+        /// Update the .cvspass file with the given password.  If the passfile
+        /// is not specified then the default search locations are used:
+        /// <list type="list">
+        ///     <item>CVS_PASSFILE/.cvspass</item>
+        ///     <item>HOME/.cvspass</item>
+        ///     <item>USERPROFILE/.cvspass  TODO: Confirm that this is valid
+        ///         behavior or if it is going to give problems with the
+        ///         cvsnt implementation.</item>
+        /// </list>
         /// </summary>
         protected override void ExecuteTask () {
             ICSharpCode.SharpCvsLib.FileSystem.Manager manager = 
                 new ICSharpCode.SharpCvsLib.FileSystem.Manager(this.DestinationDirectory);
 
-            Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.PassFile.FullName);
-
-            manager.UpdatePassFile(this.Password, 
-                new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root), this.PassFile);
+            if (this.PassFile == null) {
+                manager.UpdatePassFile(this.Password,
+                    new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root));
+            } else {
+                Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.PassFile.FullName);
+                manager.UpdatePassFile(this.Password, 
+                    new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root), this.PassFile);
+            }
         }
 
         #endregion Override implementation of Task
