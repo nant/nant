@@ -131,6 +131,27 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
 		[Test]
+       public void Test_Same_File_Twice() {
+            // <touch file='myfile' />
+            // <touch file='myfile' />
+            // Old code used to lock the file - shouldn't now, allowing us to mess with it between runs
+
+            string fileName = _fileList[0];
+
+            // Get rid of the file first
+            File.Delete(fileName);
+
+            RunBuild(FormatBuildFile("file='" + fileName + "'"));
+            Assertion.Assert("File doesn't exist!", File.Exists(fileName));
+            File.Delete(fileName);
+
+            RunBuild(FormatBuildFile("file='" + fileName + "'"));
+            Assertion.Assert("File doesn't exist!", File.Exists(fileName));
+            File.Delete(fileName);
+        }
+
+
+		[Test]
         public void Test_FileSet_DateTime() {
             // <touch datetime="01/01/1980 00:00">
             //   <fileset dir="src_dir"/>
