@@ -18,8 +18,16 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+// Mark NAnt.Console CLS compliant
+[assembly: CLSCompliant(true)]
+
+// Make NAnt.Console as NOT visible to COM
+[assembly: ComVisible(false)]
 
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
