@@ -24,6 +24,7 @@ using System.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+using NAnt.Core.ExpressionEval;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -139,6 +140,7 @@ namespace NAnt.Core.Tasks {
         private string _propNameTrue = null;
         private string _propNameExists = null;
         private string _targetName = null;
+        private string _eval = null;
         private FileSet _compareFiles = null;
         private FileSet _uptodateFiles = null;
 
@@ -217,6 +219,15 @@ namespace NAnt.Core.Tasks {
             set { _targetName = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// Used to test arbitrary boolean expression
+        /// </summary>
+       [TaskAttribute("test")]
+        public string Eval {
+            get { return _eval; }
+            set { _eval = StringUtils.ConvertEmptyToNull(value); }
+        }
+
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
@@ -224,6 +235,25 @@ namespace NAnt.Core.Tasks {
         protected virtual bool ConditionsTrue {
             get {
                 bool ret = true;
+
+                if (Eval != null) {
+                    ExpressionEvaluator evaluator = new ExpressionEvaluator(this);
+                    try {
+                        object val = evaluator.Evaluate(Eval);
+                        if (!(val is bool)) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "Expression '{0}' doesn't evaluate to a boolean value (got {1} which is {2}).", Eval, val, val.GetType().Name), Location);
+                        }
+                        ret = ret && (bool)val;
+                        if (!ret) {
+                            return false;
+                        }
+                    }
+                    catch (ExpressionParseException ex) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "Parse error on '{0}'", Eval), Location, ex);
+                    }
+                }
 
                 // check if target exists
                 if (TargetNameExists != null) {
@@ -291,8 +321,14 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {            base.InitializeTask (taskNode);
-            //check that we have something to do.            if((UpToDateFiles == null || CompareFiles == null) && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {                throw new BuildException(LogPrefix + " at least one if condition" +                    " must be set (propertytrue, targetexists, etc...):", Location);            }        }
+        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+            base.InitializeTask (taskNode);
+            //check that we have something to do.
+            if((UpToDateFiles == null || CompareFiles == null) && Eval == null && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {
+                throw new BuildException(LogPrefix + " at least one if condition" +
+                        " must be set (test, propertytrue, targetexists, etc...):", Location);
+            }
+        }
 
         #endregion Override implementation of Task
     }
