@@ -215,7 +215,7 @@ namespace NAnt.VSNet {
                                 fi.FullName);
                         } else {
                             string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                            Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, Path.Combine(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value), SolutionTask);
+                            Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, Path.Combine(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value), SolutionTask, GacCache);
                             _htResources[r.InputFile] = r;
                         }
                     }
@@ -231,7 +231,7 @@ namespace NAnt.VSNet {
                                     resourceFile.FullName);
                             } else {
                                 string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                                Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask);
+                                Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
                                 _htResources[r.InputFile] = r;
                             }
                             break;

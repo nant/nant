@@ -38,7 +38,7 @@ namespace NAnt.VSNet {
     public class Resource {
         #region Public Instance Constructors
 
-        public Resource(Project project, FileInfo resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask) {
+        public Resource(Project project, FileInfo resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask, GacCache gacCache) {
             _project = project;
             _resourceSourceFile = resourceSourceFile;
             _resourceSourceFileRelativePath = resourceSourceFileRelativePath;
@@ -46,6 +46,7 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             _culture = CompilerBase.GetResourceCulture(resourceSourceFile.FullName, 
                 dependentFile);
+            _gacCache = gacCache;
         }
 
         #endregion Public Instance Constructors
@@ -192,9 +193,10 @@ namespace NAnt.VSNet {
                 outputFileName + ".licenses"));
             lt.Target = Path.GetFileName(outputFileName);
 
-            // inherit assembly references from project
+            // inherit non-GAC assembly references from project
             foreach (Reference reference in Project.References) {
-                lt.Assemblies.Includes.Add(reference.Filename);
+                if (!_gacCache.IsAssemblyInGac(reference.Filename))
+                    lt.Assemblies.Includes.Add(reference.Filename);
             }
 
             // increment indentation level
@@ -238,7 +240,8 @@ namespace NAnt.VSNet {
 
             // inherit assembly references from project
             foreach (Reference reference in Project.References) {
-                rt.Assemblies.Includes.Add(reference.Filename);
+                if (!_gacCache.IsAssemblyInGac(reference.Filename))
+                    rt.Assemblies.Includes.Add(reference.Filename);
             }
 
             // increment indentation level
@@ -266,6 +269,7 @@ namespace NAnt.VSNet {
         private string _manifestResourceName;
         private Project _project;
         private SolutionTask _solutionTask;
+        private GacCache _gacCache;
 
         #endregion Private Instance Fields
     }
