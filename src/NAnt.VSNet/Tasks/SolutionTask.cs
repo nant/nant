@@ -83,6 +83,18 @@ namespace NAnt.VSNet.Tasks {
     /// The <see cref="SolutionTask" />  expects all project files to be valid
     /// XML files.
     /// </note>
+    /// <h3>Resx Files</h3>
+    /// <para>
+    /// When building a project for a down-level target framework, special care
+    /// should be given to resx files. Resx files (can) contain references to 
+    /// a specific version of CLR types, and as such are only upward compatible.
+    /// </para>
+    /// <para>
+    /// For example: if you want to be able to build a project both as a .NET 1.0 
+    /// and .NET 1.1 assembly, the resx files should only contain references to 
+    /// .NET 1.0 CLR types. Failure to do this may result in a <see cref="InvalidCastException" />
+    /// failure at runtime on machines with only the .NET Framework 1.0 installed.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>
