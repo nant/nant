@@ -110,24 +110,26 @@ namespace SourceForge.NAnt.Tasks {
             bool resourceAvailable = false;
 
             try {
-                if (Type == ResourceType.File) {
-                    // check if specified file is available on filesystem
-                    FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
-                    if (fileInfo.Exists) {
-                        resourceAvailable = true;
-                    } else {
-                        Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
-                        resourceAvailable = false;
-                    }
-                } else if (Type == ResourceType.Directory) {
-                    // check if specified directory is available on filesystem
-                    DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
-                    if (dirInfo.Exists) {
-                        resourceAvailable = true;
-                    } else {
-                        Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
-                        resourceAvailable = false;
-                    }
+                switch ( Type ){
+                    case ResourceType.File:
+                        FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
+                        if (fileInfo.Exists) {
+                            resourceAvailable = true;
+                        } else {
+                            Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
+                            resourceAvailable = false;
+                        }
+                        break;
+                    case ResourceType.Directory:
+                        // check if specified directory is available on filesystem
+                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
+                        if (dirInfo.Exists) {
+                            resourceAvailable = true;
+                        } else {
+                            Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
+                            resourceAvailable = false;
+                        }
+                        break;
                 }
                 return resourceAvailable;
             } catch (Exception e) {
