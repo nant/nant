@@ -7,7 +7,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit.dll" doc="${build.dir}/bin/NAnt.NUnit.xml">
             <sources>
                 <includes name="*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -27,7 +27,7 @@
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NUnitCore.dll"/>
-                <includes name="NAnt.NUnitFormatters.dll"/>
+                <includes name="NAnt.NUnit.dll"/>
             </references>
         </csc>
         <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
@@ -39,7 +39,7 @@
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
                 <includes name="nunit.framework.dll"/>
-                <includes name="NAnt.NUnitFormatters.dll"/>
+                <includes name="NAnt.NUnit.dll"/>
             </references>
         </csc>
     </target>

@@ -9,14 +9,14 @@
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "Nant.NUnitFormatters"
+                AssemblyName = "Nant.NUnit"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "Nant.NUnitFormatters"
+                RootNamespace = "Nant.NUnit"
                 StartupObject = ""
             >
                 <Config
@@ -26,7 +26,7 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = "Nant.NUnitFormatters.xml"
+                    DocumentationFile = "Nant.NUnit.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
