@@ -99,6 +99,10 @@
 
             <h3>Usage</h3>
             <code>
+                 <xsl:call-template name="get-a-href-with-name">
+                    <xsl:with-param name="cref" select="concat('T:', @returnType)" />
+                </xsl:call-template>
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="$name" />(<xsl:for-each select="parameter"><xsl:if test="position() != 1">, </xsl:if><span class="parameter"><xsl:value-of select="@name" /></span></xsl:for-each>)
             </code>
             <p/>
