@@ -76,11 +76,18 @@ namespace NAnt.Core.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>The resource which must be available.</summary>
+        /// <summary>
+        /// The resource which must be available.
+        /// </summary>
         [TaskAttribute("resource", Required=true)]
-        public string Resource          { get { return _resource; } set {_resource = value; } }
+        public string Resource {
+            get { return _resource; }
+            set {_resource = value; }
+        }
 
-        /// <summary>The type of resource which must be present - either <c>File</c>, <c>Directory</c> or <c>Framework</c>.</summary>
+        /// <summary>
+        /// The type of resource which must be present - either <c>File</c>, <c>Directory</c> or <c>Framework</c>.
+        /// </summary>
         [TaskAttribute("type", Required=true)]
         public ResourceType Type { 
             get { return _resourceType; }
@@ -93,20 +100,27 @@ namespace NAnt.Core.Tasks {
             } 
         }
 
-        /// <summary>The property that must be set if the resource is available.</summary>
+        /// <summary>
+        /// The property that must be set if the resource is available.
+        /// </summary>
         [TaskAttribute("property", Required=true)]
-        public string PropertyName      { get { return _propertyName; } set {_propertyName = value; } }
+        public string PropertyName {
+            get { return _propertyName; }
+            set {_propertyName = value; }
+        }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
 
         /// <summary>
-        /// Executes the Available task.
+        /// Executes the <see cref="Available" /> task.
         /// </summary>
         /// <remarks>
-        /// Sets the property identifier by <see cref="PropertyName" /> to <c>true</c>
-        /// when the resource exists and to <c>false</c> when the resource doesn't exist.
+        /// <para>
+        /// Sets the property identified by <see cref="PropertyName" /> to 
+        /// <c>true</c> when the resource exists and to <c>false</c> when the 
+        /// resource doesn't exist.
         /// </remarks>
         /// <exception cref="BuildException">The availability of the resource could not be evaluated.</exception>
         protected override void ExecuteTask() {
@@ -206,6 +220,6 @@ namespace NAnt.Core.Tasks {
         private string _resource = null;
         private string _propertyName = null;
 
-        #endregion
+        #endregion Private Instance Fields
     }
 }
