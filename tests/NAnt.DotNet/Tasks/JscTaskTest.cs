@@ -93,6 +93,6 @@ namespace Tests.NAnt.DotNet.Tasks {
                 attributes);
         }
 
-        #endregion Public Instance Methods
+        #endregion Private Instance Methods
     }
 }
