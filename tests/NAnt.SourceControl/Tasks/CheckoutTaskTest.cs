@@ -38,10 +38,10 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private string destination;
 
-        private readonly string MODULE = "sharpcvslib";
-        private readonly string CHECK_FILE = "lib/ICSharpCode.SharpZipLib.dll";
+        private readonly string TestModule = "sharpcvslib";
+        private readonly string CheckFile = "lib/ICSharpCode.SharpZipLib.dll";
 
-        private readonly string CVSROOT = 
+        private readonly string TestCvsRoot = 
             ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib";
 
         private readonly string _projectXML = @"<?xml version='1.0'?>
@@ -85,7 +85,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [SetUp]
         protected override void SetUp () {
             base.SetUp ();
-            this.destination = this.TempDirName;
+            destination = TempDirName;
         }
 
         /// <summary>
@@ -108,13 +108,13 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [Test]
         public void Test_CvsCheckout () {
             object[] args = 
-                {MODULE, CVSROOT, this.destination, string.Empty, string.Empty};
+                {TestModule, TestCvsRoot, destination, string.Empty, string.Empty};
 
-            string checkoutPath = Path.Combine(this.destination, this.MODULE);
-            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+            string checkoutPath = Path.Combine(destination, TestModule);
+            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
             string result = 
-                this.RunBuild(FormatBuildFile(_projectXML, args), Level.Debug);
+                RunBuild(FormatBuildFile(_projectXML, args), Level.Debug);
             Assertion.Assert("File does not exist, checkout probably did not work.", 
                 File.Exists(checkFilePath));
         }
@@ -125,13 +125,13 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [Test]
         public void TestCheckoutDate () {
             object[] args = { 
-                 MODULE, CVSROOT, this.destination, string.Empty, "2003/08/16", "2003_08_16"};
+                 TestModule, TestCvsRoot, destination, string.Empty, "2003/08/16", "2003_08_16"};
 
-            string checkoutPath = Path.Combine(this.destination, "2003_08_16");
-            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+            string checkoutPath = Path.Combine(destination, "2003_08_16");
+            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
             string result = 
-                this.RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
+                RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
             Assertion.Assert(String.Format("File {0} does not exist.", checkFilePath), 
                 File.Exists(checkFilePath));
         }
@@ -151,14 +151,14 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [ExpectedException (typeof(TestBuildException))]
         public void TestModuleValidation_Bad() {
             object[] args = { 
-                String.Format("{0}/bad/module", MODULE), 
-                CVSROOT, this.destination, string.Empty, "2003/08/16", "2003_08_16"};
+                String.Format("{0}/bad/module", TestModule), 
+                TestCvsRoot, destination, string.Empty, "2003/08/16", "2003_08_16"};
 
-            string checkoutPath = Path.Combine(this.destination, "2003_08_16");
-            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+            string checkoutPath = Path.Combine(destination, "2003_08_16");
+            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
             string result = 
-                this.RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
+                RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
 
         }
 

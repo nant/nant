@@ -37,12 +37,12 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private string destination;
 
-		private const bool USESHARPCVSLIB = false;
+		private const bool TestUseSharpCvsLib = false;
 
-        private readonly string MODULE = "sharpcvslib";
-        private readonly string CHECK_FILE = "lib/ICSharpCode.SharpZipLib.dll";
+        private readonly string TestModule = "sharpcvslib";
+        private readonly string CheckFile = "lib/ICSharpCode.SharpZipLib.dll";
 
-        private readonly string CVSROOT = 
+        private readonly string TestCvsRoot = 
             ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib";
 
         private readonly string _checkoutXML = @"<?xml version='1.0'?>
@@ -119,8 +119,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
             base.SetUp ();
             this.destination = this.TempDirName;
 
-            object[] args = {USESHARPCVSLIB.ToString(),
-                 MODULE, CVSROOT, this.destination, string.Empty, string.Empty};
+            object[] args = {TestUseSharpCvsLib.ToString(),
+                 TestModule, TestCvsRoot, this.destination, string.Empty, string.Empty};
 			string checkoutBuild = FormatBuildFile(_checkoutXML, args);
 			System.Console.WriteLine(checkoutBuild);
             string result = 
@@ -145,8 +145,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         [Test]
         public void Test_CvsUpdate () {
-            string checkoutPath = Path.Combine(this.destination, this.MODULE);
-            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+            string checkoutPath = Path.Combine(this.destination, this.TestModule);
+            string checkFilePath = Path.Combine(checkoutPath, this.CheckFile);
 
             if (File.Exists(checkFilePath)) {
                 // Delete the file.
@@ -158,7 +158,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 !File.Exists(checkFilePath));
 
             // Run the update to bring the file back down.
-            object[] args = {USESHARPCVSLIB.ToString(), MODULE, CVSROOT, checkoutPath, string.Empty, 
+            object[] args = {TestUseSharpCvsLib.ToString(), TestModule, TestCvsRoot, checkoutPath, string.Empty, 
                                 string.Empty};
             string result = this.RunBuild(FormatBuildFile(_updateXML, args), 
                 Level.Debug);
@@ -169,8 +169,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
         }
 
 		public void TestUpdateClean () {
-			string checkoutPath = Path.Combine(this.destination, this.MODULE);
-			string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+			string checkoutPath = Path.Combine(this.destination, this.TestModule);
+			string checkFilePath = Path.Combine(checkoutPath, this.CheckFile);
 
 			string checkContents;
 
@@ -192,7 +192,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
 			bool pruneEmpty = false;
 			bool overwriteLocal = true;
 			bool recursive = false;
-			object[] args = {USESHARPCVSLIB.ToString(), MODULE, CVSROOT, checkoutPath, string.Empty, 
+			object[] args = {TestUseSharpCvsLib.ToString(), TestModule, TestCvsRoot, checkoutPath, string.Empty, 
 								buildDirs, pruneEmpty, overwriteLocal, recursive, 
 								checkFilePath};
 			string formattedBuildFile = FormatBuildFile(this._updateOptionsXML, args);
