@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Util;
@@ -67,11 +68,15 @@ namespace NAnt.VSNet {
                 XmlDocument doc = new XmlDocument();
 
                 if (!ProjectFactory.IsUrl(path)) {
-                    doc.Load(path);
+                    using (StreamReader sr = new StreamReader(path, Encoding.Default, true)) {
+                        doc.Load(sr);
+                    }
                 } else {
                     Uri uri = new Uri(path);
                     if (uri.Scheme == Uri.UriSchemeFile) {
-                        doc.Load(uri.LocalPath);
+                        using (StreamReader sr = new StreamReader(uri.LocalPath, Encoding.Default, true)) {
+                            doc.Load(sr);
+                        }
                     } else {
                         doc.LoadXml(WebDavClient.GetFileContentsStatic(path));
                     }

@@ -175,8 +175,7 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void RecursiveLoadTemplateProject(string fileName) {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(fileName);
+            XmlDocument doc = ProjectFactory.LoadProjectXml(fileName);
 
             foreach (XmlNode node in doc.SelectNodes("//Reference")) {
                 XmlNode projectGuidNode = node.SelectSingleNode("GUIDPROJECTID");
