@@ -87,27 +87,6 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Prepares the project for being built.
-        /// </summary>
-        /// <param name="config">The configuration in which the project will be built.</param>
-        /// <remarks>
-        /// Ensures the configuration-level object directory exists and ensures 
-        /// that none of the output files are marked read-only.
-        /// </remarks>
-        protected override void Prepare(ConfigurationBase config) {
-            // Visual C#.NET uses the <project dir>\obj\<configuration> 
-            // as working directory, so we should do the same to make 
-            // sure relative paths are resolved correctly 
-            // (eg. AssemblyKeyFile attribute)
-
-            // ensure configuration-level object directory exists
-            if (!config.ObjectDir.Exists) {
-                config.ObjectDir.Create();
-                config.ObjectDir.Refresh();
-            }
-        }
-
-        /// <summary>
         /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
         /// for this project.
         /// </summary>
