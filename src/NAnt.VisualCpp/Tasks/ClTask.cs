@@ -345,7 +345,7 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // write directories that the compiler will search to resolve 
-                    // file references  passed to the #using directive
+                    // file references passed to the #using directive
                     foreach (string metaDataIncludeDir in MetaDataIncludeDirs.DirectoryNames) {
                         writer.WriteLine("/AI {0}", QuoteArgumentValue(metaDataIncludeDir));
                     }
@@ -454,6 +454,8 @@ namespace NAnt.VisualCpp.Tasks {
         /// recompile.
         /// </remarks>
         private bool IsPchfileUpToDate() {
+            // TODO: also check for updated metadata includes (#using directives)
+
             // if no pch file, then then it is theoretically up to date
             if (PchFile == null) {
                 return true;
@@ -467,7 +469,7 @@ namespace NAnt.VisualCpp.Tasks {
                 return false;
             }
 
-            // if sources fresher than pch file,
+            // check if sources fresher than pch file
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, "'{0}' is newer than pch file, recompiling.", 
@@ -475,11 +477,30 @@ namespace NAnt.VisualCpp.Tasks {
                 return false;
             }
 
-            // for now, always return false, thereby forcing recompile
-            return false;
+            // check if assembly references are fresher than pch file
+            fileName = FileSet.FindMoreRecentLastWriteTime(ForcedUsingFiles.FileNames, pchFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' is newer than pch file, recompiling.", 
+                    fileName);
+                return false;
+            }
+
+            // check if included headers in source are modified after pch was compiled
+            foreach (string sourceFile in Sources.FileNames) {
+                fileName = FindUpdatedInclude(sourceFile, pchFileInfo.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool IsObjUpToDate(string srcFileName) {
+            // TODO: also check for updated metadata includes (#using directives)
+
             // if obj file doesn't exist, it must be stale
             string objFileName = Path.ChangeExtension(Path.Combine(OutputDir.FullName, 
                 Path.GetFileName(srcFileName)), ".obj");
@@ -492,6 +513,14 @@ namespace NAnt.VisualCpp.Tasks {
 
             // if obj file is older than the source file, it is stale
             string fileName = FileSet.FindMoreRecentLastWriteTime(srcFileName, objFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
+                return false;
+            }
+
+            // check if assembly references are fresher than pch file
+            fileName = FileSet.FindMoreRecentLastWriteTime(ForcedUsingFiles.FileNames, objFileInfo.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
                     fileName);
@@ -575,8 +604,19 @@ namespace NAnt.VisualCpp.Tasks {
                             }
                         }
 
-                        // if we could not locate include in include dirs,
-                        // then try to locate include in INCLUDE env var
+                        // if we could not locate include in include dirs
+                        // then check for include in source directory
+                        if (resolvedInclude == null) {
+                            string foundIncludeFile = FileUtils.CombinePaths(
+                                Path.GetDirectoryName(srcFileName), includeFile);
+                            if (File.Exists(foundIncludeFile)) {
+                                resolvedInclude = foundIncludeFile;
+                            }
+                        }
+
+                        // if we could not locate include in include dirs and
+                        // source dir, then try to locate include in INCLUDE 
+                        // env var
                         if (resolvedInclude == null) {
                             PathScanner pathScanner = new PathScanner();
                             pathScanner.Add(includeFile);
