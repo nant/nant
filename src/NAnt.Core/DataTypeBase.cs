@@ -83,8 +83,8 @@ namespace NAnt.Core {
                     throw new BuildException(msg, Location);
                 }
             } else {
-                if (elementNode.ChildNodes.Count == 0 && Ref.Length  == 0) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "'refid' is a required attribute for a <{0}> reference.", Name);
+                  if (Id.Length > 0 ) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "'id' is an invalid attribute for a <{0}> tag. Datatypes can only be declared at Project or Task level.", Name );
                     throw new BuildException(msg, Location);
                 }
             }

@@ -27,7 +27,8 @@ using NAnt.Core.Types;
 namespace NAnt.DotNet.Types {
     /// <summary>
     /// Specialized <see cref="FileSet" /> class for managing resource files. 
-    /// </summary>
+    /// </summary>     
+    [ElementName("resourcefileset")]
     public class ResourceFileSet : FileSet {
         #region Public Instance Constructors
 

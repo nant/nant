@@ -26,7 +26,8 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Represents a command-line argument.
     /// </summary>
-    public class Argument : Element {
+    [ElementName("arg")]
+    public class Argument : DataTypeBase {
         #region Private Instance Fields
 
         private string _value = null;

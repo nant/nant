@@ -30,7 +30,8 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Summary description for FileList.
     /// </summary>
-    public class FileList : Element { 
+    [ElementName("filelist")]
+    public class FileList : DataTypeBase { 
 
         private DirectoryListScanner _scanner = new DirectoryListScanner();
         private bool _hasScanned = false;
