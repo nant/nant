@@ -60,10 +60,10 @@ namespace NAnt.DotNet.Tasks {
     public class AssemblyLinkerTask : NAnt.Core.Tasks.ExternalProgramBase {
         #region Private Instance Fields
 
-        private string _responseFileName = null;
+        private string _responseFileName;
         private FileInfo _outputFile;
-        private string _target = null;
-        private string _culture = null;
+        private string _target;
+        private string _culture;
         private FileInfo _templateFile;
         private FileInfo _keyfile;
         private FileSet _resources = new FileSet();
