@@ -640,8 +640,8 @@ namespace NAnt.Core {
                     }
                 }
 
-                if (source.GetType() == typeof(DateTime)) {
-                    if (returnType != typeof(string) && returnType != typeof(DateTime)) {
+                if (source.GetType() == typeof(DateTime)) {                   
+		    if (returnType != typeof(string) && returnType != typeof(DateTime)) {
                         // DateTime can only be converted to string or DateTime
                         disallow = true;
                     }
@@ -653,6 +653,12 @@ namespace NAnt.Core {
                         disallow = true;
                     }
                 }
+		// Horrible hack to work around this mono bug:
+		// http://bugs.ximian.com/show_bug.cgi?id=53919
+		// Be sure to remove once that bug is fixed.
+		if ( (returnType == typeof(TimeSpan))  && (source.GetType() == typeof(TimeSpan)) ) {
+		    return (TimeSpan)source;
+		}
 
                 if (disallow) {
                     throw BuildParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1);
