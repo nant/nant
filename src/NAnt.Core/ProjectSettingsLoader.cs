@@ -223,16 +223,9 @@ namespace NAnt.Core {
                     continue;
                 }
 
-                PropertyDictionary frameworkProperties = null;
                 string name = null;
 
                 try {
-                    // initialize framework-specific properties
-                    frameworkProperties = new PropertyDictionary();
-
-                    // inject framework-neutral properties
-                    frameworkProperties.Inherit(Project.FrameworkNeutralProperties, (StringCollection)null);
-
                     // get framework attributes
                     name = GetXmlAttributeValue(frameworkNode, "name");
 
@@ -243,58 +236,11 @@ namespace NAnt.Core {
                     string frameworkAssemblyDir = GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory");
                     string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
 
-                    // get framework-specific properties
+                    // get framework-specific property nodes
                     XmlNodeList propertyNodes = frameworkNode.SelectNodes("properties/property");
 
-                    foreach (XmlNode propertyNode in propertyNodes) {
-                        //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                        if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                            continue;	
-                        }
-
-                        string propertyName = GetXmlAttributeValue(propertyNode, "name");
-                        string propertyValue = null;
-
-                        if (propertyName == null) {
-                            throw new ArgumentException("A framework property should at least have a name.");
-                        }
-
-                        if (GetXmlAttributeValue(propertyNode, "useregistry") == "true") {
-                            string regKey = GetXmlAttributeValue(propertyNode, "regkey");
-
-                            if (regKey == null) {
-                                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regkey attribute set.", propertyName));
-                            } else {
-                                // expand properties in regkey
-                                regKey = frameworkProperties.ExpandProperties(regKey, Location.UnknownLocation);
-                            }
-
-                            string regValue = GetXmlAttributeValue(propertyNode, "regvalue");
-
-                            if (regValue == null) {
-                                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regvalue attribute set.", propertyName));
-                            } else {
-                                // expand properties in regvalue
-                                regValue = frameworkProperties.ExpandProperties(regValue, Location.UnknownLocation);
-                            }
-
-                            RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
-
-                            if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
-                                propertyValue = sdkKey.GetValue(regValue).ToString();
-                            }
-                        } else {
-                            propertyValue = GetXmlAttributeValue(propertyNode, "value");
-                        }
-
-                        if (propertyValue != null) {
-                            // expand properties in property value
-                            propertyValue = frameworkProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
-
-                            // add read-only property to collection of framework properties
-                            frameworkProperties.AddReadOnly(propertyName, propertyValue);
-                        }
-                    }
+                    // process framework property nodes
+                    PropertyDictionary frameworkProperties = ProcessFrameworkProperties(propertyNodes);
 
                     // create new FrameworkInfo instance, this will throw an
                     // an exception if the framework is not valid
@@ -318,6 +264,74 @@ namespace NAnt.Core {
                     logger.Info(msg, ex);
                 }
             }
+        }
+
+        /// <summary>
+        /// Processes the framework properties.
+        /// </summary>
+        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing framework properties.</param>
+        private PropertyDictionary ProcessFrameworkProperties(XmlNodeList propertyNodes) {
+            PropertyDictionary frameworkProperties = null;
+
+            // initialize framework-specific properties
+            frameworkProperties = new PropertyDictionary();
+
+            // inject framework-neutral properties
+            frameworkProperties.Inherit(Project.FrameworkNeutralProperties, (StringCollection)null);
+
+            foreach (XmlNode propertyNode in propertyNodes) {
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(propertyNode.NodeType == XmlNodeType.Element)) {
+                    continue;	
+                }
+
+                string propertyName = GetXmlAttributeValue(propertyNode, "name");
+
+                // make sure property has atleast a name
+                if (propertyName == null) {
+                    throw new ArgumentException("A framework property should at least have a name.");
+                }
+
+                string propertyValue = null;
+
+                if (GetXmlAttributeValue(propertyNode, "useregistry") == "true") {
+                    string regKey = GetXmlAttributeValue(propertyNode, "regkey");
+
+                    if (regKey == null) {
+                        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regkey attribute set.", propertyName));
+                    } else {
+                        // expand properties in regkey
+                        regKey = frameworkProperties.ExpandProperties(regKey, Location.UnknownLocation);
+                    }
+
+                    string regValue = GetXmlAttributeValue(propertyNode, "regvalue");
+
+                    if (regValue == null) {
+                        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regvalue attribute set.", propertyName));
+                    } else {
+                        // expand properties in regvalue
+                        regValue = frameworkProperties.ExpandProperties(regValue, Location.UnknownLocation);
+                    }
+
+                    RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
+
+                    if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
+                        propertyValue = sdkKey.GetValue(regValue).ToString();
+                    }
+                } else {
+                    propertyValue = GetXmlAttributeValue(propertyNode, "value");
+                }
+
+                if (propertyValue != null) {
+                    // expand properties in property value
+                    propertyValue = frameworkProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
+
+                    // add read-only property to collection of framework properties
+                    frameworkProperties.AddReadOnly(propertyName, propertyValue);
+                }
+            }
+
+            return frameworkProperties;
         }
 
         #endregion Private Instance Methods
