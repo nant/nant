@@ -33,12 +33,12 @@ namespace Tests.NAnt.Core.Filters {
 
         [Test]
         public void InstantiationTest() {
-            base.FilterTest(@"<" + _tagName + @" targetstring=""cat""" + @" replacementstring=""fat cat""/>", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" from=""cat""" + @" to=""fat cat""/>", " ", " ");
         }
 
         [Test]
         public void EmptyFileTest() {
-            base.FilterTest(@"<" + _tagName + @" targetstring=""cat""" + @" replacementstring=""fat cat""/>", " ", " ");
+            base.FilterTest(@"<" + _tagName + @" from=""cat""" + @" to=""fat cat""/>", " ", " ");
         }
 
         /// <summary>
@@ -48,148 +48,147 @@ namespace Tests.NAnt.Core.Filters {
         public void ComplexTest() {
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" targetstring=""cat"" replacementstring=""fat cat""/>";
+            string filterXml = @"<" + _tagName + @" from=""cat"" to=""fat cat""/>";
 
-			string input = @"catpublic class ProjectName {
+            string input = @"catpublic class ProjectName {
     static void Main() 
-	{
+    {
 
-		/*
-		   ccccccccaaaacattcatccatcacatcattcat
+        /*
+           ccccccccaaaacattcatccatcacatcattcat
 
-		*/
+        */
                         
                         
         System.catConsole.WriteLine(""Hello World using C# ~13 May 2004~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
-	}
+    }
 }//End of file..cat";
 
 
-			string expectedOutput = @"fat catpublic class ProjectName {
+            string expectedOutput = @"fat catpublic class ProjectName {
     static void Main() 
-	{
+    {
 
-		/*
-		   ccccccccaaaafat cattfat catcfat catcafat catfat cattfat cat
+        /*
+           ccccccccaaaafat cattfat catcfat catcafat catfat cattfat cat
 
-		*/
+        */
                         
                         
         System.fat catConsole.WriteLine(""Hello World using C# ~13 May 2004~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
-	}
+    }
 }//End of file..fat cat";
 
             base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
 
-		/// <summary>
-		/// Test for ignorecase
-		/// </summary>
-		[Test]
-		public void ComplexTestCase() 
-		{
-			string prologueXml = null;
+        /// <summary>
+        /// Test for ignorecase
+        /// </summary>
+        [Test]
+        public void ComplexTestCase() 
+        {
+            string prologueXml = null;
 
-			string filterXml = @"<" + _tagName + @" targetstring=""CAT"" replacementstring=""UPPER CAT"" ignorecase=""true""/>";
+            string filterXml = @"<" + _tagName + @" from=""CAT"" to=""UPPER CAT"" ignorecase=""true""/>";
 
-			string input = @"catpublic class ProjectName {
+            string input = @"catpublic class ProjectName {
     static void Main() 
-	{
+    {
 
-		/*
-		   ccccccccaaaacattcatccatcacatcattcat
+        /*
+           ccccccccaaaacattcatccatcacatcattcat
 
-		*/
+        */
                         
                         
         System.catConsole.WriteLine(""Hello World using C# ~13 May 2004~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
-	}
+    }
 }//End of file..cat";
-			string expectedOutput = @"UPPER CATpublic class ProjectName {
+            string expectedOutput = @"UPPER CATpublic class ProjectName {
     static void Main() 
-	{
+    {
 
-		/*
-		   ccccccccaaaaUPPER CATtUPPER CATcUPPER CATcaUPPER CATUPPER CATtUPPER CAT
+        /*
+           ccccccccaaaaUPPER CATtUPPER CATcUPPER CATcaUPPER CATUPPER CATtUPPER CAT
 
-		*/
+        */
                         
                         
         System.UPPER CATConsole.WriteLine(""Hello World using C# ~13 May 2004~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
-	}
+    }
 }//End of file..UPPER CAT";
 
-			base.FilterTest(filterXml, input, expectedOutput, prologueXml);
-		}
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+        }
 
-		/// <summary>
-		/// Single character replacement
-		/// </summary>
-		[Test]
-		public void ComplexTestSingleChar() 
-		{
-			string prologueXml = null;
+        /// <summary>
+        /// Single character replacement
+        /// </summary>
+        [Test]
+        public void ComplexTestSingleChar() 
+        {
+            string prologueXml = null;
 
-			string filterXml = @"<" + _tagName + @" targetstring=""c"" replacementstring=""b""/>";
+            string filterXml = @"<" + _tagName + @" from=""c"" to=""b""/>";
 
-			string input = @"catpublic class ProjectName {
+            string input = @"catpublic class ProjectName {
     static void Main() 
-	{
+    {
 
-		/*
-		   ccccccccaaaacattcatccatcacatcattcat
+        /*
+           ccccccccaaaacattcatccatcacatcattcat
 
-		*/
+        */
                         
                         
         System.catConsole.WriteLine(""Hello World using C# ~13 May 2004~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
-	}
+    }
 }//End of file..cat";
-			string expectedOutput = @"batpublib blass ProjebtName {
+            string expectedOutput = @"batpublib blass ProjebtName {
     statib void Main() 
-	{
+    {
 
-		/*
-		   bbbbbbbbaaaabattbatbbatbabatbattbat
+        /*
+           bbbbbbbbaaaabattbatbbatbabatbattbat
 
-		*/
+        */
                         
                         
         System.batConsole.WriteLine(""Hello World using C# ~13 May 2004~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
         System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
-	}
+    }
 }//End of file..bat";
 
-			base.FilterTest(filterXml, input, expectedOutput, prologueXml);
-		}
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+        }
 
-		/// <summary>
-		/// Test repeating replacement chars
-		/// </summary>
-		[Test]
-		public void ComplexTestRepeating() 
-		{
-			string prologueXml = null;
+        /// <summary>
+        /// Test repeating replacement chars
+        /// </summary>
+        [Test]
+        public void ComplexTestRepeating() 
+        {
+            string prologueXml = null;
 
-			string filterXml = @"<" + _tagName + @" targetstring=""cat"" replacementstring=""frog""/>";
+            string filterXml = @"<" + _tagName + @" from=""cat"" to=""frog""/>";
 
-			string input = @"catcatcatcatcat";
-			string expectedOutput = @"frogfrogfrogfrogfrog";
+            string input = @"catcatcatcatcat";
+            string expectedOutput = @"frogfrogfrogfrogfrog";
 
-			base.FilterTest(filterXml, input, expectedOutput, prologueXml);
-		}
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+        }
     }
 }
-
