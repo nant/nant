@@ -79,7 +79,17 @@ namespace NAnt.Core {
                 // create new instance.
                 ConstructorInfo constructor = methodInfo.DeclaringType.GetConstructor(new Type[] {typeof(Project), typeof(PropertyDictionary)});
                 object o = constructor.Invoke(new object[] {_project, _propDict});
-                return methodInfo.Invoke(o, args.ToArray());
+
+                try {
+                    return methodInfo.Invoke(o, args.ToArray());
+                } catch (TargetInvocationException ex) {
+                    if (ex.InnerException != null) {
+                        // throw actual exception
+                        throw ex.InnerException;
+                    }
+                    // re-throw exception
+                    throw;
+                }
             }
         }
 
