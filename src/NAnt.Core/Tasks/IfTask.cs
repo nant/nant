@@ -237,7 +237,7 @@ namespace NAnt.Core.Tasks {
                 bool ret = true;
 
                 if (Eval != null) {
-                    ExpressionEvaluator evaluator = new ExpressionEvaluator(this);
+                    ExpressionEvaluator evaluator = new ExpressionEvaluator(this.Properties);
                     try {
                         object val = evaluator.Evaluate(Eval);
                         if (!(val is bool)) {
