@@ -25,6 +25,7 @@ using System.Runtime.Remoting;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+
 using NAnt.NUnit.Types;
 using NAnt.NUnit1.Types;
 
@@ -162,7 +163,12 @@ namespace NAnt.NUnit1.Tasks {
             if (test.OutFile == null) {
                 test.OutFile = "TEST-" + test.Class;
             }
+
             NUnitTestData testData = test.GetTestData();
+
+            foreach (FormatterElement element in FormatterElements) {
+                testData.Formatters.Add(element.Data);
+            }
 
             if (testData.Fork == true) {
                 result = ExecuteInAppDomain(testData);
@@ -212,7 +218,7 @@ namespace NAnt.NUnit1.Tasks {
                 null, null, null
                 );
             RemoteNUnitTestRunner runner = (RemoteNUnitTestRunner)(oh.Unwrap());
-            Log(Level.Info, LogPrefix + "Running {0}.", test.Class);
+            Log(Level.Info, LogPrefix + "Running '{0}'.", test.Class);
 
             runner.Run(LogPrefix, Verbose);
             return runner.ResultCode;
@@ -223,15 +229,14 @@ namespace NAnt.NUnit1.Tasks {
                 NUnitTestRunner runner = new NUnitTestRunner(test);
 
                 if (runner.NeedsRunning()) {
-                    Log(Level.Info, LogPrefix + "Running {0}.", test.Class);
+                    Log(Level.Info, LogPrefix + "Running '{0}'.", test.Class);
                     runner.Run(LogPrefix, Verbose);
                 } else {
-                    Log(Level.Info, LogPrefix + "Skipping {0} because tests haven't changed.", test.Class);
+                    Log(Level.Info, LogPrefix + "Skipping '{0}' because tests haven't changed.", test.Class);
                 }
                 return runner.ResultCode;
-
-            } catch (Exception e) {
-                throw new BuildException("Error running unit test.", Location, e);
+            } catch (Exception ex) {
+                throw new BuildException("Error running unit test.", Location, ex);
             }
         }
 
