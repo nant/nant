@@ -148,7 +148,7 @@
     </target>
 
     <target name="doc" depends="build">
-		<echo message="ndoc is broken"/>
+		<echo message="Requires Html Help Workshop to be installed an in the system path"/>
 		<ndoc outputDir="${build.dir}\docs" helpName="NAnt" showMissing="true" showPrivate="false">
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.exe"/>
