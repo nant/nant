@@ -139,7 +139,7 @@ namespace NAnt.Core.Tasks {
             Log(Level.Verbose, LogPrefix + "Including file {0}.", includedFileName);
 
             // store original base directory
-            string oldBaseDir = Project.BaseDirectory;
+            string oldBaseDir = _currentBasedir;
             
             // set basedir to be used by the nested calls (if any)
             _currentBasedir = Path.GetDirectoryName(includedFileName);
