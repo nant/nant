@@ -304,13 +304,9 @@ namespace NAnt.VSNet {
                         WrapperReference wrapper = reference as WrapperReference;
 
                         // avoid stack overflow causes by mutual dependencies
-                        if (wrapper == null || !wrapper.IsCreated) {
+                        if (wrapper == null || !wrapper.IsCreated || wrapper.WrapperTool != "tlbimp") {
                             continue;
                         }
-
-                        // TODO: determine if we should only include wrappers
-                        // generated using "tlbimp" or all wrapper assemblies
-                        // (meaning also "primary and "aximp")
 
                         tlbImp.References.Includes.Add(wrapper.WrapperAssembly);
                     }
