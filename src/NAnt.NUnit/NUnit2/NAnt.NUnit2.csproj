@@ -3,20 +3,20 @@
         ProjectType = "Local"
         ProductVersion = "7.0.9466"
         SchemaVersion = "1.0"
-        ProjectGuid = "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
+        ProjectGuid = "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "Nant.NUnit1Tasks"
+                AssemblyName = "Nant.NUnit2Tasks"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "Nant.NUnit1Tasks"
+                RootNamespace = "Nant.NUnit2"
                 StartupObject = ""
             >
                 <Config
@@ -26,16 +26,17 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = ""
+                    DocumentationFile = "Nant.NUnit2Tasks.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
+                    NoWarn = "0618"
                     Optimize = "false"
                     OutputPath = "..\..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
             </Settings>
             <References>
@@ -61,14 +62,14 @@
                     Private = "False"
                 />
                 <Reference
-                    Name = "NAnt.NUnitFormatters"
+                    Name = "NAnt.NUnit"
                     Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
-                    Name = "NUnitCore"
-                    AssemblyName = "NUnitCore"
-                    HintPath = "..\..\..\bin\NUnitCore.dll"
+                    Name = "nunit.framework"
+                    AssemblyName = "nunit.framework"
+                    HintPath = "..\..\..\bin\nunit.framework.dll"
                 />
             </References>
         </Build>
@@ -85,62 +86,22 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "IResultFormatter.cs"
+                    RelPath = "NUnit2Task.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "IResultFormatterCollection.cs"
+                    RelPath = "NUnit2Test.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "LogFormatter.cs"
+                    RelPath = "NUnit2TestCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NUnitTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NUnitTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NUnitTestCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NUnitTestData.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NUnitTestRunner.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PlainTextFormatter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "RemoteNUnitTestRunner.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TestResultExtra.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "XmlResultFormatter.cs"
+                    RelPath = "NUnit2TestDomain.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
