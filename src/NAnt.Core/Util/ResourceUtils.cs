@@ -26,13 +26,13 @@ using System.Globalization;
 namespace NAnt.Core.Util {
     /// <summary>
     /// Provides resource support to NAnt assemblies. This class cannot
-    /// be inherited from.
+    /// be inherited.
     /// </summary>
     internal sealed class ResourceUtils {
 
         #region private fields
 
-        private static ResourceManager resourceManager;
+        private static volatile ResourceManager resourceManagera;
 
         #endregion private fields
 
@@ -43,11 +43,11 @@ namespace NAnt.Core.Util {
         /// </summary>
         /// <param name="name">
         /// A <see cref="System.String" /> that contains the name of the
-        /// resource to get.
+        /// string resource to get.
         /// </param>
         /// <returns>
         /// A <see cref="System.String" /> that contains the value of the
-        /// resource localized for the current culture.
+        /// string resource localized for the current culture.
         /// </returns>
         public static string GetString(string name) {
             return GetString(name, null);
@@ -59,17 +59,17 @@ namespace NAnt.Core.Util {
         /// </summary>
         /// <param name="name">
         /// A <see cref="System.String" /> that contains the name of the
-        /// resource to get.
+        /// string resource to get.
         /// </param>
         /// <param name="culture">
         /// A <see cref="System.Globalization.CultureInfo" /> that represents
-        /// the culture for which the resource is localized.
+        /// the culture for which the string resource should be localized.
         /// </param>
         /// <returns>
         /// A <see cref="System.String" /> that contains the value of the
-        /// resource localized for the specified culture.
+        /// string resource localized for the specified culture.
         /// </returns>
-        public static string GetString(string name, CultureInfo culture)    {
+        public static string GetString(string name, CultureInfo culture) {
             if (resourceManager == null) {
                 //
                 // prevent more than one instance of the ResourceManager class
