@@ -322,15 +322,7 @@ namespace NAnt.Core.Tasks {
                                     parameter.NamespaceUri, parameter.Value);
                             }
                         }
-                        
-                        // set the xslt parameters
-                        foreach (XsltParameter parameter in Parameters) {
-                            if (parameter.IfDefined && !parameter.UnlessDefined) {
-                                xsltArgs.AddParam(parameter.ParameterName, 
-                                    parameter.NamespaceUri, parameter.Value);
-                            }
-                        }
-
+                         
                         // create extension objects
                         foreach (XsltExtensionObject extensionObject in ExtensionObjects) {
                             if (extensionObject.IfDefined && !extensionObject.UnlessDefined) {
