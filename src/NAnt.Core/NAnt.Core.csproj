@@ -544,6 +544,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\XsltParameter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\XsltParameterCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Util\CommandLineArgument.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
