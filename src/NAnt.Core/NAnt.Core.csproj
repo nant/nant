@@ -569,6 +569,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Util\AssemblyResolver.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Util\CommandLineArgument.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
