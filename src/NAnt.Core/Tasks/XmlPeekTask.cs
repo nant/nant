@@ -69,10 +69,10 @@ namespace NAnt.Core.Tasks {
     public class XmlPeekTask : Task  {
         #region Private Instance Fields
 
-        private string _fileName = null;
+        private FileInfo _xmlFile;
         private int _nodeIndex = 0;
-        private string _property = null;
-        private string _xPath = null;
+        private string _property;
+        private string _xPath;
 
         #endregion Private Instance Fields
 
@@ -83,10 +83,9 @@ namespace NAnt.Core.Tasks {
         /// that is going to be peeked at.
         /// </summary>
         [TaskAttribute("file", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string FileName {
-            get { return (_fileName != null) ? Project.GetFullPath(_fileName) : null; }
-            set { _fileName = value; }
+        public FileInfo XmlFile {
+            get { return _xmlFile; }
+            set { _xmlFile = value; }
         }
 
         /// <summary>
@@ -129,18 +128,24 @@ namespace NAnt.Core.Tasks {
         /// Executes the XML peek task.
         /// </summary>
         protected override void ExecuteTask() {
-           Log(Level.Info, LogPrefix + "Peeking at '{0}' with XPath expression '{1}'.", 
-               FileName,  XPath);
+            Log(Level.Info, LogPrefix + "Peeking at '{0}' with XPath expression '{1}'.", 
+                XmlFile.FullName,  XPath);
 
-           try {
-                XmlDocument document = LoadDocument(FileName);
-                string contents = GetNodeContents(XPath, document, NodeIndex);
-                Properties[Property] = contents;
+            // ensure the specified xml file exists
+            if (!XmlFile.Exists) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "XML file '{0}' does not exist.", XmlFile.FullName), Location);
+            }
+
+            try {
+                XmlDocument document = LoadDocument(XmlFile.FullName);
+                Properties[Property] = GetNodeContents(XPath, document, NodeIndex);
             } catch (BuildException ex) {
                 throw ex; // Just re-throw the build exceptions.
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not peek at XML file '{0}'.", FileName), Location, ex);
+                    "Could not peek at XML file '{0}'.", XmlFile.FullName), 
+                    Location, ex);
             }
         }
         
@@ -161,7 +166,7 @@ namespace NAnt.Core.Tasks {
 
             try {
                 document = new XmlDocument();
-                document.Load(FileName);
+                document.Load(fileName);
                 return document;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,

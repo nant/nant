@@ -72,23 +72,22 @@ namespace NAnt.Core.Tasks {
     public class XmlPokeTask : Task {
         #region Private Instance Fields
         
-        private string _fileName = null;
-        private string _value = null;
-        private string _xPathExpression = null;
+        private FileInfo _xmlFile;
+        private string _value;
+        private string _xPathExpression;
         
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
         /// <summary>
-        /// The file name of the file that contains the XML document that is
-        /// going to be poked.
+        /// The name of the file that contains the XML document that is going 
+        /// to be poked.
         /// </summary>
         [TaskAttribute("file", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string FileName {
-            get { return (_fileName != null) ? Project.GetFullPath(_fileName) : null; }
-            set { _fileName = value; }
+        public FileInfo XmlFile {
+            get { return _xmlFile; }
+            set { _xmlFile = value; }
         }
 
         /// <summary>
@@ -96,7 +95,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("xpath", Required=true)]
         [StringValidator(AllowEmpty=false)]
-        public string XPath  {
+        public string XPath {
             get { return _xPathExpression; }
             set { _xPathExpression = value; }
         }
@@ -119,21 +118,28 @@ namespace NAnt.Core.Tasks {
         /// Executes the XML poke task.
         /// </summary>
         protected override void ExecuteTask() {
-            try  {  
-                XmlDocument document = LoadDocument(FileName);
+            // ensure the specified xml file exists
+            if (!XmlFile.Exists) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "XML file '{0}' does not exist.", XmlFile.FullName), Location);
+            }
+
+            try {
+                XmlDocument document = LoadDocument(XmlFile.FullName);
                 XmlNodeList nodes = SelectNodes(XPath, document);
 
                 // Don't bother trying to update any nodes or save the
                 // file if no nodes were found in the first place.
                 if (nodes.Count > 0) {
                     UpdateNodes(nodes, Value);
-                    SaveDocument(document, FileName);
+                    SaveDocument(document, XmlFile.FullName);
                 } 
             } catch (BuildException ex) {
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not poke at XML file '{0}'.", FileName), Location, ex);
+                    "Could not poke at XML file '{0}'.", XmlFile.FullName), 
+                    Location, ex);
             }
         }
         #endregion Override implementation of Task
