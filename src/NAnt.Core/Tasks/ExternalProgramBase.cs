@@ -133,7 +133,7 @@ namespace SourceForge.NAnt.Tasks {
                 Log.WriteLineIf(Verbose, LogPrefix + "{0}>{1} {2}", p.StartInfo.WorkingDirectory, p.StartInfo.FileName, p.StartInfo.Arguments);
                 p.Start();
             } catch (Exception e) {
-                throw new BuildException(this.GetType().ToString() + ": Error running external program (" + ProgramFileName + "), see build log for details.", Location, e);
+                throw new BuildException(string.Format("<{0} task>{1} failed to start.", Name ,p.StartInfo.FileName), Location, e);
             }
             return p;
         }
@@ -171,7 +171,7 @@ namespace SourceForge.NAnt.Tasks {
                             throw new BuildException(
                                 string.Format(
                                     "External Program Failed: {0} return {1}\nOutput:\n{2}", 
-                                    process.ProcessName, 
+                                    ProgramFileName, 
                                     process.ExitCode, 
                                     output), 
                                 Location);
@@ -190,7 +190,10 @@ namespace SourceForge.NAnt.Tasks {
                     Log.WriteLine(e.Message, "error");
                 }
             } catch (Exception e) {
-                throw new BuildException(this.GetType().ToString() + ": Error during external program execution (" + ProgramFileName + "), see build log for details.", Location, e);
+                throw new BuildException(
+                    string.Format("{0}: {1} had errors.\n", GetType().ToString(), ProgramFileName), 
+                    Location, 
+                    e);
             }
         }
     }

@@ -128,7 +128,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "MsftFXExternalProgramBase.cs"
+                    RelPath = "MsftFXSDKExternalProgramBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

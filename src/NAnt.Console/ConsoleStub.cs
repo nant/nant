@@ -87,9 +87,19 @@ namespace SourceForge.NAnt {
                 }
                 */
 
+                string cachePath = executionAD.SetupInformation.CachePath;
+                
                 AppDomain.Unload(executionAD);
                 if(nantCleanupShadowCopyFilesSetting != null && bool.Parse(nantCleanupShadowCopyFilesSetting) == true) {
-                    Directory.Delete(executionAD.SetupInformation.CachePath);
+                    try {
+                        Directory.Delete(cachePath, true);
+                    }
+                    catch (FileNotFoundException fnf){
+                    //no-op
+                    }
+                    catch (Exception e) {
+                        Console.WriteLine("Unable to delete cache({1}).\n {0}", e.ToString(), cachePath);
+                    }
                 }
             }
 

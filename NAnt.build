@@ -4,31 +4,38 @@
 	<property name="project.name" value="nant" />
 	<property name="project.version" value="0.8.0" />
 	<property name="project.html-help.dir" value="C:\Program Files\HTML Help Workshop" />
+	
 	<!-- default configuration -->
 	<property name="project.config" value="debug" /> <!-- debug|release -->
 	<property name="nant.console.name" value="NAnt" />
+	
 	<!-- named project configurations (used by self-test and self-doc tasks) -->
 	<target name="debug" description="Perform a 'debug' build">
 		<property name="project.config" value="debug" />
 		<property name="build.debug" value="true" />
 		<property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}-${project.config}" />
 	</target>
+	
 	<target name="release" description="Perform a 'release' build">
 		<property name="project.config" value="release" />
 		<property name="build.debug" value="false" />
 		<property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}" />
 	</target>
+	
 	<!-- build tasks -->
 	<target name="init" description="Initializes build properties">
 		<call target="${project.config}" />
 	</target>
+	
 	<target name="clean" depends="init" description="Deletes current build configuration">
 		<delete verbose="true" dir="${build.dir}" failonerror="false" />
 	</target>
+	
 	<target name="cleanall" description="Deletes every build configuration">
 		<echo message="Deleting all builds from all configurations" />
 		<delete verbose="true" dir="build" failonerror="false" />
 	</target>
+	
 	<target name="build" depends="init" description="Builds current configuration">
 		<echo message="Build Directory is ${build.dir}" />
 		<!-- prepare build directory -->
@@ -97,6 +104,7 @@
 			<nant buildfile="src/${filename}.build" target="build" />
 		</foreach>
 	</target>
+
 	<!-- test the newly built nunit -->
     <target name="test" depends="build" description="Tests current configuration">
 		<echo message="Running unit tests with just built version of NAnt." />
@@ -107,6 +115,7 @@
 			<arg value="self-test" />
 		</exec>
 	</target>
+
 	<target name="self-test" depends="init">
 		<nunit2>
 			<test assemblyname="${build.dir}/bin/NAnt.Core.Tests.dll" />
@@ -116,6 +125,7 @@
 			<nant buildfile="src/${filename}.build" target="test" />
 		</foreach>
 	</target>
+
 	<target name="userdoc" depends="build" description="Builds user documentation">
 		<!-- build the documenter -->
 		<csc target="library" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll" debug="${build.debug}">
@@ -137,6 +147,7 @@
 			<arg value="self-userdoc" />
 		</exec>
 	</target>
+
 	<target name="self-userdoc" depends="init">
 		<!-- use ndoc and NAnt.Documenter to build user doc -->
 		<ndoc>
@@ -155,6 +166,7 @@
 		<copy file="doc/arrow.gif" todir="${build.dir}/doc" />
 		<echo message="Preview task references: file://${build.dir}/doc/help/tasks/index.html" />
 	</target>
+
 	<target name="sdkdoc" depends="build" description="Builds SDK documentation">
 		<echo message="Documenting NAnt with just built version of NAnt." />
 		<exec program="${build.dir}/bin/${nant.console.name}.exe">
@@ -171,6 +183,7 @@
 			</fileset>
 		</delete>
 	</target>
+
 	<target name="self-sdkdoc" depends="init">
 		<ndoc failonerror="false">
 			<assemblies basedir="${build.dir}/bin">
@@ -224,64 +237,45 @@
 				<includes name="src/**" />
 				<includes name="examples/**" />
 				<includes name="*" />
+		
 				<!--Start "Exclude VS.Net stuff" -->
 				<excludes name="**/*.suo" />
 				<excludes name="**/*j.user" />
 				<excludes name="**/bin/**" />
 				<excludes name="**/obj/**" />
 				<!--End "Exclude VS.Net stuff"-->
-				<excludes name="cache" />
 			</fileset>
 		</copy>
+		
 		<!-- create zip file -->
 		<property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
 		<zip zipfile="${project.zip-path}">
 			<fileset basedir="${build.dir}">
 				<includes name="**/*" />
+				
+				<excludes name="**/cache/**"/>
+				<excludes name="**/_*/**"/>
 			</fileset>
 		</zip>
 		<echo message="Created a '${project.config}' package at file://${project.zip-path}" />
 	</target>
-	<!--
-		Does a release build and copies them to the bin folder.
-    -->
-	<target name="UpdateBin" description="Does a release build and copies them to the bin folder.">
-		<call target="release" />
-		<call target="build" />
+	
+	<!-- Copies files to the bin folder. -->
+	<target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
 		<delete if="false">
 			<fileset basedir="bin">
 				<includes name="NAnt*" />
+				
 				<excludes name="NAnt.exe" />
-				<includes name="NDoc.Documenter.NAnt.dll" />
 			</fileset>
 		</delete>
 		<copy todir="bin" overwrite="true">
 			<fileset basedir="${build.dir}/bin/">
 				<includes name="NAnt*" />
-				<includes name="NDoc.Documenter.NAnt.dll" />
+				
 				<excludes name="*Test*" />
 				<excludes name="${nant.console.name}.xml" /> 
 				<excludes name="NAnt.exe" />
-			</fileset>
-		</copy>
-	</target>
-	<target name="testCopy" depends="init" description="Builds current configuration">
-		<echo message="Build Directory is ${build.dir}" />
-		<!-- prepare build directory -->
-		<mkdir dir="${build.dir}/bin" />
-		<delete>
-			<fileset basedir="${build.dir}/bin">
-				<includes name="*.dll" />
-			</fileset>
-		</delete>
-		<copy todir="${build.dir}/bin/">
-			<fileset basedir="bin">
-				<includes name="NDoc.Core.dll" />
-				<includes name="NDoc.Documenter.Msdn.dll" />
-				<includes name="nunit.framework.dll" />
-				<includes name="NUnitCore.dll" />
-				<includes name="SharpZipLib.dll" />
-				
 			</fileset>
 		</copy>
 	</target>

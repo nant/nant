@@ -213,9 +213,9 @@ namespace SourceForge.NAnt {
             //set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
 
-            Properties.AddReadOnly(NANT_PROPERTY_FILENAME, ass.Location);
+            Properties.AddReadOnly(NANT_PROPERTY_FILENAME, ass.CodeBase);
             Properties.AddReadOnly(NANT_PROPERTY_VERSION,  ass.GetName().Version.ToString());
-            Properties.AddReadOnly(NANT_PROPERTY_LOCATION, Path.GetDirectoryName(ass.Location));
+            Properties.AddReadOnly(NANT_PROPERTY_LOCATION, AppDomain.CurrentDomain.BaseDirectory);
 
             Properties.AddReadOnly(NANT_PROPERTY_PROJECT_NAME, ProjectName);
             if(BuildFileURI != null) {

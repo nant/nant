@@ -29,9 +29,15 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace SourceForge.NAnt {
-
+    /// <summary>
+    /// ConsoleDriver is used as the main entry point to NAnt. It is called by the ConsoleStub.
+    /// </summary>
     public class ConsoleDriver {
-
+        /// <summary>
+        /// Starts NAnt. This is the Main entry point
+        /// </summary>
+        /// <param name="args">Command Line args, or whatever you want to pass it. They will treated as Command Line args.</param>
+        /// <returns>The exit code.</returns>
         public static int Main(string[] args) {
             StreamWriter logFileStream = null;
 
@@ -225,7 +231,10 @@ namespace SourceForge.NAnt {
             }
 
         }
-
+        /// <summary>
+        /// Prints help to Console. The <code>buildDoc</code> is loaded and transformed with 'ProjectHelp.xslt'
+        /// </summary>
+        /// <param name="buildDoc">The build file to show help for.</param>
         public static void ShowProjectHelp(XmlDocument buildDoc) {
 
             //string resourceDirectory =

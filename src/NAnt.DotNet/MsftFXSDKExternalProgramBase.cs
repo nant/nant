@@ -46,17 +46,22 @@ namespace SourceForge.NAnt.Tasks {
         /// <returns>A fully qualifies pathname including the program name. Null is returned if there are any errors or the combined filepath is not found!</returns>
         public static string ProgramFilepath(ExternalProgramBase epb) {
             string sdkInstallPath = null;
-            if(FXBin == null) {
-                RegistryKey dotNetFXKey = Registry.LocalMachine.OpenSubKey(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework");
-                sdkInstallPath = dotNetFXKey.GetValue("sdkInstall").ToString();
+            try{
+                if(FXBin == null) {
+                    RegistryKey dotNetFXKey = Registry.LocalMachine.OpenSubKey("SOFTWARE").OpenSubKey("Microsoft").OpenSubKey(".NETFramework");
+                    sdkInstallPath = dotNetFXKey.GetValue("sdkInstallRoot").ToString();
+                }
             }
-            
+            catch(Exception e){ /*no-op*/ }
+
             string pfn = null;
-            try {
-                pfn = Path.Combine(sdkInstallPath, epb.Name + ".exe");
-            }
-            catch {
-                //no-op, ignore the error
+            if(sdkInstallPath != null){
+                try {
+                    pfn = Path.Combine(Path.Combine(sdkInstallPath,"bin"), epb.Name + ".exe");
+                }
+                catch {
+                    //no-op, ignore the error
+                }
             }
             if(pfn != null && File.Exists(pfn))
                 return pfn;
