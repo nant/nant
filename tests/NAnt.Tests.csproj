@@ -310,6 +310,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\Tasks\ScriptTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\Tasks\SleepTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -402,11 +407,6 @@
                 <File
                     RelPath = "NAnt.MSNet\NAnt.MSNet.build"
                     BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.MSNet\Tasks\ScriptTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.SourceControl\NAnt.SourceControl.build"
