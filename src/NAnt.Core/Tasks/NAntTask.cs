@@ -110,7 +110,7 @@ namespace NAnt.Core.Tasks {
         /// executed project.  Note, existing properties with identical names 
         /// that are not read-only will be overwritten.
         /// </summary>
-        [BuildElementCollection("properties", "property", typeof(PropertyTask))]
+        [BuildElementCollection("properties", "property", ElementType=typeof(PropertyTask))]
         public ArrayList OverrideProperties {
             get { return _overrideProperties; }
         }
