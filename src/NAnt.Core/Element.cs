@@ -577,10 +577,9 @@ namespace NAnt.Core {
             childElement.Initialize(xml);
             
             DataTypeBase dataType = childElement as DataTypeBase;
-            if ( dataType != null && dataType.Ref.Length !=0  ) {
-                
+            if (dataType != null && dataType.RefID != null && dataType.RefID.Length != 0) {
                 // we have a datatype reference
-                childElement = InitDataTypeBase(dataType );
+                childElement = InitDataTypeBase(dataType);
                 // re-set the getter
                 getter = null;
                 childElement.Project = Project;
@@ -595,28 +594,22 @@ namespace NAnt.Core {
             return childElement;
         }
         
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reference"></param>
-        /// <returns></returns>
-        DataTypeBase InitDataTypeBase( DataTypeBase reference ){
+        private DataTypeBase InitDataTypeBase(DataTypeBase reference) {
             DataTypeBase refType = null;
-            if ( reference.Id.Length > 0 )  {
-                // throw exception because of id and ref                
-                string msg = string.Format( CultureInfo.InvariantCulture, "datatype references cannot contain an id attribute");
-                throw new BuildException( msg, reference.Location );
+            if (reference.ID != null && reference.ID.Length > 0) {
+                // throw exception because of id and ref
+                string msg = string.Format(CultureInfo.InvariantCulture, "datatype references cannot contain an id attribute");
+                throw new BuildException(msg, reference.Location);
             }
-            if ( Project.DataTypeReferences.ContainsKey(reference.Ref) ){
-                refType = (DataTypeBase)Project.DataTypeReferences[reference.Ref];               
+            if (Project.DataTypeReferences.ContainsKey(reference.RefID)) {
+                refType = (DataTypeBase) Project.DataTypeReferences[reference.RefID];
                 // clear any instance specific state
                 refType.Reset();
-                
             } else {
                 // reference not found exception
-                string msg = string.Format( CultureInfo.InvariantCulture, "{0} reference '{1}' not defined.", reference.Name, reference.Ref );
-                throw new BuildException( msg, reference.Location );
-            }       
+                string msg = string.Format(CultureInfo.InvariantCulture, "{0} reference '{1}' not defined.", reference.Name, reference.RefID);
+                throw new BuildException(msg, reference.Location);
+            }
             return refType;
         }
 
