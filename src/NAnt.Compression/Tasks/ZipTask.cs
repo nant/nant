@@ -26,6 +26,7 @@ using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>

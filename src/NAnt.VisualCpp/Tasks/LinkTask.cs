@@ -26,6 +26,7 @@ using System;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>Links files using link, Microsoft's Incremental Linker.</summary>

@@ -27,6 +27,7 @@ using System.Text;
 using System.Xml;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>

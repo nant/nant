@@ -23,6 +23,7 @@ using System.IO;
 using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>

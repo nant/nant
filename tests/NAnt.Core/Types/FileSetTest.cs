@@ -22,7 +22,9 @@ using System.IO;
 using System.Xml;
 
 using NUnit.Framework;
+
 using SourceForge.NAnt;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tests {
 

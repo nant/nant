@@ -21,6 +21,7 @@
 using System.Collections.Specialized;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
     /// <summary>

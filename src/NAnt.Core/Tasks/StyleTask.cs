@@ -29,6 +29,7 @@ using System.Xml.Xsl;
 using System.Xml.XPath;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
