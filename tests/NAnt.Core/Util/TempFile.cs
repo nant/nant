@@ -40,7 +40,10 @@ namespace Tests.NAnt.Core.Util {
         }
 
         public static string CreateWithContents(string contents, string fileName) {
-            // Write the text into the temp file.
+            // ensure the directory exists
+            Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+
+            // write the text into the temp file.
             using (FileStream f = new FileStream(fileName, FileMode.Create)) {
                 StreamWriter s = new StreamWriter(f);
                 s.Write(contents);
