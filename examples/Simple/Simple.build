@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<project name="Simple" default="build" basedir=".">
+    <property name="debug" value="true"/>
+
+    <target name="clean" description="remove all generated files">
+        <delete file="Simple.exe" failonerror="false"/>
+        <delete file="Simple.pdb" failonerror="false"/>
+    </target>
+
+    <target name="build" description="compiles the source code">
+        <csc target="exe" output="Simple.exe" debug="${debug}">
+            <sources>
+                <includes name="Simple.cs"/>
+            </sources>
+        </csc>
+    </target>
+</project>
