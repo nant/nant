@@ -20,16 +20,17 @@
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 -->
-<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
+<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:output 
-        method="xml" 
-        indent="yes" 
-        encoding="utf-8" 
-        version="1.0"  
-        doctype-public="-//w3c//dtd xhtml 1.1 strict//en" 
-        doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
+        method="xml"
+        indent="yes"
+        encoding="utf-8"
+        version="1.0"
+        doctype-public="-//w3c//dtd xhtml 1.1 strict//en"
+        doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"
         omit-xml-declaration="yes"
         standalone="yes"
         />
@@ -47,7 +48,11 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
                         <td class="NavBar-Cell">
-                            <a href="../../index.html"><b><xsl:value-of select="string(NAntUtil:GetApplicationName())" /></b></a>
+                            <a href="../../index.html">
+                                <b>
+                                    <xsl:value-of select="string(NAntUtil:GetApplicationName())" />
+                                </b>
+                            </a>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
                             <img alt="->" src="../images/arrow.gif" />
@@ -76,35 +81,52 @@
             </body>
         </html>
     </xsl:template>
-    
+
     <xsl:template match="interface|enumeration" />
 
     <!-- match class tag -->
     <xsl:template match="class">
         <xsl:variable name="attr" select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/@name" />
         <xsl:if test="string-length(string($attr)) != 0 and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())">
-            <xsl:element name="tr">
-                <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
-                <xsl:choose>
-                    <!-- check if the task is deprecated -->
-                    <xsl:when test="count($ObsoleteAttribute) > 0">
-                        <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name = 'IsError']/@value" />
-                        <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
-                        <xsl:if test="$IsErrorValue != 'True'">
+            <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
+            <xsl:choose>
+                <!-- check if the task is deprecated -->
+                <xsl:when test="count($ObsoleteAttribute) > 0">
+                    <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name = 'IsError']/@value" />
+                    <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
+                    <xsl:if test="$IsErrorValue != 'True'">
+                        <xsl:element name="tr">
                             <!-- output task name in italics to indicate that its deprecated -->
-                            <td><a><xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute/property[@name = 'Name']/@value" /></i></a></td>
-                            <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
+                            <td>
+                                <a>
+                                    <xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value" />.html</xsl:attribute>
+                                    <i>
+                                        <xsl:value-of select="attribute/property[@name = 'Name']/@value" />
+                                    </i>
+                                </a>
+                            </td>
+                            <td>
+                                <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />
+                            </td>
+                            <td><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)</td>
+                        </xsl:element>
                     </xsl:if>
                 </xsl:when>
                 <xsl:otherwise>
-                        <td><a><xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
-                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
+                    <xsl:element name="tr">
+                        <td>
+                            <a>
+                                <xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value" />.html</xsl:attribute>
+                                <xsl:value-of select="attribute/property[@name='Name']/@value" />
+                            </a>
+                        </td>
+                        <td>
+                            <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />
+                        </td>
+                        <td><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)</td>
+                    </xsl:element>
                 </xsl:otherwise>
-                </xsl:choose>
-                <td>
-                    <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
-                </td>
-            </xsl:element>                
+            </xsl:choose>
         </xsl:if>
     </xsl:template>
 </xsl:stylesheet>

@@ -82,10 +82,10 @@
                 <!-- check if the task is deprecated -->
                 <xsl:when test="count($ObsoleteAttribute) > 0">
                     <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name='IsError']/@value" />
-                    <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
+                    <!-- only list type in index if IsError property of ObsoleteAttribute is not set to 'True' -->
                     <xsl:if test="$IsErrorValue != 'True'">
                         <tr>
-                            <!-- output task name in italics to indicate that its deprecated -->
+                            <!-- output type name in italics to indicate that its deprecated -->
                             <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
                             <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                         </tr>

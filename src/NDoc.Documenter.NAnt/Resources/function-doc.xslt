@@ -94,8 +94,8 @@
                             <tr>
                                 <td><xsl:value-of select="@name" /></td>
                                 <td>
-                                    <xsl:call-template name="value">
-                                        <xsl:with-param name="type" select="@type" />
+                                    <xsl:call-template name="get-a-href-with-name">
+                                        <xsl:with-param name="cref" select="concat('T:', @type)" />
                                     </xsl:call-template>
                                 </td>
                                 <xsl:variable name="paramname" select="@name" />
@@ -117,5 +117,4 @@
             </xsl:if>
         </body>
     </xsl:template>
-
 </xsl:stylesheet>

@@ -19,6 +19,7 @@
 //
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
+// Gert Driesen (gert.driesen@ardatis.com)
 -->
 
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
@@ -43,12 +44,15 @@
     <xsl:param name="refType">Type</xsl:param>
 
     <xsl:template match="/">
-        <html xmlns="http://www.w3.org/1999/xhtml" >
+        <html xmlns="http://www.w3.org/1999/xhtml">
             <xsl:comment> Documenting <xsl:value-of select="$class-id"/> </xsl:comment>
-            <xsl:apply-templates select="//class[@id = $class-id]" mode="TypeDoc"/>
+            <xsl:choose>
+                <xsl:when test="$refType = 'Enum'"><xsl:apply-templates select="//enumeration[@id = $class-id]" mode="EnumDoc" /></xsl:when>
+                <xsl:otherwise><xsl:apply-templates select="//class[@id = $class-id]" mode="TypeDoc" /></xsl:otherwise>
+            </xsl:choose>
         </html>
     </xsl:template>
-    
+
     <xsl:template match="class" mode="TypeDoc">
         <xsl:variable name="name">
             <xsl:choose>
@@ -60,7 +64,7 @@
             <xsl:choose>
                 <xsl:when test="$refType = 'Task'">../tasks/index.html</xsl:when>
                 <xsl:when test="$refType = 'Type'">../types/index.html</xsl:when>
-                <xsl:when test="$refType = 'Element'">../index.html</xsl:when>
+                <xsl:when test="$refType = 'Element'"></xsl:when>
             </xsl:choose>
         </xsl:variable>
         <head>
@@ -77,7 +81,14 @@
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
-                        <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
+                        <xsl:choose>
+                            <xsl:when test="string-length($parentPage) > 0">
+                                <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <span><xsl:value-of select="$refType"/> Reference</span>
+                            </xsl:otherwise>
+                        </xsl:choose>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                         <xsl:value-of select="$name" />
                     </td>
@@ -143,7 +154,7 @@
                 </table>
             </div>
         </xsl:if>
-        
+
         <!-- nested elements -->
         <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />
         <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute' ]" />
@@ -164,7 +175,7 @@
     </xsl:template>
 
     <!-- returns the summary doc string for a given class property (called from the property templates )-->
-    <xsl:template match="class/property" mode="docstring" >
+    <xsl:template match="class/property" mode="docstring">
         <xsl:choose>
             <xsl:when test="@declaringType">
                 <xsl:variable name="ObsoleteAttribute" select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/attribute[@name = 'System.ObsoleteAttribute']" />
@@ -183,5 +194,90 @@
                 <xsl:apply-templates select="documentation/summary" mode="slashdoc" />
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:template>
+
+    <xsl:template match="enumeration" mode="EnumDoc">
+        <xsl:variable name="name"><xsl:value-of select="@name" /></xsl:variable>
+        <xsl:variable name="parentPage">../index.html</xsl:variable>
+        <head>
+            <meta http-equiv="Content-Language" content="en-ca" />
+            <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+            <link rel="stylesheet" type="text/css" href="../../style.css" />
+            <title><xsl:value-of select="$name" /> enum</title>
+        </head>
+        <body>
+            <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+                <tr>
+                    <td class="NavBar-Cell">
+                        <a href="../../index.html"><b><xsl:value-of select="string(NAntUtil:GetApplicationName())" /></b></a>
+                        <img alt="->" src="../images/arrow.gif" />
+                        <a href="../index.html">Help</a>
+                        <img alt="->" src="../images/arrow.gif" />
+                        <span><xsl:value-of select="$refType"/> Reference</span>
+                        <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
+                        <xsl:value-of select="$name" />
+                    </td>
+                    <td class="NavBar-Cell" align="right">
+                        <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
+                    </td>
+                </tr>
+            </table>
+            <h1><xsl:value-of select="$name" /></h1>
+            <xsl:apply-templates select="." />
+        </body>
+    </xsl:template>
+
+    <!-- match enumeration tag for info about an enum type -->
+    <xsl:template match="enumeration">
+        <!-- output whether type is deprecated -->
+        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+        <xsl:if test="count($ObsoleteAttribute) > 0">
+            <p>
+                <i>(Deprecated)</i>
+            </p>
+        </xsl:if>
+        
+        <p><xsl:apply-templates select="documentation/summary" mode="slashdoc"/></p>
+        <!-- Remarks -->
+        <xsl:apply-templates select="documentation/remarks" mode="slashdoc"/>
+
+        <xsl:variable name="fields" select="field" />
+        <xsl:if test="count($fields) != 0">
+            <h3>Fields</h3>
+            <div class="table">
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                    <xsl:apply-templates select="$fields" mode="EnumDoc">
+                        <xsl:sort select="@name"/>
+                    </xsl:apply-templates>
+                </table>
+            </div>
+        </xsl:if>
+    </xsl:template>
+
+    <!-- returns the summary doc string for a given enumeration field -->
+    <xsl:template match="enumeration/field" mode="docstring">
+        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
+        <xsl:if test="count($ObsoleteAttribute) > 0">
+            <i>Deprecated.</i>
+            <xsl:text> </xsl:text>
+        </xsl:if>
+        <xsl:apply-templates select="documentation/summary" mode="slashdoc" />
+    </xsl:template>
+
+    <!-- match enumeration field -->
+    <xsl:template match="enumeration/field" mode="EnumDoc">
+        <xsl:element name="tr">
+            <xsl:element name="td">
+                <xsl:attribute name="valign">top</xsl:attribute>
+                <xsl:value-of select="@name" />
+            </xsl:element>
+            <td>
+                <xsl:apply-templates mode="docstring" select="." />
+            </td>
+        </xsl:element>
     </xsl:template>
 </xsl:stylesheet>

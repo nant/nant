@@ -202,12 +202,12 @@ namespace NDoc.Documenter.NAnt {
                 return string.Empty;
             }
             
-            //get the underlying type of the array
+            // get the underlying type of the array
             if (cref.EndsWith("[]")){
                 cref=cref.Replace("[]","");
             }
 
-            //check if the ref is for a system namespaced element or not
+            // check if the ref is for a system namespaced element or not
             if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
                 // not a system one.
                 if (!cref.StartsWith("T:")){
@@ -332,8 +332,6 @@ namespace NDoc.Documenter.NAnt {
                 return elementNameAttribute.Value;
             }
 
-            // null
-            //Console.WriteLine("no element name for: " + typeNode.Attributes["id"].Value);
             return null;
         }
 
@@ -385,11 +383,11 @@ namespace NDoc.Documenter.NAnt {
                 id = "T:" + id;
             }
             
-            XmlNode classNode = Document.SelectSingleNode("//class[@id='" + id + "']");
-            if (classNode == null) {
-                //System.Console.WriteLine("Could not find: {0}", id);
+            XmlNode typeNode = Document.SelectSingleNode("//class[@id='" + id + "']");
+            if (typeNode == null) {
+                typeNode = Document.SelectSingleNode("//enumeration[@id='" + id + "']");
             }
-            return classNode;
+            return typeNode;
         }
 
         #endregion Private Instance Methods
@@ -485,18 +483,25 @@ namespace NDoc.Documenter.NAnt {
                 return "tasks/" + taskName + ".html";
             }
 
+            // check if type is an enum
+            if (typeNode.LocalName == "enumeration") {
+                return "enums/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
+            }
+
             // check if type derives from NAnt.Core.DataTypeBase
             if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
                     return "types/" + elementNameAttribute.Value + ".html";
+                } else {
+                    return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
                 }
             }
 
             return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
-                
+
         /// <summary>
         /// Returns the filename to use for the given function XmlElement
         /// </summary>

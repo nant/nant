@@ -112,7 +112,7 @@
         
         <h4>&lt;/<xsl:value-of select="property[@name='Name']/@value"/>&gt;</h4>
     </xsl:template>
-    
+
     <!-- match TaskAttribute property tag -->
     <xsl:template match="class/property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TypeDoc">
         <xsl:variable name="Required" select="attribute/property[@name = 'Required']/@value"/>
@@ -125,8 +125,8 @@
                 <xsl:value-of select="attribute/property[@name = 'Name']/@value"/>
             </xsl:element>
             <td style="text-align: center;">
-                <xsl:call-template name="value">
-                    <xsl:with-param name="type" select="@type" />
+                <xsl:call-template name="get-a-href-with-name">
+                    <xsl:with-param name="cref" select="concat('T:', @type)" />
                 </xsl:call-template>
             </td>
             <td>
@@ -140,7 +140,7 @@
             </td>
             <td style="text-align: center;"><xsl:value-of select="string($Required)"/></td>
         </xsl:element>
-    </xsl:template>    
+    </xsl:template>
     
     <!-- match FrameworkConfigurable property tag -->
     <xsl:template match="class/property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']" mode="TypeDoc">
@@ -149,13 +149,12 @@
         <tr>
             <td valign="top"><xsl:value-of select="$FrameworkConfigurableAttribute/property[@name = 'Name']/@value"/></td>
             <td style="text-align: center;">
-                <xsl:call-template name="value">
-                    <xsl:with-param name="type" select="@type" />
+                <xsl:call-template name="get-a-href-with-name">
+                    <xsl:with-param name="cref" select="concat('T:', @type)" />
                 </xsl:call-template>
             </td>
             <td><xsl:apply-templates select="." mode="docstring" /></td>
             <td style="text-align: center;"><xsl:value-of select="string($Required)"/></td>
         </tr>
-    </xsl:template>    
-    
+    </xsl:template>
 </xsl:stylesheet>

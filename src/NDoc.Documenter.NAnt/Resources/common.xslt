@@ -21,23 +21,15 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (gert.driesen@ardatis.com)
 -->
-<xsl:stylesheet version="1.0" xmlns="http://www.w3.org/1999/xhtml"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    <xsl:template name="value">
+<xsl:stylesheet version="1.0" xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil">
+    <xsl:template name="get-type-name">
         <xsl:param name="type" />
         <xsl:variable name="namespace">
             <xsl:value-of select="concat(../../@name, '.')" />
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="contains($type, $namespace)">
-                <xsl:variable name="enumnode" select="//descendant::enumeration[@id=concat('T:', $type)]" />
-                <xsl:choose>
-                    <xsl:when test="count($enumnode) = 1">
-                        <xsl:text>enum</xsl:text>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="substring-after($type, $namespace)" />
-                    </xsl:otherwise>
-                </xsl:choose>
+                <xsl:value-of select="string(NAntUtil:GetName(concat('T:',$type)))" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="csharp-type">
@@ -46,6 +38,7 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
+
     <xsl:template name="csharp-type">
         <xsl:param name="runtime-type" />
         <xsl:variable name="old-type">
@@ -100,7 +93,7 @@
                 <xsl:when test="$old-type='System.DateTime'">datetime</xsl:when>
                 <xsl:when test="$old-type='System.TimeSpan'">timespan</xsl:when>
                 <xsl:otherwise>
-                    <xsl:value-of select="$old-type" />
+                    <xsl:value-of select="string(NAntUtil:GetName(concat('T:',$runtime-type)))" />
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
@@ -113,17 +106,17 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <!-- strip these elements, leave the text... -->
-    <xsl:template match="summary" mode="slashdoc" >
+    <xsl:template match="summary" mode="slashdoc">
         <xsl:apply-templates mode="slashdoc"/>
     </xsl:template>
-    
-    <xsl:template match="remarks" mode="slashdoc" >
+
+    <xsl:template match="remarks" mode="slashdoc">
         <xsl:apply-templates mode="slashdoc"/>
     </xsl:template>
-    
-    <xsl:template match="example" mode="slashdoc" >
+
+    <xsl:template match="example" mode="slashdoc">
         <xsl:apply-templates mode="slashdoc"/>
-    </xsl:template>    
+    </xsl:template>
 </xsl:stylesheet>
