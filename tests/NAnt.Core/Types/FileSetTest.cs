@@ -25,12 +25,12 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-	[TestFixture]
+    [TestFixture]
     public class FileSetTest : BuildTestBase {
 
         FileSet _fileSet;
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
 
@@ -49,7 +49,7 @@ namespace SourceForge.NAnt.Tests {
             TempFile.Create(Path.Combine(sub1Path, "sub.one"));
         }
 
-		[Test]
+        [Test]
         public void Test_AsIs() {
             _fileSet.AsIs.Add("foo");
             _fileSet.AsIs.Add("bar");
@@ -58,7 +58,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
-		[Test]
+        [Test]
         public void Test_IncludesAndAsIs() {
             _fileSet.Includes.Add("foo");
             _fileSet.AsIs.Add("foo");
@@ -68,7 +68,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
-		[Test]
+        [Test]
         public void Test_Includes_All() {
             _fileSet.Includes.Add("**/*");
             AssertMatch("sub1" + Path.DirectorySeparatorChar + "sub.one");
@@ -76,10 +76,11 @@ namespace SourceForge.NAnt.Tests {
             AssertMatch("world.war");
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
-            Assertion.AssertEquals(5, _fileSet.FileNames.Count);
+            // Expect 6 - includng directory
+            Assertion.AssertEquals(6, _fileSet.FileNames.Count);
         }
 
-		[Test]
+        [Test]
         public void Test_Includes_Wildcards1() {
             _fileSet.Includes.Add("world.*");
             AssertMatch("world.peace");
@@ -87,7 +88,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
-		[Test]
+        [Test]
         public void Test_Includes_Wildcards2() {
             _fileSet.Includes.Add("*.?addness");
             AssertMatch("reefer.maddness");
@@ -95,7 +96,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
-		[Test]
+        [Test]
         public void Test_Includes_Sub1() {
             _fileSet.Includes.Add("sub?/sub*");
             AssertMatch("sub1" + Path.DirectorySeparatorChar + "sub.one");
