@@ -437,12 +437,12 @@ namespace NAnt.Core {
             if (obsoleteAttribute != null) {
                 Location location = proj.LocationMap.GetLocation(taskNode);
                 string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                    "{0} Task <{1}> is deprecated.  {2}", location, taskName, 
+                    "Task <{0}> is deprecated.  {1}", taskName, 
                     obsoleteAttribute.Message);
                 if (obsoleteAttribute.IsError) {
-                    proj.Log(Level.Error, obsoleteMessage);
+                    throw new BuildException(obsoleteMessage, location);
                 } else {
-                    proj.Log(Level.Warning, obsoleteMessage);
+                    proj.Log(Level.Warning, "{0} {1}", location, obsoleteMessage);
                 }
             }
 
@@ -480,12 +480,13 @@ namespace NAnt.Core {
             if (obsoleteAttribute != null) {
                 Location location = parent.Project.LocationMap.GetLocation(elementNode);
                 string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                    "{0} Filter <{1}> is deprecated.  {2}", location, filterName, 
+                    "Filter <{0}> is deprecated.  {1}", filterName, 
                     obsoleteAttribute.Message);
                 if (obsoleteAttribute.IsError) {
-                    parent.Project.Log(Level.Error, obsoleteMessage);
+                    throw new BuildException(obsoleteMessage, location);
                 } else {
-                    parent.Project.Log(Level.Warning, obsoleteMessage);
+                    parent.Project.Log(Level.Warning, "{0} {1}", location, 
+                        obsoleteMessage);
                 }
             }
             return filter;
@@ -521,12 +522,12 @@ namespace NAnt.Core {
             if (obsoleteAttribute != null) {
                 Location location = proj.LocationMap.GetLocation(elementNode);
                 string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                    "{0} Type <{1}> is deprecated.  {2}", location, dataTypeName, 
+                    "Type <{0}> is deprecated.  {1}", dataTypeName, 
                     obsoleteAttribute.Message);
                 if (obsoleteAttribute.IsError) {
-                    proj.Log(Level.Error, obsoleteMessage);
+                    throw new BuildException(obsoleteMessage, location);
                 } else {
-                    proj.Log(Level.Warning, obsoleteMessage);
+                    proj.Log(Level.Warning, "{0} {1}", location, obsoleteMessage);
                 }
             }
             return element;
