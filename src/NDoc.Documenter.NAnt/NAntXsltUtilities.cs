@@ -104,14 +104,14 @@ namespace NDoc.Documenter.NAnt {
                 }
             } else {
                 switch (cref.Substring(0, 2)) {
-                    case "N:":	// Namespace
+                    case "N:":  // Namespace
                         return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + SdkDocExt;
-                    case "T:":	// Type: class, interface, struct, enum, delegate
+                    case "T:":  // Type: class, interface, struct, enum, delegate
                         return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + "ClassTopic" + SdkDocExt;
-                    case "F:":	// Field
-                    case "P:":	// Property
-                    case "M:":	// Method
-                    case "E:":	// Event
+                    case "F:":  // Field
+                    case "P:":  // Property
+                    case "M:":  // Method
+                    case "E:":  // Event
                         return GetFilenameForSystemMember(cref);
                     default:
                         return string.Empty;

@@ -224,6 +224,7 @@ namespace NDoc.Documenter.NAnt {
                 XmlNodeList types = namespaceNode.SelectNodes("*[@id]");
                 foreach (XmlElement typeNode in types) {
                     string typeId = typeNode.Attributes["id"].Value;
+                    _fileNames[typeId] = GetFileNameForType(typeNode);
                     _elementNames[typeId] = GetElementNameForType(typeNode);
                     _namespaceNames[typeId] = namespaceName;
                     _assemblyNames[typeId] = assemblyName;
@@ -287,7 +288,7 @@ namespace NDoc.Documenter.NAnt {
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {
-                return taskName;
+                return "<" + taskName + ">";
             }
 
             // use name of type
@@ -326,6 +327,27 @@ namespace NDoc.Documenter.NAnt {
             }
 
             return propertyNode.Attributes["name"].Value;
+        }
+
+        private string GetFileNameForType(XmlNode typeNode) {
+            // if type is task use name set using TaskNameAttribute
+            string taskName = GetTaskNameForType(typeNode);
+            if (taskName != null) {
+                return taskName + "task.html";
+            }
+
+            /*
+            // check if type derives from NAnt.Core.Element
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) {
+                // make sure the type has a ElementName assigned to it
+                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (elementNameAttribute != null) {
+                    return elementNameAttribute.Value + "type.html";
+                }
+            }
+            */
+
+            return null;
         }
 
         #endregion Private Instance Methods

@@ -220,52 +220,50 @@
     </xsl:template>
 
     <xsl:template match="see[@cref]" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfsee.htm">
-		<xsl:call-template name="get-href">
-			<xsl:with-param name="cref" select="@cref" />
-		</xsl:call-template>
+        <xsl:call-template name="get-a-href">
+            <xsl:with-param name="cref" select="@cref" />
+        </xsl:call-template>
     </xsl:template>
     
-	<!-- get-a-href -->
-	<xsl:template name="get-a-href">
-		<xsl:param name="cref" />
-		<xsl:variable name="href" select="string(NAntUtil:GetHRef($cref))" />
-		<xsl:choose>
-			<xsl:when test="$href=''">
-				<b><xsl:value-of select="string(NAntUtil:GetName($cref))" /></b>
-			</xsl:when>
-			<xsl:otherwise>
-				<a>
-					<xsl:attribute name="href">
-						<xsl:value-of select="$href" />
-					</xsl:attribute>
-					<xsl:choose>
-						<xsl:when test="node()">
-							<xsl:value-of select="." />
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="string(NAntUtil:GetName($cref))" />
-						</xsl:otherwise>
-					</xsl:choose>
-				</a>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
-
-    <xsl:template name="get-href">
-        <xsl:param name="cref"/>
+    <!-- get-a-href -->
+    <xsl:template name="get-a-href">
+        <xsl:param name="cref" />
+        <xsl:variable name="href" select="string(NAntUtil:GetHRef($cref))" />
         <xsl:choose>
-            <!-- if this is a task add the href-->
-            <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
-                <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
-                <a><xsl:attribute name="href"><xsl:value-of select="$taskName"/>task.html</xsl:attribute><tt class="c">&lt;<xsl:value-of select="$taskName" />&gt;</tt></a><xsl:text> </xsl:text>task
+            <xsl:when test="$href = ''">
+                <xsl:choose>
+                    <!-- if this is a task add the href-->
+                    <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
+                        <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
+                        <code><xsl:value-of select="$taskName" /></code><xsl:text> </xsl:text>task
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <code><xsl:value-of select="string(NAntUtil:GetName($cref))" /></code>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:when>
-            <!-- otherwise just display the name -->
             <xsl:otherwise>
-                <code><xsl:value-of select="string(NAntUtil:GetName($cref))" /></code>
+                <a>
+                    <xsl:attribute name="href">
+                        <xsl:value-of select="$href" />
+                    </xsl:attribute>
+                    <xsl:choose>
+                        <xsl:when test="node()">
+                            <xsl:value-of select="." />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="string(NAntUtil:GetName($cref))" />
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </a>
+                <!-- if this is a task add suffix task-->
+                <xsl:if test="boolean(NAntUtil:GetTaskName($cref))">
+                    <xsl:text> </xsl:text>task
+                </xsl:if>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <xsl:template match="see[@href]" mode="slashdoc" doc:group="inline">
         <a href="{@href}">
             <xsl:choose>
