@@ -39,27 +39,27 @@
                     </tr>
                     <tr>
                         <td>name</td>
-                        <td>the name of the target.</td>
+                        <td>The name of the target.</td>
                         <td>Yes</td>
                     </tr>
                     <tr>
                         <td>depends</td>
-                        <td>a comma-separated list of names of targets on which this target depends.</td>
+                        <td>A comma-separated list of names of targets on which this target depends.</td>
                         <td>No</td>
                     </tr>
                     <tr>
                         <td>if</td>
-                        <td>the name of the property that must be set in order for this target to execute.</td>
+                        <td>An expression that should evaluate to <b>true</b> in order for this target to execute.</td>
                         <td>No</td>
                     </tr>
                     <tr>
                         <td>unless</td>
-                        <td>the name of the property that must not be set in order for this target to execute.</td>
+                        <td>An expression that, when evaluated to <b>true</b>, will cause the target to be skipped.</td>
                         <td>No</td>
                     </tr>
                     <tr>
                         <td>description</td>
-                        <td>a short description of this target's function.</td>
+                        <td>A short description of this target's function.</td>
                         <td>No</td>
                     </tr>
                 </tbody>
@@ -118,7 +118,7 @@
             react to. For example:</p>
         <pre class="code">
     &lt;target name="build-module-A" if="module-A-present" /&gt;
-    &lt;target name="build-own-fake-module-A" unless="module-A-present" /&gt;
+    &lt;target name="build-own-fake-module-A" unless="${file::exists('fake-module-a.dll')}" /&gt;
         </pre>
         <p>
             If no <code>if</code> and no <code>unless</code> attribute is present, the target
