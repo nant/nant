@@ -315,9 +315,7 @@ namespace NAnt.VSNet {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
                     config);
                 foreach (string assemblyFile in assemblyReferences) {
-                    if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
-                        rt.Assemblies.Includes.Add(assemblyFile);
-                    }
+                    rt.Assemblies.Includes.Add(assemblyFile);
                 }
             }
 
