@@ -36,6 +36,11 @@
                 executed.
             </li>
             <li>
+                The <code>todir</code> attribute of the <code>&lt;copy&gt;</code> and <code>&lt;move&gt;</code>
+                tasks no longer defaults to the project base directory. It must now be set 
+                explicitly.
+            </li>
+            <li>
                 The <code>force</code> attribute of the <code>&lt;call&gt;</code> task has been 
                 deprecated and has no longer any effect. The <code>&lt;call&gt;</code> tak will 
                 now always execute the specified target, regardless of the fact that this 
@@ -46,18 +51,19 @@
                 the <code>&lt;mail&gt;</code> task have been replaced by fileset support.
             </li>
             <li>
-                In previous versions of NAnt, the documentation stated that a target named <code>nant.onfailure</code>
-                would be executed when the build fails. However, NAnt actually executed a 
-                target named <code>nant.failure</code> (if available). This has now been 
-                corrected and the old syntax (<code>nant.failure</code>) is now deprecated.
+                In previous versions of NAnt, the documentation stated that a target identified 
+                by the <code>nant.onfailure</code> property would be executed when the build 
+                fails. However, NAnt actually executed a target identified by the <code>nant.failure</code>
+                property (if available). This has now been corrected and the old syntax (<code>nant.failure</code>) 
+                is now deprecated.
             </li>
             <li>
-                The <code>&lt;param&gt;</code> element of the <code>&lt;style&gt;</code> task has
-                been deprecated in favor of a <code>&lt;parameters&gt;</code> collection with nested
-                <code>&lt;parameter&gt;</code> elements.  The <code>&lt;parameter&gt;</code> element
-                now also supports a <code>namespaceuri</code>, <code>if</code> and <code>unless</code>
-                attribute. See the documentation of the <code>&lt;style&gt;</code> task for more
-                information.
+                The <code>&lt;param&gt;</code> element of the <code>&lt;style&gt;</code> task 
+                has been deprecated in favor of a <code>&lt;parameters&gt;</code> collection 
+                with nested <code>&lt;parameter&gt;</code> elements. The <code>&lt;parameter&gt;</code>
+                element now also supports a <code>namespaceuri</code>, <code>if</code> and <code>unless</code>
+                attribute. See the documentation of the <code>&lt;style&gt;</code> task for 
+                more information.
             </li>
         </ul>
         <h4>Fixed bugs</h4>
@@ -71,6 +77,9 @@
         </ul>
         <h4>Other changes</h4>
         <ul>
+            <li>
+                <b>TO-DO</b> Added localization support to the compiler tasks.
+            </li>
             <li>
                 Updated the <code>&lt;nunit2&gt;</code> task to use version 2.1 of NUnit.
             </li>
