@@ -266,21 +266,33 @@ namespace NAnt.Core.Tasks {
                 foreach (string pathname in CopyFileSet.FileNames) {
                     FileInfo srcInfo = new FileInfo(pathname);
                     if (srcInfo.Exists) {
-                        // Gets the relative path and file info from the full source filepath
-                        // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then dstRelFilePath=f3\file1`
-                        string dstRelFilePath = "";
-                        if (srcInfo.FullName.IndexOf(srcBaseInfo.FullName, 0) != -1) {
-                            dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
+                        // will holds the full path to the destination file
+                        string dstFilePath;
+
+                        if (Flatten) {
+                            dstFilePath = Path.Combine(ToDirectory.FullName, 
+                                srcInfo.Name);
                         } else {
-                            dstRelFilePath = srcInfo.Name;
-                        }
+                            // Gets the relative path and file info from the full 
+                            // source filepath
+                            // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then 
+                            // dstRelFilePath=f3\file1
+                            string dstRelFilePath = "";
+                            if (srcInfo.FullName.IndexOf(srcBaseInfo.FullName, 0) != -1) {
+                                dstRelFilePath = srcInfo.FullName.Substring(
+                                    srcBaseInfo.FullName.Length);
+                            } else {
+                                dstRelFilePath = srcInfo.Name;
+                            }
                         
-                        if (dstRelFilePath[0] == Path.DirectorySeparatorChar) {
-                            dstRelFilePath = dstRelFilePath.Substring(1);
-                        }
+                            if (dstRelFilePath[0] == Path.DirectorySeparatorChar) {
+                                dstRelFilePath = dstRelFilePath.Substring(1);
+                            }
                         
-                        // The full filepath to copy to.
-                        string dstFilePath = Path.Combine(ToDirectory.FullName, dstRelFilePath);
+                            // The full filepath to copy to.
+                            dstFilePath = Path.Combine(ToDirectory.FullName, 
+                                dstRelFilePath);
+                        }
                         
                         // do the outdated check
                         FileInfo dstInfo = new FileInfo(dstFilePath);
