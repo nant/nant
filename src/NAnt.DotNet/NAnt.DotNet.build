@@ -12,6 +12,7 @@
                 <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="../CommonAssemblyInfo.cs" />
+                <excludes name="Tasks/LicenseTask.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>

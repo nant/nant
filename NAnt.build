@@ -174,7 +174,11 @@
             </test>
         </nunit2>
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
-            <nant buildfile="src/${filename}.build" target="test" />
+            <nant buildfile="src/${filename}/${filename}.build" target="test" />
+        </foreach>
+        
+        <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
+            <nant buildfile="src/${filename}/${filename}.build" target="test" unless="${mono}"/>
         </foreach>
     </target>
 
