@@ -111,7 +111,8 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         [FileSet("fileset")]
         public FileSet ZipFileSet {
-            get { return _fileset; }
+            get { return _fileset;}  
+            set {_fileset = value; } 
         }
 
         #endregion Public Instance Properties

@@ -109,6 +109,7 @@ namespace NAnt.DotNet.Tasks {
         [FileSet("assemblies")]
         public FileSet Assemblies {
             get { return _assemblies; }
+            set { _assemblies = value; }
         }
 
         /// <summary>
@@ -117,6 +118,7 @@ namespace NAnt.DotNet.Tasks {
         [FileSet("summaries")]
         public FileSet Summaries {
             get { return _summaries; }
+            set { _summaries = value; }
         }
 
         #endregion Public Instance Properties

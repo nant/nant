@@ -121,6 +121,7 @@ namespace NAnt.Core.Tasks {
         [FileSet("references")]
         public FileSet References {
             get { return _references; }
+            set { _references = value; }
         }
 
         /// <summary>

@@ -98,6 +98,7 @@ namespace NAnt.VisualCpp.Tasks {
         [FileSet("sources")]
         public FileSet Sources {
             get { return _sources; }
+            set { _sources = value; }
         }
 
         /// <summary>
@@ -106,6 +107,7 @@ namespace NAnt.VisualCpp.Tasks {
         [FileSet("includedirs")]
         public FileSet Includes {
             get { return _includes; }
+            set { _includes = value; }
         }
 
         #endregion Public Instance Properties

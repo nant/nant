@@ -93,6 +93,7 @@ namespace NAnt.VisualCpp.Tasks {
         [FileSet("libdirs")]
         public FileSet LibDirs {
             get { return _libdirs; }
+            set { _libdirs = value; }
         }
 
         #endregion Public Instance Properties

@@ -125,6 +125,7 @@ namespace NAnt.DotNet.Tasks {
         [FileSet("sources")]
         public FileSet Sources {
             get { return _sources; }
+            set {_sources = value; }
         }
 
         #endregion Public Instance Properties

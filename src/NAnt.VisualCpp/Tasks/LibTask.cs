@@ -82,6 +82,7 @@ namespace NAnt.VisualCpp.Tasks {
         [FileSet("sources")]
         public FileSet Sources {
             get { return _sources; }
+            set { _sources = value; }
         }
 
         /// <summary>
@@ -90,6 +91,7 @@ namespace NAnt.VisualCpp.Tasks {
         [FileSet("libdirs")]
         public FileSet LibDirs {
             get { return _libdirs; }
+            set { _libdirs = value; }
         }
 
         #endregion Public Instance Properties
