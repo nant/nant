@@ -10,7 +10,7 @@
 		
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-	<body>
+<body>
 		
 <table width="100%" border="0" cellspacing="0" cellpadding="2"
  class="NavBar">
@@ -35,6 +35,28 @@ Change Log</td>
 </table>
 		
 <h1><span class="N">N</span><span class="Ant">Ant</span> 			Change Log</h1>
+<h3>0.8.2-rc3 April 17, 2003</h3>
+<ul>
+  <li>&lt;if&gt; task changes to support the uptodate test<br>
+  </li>
+  <li>Changes for task item element initialization</li>
+  <li>Read output of &lt;exec&gt;'d (and other external program)
+processes and insert into logfile</li>
+  <li>Added option to preserve basedir during include process</li>
+  <li>Changed logging level back to ERROR from NONE<br>
+  </li>
+  <li>Fixed logging for regex task</li>
+  <li>Made NAnt errors less chatty</li>
+  <li>log4net messages now logged to NAnt.log</li>
+  <li>NAnt now works without Framework SDK installed</li>
+  <li>log4net property element is deprecated in favor of level element</li>
+</ul>
+<h3>0.8.2-rc2 April 12, 2003</h3>
+<ul>
+  <li>Fix for NUnit2 task using fileset.</li>
+  <li>Fix for fileset's &lt;includeList&gt; element.<br>
+  </li>
+</ul>
 <h3>0.8.2-rc1 April 12, 2003</h3>
 <ul>
   <li>Logging cleanups: moved to log4net.</li>
@@ -69,8 +91,8 @@ LoopTask's file line mode.</li>
 files ending in 			.build than nant will report an error. 			</li>
   <li> 			-find option added, causes nant to search up the directory
 tree looking for the 			buildfile. Use in conjunction with
--buildfile:foo.* to find the first foo.* 			file up the directory
-tree. 			</li>
+-buildfile:foo.* to find the first foo.* 			file up the directory tree.
+			</li>
   <li> 			-projecthelp option added, callable targets should now include
 a description 			attribute to describe briefly what they do. 			</li>
   <li> 			CompilerBase tasks now check for changed resources and
@@ -106,8 +128,7 @@ added asis 			attribute) 			</li>
   <li> 			Tasks/Targets/FileSet includes/execludes now have if/unless
 attributes 			</li>
   <li> 			SLiNgshoT - a Visual Studio.NET solution,&nbsp;and make,
-converter&nbsp;- was 			donated to the NAnt Extras by Jason Diamond.
-			</li>
+converter&nbsp;- was 			donated to the NAnt Extras by Jason Diamond. 			</li>
   <li> 				New Unit Tests added 				
     <ul>
 					<li> 					CallTest.cs 					</li>

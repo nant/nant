@@ -1,6 +1,426 @@
-2003-04-12  mmastrac
+2003-04-17	ianm74
+	* bin/nant.exe.config 1.16:
+		tabs to spaces
+
+2003-04-17	skot
+	* bin/NAnt.Core.dll 1.49:
+	* bin/NAnt.Core.xml 1.31:
+	* bin/NAnt.DotNetTasks.dll 1.20:
+	* bin/NAnt.DotNetTasks.xml 1.14:
+	* bin/NAnt.NUnit1Tasks.dll 1.17:
+	* bin/NAnt.NUnit2Tasks.dll 1.17:
+	* bin/NAnt.NUnitFormatters.dll 1.17:
+	* bin/NAnt.VisualCppTasks.dll 1.17:
+	* bin/NAnt.Win32Tasks.dll 1.8:
+	* bin/NAnt.Win32Tasks.xml 1.4:
+	* bin/NAnt.ZipTasks.dll 1.19:
+	* bin/nant.exe.config 1.14:
+	* src/NAnt.Console/NAnt.Console.exe.config 1.12:
+		New binaries with latest changes.
+		Updates config files that turn off log4net logging.
+
+	* src/NAnt.Core/Tasks/IfTask.cs 1.11:
+		minor code change to reduce the path flow.
+
+	* bin/NAnt.NUnit1Tasks.xml 1.5:
+	* bin/NAnt.NUnit2Tasks.xml 1.7:
+	* bin/NAnt.NUnitFormatters.xml 1.4:
+	* bin/NAnt.VisualCppTasks.xml 1.4:
+	* bin/NAnt.ZipTasks.xml 1.7:
+	* bin/nant.exe.config 1.13:
+	* src/NAnt.Console/NAnt.Console.exe.config 1.11:
+	* src/NAnt.Core.Tests/BuildTestBase.cs 1.8:
+	* src/NAnt.Core.Tests/ElementTest.cs 1.3:
+	* src/NAnt.Core.Tests/Tasks/AvailableTest.cs 1.2:
+	* src/NAnt.Core.Tests/Tasks/FailTest.cs 1.3:
+	* src/NAnt.Core.Tests/Tasks/IfTest.cs 1.6:
+	* src/NAnt.Core.Tests/Tasks/IncludeTaskTest.cs 1.4:
+	* src/NAnt.Core.Tests/Tasks/LoadTasksTest.cs 1.4:
+	* src/NAnt.Core.Tests/Tasks/LoopTest.cs 1.4:
+	* src/NAnt.Core.Tests/Tasks/ReadRegistryTest.cs 1.3:
+	* src/NAnt.Core.Tests/Tasks/SleepTaskTest.cs 1.2:
+	* src/NAnt.Core.Tests/TestBuildException.cs 1.1:
+	* src/NAnt.Core/Attributes/BuildElementAttribute.cs 1.5:
+	* src/NAnt.Core/Element.cs 1.16:
+	* src/NAnt.Core/FileSet.cs 1.12:
+	* src/NAnt.Core/Project.cs 1.23:
+	* src/NAnt.Core/TaskBuilderCollection.cs 1.3:
+	* src/NAnt.Core/TaskContainer.cs 1.5:
+	* src/NAnt.Core/TaskFactory.cs 1.11:
+	* src/NAnt.Core/Tasks/IfTask.cs 1.9:
+	* src/NAnt.Core/Tasks/LoopTask.cs 1.5:
+	* src/NAnt.Core/Tasks/NAntTask.cs 1.6:
+	* src/NAnt.Tests.csproj 1.11:
+	* src/NAnt.Win32Tasks/NAnt.Win32Tasks.csproj 1.4:
+		-Added support for <foreach><in><items></></></> to loop through fileset stuff
+		-Update <if> to support uptodate test
+		-Added TestBuildException to catch output of build for further use.
+		-Updated test that looked for exceptions to look at innerexception of new TestBuildExeception
+		-Changed how Element.Initialize works to init child elements. Allows for Get/Set support for Properties in a smarter way; backwards compatible.
+		-Made BuildElementAttribute public, see <foreach> usage
+		-Made TaskContainer non-abstract so it could be used by <foreach><do></></>
+		-Misc other changes.
+
+	* NAnt.build 1.85:
+	* src/NAnt.Core/Tasks/CopyTask.cs 1.8:
+	* src/NAnt.Core/Tasks/GetTask.cs 1.5:
+		removed extra attribute from project element of build file.
+		schema generation now uses newly built version on nant
+		fix for copy/move so the following works.
+		<copy todir="foo">
+		<filset basedir="test"
+		<includes name="**"/>
+		</></>
+		
+		Updated error check in GetTask.
+
+	* src/NAnt.Core/Tasks/IfTask.cs 1.10:
+		doc fixes.
+
+2003-04-17	drieseng
+	* bin/nant.exe.config 1.15:
+	* src/NAnt.Console/NAnt.Console.exe.config 1.13:
+		changed level back to ERROR, NONE is not a valid level.
+
+2003-04-16	mmastrac
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.15:
+		Use threaded readers to read the output of external programs and 
+		write it to the log
+
+	* NAnt.build 1.84:
+		Remove indent on self-test
+		Add logfile option to avoid warning, but doesn't currently seem to affect anything
+
+	* bin/NAnt.Core.dll 1.48:
+	* bin/NAnt.Core.xml 1.30:
+	* bin/NAnt.DotNetTasks.dll 1.19:
+	* bin/NAnt.DotNetTasks.xml 1.13:
+	* bin/NAnt.NUnit1Tasks.dll 1.16:
+	* bin/NAnt.NUnit2Tasks.dll 1.16:
+	* bin/NAnt.NUnitFormatters.dll 1.16:
+	* bin/NAnt.VisualCppTasks.dll 1.16:
+	* bin/NAnt.Win32Tasks.dll 1.7:
+	* bin/NAnt.Win32Tasks.xml 1.3:
+	* bin/NAnt.ZipTasks.dll 1.18:
+	* bin/nant.exe.config 1.12:
+		Update to latest build
+
+2003-04-16	ianm74
+	* src/NAnt.Core/Tasks/IncludeTask.cs 1.4:
+		patch from Arjen Poutsma
+		- added option to preserve basedir during the include process
+
+	* src/NAnt.Core/Tasks/IncludeTask.cs 1.6:
+		fixed include task to not require the keepbasedir attribute
+
+	* src/NAnt.Core/Tasks/RegexTask.cs 1.2:
+		patch from Arjen Poutsma
+		- fixed logging for regex task
+
+2003-04-16	drieseng
+	* src/NAnt.Core/Attributes/BooleanValidatorAttribute.cs 1.7:
+	* src/NAnt.Core/Attributes/BuildAttributeAttribute.cs 1.4:
+	* src/NAnt.Core/Attributes/BuildElementArrayAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/BuildElementAttribute.cs 1.4:
+	* src/NAnt.Core/Attributes/ElementNameAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/FileSetAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/Int32ValidatorAttribute.cs 1.6:
+	* src/NAnt.Core/Attributes/TaskAttributeAttribute.cs 1.4:
+	* src/NAnt.Core/Attributes/TaskNameAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/TaskOptionSetAttribute.cs 1.4:
+	* src/NAnt.Core/Attributes/ValidatorAttribute.cs 1.5:
+	* src/NAnt.Core/BuildException.cs 1.6:
+	* src/NAnt.Core/ConfigurationSection.cs 1.2:
+	* src/NAnt.Core/ConsoleDriver.cs 1.9:
+	* src/NAnt.Core/DirectoryScanner.cs 1.15:
+	* src/NAnt.Core/Element.cs 1.15:
+	* src/NAnt.Core/FrameworkInfo.cs 1.6:
+	* src/NAnt.Core/Location.cs 1.3:
+	* src/NAnt.Core/LocationMap.cs 1.4:
+	* src/NAnt.Core/Log.cs 1.6:
+	* src/NAnt.Core/Project.cs 1.22:
+	* src/NAnt.Core/PropertyDictionary.cs 1.8:
+	* src/NAnt.Core/Target.cs 1.4:
+	* src/NAnt.Core/Task.cs 1.7:
+	* src/NAnt.Core/TaskBuilder.cs 1.4:
+	* src/NAnt.Core/TaskCollection.cs 1.2:
+	* src/NAnt.Core/TaskContainer.cs 1.4:
+	* src/NAnt.Core/TaskFactory.cs 1.10:
+	* src/NAnt.Core/Tasks/AttribTask.cs 1.3:
+	* src/NAnt.Core/Tasks/AvailableTask.cs 1.6:
+	* src/NAnt.Core/Tasks/CallTask.cs 1.2:
+	* src/NAnt.Core/Tasks/CopyTask.cs 1.7:
+	* src/NAnt.Core/Tasks/DeleteTask.cs 1.9:
+	* src/NAnt.Core/Tasks/DescriptionTask.cs 1.2:
+	* src/NAnt.Core/Tasks/EchoTask.cs 1.6:
+	* src/NAnt.Core/Tasks/ExecTask.cs 1.4:
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.14:
+	* src/NAnt.Core/Tasks/FailTask.cs 1.2:
+	* src/NAnt.Core/Tasks/GetTask.cs 1.4:
+	* src/NAnt.Core/Tasks/IfTask.cs 1.8:
+	* src/NAnt.Core/Tasks/IncludeTask.cs 1.5:
+	* src/NAnt.Core/Tasks/LoadTasks.cs 1.4:
+	* src/NAnt.Core/Tasks/LoopTask.cs 1.4:
+	* src/NAnt.Core/Tasks/MkDirTask.cs 1.4:
+	* src/NAnt.Core/Tasks/MoveTask.cs 1.4:
+	* src/NAnt.Core/Tasks/NAntSchemaTask.cs 1.8:
+	* src/NAnt.Core/Tasks/NAntTask.cs 1.5:
+	* src/NAnt.Core/Tasks/PropertyTask.cs 1.4:
+	* src/NAnt.Core/Tasks/ReadRegistryTask.cs 1.7:
+	* src/NAnt.Core/Tasks/RegexTask.cs 1.3:
+	* src/NAnt.Core/Tasks/SleepTask.cs 1.3:
+	* src/NAnt.Core/Tasks/StyleTask.cs 1.9:
+	* src/NAnt.Core/Tasks/SysInfo.cs 1.6:
+	* src/NAnt.Core/Tasks/TStampTask.cs 1.3:
+	* src/NAnt.Core/Tasks/TouchTask.cs 1.5:
+	* src/NAnt.Core/VolumeInfo.cs 1.9:
+	* src/NAnt.DotNetTasks/CscTask.cs 1.8:
+	* src/NAnt.DotNetTasks/JscTask.cs 1.6:
+	* src/NAnt.DotNetTasks/McsTask.cs 1.4:
+	* src/NAnt.DotNetTasks/MsftFXCompilerBase.cs 1.4:
+	* src/NAnt.DotNetTasks/MsftFXSDKExternalProgramBase.cs 1.7:
+	* src/NAnt.DotNetTasks/NDocTask.cs 1.9:
+	* src/NAnt.DotNetTasks/ResGenTask.cs 1.12:
+	* src/NAnt.DotNetTasks/ResourceFileSet.cs 1.4:
+	* src/NAnt.DotNetTasks/VbcTask.cs 1.6:
+	* src/NAnt.DotNetTasks/VjcTask.cs 1.4:
+	* src/NAnt.Win32Tasks/MailTask.cs 1.4:
+	* src/NAnt.Win32Tasks/ScriptTask.cs 1.4:
+	* src/NAnt.ZipTasks/UnZipTask.cs 1.3:
+	* src/NAnt.ZipTasks/ZipTask.cs 1.6:
+	* src/NDoc.Documenter.NAnt/NAntTaskDocumenter.cs 1.6:
+	* src/NDoc.Documenter.NAnt/NAntTaskDocumenterConfig.cs 1.8:
+		moved using directives outside of namespace declaration.
+
+	* bin/nant.exe.config 1.11:
+	* src/NAnt.Console/NAnt.Console.exe.config 1.10:
+		changed location of file where log4net/internal log messages 
+		will be written to.
+
+	* src/NAnt.Core/NAnt.Core.csproj 1.12:
+		added regex task to project file.
+
+2003-04-15	drieseng
+	* src/NAnt.Core/Tasks/DeleteTask.cs 1.8:
+		made error message more clear.
+
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.13:
+		catch problems starting a process at an earlier stage.
+
+	* src/NAnt.Core/Project.cs 1.21:
+		made nant less chatty : the exception stack trace is only logged if verbose is true or if the exception is not an ApplicationException.
+		
+		when the exception thrown is an ApplicationException and verbose is false, only the message of the ApplicationException and the message of the inner exception are logged
+
+	* src/NAnt.Core/Task.cs 1.6:
+		Only log the complete stacktrace of the exception if verbose is 
+		true.
+
+	* src/NAnt.Core/ConsoleDriver.cs 1.8:
+		made nant less chatty : the exception stack trace is only logged to the console if verbose is true or the exception is not application exception.
+		
+		when the exception thrown is an application exception and verbose is false, only the message of the application exception and the message of the inner exception are logged to the console.
+
+	* bin/nant.exe.config 1.10:
+	* src/NAnt.Console/NAnt.Console.exe.config 1.9:
+		log4net messages are now logged to a file (NAnt.log).
+
+2003-04-14	drieseng
+	* bin/nant.exe.config 1.8:
+		marked nant as compatible with both .NET Framework 1.0 and 1.1 
+		and replaced Log4netConfigurationSectionHandler with 
+		IgnoreSectionHandler as log4net is currently not configured to 
+		access its configuration settings using the .NET configuration 
+		system.
+
+	* src/NAnt.DotNetTasks/MsftFXSDKExternalProgramBase.cs 1.6:
+		throw buildexceptions when sdkdirectory is not configured/
+		available.  This will allow tasks that use sdk tools not to 
+		cause a build failure (when failonerror is set to false) if the 
+		sdk is not installed/configured.
+
+	* src/NAnt.Core.Tests/Tasks/GetTaskTest.cs 1.4:
+		updated tests to use properties starting with Uppercase.
+
+	* src/NAnt.Core/FrameworkInfo.cs 1.5:
+	* src/NAnt.Core/Project.cs 1.20:
+		fix that prevents nant for failing when the SDK is not 
+		installed.
+
+	* src/NAnt.DotNetTasks/JscTask.cs 1.5:
+		fix that makes JScript.NET compiler run in the sscli runtime.
+
+	* src/NAnt.Console/NAnt.Console.exe.config 1.8:
+		- marked nant as compatible with both .NET Framework 1.0 and 1.1
+		- replaced Log4netConfigurationSectionHandler with IgnoreSectionHandler as log4net is currently not configured to access its configuration settings using the .NET configuration system.
+		- log4net property element is deprecated in favor of level element
+
+	* bin/nant.exe.config 1.9:
+		log4net property element is deprecated in favor of level element
+
+2003-04-13	drieseng
+	* src/NAnt.Core.Tests/Tasks/LoadTasksTest.cs 1.3:
+		fix compiler warning
+
+	* src/NAnt.Core/Attributes/BooleanValidatorAttribute.cs 1.6:
+	* src/NAnt.Core/Attributes/BuildAttributeAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/BuildElementAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/FileSetAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/Int32ValidatorAttribute.cs 1.5:
+	* src/NAnt.Core/Attributes/TaskAttributeAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/TaskOptionSetAttribute.cs 1.3:
+	* src/NAnt.Core/Attributes/ValidatorAttribute.cs 1.4:
+		fixed fxcop issues, only allow validator attributes to be set on 
+		properties (we should never have public fields anyway).
+
+	* src/NAnt.Core/NAnt.Core.csproj 1.10:
+		renamed TaskFileSetAttribute to FileSetAttribute, to have it 
+		match the class name.
+
+	* src/NAnt.Core/Tasks/GetTask.cs 1.3:
+		fix fxcop issues + restructure code
+
+	* NAnt.build 1.83:
+		consider compiler warnings as errors
+
+	* src/NAnt.Core/Element.cs 1.14:
+		fixes fxcop issues, add xml docs, code restructure
+
+	* src/NDoc.Documenter.NAnt/NAntTaskDocumenter.cs 1.5:
+	* src/NDoc.Documenter.NAnt/NAntTaskDocumenterConfig.cs 1.6:
+	* src/NDoc.Documenter.NAnt/NDoc.Documenter.NAnt.csproj 1.3:
+		removed unnecessary references to assemblies, removed 
+		unnecessary using directives, enabled documenting of attributes 
+		and added xml docs.
+
+	* src/NAnt.Core/BuildException.cs 1.5:
+		fix minor fxcop issue
+
+	* src/NAnt.Core/DirectoryScanner.cs 1.14:
+		added xml docs, marked some methods rivate and removed method 
+		that was not used.
+
+	* src/NAnt.Core/NAnt.Core.csproj 1.11:
+	* src/NAnt.DotNetTasks/NAnt.DotNetTasks.csproj 1.8:
+	* src/NAnt.Tests.csproj 1.10:
+		removed unnecessary references to system assemblies.
+
+	* src/NAnt.Core/Tasks/StyleTask.cs 1.8:
+	* src/NAnt.Core/Tasks/SysInfo.cs 1.5:
+	* src/NAnt.Core/Tasks/TouchTask.cs 1.4:
+		fixes fxcop issues
+
+	* src/NAnt.Core/VolumeInfo.cs 1.8:
+		fixes fxcop issues + added xml docs
+
+	* src/NAnt.Core.Tests/ExceptionTest.cs 1.4:
+	* src/NAnt.Core/BuildException.cs 1.4:
+	* src/NAnt.Core/ValidationException.cs 1.3:
+	* src/NAnt.Core/VolumeInfo.cs 1.7:
+		Changed all exceptions and the ExceptionTest to work according to the MS specs :
+		
+		An exception should have
+		
+		- a public default constructor
+		
+		- a public constructor that accepts only a message
+		
+		- a public constructor that accepts a message and an innerexception
+		
+		- a private serialization constructor if the exception is sealed
+		
+		- a protected serialization constructor if the exception is NOT sealed
+
+	* src/NDoc.Documenter.NAnt/NAntTaskDocumenterConfig.cs 1.7:
+	* src/NDoc.Documenter.NAnt/NDoc.Documenter.NAnt.csproj 1.4:
+		added back references and using directives, my mistake sorry ...
+
+	* src/NAnt.Core.Tests/ExceptionTest.cs 1.5:
+		fixed typo
+
+	* src/NAnt.NUnitTasks/NAnt.NUnitFormatters.csproj 1.3:
+	* src/NAnt.NUnitTasks/NUnit1/NAnt.NUnit1Tasks.csproj 1.3:
+	* src/NAnt.NUnitTasks/NUnit2/NAnt.NUnit2Tasks.csproj 1.3:
+	* src/NAnt.VisualCppTasks/NAnt.VisualCppTasks.csproj 1.2:
+	* src/NAnt.Win32Tasks/NAnt.Win32Tasks.csproj 1.3:
+	* src/NAnt.ZipTasks/NAnt.ZipTasks.csproj 1.3:
+		removed unnecessary references to assemblies.
+
+	* src/NAnt.DotNetTasks.build 1.7:
+	* src/NAnt.NUnitTasks.build 1.3:
+	* src/NAnt.VisualCppTasks.build 1.4:
+	* src/NAnt.Win32Tasks.build 1.2:
+	* src/NAnt.ZipTasks.build 1.6:
+		consider compiler warnings as errors + fixed issue with 
+		linefeeds
+
+	* src/NAnt.Core/Tasks/LoadTasks.cs 1.3:
+		fix compiler warnings + restructure code
+
+2003-04-12	mmastrac
+	* doc/changelog.html 1.48:
+		Updates.
+
+	* src/NAnt.Core.Tests/Util/TempDir.cs 1.6:
+		More verbose error on failure
+
+	* src/NAnt.NUnitTasks/NUnit2/NUnit2Test.cs 1.9:
+		Return null if no assemblyname attribute
+
 	* src/NAnt.Core.Tests/Tasks/IfTest.cs 1.5:
 		Don't write result.
+
+	* src/NAnt.Core/Tasks/DeleteTask.cs 1.6:
+		If FailOnError = false, don't fail on directory delete.
+
+	* src/NAnt.Core/Tasks/DeleteTask.cs 1.7:
+		Changed to use BuildException rather than DirectoryNotFound 
+		exception.
+
+	* src/NAnt.Core/FileSet.cs 1.11:
+		Initialize correctly with InitializeElement, rather than Initialize
+		Fix problem with holding file lock
+
+	* src/NAnt.Core.Tests/FileSetTest.cs 1.5:
+		Test IncludesList functionality
+
+	* bin/NAnt.Core.dll 1.47:
+	* bin/NAnt.Core.xml 1.29:
+	* bin/NAnt.DotNetTasks.dll 1.18:
+	* bin/NAnt.DotNetTasks.xml 1.12:
+	* bin/NAnt.NUnit1Tasks.dll 1.15:
+	* bin/NAnt.NUnit1Tasks.xml 1.4:
+	* bin/NAnt.NUnit2Tasks.dll 1.15:
+	* bin/NAnt.NUnit2Tasks.xml 1.6:
+	* bin/NAnt.NUnitFormatters.dll 1.15:
+	* bin/NAnt.NUnitFormatters.xml 1.3:
+	* bin/NAnt.VisualCppTasks.dll 1.15:
+	* bin/NAnt.VisualCppTasks.xml 1.3:
+	* bin/NAnt.Win32Tasks.dll 1.6:
+	* bin/NAnt.Win32Tasks.xml 1.2:
+	* bin/NAnt.ZipTasks.dll 1.17:
+	* bin/NAnt.ZipTasks.xml 1.6:
+	* bin/NAnt.exe 1.56:
+		Update to latest 0.8.2-rc1 binaries.
+
+2003-04-12	drieseng
+	* src/NAnt.Core/Attributes/BooleanValidatorAttribute.cs 1.5:
+	* src/NAnt.Core/Attributes/BuildAttributeAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/BuildElementArrayAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/BuildElementAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/ElementNameAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/Int32ValidatorAttribute.cs 1.4:
+	* src/NAnt.Core/Attributes/TaskAttributeAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/TaskFileSetAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/TaskNameAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/TaskOptionSetAttribute.cs 1.2:
+	* src/NAnt.Core/Attributes/ValidatorAttribute.cs 1.3:
+		added xml docs, marked some attributes sealed.
+
+	* src/NAnt.Core/Attributes/FileSetAttribute.cs 1.1:
+	* src/NAnt.Core/Attributes/TaskFileSetAttribute.cs 1.3:
+		renamed TaskFileSetAttribute to FileSetAttribute, to have it 
+		match the class name.
 
 2003-04-11  skot
 	* src/NAnt.DotNetTasks/CompilerBase.cs 1.14:
