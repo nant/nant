@@ -42,7 +42,7 @@
     </doc:template>
 
     <xsl:template match="para" mode="slashdoc" doc:group="block" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfpara.htm">
-        <p class="i1">
+        <p>
             <xsl:apply-templates select="./node()" mode="slashdoc" />
         </p>
     </xsl:template>
@@ -53,7 +53,7 @@
     </doc:template>
 
     <xsl:template match="para[@lang]" mode="slashdoc" doc:group="block">
-        <p class="i1">
+        <p>
             <span class="lang">
                 <xsl:text>[</xsl:text>
                 <xsl:call-template name="get-lang">

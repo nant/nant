@@ -117,7 +117,9 @@
     </xsl:template>
 
     <xsl:template match="example" mode="slashdoc">
-        <xsl:apply-templates mode="slashdoc" />
+        <li>
+            <xsl:apply-templates mode="slashdoc" />
+        </li>           
     </xsl:template>
 
     <xsl:template name="preliminary-section">

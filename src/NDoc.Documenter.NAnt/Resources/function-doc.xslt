@@ -134,7 +134,9 @@
             </xsl:if>
             <xsl:if test="count(documentation/example) != 0">
                 <h3>Examples</h3>
-                <xsl:apply-templates select="documentation/example" mode="slashdoc" />
+                <ul class="examples">
+                    <xsl:apply-templates select="documentation/example" mode="slashdoc" />
+                </ul>
             </xsl:if>
             <h3>Requirements</h3>
             <div style="margin-left: 20px;">
