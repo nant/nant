@@ -21,6 +21,8 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Globalization;
 using System.Reflection;
 using System.Xml;
@@ -117,9 +119,7 @@ namespace NAnt.Core {
         /// The properties local to this <see cref="Element" /> and the <see cref="Project" />.
         /// </value>
         public virtual PropertyDictionary Properties {
-            get { 
-                return Project.Properties;
-            }
+            get { return Project.Properties; }
         }
 
         #endregion Public Instance Properties
@@ -235,30 +235,30 @@ namespace NAnt.Core {
         /// </summary>
         private void InitializeXml(XmlNode elementNode) {
             // This is a bit of a monster function but if you look at it 
-            // carefully this is what it does:            
+            // carefully this is what it does:
             // * Looking for task attributes to initialize.
             // * For each BuildAttribute try to find the xml attribute that corresponds to it.
             // * Next process all the nested elements, same idea, look at what is supposed to
             //   be there from the attributes on the class/properties and then get
             //   the values from the xml node to set the instance properties.
             
-            //* Removed the inheritance walking as it isn't necessary for extraction of public properties          
+            //* Removed the inheritance walking as it isn't necessary for extraction of public properties
             _xmlNode = elementNode;
 
             Type currentType = GetType();
             
-            PropertyInfo[] propertyInfoArray = currentType.GetProperties(BindingFlags.Public|BindingFlags.Instance);
+            PropertyInfo[] propertyInfoArray = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             #region Create Collections for Attributes and Element Names Tracking
 
             //collect a list of attributes, we will check to see if we use them all.
-            System.Collections.Specialized.StringCollection attribs = new System.Collections.Specialized.StringCollection();
+            StringCollection attribs = new StringCollection();
             foreach (XmlAttribute xmlattr in _xmlNode.Attributes) {
                 attribs.Add(xmlattr.Name);
             }
 
             //create collection of element names. We will remove 
-            System.Collections.Specialized.StringCollection childElementsRemaining = new System.Collections.Specialized.StringCollection();
+            StringCollection childElementsRemaining = new StringCollection();
             foreach (XmlNode childNode in _xmlNode) {
                 //skip existing names. We only need unique names.
                 if(childElementsRemaining.Contains(childNode.Name))
@@ -271,93 +271,153 @@ namespace NAnt.Core {
 
             //Loop through all the properties in the derived class.
             foreach (PropertyInfo propertyInfo in propertyInfoArray) {
-                #region Initiliaze all the Attributes
+                #region Initialize all properties with an assigned FrameworkConfigurableAttribute
+
+                XmlNode attributeNode = null;
+                string attributeValue = null;
+
+                FrameworkConfigurableAttribute frameworkAttribute = (FrameworkConfigurableAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(FrameworkConfigurableAttribute));
+
+                if (frameworkAttribute != null) {
+                    // locate XML configuration node for current attribute
+                    attributeNode = GetAttributeConfigurationNode(frameworkAttribute.Name);
+
+                    if (attributeNode != null) {
+                        // get the configured value
+                        attributeValue = attributeNode.InnerText;
+
+                        if (frameworkAttribute.ExpandProperties && Project.CurrentFramework != null) {
+                            // expand attribute properites
+                            try {
+                                attributeValue = Project.CurrentFramework.Properties.ExpandProperties(attributeValue, Location);
+                            } catch (Exception ex) {
+                                // throw BuildException if required
+                                if (frameworkAttribute.Required) {
+                                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name),Location, ex);
+                                }
+
+                                // set value to null
+                                attributeValue = null;
+                            }
+                        }
+                    } else {
+                        // check if its required
+                        if (frameworkAttribute.Required) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name), Location);
+                        }
+                    }
+                }
+
+                #endregion Initialize all properties with an assigned FrameworkConfigurableAttribute
+
+                #region Initialize all properties with an assigned BuildAttribute
 
                 // process all BuildAttribute attributes
                 BuildAttributeAttribute buildAttribute = (BuildAttributeAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute));
 
                 if (buildAttribute != null) {
-                    XmlAttribute attributeNode = _xmlNode.Attributes[buildAttribute.Name];
-
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
                         "Found {0} <attribute> for {1}", 
                         buildAttribute.Name, 
                         propertyInfo.DeclaringType.FullName));
 
-                    // check if its required
-                    if (attributeNode == null && buildAttribute.Required) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required attribute of <{1} ... \\>.", buildAttribute.Name, this.Name), Location);
-                    }
+                    // locate attribute in build file
+                    attributeNode = _xmlNode.Attributes[buildAttribute.Name];
 
                     if (attributeNode != null) {
-                        //remove processed attribute name
-                        attribs.Remove(attributeNode.Name);
-                        
-                        string attrValue = attributeNode.Value;
+                        // get the configured value
+                        attributeValue = attributeNode.Value;
+
                         if (buildAttribute.ExpandProperties) {
                             // expand attribute properites
-                            attrValue = Project.ExpandProperties(attrValue, this.Location);
+                            attributeValue = Project.ExpandProperties(attributeValue, Location);
                         }
 
-                        logger.Debug(string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Setting value: {3}.{0} = {2}({1})", 
-                            buildAttribute.Name, 
-                            attrValue,
-                            attributeNode.Value,
-                            propertyInfo.DeclaringType.Name));
+                        //remove processed attribute name
+                        attribs.Remove(attributeNode.Name);
 
-                        if (propertyInfo.CanWrite) {
-                            // set the property value instead
-                            MethodInfo info = propertyInfo.GetSetMethod();
-                            object[] paramaters = new object[1];
+                        // check if property is deprecated
+                        ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
 
-                            // If the object is an emum
-                            Type propertyType = propertyInfo.PropertyType;
-
-                            //validate attribute value with custom ValidatorAttribute(ors)
-                            object[] validateAttributes = (ValidatorAttribute[]) 
-                                Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
-                            try {
-                                foreach (ValidatorAttribute validator in validateAttributes) {
-                                    logger.Info(string.Format(
-                                        CultureInfo.InvariantCulture,
-                                        "Validating <{1} {2}='...'> with {0}", 
-                                        validator.GetType().Name, _xmlNode.Name, attributeNode.Name));
-
-                                    validator.Validate(attrValue);
-                                }
-                            } catch (ValidationException ve) {
-                                logger.Error("Validation Exception", ve);
-                                throw new ValidationException("Validation failed on" + propertyInfo.DeclaringType.FullName, Location, ve);
-                            }
-                            
-                            //set paramaters[0] to value.
-                            if (propertyType.IsSubclassOf(Type.GetType("System.Enum"))) {
-                                try {
-                                    paramaters[0] = Enum.Parse(propertyType, attrValue);
-                                } catch (Exception) {
-                                    // catch type conversion exceptions here
-                                    string message = "Invalid value \"" + attrValue + "\". Valid values for this attribute are: ";
-                                    foreach (object value in Enum.GetValues(propertyType)) {
-                                        message += value.ToString() + ", ";
-                                    }
-                                    // strip last ,
-                                    message = message.Substring(0, message.Length - 2);
-                                    throw new BuildException(message, Location);
-                                }
+                        // emit warning or error if attribute is deprecated
+                        if (obsoleteAttribute != null) {
+                            if (obsoleteAttribute.IsError) {
+                                logger.Error(string.Format(CultureInfo.InvariantCulture,
+                                    "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
                             } else {
-                                paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
+                                logger.Warn(string.Format(CultureInfo.InvariantCulture,
+                                    "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
                             }
-                            //set value
-                            info.Invoke(this, paramaters);
+                        }
+                    } else {
+                        // check if its required
+                        if (buildAttribute.Required) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required attribute of <{1} ... \\>.", buildAttribute.Name, this.Name), Location);
                         }
                     }
                 }
 
-                #endregion Initiliaze all the Attributes
+                if (attributeValue != null) {
+                    logger.Debug(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Setting value: {2}.{0} = {1}", 
+                        propertyInfo.Name, 
+                        attributeValue,
+                        propertyInfo.DeclaringType.Name));
+
+                    if (propertyInfo.CanWrite) {
+                        // set the property value instead
+                        MethodInfo info = propertyInfo.GetSetMethod();
+
+                        // If the object is an emum
+                        Type propertyType = propertyInfo.PropertyType;
+
+                        //validate attribute value with custom ValidatorAttribute(ors)
+                        object[] validateAttributes = (ValidatorAttribute[]) 
+                            Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
+                        try {
+                            foreach (ValidatorAttribute validator in validateAttributes) {
+                                logger.Info(string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "Validating <{1} {2}='...'> with {0}", 
+                                    validator.GetType().Name, _xmlNode.Name, attributeNode.Name));
+
+                                validator.Validate(attributeValue);
+                            }
+                        } catch (ValidationException ve) {
+                            logger.Error("Validation Exception", ve);
+                            throw new ValidationException("Validation failed on" + propertyInfo.DeclaringType.FullName, Location, ve);
+                        }
+
+                        // holds the attribute value converted to the property type
+                        object propertyValue = null;
+
+                        if (propertyType.IsEnum) {
+                            try {
+                                propertyValue = Enum.Parse(propertyType, attributeValue);
+                            } catch (Exception) {
+                                // catch type conversion exceptions here
+                                string message = "Invalid value \"" + attributeValue + "\". Valid values for this attribute are: ";
+                                foreach (object value in Enum.GetValues(propertyType)) {
+                                    message += value.ToString() + ", ";
+                                }
+                                // strip last ,
+                                message = message.Substring(0, message.Length - 2);
+                                throw new BuildException(message, Location);
+                            }
+                        } else {
+                            propertyValue = Convert.ChangeType(attributeValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
+                        }
+
+                        //set value
+                        propertyInfo.SetValue(this, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                    }
+                }
+
+                #endregion Initialize all properties with an assigned BuildAttribute
 
                 #region Initiliaze the Nested BuildElementArray and BuildElementCollection (Child xmlnodes)
 
@@ -455,16 +515,29 @@ namespace NAnt.Core {
                         childElement.Initialize(childNode);
                         // if subtype of DataTypeBase
                         DataTypeBase dataType = childElement as DataTypeBase;
-                        if ( dataType != null && dataType.RefID != null && dataType.RefID.Length != 0  ) {
-
+                        if (dataType != null && dataType.RefID != null && dataType.RefID.Length != 0) {
                             // we have a datatype reference
-                            childElement = InitDataTypeBase(dataType );                          
+                            childElement = InitDataTypeBase(dataType );
                             childElement.Project = Project;
                             childElement.Parent = this;
                         }
-                        
+                       
                         list.SetValue(childElement, arrayIndex);
                         arrayIndex ++;
+                    }
+
+                    // check if property is deprecated
+                    ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
+
+                    // emit warning or error if attribute is deprecated                        
+                    if (obsoleteAttribute != null) {
+                        if (obsoleteAttribute.IsError) {
+                            logger.Error(string.Format(CultureInfo.InvariantCulture,
+                                "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
+                        } else {
+                            logger.Warn(string.Format(CultureInfo.InvariantCulture,
+                                "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
+                        }
                     }
                     
                     if (propertyInfo.PropertyType.IsArray) {
@@ -523,7 +596,6 @@ namespace NAnt.Core {
                 }
 
                 #endregion Initiliaze the Nested BuildElements (Child xmlnodes)
-
             }
             
             //skip checking for anything in target.
@@ -652,6 +724,89 @@ namespace NAnt.Core {
                 name = elementNameAttribute.Name;
             }
             return name;
+        }
+
+        /// <summary>
+        /// Locates the XML node for the specified attribute in NAnt configuration
+        /// file.
+        /// </summary>
+        /// <param name="attributeName">The name of attribute for which the XML configuration node should be located.</param>
+        /// <returns>
+        /// The XML configuration node for the specified attribute, or 
+        /// <see langword="null" /> if no corresponding XML node could be 
+        /// located.
+        /// </returns>
+        /// <remarks>
+        /// If there's a valid current framework, the configuration section for
+        /// that framework will first be searched.  If no corresponding 
+        /// configuration node can be located in that section, the framework-neutral
+        /// section of NAnt configuration file will be searched.
+        /// </remarks>
+        private XmlNode GetAttributeConfigurationNode(string attributeName) {
+            XmlNode attributeNode = null;
+            XmlNode nantSettingsNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
+
+            string xpath = "";
+            int level = 0;
+
+            if (nantSettingsNode != null) { 
+                #region Construct XPATH expression for locating configuration node
+
+                Element parentElement = this as Element;
+
+                while (parentElement != null) {
+                    if (parentElement is Task) {
+                        xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
+                        level++;
+                    } else if (!(parentElement is Target)) {
+                        // perform lookup using name of the node, not element name
+                        xpath += " and parent::element[@name=\"" + parentElement.XmlNode.Name + "\""; 
+                        level++;
+                    }
+
+                    parentElement = parentElement.Parent as Element;
+                }
+
+                xpath = "descendant::attribute[@name=\"" + attributeName + "\"" + xpath;
+
+                for (int counter = 0; counter < level; counter++) {
+                    xpath += "]";
+                }
+
+                xpath += "]";
+
+                #endregion Construct XPATH expression for locating configuration node
+
+                #region Retrieve framework-specific configuration node
+
+                if (Project.CurrentFramework != null) {
+                    // locate framework node for current framework
+                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("frameworks/framework[@name=\"" + Project.CurrentFramework.Name + "\"]");
+
+                    if (frameworkNode != null) {
+                        // locate framework-specific configuration node
+                        attributeNode = frameworkNode.SelectSingleNode(xpath);
+                    }
+                }
+
+                #endregion Retrieve framework-specific configuration node
+
+                #region Retrieve framework-neutral configuration node
+
+                if (attributeNode == null) {
+                    // locate framework-neutral node
+                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode("frameworks/tasks");
+
+                    if (frameworkNeutralNode != null) {
+                        // locate framework-neutral configuration node
+                        attributeNode = frameworkNeutralNode.SelectSingleNode(xpath);
+                    }
+                }
+
+                #endregion Retrieve framework-neutral configuration node
+            }
+
+            return attributeNode;
         }
 
         #endregion Private Static Methods
