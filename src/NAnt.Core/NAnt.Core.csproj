@@ -732,6 +732,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\Token.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\XmlNamespace.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
