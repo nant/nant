@@ -17,12 +17,12 @@ namespace Tests.NAnt.SourceControl.Tasks {
         private static readonly String cvsTempPath = 
             Path.Combine (Path.GetTempPath (), "cvscheckout-test");
         private static readonly String TEST_FILE = 
-            Path.Combine (cvsTempPath, "nant/NAnt.build");
+            Path.Combine (cvsTempPath, "Sporadicism.Blogger/blogger.build");
 
         private readonly String _projectXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-checkout   module='nant' 
-                                cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant'
+                <cvs-checkout   module='Sporadicism.Blogger' 
+                                cvsroot=':pserver:anonymous@linux.sporadicism.com:/home/cvs/src'
                                 destination='" + cvsTempPath.Replace ("\\", "/") + @"'
                                 password='' />
             </project>";
@@ -34,19 +34,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         [Test]
         public void Test_CvsCheckout () {
-            bool good = false;
-            int run = 0;
-            while (!good && run < 100) {
-                try {
-                    String result = this.RunBuild (_projectXML);
-                    good = true;
-                } catch (Exception) {
-                    run++;
-                }
-            }
-
-            Assertion.Assert ("Still not good.", good);
-
+            String result = this.RunBuild (_projectXML);
             Assertion.Assert ("File does not exist, checkout probably did not work.", 
                 File.Exists (TEST_FILE));
         }
@@ -57,7 +45,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [TearDown]
         protected override void TearDown () {
             base.TearDown ();
-            //Directory.Delete ("c:/temp/cvscheckout-test", true);
+            Directory.Delete (cvsTempPath, true);
         }
     }
 }
