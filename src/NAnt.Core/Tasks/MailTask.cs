@@ -260,10 +260,9 @@ namespace NAnt.Core.Tasks {
                         bodyWriter.Write(content);
                         bodyWriter.WriteLine(string.Empty);
                     }
-                } catch {
+                } catch (Exception ex) {
                     Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
-                        "File '{0}' NOT added to message body. File does not exist or cannot" +
-                        " be accessed. ", fileName));
+                        "File '{0}' NOT added to message body. {1}", fileName, ex.Message));
                 }
             }
 
@@ -278,10 +277,9 @@ namespace NAnt.Core.Tasks {
                 try {
                     MailAttachment attachment = new MailAttachment(fileName);
                     mailMessage.Attachments.Add(attachment);
-                } catch {
+                } catch (Exception ex) {
                     Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
-                        "File '{0}' NOT attached to message. File does not exist or cannot be" +
-                        " accessed. ", fileName));
+                        "File '{0}' NOT attached to message. {1}", fileName, ex.Message));
                 }
             }
 
@@ -314,15 +312,8 @@ namespace NAnt.Core.Tasks {
         /// The content of the specified file.
         /// </returns>
         private string ReadFile(string filename) {
-            StreamReader reader = null;
-
-            try {
-                reader = new StreamReader(File.OpenRead(filename));
+            using (StreamReader reader = new StreamReader(File.OpenRead(filename))) {
                 return reader.ReadToEnd();
-            } finally {
-                if (reader != null) {
-                    reader.Close();
-                }
             }
         }
 
