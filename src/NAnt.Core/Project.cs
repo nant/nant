@@ -971,17 +971,14 @@ namespace NAnt.Core {
                         //globalTasks.Add(task);
                         task.Parent = this;
                         task.Execute();
-                    }
-                    
-                    // store datatype references
-                    else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name) ) {
+                    } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
                         // we are an datatype declaration
-                        DataTypeBase dataType =  CreateDataTypeBase(childNode );
-                        Log( Level.Verbose, "adding a {0} reference with id '{1}'", childNode.Name, dataType.Id   );
-                        _dataTypeReferences.Add( dataType.Id, dataType );                        
-                    }                       
+                        DataTypeBase dataType = CreateDataTypeBase(childNode);
+                        Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
+                        _dataTypeReferences.Add(dataType.ID, dataType);
+                    }
                 }
-            }                   
+            }
         }
 
         #endregion Internal Instance Methods
