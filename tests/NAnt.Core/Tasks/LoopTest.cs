@@ -77,11 +77,6 @@ namespace SourceForge.NAnt.Tests {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            if(result != null && result.Length > 0)
-                Log.Write(result);
-            else
-                Log.WriteLine("Empty result");
-
             Assertion.Assert(result.IndexOf("test.build") != -1);
         }
 
@@ -100,6 +95,29 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(result.IndexOf("foo") != -1);
             Assertion.Assert(result.IndexOf("bar") != -1);
         }
+
+        [Test]
+        public void Test_Loop_Folders_From_FileSet() {
+            string _xml = @"
+                    <project>
+                        <mkdir dir='${nant.project.basedir}/foo'/>
+                        <mkdir dir='${nant.project.basedir}/bar'/>
+                        <foreach item='Folder' property='dir'>
+                            <in>
+                                <items basedir='${nant.project.basedir}'>
+                                    <includes name='*'/>
+                                </items>
+                            </in>
+                            <do>
+                                <echo message='Dir:${dir}'/>
+                            </do>
+                        </foreach>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert(result.IndexOf("foo") != -1);
+            Assertion.Assert(result.IndexOf("bar") != -1);
+        }
+
 
 		[Test]
         public void Test_Loop_Lines() {

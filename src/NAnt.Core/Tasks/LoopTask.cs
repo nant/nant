@@ -40,12 +40,42 @@ namespace SourceForge.NAnt.Tasks {
     /// </foreach>    
     ///     ]]>
     ///   </code>
+    ///   <para>Loops over all files in C:\</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <foreach item="File" property="filename">
+    ///     <in>
+    ///         <items>
+    ///             <includes name="**"/>
+    ///         </items>
+    ///     </in>
+    ///     <do>
+    ///         <echo message="${filename}"/>
+    ///     </do>
+    /// </foreach>    
+    ///     ]]>
+    ///   </code>
     ///   <para>Loops over the folders in C:\</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="Folder" in="c:\" property="foldername">
     ///     <echo message="${foldername}"/>
     /// </foreach>
+    ///     ]]>
+    ///   </code>
+    ///   <para>Loops over all folders in C:\</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <foreach item="Folder" property="foldername">
+    ///     <in>
+    ///         <items>
+    ///             <includes name="**"/>
+    ///         </items>
+    ///     </in>
+    ///     <do>
+    ///         <echo message="${foldername}"/>
+    ///     </do>
+    /// </foreach>    
     ///     ]]>
     ///   </code>
     ///   <para>Loops over a list</para>
@@ -187,15 +217,29 @@ namespace SourceForge.NAnt.Tasks {
                         break;
                     }
                     case ItemTypes.Folder: {
-                        if(!Directory.Exists(Project.GetFullPath(_inAttribute)))
-                            throw new BuildException("Invalid Source: " + _inAttribute, Location);
-                        if(_props.Length != 1)
-                            throw new BuildException(@"Only one property is valid for item=""Folder""");
-                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
-                        DirectoryInfo[] dirs = dirInfo.GetDirectories();
-                        foreach(DirectoryInfo dir in dirs) {
-                            DoWork(dir.FullName);
+                        if(_inAttribute == null && _inElement == null)
+                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
+
+                        if(_inAttribute != null) {
+                            
+                            if(!Directory.Exists(Project.GetFullPath(_inAttribute)))
+                                throw new BuildException("Invalid Source: " + _inAttribute, Location);
+                            if(_props.Length != 1)
+                                throw new BuildException(@"Only one property is valid for item=""Folder""");
+                            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
+                            DirectoryInfo[] dirs = dirInfo.GetDirectories();
+                            foreach(DirectoryInfo dir in dirs) {
+                                DoWork(dir.FullName);
+                            } 
+                        }else {
+                            if(_doStuff == null)
+                                throw new BuildException("Must use <do> with <in>.", Location);
+
+                            foreach(string dir in _inElement.Items.DirectoryNames) {
+                                DoWork(dir);
+                            }
                         }
+
                         break;
                     }
                     case ItemTypes.Line: {
