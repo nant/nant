@@ -81,6 +81,7 @@
                 <includes name="NDoc.Documenter.Msdn.dll"/>
 				<includes name="NUnitCore.dll"/>
 				<includes name="NZipLib.dll"/>
+				<includes name="SourceSafe.Interop.dll"/>
             </fileset>
         </copy>
 
@@ -89,13 +90,13 @@
             <sources basedir="${src.dir}\${project.FormalName}">
                 <includes name="**/*.cs"/>
                 <excludes name="NAnt.cs"/>
-<!--                <excludes name="Tasks/GetTask.cs"/>-->
             </sources>
             <references>
                 <includes name="${build.dir}/NDoc.Core.dll"/>
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
                 <includes name="${build.dir}/NZipLib.dll"/>
+				<includes name="${build.dir}/SourceSafe.Interop.dll"/>
             </references>
             <arg value="/debug"/>
             <arg value="/nowarn:1591"/>
@@ -120,10 +121,10 @@
 				<includes name="*.cs"/>
                 <excludes name="GetTest.cs"/>
                 <excludes name="TouchTest.cs"/>
+				<excludes name="MailTest.cs"/>
 			</sources>
 			<references>
 				<includes name="${build.dir}/NUnitCore.dll"/>
-				<!--<includes name="${build.dir}/${project.FormalName}.exe"/>-->
 				<includes name="${build.dir}/${project.FormalName}.Core.dll"/>
 			</references>
 		</csc>
