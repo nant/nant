@@ -214,7 +214,11 @@ namespace Tests.NAnt.Core {
                 }
 
                 // Make sure Message is overridden if there are private fields.
-                Assertion.Assert(t.Name + " does not override the Message property.", t.GetProperty("Message", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) != null);
+
+                // drieseng : commented out this test, as it does not always 
+                // make sense.  Not all private fields should somehow be exposed 
+                // as part of the message of the exception.
+                //Assertion.Assert(t.Name + " does not override the Message property.", t.GetProperty("Message", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) != null);
             }
         }
 
