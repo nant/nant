@@ -56,7 +56,7 @@ setup:
 	# Mono loads log4net before privatebinpath is set-up, so we need this in the same directory
 	# as NAnt.exe
 	cp lib/log4net.dll bootstrap
-	cp src/NAnt.Console/NAnt.Console.exe.config bootstrap/NAnt.exe.config
+	cp src/NAnt.Console/App.config bootstrap/NAnt.exe.config
 
 bootstrap/NAnt.Core.dll:
 	$(MCS) -target:library -warn:0 -define:${DEFINE} -out:bootstrap/NAnt.Core.dll -r:lib${DIRSEP}log4net.dll \
