@@ -114,8 +114,8 @@
     <target name="test" depends="build" description="Tests current configuration">
         <echo message="Running unit tests with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
-            <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
+            <arg value="-logfile:NAnt.selftest.log" />
             <arg value="${project.config}" />
             <arg value="self-test" />
             <arg value="-D:project.version=${project.version}" />
@@ -229,7 +229,7 @@
         use the following command line to create a debug package:
         nant debug package
     -->
-    <target name="package" depends="cleanall release test userdoc sdkdoc" description="Creates a package zip file.">
+    <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
         <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
