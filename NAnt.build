@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<project name="NAnt" default="build" basedir=".">
+	<property name="debug" value="false"/>
+
+	<target name="clean">
+		<delete dir="build" recursive="true"/>
+	</target>
+
+	<target name="build">
+		<mkdir dir="build"/>
+		<csc target="exe" output="build\NAnt.exe" debug="${debug}">
+			<sources>
+				<includes name="src\NAnt\*.cs"/>
+				<includes name="src\NAnt\Attributes\*.cs"/>
+				<includes name="src\NAnt\Tasks\*.cs"/>
+				<includes name="src\NAnt\Util\*.cs"/>
+			</sources>
+			<references/>
+		</csc>
+	</target>
+
+	<target name="test" depends="build">
+		<nant basedir="examples"/>
+	</target>
+</project>

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<project name="NAnt" default="test" basedir=".">
+	
+	<!-- compile the test task and add it then use it -->
+	<!-- this currently will only work in the global section of the build file -->
+	<csc target="library" output="UserTask.dll">
+		<sources>
+			<includes name="UserTask.cs"/>
+		</sources>
+		<references>
+			<includes name="..\..\build\NAnt.exe"/>
+		</references>
+	</csc>
+
+	<!-- add task to NAnt, this task must be in the global section for now -->
+	<taskdef assembly="UserTask.dll"/>
+
+	<!-- 
+		The test task is referenced in the newly created UserTask.dll but can 
+		only be referenced in a target.
+
+		This should change in the future but its probally not that common to 
+		build your task AND	use it in the SAME build file.
+	-->
+	
+	<target name="test">
+		<!-- call our new task, converts the message attribute to all caps and displays it -->
+		<usertask message="This string should be all caps"/>
+	</target>
+
+	<target name="clean">
+		<echo message="Cannot clean because we are refering to UserTask.dll"/>
+		<echo message="Just delete the UserTask.dll in this folder"/>
+		<echo message="This will change once we can have taskdef tasks nested in targets"/>
+	</target>
+</project>

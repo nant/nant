@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<project name="Hello World" default="test" basedir=".">
+
+	<property name="basename" value="HelloWorld"/>
+
+	<target name="clean">
+		<delete file="${basename}-cs.exe"/>
+		<delete file="${basename}-js.exe"/>
+		<delete file="${basename}-vb.exe"/>
+	</target>
+
+	<target name="build">
+		<csc target="exe" output="${basename}-cs.exe">
+			<sources>
+				<includes name="${basename}.cs"/>
+			</sources>
+		</csc>
+		<jsc target="exe" output="${basename}-js.exe">
+			<sources>
+				<includes name="${basename}.js"/>
+			</sources>
+		</jsc>
+		<vbc target="exe" output="${basename}-vb.exe">
+			<sources>
+				<includes name="${basename}.vb"/>
+			</sources>
+		</vbc>
+
+	</target>
+
+	<target name="test" depends="build">
+		<exec program="${basename}-cs.exe"/>
+		<exec program="${basename}-js.exe"/>
+		<exec program="${basename}-vb.exe"/>
+	</target>
+</project>

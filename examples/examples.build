@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<project name="NAnt Examples" default="run" basedir=".">
+	<target name="build">
+		<echo message="building NAnt examples..."/>
+		<nant basedir="HelloWorld"/>
+		<nant basedir="UserTask"/>
+	</target>
+
+	<target name="run" depends="build">
+		<echo message="running NAnt examples..."/>
+	</target>
+</project>
