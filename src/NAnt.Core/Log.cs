@@ -35,6 +35,8 @@ using System.IO;
 using System.Text;
 using System.Web.Mail;
 
+using NAnt.Core.Util;
+
 namespace NAnt.Core {
     /// <summary>
     /// Defines the set of levels recognised by the NAnt logging system.
@@ -133,7 +135,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the message associated with this event.
         /// </summary>
-        /// <value>The message associated with this event.</value>
+        /// <value>
+        /// The message associated with this event.
+        /// </value>
         public string Message {
             get { return _message; }
             set { _message = value; }
@@ -142,7 +146,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the priority level associated with this event.
         /// </summary>
-        /// <value>The priority level associated with this event.</value>
+        /// <value>
+        /// The priority level associated with this event.
+        /// </value>
         public Level MessageLevel {
             get { return _messageLevel; }
             set { _messageLevel = value; }
@@ -151,6 +157,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the <see cref="Exception" /> associated with this event.
         /// </summary>
+        /// <value>
+        /// The <see cref="Exception" /> associated with this event.
+        /// </value>
         public Exception Exception {
             get { return _exception; }
             set { _exception = value; }
@@ -159,7 +168,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the <see cref="Project" /> that fired this event.
         /// </summary>
-        /// <value>The <see cref="Project" /> that fired this event.</value>
+        /// <value>
+        /// The <see cref="Project" /> that fired this event.
+        /// </value>
         public Project Project {
             get { return _project; }
         }
@@ -179,7 +190,7 @@ namespace NAnt.Core {
         /// Gets the <see cref="Task" /> that fired this event.
         /// </summary>
         /// <value>
-        /// The <see cref="Task" /> that fired this event, or a null reference 
+        /// The <see cref="Task" /> that fired this event, or <see langword="null" />
         /// if this is a <see cref="Project" /> or <see cref="Target" /> level 
         /// event.
         /// </value>
@@ -331,7 +342,9 @@ namespace NAnt.Core {
         /// Gets or sets the highest level of message this logger should respond 
         /// to.
         /// </summary>
-        /// <value>The highest level of message this logger should respond to.</value>
+        /// <value>
+        /// The highest level of message this logger should respond to.
+        /// </value>
         /// <remarks>
         /// Only messages with a message level higher than or equal to the given 
         /// level should be written to the log.
@@ -345,6 +358,9 @@ namespace NAnt.Core {
         /// Gets or sets the <see cref="TextWriter" /> to which the logger is 
         /// to send its output.
         /// </summary>
+        /// <value>
+        /// The <see cref="TextWriter" /> to which the logger sends its output.
+        /// </value>
         public virtual TextWriter OutputWriter {
             get { return _outputWriter; }
             set { _outputWriter = value; }
@@ -407,9 +423,13 @@ namespace NAnt.Core {
                         if (error.Message != null) {
                             OutputMessage(Level.Error, error.Message, indentationLevel);
                         }
-                        if (error.InnerException != null && error.InnerException.Message != null) {
+
+                        // output nested exceptions
+                        Exception nestedException = error.InnerException;
+                        while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
                             OutputMessage(Level.Error, " " + error.InnerException.Message, indentationLevel);
-                        } 
+                            nestedException = nestedException.InnerException;
+                        }
                     }
                 } else {
                     OutputMessage(Level.Error, "INTERNAL ERROR", indentationLevel);
@@ -736,29 +756,31 @@ namespace NAnt.Core {
     }
 
     /// <summary>
-    /// Contains a strongly typed collection of <see cref="IBuildListener"/> objects.
+    /// Contains a strongly typed collection of <see cref="IBuildListener"/> 
+    /// objects.
     /// </summary>
     [Serializable]
     public class BuildListenerCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> class.
+        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> 
+        /// class.
         /// </summary>
         public BuildListenerCollection() {
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> class
-        /// with the specified <see cref="BuildListenerCollection"/> instance.
+        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> 
+        /// class with the specified <see cref="BuildListenerCollection"/> instance.
         /// </summary>
         public BuildListenerCollection(BuildListenerCollection value) {
             AddRange(value);
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> class
-        /// with the specified array of <see cref="IBuildListener"/> instances.
+        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> 
+        /// class with the specified array of <see cref="IBuildListener"/> instances.
         /// </summary>
         public BuildListenerCollection(IBuildListener[] value) {
             AddRange(value);
@@ -774,8 +796,8 @@ namespace NAnt.Core {
         /// <param name="index">The zero-based index of the element to get or set.</param>
         [System.Runtime.CompilerServices.IndexerName("Item")]
         public IBuildListener this[int index] {
-            get {return ((IBuildListener)(base.List[index]));}
-            set {base.List[index] = value;}
+            get { return ((IBuildListener)(base.List[index])); }
+            set { base.List[index] = value; }
         }
 
         #endregion Public Instance Properties
