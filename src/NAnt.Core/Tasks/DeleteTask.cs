@@ -223,11 +223,11 @@ namespace NAnt.Core.Tasks {
                 throw ex;
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot delete directory {0}.", path);
+                    "Cannot delete directory '{0}'.", path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Verbose, msg);
+                Log(Level.Warning, msg + " " + ex.Message);
             }
         }
 
@@ -252,7 +252,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Verbose, msg + " " + ex.Message);
+                Log(Level.Warning, msg + " " + ex.Message);
             }
         }
 
