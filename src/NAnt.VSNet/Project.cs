@@ -309,7 +309,7 @@ namespace NAnt.VSNet {
                             } catch (Win32Exception ex) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                     "Unable to start process '{0}' with commandline '{1}'.", 
-                                    program, commandLine), ex, Location.UnknownLocation);
+                                    program, commandLine), Location.UnknownLocation, ex);
                             }
                         } else {
                             StringCollection fromFilenames = reference.GetReferenceFiles(cs);
