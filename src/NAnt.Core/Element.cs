@@ -263,8 +263,8 @@ namespace NAnt.Core {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Locates the XML node for the specified attribute in NAnt configuration
-        /// file.
+        /// Locates the XML node for the specified attribute in the project 
+        /// configuration node.
         /// </summary>
         /// <param name="attributeName">The name of attribute for which the XML configuration node should be located.</param>
         /// <param name="framework">The framework to use to obtain framework specific information.</param>
@@ -277,11 +277,11 @@ namespace NAnt.Core {
         /// If there's a valid current framework, the configuration section for
         /// that framework will first be searched.  If no corresponding 
         /// configuration node can be located in that section, the framework-neutral
-        /// section of NAnt configuration file will be searched.
+        /// section of <see Project.ConfigurationNode" />will be searched.
         /// </remarks>
         protected XmlNode GetAttributeConfigurationNode(FrameworkInfo framework, string attributeName) {
             XmlNode attributeNode = null;
-            XmlNode nantSettingsNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
+            XmlNode nantSettingsNode = Project.ConfigurationNode;
 
             string xpath = "";
             int level = 0;
