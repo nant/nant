@@ -8,7 +8,11 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}Tasks.dll" doc="${build.dir}/bin/${nant.project.name}Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}Tasks.dll" doc="${build.dir}/bin/${nant.project.name}Tasks.xml">
+            <nowarn>
+                <!-- do not report deprecation warnings -->
+                <warning number="0618" />
+            </nowarn>
             <sources>
                 <include name="**/*.cs"/>
                 <!-- common assembly-level attributes -->

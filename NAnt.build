@@ -197,8 +197,11 @@
     </target>
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618"
-            debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
+            <nowarn>
+                <!-- do not report deprecation warnings -->
+                <warning number="0618" />
+            </nowarn>
             <sources failonempty="true">
                 <include name="src/NDoc.Documenter.NAnt/*.cs" />
                 <!-- common assembly-level attributes -->

@@ -8,7 +8,11 @@
     -->
     <target name="build"> 
         <!-- build test assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+            <nowarn>
+                <!-- do not report warnings for missing XML comments -->
+                <warning number="1591" />
+            </nowarn>
             <sources>
                 <include name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
