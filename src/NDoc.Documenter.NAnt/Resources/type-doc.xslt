@@ -130,9 +130,9 @@
         </xsl:if>
         
         <!-- nested elements -->
-        <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
-        <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
-        <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]"/>
+        <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />
+        <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />
+        <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]" />
 
         <xsl:if test="count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
             <h3>Nested Elements:</h3>
@@ -152,7 +152,7 @@
     <xsl:template match="class/property" mode="docstring" >
         <xsl:choose>
             <xsl:when test="@declaringType">
-                <xsl:variable name="ObsoleteAttribute" select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/attribute[@name = 'System.ObsoleteAttribute']"/>
+                <xsl:variable name="ObsoleteAttribute" select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/attribute[@name = 'System.ObsoleteAttribute']" />
                 <xsl:if test="count($ObsoleteAttribute) > 0">
                     <i>Deprecated.</i>
                     <xsl:text> </xsl:text>
@@ -160,7 +160,7 @@
                 <xsl:apply-templates select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/documentation/summary" mode="slashdoc" />
             </xsl:when>
             <xsl:otherwise>
-                <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+                <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
                 <xsl:if test="count($ObsoleteAttribute) > 0">
                     <i>Deprecated.</i>
                     <xsl:text> </xsl:text>

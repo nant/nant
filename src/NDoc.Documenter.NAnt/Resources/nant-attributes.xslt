@@ -19,22 +19,18 @@
 //
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
-    
     <!-- match attribute by names -->
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute']" mode="NestedElements">
-
         <xsl:comment>Element</xsl:comment>
-
         <xsl:call-template name="NestedElement">
             <xsl:with-param name="elementTypeParam" select="../@type"/>
         </xsl:call-template>
     </xsl:template>
     
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute']" mode="NestedElements">
-
         <xsl:comment>Array</xsl:comment>
-        
         <xsl:call-template name="NestedElement">
             <xsl:with-param name="elementTypeParam">
                 <xsl:choose>
@@ -46,14 +42,11 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:with-param>
-            
         </xsl:call-template>
     </xsl:template>
 
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute']" mode="NestedElements">
-
         <xsl:comment>Collection</xsl:comment>
-
         <xsl:call-template name="NestedElement">
             <xsl:with-param name="elementTypeParam">
                 <xsl:choose>
@@ -78,14 +71,12 @@
         
         <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)"/>
         
-        <table>
-            <tr>
-                <td align="left"><h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4></td>
-                <td align="right">Required:<xsl:value-of select="property[@name='Required']/@value"/></td>
-            </tr>
-        </table>
+        <h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4>
+        
+        <!--
+           Required:<xsl:value-of select="property[@name='Required']/@value"/>
+        -->           
         <div class="nested-element">
-            
             <!-- generates docs from summary xmldoc comments -->
             <xsl:apply-templates select=".." mode="docstring" />
             
@@ -97,6 +88,7 @@
             <xsl:if test="$typeNode and not($DataTypeBase)"> 
                 <xsl:apply-templates select="$typeNode"/>
             </xsl:if>
+            <br />
         </div>
     </xsl:template>
     
@@ -104,11 +96,6 @@
     <xsl:template match="class/property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TypeDoc">
         <xsl:variable name="Required" select="attribute/property[@name = 'Required']/@value"/>
         <xsl:element name="tr">
-        <!--
-            <xsl:if test="$Required = 'True'">
-                <xsl:attribute name="class">required</xsl:attribute>
-            </xsl:if>
-        -->
             <xsl:element name="td">
                 <xsl:attribute name="valign">top</xsl:attribute>
                 <xsl:if test="$Required = 'True'">
