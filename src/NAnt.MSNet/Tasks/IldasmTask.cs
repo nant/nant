@@ -1,4 +1,4 @@
-// IlasmTask.cs
+// IldasmTask.cs
 //
 // Giuseppe Greco <giuseppe.greco@agamura.com>
 // Copyright (C) 2004 Agamura, Inc.
@@ -60,7 +60,8 @@ namespace NAnt.MSNet.Tasks {
     [TaskName("ildasm")]
     [ProgramLocation(LocationType.FrameworkDir)]
     public class IldasmTask : ExternalProgramBase {
-#region Private Instance Fields
+        #region Private Instance Fields
+
         private const string _TargetExt = "il";
         private bool _all;
         private bool _bytes;
@@ -82,9 +83,11 @@ namespace NAnt.MSNet.Tasks {
         private FileInfo _outputFile;
         private FileSet _assemblies;
         private string _options;
-#endregion Private Instance Fields
 
-#region Public Instance Properties
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         /// <summary>
         /// Specifies whether or not the disassembler should combine the
         /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>TOKENS</c> options.
@@ -225,7 +228,7 @@ namespace NAnt.MSNet.Tasks {
         /// public items only. This is a shortcut for <c>visibility="pub"</c>.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if public itmes only should be
+        /// <see langword="true" /> if only public items should be
         /// disassembled; otherwise, <see langword="false" />. The default is
         /// <see langword="false" />.
         /// </value>
@@ -452,9 +455,11 @@ namespace NAnt.MSNet.Tasks {
             get { return _assemblies; }
             set { _assemblies = value; }
         }
-#endregion Public Instance Properties
 
-#region Public Instance Methods
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
         /// <summary>
         /// Gets the command-line arguments for the external program.
         /// </summary>
@@ -465,9 +470,7 @@ namespace NAnt.MSNet.Tasks {
         public override string ProgramArguments {
             get { return _options; }
         }
-#endregion Public Instance Methods
 
-#region Protected Instance Methods
         /// <summary>
         /// Disassembles the PE files.
         /// </summary>
@@ -488,37 +491,45 @@ namespace NAnt.MSNet.Tasks {
             } else {
                 if (InputFile == null) {
                     throw new BuildException(
-                        "Disassebler needs either an input attribute, or a non-empty fileset.",
+                        "Disassembler needs either an input attribute, or a non-empty fileset.",
                         Location);
                 }
 
                 BaseExecuteTask();
             }
         }
-#endregion Protected Instance Methods
 
-#region Private Instance Methods
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Private Instance Methods
+
         /// <summary>
         /// Disassembles the PE files.
         /// </summary>
         private void BaseExecuteTask() {
             if (NeedsDisassembling()) {
-                Log(Level.Info, LogPrefix + "Disassembling {0} to '{1}'.",
+                Log(Level.Info, LogPrefix + "Disassembling '{0}' to '{1}'.",
                     InputFile.FullName, OutputFile.FullName);
 
-                
+                //
                 // ensure output directory exists
+                //
                 if (!OutputFile.Directory.Exists) {
                     OutputFile.Directory.Create();
                 }
+
+                //
                 // set command-line arguments for the disassembler
+                //
                 WriteOptions();
 
-                
+                //
                 // call base class to do the work
+                //
                 base.ExecuteTask();
             }
         }
+
         /// <summary>
         /// Determines the full path and extension for the output file.
         /// </summary>
@@ -541,6 +552,7 @@ namespace NAnt.MSNet.Tasks {
 
             return outputFile;
         }
+
         /// <summary>
         /// Writes the disassembler options.
         /// </summary>
@@ -658,8 +670,9 @@ namespace NAnt.MSNet.Tasks {
         /// option which should be passed to the disassembler.
         /// </param>
         private void WriteOption(StringWriter writer, string name, string arg) {
-            
-            // always quote arguments            
+            //
+            // always quote arguments
+            //
             writer.Write("\"/{0}={1}\" ", name, arg);
         }
 
@@ -678,13 +691,16 @@ namespace NAnt.MSNet.Tasks {
                 return true;
             }
 
-            
+            //
             // check if output file already exists
+            //
             if (!OutputFile.Exists) {
                 return true;
             }
-            
+
+            //
             // check if the source assembly has been updated
+            //
             string fileName = FileSet.FindMoreRecentLastWriteTime(
                 InputFile.FullName, OutputFile.LastWriteTime);
 
@@ -694,9 +710,10 @@ namespace NAnt.MSNet.Tasks {
 
                 return true;
             }
-                        
+
             return false;
         }
-#endregion Private Instance Methods
+
+        #endregion Private Instance Methods
     }
 }

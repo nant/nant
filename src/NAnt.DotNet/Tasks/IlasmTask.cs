@@ -48,7 +48,8 @@ namespace NAnt.DotNet.Tasks {
     [TaskName("ilasm")]
     [ProgramLocation(LocationType.FrameworkDir)]
     public class IlasmTask : ExternalProgramBase {
-#region Private Instance Fields
+        #region Private Instance Fields
+
         private bool _clock;
         private bool _debug;
         private bool _error;
@@ -65,9 +66,11 @@ namespace NAnt.DotNet.Tasks {
         private FileInfo _resourceFile;
         private FileSet _sources;
         private string _options;
-#endregion Private Instance Fields
 
-#region Public Instance Properties
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         /// <summary>
         /// Specifies whether or not the compiler should measure and report
         /// the compilation times.
@@ -360,9 +363,11 @@ namespace NAnt.DotNet.Tasks {
             get { return _sources; }
             set { _sources = value; }
         }
-#endregion Public Instance Properties
 
-#region Public Instance Methods
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
         /// <summary>
         /// Gets the command-line arguments for the external program.
         /// </summary>
@@ -373,9 +378,7 @@ namespace NAnt.DotNet.Tasks {
         public override string ProgramArguments {
             get { return _options; }
         }
-#endregion Public Instance Methods
 
-#region Protected Instance Methods
         /// <summary>
         /// Compiles the sources.
         /// </summary>
@@ -385,7 +388,7 @@ namespace NAnt.DotNet.Tasks {
                 // ensure base directory is set, even if fileset has not been
                 // initialized in build file
                 //
-                if (Sources.BaseDirectory == null) {   
+                if (Sources.BaseDirectory == null) {
                     Sources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
                 }
 
@@ -403,9 +406,11 @@ namespace NAnt.DotNet.Tasks {
                 base.ExecuteTask();
             }
         }
-#endregion Protected Instance Methdos
 
-#region Private Instance Methods
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Private Instance Methods
+
         /// <summary>
         /// Writes the compiler options.
         /// </summary>
@@ -598,6 +603,7 @@ namespace NAnt.DotNet.Tasks {
             //
             return false;
         }
-#endregion Private Instance Methods
+
+        #endregion Private Instance Methods
     }
 }
