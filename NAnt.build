@@ -49,7 +49,9 @@
     <target name="clean" description="cleans up everything">
         <delete dir="${build.dir}" failonerror="false"/>
         <delete dir="${dist.dir}" failonerror="false"/>
-        <delete file="${dist.name}" failonerror="false"/>
+        <if propertyexists="dist.name">
+			<delete file="${dist.name}" failonerror="false"/>
+        </if>
     </target>
 
     <target name="build" description="compiles the source code">
@@ -133,12 +135,6 @@
         </csc>
     </target>
 
-    <target name="buildextras" description="compiles projects in src\Extras">
-        <!-- compile extras folder (but only if we are not doing a debug build) -->
-        <nant buildfile="${src.dir}/Extras/BuildServer/BuildServer.build"/>
-        <nant buildfile="${src.dir}/Extras/SourceSafe/SourceSafe.build"/>
-    </target>
-
     <!--
         Perform unit tests.  If a unit test fails, the build fails.
         The base directory is set to the Test directory so that tests can easily
@@ -171,6 +167,7 @@
     <target name="examples" depends="build" description="Build Examples">
         <nant buildfile="examples\examples.build" target="build"/>
     </target>
+
     <target name="doc" depends="build" description="build documentation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc failonerror="false">
