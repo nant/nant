@@ -191,6 +191,53 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames, includedDirs, excludedDirs);
         }
 
+        /// <summary>
+        /// Test wildcard matching base directory.
+        /// </summary>
+        [Test]
+        [Ignore("FIXME: this is failing due to a regression in DirectoryScanner")]
+        public void Test_WildcardMatching_BaseDirectory3() {
+            string tempDirBin = Path.Combine(_tempDir, "bin");
+            string folder1Bin = Path.Combine(_folder1, "bin");
+            string folder2Bin = Path.Combine(_folder2, "bin");
+            string folder3Bin = Path.Combine(_folder3, "bin");
+            string folder2BinTest = Path.Combine(folder2Bin, "test");
+
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(tempDirBin, "Foo2.txt"),
+                                                          Path.Combine(folder1Bin, "Foo.whatever"),
+                                                          Path.Combine(folder2BinTest, "whatever.txt"),
+                                                          // exclude only deals with Foo1.txt in bin directories itself
+                                                          Path.Combine(folder2BinTest, "Foo1.txt")
+                                                      };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(tempDirBin, "Foo1.txt"),
+                                                          Path.Combine(folder1Bin, "Foo1.txt"),
+                                                          Path.Combine(_tempDir, "whatever.txt"),
+                                                          Path.Combine(_folder1, "Foo.whatever.txt")
+                                                      };
+            string[] includedDirs = new string[] {
+                                                     tempDirBin,
+                                                     folder2Bin,
+                                                     folder3Bin,
+                                                     folder2BinTest
+                                                 };
+            string[] excludedDirs = new string[] {
+                                                     _tempDir,
+                                                     _folder1,
+                                                     _folder2,
+                                                     _folder3,
+            };
+
+            // all bin directories (and their files and subdirectories) should 
+            // now be matched
+            _scanner.Includes.Add("**/bin/**");
+            // exclude all Foo1.txt files that are in bin directories
+            _scanner.Excludes.Add("**/bin/Foo1.txt");
+
+            CheckScan(includedFileNames, excludedFileNames, includedDirs, excludedDirs);
+        }
+
         /// <summary>Tests without wildcards.</summary>
         /// <remarks>
         ///   Try to match the files without wildcards.
