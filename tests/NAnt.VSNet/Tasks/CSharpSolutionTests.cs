@@ -93,7 +93,7 @@ namespace Tests.NAnt.VSNet.Tasks {
             object[] args = {Path.Combine(gentlePath, "schedule.sln"), "release"};
 
             string build = FormatBuildFile(SolutionProject, args);
-            string result = RunBuild(build, Level.Info);
+            RunBuild(build, Level.Info);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// </summary>
         [Test]
         public void TestWinForm () {
-            FileInfo solutionFile = this.GetCurrentSolutionFile("WinForms");
+            this.GetCurrentSolutionFile("WinForms");
             this.RunTestPlain();
         }
 

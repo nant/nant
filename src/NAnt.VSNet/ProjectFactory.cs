@@ -89,10 +89,6 @@ namespace NAnt.VSNet {
         }    
 
         public static ProjectBase LoadProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string path) {
-            string projectFileName = ProjectFactory.GetProjectFileName(path);
-            string projectExt = Path.GetExtension(projectFileName).ToLower(
-                CultureInfo.InvariantCulture);
-            
             // check if this a new project
             if (!_cachedProjects.Contains(path)) {
                 ProjectBase project = CreateProject(solution, solutionTask, 

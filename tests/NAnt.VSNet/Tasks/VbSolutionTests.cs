@@ -78,7 +78,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// </summary>
         [Test]
         public void TestWinForm () {
-            FileInfo solutionFile = this.GetCurrentSolutionFile("WinForms");
+            this.GetCurrentSolutionFile("WinForms");
             this.RunTestPlain();
         }
 

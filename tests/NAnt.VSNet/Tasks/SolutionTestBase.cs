@@ -177,7 +177,7 @@ namespace Tests.NAnt.VSNet.Tasks {
                  module, cvsroot, destination, string.Empty, DateTime.Now};
 
             string build = FormatBuildFile(_checkoutXML, args);
-            string result = RunBuild(build, Level.Info);
+            RunBuild(build, Level.Info);
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Tests.NAnt.VSNet.Tasks {
             object[] args = {target, "{target::get-current-target()}", this.CurrentBaseDir.FullName};
             string build = FormatBuildFile(this.SimpleBuild, args);
 
-            string result = RunBuild(build, Level.Info);
+            RunBuild(build, Level.Info);
         }
 
         #endregion "Private Instance Methods"

@@ -74,7 +74,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
                 return;
             }
 
-            string result = RunBuild(_test_build);
+            RunBuild(_test_build);
             Assert.IsTrue(File.Exists(Path.Combine(_objDir, "HelloWorld.obj")),
                 "Object file not created.");
             Assert.IsTrue(File.Exists(Path.Combine(_binDir, "HelloWorld.exe")),
@@ -174,7 +174,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
 
             CleanAllObjs();
             CleanAllBins();
-            string result = RunBuild(_test_build);
+            RunBuild(_test_build);
             Assert.IsTrue(File.Exists(_binPathName), "Binary file \"{0}\" not created.", _binPathName);
         }
 
@@ -204,7 +204,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             Test_BuildAll();
             for (int i = 0; i < _sourceCount; ++i) {
                 File.SetLastWriteTime(_objPathName[i], DateTime.Now);
-                string result = RunBuild(_test_build);
+                RunBuild(_test_build);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
                 FileInfo binFileInfo = new FileInfo(_binPathName);
                 Assert.IsTrue(binFileInfo.LastWriteTime >= objFileInfo.LastWriteTime,

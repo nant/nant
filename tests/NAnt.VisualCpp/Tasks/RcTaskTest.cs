@@ -56,7 +56,7 @@ namespace Tests.NAnt.VisualCpp.Tasks {
                 Assert.Ignore("The Resource Compiler (rc.exe) is not available on the PATH.");
             }
 
-            string result = RunBuild(FormatBuildFile(""));
+            RunBuild(FormatBuildFile(""));
             Assert.IsTrue(File.Exists(Path.ChangeExtension(_resInputFile, "RES")),
                 "Default compiled resource not created.");
         }
@@ -77,7 +77,7 @@ namespace Tests.NAnt.VisualCpp.Tasks {
             // if the output file is rebuilt
             System.Threading.Thread.Sleep(1000);
 
-            string result = RunBuild(FormatBuildFile("output=\"" + outputFile + "\""));
+            RunBuild(FormatBuildFile("output=\"" + outputFile + "\""));
 
             DateTime newLastModified = File.GetLastWriteTime(outputFile);
             Assert.AreEqual(orgLastModified, newLastModified, 
