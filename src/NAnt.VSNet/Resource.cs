@@ -194,7 +194,7 @@ namespace NAnt.VSNet {
 
         private string CompileResx() {
             FileInfo outputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(
-                InputFile.FullName));
+                Path.GetFileNameWithoutExtension(InputFile.Name) + ".resources"));
 
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
