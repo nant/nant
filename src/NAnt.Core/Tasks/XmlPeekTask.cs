@@ -127,7 +127,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Namespace definitions to resolve prefixes in the XPATH expression.
+        /// Namespace definitions to resolve prefixes in the XPath expression.
         /// </summary>
         [BuildElementCollection("namespaces", "namespace")]
         public XmlNamespaceCollection Namespaces {

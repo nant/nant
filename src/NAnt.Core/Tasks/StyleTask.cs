@@ -271,7 +271,7 @@ namespace NAnt.Core.Tasks {
                         // store current directory
                         string originalCurrentDirectory = Directory.GetCurrentDirectory();
 
-                        // initialize XPATH document holding input XML
+                        // initialize XPath document holding input XML
                         XPathDocument xml = null;
 
                         try {
