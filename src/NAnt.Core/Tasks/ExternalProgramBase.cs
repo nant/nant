@@ -45,6 +45,9 @@ namespace NAnt.Core.Tasks {
         private bool _useRuntimeEngine = false;
         private string _exeName = null;
         private int _timeout = Int32.MaxValue;
+        private TextWriter _outputWriter;
+        private TextWriter _errorWriter;
+        private int _exitCode;
 
         #endregion Private Instance Fields
 
@@ -171,6 +174,41 @@ namespace NAnt.Core.Tasks {
             set { _useRuntimeEngine = value; }
         }
 
+        public virtual TextWriter OutputWriter {
+            get { 
+                if (_outputWriter == null) {
+                    //do not print LogPrefix, just pad that length.
+                    _outputWriter = new LogWriter(this, Level.Info, new string(char.Parse(" "), 
+                        LogPrefix.Length), CultureInfo.InvariantCulture);
+                }
+                return _outputWriter;
+            }
+            set { _outputWriter = value; }
+        }
+
+        public virtual TextWriter ErrorWriter {
+            get { 
+                if (_errorWriter == null) {
+                    //do not print LogPrefix, just pad that length.
+                    _errorWriter = new LogWriter(this, Level.Warning, new string(char.Parse(" "), 
+                        LogPrefix.Length), CultureInfo.InvariantCulture);
+                }
+                return _errorWriter;
+            }
+            set { _errorWriter = value; }
+        }
+
+        /// <summary>
+        /// Gets the value that the process specified when it terminated.
+        /// </summary>
+        /// <value>
+        /// The code that the associated process specified when it terminated, 
+        /// or <c>-1</c> if the process could not be started.
+        /// </value>
+        public int ExitCode {
+            get { return _exitCode; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -221,7 +259,9 @@ namespace NAnt.Core.Tasks {
                         Location);
                 }
 
-                if (process.ExitCode != 0){
+                _exitCode = process.ExitCode;
+
+                if (process.ExitCode != 0) {
                     throw new BuildException(
                         String.Format(CultureInfo.InvariantCulture, 
                         "External Program Failed: {0} (return code was {1})", 
@@ -352,10 +392,7 @@ namespace NAnt.Core.Tasks {
 
                 // Ensure only one thread writes to the log at any time
                 lock (_htThreadStream) {
-                    logger.Info(logContents);
-                    //do not print LogPrefix, just pad that length.
-                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + logContents);
-
+                    OutputWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
                         writer.WriteLine(logContents);
@@ -364,6 +401,7 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
+            OutputWriter.Flush();
         }
         /// <summary>        /// Reads from the stream until the external program is ended.        /// </summary>
         private void StreamReaderThread_Error() {
@@ -378,10 +416,7 @@ namespace NAnt.Core.Tasks {
 
                 // Ensure only one thread writes to the log at any time
                 lock (_htThreadStream) {
-                    logger.Error(logContents);
-                    //do not print LogPrefix, just pad that length.
-                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + logContents);
-
+                    ErrorWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
                         writer.Write(logContents);
@@ -390,6 +425,7 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
+            ErrorWriter.Flush();
         }
 
         /// <summary>
