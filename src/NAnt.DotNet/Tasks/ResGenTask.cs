@@ -32,14 +32,14 @@ using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
-    ///   <para>
-    ///   Converts files from one resource format to another.
-    ///   </para>
-    ///   <note>
-    ///   If no <see cref="ToDirectory" /> is specified, the resource file will 
-    ///   be created next to the input file.
-    ///   </note>
+    /// Converts files from one resource format to another.
     /// </summary>
+    /// <remarks>
+    /// <note>
+    /// If no <see cref="ToDirectory" /> is specified, the resource file will 
+    /// be created next to the input file.
+    /// </note>
+    /// </remarks>
     /// <example>
     ///   <para>
     ///   Convert a resource file from the <c>.resx</c> to the <c>.resources</c> 
