@@ -113,13 +113,13 @@ namespace NAnt.VSNet {
         #region Public Static Methods
 
         public static bool IsEnterpriseTemplateProject(string fileName) {
-			try {
-				XmlDocument doc = LoadXmlDocument(fileName);
-				return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
-			} catch (XmlException) {
-				// when the project isn't a valid XML document, it definitely
-				// isn't an enterprise template project
-				return false;
+            try {
+                XmlDocument doc = LoadXmlDocument(fileName);
+                return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
+            } catch (XmlException) {
+                // when the project isn't a valid XML document, it definitely
+                // isn't an enterprise template project
+                return false;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Error checking whether '{0}' is an enterprise template project.",

@@ -4,7 +4,7 @@
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.  
+// (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -349,7 +349,7 @@ namespace NAnt.VSNet {
 
             // create temporary domain
             AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
-				AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+                AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
 
             try {
                 ReferencesResolver referencesResolver =
@@ -652,8 +652,8 @@ namespace NAnt.VSNet {
                 CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
             string minorVersion = (int.Parse(elemReference.Attributes["VersionMinor"].Value, 
                 CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
-			string lcid = (int.Parse(elemReference.Attributes["Lcid"].Value, 
-				CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
+            string lcid = (int.Parse(elemReference.Attributes["Lcid"].Value, 
+                CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
             string referenceName = elemReference.Attributes["Name"].Value;
 
             string tlbVersionKey = string.Format(@"TYPELIB\{0}\{1}.{2}", 
@@ -661,7 +661,7 @@ namespace NAnt.VSNet {
 
             string tlbRegistryKey = string.Format(@"TYPELIB\{0}\{1}.{2}\{3}\win32", 
                 elemReference.Attributes["Guid"].Value, majorVersion, minorVersion,
-				lcid);
+                lcid);
 
             // look for a primary interop assembly
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
@@ -671,7 +671,7 @@ namespace NAnt.VSNet {
                     // construct separate appdomain used to obtain information
                     // on primary interop assembly
                     AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
-						AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+                        AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
 
                     try {
                         ReferencesResolver referencesResolver =
