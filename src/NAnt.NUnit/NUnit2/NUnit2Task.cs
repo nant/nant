@@ -62,7 +62,8 @@ namespace NAnt.NUnit2.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <nunit2>
-    ///     <test assemblyname="MyProject.Tests.dll" />
+    ///     <formatter type="Plain" />
+    ///     <test assemblyname="MyProject.Tests.dll" appconfig="MyProject.Tests.dll.config" />
     /// </nunit2>
     ///     ]]>
     ///   </code>
@@ -72,6 +73,7 @@ namespace NAnt.NUnit2.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <nunit2>
+    ///     <formatter type="Xml" usefile="true" extension=".xml" />
     ///     <test>
     ///         <assemblies>
     ///             <includesList name="tests.txt" />
@@ -135,21 +137,25 @@ namespace NAnt.NUnit2.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Initializes the task using the specified XML node.
-        /// </summary>
-        /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to initialize this task instance.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
-            FormatterElement defaultFormatter = new FormatterElement();
-            defaultFormatter.Project = Project;
-            defaultFormatter.Type = FormatterType.Plain;
-            defaultFormatter.UseFile = false;
-            _formatterElements.Add(defaultFormatter);
-        }
-        
-        /// <summary>
         /// Runs the tests and sets up the formatters.
         /// </summary>
         protected override void ExecuteTask() {
+            if (FormatterElements.Count == 0) {
+                FormatterElement defaultFormatter = new FormatterElement();
+                defaultFormatter.Project = Project;
+                defaultFormatter.Type = FormatterType.Plain;
+                defaultFormatter.UseFile = false;
+                FormatterElements.Add(defaultFormatter);
+
+                Log(Level.Warning, LogPrefix + "No <formatter .../> element was specified." +
+                    " A plain-text formatter was added to prevent loosing output of the" +
+                    " test results.");
+
+                Log(Level.Warning, LogPrefix + "Add a <formatter .../> element to the" +
+                    " <nunit2> task to prevent this warning from being output and" +
+                    " to ensure forward compatibility with future revisions of NAnt.");
+            }
+
             foreach (NUnit2Test test in Tests) {
                 EventListener listener = new NullListener();
                 TestResult[] results = RunRemoteTest(test, listener);
@@ -164,36 +170,45 @@ namespace NAnt.NUnit2.Tasks {
                     string assemblyFile = assemblies[i];
                     TestResult result = results[i];
 
-                    string xmlResultFile = result.Name + "-results.xml";
+                    // temp file for storing test results
+                    string xmlResultFile = Path.GetTempFileName();
 
-                    XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
-                    result.Accept(resultVisitor);
-                    resultVisitor.Write();
+                    try {
+                        XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
+                        result.Accept(resultVisitor);
+                        resultVisitor.Write();
 
-                    foreach (FormatterElement formatter in _formatterElements) {
-                        if (formatter.Type == FormatterType.Xml) {
-                            if (!formatter.UseFile) {
-                                using (StreamReader reader = new StreamReader(xmlResultFile)) {
-                                    // strip off the xml header
-                                    reader.ReadLine();
-                                    StringBuilder builder = new StringBuilder();
-                                    while (reader.Peek() > -1) {
-                                        builder.Append(reader.ReadLine().Trim()).Append("\n");
+                        foreach (FormatterElement formatter in _formatterElements) {
+                            if (formatter.Type == FormatterType.Xml) {
+                                if (formatter.UseFile) {
+                                    File.Copy(xmlResultFile, result.Name + "-results" + formatter.Extension, true);
+                                } else {
+                                    using (StreamReader reader = new StreamReader(xmlResultFile)) {
+                                        // strip off the xml header
+                                        reader.ReadLine();
+                                        StringBuilder builder = new StringBuilder();
+                                        while (reader.Peek() > -1) {
+                                            builder.Append(reader.ReadLine().Trim()).Append("\n");
+                                        }
+                                        Log(Level.Info, LogPrefix + builder.ToString());
                                     }
-                                    Log(Level.Info, LogPrefix + builder.ToString());
                                 }
+                            }  else if (formatter.Type == FormatterType.Plain) {
+                                TextWriter writer;
+                                if (formatter.UseFile) {
+                                    writer = new StreamWriter(result.Name + "-results" + formatter.Extension);
+                                } else {
+                                    writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
+                                }
+                                CreateSummaryDocument(xmlResultFile, writer, test);
+                                writer.Close();
                             }
-                        }  else if (formatter.Type == FormatterType.Plain) {
-                            TextWriter writer;
-                            if (formatter.UseFile) {
-                                writer = new StreamWriter(result.Name + "-results" + formatter.Extension);
-                            } else {
-                                writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
-                            }
-                            CreateSummaryDocument(xmlResultFile, writer, test);
-                            writer.Close();
                         }
+                    } finally {
+                        // make sure temp file with test results is removed
+                        File.Delete(xmlResultFile);
                     }
+
                     if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
                         throw new BuildException("Tests Failed");
                     }
@@ -243,7 +258,7 @@ namespace NAnt.NUnit2.Tasks {
         
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
-            if(test.TransformFile == null) {
+            if (test.TransformFile == null) {
                 Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
                 ResourceManager resourceManager = new ResourceManager("NUnit.Framework.Transform", assembly);
                 string xmlData = (string)resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
