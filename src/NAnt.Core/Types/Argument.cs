@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.IO;
+using System.Text;
 
 using NAnt.Core.Attributes;
 
@@ -33,6 +35,7 @@ namespace NAnt.Core.Types {
 
         private string _value;
         private FileInfo _file;
+        private PathList _path;
         private bool _ifDefined = true;
         private bool _unlessDefined;
 
@@ -62,6 +65,14 @@ namespace NAnt.Core.Types {
             _file = value;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Argument" /> class
+        /// with the given path.
+        /// </summary>
+        public Argument(PathList value) {
+            _path = value;
+        }
+
         #endregion Public Instance Constructors
 
         #region Override implementation of Object
@@ -73,21 +84,13 @@ namespace NAnt.Core.Types {
         /// The argument as a <see cref="string" />.
         /// </returns>
         /// <remarks>
-        /// File arguments will be quoted.
+        /// File and individual path elements will be quoted if necessary.
         /// </remarks>
         public override string ToString() {
             if (File != null) {
-                // quote file arguments if necessary
-                string argument = File.FullName;
-                if (argument.IndexOf("\"") > -1) {
-                    // argument is already quoted
-                    return argument;
-                } else if (argument.IndexOf("'") > -1 || argument.IndexOf(" ") > -1) {
-                    // argument contains space and is not quoted, so quote it
-                    return '\"' + argument + '\"';
-                } else {
-                    return argument;
-                }
+                return QuoteArgument(File.FullName);
+            } else if (Path != null) {
+                return QuoteArgument(Path.ToString());
             } else if (Value != null) {
                 return Value;
             } else {
@@ -116,6 +119,18 @@ namespace NAnt.Core.Types {
         public FileInfo File {
             get { return _file; }
             set { _file = value; }
+        }
+
+        /// <summary>
+        /// A string that will be treated as a path-like string as a single 
+        /// command-line argument; you can use <code>;</code> or <code>:</code>
+        /// as path separators and NAnt will convert it to the platform's local 
+        /// conventions.
+        /// </summary>
+        [TaskAttribute("path")]
+        public PathList Path {
+            get { return _path; }
+            set { _path = value; }
         }
 
         /// <summary>
@@ -153,6 +168,8 @@ namespace NAnt.Core.Types {
             get {
                 if (File != null) {
                     return File.FullName;
+                } else if (Path != null) {
+                    return Path.ToString();
                 } else {
                     return Value;
                 }
@@ -160,5 +177,31 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Internal Instance Properties
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Quotes a command line argument if it contains a single quote or a
+        /// space.
+        /// </summary>
+        /// <param name="argument">The command line argument.</param>
+        /// <returns>
+        /// A quoted command line argument if <paramref name="argument" /> 
+        /// contains a single quote or a space; otherwise, 
+        /// <paramref name="argument" />.
+        /// </returns>
+        private static string QuoteArgument(string argument) {
+            if (argument.IndexOf("\"") > -1) {
+                // argument is already quoted
+                return argument;
+            } else if (argument.IndexOf("'") > -1 || argument.IndexOf(" ") > -1) {
+                // argument contains space and is not quoted, so quote it
+                return '\"' + argument + '\"';
+            } else {
+                return argument;
+            }
+        }
+
+        #endregion Private Static Methods
     }
 }

@@ -76,14 +76,28 @@ namespace NAnt.Core.Types {
 
         #endregion Override implementation of Object
 
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Returns all path elements defined by this path object.
+        /// </summary>
+        /// <returns>
+        /// A list of path elements.
+        /// </returns>
+        public StringCollection GetElements() {
+            return _pathElements;
+        }
+
+        #endregion Public Instance Methods
+
         #region Public Static Methods
 
         /// <summary>
-        /// Splits a PATH (with ; as separator) into its parts, while resolving
-        /// references to environment variables.
+        /// Splits a PATH (with ; or : as separators) into its parts, while 
+        /// resolving references to environment variables.
         /// </summary>
         /// <param name="project">The <see cref="Project" /> to be used to resolve relative paths.</param>
-        /// <param name="source"></param>
+        /// <param name="source">The path to translate.</param>
         /// <returns>
         /// A PATH split up its parts, with references to environment variables
         /// resolved.
@@ -95,7 +109,7 @@ namespace NAnt.Core.Types {
                 return result;
             }
 
-            string[] parts = source.Split(';');
+            string[] parts = source.Split(';', ':');
             foreach (string part in parts) {
                 // expand env variables in part
                 string expandedPart = Environment.ExpandEnvironmentVariables(part);
