@@ -95,16 +95,7 @@ namespace SourceForge.NAnt {
         /// The name of the XML element used to initialize this element.
         /// </value>
         public virtual string Name {
-            get {
-                ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
-                    Attribute.GetCustomAttribute(GetType(), typeof(ElementNameAttribute));
-
-                string name = null;
-                if (elementNameAttribute != null) {
-                    name = elementNameAttribute.Name;
-                }
-                return name;
-            }
+            get { return Element.GetElementNameFromType(GetType()); }
         }
 
         /// <summary>
@@ -333,28 +324,22 @@ namespace SourceForge.NAnt {
 
                 #endregion Initiliaze all the Attributes
 
-                #region Initiliaze the Nested BuildArrayElements (Child xmlnodes)
+                #region Initiliaze the Nested BuildElementArray and BuildElementCollection (Child xmlnodes)
+
+                BuildElementArrayAttribute buildElementArrayAttribute = null;
+                BuildElementCollectionAttribute buildElementCollectionAttribute = null;
 
                 // Do build Element Arrays (assuming they are of a certain collection type.)
-                BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) 
+                buildElementArrayAttribute = (BuildElementArrayAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
-                if (buildElementArrayAttribute != null) {
+                buildElementCollectionAttribute = (BuildElementCollectionAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementCollectionAttribute));
+
+                if (buildElementArrayAttribute != null || buildElementCollectionAttribute != null) {
                     if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute must be applied to array or collection-based types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
                     
-                    // get collection of nodes  (TODO - do this without using xpath)
-                    XmlNodeList nodes  = elementNode.SelectNodes("nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
-
-                    //remove this node name from the list. This name has been accounted for.
-                    if (nodes != null && nodes.Count > 1)
-                        childElementsRemaining.Remove(nodes[0].Name);
-
-                    // check if its required
-                    if (nodes == null && buildElementArrayAttribute.Required) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
-                    }
-
                     Type elementType = null;
 
                     if (propertyInfo.PropertyType.IsArray) {
@@ -379,15 +364,54 @@ namespace SourceForge.NAnt {
                     }
 
                     // Make sure the element is strongly typed
-                    if (elementType == null || elementType == typeof(object)) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute can only be applied to strongly typed collection or array based properties. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                    if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute and BuildElementCollectionAttribute can only be applied to strongly typed collection of Elements or classes that derive from Element. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                    }
+
+                    XmlNodeList collectionNodes = null;
+
+                    if (buildElementCollectionAttribute != null) {
+                        collectionNodes = elementNode.SelectNodes("nant:" + buildElementCollectionAttribute.Name, Project.NamespaceManager);
+                        
+                        if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementCollectionAttribute.Name, this.Name), Location);
+                        }
+
+                        if (collectionNodes.Count == 1) {
+                            // remove element from list of remaining items
+                            childElementsRemaining.Remove(collectionNodes[0].Name);
+
+                            string elementName = Element.GetElementNameFromType(elementType);
+                            if (elementName == null) {
+                                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "No name was assigned to the base element {0} for collection element {1} for <{2} ...//>.", elementType.FullName, buildElementCollectionAttribute.Name, this.Name), Location);
+                            }
+
+                            // get actual collection of element nodes
+                            collectionNodes = collectionNodes[0].SelectNodes("nant:" + elementName, Project.NamespaceManager);
+
+                            // check if its required
+                            if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
+                                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", elementName, buildElementCollectionAttribute.Name), Location);
+                            }
+                        } else if (collectionNodes.Count > 1) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Use BuildElementArrayAttributes to have multiple Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementCollectionAttribute.Name, this.Name), Location);
+                        }
+                    } else {
+                        collectionNodes = elementNode.SelectNodes("nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
+
+                        if (collectionNodes.Count > 0) {
+                            // remove element from list of remaining items
+                            childElementsRemaining.Remove(collectionNodes[0].Name);
+                        } else if (buildElementArrayAttribute.Required) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        }
                     }
 
                     // create new array of the required size - even if size is 0
-                    Array list = Array.CreateInstance(elementType, nodes.Count);
+                    Array list = Array.CreateInstance(elementType, collectionNodes.Count);
 
                     int arrayIndex = 0;
-                    foreach (XmlNode childNode in nodes) {
+                    foreach (XmlNode childNode in collectionNodes) {
                         // Create a child element
                         Element childElement = (Element) Activator.CreateInstance(elementType); 
                         
@@ -435,7 +459,7 @@ namespace SourceForge.NAnt {
                 BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
 
-                if (buildElementAttribute != null && buildElementArrayAttribute == null) { // if we're not an array element either
+                if (buildElementAttribute != null && buildElementArrayAttribute == null && buildElementCollectionAttribute == null) { // if we're not an array element either
                     // get value from xml node
                     XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
 
@@ -521,5 +545,36 @@ namespace SourceForge.NAnt {
         }
 
         #endregion Private Instance Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Returns the <see cref="ElementNameAttribute.Name" /> of the 
+        /// <see cref="ElementNameAttribute" /> assigned to the specified
+        /// <see cref="Type" />.
+        /// </summary>
+        /// <param name="type">The <see cref="Type" /> of which the assigned <see cref="ElementNameAttribute.Name" /> should be retrieved.</param>
+        /// <returns>
+        /// The <see cref="ElementNameAttribute.Name" /> assigned to the specified 
+        /// <see cref="Type" /> or a null reference is no <see cref="ElementNameAttribute.Name" />
+        /// is assigned to the <paramref name="type" />.
+        /// </returns>
+        private static string GetElementNameFromType(Type type) {
+            string name = null;
+
+            if (type == null) {
+                throw new ArgumentNullException("type");
+            }
+
+            ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
+                Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
+
+            if (elementNameAttribute != null) {
+                name = elementNameAttribute.Name;
+            }
+            return name;
+        }
+
+        #endregion Private Static Methods
     }
 }
