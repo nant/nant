@@ -272,7 +272,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Attributes\TaskFileSetAttribute.cs"
+                    RelPath = "Attributes\FileSetAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
