@@ -80,7 +80,7 @@ namespace NAnt.Core.Tasks {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// [echo] debug: true
+    /// [echo] debug: false
     ///     ]]>
     ///   </code>
     /// </example>
