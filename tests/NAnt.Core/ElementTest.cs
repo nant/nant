@@ -18,6 +18,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -35,6 +36,12 @@ namespace Tests.NAnt.Core {
     /// </summary>
     [TaskName("elementTest1")]
     class ElementTest1Task : Task {
+        #region Private Instance Fields
+
+        private OutputType _outputType = OutputType.None;
+
+        #endregion Private Instance Fields
+
         #region Public Instance Properties
 
         [BuildElement("fileset")]
@@ -42,14 +49,44 @@ namespace Tests.NAnt.Core {
             get { return null; } // we'll test for null later!
         }
 
+        [TaskAttribute("type")]
+        public OutputType Type {
+            get { return _outputType; }
+            set { _outputType = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
 
         protected override void ExecuteTask() { 
+            Log(Level.Info, "OutputType is \"{0}\".", Type.ToString());
         }
 
         #endregion Override implementation of Task
+
+        [TypeConverter(typeof(OutputTypeConverter))]
+        public enum OutputType {
+            None = 0,
+
+            Exe = 1,
+
+            Dll = 2
+        }
+
+        public class OutputTypeConverter : EnumConverter {
+            public OutputTypeConverter() : base(typeof(OutputType)) {
+            }
+
+            public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
+                if (value is string) {
+                    if (string.Compare((string) value, "executable", true, culture) == 0) {
+                        return OutputType.Exe;
+                    }
+                }
+                return base.ConvertFrom (context, culture, value);
+            }
+        }
     }
 
     [TestFixture]
@@ -79,6 +116,44 @@ namespace Tests.NAnt.Core {
                     Assert.Fail("Unexpected exception thrown." + Environment.NewLine + e.ToString());
                 }
             }
+        }
+
+        [Test]
+        public void Test_Enum_Default() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 />
+                     </target>
+                </project>";
+
+            string result = RunBuild(build);
+            Assert.IsTrue(result.IndexOf("OutputType is \"None\".") != -1);
+        }
+
+        [Test]
+        public void Test_Enum_TypeConverter() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 type='ExeCutable' />
+                     </target>
+                </project>";
+
+            string result = RunBuild(build);
+            Assert.IsTrue(result.IndexOf("OutputType is \"Exe\".") != -1);
+        }
+
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_Enum_InvalidValue() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 type='library' />
+                     </target>
+                </project>";
+
+            RunBuild(build);
         }
 
         #endregion Public Instance Methods

@@ -90,7 +90,7 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// </summary>
         [Test]
         public void Test_DebugBuild() {
-            RunBuild(FormatBuildFile("debug='true'"));
+            RunBuild(FormatBuildFile("debug='tRuE'"));
             Assert.IsTrue(File.Exists(_sourceFileName + ".exe"),
                 _sourceFileName + ".exe does not exists, program did compile.");
             // Comment this for now as its hard to know which framework was used to compile and it was mono there will be no pdb file.
@@ -102,7 +102,7 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// </summary>
         [Test]
         public void Test_ReleaseBuild() {
-            RunBuild(FormatBuildFile("debug='false'"));
+            RunBuild(FormatBuildFile("debug='fAlSe'"));
             Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), 
                 _sourceFileName + ".exe does not exists, program did compile.");
             Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"),
