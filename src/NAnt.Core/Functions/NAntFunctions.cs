@@ -49,38 +49,26 @@ namespace NAnt.Core.Functions {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the full path to the NAnt assembly.
+        /// Gets the full path to the <c>NAnt.Core</c> assembly.
         /// </summary>
         /// <returns>
-        /// The full path to the NAnt assembly.
+        /// The full path to the <c>NAnt.Core</c> assembly.
         /// </returns>
-        [Function("get-file-name")]
-        public string GetFileName() {
+        [Function("get-location")]
+        public string GetLocation() {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            return assembly.CodeBase;
+            return assembly.Location;
         }
 
         /// <summary>
-        /// Gets the base directory of the NAnt assembly.
+        /// Gets the base directory of the appdomain in which NAnt is running.
         /// </summary>
         /// <returns>
-        /// The base directory of the NAnt assembly.
+        /// The base directory of the appdomain in which NAnt is running.
         /// </returns>
         [Function("get-base-directory")]
         public string GetBaseDirectory() {
             return AppDomain.CurrentDomain.BaseDirectory;
-        }
-
-        /// <summary>
-        /// Gets the version of NAnt.
-        /// </summary>
-        /// <returns>
-        /// The version of NAnt.
-        /// </returns>
-        [Function("get-version")]
-        public string GetVersion() {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            return assembly.GetName().Version.ToString();
         }
 
         #endregion Public Instance Methods
