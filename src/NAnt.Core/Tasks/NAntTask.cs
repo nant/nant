@@ -77,13 +77,18 @@ namespace NAnt.Core.Tasks {
             Log(Level.Info, LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
             Log(Level.Info, string.Empty);
 
-            // create new prjoect with same threshold as current project and increased indentation level
+            // create new project with same threshold as current project and increased indentation level
             Project project = new Project(Project.GetFullPath(BuildFileName), Project.Threshold, Project.IndentationLevel + 1);
 
             // add listeners of current project to new project
             project.AttachBuildListeners(Project.BuildListeners);
 
-            // have the new project inherit the framework from the current project 
+            // have the new project inherit the default framework from the current project
+            if (Project.DefaultFramework != null && project.FrameworkInfoDictionary.Contains(Project.DefaultFramework.Name)) {
+                project.DefaultFramework = project.FrameworkInfoDictionary[Project.DefaultFramework.Name];
+            }
+
+            // have the new project inherit the current framework from the current project 
             if (Project.CurrentFramework != null && project.FrameworkInfoDictionary.Contains(Project.CurrentFramework.Name)) {
                 project.CurrentFramework = project.FrameworkInfoDictionary[Project.CurrentFramework.Name];
             }
