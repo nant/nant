@@ -104,6 +104,16 @@ namespace NAnt.Core {
         #region Public Instance Constructors
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BuildEventArgs" /> 
+        /// class.
+        /// </summary>
+        public BuildEventArgs() {
+            _project = null;
+            _target = null;
+            _task = null;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BuildEventArgs" />
         /// class for a <see cref="Project" /> level event.
         /// </summary>
@@ -210,9 +220,9 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private Project _project;
-        private Target _target;
-        private Task _task;
+        private readonly Project _project;
+        private readonly Target _target;
+        private readonly Task _task;
         private string _message;
         private Level _messageLevel = Level.Verbose;
         private Exception _exception;
@@ -554,15 +564,8 @@ namespace NAnt.Core {
         /// the logger will actually be output in the build log.
         /// </remarks>
         public virtual void MessageLogged(object sender, BuildEventArgs e) {
-            int indentationLength = 0;
-
-            // calculate indentation length from Project
-            if (e.Project != null) {
-                indentationLength = e.Project.IndentationLevel * e.Project.IndentationSize;
-            }
-
             // output the message
-            OutputMessage(e.MessageLevel, e.Message, indentationLength);
+            OutputMessage(e);
         }
 
         #endregion Implementation of IBuildListener
@@ -586,34 +589,61 @@ namespace NAnt.Core {
         /// greather than or equal to the <see cref="Threshold" /> of the 
         /// logger.
         /// </summary>
-        /// <param name="mesageLevel">The priority of the message to output.</param>
+        /// <param name="messageLevel">The priority of the message to output.</param>
         /// <param name="message">The message to output.</param>
         /// <param name="indentationLength">The number of characters that the message should be indented.</param>
-        private void OutputMessage(Level mesageLevel, string message, int indentationLength) {
+        private void OutputMessage(Level messageLevel, string message, int indentationLength) {
+            OutputMessage(CreateBuildEvent(messageLevel, message), indentationLength);
+        }
 
-            //
-            // split the message by lines - the separator is "\n" since we've eliminated
-            // \r characters
+        /// <summary>
+        /// Outputs an indented message to the build log if its priority is 
+        /// greather than or equal to the <see cref="Threshold" /> of the 
+        /// logger.
+        /// </summary>
+        /// <param name="e">The event to output.</param>
+        private void OutputMessage(BuildEventArgs e) {
+            int indentationLength = 0;
+            
+            if (e.Project != null) {
+                indentationLength = e.Project.IndentationLevel * e.Project.IndentationSize;
+            }
 
-            if (mesageLevel >= Threshold) {
-                string txt = message;
+            OutputMessage(e, indentationLength);
+        }
 
-                //
+        /// <summary>
+        /// Outputs an indented message to the build log if its priority is 
+        /// greather than or equal to the <see cref="Threshold" /> of the 
+        /// logger.
+        /// </summary>
+        /// <param name="e">The event to output.</param>
+        /// <param name="indentationLength">TODO</param>
+        private void OutputMessage(BuildEventArgs e, int indentationLength) {
+            if (e.MessageLevel >= Threshold) {
+                string txt = e.Message;
+
                 // beautify the message a bit
-                //
                 txt = txt.Replace("\t", " "); // replace tabs with spaces
-                txt = txt.Replace("\r", ""); // get rid of \r
+                txt = txt.Replace("\r", ""); // get rid of carriage returns
 
+                // split the message by lines - the separator is "\n" since we've eliminated
+                // \r characters
                 string[] lines = txt.Split('\n');
-                string indentString = String.Empty;
+                string label = String.Empty;
+
+                if (e.Task != null && !EmacsMode) {
+                    label = "[" + e.Task.Name + "] ";
+                    label = label.PadLeft(e.Project.IndentationSize);
+                }
 
                 if (indentationLength > 0) {
-                    indentString = new String(' ', indentationLength);
+                    label = new String(' ', indentationLength) + label;
                 }
 
                 foreach (string line in lines) {
                     StringBuilder sb = new StringBuilder();
-                    sb.Append(' ', indentationLength);
+                    sb.Append(label);
                     sb.Append(line);
 
                     string indentedMessage = sb.ToString();
@@ -629,6 +659,13 @@ namespace NAnt.Core {
                     Log(indentedMessage);
                 }
             }
+        }
+
+        private static BuildEventArgs CreateBuildEvent(Level messageLevel, string message) {
+            BuildEventArgs buildEvent = new BuildEventArgs();
+            buildEvent.MessageLevel = messageLevel;
+            buildEvent.Message = message;
+            return buildEvent;
         }
 
         #endregion Private Instance Methods
@@ -1069,11 +1106,9 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="task">Determines the indentation level.</param>
         /// <param name="outputLevel">The <see cref="Level" /> with which messages will be output to the build log.</param>
-        /// <param name="logPrefix">The prefix for written messages.</param>
         /// <param name="formatProvider">An <see cref="IFormatProvider" /> object that controls formatting.</param>
-        public LogWriter(Task task, Level outputLevel, string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
+        public LogWriter(Task task, Level outputLevel, IFormatProvider formatProvider) : base(formatProvider) {
             _task = task;
-            _logPrefix = logPrefix;
             _outputLevel = outputLevel;
         }
 
@@ -1098,19 +1133,10 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="chars">The character array to write to the text stream.</param>
         public override void Write(char[] chars) {
-            if (_needPrefix) {
-                _message = _logPrefix;
-                _needPrefix = false;
-            }
             _message += new string(chars, 0, chars.Length -1);
         }
 
         public override void Write(string value) {
-            if (_needPrefix) {
-                _message = _logPrefix;
-                _needPrefix = false;
-            }
-
             _message += value;
         }
 
@@ -1124,14 +1150,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
         public override void WriteLine(string value) {
-            if (_message.Length != 0) {
-                _task.Log(OutputLevel, _message + value);
-            } else {
-                _task.Log(OutputLevel, _logPrefix + value);
-            }
-
+            _task.Log(OutputLevel, _message + value);
             _message = string.Empty;
-            _needPrefix = true;
         }
 
         /// <summary>
@@ -1141,14 +1161,8 @@ namespace NAnt.Core {
         /// <param name="line">The formatting string.</param>
         /// <param name="args">The object array to write into format string.</param>
         public override void WriteLine(string line, params object[] args) {
-            if (_message.Length != 0) {
-                _task.Log(OutputLevel, _message + line, args);
-            } else {
-                _task.Log(OutputLevel, _logPrefix + _message + string.Format(CultureInfo.InvariantCulture, line, args));
-            }
-
+            _task.Log(OutputLevel, _message + line, args);
             _message = string.Empty;
-            _needPrefix = true;
         }   
 
         public override void Close() {
@@ -1199,9 +1213,7 @@ namespace NAnt.Core {
 
         private Task _task;
         private Level _outputLevel;
-        private bool _needPrefix = true;
-        private string _logPrefix;
-        private string _message = "";
+        private string _message = string.Empty;
 
         #endregion Private Instance Fields
     }
