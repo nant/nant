@@ -190,5 +190,21 @@ namespace Tests.NAnt.Core.Filters {
 
             base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
+
+		/// <summary>
+		/// Test replacing with null
+		/// </summary>
+		[Test]
+		public void ComplexTestNull() 
+		{
+			string prologueXml = null;
+
+			string filterXml = @"<" + _tagName + @" from=""cat"" to=""""/>";
+
+			string input = @"catcatsuccesscatcatcat";
+			string expectedOutput = @"success";
+
+			base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+		}
     }
 }

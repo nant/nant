@@ -93,11 +93,10 @@ namespace NAnt.Core.Filters {
 
         #endregion Private Instance Fields
 
-
         #region Public Instance Properties
 
         /// <summary>
-        /// The string that must be replaced.
+        /// The string to be replaced.
         /// </summary>
         [TaskAttribute("from", Required=true)]
         [StringValidator(AllowEmpty=false)]
@@ -108,9 +107,10 @@ namespace NAnt.Core.Filters {
 
         /// <summary>
         /// The new value for the replaced string.
+        /// Am empty string is permissible.
         /// </summary>
         [TaskAttribute("to", Required=false)]
-        [StringValidator(AllowEmpty=false)]
+        [StringValidator(AllowEmpty=true)]
         public string To {
             get { return _to; }
             set { _to = value; }
@@ -280,8 +280,16 @@ namespace NAnt.Core.Filters {
                     //Target was found
 
                     _stringNotFound = false;
-                    _outputBuffer = _to;
-                    _bufferPosition = 1;
+
+					//Do nothing if _to is null; otherwise output _to
+					if (_to==string.Empty) {
+						_outputBuffer = null;
+						return GetNextCharacter(AcquireChar);
+					}
+					else {
+						_outputBuffer = _to;
+						_bufferPosition = 1;
+					}
 
                     return _to[0];
                 } else {
