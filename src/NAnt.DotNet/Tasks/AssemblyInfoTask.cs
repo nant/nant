@@ -166,6 +166,22 @@ namespace NAnt.DotNet.Tasks {
                     }
                 }
 
+                // fix references to system assemblies
+                if (Project.CurrentFramework != null) {
+                    foreach (string pattern in References.Includes) {
+                        if (Path.GetFileName(pattern) == pattern) {
+                            string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                            string localPath = Path.Combine(References.BaseDirectory, pattern);
+                            string fullPath = Path.Combine(frameworkDir, pattern);
+
+                            if (!File.Exists(localPath) && File.Exists(fullPath)) {
+                                // found a system reference
+                                References.FileNames.Add(fullPath);
+                            }
+                        }
+                    }
+                }
+
                 using (StreamWriter writer = new StreamWriter(Output, false, System.Text.Encoding.Default)) {
                     // create new instance of CodeProviderInfo for specified CodeLanguage
                     CodeProvider codeProvider = new CodeProvider(Language);

@@ -147,6 +147,22 @@ namespace NAnt.DotNet.Tasks {
         /// Generates an NDoc project and builds the documentation.
         /// </summary>
         protected override void ExecuteTask() {
+            // fix references to system assemblies
+            if (Project.CurrentFramework != null) {
+                foreach (string pattern in Assemblies.Includes) {
+                    if (Path.GetFileName(pattern) == pattern) {
+                        string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                        string localPath = Path.Combine(Assemblies.BaseDirectory, pattern);
+                        string fullPath = Path.Combine(frameworkDir, pattern);
+
+                        if (!File.Exists(localPath) && File.Exists(fullPath)) {
+                            // found a system reference
+                            Assemblies.FileNames.Add(fullPath);
+                        }
+                    }
+                }
+            }
+
             // Make sure there is at least one included assembly.  This can't
             // be done in the InitializeTask() method because the files might
             // not have been built at startup time.

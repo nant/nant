@@ -19,6 +19,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System.Collections.Specialized;
+using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -115,6 +116,22 @@ namespace NAnt.NUnit2.Types {
                 if (AssemblyName != null) {
                     files.Add(AssemblyName);
                 } else {
+                    // fix references to system assemblies
+                    if (Project.CurrentFramework != null) {
+                        foreach (string pattern in Assemblies.Includes) {
+                            if (Path.GetFileName(pattern) == pattern) {
+                                string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                                string localPath = Path.Combine(Assemblies.BaseDirectory, pattern);
+                                string fullPath = Path.Combine(frameworkDir, pattern);
+
+                                if (!File.Exists(localPath) && File.Exists(fullPath)) {
+                                    // found a system reference
+                                    Assemblies.FileNames.Add(fullPath);
+                                }
+                            }
+                        }
+                    }
+
                     files = Assemblies.FileNames;
                 }
 
