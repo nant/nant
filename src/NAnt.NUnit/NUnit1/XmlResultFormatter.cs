@@ -177,7 +177,7 @@ namespace NAnt.NUnit1.Types {
         const string ElementTestSuite = "testsuite";
         const string ElementTestCase = "testcase";
         const string ElementError = "error";
-        const string ElementFailure = "failure";		  
+        const string ElementFailure = "failure";
 
         const string AttributePackage = "package";
         const string AttributeName = "name";

@@ -50,9 +50,9 @@ namespace NAnt.NUnit1.Types {
         #endregion Public Instance Properties
 
         #region Private Instance Fields
-		
-        long _runTime;
-		 
+
+        private long _runTime;
+
         #endregion Private Instance Fields
     }
 }
