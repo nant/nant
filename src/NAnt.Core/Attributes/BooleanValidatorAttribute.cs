@@ -29,14 +29,13 @@ namespace SourceForge.NAnt.Attributes {
         public BooleanValidatorAttribute() {
         }
 
-        public override string Validate(object value) {
-            string errorMessage = null;
+        public override bool Validate(object value) {
             try {
                 Convert.ToBoolean(value);
             } catch (Exception) {
-                errorMessage = String.Format("Cannot resolve to '{0}' to Boolean value.", value.ToString());
+                throw new ValidationException(String.Format("Cannot resolve to '{0}' to Boolean value.", value.ToString()));
             }
-            return errorMessage;
+            return true;
         }
     }
 }

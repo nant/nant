@@ -47,17 +47,16 @@ namespace SourceForge.NAnt.Attributes {
             set { _maxValue = value; }
         }
 
-        public override string Validate(object value) {
-            string errorMessage = null;
+        public override bool Validate(object value) {
             try {
                 Int32 intValue = Convert.ToInt32(value);
                 if (intValue < MinValue || intValue > MaxValue) {
-                    errorMessage = String.Format("Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue);
+                    throw new ValidationException(String.Format("Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue));
                 }
             } catch (Exception) {
-                errorMessage = String.Format("Cannot resolve '{0}' to integer value.", value.ToString());
+                throw new ValidationException(String.Format("Cannot resolve '{0}' to integer value.", value.ToString()));
             }
-            return errorMessage;
+            return true;
         }
     }
 }

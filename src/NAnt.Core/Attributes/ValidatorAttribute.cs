@@ -23,6 +23,12 @@ namespace SourceForge.NAnt.Attributes {
     using System.Reflection;
 
     public abstract class ValidatorAttribute : Attribute {
-        public abstract string Validate(object value);
+        /// <summary>
+        /// Validates the object.
+        /// </summary>
+        /// <param name="value">The object to be validated</param>
+        /// <remarks> Throws a ValidationException when validation fails.</remarks>
+        /// <returns> Returns an indication of the result.</returns>
+        public abstract bool Validate(object value);
     }
 }

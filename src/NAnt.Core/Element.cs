@@ -137,6 +137,7 @@ namespace SourceForge.NAnt {
                                 // If the object is an emum
                                 Type propertyType = propertyInfo.PropertyType;
 
+
                                 if (propertyType.IsSubclassOf(Type.GetType("System.Enum"))) {
                                     try {
                                         paramaters[0] = Enum.Parse(propertyType, attrValue);
@@ -151,6 +152,19 @@ namespace SourceForge.NAnt {
                                         throw new BuildException(message, Location);
                                     }
                                 } else {
+                                    
+                                    //validate attribute value with custom ValidatorAttribute(ors)
+                                    ValidatorAttribute[] validateAttributes = (ValidatorAttribute[]) 
+                                        Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
+                                    
+                                    try {
+                                        foreach(ValidatorAttribute validator in validateAttributes)
+                                            validator.Validate(attrValue);
+                                    }
+                                    catch(ValidationException ve) {
+                                        throw new ValidationException(ve.Message,Location);
+                                    }
+
                                     paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType);
                                 }
                                 info.Invoke(this, paramaters);
