@@ -112,21 +112,38 @@ namespace NAnt.SourceControl.Tasks {
         /// <value>
         /// The password for logging in to the CVS repository.
         /// </value>
-        [TaskAttribute ("password")]
+        [TaskAttribute("password")]
         public string Password {
             get { return _password;}
             set { _password = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
-        ///     A collection of options that can be used to modify cvs 
-        ///         checkouts/ updates.  Valid options include:
-        ///             <code>sticky-tag</code>
-        ///             <code>override-directory</code>
+        /// A collection of options that can be used to modify cvs 
+        /// checkouts/updates.
         /// </summary>
-        [BuildElementCollection("options", "option", typeof(Option))]
+        /// <remarks>
+        /// <para>
+        /// Valid options include:
+        /// </para>
+        /// <list type="table">
+        ///     <listheader>
+        ///         <term>Name</term>
+        ///         <description>Description</description>
+        ///     </listheader>
+        ///     <item>
+        ///         <term>sticky-tag</term>
+        ///         <description>TO-DO</description>
+        ///     </item>
+        ///     <item>
+        ///         <term>override-directory</term>
+        ///         <description>TO-DO</description>
+        ///     </item>
+        /// </list>
+        /// </remarks>
+        [BuildElementCollection("options", "option")]
         public OptionCollection Options {
-            get {return _options;}
+            get { return _options;}
         }
 
         #endregion Public Instance Properties
@@ -251,6 +268,11 @@ namespace NAnt.SourceControl.Tasks {
         private void SetOptions (WorkingDirectory workingDirectory) {
             Logger.Debug ("Setting options");
             foreach (Option option in _options) {
+                if (!IfDefined || UnlessDefined) {
+                    // skip option
+                    continue;
+                }
+
                 Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
                 Logger.Debug ("option.Value=[" + option.Value + "]");
                 switch (option.OptionName) {

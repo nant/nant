@@ -259,7 +259,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// Additional options to pass to midl.exe.
         /// </summary>
-        [BuildElementCollection("options", "option", typeof(Option))]
+        [BuildElementCollection("options", "option")]
         public OptionCollection Options {
             get { return _options; }
         }
@@ -268,7 +268,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Macro definitions to pass to mdil.exe.
         /// Each entry will generate a /D
         /// </summary>
-        [BuildElementCollection("defines", "define", typeof(Option))]
+        [BuildElementCollection("defines", "define")]
         public OptionCollection Defines {
             get { return _defines; }
         }
@@ -400,18 +400,22 @@ namespace NAnt.VisualCpp.Tasks {
                 writer.WriteLine("/proxy " + _proxy);
 
             foreach (Option define in _defines) {
-                if (define.Value == null) {
-                    writer.WriteLine("/D " + define.Name);
-                } else {
-                    writer.WriteLine("/D " + define.Name + "=" + define.Value);
+                if (IfDefined && !UnlessDefined) {
+                    if (define.Value == null) {
+                        writer.WriteLine("/D " + define.Name);
+                    } else {
+                        writer.WriteLine("/D " + define.Name + "=" + define.Value);
+                    }
                 }
             }
 
             foreach (Option option in _options) {
-                if (option.Value == null) {
-                    writer.WriteLine(option.Name);
-                } else {
-                    writer.WriteLine(option.Name + " " + option.Value);
+                if (IfDefined && !UnlessDefined) {
+                    if (option.Value == null) {
+                        writer.WriteLine(option.Name);
+                    } else {
+                        writer.WriteLine(option.Name + " " + option.Value);
+                    }
                 }
             }
 
