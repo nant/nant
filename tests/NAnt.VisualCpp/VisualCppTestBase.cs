@@ -16,10 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Thomas Strauss (strausst@arcor.de)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections.Specialized;
 
 using NAnt.Core;
+using NAnt.Core.Functions;
 
 using Tests.NAnt.Core;
 
@@ -67,8 +70,21 @@ namespace Tests.NAnt.VisualCpp {
         /// </summary>
         protected static bool CanCompileAndLink {
             get {
-                return (LibsPresent && CompilerPresent && HeaderFilesPresent);
+                return (LibsPresent && CompilerPresent && HeaderFilesPresent 
+                    && SupportedCompiler);
             }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the compiler supports Managed
+        /// Extensions.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the VC++ compiler supports Managed
+        /// Extensions; otherwise, <see langword="false" />.
+        /// </value>
+        protected static bool SupportedCompiler {
+            get { return _supportedCompiler; }
         }
 
         #endregion Protected Static Methods
@@ -131,11 +147,38 @@ namespace Tests.NAnt.VisualCpp {
         /// <see langword="false" />.
         /// </returns>
         private static bool CheckCompilerPresent() {
+            // return true if there is a compiler on the PATH
+            return (GetCompilersOnPath().Count > 0);
+        }
+
+        /// <summary>
+        /// Routine which checks if the compiler is supported by NAnt.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the version of the compiler is at
+        /// least <c>13.xx.xxxx</c>; otherwise, <see langword="false" />.
+        /// </returns>
+        private static bool CheckSupportedCompiler() {
+            StringCollection compilers = GetCompilersOnPath();
+            foreach (string compiler in compilers) {
+                // get major version of compiler
+                int majorVersion = VersionFunctions.GetMajor(
+                    FileFunctions.GetFileVersion(compiler));
+                // the MS compiler supports Managed Extensions starting from 
+                // version 13
+                if (majorVersion >= 13) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static StringCollection GetCompilersOnPath() {
             PathScanner scanner = new PathScanner();
             scanner.Add("cl.exe");
-            return scanner.Scan("PATH").Count > 0;
+            return scanner.Scan("PATH");
         }
-	
+
         #endregion Private Static Methods
 
         #region Private Static Fields
@@ -161,6 +204,7 @@ namespace Tests.NAnt.VisualCpp {
         private static readonly bool _compilerPresent = CheckCompilerPresent();
         private static readonly bool _libsPresent = CheckLibsPresent();
         private static readonly bool _headerFilesPresent = CheckHeaderFilesPresent();
+        private static readonly bool _supportedCompiler = CheckSupportedCompiler();
 
         #endregion Private Static Fields
     }
