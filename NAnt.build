@@ -4,7 +4,7 @@
 	<tstamp/>
 	<property name="debug" value="true"/>
 	<property name="project.name" value="nant"/>
-	<property name="project.version" value="0.6.0"/> 	<!-- TODO: get this from AssemblyInfo.cs using a regular expression some how -->
+	<property name="project.version" value="0.7.0"/> 	<!-- TODO: get this from AssemblyInfo.cs using a regular expression some how -->
 	<property name="dist.dir" value="${project.name}"/>
 	<property name="build.dir" value="build"/>
 	<property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
@@ -22,20 +22,43 @@
 			</fileset>
 		</delete>
 		<delete file="${dist.name}" verbose="true" failonerror="false"/>
+		<delete file="doc\NAnt.chm" verbose="true" failonerror="false"/>
 	</target>
 
 	<target name="build">
 		<mkdir dir="${build.dir}"/>
-		<csc target="exe" output="${build.dir}\NAnt.exe" debug="${debug}">
+		<copy todir="${build.dir}">
+			<fileset basedir="bin">
+				<includes name="DocNet*.*"/>
+			</fileset>
+		</copy>
+		<csc target="exe" output="${build.dir}\NAnt.exe" debug="${debug}" doc="${build.dir}\NAnt.xml">
 			<sources basedir="src\NAnt">
 				<includes name="**/*.cs"/>
 			</sources>
-			<references/>
+			<references>
+				<includes name="build/DocNet.dll"/>
+				<includes name="build/DocNet.Msdn.dll"/>
+			</references>
+			<arg value="/nowarn:1591"/>
 		</csc>
 	</target>
 
 	<target name="examples" depends="build">
 		<exec program="${build.dir}\nant.exe" basedir="examples"/>
+	</target>
+
+	<target name="test">
+		<echo message="This task currently does nothing."/>
+	</target>
+
+	<target name="doc" depends="build">
+		<docnet outputDir="${build.dir}\docs" helpName="NAnt" showMissing="true" showPrivate="false">
+			<assemblies basedir="${build.dir}">
+				<includes name="NAnt.exe"/>
+			</assemblies>
+		</docnet>
+		<copy file="${build.dir}/docs/NAnt.chm" todir="${build.dir}"/>
 	</target>
 
 <!--
@@ -44,7 +67,7 @@
 	</target>
 -->
 
-	<target name="backup">
+	<target name="backup" depends="clean">
 		<exec program="bin/zip.exe" commandline="-r -q ${backup.name} *"/>
 	</target>
 
@@ -54,6 +77,11 @@
 		<echo message="Debug = ${debug}"/>
 		<call target="build"/>
 		<copy file="${build.dir}\NAnt.exe" todir="${dist.dir}\bin"/>
+		<copy file="${build.dir}\NAnt.xml" todir="${dist.dir}\bin"/>
+
+		<!-- build developer documentation -->
+		<call target="doc"/>
+		<copy file="${build.dir}\NAnt.chm" todir="${dist.dir}\doc"/>
 
 		<copy todir="${dist.dir}">
 			<fileset>
@@ -70,8 +98,5 @@
 
 		<delete file="${dist.name}" failonerror="false"/>
 		<exec program="bin/zip.exe" commandline="-r -q ${dist.name} ${dist.dir}/*"/>
-
-		<!-- don't need the distribution directory anymore -->
-		<delete dir="${dist.dir}" verbose="true"/>
 	</target>
 </project>
