@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,11 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:output method="html" indent="yes" /> 
@@ -63,7 +64,7 @@
                 <!-- Remarks -->
                 <xsl:apply-templates select="documentation/remarks/node()" mode="slashdoc"/>
 
-                <xsl:variable name="properties" select="property[attribute/@name='NAnt.Core.Attributes.TaskAttributeAttribute']"/>
+                <xsl:variable name="properties" select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']"/>
                 <xsl:if test="count($properties) != 0">
                     <h3>Parameters</h3>
                     <div class="Table-Section">
@@ -74,8 +75,8 @@
                             <th class="Table-Header">Description</th>
                             <th class="Table-Header" align="center">Required</th>
                         </tr>
-                        <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute' ]" mode="TaskAttribute">
-                            <xsl:sort select="@name" />
+                        <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TaskAttribute">
+                            <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Name']/@value" />
                         </xsl:apply-templates>
                     </table>
                     </div>
@@ -93,7 +94,7 @@
                                 <th class="Table-Header" align="center">Required</th>
                             </tr>
                             <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute' ]" mode="FrameworkConfigurableAttribute">
-                                <xsl:sort select="@name" />
+                                <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']/property[@name = 'Name']/@value" />
                             </xsl:apply-templates>
                         </table>
                     </div>
