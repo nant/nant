@@ -119,10 +119,6 @@
                     RelPath = "NAnt.Console.exe.config"
                     BuildAction = "Content"
                 />
-                <File
-                    RelPath = "NAnt.Console.exe.config.linux"
-                    BuildAction = "Content"
-                />
             </Include>
         </Files>
     </CSHARP>
