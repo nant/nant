@@ -789,19 +789,17 @@ namespace SourceForge.NAnt {
             object testobj = ConfigurationSettings.GetConfig("nantsettings");
             XmlNode node = testobj as XmlNode;
             
-            Log.WriteLine("Project: AppDom Config File: {0}", AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-            node=null;
+            //Log.WriteLine("Project: AppDom Config File: {0}", AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);            
             if ( node == null){
                 XmlDocument doc = new XmlDocument();
-                doc.Load( AppDomain.CurrentDomain.SetupInformation.ConfigurationFile );
+                doc.Load( AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ); // try and load it from disk
                 node = doc.SelectSingleNode("//nantsettings" );
                 // if still equal to null..
                 if ( node == null) { 
                     // todo pull a settings file out of the assembly resource and copy to that location                          
                     Log.WriteLine("Settings not found. Using none!");
                     return;
-                }
-                Log.WriteLine("we've got a settings file !! ");               
+                }                        
             }
 
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
