@@ -853,63 +853,63 @@
                     <td>int</td>
                     <td>int</td>
                     <td>
-                        <code>5 <> 3</code> evaluates to <b>true</b>
+                        <code>5 != 3</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>int</td>
                     <td>long</td>
                     <td>
-                        <code>5 <> 6666666667</code> evaluates to <b>true</b>
+                        <code>5 != 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>int</td>
                     <td>double</td>
                     <td>
-                        <code>6 <> 6.0</code> evaluates to <b>false</b>
+                        <code>6 != 6.0</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>long</td>
                     <td>
-                        <code>6666666667 <> 6666666667</code> evaluates to <b>false</b>
+                        <code>6666666667 != 6666666667</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>int</td>
                     <td>
-                        <code>6666666667 <> 665</code> evaluates to <b>true</b>
+                        <code>6666666667 != 665</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>double</td>
                     <td>
-                        <code>6666666667 <> 6666666667.0</code> evaluates to <b>false</b>
+                        <code>6666666667 != 6666666667.0</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>double</td>
                     <td>
-                        <code>9.5 <> 6.7</code> evaluates to <b>true</b>
+                        <code>9.5 != 6.7</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>int</td>
                     <td>
-                        <code>8.5 <> 8</code> evaluates to <b>true</b>
+                        <code>8.5 != 8</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>long</td>
                     <td>
-                        <code>8.5 <> 6666666667</code> evaluates to <b>true</b>
+                        <code>8.5 != 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -1686,7 +1686,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() <> (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() != (datetime::now()+timespan::from-days(10))</code> evaluates 
                         to <b>true</b>
                     </td>
                 </tr>
@@ -1694,7 +1694,7 @@
                     <td>timespan</td>
                     <td>timespan</td>
                     <td>
-                        <code>timespan::from-seconds(30) <> timespan::from-seconds(30)</code> evaluates 
+                        <code>timespan::from-seconds(30) != timespan::from-seconds(30)</code> evaluates 
                         to <b>false</b>
                     </td>
                 </tr>
