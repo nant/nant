@@ -119,6 +119,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.DotNet.build"
+                    BuildAction = "None"
+                />
+                <File
                     RelPath = "Tasks\NDocTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

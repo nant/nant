@@ -99,6 +99,10 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
+                <File
+                    RelPath = "NAnt.NUnit.build"
+                    BuildAction = "None"
+                />
             </Include>
         </Files>
     </CSHARP>

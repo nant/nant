@@ -91,6 +91,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Zip.build"
+                    BuildAction = "None"
+                />
+                <File
                     RelPath = "Tasks\UnZipTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

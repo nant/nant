@@ -92,6 +92,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.VisualCpp.build"
+                    BuildAction = "None"
+                />
+                <File
                     RelPath = "Tasks\LibTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
