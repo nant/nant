@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Language" content="en-ca" />
+        <meta http-equiv="Content-Type" content="text/html" />
+        <meta name="description" content="Expressions" />
+        <link rel="stylesheet" type="text/css" href="../../style.css" />
+        <title>NAnt - Expressions</title>
+    </head>
+    <body>
+        <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+            <tr>
+                <td class="NavBar-Cell">
+                    <a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> <img src="../images/arrow.gif" alt="-&gt;" width="13" height="9" />
+                    <a href="../index.html">Help</a> <img alt="-&gt;" src="../images/arrow.gif" /> <a href="index.html">
+                        Fundamentals</a> <img height="9" alt="-&gt;" src="../images/arrow.gif" width="13" />
+                    Expressions
+                </td>
+            </tr>
+        </table>
+        <h1>Expressions</h1>
+        <p>Expressions are simple, but powerful mechanism that allows you to write advanced formulas to be used in task arguments and conditions that direct the build process. Expressions can access project <a href="fog0000000082.html">properties</a> and call builtin or user-defined <a href="../functions/index.html">functions</a>.</p>
+        <p>NAnt provides a rich set of bulitin functions, that allow you to:<p>
+        <ul>
+            <li>manipulate strings</li>
+            <li>manipulate date/time values</li>
+            <li>manipulate path names</li>
+            <li>read the properties of files/directories</li>
+            <li>access current build information and more</li>
+            <li>and more</li>
+        </ul>
+        <p>For a full list of supported functions, click <a href="../functions/index.html">here</a>.</p>
+        <h3>Expression Syntax</h3>
+        <p>Expressions can be used in all task arguments, by surrounding them with <code>${...}</code> notation. 
+        You may use natural syntax for arithmetical (addition, subtraction, multiplication, division, modulus), logical (negation, conjunction, alternative) and relational operators (equality, inequality). To call functions, use <code>prefix::function-name(argument1, ..., argumentN)</code> syntax. 
+        To access properties, you simply use their names without any prefix or suffix. See the examples section below for more information.</p>
+        <h3>Examples:</h3>
+        <ol>
+        <li>Accessing a property:
+        <p><p>
+            <code>&lt;property name="build.version" value="3" /&gt;</code><br/>
+            <code>&lt;echo message="The current date is: <span class="expression">${build.version}</span>" /&gt;</code>
+        </p>
+        <p>This will output the current value of <code>build.version</code> property.</p>
+        </li>
+        <li>Calling a function
+        <p><p>
+        <code>&lt;echo message="The current date is: <span class="expression">${<a href="../functions/datetime.now.html">datetime::now</a>()}</span>" /&gt;</code>
+        </p>
+        <p>This will output the current date and time.</p>
+        </li>
+        <li>Storing the result of an expression
+          <p>To store the result of an expression in a property, use the <code>&lt;property&gt;</code> task:</p>
+        <p>
+            <code>&lt;property name="autoexec-present" value="<span class="expression">${<a href="../functions/file.exists.html">file::exists</a>('c:\autoexec.bat')}</span>" /&gt;</code>
+        </p>
+        <p>This will set the property <code>autoexec-present</code> to either <code>true</code> or <code>false</code> depending on whether the specified file exists.</p></li>
+        <li>Real-life expression use
+        <p>
+        <code>
+            &lt;property name="myprj.basedir" value="c:\" /&gt;<br/>
+            &lt;property name="filename" value="<span class="expression">${<a href="../functions/path.combine.html">path::combine</a>(myprj.basedir,'version.txt')}</span>" /&gt;<br/><br/>
+            &lt;if test="<span class="expression">${not <a href="../functions/file.exists.html">file::exists</a>(filename) or <a href="../functions/file.get-length.html">file::get-length</a>(filename) = 0}</span>"&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;echo message="The version file <span class="expression">${filename}</span> doesn't exist or is empty!" /&gt;<br/>
+            &lt;/if&gt;</br>
+        </code>
+        </p>
+        <p>This will check for the existence of a file <i>version.txt</i> in a directory pointed by myprj.basedir. 
+        Note that this makes use of short-circuit evaluation supported by NAnt, so you can test for the existence of
+        the file and check its length in the same expression.
+        </li>
+        <li>Using expressions to conditionally execute tasks
+        <p>All tasks support <code>if</code> and <code>unless</code> attributes. Expressions can be used there to control which tasks get executed:</p>
+        <p>
+        <code>
+            &lt;property name="myprj.basedir" value="c:\" unless="<a href="../functions/property.exists.html">property::exists</a>('myprj.basedir')" /&gt;<br/>
+            &lt;csc target="library" output="out.dll" ... <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if="<span class="expression">${<a href="../functions/datetime.diff.html">datetime::diff</a>(<a href="../functions/file.get-last-write-time.html">file::get-last-write-time</a>('out.dll'), <a href="../functions/datetime.now.html">datetime::now</a>()) &gt; 3600}</span>"&gt;<br/>
+            ...<br/>
+            
+            &lt;/csc&gt;<br/>
+        </code>
+        </p>
+        <p>
+        This will rebuild the C# library only if it was last rebuilt more than an hour ago. 
+        </p>
+        </ol>
+        <h3>Operators</h3>
+        <p>The following operators are supported:</p>
+        <div class="table">
+            <table ID="Table1">
+                <colgroup>
+                    <col style="width: 10px" />
+                    <col />
+                    <col />
+                    <col style="width: 50%" />
+                </colgroup>
+                <tr>
+                    <th>Op.</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                    <th>Remarks</th>
+                </tr>
+                <tr>
+                    <th colspan="4">String operators</th>
+                </tr>
+                <tr>
+                    <td><code>+</code></td>
+                    <td>string concatenation operator</td>
+                    <td>
+                        <code>'aaa' + 'bbb'</code> evaluates to <code>'aaabbb'</code><br/>
+                    </td>
+                    <td>When either side of <code>+</code> operator is a string, the operator is considered to be a string concatenation.</td>
+                </tr>
+                <tr>
+                    <th colspan="4">Arithmetical operators</th>
+                </tr>
+                <tr>
+                    <td><code>+</code></td>
+                    <td>addition operator</td>
+                    <td>
+                        <code>1 + 2</code> evaluates to <code>3</code><br/>
+                        <code>1.0 + 2</code> evaluates to <code>3.0</code><br/>
+                    </td>
+                    <td>When at least one argument is of type <code>double</code>, the result is a <code>double</code>, otherwise it's an <code>int</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>-</code></td>
+                    <td>subtraction operator</td>
+                    <td>
+                        <code>5 - 2</code> evaluates to <code>3</code><br/>
+                        <code>1.5 - 3</code> evaluates to <code>-1.5</code><br/>
+                    </td>
+                    <td>When at least one argument is of type <code>double</code>, the result is a <code>double</code>, otherwise it's an <code>int</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>*</code></td>
+                    <td>multiplication operator</td>
+                    <td>
+                        <code>7 * 2</code> evaluates to <code>14</code><br/>
+                        <code>1.5 * 4</code> evaluates to <code>6.0</code><br/>
+                    </td>
+                    <td>When at least one argument is of type <code>double</code>, the result is a <code>double</code>, otherwise it's an <code>int</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>*</code></td>
+                    <td>division operator</td>
+                    <td>
+                        <code>9 / 4</code> evaluates to <code>2</code> (integer division)<br/>
+                        <code>9 / 4.0</code> evaluates to <code>2.25</code> (floating point division)
+                    </td>
+                    <td>When at least one argument is of type <code>double</code>, the result is a <code>double</code>, otherwise it's an <code>int</code>. It's illegal to divide by zero.</td>
+                </tr>
+                <tr>
+                    <td><code>%</code></td>
+                    <td>modulus operator</td>
+                    <td>
+                        <code>9 % 4</code> evaluates to <code>1</code>
+                    </td>
+                    <td>Both arguments must be convertible to type <code>int</code></td>
+                </tr>
+                <tr>
+                    <th colspan="4">Logical operators</th>
+                </tr>
+                <tr>
+                    <td><code>not</code></td>
+                    <td>boolean negation operator</td>
+                    <td>
+                        <code>not (1=1)</code> evaluates to <code>false</code><br/>
+                        <code>not false</code> evaluates to <code>true</code>
+                    </td>
+                    <td>The argument must be convertible to type <code>boolean</code></td>
+                </tr>
+                <tr>
+                    <td><code>and</code></td>
+                    <td>boolean conjunction operator</td>
+                    <td>
+                        <code>true and false</code> evaluates to <code>false</code><br/>
+                        <code>true and true</code> evaluates to <code>true</code>
+                    </td>
+                    <td>Both arguments must be convertible to type <code>boolean</code>. A short-circuit evaluation is used. If the value of the conjunction is known to be false, subsequent terms aren't evaluated. For example: <code>(1=0) and (2=3) and (1=3)</code> will stop the evaluation after the <code>1=0</code> is evaluated because its value is <code>false</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>or</code></td>
+                    <td>boolean alternative operator</td>
+                    <td>
+                        <code>true or false</code> evaluates to <code>true</code><br/>
+                        <code>false or false</code> evaluates to <code>false</code>
+                    </td>
+                    <td>Both arguments must be convertible to type <code>boolean</code>. A short-circuit evaluation is used. If the value of the alternative is known to be true, subsequent terms aren't evaluated. For example: <code>(1=1) or (2=3) or (3=3)</code> will stop the evaluation after the <code>1=1</code> is evaluated because its value is <code>true</code>.</td>
+                </tr>
+                <tr>
+                    <th colspan="4">Relational operators</th>
+                </tr>
+                <tr>
+                    <td><code>=</code></td>
+                    <td>equality operator</td>
+                    <td>
+                        <code>'a'='a'</code> evaluates to <code>true</code><br/>
+                        <code>1 = '3'</code> evaluates to <code>false</code>
+                    </td>
+                    <td>The result is <code>true</code> if the arguments are equal, otherwise the result is <code>false</code>. Arguments must be of the same or compatible type.</td>
+                </tr>
+                <tr>
+                    <td><code>&lt;&gt;</code></td>
+                    <td>inequality operator</td>
+                    <td>
+                        <code>'a'&lt;&gt;'b'</code> evaluates to <code>true</code><br/>
+                        <code>1 = '3'</code> evaluates to <code>false</code>
+                    </td>
+                    <td>The result is <code>false</code> if the arguments are equal, otherwise the result is <code>true</code>. Arguments must be of the same or compatible type. <b>NOTE</b>: in XML you must write <code>&amp;lt;&amp;gt;</code> instead of <code>&lt;&gt;</code></td>
+                </tr>
+                <tr>
+                    <td><code>&lt;</code></td>
+                    <td>less-than operator</td>
+                    <td>
+                        <code>'a'&lt;'b'</code> evaluates to <code>true</code><br/>
+                        <code>1 &lt; 0</code> evaluates to <code>false</code>
+                    </td>
+                    <td>The result is <code>true</code> if the value of the first argument is less than the value of the second argument, otherwise the result is <code>false</code>. Arguments must be of the same or compatible type. <b>NOTE</b>: in XML you must write <code>&amp;lt;</code> instead of <code>&lt;</code></td>
+                </tr>
+                <tr>
+                    <td><code>&gt;</code></td>
+                    <td>greater-than operator</td>
+                    <td>
+                        <code>'b'&gt;'a'</code> evaluates to <code>true</code><br/>
+                        <code>0 &gt; 1</code> evaluates to <code>false</code>
+                    </td>
+                    <td>The result is <code>true</code> if the value of the first argument is greater than the value of the second argument, otherwise the result is <code>false</code>. Arguments must be of the same or compatible type. <b>NOTE</b>: in XML you must write <code>&amp;gt;</code> instead of <code>&gt;</code></td>
+                </tr>
+                <tr>
+                    <td><code>&lt;=</code></td>
+                    <td>less-or-equal operator</td>
+                    <td>
+                        <code>'a'&lt;= 'b'</code> evaluates to <code>true</code><br/>
+                        <code>1 &lt;= 0</code> evaluates to <code>false</code>
+                    </td>
+                    <td>The result is <code>true</code> if the value of the first argument is less than or equal to the value of the second argument, otherwise the result is <code>false</code>. Arguments must be of the same or compatible type. <b>NOTE</b>: in XML you must write <code>&amp;lt;=</code> instead of <code>&lt;=</code></td>
+                </tr>
+                <tr>
+                    <td><code>&gt;=</code></td>
+                    <td>greater-or-equal operator</td>
+                    <td>
+                        <code>'b'&gt;='a'</code> evaluates to <code>true</code><br/>
+                        <code>0 &gt;= 1</code> evaluates to <code>false</code>
+                    </td>
+                    <td>The result is <code>true</code> if the value of the first argument is greater than than or equal to the value of the second argument, otherwise the result is <code>false</code>. Arguments must be of the same or compatible type. <b>NOTE</b>: in XML you must write <code>&amp;gt;=</code> instead of <code>&gt;=</code></td>
+                </tr>
+            </table>
+        </div>
+        
+        <p><b>NOTE</b>: Because NAnt supports properties whose names can contain dashes, 
+        there's a possible ambiguity between the subtraction of two properties and accessing 
+        a single property with name containing dash:</p>
+        <p></p><code>aaa-bbb</code> - this is ambiguous. It could either be <u>property <code>aaa</code> MINUS property <code>bbb</code></u> or <u>property <code>aaa-bbb</code></u>.</p>
+        <p>To avoid confusion, it's recommended to surround the subtraction operator (or even better, all binary operators) with spaces. The expression 
+        <code>aaa - bbb</code> always evaluates as a subtraction.</p>
+
+        <h3>Operator precedence</h3>
+        <p>NAnt expressions support natural operator precedence, that we're accustomed to:</p>
+        <ul>
+            <li><code>and</code> is evaluated before <code>or</code>, left to right. For example <code>false or true and true and false</code> evaluates as <code>false or ((true and true) and false)</code></li>
+            <li>multiplication,division and modulus are evaluated before addition and subtraction, left to right. For example <code>1 + 2 * 3 / 4</code> evaluates as <code>1 + ((2 * 3) / 4)</code></li>
+            <li>parentheses can be used to override the default operator precedence. For example <code>(1 + 2) * 3</code> evaluates as written, even though the multiplication has precedence over addition</li>
+        </ul>
+        
+        <h3>Data types</h3>
+        <p>Expressions can access, pass and return values of the following types:</p>
+        <div class="table">
+            <table>
+                <th>Type</th>
+                <th>Allowed values</th>
+            </thead>
+            <tr>
+                <td>int</td>
+                <td>32-bit signed integer value</td>
+            </tr>
+            <tr>
+                <td>double</td>
+                <td>64-bit signed double precision floating point value</td>
+            </tr>
+            <tr>
+                <td>boolean</td>
+                <td><code>true</code> or <code>false</code></td>
+            </tr>
+            <tr>
+                <td>string</td>
+                <td>strings of characters of any length.</td>
+            </tr>
+            <tr>
+                <td>datetime</td>
+                <td>values represeting date &amp; time (range is from 00:00:00, January 1, 1 AD to 23:59:59, December 31, 9999 AD)</td>
+            </tr>
+            </table>
+        </div>
+        <p>In addition, expression evaluation engine does allow you to return and pass values of any CLI type through the use of <a href="functions.html#custom">custom functions</a>. Note that there's no support any implicit type conversion.</p>
+    </body>
+</html>

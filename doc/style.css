@@ -107,6 +107,13 @@ div.nested-element table {
     padding: 5px;
 }
 
+.table td.section {
+    border: 1px solid #999999;
+    background-color: #f0f0e0;
+    padding: 5px;
+    font-weight: bold;
+}
+
 .N {
     color: #99cc00;
     background-color: inherit;
@@ -141,6 +148,14 @@ span.code {
     font-family: Monospace, Courier New, Courier;
     background-color: inherit;
     color: #0000AA;
+    font-size: 100%;
+}
+
+span.expression {
+    font-family: Monospace, Courier New, Courier;
+    background-color: inherit;
+    color: #0000AA;
+    font-weight: bold;
     font-size: 100%;
 }
 
