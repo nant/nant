@@ -28,13 +28,15 @@ using NAnt.DotNet.Tasks;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
-    /// Signs Delay-Signed .NET Assemblies, or re-signs existing assemblies.
+    /// Signs delay-signed .NET Assemblies, or re-signs existing assemblies.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The delay-signing mechanism takes a fileset (named targets)
     /// and either a <see cref="KeyFile" /> attribute for a file containing the
     /// public and private keys, or <see cref="KeyContainer" /> to name a key 
     /// container.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>Sign partially-signed <c>foo.dll</c> with <c>bar.snk</c>.</para>

@@ -33,10 +33,11 @@ namespace NAnt.VisualCpp.Tasks {
     /// This tasks allows you to run MIDL.exe.
     /// </summary>
     /// <remarks>
-    /// This task only supports a small subset of the
-    /// MIDL.EXE command line switches, but you can use
-    /// the options element to specify any other
+    /// <para>
+    /// This task only supports a small subset of the MIDL.EXE command line 
+    /// switches, but you can use the options element to specify any other
     /// unsupported commands you want to specify.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <code>

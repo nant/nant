@@ -39,7 +39,7 @@ namespace NAnt.Win32.Tasks {
     /// not reimport if the underlying COM TypeLib or reference has not changed.
     /// </para>
     /// <para>
-    /// <a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a>
+    /// <see href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</see>
     /// </para>
     /// </remarks>
     /// <example>

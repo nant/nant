@@ -34,7 +34,7 @@ namespace NAnt.Win32.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   <a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a>
+    ///   <see href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</see>
     ///   </para>
     /// </remarks>
     /// <example>

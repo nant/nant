@@ -29,12 +29,22 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 
 namespace NAnt.VisualCpp.Tasks {
-    /// <summary>Compiles resources using rc.exe, Microsoft's Win32 resource compiler.</summary>
+    /// <summary>
+    /// Compiles resources using rc.exe, Microsoft's Win32 resource compiler.
+    /// </summary>
     /// <example>
     ///   <para>Compile <c>text.rc</c> using the default options.</para>
-    ///   <code><![CDATA[<rc rcfile="text.rc"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <rc rcfile="text.rc"/>
+    ///     ]]>
+    ///   </code>
     ///   <para>Compile <c>text.rc</c>, passing an additional option.</para>
-    ///   <code><![CDATA[<rc rcfile="text.rc" options="/r"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <rc rcfile="text.rc" options="/r"/>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("rc")]
     public class RcTask : ExternalProgramBase {

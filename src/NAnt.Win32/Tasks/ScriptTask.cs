@@ -46,31 +46,31 @@ namespace NAnt.Core.Tasks {
     ///     have a single <see cref="Project"/> parameter.
     ///     </para>
     ///     <para>
-    ///         The following namespaces are loaded by default:
-    ///         <list type="bullet">
-    ///             <item>
-    ///                 <description>System</description>
-    ///             </item>
-    ///             <item>
-    ///                 <description>System.Collections</description>
-    ///             </item>
-    ///             <item>
-    ///                 <description>System.Collections.Specialized</description>
-    ///             </item>
-    ///             <item>
-    ///                 <description>System.IO</description>
-    ///             </item>
-    ///             <item>
-    ///                 <description>System.Text</description>
-    ///             </item>
-    ///             <item>
-    ///                 <description>System.Text.RegularExpressions</description>
-    ///             </item>
-    ///             <item>
-    ///                 <description>NAnt.Core</description>
-    ///             </item>
-    ///         </list>
+    ///     The following namespaces are loaded by default:
     ///     </para>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>System</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>System.Collections</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>System.Collections.Specialized</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>System.IO</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>System.Text</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>System.Text.RegularExpressions</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>NAnt.Core</description>
+    ///         </item>
+    ///     </list>
     /// </remarks>
     /// <example>
     ///   <para>Run C# code that writes a message to the build log.</para>

@@ -30,7 +30,7 @@ namespace NAnt.Zip.Tasks {
     /// Extracts files from a zip file.
     /// </summary>
     /// <remarks>
-    ///   <para>Uses <a href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</a> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
+    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
     /// </remarks>
     /// <example>
     ///   <para>Extracts all the file from the zip, preserving the directory structure.</para>

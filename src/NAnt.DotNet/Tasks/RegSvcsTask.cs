@@ -38,6 +38,7 @@ namespace NAnt.DotNet.Tasks {
     /// </para>
     /// <para>
     /// It performs the following actions: 
+    /// </para>
     /// <list type="bullet">
     ///   <item>
     ///     <description>Loads and registers an assembly.</description>
@@ -49,7 +50,8 @@ namespace NAnt.DotNet.Tasks {
     ///     <description>Configures services that are added programmatically to your class.</description>
     ///   </item>
     /// </list>
-    /// Refer to the <a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrfnetservicesinstallationutilityregsvcsexe.htm">.NET Services Installation Tool (Regsvcs.exe)</a> for more information.
+    /// <para>
+    /// Refer to the <see href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrfnetservicesinstallationutilityregsvcsexe.htm">.NET Services Installation Tool (Regsvcs.exe)</see> for more information.
     /// </para>
     /// </remarks>
     /// <example>

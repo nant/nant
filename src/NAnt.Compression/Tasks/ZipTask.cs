@@ -36,7 +36,7 @@ namespace NAnt.Zip.Tasks {
     /// Creates a zip file from a specified fileset.
     /// </summary>
     /// <remarks>
-    ///   <para>Uses <a href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</a> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
+    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
     /// </remarks>
     /// <example>
     ///   <para>Zip all files in the subdirectory <c>build</c> to <c>backup.zip</c>.</para>

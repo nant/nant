@@ -38,8 +38,10 @@ namespace NAnt.DotNet.Tasks {
     /// Generates a <c>.licence</c> file from a <c>.licx</c> file.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// If no output file is specified, the default filename is the name of the
     /// target file with the extension <c>.licenses</c> appended.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>

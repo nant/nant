@@ -31,7 +31,9 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
 namespace NAnt.VisualCpp.Tasks {
-    /// <summary>Run <c>lib.exe</c>, Microsoft's Library Manager.</summary>
+    /// <summary>
+    /// Run <c>lib.exe</c>, Microsoft's Library Manager.
+    /// </summary>
     /// <example>
     ///   <para>Create a library.</para>
     ///   <code>

@@ -31,7 +31,9 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
 namespace NAnt.VisualCpp.Tasks {
-    /// <summary>Links files using <c>link.exe</c>, Microsoft's Incremental Linker.</summary>
+    /// <summary>
+    /// Links files using <c>link.exe</c>, Microsoft's Incremental Linker.
+    /// </summary>
     /// <remarks>
     ///   <para>This task is intended for version 7.00.9466 of <c>link.exe</c>.</para>
     /// </remarks>
