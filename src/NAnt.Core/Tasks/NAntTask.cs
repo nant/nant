@@ -171,21 +171,25 @@ namespace NAnt.Core.Tasks {
             Log(Level.Info, LogPrefix + "{0} {1}", buildFile.FullName, DefaultTarget);
             Log(Level.Info, string.Empty);
 
-            // create new project with same threshold as current project and increased indentation level
+            // create new project with same threshold as current project and 
+            // increased indentation level, and initialize it using the same
+            // configuration node
             Project project = new Project(buildFile.FullName, Project.Threshold, 
-                Project.IndentationLevel + 1);
+                Project.IndentationLevel + 1, Project.ConfigurationNode);
 
             // add listeners of current project to new project
             project.AttachBuildListeners(Project.BuildListeners);
 
-            // have the new project inherit the runtime framework from the current project
-            if (Project.RuntimeFramework != null && project.FrameworkInfoDictionary.Contains(Project.RuntimeFramework.Name)) {
-                project.RuntimeFramework = project.FrameworkInfoDictionary[Project.RuntimeFramework.Name];
+            // have the new project inherit the runtime framework from the 
+            // current project
+            if (Project.RuntimeFramework != null && project.Frameworks.Contains(Project.RuntimeFramework.Name)) {
+                project.RuntimeFramework = project.Frameworks[Project.RuntimeFramework.Name];
             }
 
-            // have the new project inherit the current framework from the current project 
-            if (Project.TargetFramework != null && project.FrameworkInfoDictionary.Contains(Project.TargetFramework.Name)) {
-                project.TargetFramework = project.FrameworkInfoDictionary[Project.TargetFramework.Name];
+            // have the new project inherit the current framework from the 
+            // current project 
+            if (Project.TargetFramework != null && project.Frameworks.Contains(Project.TargetFramework.Name)) {
+                project.TargetFramework = project.Frameworks[Project.TargetFramework.Name];
             }
 
             // have the new project inherit properties from the current project
