@@ -1,8 +1,7 @@
 using NUnit.Framework;
-namespace no.tests.yet
-{
+
+namespace Tests.NAnt.VSNet.Tasks {
     [TestFixture]
-    public class NoTestsYet
-    {
+    public class NoTestsYet {
     }
 }
