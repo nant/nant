@@ -443,7 +443,10 @@ namespace NAnt.DotNet.Tasks {
                             foreach( string resource in localisedResources ) {
                                 alink.Sources.FileNames.Add(resource );
                             }
+                            // Fix up the indent level
+                            Project.Indent();
                             alink.Execute();
+                            Project.Unindent();
                         }
                         
                         // other resources
