@@ -94,108 +94,102 @@ namespace SourceForge.NAnt {
         /// <summary>Initializes all build attributes.</summary>
         private void InitializeAttributes(XmlNode elementNode) {
             // This is a bit of a monster function but if you look at it 
-            // carefully this is what it does:
-            // * Go down the inheritance tree to find the private fields in the object.
+            // carefully this is what it does:            
             // * Looking for task attributes to initialize.
             // * For each BuildAttribute try to find the xml attribute that corresponds to it.
             // * Next process all the nested elements, same idea, look at what is supposed to
             //   be there from the attributes on the class/properties and then get
-            //   the values from the xml node to set the class properties.
-            // * Note that we also go down the inheritance tree so we can pick up BuildAttribute attributes
-            //   from super classes as well.
-
+            //   the values from the xml node to set the instance properties.
+            
+            //* Removed the inheritance walking as it isn't necessary for extraction of public properties          
             _xmlNode = elementNode;
 
             Type currentType = GetType();
-            while (currentType != typeof(object)) {
-                PropertyInfo[] propertyInfoArray = currentType.GetProperties(BindingFlags.Public|BindingFlags.Instance);
-                foreach (PropertyInfo propertyInfo in propertyInfoArray ) {
-                    // process all BuildAttribute attributes
-                    BuildAttributeAttribute buildAttribute = (BuildAttributeAttribute) 
-                        Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute));
+            
+            PropertyInfo[] propertyInfoArray = currentType.GetProperties(BindingFlags.Public|BindingFlags.Instance);
+            foreach (PropertyInfo propertyInfo in propertyInfoArray ) {
+                // process all BuildAttribute attributes
+                BuildAttributeAttribute buildAttribute = (BuildAttributeAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute));
 
-                    if (buildAttribute != null) {
-                        XmlNode attributeNode = elementNode.Attributes[buildAttribute.Name];
+                if (buildAttribute != null) {
+                    XmlNode attributeNode = elementNode.Attributes[buildAttribute.Name];
 
-                        // check if its required
-                        if (attributeNode == null && buildAttribute.Required) {
-                            throw new BuildException(String.Format("'{0}' is a required attribute.", buildAttribute.Name), Location);
-                        }
-
-                        if (attributeNode != null) {
-                            string attrValue = attributeNode.Value;
-                            if (buildAttribute.ExpandProperties) {
-                                // expand attribute properites
-                                attrValue = Project.ExpandProperties(attrValue);
-                            }
-
-                            if (propertyInfo.CanWrite) {
-                                // set the property value instead
-                                MethodInfo info = propertyInfo.GetSetMethod();
-                                object[] paramaters = new object[1];
-
-                                // If the object is an emum
-                                Type propertyType = propertyInfo.PropertyType;
-
-
-                                if (propertyType.IsSubclassOf(Type.GetType("System.Enum"))) {
-                                    try {
-                                        paramaters[0] = Enum.Parse(propertyType, attrValue);
-                                    } catch (Exception) {
-                                        // catch type conversion exceptions here
-                                        string message = "Invalid value \"" + attrValue + "\". Valid values for this attribute are: ";
-                                        foreach (object value in Enum.GetValues(propertyType)) {
-                                            message += value.ToString() + ", ";
-                                        }
-                                        // strip last ,
-                                        message = message.Substring(0, message.Length - 2);
-                                        throw new BuildException(message, Location);
-                                    }
-                                } else {
-                                    
-                                    //validate attribute value with custom ValidatorAttribute(ors)
-                                    ValidatorAttribute[] validateAttributes = (ValidatorAttribute[]) 
-                                        Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
-                                    
-                                    try {
-                                        foreach(ValidatorAttribute validator in validateAttributes)
-                                            validator.Validate(attrValue);
-                                    }
-                                    catch(ValidationException ve) {
-                                        throw new ValidationException(ve.Message,Location);
-                                    }
-
-                                    paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType);
-                                }
-                                info.Invoke(this, paramaters);
-                            }
-                        }
+                    // check if its required
+                    if (attributeNode == null && buildAttribute.Required) {
+                        throw new BuildException(String.Format("'{0}' is a required attribute.", buildAttribute.Name), Location);
                     }
 
-                    // now do nested BuildElements
-                    BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
-                        Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
+                    if (attributeNode != null) {
+                        string attrValue = attributeNode.Value;
+                        if (buildAttribute.ExpandProperties) {
+                            // expand attribute properites
+                            attrValue = Project.ExpandProperties(attrValue);
+                        }
 
-                    if (buildElementAttribute != null) {
-                        // get value from xml node
-                        XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
-                        // check if its required
-                        if (nestedElementNode == null && buildElementAttribute.Required) {
-                            throw new BuildException(String.Format("'{0}' is a required element.", buildElementAttribute.Name), Location);
+                        if (propertyInfo.CanWrite) {
+                            // set the property value instead
+                            MethodInfo info = propertyInfo.GetSetMethod();
+                            object[] paramaters = new object[1];
+
+                            // If the object is an emum
+                            Type propertyType = propertyInfo.PropertyType;
+
+                            if (propertyType.IsSubclassOf(Type.GetType("System.Enum"))) {
+                                try {
+                                    paramaters[0] = Enum.Parse(propertyType, attrValue);
+                                } catch (Exception) {
+                                    // catch type conversion exceptions here
+                                    string message = "Invalid value \"" + attrValue + "\". Valid values for this attribute are: ";
+                                    foreach (object value in Enum.GetValues(propertyType)) {
+                                        message += value.ToString() + ", ";
+                                    }
+                                    // strip last ,
+                                    message = message.Substring(0, message.Length - 2);
+                                    throw new BuildException(message, Location);
+                                }
+                            } else {
+                                
+                                //validate attribute value with custom ValidatorAttribute(ors)
+                                ValidatorAttribute[] validateAttributes = (ValidatorAttribute[]) 
+                                    Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
+                                
+                                try {
+                                    foreach(ValidatorAttribute validator in validateAttributes)
+                                        validator.Validate(attrValue);
+                                }
+                                catch(ValidationException ve) {
+                                    throw new ValidationException(ve.Message,Location);
+                                }
+
+                                paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType);
+                            }
+                            info.Invoke(this, paramaters);
                         }
-                        if (nestedElementNode != null) {
-                            Element childElement = (Element)propertyInfo.GetValue(this, null);
-                            // Sanity check: Ensure property wasn't null.
-                            if ( childElement == null )
-                               throw new BuildException(String.Format("Property '{0}' value cannot be null", propertyInfo.Name), Location);
-                            childElement.Project = Project;
-                            childElement.Initialize(nestedElementNode);
-                        }
-                        continue;
                     }
                 }
-                currentType = currentType.BaseType;
-            }
+
+                // now do nested BuildElements
+                BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
+
+                if (buildElementAttribute != null) {
+                    // get value from xml node
+                    XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
+                    // check if its required
+                    if (nestedElementNode == null && buildElementAttribute.Required) {
+                        throw new BuildException(String.Format("'{0}' is a required element.", buildElementAttribute.Name), Location);
+                    }
+                    if (nestedElementNode != null) {
+                        Element childElement = (Element)propertyInfo.GetValue(this, null);
+                        // Sanity check: Ensure property wasn't null.
+                        if ( childElement == null )
+                            throw new BuildException(String.Format("Property '{0}' value cannot be null", propertyInfo.Name), Location);
+                        childElement.Project = Project;
+                        childElement.Initialize(nestedElementNode);
+                    }                        
+                }
+            }            
         }
 
         /// <summary>Performs default initialization.</summary>

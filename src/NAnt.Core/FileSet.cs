@@ -189,6 +189,17 @@ namespace SourceForge.NAnt {
                         Excludes.Add(exclude.Pattern);
                     }
                 }
+                else if(node.Name.Equals("includesList"))
+                {
+                    IncludesListElement include = new IncludesListElement();
+                    include.Project=Project;
+                    include.Initialize(node);
+                    if (include.IfDefined && !include.UnlessDefined)
+                    {
+                        foreach(string s in include.Files)
+                            AsIs.Add(s);
+                    }
+                }
             }
 
         }
@@ -245,6 +256,33 @@ namespace SourceForge.NAnt {
             public bool FromPath {
                 get { return _fromPath; }
                 set { _fromPath = value; }
+            }
+        }
+        
+        [ElementName("fromfile")]
+        class IncludesListElement : ExcludesElement {
+
+            string[] files;
+            public string[] Files {
+                get { return files; }
+            }
+
+            new public void Initialize(XmlNode elementNode)
+            {
+                base.Initialize(elementNode);
+                StringCollection f=new StringCollection();
+
+                System.IO.Stream fil=File.OpenRead(Pattern);
+                if(fil==null) {
+                    throw new BuildException(String.Format("'{0}' list could not be opened",Pattern));
+                }
+                System.IO.StreamReader rd=new System.IO.StreamReader(fil);
+                while(rd.Peek()>-1) {
+                    f.Add(rd.ReadLine());
+                }
+
+                files=new string[f.Count];
+                f.CopyTo(files,0);
             }
         }
     }
