@@ -31,6 +31,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.Zip.Types;
+
 namespace NAnt.Zip.Tasks {
     /// <summary>
     /// Creates a zip file from a specified fileset.
@@ -56,13 +58,12 @@ namespace NAnt.Zip.Tasks {
 
         private FileInfo _zipfile;
         private int _ziplevel = 6; 
-        private FileSet _fileset = new FileSet();
+        private ZipFileSet _fileset = new ZipFileSet();
         private Crc32 crc = new Crc32();
         private DateTime _stampDateTime = DateTime.MinValue;
         private string _comment = null;
         private bool _includeEmptyDirs = false;
         private Hashtable _addedDirs = new Hashtable();
-        private string _prefixDir = null;
 
         #endregion Private Instance Fields
 
@@ -85,18 +86,6 @@ namespace NAnt.Zip.Tasks {
             get { return _comment; }
             set { _comment = StringUtils.ConvertEmptyToNull(value); }
         }
-
-        /// <summary>
-        /// The top level directory prefix. If set all file paths in the zip will
-        /// have this value prepended. Can be a single directory name or a / 
-        /// seperated path 
-        /// </summary>
-        [TaskAttribute("prefix", Required=false)]
-        public string PrefixDir {
-            get { return _prefixDir; }
-            set { _prefixDir = StringUtils.ConvertEmptyToNull(value); }
-        }
-        
 
         /// <summary>
         /// An optional date/time stamp for the files.
@@ -139,7 +128,7 @@ namespace NAnt.Zip.Tasks {
         /// The set of files to be included in the archive.
         /// </summary>
         [BuildElement("fileset")]
-        public FileSet ZipFileSet {
+        public ZipFileSet ZipFileSet {
             get { return _fileset; }
             set { _fileset = value; }
         }
@@ -204,9 +193,9 @@ namespace NAnt.Zip.Tasks {
                             entryName = Path.GetFileName(file);
                         }
                         
-                        // add directory prefix if specified
-                        if (PrefixDir!= null ) {
-                            entryName = PrefixDir + "/" + entryName;
+                        // add prefix if specified
+                        if (ZipFileSet.Prefix != null) {
+                            entryName = ZipFileSet.Prefix + entryName;
                         }
 
                         // create zip entry
@@ -259,8 +248,14 @@ namespace NAnt.Zip.Tasks {
                         // determine zip entry name
                         string entryName = directory.Substring(basePath.Length + 1);
 
-                        // create directory entry (done by adding a trailing slash)
-                        ZipEntry entry = new ZipEntry(entryName + "/");
+                        if (ZipFileSet.Prefix != null) {
+                            // trailing directory signals to #ziplib that we're
+                            // dealing with directory entry
+                            entryName = ZipFileSet.Prefix + entryName + "/";
+                        }
+
+                        // create directory entry
+                        ZipEntry entry = new ZipEntry(entryName);
 
                         // write directory to zip file
                         zOutstream.PutNextEntry(entry);
