@@ -33,18 +33,17 @@ namespace SourceForge.NAnt.Tasks {
     ///     <listheader><term>Property</term>      <description>Value</description></listheader>
     ///     <item><term>sys.clr.version</term>     <description>Common Language Runtime version number.</description></item>
     ///     <item><term>sys.env.*</term>           <description>Environment variables (e.g., sys.env.PATH).</description></item>
-    ///     <item><term><a href="ms-help://MS.VSCC/MS.MSDNQTR.2003FEB.1033/cpref/html/frlrfSystemEnvironmentSpecialFolderClassTopic.htm">See the Microsoft.NET Framework SDK documentation for more details on the following.</a></term></item>
+    ///     <item><term>sys.os.platform</term>              <description>Operating system platform ID.</description></item>
+    ///     <item><term>sys.os.version</term>               <description>Operating system version.</description></item>
+    ///     <item><term>sys.os</term>                       <description>Operating system version string.</description></item>
+    ///     <item><term><b>Special folders</b></term><description><a href="ms-help://MS.VSCC/MS.MSDNQTR.2003FEB.1033/cpref/html/frlrfSystemEnvironmentSpecialFolderClassTopic.htm">See the Microsoft.NET Framework SDK documentation for more details on the following.</a></description></item>
     ///     <item><term>sys.os.folder.applicationdata</term><description>The directory that serves as a common repository for application-specific data for the current roaming user.</description></item>
-    ///     <item><term>sys.os.folder.commonapplicationdata</term><description>The directory that serves as a common repository for application-specific data that is used by all users..</description></item>
+    ///     <item><term>sys.os.folder.commonapplicationdata</term><description>The directory that serves as a common repository for application-specific data that is used by all users.</description></item>
     ///     <item><term>sys.os.folder.commonprogramfiles</term><description>The directory for components that are shared across applications.</description></item>
     ///     <item><term>sys.os.folder.desktopdirectory</term><description>The directory used to physically store file objects on the desktop. Do not confuse this directory with the desktop folder itself, which is a virtual folder.</description></item>            
-    ///     <item><term>sys.os.folder.programfiles</term><description>The Program Files directory.</description></item>         
-    ///     <item><term>sys.os.folder.system</term><description>The System directory.</description></item>
-    ///     <item><term>sys.os.folder.temp</term>  <description>The temporary directory.</description></item>
-    
-    ///     <item><term>sys.os.platform</term>     <description>Operating system platform ID.</description></item>
-    ///     <item><term>sys.os.version</term>      <description>Operating system version.</description></item>
-    ///     <item><term>sys.os</term>              <description>Operating system version string.</description></item>
+    ///     <item><term>sys.os.folder.programfiles</term>   <description>The Program Files directory.</description></item>         
+    ///     <item><term>sys.os.folder.system</term>         <description>The System directory.</description></item>
+    ///     <item><term>sys.os.folder.temp</term>           <description>The temporary directory.</description></item>    
     ///   </list>
     /// </remarks>
     /// <example>
