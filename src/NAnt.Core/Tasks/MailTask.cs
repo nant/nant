@@ -162,7 +162,13 @@ namespace SourceForge.NAnt.Tasks {
             mailMessage.BodyFormat = this.Format;
 
             // Begin build message body
+            // The #if is to work around a mono bug. Remove once StringWriter works with a culture argument on mono.
+            #if  mono     
             StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
+            #else
+            StringWriter bodyWriter = new StringWriter();
+            #endif
+            
             if (Message.Length > 0) {
                 bodyWriter.WriteLine(Message);
                 bodyWriter.WriteLine();
@@ -214,6 +220,7 @@ namespace SourceForge.NAnt.Tasks {
 
             // send message
             try {
+                Log(Level.Info, LogPrefix + "Sending mail to {0}", mailMessage.To);
                 SmtpMail.SmtpServer = this.Mailhost;
                 SmtpMail.Send(mailMessage);
             } catch (Exception e) {
