@@ -78,83 +78,42 @@
                 <includes name="${log4netdll}"/>
             </fileset>
         </copy>
-        <!-- build NAnt.Core -->
-        <csc target="library" warnaserror="true" nowarn="1591,0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
-            <sources failonempty="true">
-                <includes name="src/NAnt.Core/**/*.cs" />
-                <!-- common assembly-level attributes -->
-                <includes name="src/CommonAssemblyInfo.cs" />
-                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
-                <excludes name="src/NAnt.Core/Tasks/ScriptTask.cs"/>
-            </sources>
-            <resources basedir="src/NAnt.Core/Resources">
-                <includes name="**/*" />
-            </resources>
-            <references basedir="${build.dir}/bin">
-                <includes name="${log4netdll}"/>
-                <includes name="${nant.settings.currentframework.frameworkassemblydirectory}/System.Web.dll"/>
-            </references>
-            <arg value="/d:mono" if="${mono}" />
-        </csc>
-        <!-- build NAnt.Core.Tests -->
-        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
-            <sources failonempty="true" basedir="tests/NAnt.Core">
-                <includes name="**/*.cs" />
-                <!-- common assembly-level attributes -->
-                <includes name="../../src/CommonAssemblyInfo.cs" />
-                <!-- requires internet access and server resources -->
-                <excludes name="/**/GetTaskTest.cs" />
-                <excludes name="/**/MailTaskTest.cs" />
-                <!-- ??? why excluded ??? -->
-                <excludes name="/**/TouchTaskTest.cs" />
-                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
-                <excludes name="/**/ScriptTest.cs" />
-            </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-                <includes name="nunit.framework.dll" />
-                <includes name="${log4netdll}"/>
-            </references>
-            <arg value="/d:mono" if="${mono}" />
-        </csc>
-        <!-- build NAnt.Console -->
-        <csc target="exe" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
-            <sources failonempty="true">
-                <includes name="src/NAnt.Console/**/*.cs" />
-                <!-- common assembly-level attributes -->
-                <includes name="src/CommonAssemblyInfo.cs" />
-            </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="${log4netdll}"/>
-            </references>
-            <arg value="/d:mono" if="${mono}" />
-        </csc>
-        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/${sourceconfig}" />
-        <!-- compile NAnt.Console.Tests -->
-        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
-            <sources failonempty="true" basedir="tests/NAnt.Console">
-                <includes name="**/*.cs" />
-                <!-- common assembly-level attributes -->
-                <includes name="../../src/CommonAssemblyInfo.cs" />
-            </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-                <includes name="NAnt.Core.Tests.dll" />
-                <includes name="nunit.framework.dll" />
-                <includes name="${log4netdll}"/>
-            </references>
-        </csc>
+
+        <!-- build NAnt.Core assembly -->
+        <nant buildfile="src/NAnt.Core/NAnt.Core.build" target="build" />
+
+        <!-- build NAnt.Console assembly -->
+        <nant buildfile="src/NAnt.Console/NAnt.Console.build" target="build" />
+
+        <!-- build task assemblies -->
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
             <nant buildfile="src/${filename}/${filename}.build" target="build" />
         </foreach>
 
-        <!-- build win32 specific assemblies is we are on win32 -->
+        <!-- build win32 specific task assemblies if we are on win32 -->
         <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
             <nant buildfile="src/${filename}/${filename}.build" target="build" unless="${mono}"/>
         </foreach>
+
+        <!-- build NAnt.Core.Tests assembly -->
+        <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
+
+        <!-- build NAnt.Console.Tests assembly -->
+        <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
+
+
+        <!-- build tests for task assemblies -->
+        <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
+            <nant buildfile="tests/${filename}/${filename}.build" target="build" />
+        </foreach>
+        
+        <!-- build tests for win32 specific task assemblies if we are on win32 -->
+        <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
+            <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${mono}"/>
+        </foreach>
     </target>
 
-    <!-- test the newly built nunit -->
+    <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
         <echo message="Running unit tests with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
@@ -167,20 +126,21 @@
 
     <target name="self-test" depends="init">
         <echo message="testing with config '${nant.location}nant.exe.config'"/>
-        <nunit2>
-            <test appconfig="${nant.location}nant.exe.config">
-                <assemblies>
-                    <includes name="${build.dir}/bin/NAnt.Core.Tests.dll" />
-                    <includes name="${build.dir}/bin/NAnt.Console.Tests.dll" />
-                </assemblies>
-            </test>
-        </nunit2>
-        <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
-            <nant buildfile="src/${filename}/${filename}.build" target="test" />
+
+        <!-- test NAnt.Console assembly -->
+        <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="test" />
+
+        <!-- test NAnt.Core assembly -->
+        <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="test" />
+
+        <!-- test task assemblies -->
+        <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
+            <nant buildfile="tests/${filename}/${filename}.build" target="test" />
         </foreach>
         
-        <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
-            <nant buildfile="src/${filename}/${filename}.build" target="test" unless="${mono}"/>
+        <!-- test win32 specific task assemblies -->
+        <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
+            <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${mono}"/>
         </foreach>
     </target>
 
@@ -347,7 +307,7 @@
             <fileset basedir="bin">
                 <includes name="NAnt*" />
 
-                <excludes name="NAnt.exe" />
+                <excludes name="${nant.console.name}.exe" />
             </fileset>
         </delete>
         <copy todir="bin" overwrite="true">
@@ -356,7 +316,7 @@
 
                 <excludes name="*Test*" />
                 <excludes name="${nant.console.name}.xml" />
-                <excludes name="NAnt.exe" />
+                <excludes name="${nant.console.name}.exe" />
             </fileset>
         </copy>
     </target>
