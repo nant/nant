@@ -545,10 +545,7 @@ namespace SourceForge.NAnt {
                 return true;
 
             } catch (BuildException e) {
-                string message = "\nBUILD FAILED\n" + e.Message;
-                if (e.InnerException != null) {
-                    message += e.InnerException.Message; 
-                }
+                string message = "\nBUILD FAILED\n" + e.ToString();
                 Log.WriteMessage(message, "error");
                 success = false;
                 return false;

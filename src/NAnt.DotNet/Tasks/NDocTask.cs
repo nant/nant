@@ -208,7 +208,7 @@ namespace SourceForge.NAnt.Tasks {
                     documenter.Build(project);
                 } catch (Exception e) {
                     Log.WriteLine(LogPrefix + "Error building documentation.");
-                    throw new BuildException(e.Message, Location);
+                    throw new BuildException(LogPrefix + "Error building documentation.", Location, e);
                 }
             }
         }

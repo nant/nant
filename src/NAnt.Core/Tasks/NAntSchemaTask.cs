@@ -183,7 +183,7 @@ namespace SourceForge.NAnt.Tasks {
 
                 XmlSchemaComplexType source = args.Exception.SourceSchemaObject as XmlSchemaComplexType;
                 
-                Console.WriteLine(args.Message);
+                Console.WriteLine(args.ToString());
                 if(source != null)
                     Console.WriteLine("{0}({1})", source.Name, source.Id );
             }
@@ -396,7 +396,7 @@ namespace SourceForge.NAnt.Tasks {
             else if(args.Severity == XmlSeverityType.Error)
                 Console.Write("ERROR: ");
 
-            Console.WriteLine(args.Message);
+            Console.WriteLine(args.ToString());
         }
 
         /// <summary>

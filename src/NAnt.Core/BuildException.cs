@@ -19,6 +19,7 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace SourceForge.NAnt {
@@ -102,6 +103,10 @@ namespace SourceForge.NAnt {
                 }
                 return message;
             }
+        }
+
+        public override string ToString() {
+            return string.Format(CultureInfo.InvariantCulture,"{0}:{1}{2}", Message, Environment.NewLine, base.ToString());
         }
     }
 }

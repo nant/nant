@@ -45,11 +45,6 @@ namespace SourceForge.NAnt {
         public InvalidVolumeException(Uri VolUri) : base("Volume information could not be retreived for the path '" + VolUri.LocalPath + "'. Verify that the path is valid and ends in a trailing backslash, and try again."){}
         public InvalidVolumeException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
-        public override string Message {
-            get {
-                return base.Message;
-            }
-        }
     }
 
     [Serializable]

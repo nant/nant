@@ -54,7 +54,7 @@ namespace SourceForge.NAnt.Tasks {
                     }
                 }
             } catch (Exception e) {
-                throw new BuildException(e.Message, Location, e);
+                throw new BuildException(LogPrefix + "Failed", Location, e);
             }
         }
     }

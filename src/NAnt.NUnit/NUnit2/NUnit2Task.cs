@@ -171,9 +171,9 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                 return domain.RunTest(test.TestName, GetTestAssemblies(test), test.AppConfigFile, listener);
             } catch ( Exception e ) {
                if ( HaltOnError )
-                  throw new BuildException("NUnit 2.0 Error: " + e.Message);
+                  throw new BuildException("NUnit 2.0 Error: ", e);
                
-               Log.WriteLineIf(Verbose, LogPrefix + "NUnit 2.0 Error: " + e.Message);
+               Log.WriteLineIf(Verbose, LogPrefix + "NUnit 2.0 Error: " + e.ToString());
                return null;
             }
         }

@@ -39,10 +39,17 @@ namespace SourceForge.NAnt.Tasks {
         string _buildFileName = null;
         string _target = null;
         bool _inheritAll = true;
+        bool _newAppDomain = false;
 
         // TODO: Support for handling properties.  Should it inherit the parent 
         // project's properties.  How to set properties for the new project?  
         // The same Ant task handles these issues.
+
+        /// <summary>The build file to build. If not specified, use the current build file.</summary>
+        [TaskAttribute("appdomain")]
+        public bool NewAppDomain {
+            set { _newAppDomain = value; }
+        }
 
         /// <summary>The build file to build. If not specified, use the current build file.</summary>
         [TaskAttribute("buildfile")]

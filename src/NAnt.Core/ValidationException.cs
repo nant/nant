@@ -69,11 +69,5 @@ namespace SourceForge.NAnt {
         /// <param name="context">The contextual information about the source or destination. </param>
         /// <remarks>For more information, see SerializationInfo in the Microsoft documentation.</remarks>
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {}
-
-        public override string Message {
-            get {
-                return base.Message;
-            }
-        }
-    }
+      }
 }

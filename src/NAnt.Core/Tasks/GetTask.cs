@@ -212,7 +212,7 @@ namespace SourceForge.NAnt.Tasks {
                         return;
                     }
                 } else {
-                    Log.WriteLine(LogPrefix + webException.Status + ": " + webException.Message);
+                    Log.WriteLine(LogPrefix + webException.Status + ": " + webException.ToString());
                     return;
                 }
             } catch (IOException e) {
@@ -287,7 +287,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
             } catch (Exception e) {
                 // swallow any errors and move on
-                Log.WriteLineIf(Verbose, LogPrefix + "Error: {0}", e.Message);
+                Log.WriteLineIf(Verbose, LogPrefix + "Error: {0}", e.ToString());
             }
         }
     }

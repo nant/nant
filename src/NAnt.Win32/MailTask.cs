@@ -216,7 +216,6 @@ namespace SourceForge.NAnt.Tasks {
                 StringBuilder msg = new StringBuilder();
                 msg.Append(LogPrefix + "Error enountered while sending mail message.\n");
                 msg.Append(LogPrefix + "Make sure that mailhost=" + this.Mailhost + " is valid\n");
-                msg.Append(LogPrefix + "Internal Message: " + e.Message + "\n");
                 msg.Append(LogPrefix + "Stack Trace:\n");
                 msg.Append(e.ToString() + "\n");
                 throw new BuildException("Error sending mail:\n " + msg.ToString());

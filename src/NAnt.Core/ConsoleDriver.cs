@@ -188,7 +188,7 @@ namespace SourceForge.NAnt {
                         }
                     } catch(Exception e) {
                         Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}", loggerType));
-                        throw new ApplicationException(e.Message);
+                        throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}",loggerType), e);
                     }
                     Log.Listeners.Clear();
                     Log.Listeners.Add(logger);
@@ -254,9 +254,7 @@ namespace SourceForge.NAnt {
                 return 0;
 
             } catch (ApplicationException e) {
-                if (e.Message.Length > 0) {
-                    Console.WriteLine(e.Message);
-                }
+                Console.WriteLine(e.ToString());
                 Console.WriteLine("Try 'nant -help' for more information");
                 return 1;
 

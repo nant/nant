@@ -111,10 +111,7 @@ namespace SourceForge.NAnt {
                     if (FailOnError) {
                         throw;
                     } else {
-                        Log.WriteLine(e.Message);
-                        if (e.InnerException != null) {
-                            Log.WriteLine(e.InnerException.Message);
-                        }
+                        Log.WriteLine(e.ToString());
                     }
                 } finally {
                     Project.OnTaskFinished(this, new BuildEventArgs(Name));

@@ -179,7 +179,7 @@ namespace SourceForge.NAnt {
                                 }
                             } catch(ValidationException ve) {
                                 logger.Error("Validation Exception", ve);
-                                throw new ValidationException(ve.Message,Location);
+                                throw new ValidationException("Validation failed on" + propertyInfo.DeclaringType.FullName, Location, ve);
                             }
                             
                             //set paramaters[0] to value.

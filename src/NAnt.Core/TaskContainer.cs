@@ -75,7 +75,7 @@ namespace SourceForge.NAnt {
                 return Project.CreateTask(node);
             }
             catch(BuildException be) {
-                Log.WriteLine("{0} Failed to created Task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , be.Message);
+                Log.WriteLine("{0} Failed to created Task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , be.ToString());
             }
             return null;
         }

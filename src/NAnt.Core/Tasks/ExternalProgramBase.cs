@@ -194,7 +194,7 @@ namespace SourceForge.NAnt.Tasks {
                 if (FailOnError) {
                     throw;
                 } else {
-                    Log.WriteLine(e.Message, "error");
+                    Log.WriteLine(e.ToString(), "error");
                 }
             } catch (Exception e) {
                 throw new BuildException(
