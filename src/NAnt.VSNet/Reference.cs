@@ -4,7 +4,7 @@
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
+// (at your option) any later version.  
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -181,7 +181,7 @@ namespace NAnt.VSNet {
         public string Filename {
             get { return _referenceFile; }
             set { 
-                _referenceFile = value; 
+                _referenceFile = value;
                 _baseDirectory = new FileInfo(_referenceFile).Directory;
                 _referenceTimeStamp = GetTimestamp(_referenceFile);
             }
@@ -232,10 +232,13 @@ namespace NAnt.VSNet {
         
         public DateTime Timestamp {
             get { 
+                // if this is a project reference, return timestamp of project 
+                // output file (assembly)
                 if (Project != null) {
                     return GetTimestamp(Project.GetOutputPath(ConfigurationSettings.Name));
                 }
 
+                // return timestamp of reference file
                 return _referenceTimeStamp; 
             }
         }
@@ -397,6 +400,7 @@ namespace NAnt.VSNet {
                 if (fiRef.Exists) {
                     _referenceFile = fiRef.FullName;
                     _baseDirectory = fiRef.Directory;
+                    _referenceTimeStamp = GetTimestamp(_referenceFile);
                     return true;
                 }
             }
