@@ -60,8 +60,8 @@ namespace SourceForge.NAnt.Tests {
 
             getTask.Source = source;
             getTask.Destination = destination;
-            getTask.useTimeStamp = false;
-            getTask.ignoreErrors = true;
+            getTask.UseTimeStamp = false;
+            getTask.IgnoreErrors = true;
             getTask.Verbose = true;;
             try {
                 getTask.Execute();
@@ -103,8 +103,8 @@ namespace SourceForge.NAnt.Tests {
 
                 getTask.Source = source;
                 getTask.Destination = destination;
-                getTask.useTimeStamp = true;
-                getTask.ignoreErrors = true;
+                getTask.UseTimeStamp = true;
+                getTask.IgnoreErrors = true;
                 getTask.Verbose = true;;
                 getTask.Execute();
 
@@ -123,8 +123,8 @@ namespace SourceForge.NAnt.Tests {
 
                 getTask.Source = source;
                 getTask.Destination = destination;
-                getTask.useTimeStamp = true;
-                getTask.ignoreErrors = true;
+                getTask.UseTimeStamp = true;
+                getTask.IgnoreErrors = true;
                 getTask.Verbose = true;;
                 getTask.Execute();
 
@@ -143,8 +143,8 @@ namespace SourceForge.NAnt.Tests {
 
                 getTask.Source = source;
                 getTask.Destination = destination;
-                getTask.useTimeStamp = true;
-                getTask.ignoreErrors = true;
+                getTask.UseTimeStamp = true;
+                getTask.IgnoreErrors = true;
                 getTask.Verbose = true;;
                 getTask.Execute();
 
@@ -232,8 +232,8 @@ namespace SourceForge.NAnt.Tests {
 
             getTask.Source = source;
             getTask.Destination = destination;
-            getTask.useTimeStamp = false;
-            getTask.ignoreErrors = true;
+            getTask.UseTimeStamp = false;
+            getTask.IgnoreErrors = true;
             getTask.Verbose = true;;
             getTask.Execute();
 
@@ -268,20 +268,20 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert("Destination accessor bug", getTask.Destination == destination);
 
             bool ignoreErrors = true;
-            getTask.ignoreErrors = ignoreErrors;
-            Assertion.Assert("ignoreErrors=true accessor bug", getTask.ignoreErrors == ignoreErrors);
+            getTask.IgnoreErrors = ignoreErrors;
+            Assertion.Assert("ignoreErrors=true accessor bug", getTask.IgnoreErrors == ignoreErrors);
 
             ignoreErrors = false;
-            getTask.ignoreErrors = ignoreErrors;
-            Assertion.Assert("ignoreErrors=false accessor bug", getTask.ignoreErrors == ignoreErrors);
+            getTask.IgnoreErrors = ignoreErrors;
+            Assertion.Assert("ignoreErrors=false accessor bug", getTask.IgnoreErrors == ignoreErrors);
 
             bool useTimeStamp = true;
-            getTask.useTimeStamp = useTimeStamp;
-            Assertion.Assert("useTimeStamp=true accessor bug", getTask.useTimeStamp == useTimeStamp);
+            getTask.UseTimeStamp = useTimeStamp;
+            Assertion.Assert("useTimeStamp=true accessor bug", getTask.UseTimeStamp == useTimeStamp);
 
             useTimeStamp = false;
-            getTask.useTimeStamp = useTimeStamp;
-            Assertion.Assert("useTimeStamp=false accessor bug", getTask.useTimeStamp == useTimeStamp);
+            getTask.UseTimeStamp = useTimeStamp;
+            Assertion.Assert("useTimeStamp=false accessor bug", getTask.UseTimeStamp == useTimeStamp);
 
             bool verbose = true;
             getTask.Verbose = verbose;
