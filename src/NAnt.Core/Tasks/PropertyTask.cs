@@ -106,9 +106,8 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Specifies whether references to other properties should not be 
         /// expanded when the value of the property is set, but expanded when
-        /// the property is actually used.  The default is <see langword="false" />, 
-        /// meaning references to other properties will be expanded when the 
-        /// property value is set.
+        /// the property is actually used.  By default, properties will be
+        /// expanded when set.
         /// </summary>
         [TaskAttribute("dynamic", Required=false)]
         [BooleanValidator()]
@@ -119,7 +118,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether the value of a property should be overwritten if
-        /// the property already exists (unless the property is readonly). 
+        /// the property already exists (unless the property is read-only). 
         /// The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("overwrite", Required=false)]
