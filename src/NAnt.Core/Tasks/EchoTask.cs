@@ -19,6 +19,7 @@
 // Brian Deacon (bdeacon@vidya.com)
 
 using System;
+using System.Globalization;
 using System.Xml;
 
 using NAnt.Core.Attributes;
@@ -42,47 +43,91 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("echo")]
     public class EchoTask : Task {
+        #region Private Instance Fields
 
         string _message = null;
         string _contents = null;
+        Level _level = Level.Info;
 
-        /// <summary>The message to display.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The message to display.
+        /// </summary>
         [TaskAttribute("message")]
         public string Message {
             get { return _message; }
             set {
-                if (_contents !=null && value != null && value.Trim().Length > 0) {
-                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
+                if (value != null && value.Trim().Length > 0) {
+                    if (Contents != null) {
+                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
+                    } else {
+                        _message = value;
+                    }
                 } else {
-                    _message = value; 
+                    _message = null; 
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the inline content that should be output in the build
+        /// log.
+        /// </summary>
+        /// <value>
+        /// The inline content that should be output in the build log.
+        /// </value>
         public string Contents {
             get { return _contents; }
             set { 
-                if (_message != null && value != null && value.Trim().Length > 0) {
-                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
+                if (value != null && value.Trim().Length > 0) {
+                    if (Message != null) {
+                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
+                    } else {
+                        _contents = value;
+                    }
                 } else {
-                    _contents = value;
+                    _contents = null;
                 }
-
             }
         }
-        
+
+        /// <summary>
+        /// The logging level with which the message should be output. The default 
+        /// is <see cref="P:Level.Info" />?
+        /// </summary>
+        [TaskAttribute("level")]
+        public Level Level {
+            get { return _level; }
+            set {
+                if (!Enum.IsDefined(typeof(Level), value)) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "An invalid level {0} was specified.", value)); 
+                } else {
+                    this._level = value;
+                }
+            }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
+        /// <summary>
+        /// Outputs the message to the build log.
+        /// </summary>
         protected override void ExecuteTask() {
             if (Message != null) {
-                Log(Level.Info, LogPrefix + Message);
+                Log(Level, LogPrefix + Message);
             } else if (Contents != null) {
-                Log(Level.Info, LogPrefix + Contents);
+                Log(Level, LogPrefix + Contents);
             } else {
-                Log(Level.Info, LogPrefix);
+                Log(Level, LogPrefix);
             }
         }
+        protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
 
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-            Contents = Project.ExpandProperties(taskNode.InnerText, Location);
-        }
+        #endregion Override implementation of Task
     }
 }
