@@ -139,42 +139,42 @@ namespace NAnt.MSNet.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             // get handle to service
-            ServiceController serviceController = new ServiceController(ServiceName, MachineName);
+            using (ServiceController serviceController = new ServiceController(ServiceName, MachineName)) {
+                // determine desired status
+                ServiceControllerStatus desiredStatus = DetermineDesiredStatus();
 
-            // determine desired status
-            ServiceControllerStatus desiredStatus = DetermineDesiredStatus();
-
-            try {
-                // determine current status, this is also verifies if the service 
-                // is available
-                ServiceControllerStatus currentStatus = serviceController.Status;
-            } catch (Exception ex) {
-                throw new BuildException(ex.Message, Location, ex.InnerException);
-            }
-
-            // we only need to take action if the service status differs from 
-            // the desired status or if the service should be restarted
-            if (serviceController.Status != desiredStatus || Action == ActionType.Restart) {
-                switch (Action) {
-                    case ActionType.Start:
-                        StartService(serviceController);
-                        break;
-                    case ActionType.Pause:
-                        PauseService(serviceController);
-                        break;
-                    case ActionType.Continue:
-                        ContinueService(serviceController);
-                        break;
-                    case ActionType.Stop:
-                        StopService(serviceController);
-                        break;
-                    case ActionType.Restart:
-                        RestartService(serviceController);
-                        break;
+                try {
+                    // determine current status, this is also verifies if the service 
+                    // is available
+                    ServiceControllerStatus currentStatus = serviceController.Status;
+                } catch (Exception ex) {
+                    throw new BuildException(ex.Message, Location, ex.InnerException);
                 }
 
-                // refresh current service status
-                serviceController.Refresh();
+                // we only need to take action if the service status differs from 
+                // the desired status or if the service should be restarted
+                if (serviceController.Status != desiredStatus || Action == ActionType.Restart) {
+                    switch (Action) {
+                        case ActionType.Start:
+                            StartService(serviceController);
+                            break;
+                        case ActionType.Pause:
+                            PauseService(serviceController);
+                            break;
+                        case ActionType.Continue:
+                            ContinueService(serviceController);
+                            break;
+                        case ActionType.Stop:
+                            StopService(serviceController);
+                            break;
+                        case ActionType.Restart:
+                            RestartService(serviceController);
+                            break;
+                    }
+
+                    // refresh current service status
+                    serviceController.Refresh();
+                }
             }
         }
 
