@@ -50,7 +50,7 @@ namespace NAnt.DotNet.Tasks {
 
         string _arguments = null;
         string _input = null; 
-        string _output = null;        
+        string _output = null;
         FileSet _resources = new FileSet();
         string _targetExt = "resources";
         string _toDir = null;
@@ -59,25 +59,74 @@ namespace NAnt.DotNet.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>Input file to process.</summary>
+        /// <summary>
+        /// Input file to process.
+        /// </summary>
         [TaskAttribute("input", Required=false)]
-        public string Input { get { return _input; } set { _input = value;} }
+        public string Input {
+            get { return _input; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _input = value;
+                } else {
+                    _input = null;
+                }
+            }
+        }
 
-        /// <summary>Name of the resource file to output.</summary>
+        /// <summary>
+        /// Name of the resource file to output.
+        /// </summary>
         [TaskAttribute("output", Required=false)]
-        public string Output { get { return (_output == null) ? string.Empty : _output; } set {_output = value;} }
+        public string Output {
+            get { return _output; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _output = value;
+                } else {
+                    _output = null;
+                }
+            }
+        }
 
-        /// <summary>The target type (usually resources).</summary>
+        /// <summary>
+        /// The target type (usually resources).
+        /// </summary>
         [TaskAttribute("target", Required=false)]
-        public string TargetExt { get { return _targetExt; } set {_targetExt = value;} }
+        public string TargetExt {
+            get { return _targetExt; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _targetExt = value;
+                } else {
+                    _targetExt = null;
+                }
+            }
+        }
 
-        /// <summary>The directory to which outputs will be stored.</summary>
+        /// <summary>
+        /// The directory to which outputs will be stored.
+        /// </summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDirectory { get { return (_toDir == null) ? string.Empty : _toDir; } set {_toDir = value;} }
+        public string ToDirectory {
+            get { return _toDir; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _toDir = value;
+                } else {
+                    _toDir = null;
+                }
+            }
+        }
        
-        /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
+        /// <summary>
+        /// Takes a list of .resX or .txt files to convert to .resources files.
+        /// </summary>
         [FileSet("resources")]
-        public FileSet Resources { get { return _resources; } set { _resources = value; } }
+        public FileSet Resources {
+            get { return _resources; }
+            set { _resources = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -99,11 +148,11 @@ namespace NAnt.DotNet.Tasks {
         protected override void ExecuteTask() {
             _arguments = "";
             if (Resources.FileNames.Count > 0) {
-                if (Output != null && Output.Length != 0) {
+                if (Output != null) {
                     throw new BuildException("Output attribute is incompatible with fileset use.", Location);
                 }
                 foreach (string filename in Resources.FileNames) {
-                    string outputFile = getOutputFile(filename);
+                    string outputFile = GetOutputFile(filename);
 
                     if (NeedsCompiling(filename, outputFile)) {
                         if (_arguments.Length == 0) {
@@ -119,7 +168,7 @@ namespace NAnt.DotNet.Tasks {
                 }
 
                 string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
-                string outputFile = getOutputFile(inputFile);
+                string outputFile = GetOutputFile(inputFile);
 
                 if (NeedsCompiling(inputFile, outputFile)) {
                     AppendArgument(string.Format(CultureInfo.InvariantCulture, "\"{0}\" \"{1}\"", inputFile, outputFile));
@@ -151,7 +200,7 @@ namespace NAnt.DotNet.Tasks {
                         File.Delete (outputFile);
                     }
                 }
-            }                     
+            }
         }
 
         #endregion Public Instance Methods
@@ -203,20 +252,20 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="filename">The output file for which the full path and extension should be determined.</param>
         /// <returns>The full path (with extensions) for the specified file.</returns>
-        private string getOutputFile(string filename) {
+        private string GetOutputFile(string filename) {
             FileInfo fileInfo = new FileInfo(filename);
             string outputFile = "";
             
             // If output is empty just change the extension 
-            if (Output == null ||  Output.Length == 0) {
-                if (ToDirectory == null || ToDirectory.Length == 0) {
+            if (Output == null) {
+                if (ToDirectory == null) {
                     outputFile = filename;
                 } else {
                     outputFile = Path.Combine(ToDirectory, fileInfo.Name);
                 }
-                outputFile = Path.ChangeExtension( outputFile, TargetExt );
+                outputFile = Path.ChangeExtension(outputFile, TargetExt);
             } else {
-                outputFile = Path.Combine (ToDirectory, Output);
+                outputFile = Path.Combine(ToDirectory, Output);
             }
             return outputFile;
         }
