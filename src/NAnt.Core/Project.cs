@@ -81,7 +81,7 @@ namespace NAnt.Core {
         /// Constant for the "visited" state, used when traversing a DFS of target 
         /// dependencies.
         /// </summary>
-        private const String Visited = "VISITED";
+        private const string Visited = "VISITED";
 
         #endregion Private Static Fields
 
@@ -1528,8 +1528,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        ///  Builds an appropriate exception detailing a specified circular
-        ///  dependency.
+        /// Builds an appropriate exception detailing a specified circular
+        /// dependency.
         /// </summary>
         /// <param name="end">The dependency to stop at. Must not be <see langword="null" />.</param>
         /// <param name="stack">A stack of dependencies. Must not be <see langword="null" />.</param>
