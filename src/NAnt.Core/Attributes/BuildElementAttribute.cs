@@ -43,7 +43,7 @@ namespace NAnt.Core.Attributes {
     /// </code>
     /// </para>
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Property, Inherited=true)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, Inherited=true)]
     public class BuildElementAttribute : Attribute {
         #region Protected Instance Constructors
 
