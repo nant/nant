@@ -31,12 +31,49 @@ namespace NAnt.Core.Tasks {
     /// Executes a system command.
     /// </summary>
     /// <example>
-    ///   <para>Ping nant.sourceforge.net.</para>
+    ///   <para>Ping "nant.sourceforge.net".</para>
     ///   <code>
     ///     <![CDATA[
-    /// <exec program="ping" commandline="nant.sourceforge.net" />
+    /// <exec program="ping">
+    ///     <arg value="nant.sourceforge.net" />
+    /// </exec>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Execute a java application using <c>IKVM.NET</c> that requires the 
+    ///   Apache FOP jars, and a set of custom jars.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    ///         <path id="fop-classpath">
+    ///             <pathelement file="${fop.dist.dir}/build/fop.jar" />
+    ///             <pathelement file="${fop.dist.dir}/lib/xercesImpl-2.2.1.jar" />
+    ///             <pathelement file="${fop.dist.dir}/lib/avalon-framework-cvs-20020806.jar" />
+    ///             <pathelement file="${fop.dist.dir}/lib/batik.jar" />
+    ///         </path>
+    ///         <exec program="ikvm.exe" useruntimeengine="true">
+    ///             <arg value="-cp" />
+    ///             <arg>
+    ///                 <path>
+    ///                     <pathelement dir="conf" />
+    ///                     <path refid="fop-classpath" />
+    ///                     <pathelement file="lib/mylib.jar" />
+    ///                     <pathelement file="lib/otherlib.zip" />
+    ///                 </path>
+    ///             </arg>
+    ///             <arg value="org.me.MyProg" />
+    ///         </exec>
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   Assuming the base directory of the build file is "c:\ikvm-test" and
+    ///   the value of the "fop.dist.dir" property is "c:\fop", then the value
+    ///   of the <c>-cp</c> argument that is passed to<c>ikvm.exe</c> is
+    ///   "c:\ikvm-test\conf;c:\fop\build\fop.jar;conf;c:\fop\lib\xercesImpl-2.2.1.jar;c:\fop\lib\avalon-framework-cvs-20020806.jar;c:\fop\lib\batik.jar;c:\ikvm-test\lib\mylib.jar;c:\ikvm-test\lib\otherlib.zip"
+    ///   on a DOS-based system.
+    ///   </para>
     /// </example>
     [TaskName("exec")]
     public class ExecTask : ExternalProgramBase {
