@@ -18,6 +18,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -168,12 +169,6 @@ namespace NAnt.NUnit2.Tasks {
         /// </summary>
         [Serializable()]
         private class AssemblyResolveHandler {
-            #region Private Instance Fields
-
-            private StringCollection _probePaths;
-
-            #endregion Private Instance Fields
-        
             #region Public Instance Constructors
 
             /// <summary> 
@@ -181,10 +176,15 @@ namespace NAnt.NUnit2.Tasks {
             /// class.
             /// </summary>
             public AssemblyResolveHandler(StringCollection probePaths) {
+                _assemblyCache = new Hashtable();
                 _probePaths = probePaths;
             
-                // attach our handler for the current domain.
-                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveAssembly);
+                // attach handlers for the current domain.
+                AppDomain.CurrentDomain.AssemblyResolve += 
+                    new ResolveEventHandler(ResolveAssembly);
+                AppDomain.CurrentDomain.AssemblyLoad += 
+                    new AssemblyLoadEventHandler(AssemblyLoad);
+
             }
 
             #endregion Public Instance Constructors
@@ -202,6 +202,24 @@ namespace NAnt.NUnit2.Tasks {
             /// <see langword="null" />.
             /// </returns>
             public Assembly ResolveAssembly(Object sender, ResolveEventArgs args) {
+                bool isFullName = args.Name.IndexOf("Version=") != -1;
+
+                // find assembly in cache
+                if (isFullName) {
+                    if (_assemblyCache.Contains(args.Name)) {
+                        // return assembly from cache
+                        return (Assembly) _assemblyCache[args.Name];
+                    }
+                } else {
+                    foreach (Assembly assembly in _assemblyCache.Values) {
+                        if (assembly.GetName(false).Name == args.Name) {
+                            // return assembly from cache
+                            return assembly;
+                        }
+                    }
+                }
+
+                // find assembly in probe paths
                 foreach (string path in _probePaths) {
                     if (!Directory.Exists(path)) {
                         continue;
@@ -212,16 +230,50 @@ namespace NAnt.NUnit2.Tasks {
                     foreach (string assemblyFile in assemblies) {
                         try {
                             AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                            if (assemblyName.FullName == args.Name) {
-                                return Assembly.LoadFrom(assemblyFile);
+                            if (isFullName) {
+                                if (assemblyName.FullName == args.Name) {
+                                    return Assembly.LoadFrom(assemblyFile);
+                                }
+                            } else {
+                                if (assemblyName.Name == args.Name) {
+                                    return Assembly.LoadFrom(assemblyFile);
+                                }
                             }
                         } catch {}
                     }
                 }
+
+                // assembly reference could not be resolved
                 return null;
             }
 
+            /// <summary>
+            /// Occurs when an assembly is loaded. The loaded assembly is added 
+            /// to the assembly cache.
+            /// </summary>
+            /// <param name="sender">The source of the event.</param>
+            /// <param name="args">An <see cref="AssemblyLoadEventArgs" /> that contains the event data.</param>
+            private void AssemblyLoad(object sender, AssemblyLoadEventArgs args) {
+                // store assembly in cache
+                _assemblyCache[args.LoadedAssembly.FullName] = args.LoadedAssembly;
+            }
+
             #endregion Public Instance Methods
+
+            #region Private Instance Fields
+
+            /// <summary>
+            /// Holds the list of directories that will be scanned for missing
+            /// assembly references.
+            /// </summary>
+            private StringCollection _probePaths;
+
+            /// <summary>
+            /// Holds the loaded assemblies.
+            /// </summary>
+            private Hashtable _assemblyCache;
+
+            #endregion Private Instance Fields
         }
     }
 }
