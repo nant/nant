@@ -244,20 +244,28 @@ namespace NAnt.Core {
         #region Public Instance Methods
 
         public string StripFormatting(string message) {
-            //looking for zero or more white space from front of line followed by
-            //one or more of just about anything between [ and ] followed by a message
-            //which we will capture. '    [blah] 
-            Regex r = new Regex(@"(?ms)^\s*?\[[\s\w\d]+\](.+)");
+            // will hold the message stripped from whitespace and null characters
+            string strippedMessage;
+
+            // looking for whitespace or null characters from front of line 
+            // followed by one or more of just about anything between [ and ] 
+            // followed by a message which we will capture. eg. '    [blah] 
+            Regex r = new Regex(@"(?ms)^[\s\0]*?\[[\s\w\d]+\](.+)");
 
             Match m = r.Match(message);
             if (m.Success) {
-                return m.Groups[1].Captures[0].Value.Trim();
+                strippedMessage = m.Groups[1].Captures[0].Value;
+                strippedMessage = strippedMessage.Replace("\0", string.Empty);
+                strippedMessage = strippedMessage.Trim();
+            } else {
+                strippedMessage = message.Replace("\0", string.Empty);
             }
-            return message;
+
+            return strippedMessage;
         }
 
         public bool IsJustWhiteSpace(string message) {
-            Regex r = new Regex(@"^\s*$");
+            Regex r = new Regex(@"^[\s\0]*$");
             return r.Match(message).Success;
         }
 
