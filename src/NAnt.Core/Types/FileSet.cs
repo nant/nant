@@ -119,14 +119,25 @@ namespace NAnt.Core.Types {
             set { _baseDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// Gets the collection of include patterns.
+        /// </summary>
         public StringCollection Includes {
             get { return _scanner.Includes; }
         }
 
+        /// <summary>
+        /// Gets the collection of exclude patterns.
+        /// </summary>
         public StringCollection Excludes {
             get { return _scanner.Excludes; }
         }
 
+        /// <summary>
+        /// Gets the collection of files that will be added to the 
+        /// <see cref="FileSet" /> without pattern matching or checking if the 
+        /// file exists.
+        /// </summary>
         public StringCollection AsIs {
             get { return _asis; }
         }
@@ -164,6 +175,22 @@ namespace NAnt.Core.Types {
                     Scan();
                 }
                 return _scanner.DirectoryNames;
+            }
+        }
+
+        /// <summary>
+        /// Gets the collection of directory names that were scanned for files.
+        /// </summary>
+        /// <value>
+        /// A collection that contains the directory names that were scanned for
+        /// files.
+        /// </value>
+        public StringCollection ScannedDirectories {
+            get { 
+                if (!_hasScanned) {
+                    Scan();
+                }
+                return _scanner.ScannedDirectories;
             }
         }
 
@@ -247,22 +274,24 @@ namespace NAnt.Core.Types {
 
                 _scanner.Scan();
 
-                // Add all the as-is patterns to the scanned files.
+                // add all the as-is patterns to the scanned files.
                 foreach (string name in AsIs) {
-                    if (Directory.Exists(name))
+                    if (Directory.Exists(name)) {
                         _scanner.DirectoryNames.Add(name);
-                    else
+                    } else {
                         _scanner.FileNames.Add(name);
+                    }
                 }
 
-                // Add all the path-searched patterns to the scanned files.
+                // add all the path-searched patterns to the scanned files.
                 foreach (string name in PathFiles.Scan()) {
                     _scanner.FileNames.Add(name);
                 }
-            } catch (Exception e) {
-                throw new BuildException("Error creating file set.", Location, e);
+
+                _hasScanned = true;
+            } catch (Exception ex) {
+                throw new BuildException("Error creating FileSet.", Location, ex);
             }
-            _hasScanned = true;
 
             if (FailOnEmpty && _scanner.FileNames.Count == 0) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, "The fileset specified is empty after scanning '{0}' for: {1}", _scanner.BaseDirectory, _scanner.Includes.ToString()), Location);
