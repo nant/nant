@@ -18,10 +18,12 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using SourceForge.NAnt.Attributes;
-using Microsoft.Win32;
 using System.Globalization;
 using System.Security.Permissions;
+
+using Microsoft.Win32;
+
+using SourceForge.NAnt.Attributes;
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum , Unrestricted=true)]
 
@@ -52,31 +54,43 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("readregistry")]
     public class ReadRegistryTask : Task {
+        #region Private Instance Fields
+
         private string _propName = null;
         private string _propPrefix = null;
         private string _regKey = null;
         private string _regKeyValueName = null;
         private RegistryHive[] _regHive = {RegistryHive.LocalMachine};
-        private string _regHiveString = RegistryHive.LocalMachine.ToString();
+        private string _regHiveString = RegistryHive.LocalMachine.ToString(CultureInfo.InvariantCulture);
 
+        #endregion Private Instance Fields
 
-        /// <summary>The property to set to the specified registry key value.</summary>
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The property to set to the specified registry key value.
+        /// </summary>
         [TaskAttribute("property")]
         public virtual string PropertyName {
+            get { return _propName; }
             set { _propName = value; }
         }
 
-        /// <summary>The prefix to use for the specified registry key values.</summary>
+        /// <summary>
+        /// The prefix to use for the specified registry key values.
+        /// </summary>
         [TaskAttribute("prefix")]
         public virtual string PropertyPrefix{
+            get { return _propPrefix; }
             set { _propPrefix = value; }
         }
 
         /// <summary>
-        /// <p>The registry key to read.</p>
+        /// The registry key to read.
         /// </summary>
         [TaskAttribute("key", Required=true)]
         public virtual string RegistryKey {
+            get { return this._regKey; }
             set {
                 string[] pathParts = value.Split("\\".ToCharArray(0,1)[0]);
                 _regKeyValueName = pathParts[pathParts.Length - 1];
@@ -84,30 +98,38 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        /// <summary>The registry hive to use.</summary>
+        /// <summary>
+        /// The registry hive to use.
+        /// </summary>
         /// <remarks>
-        ///     <seealso cref="Microsoft.Win32.RegistryHive"/>
+        /// <seealso cref="Microsoft.Win32.RegistryHive" />
         /// </remarks>
         /// <value>
-        ///     The enum of type <see cref="Microsoft.Win32.RegistryHive"/> values including LocalMachine, Users, CurrentUser and ClassesRoot.
+        /// The enum of type <see cref="Microsoft.Win32.RegistryHive"/> values including LocalMachine, Users, CurrentUser and ClassesRoot.
         /// </value>
         [TaskAttribute("hive")]
         public virtual string RegistryHiveName {
+            get { return _regHiveString; }
             set {
                 _regHiveString = value;
                 string[] tempRegHive = _regHiveString.Split(" ".ToCharArray()[0]);
                 _regHive = (RegistryHive[]) Array.CreateInstance(typeof(RegistryHive), tempRegHive.Length);
                 for (int x=0; x<tempRegHive.Length; x++) {
-                    _regHive[x] = (RegistryHive)System.Enum.Parse(typeof(RegistryHive), tempRegHive[x], true);
+                    _regHive[x] = (RegistryHive) Enum.Parse(typeof(RegistryHive), tempRegHive[x], true);
                 }
             }
         }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         protected override void ExecuteTask() {
             object regKeyValue = null;
 
-            if(_regKey == null)
+            if (_regKey == null) {
                 throw new BuildException("Missing registry key!");
+            }
 
             RegistryKey mykey = null;
             if (_propName != null) {
@@ -117,32 +139,34 @@ namespace SourceForge.NAnt.Tasks {
                     string val = regKeyValue.ToString();
                     Properties[_propName] = val;
                 } else {
-                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Value Not Found! - key='{0}';hive='{1}';", _regKey + "\\" + _regKeyValueName, _regHiveString ));
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Value Not Found! - key='{0}';hive='{1}';", _regKey + "\\" + _regKeyValueName, _regHiveString));
                 }
-            }
-            else if (_propName == null && _propPrefix != null ) {
+            } else if (_propName == null && _propPrefix != null) {
                 mykey = LookupRegKey(_regKey, _regHive, Verbose);
-                foreach(string name in mykey.GetValueNames()) {
+                foreach (string name in mykey.GetValueNames()) {
                     Properties[_propPrefix + "." + name] = mykey.GetValue(name).ToString();
                 }
-            }
-            else {
+            } else {
                 throw new BuildException("Missing both a property name and property prefix; atleast one if required!");
             }
         }
 
+        #endregion Override implementation of Task
+
+        #region Protected Static Methods
+
         protected static RegistryKey LookupRegKey(string key, RegistryHive[] registries, bool verbose) {
-            foreach(RegistryHive hive in registries){
-                Log.WriteLineIf(verbose, "Opening {0}:{1}", hive.ToString(), key);
+            foreach (RegistryHive hive in registries) {
+                Log.WriteLineIf(verbose, "Opening {0}:{1}", hive.ToString(CultureInfo.InvariantCulture), key);
                 RegistryKey returnkey = GetHiveKey(hive).OpenSubKey(key, false);
-                if(returnkey != null) {
+                if (returnkey != null) {
                     return returnkey;
                 }
             }
             throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
         }
-        protected static RegistryKey GetHiveKey(RegistryHive hive) {
 
+        protected static RegistryKey GetHiveKey(RegistryHive hive) {
             switch(hive) {
                 case RegistryHive.LocalMachine:
                     return Registry.LocalMachine;
@@ -153,9 +177,11 @@ namespace SourceForge.NAnt.Tasks {
                 case RegistryHive.ClassesRoot:
                     return Registry.ClassesRoot;
                 default:
-                    Log.WriteLine("Registry not found for {0}!", hive.ToString());
+                    Log.WriteLine("Registry not found for {0}!", hive.ToString(CultureInfo.InvariantCulture));
                     return null;
             }
         }
+
+        #endregion Protected Static Methods
     }
 }
