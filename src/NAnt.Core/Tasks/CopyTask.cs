@@ -105,7 +105,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("todir")]
         public virtual string ToDirectory {
-            get { return Project.GetFullPath(_toDirectory); }
+            get { return (_toDirectory != null) ? Project.GetFullPath(_toDirectory) : null; }
             set { _toDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
@@ -207,9 +207,33 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            if (Flatten && StringUtils.IsNullOrEmpty(ToDirectory)) {
+            if (Flatten && ToDirectory == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "'flatten' attribute requires that 'todir' has been set."), 
+                    Location);
+            }
+
+            if (ToDirectory == null && CopyFileSet != null && CopyFileSet.Includes.Count > 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'todir' should be set when using the <fileset> element"
+                    + " to specify the list of files to be copied."), Location);
+            }
+
+            if (SourceFile != null && CopyFileSet != null && CopyFileSet.Includes.Count > 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'file' attribute and the <fileset> element" 
+                    + " cannot be combined."), Location);
+            }
+
+            if (ToFile == null && ToDirectory == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Either the 'tofile' or 'todir' attribute should be set."), 
+                    Location);
+            }
+
+            if (ToFile != null && ToDirectory != null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The 'tofile' or 'todir' attribute cannot both be set."), 
                     Location);
             }
         }
@@ -326,7 +350,11 @@ namespace NAnt.Core.Tasks {
         protected virtual void DoFileOperations() {
             int fileCount = FileCopyMap.Keys.Count;
             if (fileCount > 0 || Verbose) {
-                Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+                if (ToFile != null) {
+                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
+                } else {
+                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+                }
 
                 // loop thru our file list
                 foreach (string sourceFile in FileCopyMap.Keys) {
