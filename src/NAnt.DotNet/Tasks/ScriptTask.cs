@@ -249,7 +249,8 @@ namespace NAnt.Core.Tasks {
             }
 
             if (compilerInfo == null) {
-                throw new BuildException("Unknown language '" + _language + "'.", Location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Unknown language '{0}'.", Language), Location);
             }
 
             ICodeCompiler compiler = compilerInfo.Compiler;
@@ -312,19 +313,11 @@ namespace NAnt.Core.Tasks {
             } else {
                 compiled = results.CompiledAssembly;
             }
+
             // scan the new assembly for tasks, types and functions
             // Its unlikely that tasks will be defined in buildfiles though.
-            int functionSetCount = TypeFactory.AddFunctionSets(compiled);
-            TypeFactory.AddDataTypes(compiled);
-            TypeFactory.AddTasks(compiled);
-            TypeFactory.AddFilters(compiled);
+            bool extensionAssembly = TypeFactory.ScanAssembly(compiled);
             
-            // load the referenced assemblies explicitly.
-            foreach (string assemblyName in References.FileNames) {
-                Console.WriteLine("loading assembly {0}", assemblyName );
-                Assembly.LoadFrom(assemblyName);
-            }
-                                                
             string mainClass = _rootClassName;
             if (!StringUtils.IsNullOrEmpty(MainClass)) {
                 mainClass += "+" + MainClass;
@@ -332,13 +325,14 @@ namespace NAnt.Core.Tasks {
 
             Type mainType = compiled.GetType(mainClass);
             if (mainType == null) {
-                throw new BuildException("Invalid mainclass.", Location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Invalid main class '{0}'.", mainClass), Location);
             }
 
             MethodInfo entry = mainType.GetMethod("ScriptMain");
             // check for task or function definitions.
             if (entry == null) {
-                if (functionSetCount <= 0) {
+                if (!extensionAssembly) {
                     throw new BuildException("Missing entry point.", Location);
                 } else {
                     return; // no entry point so nothing to do here beyond loading task and function defs
