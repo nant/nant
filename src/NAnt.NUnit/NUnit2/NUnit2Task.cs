@@ -42,7 +42,7 @@ using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
-    /// Runs tests using the NUnit V2.0 framework.
+    /// Runs tests using the NUnit V2.1 framework.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -56,6 +56,27 @@ namespace NAnt.NUnit2.Tasks {
     ///   Set <see cref="Task.FailOnError" /> to <see langword="false" /> to 
     ///   ignore test errors and continue the build.
     ///   </para>
+    ///   <para>
+    ///   In order to run a test assembly built with NUnit 2.0 using the NAnt
+    ///   <see cref="NUnit2Task" />, you must add the following node to your 
+    ///   test config file :
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <configuration>
+    ///     ...
+    ///     <runtime>
+    ///         <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+    ///             <dependentAssembly>
+    ///                 <assemblyIdentity name="nunit.framework" publicKeyToken="96d09a1eb7f44a77" culture="Neutral" /> 
+    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.1.4.0" /> 
+    ///             </dependentAssembly>
+    ///         </assemblyBinding>
+    ///     </runtime>
+    ///     ...
+    /// </configuration>
+    ///     ]]>
+    ///   </code>
     /// </remarks>
     /// <example>
     ///   <para>
