@@ -22,6 +22,7 @@
 // Gert Driesen (drieseng@ardatis.com)
 
 using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -85,9 +86,11 @@ namespace NAnt.DotNet.Tasks {
         private string _targetExt = "resources";
         private DirectoryInfo _toDir;
         private DirectoryInfo _workingDirectory;
+        private bool _useSourcePath;
 
         // framework configuration settings
         private bool _supportsAssemblyReferences;
+        private bool _supportsExternalFileReferences;
 
         #endregion Private Instance Fields
 
@@ -131,7 +134,18 @@ namespace NAnt.DotNet.Tasks {
             get { return _toDir; }
             set { _toDir = value; }
         }
-       
+
+        /// <summary>
+        /// Use each source file's directory as the current directory for 
+        /// resolving relative file paths. The default is <see langword="false" />.
+        /// Only supported when targeting .NET 2.0 (or higher).
+        /// </summary>
+        [TaskAttribute("usesourcepath", Required=false)]
+        public bool UseSourcePath {
+            get { return _useSourcePath; }
+            set { _useSourcePath = value; }
+        }
+
         /// <summary>
         /// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.      
         /// </summary>
@@ -159,6 +173,17 @@ namespace NAnt.DotNet.Tasks {
         public bool SupportsAssemblyReferences {
             get { return _supportsAssemblyReferences; }
             set { _supportsAssemblyReferences = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether external file references are supported by the 
+        /// <c>resgen</c> tool for the current target framework. The default 
+        /// is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsexternalfilereferences")]
+        public bool SupportsExternalFileReferences {
+            get { return _supportsExternalFileReferences; }
+            set { _supportsExternalFileReferences = value; }
         }
 
         #endregion Public Instance Properties
@@ -238,6 +263,9 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
         protected override void PrepareProcess(Process process) {
             if (!SupportsAssemblyReferences) {
+                // use a newly created temporary directory as working directory
+                BaseDirectory = FileUtils.GetTempDirectory();
+
                 // avoid copying the assembly references (and resgen) to a
                 // temporary directory if not necessary
                 if (Assemblies.FileNames.Count == 0 || !RequiresAssemblyReferences) {
@@ -349,6 +377,16 @@ namespace NAnt.DotNet.Tasks {
                     if (NeedsCompiling(new FileInfo(filename), outputFile)) {
                         if (StringUtils.IsNullOrEmpty(_arguments)) {
                             AppendArgument ("/compile");
+
+                            if (UseSourcePath) {
+                                if (SupportsExternalFileReferences) {
+                                    AppendArgument(" /usesourcepath");
+                                } else {
+                                    Log(Level.Warning, "The resource compiler for {0}"
+                                        + " does not support external file references.", 
+                                        Project.TargetFramework.Description);
+                                }
+                            }
                         }
 
                         // ensure output directory exists
@@ -374,27 +412,38 @@ namespace NAnt.DotNet.Tasks {
                         outputFile.Directory.Create();
                     }
 
+                    if (UseSourcePath) {
+                        if (SupportsExternalFileReferences) {
+                            AppendArgument("/usesourcepath");
+                        } else {
+                            Log(Level.Warning, "The resource compiler for {0}"
+                                + " does not support external file references.", 
+                                Project.TargetFramework.Description);
+                        }
+                    }
+
                     AppendArgument(string.Format(CultureInfo.InvariantCulture, 
                         " \"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
                 }
             }
 
             if (!StringUtils.IsNullOrEmpty(_arguments)) {
-                // use a newly created temporary directory as working directory
-                BaseDirectory = FileUtils.GetTempDirectory();
-
                 try {
                     // call base class to do the work
                     base.ExecuteTask();
                 } finally {
-                    // delete temporary directory and all files in it
-                    DeleteTask deleteTask = new DeleteTask();
-                    deleteTask.Project = Project;
-                    deleteTask.Parent = this;
-                    deleteTask.InitializeTaskConfiguration();
-                    deleteTask.Directory = BaseDirectory;
-                    deleteTask.Threshold = Level.None; // no output in build log
-                    deleteTask.Execute();
+                    // we only need to remove temporary directory if it was
+                    // actually created
+                    if (_workingDirectory != null) {
+                        // delete temporary directory and all files in it
+                        DeleteTask deleteTask = new DeleteTask();
+                        deleteTask.Project = Project;
+                        deleteTask.Parent = this;
+                        deleteTask.InitializeTaskConfiguration();
+                        deleteTask.Directory = _workingDirectory;
+                        deleteTask.Threshold = Level.None; // no output in build log
+                        deleteTask.Execute();
+                    }
                 }
             }
         }
@@ -457,6 +506,18 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
+            // check if we're dealing with a resx file
+            if (string.Compare(inputFile.Extension, ".resx", true, CultureInfo.InvariantCulture) == 0) {
+                StringCollection externalFileReferences = GetExternalFileReferences(inputFile);
+                if (externalFileReferences != null) {
+                    fileName = FileSet.FindMoreRecentLastWriteTime(externalFileReferences, outputFile.LastWriteTime);
+                    if (fileName != null) {
+                        Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                        return true;
+                    }
+                }
+            }
+
             // if we made it here then we don't have to recompile
             return false;
         }
@@ -485,7 +546,7 @@ namespace NAnt.DotNet.Tasks {
         private FileInfo GetOutputFile(FileInfo file, string prefix) {
             FileInfo outputFile;
             
-            // If output is empty just change the extension 
+            // if output is empty just change the extension 
             if (OutputFile == null) {
                 if (ToDirectory == null) {
                     outputFile = file;
@@ -525,8 +586,14 @@ namespace NAnt.DotNet.Tasks {
                     return false;
                 }
 
+                // only resx files require assembly references
+                if (string.Compare(Path.GetExtension(resourceFile), ".resx", true, CultureInfo.InvariantCulture) != 0) {
+                    return false;
+                }
+
                 XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(
                     new StreamReader(resourceFile, true)));
+
                 // determine the number of <data> elements that have a "type"
                 // attribute with a value that does not start with "System."
                 int count = xpathDoc.CreateNavigator().Select("/root/data[@type and not(starts-with(@type, 'System.'))]").Count;
@@ -539,6 +606,53 @@ namespace NAnt.DotNet.Tasks {
                 // have the resgen tool deal with issues (eg. invalid xml)
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Returns a list of external file references for the specified file.
+        /// </summary>
+        /// <param name="resxFile">The resx file for which a list of external file references should be returned.</param>
+        /// <returns>
+        /// A list of external file references for the specified file, or
+        /// <see langword="null" /> if <paramref name="resxFile" /> does not 
+        /// exist or does not support external file references.
+        /// </returns>
+        private StringCollection GetExternalFileReferences(FileInfo resxFile) {
+            if (!resxFile.Exists) {
+                return null;
+            }
+
+            XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(
+                new StreamReader(resxFile.FullName, true)));
+            XPathNavigator xpathNavigator = xpathDoc.CreateNavigator();
+
+            // check resheader version
+            xpathNavigator.Select("/root/resheader[@name = 'version']/value");
+            XPathNodeIterator nodeIterator = xpathNavigator.Select("/root/resheader[@name = 'version']/value");
+            if (nodeIterator.MoveNext()) {
+                string version = nodeIterator.Current.Value;
+                // 1.0 resx files do not support external file references
+                if (version == "1.0.0.0") {
+                    return null;
+                }
+            }
+
+            StringCollection externalFiles = new StringCollection();
+            string baseExternalFileDirectory = UseSourcePath ? resxFile.DirectoryName
+                : Project.BaseDirectory;
+
+            // determine the number of <data> elements that have a "type"
+            // attribute with a value that does not start with "System."
+            XPathNodeIterator xfileIterator = xpathNavigator.Select("/root/data[@type = 'System.Resources.ResXFileRef, System.Windows.Forms']/value");
+            while (xfileIterator.MoveNext()) {
+                string[] parts = xfileIterator.Current.Value.Split(';');
+                if (parts.Length <= 1) {
+                    continue;
+                }
+                externalFiles.Add(Path.Combine(baseExternalFileDirectory, parts[0]));
+            }
+
+            return externalFiles;
         }
 
         #endregion Private Instance Methods
