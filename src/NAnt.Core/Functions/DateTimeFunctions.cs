@@ -52,23 +52,6 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Return the difference in seconds between two dates.
-        /// </summary>
-        /// <param name="date1">first date</param>
-        /// <param name="date2">second date</param>
-        /// <returns>
-        /// The difference value.
-        /// </returns>
-        /// <remarks>
-        /// It may be useful to know some magic numbers: One hour is 3600 seconds, 
-        /// 24 hours is 86400 seconds.
-        /// </remarks>
-        [Function("diff")]
-        public static int Diff(DateTime date1, DateTime date2) {
-            return (int) ((date1 - date2).TotalSeconds);
-        }
-
-        /// <summary>
         /// Adds the specified number of seconds to the date value.
         /// </summary>
         /// <param name="date">date value</param>
@@ -81,8 +64,8 @@ namespace NAnt.Core.Functions {
         /// It may be useful to know some magic numbers: One hour is 3600 seconds, 
         /// 24 hours is 86400 seconds.
         /// </remarks>
-        [Function("add")]
-        public static DateTime Add(DateTime date, int seconds) {
+        [Function("add-seconds")]
+        public static DateTime AddSeconds(DateTime date, double seconds) {
             return date.AddSeconds(seconds);
         }
 
