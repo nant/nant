@@ -36,15 +36,69 @@ namespace Tests.NAnt.Core.Tasks {
 
 		[Test]
         public void Test_Call() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            // set-up build file
             string _xml = @"
                     <project>
                         <target name='one'>
+                            <echo message='one--' />
+                        </target>
+                        <call target='one' />
+                    </project>";
+
+            // run the build
+            string result = RunBuild(_xml, listener);
+
+            // check whether 'one' target has been executed once
+            Assertion.Assert("'one' target was not called.\n" + result, listener.GetTargetExecutionCount("one") == 1);
+        }
+
+        [Test]
+        public void Test_CallDependencies() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            // set-up build file
+            string _xml = @"
+                    <project>
+                        <target name='one' depends='two'>
                             <echo message='one--'/>
                         </target>
-                        <call target='one'/>
+                        <target name='two'>
+                            <echo message='two--'/>
+                        </target>
+                        <call target='one' />
                     </project>";
+
+            // run the build
+            string result = RunBuild(_xml, listener);
+
+            // check whether 'one' target has been executed once
+            Assertion.Assert("'one' target was not called.\n" + result, listener.GetTargetExecutionCount("one") == 1);
+
+            // check whether 'two' target has been executed once
+            Assertion.Assert("'two' target was not called.\n" + result, listener.GetTargetExecutionCount("two") == 1);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_CallCircularDependencies() {
+            // set-up build file
+            string _xml = @"
+                    <project default='one'>
+                        <target name='one' depends='two'>
+                            <echo message='one--'/>
+                        </target>
+                        <target name='two'>
+                            <call target='one' />
+                        </target>
+                        <call target='one' />
+                    </project>";
+
+            // run the build
             string result = RunBuild(_xml);
-            Assertion.Assert("Target not called.\n" + result, result.IndexOf("one--") != -1);
         }
     }
 }
