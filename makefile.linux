@@ -1,11 +1,11 @@
 # Simple makefile to build a miniNant with core and DotNetTasks
 MCS=mcs
-local_paths=-L 
-all_assemblies=-r -r ./bin/NDoc.Core.dll -r ./bin/log4net-mono-0.23.dll
+local_paths=
+all_assemblies= -r ./bin/linux/NDoc.Core.dll -r ./bin/linux/log4net-mono-0.23.dll
 all: mininant.exe
 
 mininant.exe: src/NAnt.Core/ConsoleDriver.cs
-	$(MCS) --unsafe -o bin/mininant.exe $(local_paths) $(all_assemblies) './src/NAnt.Core/*.cs' './src/NAnt.Core/Attributes/*.cs' './src/NAnt.Core/Tasks/*.cs' './src/NAnt.DotNetTasks/*.cs'
+	$(MCS) --unsafe -debug -o bin/linux/mininant.exe $(local_paths) $(all_assemblies) './src/NAnt.Core/*.cs' './src/NAnt.Core/Attributes/*.cs' './src/NAnt.Core/Tasks/*.cs' './src/NAnt.DotNetTasks/*.cs'
 	
 clean:
-	bin/mininant.exe 	
+	bin/linux/mininant.exe 	
