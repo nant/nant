@@ -109,7 +109,9 @@
         
                 <xsl:variable name="filesets" select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]" />
                 <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]" />
-                <xsl:if test="count($filesets) != 0 or count($elements) != 0">
+                <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />                
+                <xsl:variable name="collections" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute' ]" />
+                <xsl:if test="count($filesets) != 0 or count($elements) != 0 or count($arrays) != 0 or count($collections) != 0">
                     <h3>Nested Elements</h3>
                     <!-- now do filesets -->
                     <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]" mode="FileSet" />
