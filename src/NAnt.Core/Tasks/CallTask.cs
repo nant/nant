@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Force a execute even if the target has already been executed.
+        /// Force an execute even if the target has already been executed.
         /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("force")]
@@ -82,19 +82,39 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the specified target.
+        /// </summary>
         protected override void ExecuteTask() {
             if (ForceExecute) {
-                Target t = Project.Targets.Find(TargetName);
-                if (t == null) {
-                    // if we can't find it, then neither should Project.Execute.
-                    // Let them do the error handling and exception generation.
+                Target target = Project.Targets.Find(TargetName);
+                if (target == null) {
+                    // if we can't find it, then neither should Project.Execute
+                    // let them do the error handling and exception generation.
                     Project.Execute(TargetName);
+                } else {
+                    // execute a copy
+                    target.Clone().Execute();
                 }
-
-                //Execute a copy.
-                t.Clone().Execute();
             } else {
                 Project.Execute(TargetName);
+            }
+        }
+
+        /// <summary>
+        /// Makes sure the <see cref="CallTask" /> is not calling its own 
+        /// parent.
+        /// </summary>
+        /// <param name="taskNode">The task XML node.</param>
+        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+            Target target = Project.Targets.Find(TargetName);
+            if (target != null) {
+                Target owningTarget = Parent as Target;
+
+                if (target == owningTarget) {
+                    throw new BuildException("Call task cannot call its own parent.", 
+                        Location);
+                }
             }
         }
 
