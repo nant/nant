@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2004 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -242,7 +242,7 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Checks whether the task is initialized with valid attribute.
+        /// Checks whether the task is initialized with valid attributes.
         /// </summary>
         /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
         protected override void InitializeTask(XmlNode taskNode) {
@@ -272,7 +272,7 @@ namespace NAnt.Core.Tasks {
 
             if (ToFile != null && ToDirectory != null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'tofile' or 'todir' attribute cannot both be set."), 
+                    "The 'tofile' and 'todir' attribute cannot both be set."), 
                     Location);
             }
         }

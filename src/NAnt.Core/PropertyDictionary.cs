@@ -93,7 +93,8 @@ namespace NAnt.Core {
             // do not allow value of read-only property to be overwritten
             if (IsReadOnlyProperty(propertyName)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Read-only property '{0}' cannot be overwritten.", propertyName));
+                    "Read-only property \"{0}\" cannot be overwritten.", propertyName),
+                    Location.UnknownLocation);
             }
 
             base.OnSet(key, oldValue, newValue);
