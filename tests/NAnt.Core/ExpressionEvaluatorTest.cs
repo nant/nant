@@ -230,8 +230,8 @@ namespace Tests.NAnt.Core {
             AssertFailure("*3");
             AssertFailure("2 */ 1 * 3");
             AssertFailure("1 // 2  + 3");
-            AssertFailure("convert::todouble(5)/(2 + 8)");
-            AssertFailure("convert::to-double(1 / 2 + 3");
+            AssertFailure("double::tostring(5)/(2 + 8)");
+            AssertFailure("double::to-string(1 / 2 + 3");
             AssertFailure("-'aaa'");
             AssertFailure("true + true");
             AssertFailure("true - true");
@@ -287,25 +287,42 @@ namespace Tests.NAnt.Core {
             AssertExpression("true or not (1 == 1)", true);
             AssertExpression("true or not (--1 == 1)", true);
         }
-        
+
         [Test]
         public void TestConversionFunctions() {
-            AssertExpression("convert::to-double(5)/(2 + 8)", 0.5);
-            AssertExpression("convert::to-double(1) / 2 + 3", 3.5);
-            AssertExpression("convert::to-datetime('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
-            AssertExpression("convert::to-datetime(convert::to-datetime('12/31/1999 01:23:34'))", new DateTime(1999,12,31,1,23,34));
-            AssertFailure("convert::to-int(datetime::now())");
-            AssertFailure("convert::to-double('aaaaaaaaa')");
-            AssertFailure("convert::to-datetime(1)");
-            AssertFailure("convert::to-boolean(1)");
-            AssertExpression("convert::to-boolean('True')",true);
-            AssertExpression("convert::to-boolean('true')",true);
-            AssertExpression("convert::to-boolean('False')",false);
-            AssertExpression("convert::to-boolean('false')",false);
-            AssertFailure("convert::to-boolean('aaafalse')");
-            AssertExpression("convert::to-string(false)","False");
-            AssertExpression("convert::to-string(1)","1");
-            AssertExpression("convert::to-int('123' + '45')",12345);
+			// string to bool
+			AssertExpression("bool::parse('True')", true);
+			AssertExpression("bool::parse('true')", true);
+			AssertExpression("bool::parse('False')", false);
+			AssertExpression("bool::parse('false')", false);
+			AssertFailure("bool::parse('aaafalse')");
+
+			// bool to string
+			AssertExpression("bool::to-string(false)", bool.FalseString);
+			AssertExpression("bool::to-string(true)", bool.TrueString);
+			AssertFailure("bool::to-string('aaafalse')");
+			AssertFailure("bool::to-string(1)");
+
+			// string to int
+			AssertExpression("int::parse('123' + '45')", 12345);
+			AssertFailure("int::parse('12345.66666')");
+
+			// int to string
+			AssertExpression("int::to-string(12345)", "12345");
+
+			// string to double
+			AssertExpression("double::parse('5') / (2 + 8)", 0.5);
+			AssertExpression("double::parse('1') / 2 + 3", 3.5);
+			AssertFailure("double::parse('aaaaaaaaa')");
+
+			// double to string
+			AssertExpression("double::to-string(5.56)", "5.56");
+			AssertExpression("double::to-string(5.0)", "5");
+			AssertFailure("double::to-string(5#0)");
+
+			// string to datetime
+			AssertExpression("datetime::parse('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
+            AssertFailure("datetime::parse('1')");
         }
 
         [Test]
