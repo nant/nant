@@ -35,13 +35,13 @@
                 rootnamespace="HelloWindowsForms"
                 removeintchecks="true">
             <imports>
-                <import name="Microsoft.VisualBasic" />
-                <import name="System" />
-                <import name="System.Collections" />
-                <import name="System.Data" />
-                <import name="System.Diagnostics" />
-                <import name="System.Drawing" />
-                <import name="System.Windows.Forms" />
+                <import namespace="Microsoft.VisualBasic" />
+                <import namespace="System" />
+                <import namespace="System.Collections" />
+                <import namespace="System.Data" />
+                <import namespace="System.Diagnostics" />
+                <import namespace="System.Drawing" />
+                <import namespace="System.Windows.Forms" />
             </imports>
             <sources>
                 <include name="*.vb" />
