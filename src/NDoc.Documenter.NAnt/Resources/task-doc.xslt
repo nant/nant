@@ -93,6 +93,7 @@
             <!-- now do filesets -->
             <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.FileSetAttribute' ]" mode="FileSet"/>
             <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementArrayAttribute' ]" mode="BuildElementArrayAttribute"/>
+            <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementCollectionAttribute' ]" mode="BuildElementCollectionAttribute"/>            
         </xsl:if> 
 
         <!-- Example -->
@@ -140,6 +141,17 @@
     </xsl:variable>
     <!-- @name -->
     <h4><xsl:value-of select="$BuildElementArrayAttr/property[@name='Name']/@value" /> (Array)</h4>
+    <p><xsl:value-of select="$documentation" /></p> 
+</xsl:template> 
+
+<!-- match BuildElementCollection property tag -->
+<xsl:template match="property" mode="BuildElementCollectionAttribute">
+    <xsl:variable name = "BuildElementCollectionAttr" select="attribute[@name='SourceForge.NAnt.Attributes.BuildElementCollectionAttribute']"/>
+    <xsl:variable name = "documentation" >
+        <xsl:call-template name="docstring" />
+    </xsl:variable>
+    <!-- @name -->
+    <h4><xsl:value-of select="$BuildElementCollectionAttr/property[@name='Name']/@value" /> (Collection)</h4>
     <p><xsl:value-of select="$documentation" /></p> 
 </xsl:template> 
 
