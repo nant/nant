@@ -239,11 +239,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "TaskCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "TaskContainer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
