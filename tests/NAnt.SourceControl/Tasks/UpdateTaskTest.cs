@@ -6,7 +6,7 @@ using NUnit.Framework;
 using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
-namespace Tests.NAnt.Cvs.Tasks {
+namespace Tests.NAnt.SourceControl.Tasks {
     /// <summary>
     /// Tests that the update task performs correctly and does
     ///     not returen errors.

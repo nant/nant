@@ -6,7 +6,7 @@ using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
 
-namespace Tests.NAnt.Cvs.Tasks {
+namespace Tests.NAnt.SourceControl.Tasks {
 
     /// <summary>
     /// Test that the checkout command brings down the master.build
