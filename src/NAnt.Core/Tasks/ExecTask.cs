@@ -91,10 +91,10 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [TaskAttribute("workingdir")]
         public string WorkingDirectory {
-            get { return _workingDirectory; }
+            get { return Project.GetFullPath(_workingDirectory); }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _workingDirectory = Project.GetFullPath(value);
+                    _workingDirectory = value;
                 } else {
                     _workingDirectory = null;
                 }
@@ -111,10 +111,10 @@ namespace NAnt.Core.Tasks {
         /// <value>The filename of the external program.</value>
         public override string ProgramFileName {
             get {
-                if (_baseDirectory == null || Path.IsPathRooted(_program)) {
-                    return _program;
+                if (_baseDirectory == null || Path.IsPathRooted(FileName)) {
+                    return FileName;
                 } else {
-                    return Path.Combine(Path.GetFullPath(BaseDirectory), _program);
+                    return Path.Combine(Path.GetFullPath(BaseDirectory), FileName);
                 }
             }
         }
@@ -140,10 +140,10 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [TaskAttribute("basedir")]
         public override string BaseDirectory {
-            get { return _baseDirectory; }
+            get { return Project.GetFullPath(_baseDirectory); }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _baseDirectory = Project.GetFullPath(value);
+                    _baseDirectory = value;
                 } else {
                     _baseDirectory = null;
                 }
@@ -153,13 +153,15 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The file to which the standard output will be redirected.
         /// </summary>
-        /// <remarks>By default, the standard output is redirected to the console.</remarks>
+        /// <remarks>
+        /// By default, the standard output is redirected to the console.
+        /// </remarks>
         [TaskAttribute("output", Required=false)]
         public override string OutputFile {
-            get { return _outputFile; }
+            get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _outputFile = Project.GetFullPath(value);
+                    _outputFile = value;
                 } else {
                     _outputFile = null;
                 }
@@ -190,7 +192,9 @@ namespace NAnt.Core.Tasks {
 
         protected override void PrepareProcess(System.Diagnostics.Process process) {
             base.PrepareProcess(process);
-            if (WorkingDirectory != null) {
+            // only set WorkingDirectory if it was explicitly set, otherwise
+            // leave default (which is BaseDirectory)
+            if (_workingDirectory != null) {
                 process.StartInfo.WorkingDirectory = WorkingDirectory;
             }
 
