@@ -62,12 +62,11 @@ namespace NAnt.VSNet {
                 string guid = m.Groups["guid"].Value;
                 string fullPath;
 
-                // only C# and VB.NET projects are supported at this moment
-                if (!project.ToLower(CultureInfo.InvariantCulture).EndsWith(".csproj") && 
-                    !project.ToLower(CultureInfo.InvariantCulture).EndsWith(".vbproj")) {
+                // only C#, VB.NET and C++ projects are supported at this moment
+                if (!ProjectFactory.IsSupportedProjectType(project)) {
 
                     // output a warning message in the build log
-                    Log(Level.Warning, LogPrefix + "Only C# and VB.NET project" +
+                    Log(Level.Warning, LogPrefix + "Only C#, VB.NET and C++ projects" +
                         " are supported.  Skipping project '{0}'.", project);
 
                     // skip the project
@@ -179,8 +178,8 @@ namespace NAnt.VSNet {
             return (string) _htProjectFiles[projectGUID];
         }
 
-        public Project GetProjectFromGUID(string projectGUID) {
-            return (Project) _htProjects[projectGUID];
+        public ProjectBase GetProjectFromGUID(string projectGUID) {
+            return (ProjectBase) _htProjects[projectGUID];
         }
 
         public bool Compile(string configuration, ArrayList compilerArguments, string logFile, bool verbose, bool showCommands) {
@@ -192,7 +191,7 @@ namespace NAnt.VSNet {
             while (true) {
                 bool compiledThisRound = false;
 
-                foreach (Project p in _htProjects.Values) {
+                foreach (ProjectBase p in _htProjects.Values) {
                     if (htProjectsDone.Contains(p.GUID)) {
                         continue;
                     }
@@ -212,24 +211,23 @@ namespace NAnt.VSNet {
                                 reference.ResolveFolder();
 
                                 if (reference.IsProjectReference) {
-                                    Project pRef = GetProjectFromGUID(reference.Project.GUID);
+                                    ProjectBase pRef = GetProjectFromGUID(reference.Project.GUID);
                                     if (pRef == null) {
                                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                             "Unable to locate referenced project '{0}' while loading '{1}'.",
                                             reference.Name, p.Name), Location.UnknownLocation);
                                     }
-                                    if (pRef.GetConfigurationSettings(configuration) == null) {
+                                    string outputFile = pRef.GetOutputFile(configuration);
+                                    if (outputFile == null) {
                                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                             "Unable to find '{0}' configuration for project '{1}'.",
                                             configuration, pRef.Name), Location.UnknownLocation);
                                     }
-                                    if (pRef != null) {
-                                        reference.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
-                                    }
+                                    reference.Filename = outputFile;
                                 } else if (_htOutputFiles.Contains(reference.Filename)) {
-                                    Project pRef = (Project) _htProjects[(string) _htOutputFiles[reference.Filename]];
-                                    if (pRef != null && pRef.GetConfigurationSettings(configuration) != null) {
-                                        reference.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
+                                    ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
+                                    if (pRef != null) {
+                                        reference.Filename = pRef.GetOutputFile(configuration);
                                     }
                                 }
 
@@ -251,7 +249,7 @@ namespace NAnt.VSNet {
                             htFailedProjects[p.GUID] = null;
 
                             // mark the projects referencing this one as failed
-                            foreach (Project pFailed in _htProjects.Values) {
+                            foreach (ProjectBase pFailed in _htProjects.Values) {
                                 if (HasProjectDependency(pFailed.GUID, p.GUID)) {
                                     htFailedProjects[pFailed.GUID] = null;
                                 }
@@ -261,7 +259,7 @@ namespace NAnt.VSNet {
                         compiledThisRound = true;
 
                         // remove all references to this project
-                        foreach (Project pRemove in _htProjects.Values) {
+                        foreach (ProjectBase pRemove in _htProjects.Values) {
                             RemoveProjectDependency(pRemove.GUID, p.GUID);
                         }
                         htProjectsDone[p.GUID] = null;
@@ -318,7 +316,7 @@ namespace NAnt.VSNet {
 
         private void LoadProjectGUIDs(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
-                string projectGUID = Project.LoadGUID(projectFileName, _tfc);
+                string projectGUID = ProjectFactory.LoadGUID(projectFileName, _tfc);
                 _htProjectFiles[projectGUID] = projectFileName;
                 if (isReferenceProject) {
                     _htReferenceProjects[projectGUID] = null;
@@ -363,15 +361,29 @@ namespace NAnt.VSNet {
 
             FileSet excludes = _solutionTask.ExcludeProjects;
             foreach (DictionaryEntry de in _htProjectFiles) {
-                if (!excludes.FileNames.Contains((string) de.Value)) {
-                    Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", (string) de.Value);
-                    Project p = new Project(_solutionTask, _tfc, _outputDir);
-                    p.Load(this, (string) de.Value);
+                string projectPath = (string) de.Value;
+                if (!excludes.FileNames.Contains(projectPath)) {
+                    Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
+                    ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, _outputDir, projectPath);
+                    if (p.GUID == null || p.GUID == String.Empty) {
+                        p.GUID = FindGUIDFromPath(projectPath);
+                    }
                     _htProjects[de.Key] = p;
                 } else {
                     Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", (string) de.Value);
                 }
             }
+        }
+
+        private string FindGUIDFromPath(string projectPath) {
+            foreach(DictionaryEntry de in _htProjectFiles) {
+                string guid = (string) de.Key;
+                string path = (string) de.Value;
+                if (String.Compare(path, projectPath, true, CultureInfo.InvariantCulture) == 0) {
+                    return guid;
+                }
+            }
+            return "";
         }
 
         private void GetDependenciesFromProjects() {
@@ -380,10 +392,10 @@ namespace NAnt.VSNet {
             // first get all of the output files
             foreach (DictionaryEntry de in _htProjects) {
                 string projectGuid = (string) de.Key;
-                Project p = (Project) de.Value;
+                ProjectBase p = (ProjectBase) de.Value;
 
                 foreach (string configuration in p.Configurations) {
-                    _htOutputFiles[p.GetConfigurationSettings(configuration).FullOutputFile] = projectGuid;
+                    _htOutputFiles[p.GetOutputFile(configuration)] = projectGuid;
                 }
             }
 
@@ -406,7 +418,7 @@ namespace NAnt.VSNet {
             // build the dependency list
             foreach (DictionaryEntry de in _htProjects) {
                 string projectGUID = (string) de.Key;
-                Project project = (Project) de.Value;
+                ProjectBase project = (ProjectBase) de.Value;
 
                 foreach (Reference reference in project.References) {
                     if (reference.IsProjectReference) {

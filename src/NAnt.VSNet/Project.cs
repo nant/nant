@@ -32,37 +32,38 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-    public class Project {
+    public class Project: ProjectBase {
         #region Public Instance Constructors
 
         public Project(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) {
+            _solutionTask = solutionTask;
+            _tfc = tfc;
+            _outputDir = outputDir;
             _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htAssemblies = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _solutionTask = solutionTask;
-            _tfc = tfc;
-            _outputDir = outputDir;
         }
 
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
 
-        public string Name {
+        public override string Name {
             get { return _projectSettings.Name; }
         }
 
-        public string GUID {
+        public override string GUID {
             get { return _projectSettings.GUID; }
+            set { throw new InvalidOperationException( "It is not allowed to change the GUID of a C#/VB.NET project" ); }
         }
 
-        public string[] Configurations {
+        public override string[] Configurations {
             get { return (string[]) new ArrayList(_htConfigurations.Keys).ToArray(typeof(string)); }
         }
 
-        public Reference[] References {
+        public override Reference[] References {
             get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
         }
 
@@ -117,34 +118,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Static Methods
-
-        #region Private Static Methods
-
-        private static bool IsURL(string fileName) {
-            if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static XmlDocument LoadXmlDocument(string fileName) {
-            XmlDocument doc = new XmlDocument();
-            if (!IsURL(fileName)) {
-                doc.Load(fileName);
-            } else {
-                Uri uri = new Uri(fileName);
-                if (uri.Scheme == Uri.UriSchemeFile) {
-                    doc.Load(uri.LocalPath);
-                } else {
-                    doc.LoadXml(WebDavClient.GetFileContentsStatic(fileName));
-                }
-            }
-
-            return doc;
-        }
-
-        #endregion Private Static Methods
 
         #region Public Instance Methods
 
@@ -234,7 +207,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        public bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
+        public override bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
             bool bSuccess = true;
 
             ConfigurationSettings cs = (ConfigurationSettings) _htConfigurations[configuration];
@@ -421,6 +394,14 @@ namespace NAnt.VSNet {
             return bSuccess;
         }
 
+        public override string GetOutputFile(string configuration) {
+            ConfigurationSettings settings = GetConfigurationSettings(configuration);
+            if (settings == null) {
+                return null;
+            }
+            return settings.FullOutputFile;
+        }
+
         public ConfigurationSettings GetConfigurationSettings(string configuration) {
             return (ConfigurationSettings) _htConfigurations[configuration];
         }
@@ -493,11 +474,11 @@ namespace NAnt.VSNet {
         private Hashtable _htResources;
         private Hashtable _htAssemblies;
         private string _imports;
-        private SolutionTask _solutionTask;
         private bool _isWebProject;
         private string _projectDirectory;
         private string _webProjectBaseUrl;
         private ProjectSettings _projectSettings;
+        private SolutionTask _solutionTask;
         private TempFileCollection _tfc;
         private string _outputDir;
 

@@ -296,7 +296,7 @@ namespace NAnt.VSNet {
 
             // look for a primary interop assembly
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
-                if (registryKey.GetValue("PrimaryInteropAssemblyName") != null) {
+                if (registryKey != null && registryKey.GetValue("PrimaryInteropAssemblyName") != null) {
                     _referenceFile = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
                     Assembly asmRef = Assembly.Load(_referenceFile);
                     _referenceFile = new Uri(asmRef.CodeBase).LocalPath;

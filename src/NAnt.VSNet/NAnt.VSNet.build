@@ -17,6 +17,7 @@
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="NAnt.DotNetTasks.dll" />
+                <includes name="NAnt.VisualCppTasks.dll"/>
                 <includes name="NAnt.Win32Tasks.dll"/>
                 <includes name="NDoc.Core.dll"/>
             </references>
