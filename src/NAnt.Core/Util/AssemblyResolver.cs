@@ -24,11 +24,13 @@ using System.IO;
 using System.Reflection;
 using System.Diagnostics;
 
+using NAnt.Core;
+
 namespace NAnt.Core.Util {
     /// <summary> 
     /// Resolves assemblies by caching assembly that were loaded.
     /// </summary>
-    public class AssemblyResolver {
+    public sealed class AssemblyResolver {
         #region Public Instance Constructors
 
         /// <summary> 
@@ -39,9 +41,31 @@ namespace NAnt.Core.Util {
             this._assemblyCache = new Hashtable();
         }
 
-        #endregion
+        /// <summary> 
+        /// Initializes an instanse of the <see cref="AssemblyResolver" /> 
+        /// class in the context of the given <see cref="Task" />.
+        /// </summary>
+        public AssemblyResolver(Task task) : this() {
+            this._task = task;
+        }
 
-        #region Public Methods and Properties
+        #endregion Public Instance Constructors
+
+        #region Private Instance Properties
+
+        private string LogPrefix {
+            get { 
+                if (_task != null) {
+                    return _task.LogPrefix;
+                }
+
+                return string.Empty;
+            }
+        }
+    
+        #endregion Private Instance Properties
+
+        #region Public Instance Methods
 
         /// <summary> 
         /// Installs the assembly resolver by hooking up to the 
@@ -68,7 +92,7 @@ namespace NAnt.Core.Util {
             this._assemblyCache.Clear();
         }
 
-        #endregion
+        #endregion Public Instance Methods
 
         #region Private Instance Methods
 
@@ -86,14 +110,26 @@ namespace NAnt.Core.Util {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblies) {
                 if (assembly.FullName == args.Name) {
+                    // output debug message
+                    Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from" 
+                        + " loaded assemblies.", args.Name);
+                    // return assembly from AppDomain
                     return assembly;
                 }
             }
 
             // find assembly in cache
             if (_assemblyCache.Contains(args.Name)) {
+                // output debug message
+                Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from cache.", 
+                    args.Name);
+                // return assembly from cache                
                 return (Assembly) _assemblyCache[args.Name];
             }
+
+            // output debug message
+            Log(Level.Debug, LogPrefix + "Assembly '{0}' could not be located.", 
+                args.Name);
 
             return null;
         }
@@ -105,10 +141,45 @@ namespace NAnt.Core.Util {
         /// <param name="sender">The source of the event.</param>
         /// <param name="args">An <see cref="AssemblyLoadEventArgs" /> that contains the event data.</param>
         private void AssemblyLoad(object sender, AssemblyLoadEventArgs args) {
+            // store assembly in cache
             _assemblyCache[args.LoadedAssembly.FullName] = args.LoadedAssembly;
+            // output debug message
+            Log(Level.Debug, LogPrefix + "Added assembly '{0}' to assembly cache.", 
+                args.LoadedAssembly.FullName);
         }
 
-        #endregion Protected Instance Methods
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the <see cref="Task" /> in which 
+        /// the <see cref="AssemblyResolver" /> is executing 
+        /// </remarks>
+        private void Log(Level messageLevel, string message) {
+            if (_task != null) {
+                _task.Log(messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the <see cref="Task" /> in which 
+        /// the <see cref="AssemblyResolver" /> is executing 
+        /// </remarks>
+        private void Log(Level messageLevel, string message, params object[] args) {
+            if (_task != null) {
+                _task.Log(messageLevel, message, args);
+            }
+        }
+
+        #endregion Private Instance Methods
 
         #region Private Instance Fields
 
@@ -116,6 +187,17 @@ namespace NAnt.Core.Util {
         /// Holds the loaded assemblies.
         /// </summary>
         private Hashtable _assemblyCache;
+
+        /// <summary>
+        /// Holds the <see cref="Task" /> in which the <see cref="AssemblyResolver" /> 
+        /// is executing.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Task" /> in which the <see cref="AssemblyResolver" /> 
+        /// is executing or <see langword="null" /> if the <see cref="AssemblyResolver" />
+        /// is not executing in the context of a <see cref="Task" />.
+        /// </value>
+        private Task _task;
 
         #endregion Private Instance Fields
     }
