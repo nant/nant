@@ -128,53 +128,6 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Public Instance Properties
 
-        #region Override implementation of ExternalProgramBase
-
-        /// <summary>
-        /// Gets the name of the executable that should be used to launch the
-        /// external program.
-        /// </summary>
-        /// <value>
-        /// The name of the executable that should be used to launch the
-        /// external program.
-        /// </value>
-        /// <remarks>
-        /// If a current framework is defined, the name of the executable will
-        /// be retrieved from the configuration of the framework; otherwise the
-        /// <see cref="Task.Name" /> will be used.
-        /// </remarks>
-        protected override string ExeName {
-            get {
-                if (Project.CurrentFramework != null) {
-                    return Project.CurrentFramework.BasicCompilerName;
-                } else {
-                    return Name;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the external program should be executed
-        /// using a runtime engine, if configured.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the program should be executed using a runtime engine;
-        /// otherwise, <c>false</c>.
-        /// </value>
-        protected override bool UsesRuntimeEngine { 
-            get {
-                if (Project.CurrentFramework != null) {
-                    // TO-DO : find better of doing this than relying on the name of the framework
-                    if (Project.CurrentFramework.Name.IndexOf("mono", 0) != -1) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-        #endregion Override implementation of ExternalProgramBase
-
         #region Override implementation of CompilerBase
 
         /// <summary>
@@ -239,7 +192,7 @@ namespace NAnt.DotNet.Tasks {
             if (RootNamespace != null) {
                 WriteOption(writer, "rootnamespace", RootNamespace);
             }
-        }    
+        }
 
         /// <summary>
         /// Gets the file extension required by the current compiler.

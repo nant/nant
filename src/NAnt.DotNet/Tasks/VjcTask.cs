@@ -177,33 +177,6 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Public Instance Properties
 
-        #region Override implementation of ExternalProgramBase
-
-        /// <summary>
-        /// Gets the name of the executable that should be used to launch the
-        /// external program.
-        /// </summary>
-        /// <value>
-        /// The name of the executable that should be used to launch the
-        /// external program.
-        /// </value>
-        /// <remarks>
-        /// If a current framework is defined, the name of the executable will
-        /// be retrieved from the configuration of the framework; otherwise the
-        /// <see cref="Task.Name" /> will be used.
-        /// </remarks>
-        protected override string ExeName {
-            get {
-                if (Project.CurrentFramework != null) {
-                    return Project.CurrentFramework.JSharpCompilerName;
-                } else {
-                    return Name;
-                }
-            }
-        }
-
-        #endregion Override implementation of ExternalProgramBase
-
         #region Override implementation of CompilerBase
 
         /// <summary>

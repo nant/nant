@@ -68,18 +68,26 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("doc")]
-        public string Doc        { get { return _doc; } set {_doc = value; } }
+        public string Doc {
+            get { return _doc; }
+            set {_doc = value; }
+        }
 
         /// <summary>
-        /// Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). 
+        /// Default is <c>false</c>.
         /// </summary>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/nostdlib[+|-]</c> flag.
         /// </para>
         /// </remarks>
+        [FrameworkConfigurable("nostdlib")]
         [TaskAttribute("nostdlib")]
-        public bool NoStdLib     { get { return _nostdlib; } set {_nostdlib = value; } }
+        public bool NoStdLib {
+            get { return _nostdlib; }
+            set {_nostdlib = value; }
+        }
 
         /// <summary>
         /// Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
@@ -89,8 +97,12 @@ namespace NAnt.DotNet.Tasks {
         /// Corresponds with the <c>/noconfig</c> flag.
         /// </para>
         /// </remarks>
+        [FrameworkConfigurable("noconfig")]
         [TaskAttribute("noconfig")]
-        public bool NoConfig     { get { return _noconfig; } set {_noconfig = value; } }
+        public bool NoConfig {
+            get { return _noconfig; }
+            set {_noconfig = value; }
+        }
 
         /// <summary>
         /// Specifies whether an integer arithmetic statement that is not in the scope of the
@@ -103,7 +115,10 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("checked")]
-        public bool Checked     { get { return _checked; } set {_checked = value; } }
+        public bool Checked {
+            get { return _checked; }
+            set {_checked = value; }
+        }
 
         /// <summary>
         /// Instructs the compiler to allow code that uses the <c>unsafe</c> keyword
@@ -115,7 +130,10 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("unsafe")]
-        public bool Unsafe      { get { return _unsafe; } set {_unsafe = value; } }
+        public bool Unsafe {
+            get { return _unsafe; }
+            set {_unsafe = value; }
+        }
 
         /// <summary>
         /// Specifies whether the compiler should perform optimizations to the make 
@@ -132,7 +150,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("optimize")]
         [BooleanValidator()]
-        public bool   Optimize{ get { return _optimize; } set {_optimize = value;}}
+        public bool Optimize {
+            get { return _optimize; }
+            set {_optimize = value; }
+        }
 
         /// <summary>
         /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
@@ -145,7 +166,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("warninglevel")]
         [Int32Validator(0, 4)]
-        public string WarningLevel  { get { return _warningLevel; } set {_warningLevel = value;}}
+        public string WarningLevel {
+            get { return _warningLevel; }
+            set {_warningLevel = value; }
+        }
 
         /// <summary>
         /// Specifies a comma-separated list of warnings that should be suppressed 
@@ -158,7 +182,10 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("nowarn")]
-        public string NoWarn  { get { return _noWarn; } set {_noWarn = value;}}
+        public string NoWarn {
+            get { return _noWarn; }
+            set {_noWarn = value; }
+        }
 
         /// <summary>
         /// Specifies the code page to use for all source code files in the compilation.
@@ -175,53 +202,6 @@ namespace NAnt.DotNet.Tasks {
         }
 
         #endregion Public Instance Properties
-
-        #region Override implementation of ExternalProgramBase
-
-        /// <summary>
-        /// Gets the name of the executable that should be used to launch the
-        /// external program.
-        /// </summary>
-        /// <value>
-        /// The name of the executable that should be used to launch the
-        /// external program.
-        /// </value>
-        /// <remarks>
-        /// If a current framework is defined, the name of the executable will
-        /// be retrieved from the configuration of the framework; otherwise the
-        /// <see cref="Task.Name" /> will be used.
-        /// </remarks>
-        protected override string ExeName {
-            get {
-                if (Project.CurrentFramework != null) {
-                    return Project.CurrentFramework.CSharpCompilerName;
-                } else {
-                    return Name;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the external program should be executed
-        /// using a runtime engine, if configured.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the program should be executed using a runtime engine;
-        /// otherwise, <c>false</c>.
-        /// </value>
-        protected override bool UsesRuntimeEngine { 
-            get {
-                if (Project.CurrentFramework != null) {
-                    // TO-DO : find better of doing this than relying on the name of the framework
-                    if (Project.CurrentFramework.Name.IndexOf("mono", 0) != -1) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-        #endregion Override implementation of ExternalProgramBase
 
         #region Override implementation of CompilerBase
 
@@ -269,7 +249,7 @@ namespace NAnt.DotNet.Tasks {
             if (Codepage != null) {
                 WriteOption(writer, "codepage", Codepage);
             }
-
+        
             if (NoConfig && !Arguments.Contains("/noconfig")) {
                 Arguments.Add(new Argument("/noconfig"));
             }

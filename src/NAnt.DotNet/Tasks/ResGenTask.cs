@@ -94,49 +94,6 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Gets the name of the executable that should be used to launch the
-        /// external program.
-        /// </summary>
-        /// <value>
-        /// The name of the executable that should be used to launch the
-        /// external program.
-        /// </value>
-        /// <remarks>
-        /// If a current framework is defined, the name of the executable will
-        /// be retrieved from the configuration of the framework; otherwise the
-        /// <see cref="Task.Name" /> will be used.
-        /// </remarks>
-        protected override string ExeName {           
-            get {
-                if (Project.CurrentFramework != null) {
-                    return Project.CurrentFramework.ResGenToolName;
-                } else {
-                    return Name;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the external program should be executed
-        /// using a runtime engine, if configured.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the program should be executed using a runtime engine;
-        /// otherwise, <c>false</c>.
-        /// </value>
-        protected override bool UsesRuntimeEngine { 
-            get {                 
-                // TO-DO : uncomment this when monoresgen no longer crashes when run with the mono runtime.
-                //if (Project.CurrentFramework != null) {
-                //      if (Project.CurrentFramework.Name.IndexOf("mono", 0) != -1 ) { // remove hardcoded ness
-                //          return true;
-                //      }
-                //}                
-                return false;                
-            }
-        }
-
-        /// <summary>
         /// Converts a single file or group of files.
         /// </summary>
         protected override void ExecuteTask() {
