@@ -408,13 +408,13 @@ namespace NAnt.DotNet.Tasks {
                             CompileResxResource(fileName, tmpResourcePath);
                             
                             // check if resource is localized
-                            CultureInfo resourceCulture = GetResourceCulture(fileName);
+                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
                             if (resourceCulture != null) {
                                 if (!cultureResources.ContainsKey(resourceCulture.Name)) {
                                     cultureResources.Add(resourceCulture.Name, new StringCollection());
                                 }
                                 
-                                // store resulting .resoures file for later linking 
+                                // store resulting .resources file for later linking 
                                 ((StringCollection) cultureResources[resourceCulture.Name]).Add(tmpResourcePath);
                             } else {
                                 // regular embedded resources
@@ -424,28 +424,42 @@ namespace NAnt.DotNet.Tasks {
                                 WriteOption(writer, "resource", resourceoption);
                             }
                         }
+
+                        // other resources
+                        foreach (string fileName in resources.NonResxFiles.FileNames) {
+                            // check if resource is localized
+                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
+                            if (resourceCulture != null) {
+                                if (!cultureResources.ContainsKey(resourceCulture.Name)) {
+                                    cultureResources.Add(resourceCulture.Name, new StringCollection());
+                                }
+
+                                // store resource filename for later linking; 
+                                // the resource name will be determined in the
+                                // AssemblyLinkerTask
+                                ((StringCollection) cultureResources[resourceCulture.Name]).Add(fileName);
+                            } else {
+                                string resourceoption = fileName + "," + resources.GetManifestResourceName(fileName);
+                                WriteOption(writer, "resource", resourceoption);
+                            }
+                        }
                         
                         // create a localised resource dll for each culture name
                         foreach (string culture in cultureResources.Keys) {
                             string culturedir = Path.GetDirectoryName(Output) + Path.DirectorySeparatorChar + culture;
                             Directory.CreateDirectory(culturedir);
                             string outputFile =  Path.Combine(culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
-                            LinkResourceAssembly((StringCollection) cultureResources[culture], outputFile, culture);
-                        }
-                        
-                        // other resources
-                        foreach (string fileName in resources.NonResxFiles.FileNames) {
-                            string resourceoption = fileName + "," + resources.GetManifestResourceName(fileName);
-                            WriteOption(writer, "resource", resourceoption);
+                            LinkResourceAssembly(resources, (StringCollection) cultureResources[culture], outputFile, culture);
                         }
                     }
 
+                    // write sources to compile to response file
                     foreach (string fileName in Sources.FileNames) {
                         writer.WriteLine("\"" + fileName + "\"");
                     }
 
-                    // Make sure to close the response file otherwise contents
-                    // will not be written to disc and EXecuteTask() will fail.
+                    // make sure to close the response file otherwise contents
+                    // will not be written to disk and ExecuteTask() will fail.
                     writer.Close();
 
                     if (Verbose) {
@@ -654,28 +668,6 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Determines the culture associated with a given resource file by
-        /// scanning the filename for valid culture names.
-        /// </summary>
-        /// <param name="resXFile">The resx file path to check for culture info.</param>
-        /// <returns>
-        /// A valid <see cref="CultureInfo" /> instance if the resource is 
-        /// associated with a specific culture; otherwise, <see langword="null" />.
-        /// </returns>
-        protected CultureInfo GetResourceCulture(string resXFile) {
-            string noextpath = Path.GetFileNameWithoutExtension(resXFile);
-            int index = noextpath.LastIndexOf('.');
-            if (index >= 0 && index <= noextpath.Length) {
-                string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));
-                // check that its in our list of culture names
-                if (CultureNames.Contains(possibleculture)) {
-                    return new CultureInfo(possibleculture);
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
         /// An abstract method that must be overridden in each compiler.  It is 
         /// responable for extracting and returning the associated namespace/classname 
         /// linkage found in the given stream.
@@ -720,7 +712,6 @@ namespace NAnt.DotNet.Tasks {
         /// Opens matching source file to find the correct namespace for the
         /// specified rsource file.
         /// </summary>
-        /// <param name="resxPath"></param>
         /// <returns>
         /// The namespace/classname of the source file matching the resource or
         /// <see langword="null" /> if there's no matching source file.
@@ -734,7 +725,7 @@ namespace NAnt.DotNet.Tasks {
             string sourceFile = resxPath.Replace("resx", Extension);
             
             // check if we're dealing with a localized resource
-            CultureInfo resourceCulture = GetResourceCulture(resxPath);
+            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resxPath);
             if (resourceCulture != null) {
                 sourceFile = sourceFile.Replace(string.Format(CultureInfo.InvariantCulture,
                     ".{0}", resourceCulture.Name), "");
@@ -772,10 +763,11 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Link a list of files into a resource assembly.
         /// </summary>
+        /// <param name="resourceFileSet">The <see cref="ResourceFileSet" /> from which to inherit settings.</param>
         /// <param name="resourceFiles">List of files to bind into</param>
         /// <param name="outputFile">Resource assembly to generate</param>
         /// <param name="culture">Culture of the generated assembly.</param>
-        protected void LinkResourceAssembly(StringCollection resourceFiles, string outputFile, string culture) {
+        protected void LinkResourceAssembly(ResourceFileSet resourceFileSet, StringCollection resourceFiles, string outputFile, string culture) {
             // defer to the assembly linker task
             AssemblyLinkerTask alink = new AssemblyLinkerTask();
 
@@ -798,6 +790,11 @@ namespace NAnt.DotNet.Tasks {
 
             // child elements inherit project from current task
             alink.Sources.Project = this.Project;
+
+            // inherit setting from given ResourceFileSet
+            alink.Sources.BaseDirectory = resourceFileSet.BaseDirectory;
+            alink.Sources.Prefix = resourceFileSet.Prefix;
+            alink.Sources.DynamicPrefix = resourceFileSet.DynamicPrefix;
             
             foreach (string resource in resourceFiles) {
                 alink.Sources.FileNames.Add(resource);
@@ -845,6 +842,32 @@ namespace NAnt.DotNet.Tasks {
         }
         
         #endregion Protected Instance Methods
+
+        #region Public Static Methods
+
+        /// <summary>
+        /// Determines the culture associated with a given resource file by
+        /// scanning the filename for valid culture names.
+        /// </summary>
+        /// <param name="resXFile">The resx file path to check for culture info.</param>
+        /// <returns>
+        /// A valid <see cref="CultureInfo" /> instance if the resource is 
+        /// associated with a specific culture; otherwise, <see langword="null" />.
+        /// </returns>
+        public static CultureInfo GetResourceCulture(string resXFile) {
+            string noextpath = Path.GetFileNameWithoutExtension(resXFile);
+            int index = noextpath.LastIndexOf('.');
+            if (index >= 0 && index <= noextpath.Length) {
+                string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));
+                // check that its in our list of culture names
+                if (CultureNames.Contains(possibleculture)) {
+                    return new CultureInfo(possibleculture);
+                }
+            }
+            return null;
+        }
+
+        #endregion Public Static Methods
 
         /// <summary>
         /// Holds class and namespace information for resource (*.resx) linkage.

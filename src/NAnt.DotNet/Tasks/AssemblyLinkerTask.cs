@@ -28,6 +28,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.DotNet.Types;
+
 namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Wraps <c>al.exe</c>, the assembly linker for the .NET Framework.
@@ -63,7 +65,7 @@ namespace NAnt.DotNet.Tasks {
         private string _culture = null;
         private string _template = null;
         private string _keyfile = null;
-        private FileSet _sources = new FileSet();
+        private ResourceFileSet _sources = new ResourceFileSet();
 
         #endregion Private Instance Fields
 
@@ -155,7 +157,7 @@ namespace NAnt.DotNet.Tasks {
         /// The set of source files to embed.
         /// </summary>
         [BuildElement("sources")]
-        public FileSet Sources {
+        public ResourceFileSet Sources {
             get { return _sources; }
             set {_sources = value; }
         }
@@ -219,7 +221,28 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     foreach (string fileName in Sources.FileNames) {
-                        writer.Write(" /embed:\"{0}\"", fileName);
+                        if (Path.GetExtension(fileName) == ".resources") {
+                            // no need to determine name of resource to embed
+                            writer.Write(" /embed:\"{0}\"", fileName);
+                        } else {
+                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
+                            if (resourceCulture != null) {
+                                // determine resource name
+                                string resourceName = Sources.GetManifestResourceName(fileName);
+
+                                // remove culture name from name of resource
+                                int cultureIndex = resourceName.LastIndexOf("." + resourceCulture.Name);
+                                resourceName = resourceName.Substring(0, cultureIndex) 
+                                    + resourceName.Substring(cultureIndex).Replace("." 
+                                    + resourceCulture.Name, string.Empty);
+
+                                // write option to response file
+                                writer.Write(" /embed:\"{0},{1}\"", fileName, resourceName);
+                            } else {
+                                // write option to response file
+                                writer.Write(" /embed:\"{0}\"", fileName);
+                            }
+                        }
                     }
 
                     // Make sure to close the response file otherwise contents
