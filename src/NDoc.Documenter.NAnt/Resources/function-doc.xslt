@@ -25,13 +25,10 @@
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:include href="nant-attributes.xslt" />
-    
+
     <xsl:output method="html" indent="yes" />
 
-    <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
-    <xsl:param name="functionName">T:NAnt.Core.Types.FileSet</xsl:param>
-
-    <!-- helper values for adjusting the paths -->
+    <xsl:param name="functionName"></xsl:param>
     <xsl:param name="refType">Function</xsl:param>
 
     <xsl:template match="/">
@@ -40,9 +37,11 @@
             <xsl:apply-templates select="//method[@name=$functionName]" mode="FunctionDoc"/>
         </html>
     </xsl:template>
-    
+
     <xsl:template match="method" mode="FunctionDoc">
-        <xsl:variable name="name"><xsl:value-of select="@name" /></xsl:variable>
+        <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" />
+        <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" />
+        <xsl:variable name="name"><xsl:value-of select="$Prefix" /><xsl:if test="$Prefix != ''">.</xsl:if><xsl:value-of select="$Name" /></xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
@@ -63,62 +62,56 @@
                     </td>
                 </tr>
             </table>
-    
+
             <h1><xsl:value-of select="$name" /> Function</h1>
-            <xsl:apply-templates select="."/>
+            <!-- output whether type is deprecated -->
+            <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+            <xsl:if test="count($ObsoleteAttribute) > 0">
+                <p>
+                    <i>(Deprecated)</i>
+                </p>
+            </xsl:if>
+
+            <p><xsl:apply-templates select="documentation/summary" mode="slashdoc"/></p>
+
+            <h3>Usage</h3>
+            <code>
+                <xsl:value-of select="$name" />(<xsl:for-each select="parameter"><xsl:if test="position() != 1">, </xsl:if><xsl:value-of select="@name" /></xsl:for-each>)
+            </code>
+            <p/>
+
+            <xsl:if test="count(parameter) != 0">
+                <h3>Parameters</h3>
+                <div class="table">
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <xsl:for-each select="parameter">
+                            <tr>
+                                <td><xsl:value-of select="@name" /></td>
+                                <td><xsl:value-of select="@type" /></td>
+                                <xsl:variable name="paramname" select="@name" />
+                                <td><xsl:apply-templates select="../documentation/param[@name=$paramname]" mode="slashdoc" /></td>
+                            </tr>
+                        </xsl:for-each>
+                    </table>
+                </div>
+            </xsl:if>
+            <h3>Return Value</h3>
+            <xsl:apply-templates select="documentation/returns" mode="slashdoc"/>
+            <xsl:if test="count(documentation/remarks) != 0">
+                <h3>Remarks</h3>
+                <xsl:apply-templates select="documentation/remarks" mode="slashdoc"/>
+            </xsl:if>
+            <xsl:if test="count(documentation/example) != 0">
+                <h3>Examples</h3>
+                <xsl:apply-templates select="documentation/example" mode="slashdoc"/>
+            </xsl:if>
         </body>
 
-    </xsl:template>
-
-    <!-- match class tag for info about a type -->
-    <xsl:template match="method">
-    
-        <!-- output whether type is deprecated -->
-        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
-        <xsl:if test="count($ObsoleteAttribute) > 0">
-            <p>
-                <i>(Deprecated)</i>
-            </p>
-        </xsl:if>
-        
-        <p><xsl:apply-templates select="documentation/summary" mode="slashdoc"/></p>
-
-        <h3>Usage</h3>
-        <code>
-            <xsl:value-of select="@name" />(<xsl:for-each select="parameter"><xsl:if test="position() != 1">, </xsl:if><xsl:value-of select="@name" /></xsl:for-each>)
-        </code>
-        <p/>
-        
-        <xsl:if test="count(parameter) != 0">
-            <h3>Parameters</h3>
-            <div class="table">
-                <table>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                    </tr>
-                    <xsl:for-each select="parameter">
-                        <tr>
-                            <td><xsl:value-of select="@name" /></td>
-                            <td><xsl:value-of select="@type" /></td>
-                            <xsl:variable name="paramname" select="@name" />
-                            <td><xsl:apply-templates select="../documentation/param[@name=$paramname]" mode="slashdoc" /></td>
-                        </tr>
-                    </xsl:for-each>
-                </table>
-            </div>
-        </xsl:if>
-        <h3>Return Value</h3>
-        <xsl:apply-templates select="documentation/returns" mode="slashdoc"/>
-        <xsl:if test="count(documentation/remarks) != 0">
-            <h3>Remarks</h3>
-            <xsl:apply-templates select="documentation/remarks" mode="slashdoc"/>
-        </xsl:if>
-        <xsl:if test="count(documentation/example) != 0">
-            <h3>Examples</h3>
-            <xsl:apply-templates select="documentation/example" mode="slashdoc"/>
-        </xsl:if>
     </xsl:template>
 
 </xsl:stylesheet>
