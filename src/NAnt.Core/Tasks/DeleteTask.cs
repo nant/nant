@@ -121,31 +121,40 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
-        protected override void ExecuteTask() {
-            // limit task to deleting either a file, directory, or file set
+        /// <summary>
+        /// Ensures the supplied attributes are valid.
+        /// </summary>
+        /// <param name="taskNode">Xml node used to define this task instance.</param>
+        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+            // limit task to deleting either a file, directory
             if (File != null && Directory != null) {
                 throw new BuildException("Cannot specify both 'file' and 'dir'" 
                     + " attribute in the same <delete> task.", Location);
             }
 
-            // delete a single file
-            if (File != null) {
+            // limit task to deleting either a file/directory or fileset
+            if ((File != null || Directory != null) && DeleteFileSet.Includes.Count != 0) {
+                throw new BuildException("Cannot specify both 'file' or 'dir'" 
+                    + " attribute and use <fileset> in the same <delete> task.", 
+                    Location);
+            }
+        }
+
+        protected override void ExecuteTask() {
+            if (File != null) { // delete a single file
                 // delete the file in verbose mode
                 DeleteFile(File.FullName, true);
-            }
-
-            // delete the directory
-            if (Directory != null) {
+            } else if (Directory != null) { // delete the directory
                 if (!Directory.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot delete directory {0}. The directory does not exist.", 
+                        "Cannot delete directory '{0}'. The directory does not exist.", 
                         Directory.FullName), Location);
                 }
                 
-                Log(Level.Info, LogPrefix + "Deleting directory {0}.", 
+                Log(Level.Info, LogPrefix + "Deleting directory '{0}'.", 
                     Directory.FullName);
                 RecursiveDeleteDirectory(Directory.FullName);
-            } else {
+            } else { // delete files or directories in fileset
                 if (DeleteFileSet.DirectoryNames.Count == 0) {
                     Log(Level.Info, LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
                 } else if (DeleteFileSet.FileNames.Count == 0) {
@@ -186,7 +195,7 @@ namespace NAnt.Core.Tasks {
                 foreach (string file in files) {
                     try {
                         System.IO.File.SetAttributes(file, FileAttributes.Normal);
-                        Log(Level.Verbose, LogPrefix + "Deleting file {0}.", file);
+                        Log(Level.Verbose, LogPrefix + "Deleting file '{0}'.", file);
                         System.IO.File.Delete(file);
                     } catch (Exception ex) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
@@ -201,7 +210,7 @@ namespace NAnt.Core.Tasks {
                 // ensure path is not read-only
                 System.IO.File.SetAttributes(path, FileAttributes.Normal);
                 // write output to build log
-                Log(Level.Verbose, LogPrefix + "Deleting directory {0}.", path);
+                Log(Level.Verbose, LogPrefix + "Deleting directory '{0}'.", path);
                 // finally, delete the directory
                 System.IO.Directory.Delete(path);
             } catch (BuildException ex) {
@@ -233,11 +242,11 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot delete file {0}.", path);
+                    "Cannot delete file '{0}'.", path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Verbose, LogPrefix + msg);
+                Log(Level.Verbose, LogPrefix + msg + " " + ex.Message);
             }
         }
 
