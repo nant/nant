@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 
 namespace NAnt.Core.Util {
     /// <summary>
@@ -64,6 +65,48 @@ namespace NAnt.Core.Util {
             }
 
             return value;
+        }
+
+        /// <summary>
+        /// Concatenates a specified separator <see cref="string" /> between each 
+        /// element of a specified <see cref="StringCollection" />, yielding a 
+        /// single concatenated string.
+        /// </summary>
+        /// <param name="separator">A <see cref="string" />.</param>
+        /// <param name="value">A <see cref="StringCollection" />.</param>
+        /// <returns>
+        /// A <see cref="string" /> consisting of the elements of <paramref name="value" /> 
+        /// interspersed with the separator string.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// For example if <paramref name="separator" /> is ", " and the elements 
+        /// of <paramref name="value" /> are "apple", "orange", "grape", and "pear", 
+        /// <see cref="Join(string, StringCollection)" /> returns "apple, orange, 
+        /// grape, pear".
+        /// </para>
+        /// <para>
+        /// If <paramref name="separator" /> is <see langword="null" />, an empty 
+        /// string (<see cref="string.Empty" />) is used instead.
+        /// </para>
+        /// </remarks>
+        public static string Join(string separator, StringCollection value) {
+            if (value == null) {
+                throw new ArgumentNullException("value");
+            }
+
+            if (separator == null) {
+                separator = string.Empty;
+            }
+
+            // create with size equal to number of elements in collection
+            string[] elements = new string[value.Count];
+
+            // copy elements in collection to array       
+            value.CopyTo(elements, 0);
+
+            // concatenate specified separator between each elements 
+            return string.Join(separator, elements);
         }
 
         #endregion Public Static Methods
