@@ -17,6 +17,7 @@
 //
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez@hotmail.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Collections;
@@ -354,31 +355,32 @@ namespace SourceForge.NAnt {
                         throw new BuildException(String.Format(CultureInfo.InvariantCulture, " Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
 
-                    Type elementType = buildElementArrayAttribute.ElementType;
-                    if (elementType == null) { 
-                        if (propertyInfo.PropertyType.IsArray) {
-                            elementType = propertyInfo.PropertyType.GetElementType();
-                        } else {
-                            // If value of property is null, create new instance of collection
-                            if (propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
-                                if (!propertyInfo.CanWrite) {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
-                                }
-                                object instance = Activator.CreateInstance(propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
-                                propertyInfo.SetValue(this, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
-                            }
-                
-                            object value = propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                    Type elementType = null;
 
-                            // locate Add method with 1 parameter
-                            foreach (MethodInfo method in value.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                                if (method.Name == "Add" && method.GetParameters().Length == 1) {
-                                    ParameterInfo parameter = method.GetParameters()[0];
-                                    elementType = parameter.ParameterType;
-                                    break;
-                                }
+                    if (propertyInfo.PropertyType.IsArray) {
+                        elementType = propertyInfo.PropertyType.GetElementType();
+
+                        if (!propertyInfo.CanWrite) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only array-based properties. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        }
+                    } else {
+                        if (!propertyInfo.CanRead) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to write-only collection-based properties. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        }
+
+                        // locate Add method with 1 parameter, type of that parameter is parameter type
+                        foreach (MethodInfo method in propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                            if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                                ParameterInfo parameter = method.GetParameters()[0];
+                                elementType = parameter.ParameterType;
+                                break;
                             }
                         }
+                    }
+
+                    // Make sure the element is strongly typed
+                    if (elementType == null || elementType == typeof(object)) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute can only be applied to strongly typed collection or array based properties. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
 
                     // create new array of the required size - even if size is 0
