@@ -200,7 +200,13 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("delim")]
         public string Delimiter {
             get { return _delim; }
-            set { _delim = StringUtils.ConvertEmptyToNull(value); }
+            set { 
+                if (value == null || value.Length == 0) {
+                    _delim = null;
+                } else {
+                    _delim = value; 
+                }
+            }
         }
 
         /// <summary>
@@ -239,7 +245,7 @@ namespace NAnt.Core.Tasks {
                         throw new BuildException("Invalid itemtype", Location);
                     case LoopItem.File:
                         if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
-                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
+                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
 
                         if (!StringUtils.IsNullOrEmpty(Source)) {
@@ -248,7 +254,7 @@ namespace NAnt.Core.Tasks {
                             }
                         
                             if (_props.Length != 1) {
-                                throw new BuildException(@"Only one property is valid for item=""File""");
+                                throw new BuildException(@"Only one property is valid for item=""File""", Location);
                             }
                         
                             DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
@@ -273,7 +279,7 @@ namespace NAnt.Core.Tasks {
                         }
 
                         if (_props.Length != 1) {
-                            throw new BuildException(@"Only one property is valid for item=""Folder""");
+                            throw new BuildException(@"Only one property is valid for item=""Folder""", Location);
                         }
 
                         if (!StringUtils.IsNullOrEmpty(Source)) {
@@ -301,8 +307,8 @@ namespace NAnt.Core.Tasks {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
 
-                        if (_props.Length > 1 && StringUtils.IsNullOrEmpty(Delimiter)) {
-                            throw new BuildException("Delimiter(s) must be specified if multiple properties are specified");
+                        if (_props.Length > 1 && Delimiter == null) {
+                            throw new BuildException("Delimiter(s) must be specified if multiple properties are specified", Location);
                         }
 
                         if (!StringUtils.IsNullOrEmpty(Source)) {
@@ -327,11 +333,11 @@ namespace NAnt.Core.Tasks {
                         }
 
                         if (_props.Length > 1) {
-                            throw new BuildException(@"Only one property may be specified for item=""String""");
+                            throw new BuildException(@"Only one property may be specified for item=""String""", Location);
                         }
 
-                        if (StringUtils.IsNullOrEmpty(Delimiter)) {
-                            throw new BuildException(@"Delimiter must be specified for item=""String""");
+                        if (Delimiter == null) {
+                            throw new BuildException(@"Delimiter must be specified for item=""String""", Location);
                         }
 
                         string[] items = Source.Split(Delimiter.ToCharArray());
@@ -364,7 +370,7 @@ namespace NAnt.Core.Tasks {
             for (int nIndex = 0; nIndex < propVals.Length; nIndex++) {
                 string propValue = propVals[nIndex];
                 if (nIndex >= _props.Length) {
-                    throw new BuildException("Too many items on line");
+                    throw new BuildException("Too many items on line", Location);
                 }
                 switch (TrimType) {
                     case LoopTrim.Both:
@@ -393,7 +399,7 @@ namespace NAnt.Core.Tasks {
                     if (line == null) {
                         break;
                     }
-                    if (StringUtils.IsNullOrEmpty(Delimiter)) {
+                    if (Delimiter == null) {
                         DoWork(line);
                     } else {
                         DoWork(line.Split(Delimiter.ToCharArray()));
