@@ -28,7 +28,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Check modification dates on two files or groups of files.
+    /// Check modification dates on groups of files.
     /// </summary>
     /// <remarks>
     /// If all <see cref="TargetFiles" /> are same or newer than all <see cref="SourceFiles" />, the specified property is set to <see langword="true" />, otherwise it
@@ -41,74 +41,38 @@ namespace NAnt.Core.Tasks {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <uptodate targetfile="myfile.dll" sourcefile="myfile.cs" property="myfile.dll.uptodate" />
-    ///     ]]>
-    ///   </code>
-    ///   <para>or</para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <uptodate sourcefile="myfile.cs" property="myfile.dll.uptodate">
-    ///     <targetfiles>
-    ///         <includes name="*.dll" />
-    ///     </targetfiles>
-    /// </uptodate>
-    ///     ]]>
-    ///   </code>
-    ///   <para>or</para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <uptodate targetfile="myfile.dll" property="myfile.dll.uptodate">
+    /// <uptodate property="myfile.dll.uptodate">
     ///     <sourcefiles>
-    ///         <includes name="*.cs" />
+    ///         <includes name="myfile.cs" />
     ///     </sourcefiles>
+    ///     <targetfiles>
+    ///         <includes name="myfile.dll" />
+    ///     </targetfiles>
     /// </uptodate>
     ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("uptodate")]
-    public class UpToDateTask : TaskContainer {
-        private string _propertyName = null;
-        private FileSet _sourceFiles = null;
-        private FileSet _targetFiles = null;
+    public class UpToDateTask : Task {
+        #region Private Instance Fields
+
+        private string _propertyName;
+        private FileSet _sourceFiles;
+        private FileSet _targetFiles;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>
         /// Property that will be set to <see langword="true" /> or <see langword="false" /> depending on the 
         /// result of the date check.
         /// </summary>
-        [TaskAttribute("property")]
+        [TaskAttribute("property", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string PropertyName {
             get { return _propertyName; }
             set { _propertyName = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
-        /// Name of the target file. Use this if you have just one file. Otherwise use <see cref="TargetFiles" />.
-        /// </summary>
-        [TaskAttribute("targetfile")]
-        public string TargetFile {
-            set {
-                if (_targetFiles == null) {
-                    _targetFiles = new FileSet();
-                    _targetFiles.Parent = this;
-                    _targetFiles.Project = this.Project;
-                }
-                _targetFiles.Includes.Add(value); 
-            }
-        }
-
-        /// <summary>
-        /// Name of the source file. Use this if you have just one file. Otherwise use <see cref="SourceFiles" />. 
-        /// </summary>
-        [TaskAttribute("sourcefile")]
-        public string SourceFile {
-            set { 
-                if (_sourceFiles == null) {
-                    _sourceFiles = new FileSet();
-                    _sourceFiles.Parent = this;
-                    _sourceFiles.Project = this.Project;
-                }
-                _sourceFiles.Includes.Add(value); 
-            }
         }
 
         /// <summary>
@@ -129,6 +93,10 @@ namespace NAnt.Core.Tasks {
             set { _targetFiles = value; }
         }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         protected override void ExecuteTask() {
             bool value = true;
             
@@ -146,5 +114,7 @@ namespace NAnt.Core.Tasks {
             }
             Project.Properties[PropertyName] = Convert.ToString(value, CultureInfo.InvariantCulture);
         }
+
+        #endregion Override implementation of Task
     }
 }
