@@ -193,7 +193,10 @@ namespace NAnt.VSNet {
             lt.Target = Path.GetFileName(outputFileName);
 
             foreach (Reference reference in Project.References) {
-                lt.Assemblies.Includes.Add(reference.Filename);
+				// skip assemblies that stored in the GAC
+				if (!reference.GacCache.IsAssemblyInGac(reference.Filename)) {
+					lt.Assemblies.Includes.Add(reference.Filename);
+				}
             }
 
             // increment indentation level

@@ -232,7 +232,7 @@ namespace NAnt.VSNet {
 
         #region Protected Instance Properties
 
-        protected ReferenceGacCache GacCache {
+        public ReferenceGacCache GacCache {
             get { return _gacCache; }
         }
 
