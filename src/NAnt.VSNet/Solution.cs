@@ -445,11 +445,9 @@ namespace NAnt.VSNet {
                         + " Project GUID {1} already exists! Conflicting project is {2}.", 
                         projectFileName, projectGuid, _htProjectFiles[projectGuid]));
                 }
-                if (isReferenceProject) {
+                _htProjectFiles[projectGuid] = projectFileName;
+                if (isReferenceProject)
                     _htReferenceProjects[projectGuid] = null;
-                } else {
-                    _htProjectFiles[projectGuid] = projectFileName;
-                }
             }
         }
 
