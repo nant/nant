@@ -29,11 +29,8 @@ using NAnt.Core.Util;
 namespace NAnt.Core.Types {
     /// <summary>
     /// <para>
-    /// Paths are groups of files and directory that need to be passed as a single
-    /// unit.
-    /// </para>
-    /// <para>
-    /// The order in which parts of the path are specified in the build file is 
+    /// Paths are groups of files and/or directories that need to be passed as a single
+    /// unit. The order in which parts of the path are specified in the build file is 
     /// retained, and duplicate parts are automatically suppressed.
     /// </para>
     /// </summary>
