@@ -410,7 +410,12 @@ namespace NAnt.DotNet.Tasks {
                 // load each assembly and try to get type from it
                 foreach (string assemblyFileName in assemblies) {
                     Assembly assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
-                    
+
+                    if (assembly == null) {
+                        // skip the assembly
+                        continue;
+                    }
+
                     type = assembly.GetType(typename, false, false);
                     if (type == null) {
                         foreach (string import in imports) {
