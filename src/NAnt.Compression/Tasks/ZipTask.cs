@@ -31,7 +31,7 @@ namespace SourceForge.NAnt.Tasks {
     /// A task to create a zip file from a specified fileset.
     /// </summary>
     /// <remarks>
-    ///   <para>Uses <a href="http://www.icsharpcode.net/OpenSource/NZipLib/">NZipLib</a>, an open source Zip/GZip library written entirely in C#.</para>
+    ///   <para>Uses <a href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</a> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
     /// </remarks>
     /// <example>
     ///   <para>Zip all files in the subdirectory <c>build</c> to <c>backup.zip</c>.</para>
