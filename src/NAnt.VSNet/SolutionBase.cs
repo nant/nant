@@ -363,6 +363,15 @@ namespace NAnt.VSNet {
                     continue;
                 }
 
+                // check if project type is supported
+                if (!ProjectFactory.IsSupportedProjectType(projectPath)) {
+                    // output a warning message in the build log
+                    Log(Level.Warning, "Only C#, J#, VB.NET and C++ projects" +
+                        " are supported.  Skipping project '{0}'.", projectPath);
+                    // skip the project
+                    continue;
+                }
+
                 Log(Level.Verbose, "Loading project '{0}'.", projectPath);
                 ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, refResolver, _outputDir, projectPath);
                 if (p.Guid == null || p.Guid == string.Empty) {

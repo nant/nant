@@ -52,15 +52,6 @@ namespace NAnt.VSNet.Rainier {
                 if (ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath)) {
                     RecursiveLoadTemplateProject(fullProjectPath);
                 } else {
-                    // only C#, VB.NET and C++ projects are supported at this moment
-                    if (!ProjectFactory.IsSupportedProjectType(project)) {
-                        // output a warning message in the build log
-                        Log(Level.Warning, "Only C#, VB.NET and C++ projects" +
-                            " are supported.  Skipping project '{0}'.", project);
-                        // skip the project
-                        continue;
-                    }
-
                     // add project path to collection
                     ProjectFiles[guid] = fullProjectPath;
                 }
