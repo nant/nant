@@ -33,26 +33,38 @@
                 </td>
             </tr>
         </table>
-        
         <h2>
-            0.85-rc 3</h2>
-        <h3>
-            General changes</h3>
-        <div style="margin-left: 20px;">
-        </div>
+            0.85-rc 3 (TBD)</h2>
          <h3>
             Bug fixes</h3>
-        <h4>Core</h4>
-        <div style="margin-left: 20px;">
-        </div>
         <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/ndoc.html">&lt;ndoc&gt;</a></h5>
+            <ul>
+                <li>
+                    When executing the <code><a href="help/tasks/ndoc.html">&lt;ndoc&gt;</a></code> task multiple times, the properties are not expanded again after the first execution (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1124113&amp;group_id=31650&amp;atid=402868">
+                        #1124113</a>).
+                </li>
+            </ul>
+        </div>
         <div style="margin-left: 20px;">
             <h5>
                 <a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
             <ul>
                 <li>
-                    <code><a href="help/tasks/script.html">&lt;script&gt;</a></code> Now supports any CodeDom provider.
-Not just the built in languages ( c#, vb etc )
+                    Now supports any CodeDom provider, not just the built in languages (C#, VB, etc).
+                </li>
+            </ul>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
+            <ul>
+                <li>
+                    A relative path specified in the <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemReflectionAssemblyKeyFileAttributeClassTopic.asp">AssemblyKeyFile</a>
+                    attribute must be resolved using either the solution directory or the intermediate
+                    output directory.
                 </li>
             </ul>
         </div>
