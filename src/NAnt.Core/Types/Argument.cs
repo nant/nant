@@ -29,13 +29,45 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Represents a command-line argument.
     /// </summary>
+    /// <example>
+    ///   <para>
+    ///   A single command-line argument containing a space character.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <arg value="-l -a" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Two separate command-line arguments.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <arg line="-l -a" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   A single command-line argument with the value <c>\dir;\dir2;\dir3</c>
+    ///   on DOS-based systems and <c>/dir:/dir2:/dir3</c> on Unix-like systems.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <arg path="/dir;/dir2:\dir3" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [ElementName("arg")]
     public class Argument : DataTypeBase {
         #region Private Instance Fields
 
-        private string _value;
         private FileInfo _file;
         private PathList _path;
+        private string _value;
+        private string _line;
         private bool _ifDefined = true;
         private bool _unlessDefined;
 
@@ -92,7 +124,9 @@ namespace NAnt.Core.Types {
             } else if (Path != null) {
                 return QuoteArgument(Path.ToString());
             } else if (Value != null) {
-                return Value;
+                return QuoteArgument(Value);
+            } else if (Line != null) {
+                return Line;
             } else {
                 return string.Empty;
             }
@@ -123,13 +157,28 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// A string that will be treated as a path-like string as a single 
-        /// command-line argument; you can use <code>;</code> as path separator
-        /// and NAnt will convert it to the platform's local conventions.
+        /// command-line argument; you can use <c>:</c> or <c>;</c> as path 
+        /// separators and NAnt will convert it to the platform's local 
+        /// conventions.
         /// </summary>
+        /// <remarks>
+        /// Individual parts will be replaced with the absolute path, resolved
+        /// relative to the project base directory.
+        /// </remarks>
         [TaskAttribute("path")]
         public PathList Path {
             get { return _path; }
             set { _path = value; }
+        }
+
+        /// <summary>
+        /// List of command-line arguments; will be passed to the executable
+        /// as is.
+        /// </summary>
+        [TaskAttribute("line")]
+        public string Line {
+            get { return _line; }
+            set { _line = value; }
         }
 
         /// <summary>
@@ -169,6 +218,8 @@ namespace NAnt.Core.Types {
                     return File.FullName;
                 } else if (Path != null) {
                     return Path.ToString();
+                } else if (Line != null) {
+                    return Line;
                 } else {
                     return Value;
                 }

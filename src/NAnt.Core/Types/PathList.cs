@@ -34,6 +34,12 @@ namespace NAnt.Core.Types {
 
         #endregion Private Instance Fields
 
+        #region Private Static Fields
+
+        private static bool _dosBasedFileSystem = (Path.PathSeparator == ';');
+
+        #endregion Private Static Fields
+
         #region Public Instance Constructors
 
         /// <summary>
@@ -93,8 +99,8 @@ namespace NAnt.Core.Types {
         #region Public Static Methods
 
         /// <summary>
-        /// Splits a PATH (with ; as separator) into its parts, while resolving 
-        /// references to environment variables.
+        /// Splits a PATH (with ; or : as separators) into its parts, while 
+        /// resolving references to environment variables.
         /// </summary>
         /// <param name="project">The <see cref="Project" /> to be used to resolve relative paths.</param>
         /// <param name="source">The path to translate.</param>
@@ -109,8 +115,22 @@ namespace NAnt.Core.Types {
                 return result;
             }
 
-            string[] parts = source.Split(';');
-            foreach (string part in parts) {
+            string[] parts = source.Split(':',';');
+            for (int i = 0; i < parts.Length; i++) {
+                string part = parts[i];
+
+                // on a DOS filesystem, the ':' character might be part of a 
+                // drive spec and in that case we need to combine the current
+                // and the next part
+                if (part.Length == 1 && Char.IsLetter(part[0]) && _dosBasedFileSystem && (parts.Length > i + 1)) {
+                    string nextPart = parts[i + 1].Trim();
+                    if (nextPart.StartsWith("\\") || nextPart.StartsWith("/")) {
+                        part += ":" + nextPart;
+                        // skip the next part as we've also processed it
+                        i++;
+                    }
+                }
+
                 // expand env variables in part
                 string expandedPart = Environment.ExpandEnvironmentVariables(part);
 
