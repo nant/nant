@@ -217,7 +217,154 @@ namespace NAnt.Core.Functions {
             return Project.FrameworkInfoDictionary.ContainsKey(name);
         }
 
+        /// <summary>
+        /// Gets the identifier of the current target framework.
+        /// </summary>
+        /// <returns>
+        /// The identifier of the current target framework.
+        /// </returns>
+        [Function("get-target-framework")]
+        public string GetTargetFramework() {
+            return Project.TargetFramework.Name;
+        }
+
+        /// <summary>
+        /// Gets the family of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the family should be returned.</param>
+        /// <returns>
+        /// The family of the specified framework.
+        /// </returns>
+        [Function("get-family")]
+        public string GetFamily(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the family of the specified framework
+            return Project.FrameworkInfoDictionary[framework].Family;
+        }
+
+        /// <summary>
+        /// Gets the version of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the version should be returned.</param>
+        /// <returns>
+        /// The version of the specified framework.
+        /// </returns>
+        [Function("get-version")]
+        public string GetVersion(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the family of the specified framework
+            return Project.FrameworkInfoDictionary[framework].Version;
+        }
+
+        /// <summary>
+        /// Gets the description of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the description should be returned.</param>
+        /// <returns>
+        /// The description of the specified framework.
+        /// </returns>
+        [Function("get-description")]
+        public string GetDescription(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the description of the specified framework
+            return Project.FrameworkInfoDictionary[framework].Description;
+        }
+
+        /// <summary>
+        /// Gets the Common Language Runtime version of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the Common Language Runtime version should be returned.</param>
+        /// <returns>
+        /// The Common Language Runtime version of the specified framework.
+        /// </returns>
+        [Function("get-clr-version")]
+        public string GetClrVersion(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the family of the specified framework
+            return Project.FrameworkInfoDictionary[framework].ClrVersion;
+        }
+
+        /// <summary>
+        /// Gets the framework directory of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the framework directory should be returned.</param>
+        /// <returns>
+        /// The framework directory of the specified framework.
+        /// </returns>
+        [Function("get-framework-directory")]
+        public DirectoryInfo GetFrameworkDirectory(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the framework directory of the specified framework
+            return Project.FrameworkInfoDictionary[framework].FrameworkDirectory;
+        }
+
+        /// <summary>
+        /// Gets the assembly directory of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the assembly directory should be returned.</param>
+        /// <returns>
+        /// The assembly directory of the specified framework.
+        /// </returns>
+        [Function("get-assembly-directory")]
+        public DirectoryInfo GetAssemblyDirectory(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the assembly directory of the specified framework
+            return Project.FrameworkInfoDictionary[framework].FrameworkAssemblyDirectory;
+        }
+
+        /// <summary>
+        /// Gets the SDK directory of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the SDK directory should be returned.</param>
+        /// <returns>
+        /// The SDK directory of the specified framework.
+        /// </returns>
+        [Function("get-sdk-directory")]
+        public DirectoryInfo GetSdkDirectory(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the SDK directory of the specified framework
+            return Project.FrameworkInfoDictionary[framework].SdkDirectory;
+        }
+
+        /// <summary>
+        /// Gets the runtime engine of the specified framework.
+        /// </summary>
+        /// <param name="framework">The framework of which the runtime engine should be returned.</param>
+        /// <returns>
+        /// The runtime engine of the specified framework.
+        /// </returns>
+        [Function("get-runtime-engine")]
+        public FileInfo GetRuntimeEngine(string framework) {
+            // ensure the framework is valid
+            CheckFramework(framework);
+            // return the runtime engine of the specified framework
+            return Project.FrameworkInfoDictionary[framework].RuntimeEngine;
+        }
+
         #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Checks whether the specified framework is valid.
+        /// </summary>
+        /// <param name="framework">The framework to check.</param>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
+        private void CheckFramework(string framework) {
+            if (!Project.FrameworkInfoDictionary.ContainsKey(framework)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "'{0}' is not a valid framework identifier.", framework));
+            }
+        }
+
+        #endregion Private Instance Methods
     }
 
     [FunctionSet("environment", "NAnt")]
