@@ -463,10 +463,21 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="resourceFileSet"></param>
         protected void CompileResxResources(FileSet resourceFileSet) {
             ResGenTask resgen = new ResGenTask(); 
-            resgen.Resources = resourceFileSet; // set the fileset
-            resgen.Verbose = this.Verbose; 
-            resgen.Parent = this.Parent;
             resgen.Project = this.Project;
+            resgen.Parent = this.Parent;
+
+            // temporary hack to force configuration settings to be 
+            // read from NAnt configuration file
+            //
+            // TO-DO : Remove this temporary hack when a permanent solution is 
+            // available for loading the default values from the configuration
+            // file if a build element is constructed from code.
+            resgen.InitializeTaskConfiguration();
+
+            // set the fileset
+            resgen.Resources = resourceFileSet; 
+            // inherit Verbose setting from current task
+            resgen.Verbose = this.Verbose; 
 
             _resgenTask = resgen;
 
