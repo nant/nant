@@ -48,6 +48,7 @@ namespace NAnt.DotNet.Tasks {
         private bool _warnAsError = false;
         private string _mainType = null;
         private FileSet _references = new FileSet();
+        private FileSet _lib = new FileSet();
         private FileSet _modules = new FileSet();
         private FileSet _sources = new FileSet();
         private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
@@ -188,6 +189,20 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Additional directories to search in for assembly references.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/lib[path]:</c> flag.
+        /// </para>
+        /// </remarks>
+        [BuildElement("lib")]
+        public FileSet Lib {
+            get { return _lib; }
+            set {_lib = value; }
+        }
+
+        /// <summary>
         /// Reference metadata from the specified assembly files.
         /// </summary>
         [BuildElement("references")]
@@ -299,7 +314,6 @@ namespace NAnt.DotNet.Tasks {
                 StringCollection compiledResourceFiles = new StringCollection();
                 
                 try {
-                                        
                     if (References.BaseDirectory == null) {
                         References.BaseDirectory = BaseDirectory;
                     }
@@ -359,6 +373,11 @@ namespace NAnt.DotNet.Tasks {
                             }
                         }
                     }
+
+                    // pass control to compiler implementation to output list
+                    // of additional diretories to search in for assembly
+                    // references
+                    WriteLibOptions(writer);
 
                     foreach (string fileName in References.FileNames) {
                         WriteOption(writer, "reference", fileName);
@@ -479,14 +498,24 @@ namespace NAnt.DotNet.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
+        /// Writes additional directories to search in for assembly references
+        /// to the specified <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
+        protected abstract void WriteLibOptions(TextWriter writer);
+
+        /// <summary>
         /// Allows derived classes to provide compiler-specific options.
         /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected virtual void WriteOptions(TextWriter writer) {
         }
 
         /// <summary>
         /// Writes an option using the default output format.
         /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
+        /// <param name="name">The name of the option which should be passed to the compiler.</param>
         protected virtual void WriteOption(TextWriter writer, string name) {
             writer.WriteLine("/{0}", name);
         }
@@ -494,6 +523,9 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Writes an option and its value using the default output format.
         /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
+        /// <param name="name">The name of the option which should be passed to the compiler.</param>
+        /// <param name="arg">The value of the option which should be passed to the compiler.</param>
         protected virtual void WriteOption(TextWriter writer, string name, string arg) {
             // Always quote arguments ( )
             writer.WriteLine("\"/{0}:{1}\"", name, arg);
