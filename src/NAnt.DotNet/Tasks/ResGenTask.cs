@@ -371,8 +371,8 @@ namespace NAnt.DotNet.Tasks {
                     throw new BuildException("'output' attribute is incompatible with fileset use.", Location);
                 }
                 foreach (string filename in Resources.FileNames) {
-                    FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
-                        Resources.Prefix);
+                    FileInfo outputFile = GetOutputFile(new FileInfo(Path.Combine(
+                        Path.GetDirectoryName(filename), Resources.GetManifestResourceName(filename))));
 
                     if (NeedsCompiling(new FileInfo(filename), outputFile)) {
                         if (StringUtils.IsNullOrEmpty(_arguments)) {
@@ -404,7 +404,7 @@ namespace NAnt.DotNet.Tasks {
                     throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
                 }
 
-                FileInfo outputFile = GetOutputFile(InputFile, null);
+                FileInfo outputFile = GetOutputFile(InputFile);
 
                 if (NeedsCompiling(InputFile, outputFile)) {
                     // ensure output directory exists
@@ -457,15 +457,15 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         public void RemoveOutputs() {
             foreach (string filename in Resources.FileNames) {
-                FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
-                    Resources.Prefix);
+                FileInfo outputFile = GetOutputFile(new FileInfo(Path.Combine(
+                    Path.GetDirectoryName(filename), Resources.GetManifestResourceName(filename))));
                 if (filename != outputFile.FullName) {
                     outputFile.Delete();
                 }
             }
+
             if (InputFile != null) {
-                FileInfo outputFile = GetOutputFile(InputFile, null);
-                
+                FileInfo outputFile = GetOutputFile(InputFile);
                 if (InputFile.FullName != outputFile.FullName) {
                     outputFile.Delete();
                 }
@@ -539,11 +539,10 @@ namespace NAnt.DotNet.Tasks {
         /// Determines the full path and extension for the output file.
         /// </summary>
         /// <param name="file">The output file for which the full path and extension should be determined.</param>
-        /// <param name="prefix">prefix to prepend to the output .resources file</param>
         /// <returns>
         /// The full path (with extensions) for the specified file.
         /// </returns>
-        private FileInfo GetOutputFile(FileInfo file, string prefix) {
+        private FileInfo GetOutputFile(FileInfo file) {
             FileInfo outputFile;
             
             // if output is empty just change the extension 
@@ -552,10 +551,6 @@ namespace NAnt.DotNet.Tasks {
                     outputFile = file;
                 } else {
                     outputFile = new FileInfo(Path.Combine(ToDirectory.FullName, file.Name));
-                }
-                if (!StringUtils.IsNullOrEmpty(prefix)) {
-                    outputFile = new FileInfo(outputFile.FullName.Replace(
-                        file.Name, prefix + "." + file.Name));
                 }
                 outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, TargetExt));
             } else {
