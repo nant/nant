@@ -19,6 +19,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -61,13 +62,25 @@ namespace NAnt.VSNet {
                 string guid = m.Groups["guid"].Value;
                 string fullPath;
 
-                try {
-                    // translate URLs to physical paths if using a webmap
-                    WebMap map = _webMaps[project];
-                    if (map != null && map.IfDefined && !map.UnlessDefined) {
-                        project = map.Path;
-                    }
+                // only C# and VB.NET projects are supported at this moment
+                if (!project.ToLower(CultureInfo.InvariantCulture).EndsWith(".csproj") && 
+                    !project.ToLower(CultureInfo.InvariantCulture).EndsWith(".vbproj")) {
 
+                    // output a warning message in the build log
+                    Log(Level.Warning, LogPrefix + "Only C# and VB.NET project" +
+                        " are supported.  Skipping project '{0}'.", project);
+
+                    // skip the project
+                    continue;
+                }
+
+                // translate URLs to physical paths if using a webmap
+                WebMap map = _webMaps[project];
+                if (map != null && map.IfDefined && !map.UnlessDefined) {
+                    project = map.Path;
+                }
+
+                try {
                     Uri uri = new Uri(project);
                     if (uri.Scheme == Uri.UriSchemeFile) {
                         fullPath = Path.Combine(fiSolution.DirectoryName, uri.LocalPath);
@@ -94,12 +107,9 @@ namespace NAnt.VSNet {
                 AddProjectDependency(guid, dependency);
             }
 
-            //Console.WriteLine( "Loading project GUIDs..." );
             LoadProjectGUIDs(additionalProjects, false);
             LoadProjectGUIDs(referenceProjects, true);
-            //Console.WriteLine( "Loading projects..." );
             LoadProjects();
-            //Console.WriteLine( "Gathering additional dependencies..." );
             GetDependenciesFromProjects();
         }
 
@@ -115,12 +125,9 @@ namespace NAnt.VSNet {
             _excludesProjects = excludesProjects;
             _webMaps = webMaps;
 
-            //Console.WriteLine( "Loading project GUIDs..." );
             LoadProjectGUIDs(projects, false);
             LoadProjectGUIDs(referenceProjects, true);
-            //Console.WriteLine( "Loading projects..." );
             LoadProjects();
-            //Console.WriteLine( "Gathering additional dependencies..." );
             GetDependenciesFromProjects();
         }
 
@@ -133,6 +140,20 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Properties
+
+        private string LogPrefix {
+            get { 
+                if (_solutionTask != null) {
+                    return _solutionTask.LogPrefix;
+                }
+
+                return string.Empty;
+            }
+        }
+
+        #endregion Private Instance Properties
 
         #region Public Instance Methods
 
@@ -165,8 +186,8 @@ namespace NAnt.VSNet {
             Hashtable htDeps = (Hashtable) _htProjectDependencies.Clone();
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
             bool success = true;
+
             while (true) {
                 bool compiledThisRound = false;
 
@@ -175,40 +196,51 @@ namespace NAnt.VSNet {
                         continue;
                     }
 
-                    //Console.WriteLine( "{0} {1}: {2} dep(s)", p.Name, p.GUID, GetProjectDependencies( p.GUID ).Length );
-                    //foreach ( string strDep in GetProjectDependencies( p.GUID ) )
-                    //    Console.WriteLine( "  " + ( ( Project )_htProjects[ strDep ] ).Name );
                     if (GetProjectDependencies(p.GUID).Length == 0) {
                         bool failed = htFailedProjects.Contains(p.GUID);
 
                         if (!failed) {
                             // Fixup references
-                            //Console.WriteLine( "Fixing up references..." );
-                            foreach (Reference r in p.References) {
-                                //Console.WriteLine( "Original: {0}", r.Filename );
-                                if (r.IsProjectReference) {
-                                    Project pRef = GetProjectFromGUID(r.Project.GUID);
-                                    if (pRef == null)
-                                        throw new Exception("Unable to locate referenced project while loading " + p.Name + ".");
-                                    if (pRef.GetConfigurationSettings(configuration) == null)
-                                        throw new Exception("Unable to find appropriate configuration " + configuration + " for project reference " + p.Name + ".");
-                                    if (pRef != null)
-                                        r.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
-                                } else if (_htOutputFiles.Contains(r.Filename)) {
-                                    Project pRef = (Project) _htProjects[(string) _htOutputFiles[r.Filename]];
+                            Log(Level.Info, LogPrefix + "Fixing up references...");
+
+                            foreach (Reference reference in p.References) {
+                                // store original reference filename
+                                string originalReference = reference.Filename;
+
+                                if (reference.IsProjectReference) {
+                                    Project pRef = GetProjectFromGUID(reference.Project.GUID);
+                                    if (pRef == null) {
+                                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                            "Unable to locate referenced project '{0}' while loading '{1}'.",
+                                            reference.Name, p.Name), Location.UnknownLocation);
+                                    }
+                                    if (pRef.GetConfigurationSettings(configuration) == null) {
+                                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                            "Unable to find '{0}' configuration for project '{1}'.",
+                                            configuration, pRef.Name), Location.UnknownLocation);
+                                    }
+                                    if (pRef != null) {
+                                        reference.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
+                                    }
+                                } else if (_htOutputFiles.Contains(reference.Filename)) {
+                                    Project pRef = (Project) _htProjects[(string) _htOutputFiles[reference.Filename]];
                                     if (pRef != null && pRef.GetConfigurationSettings(configuration) != null) {
-                                        r.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
+                                        reference.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
                                     }
                                 }
-                                
-                                //Console.WriteLine( "   Now: {0}", r.Filename );
+
+                                // only output message when reference has actually been fixed up
+                                if (originalReference != reference.Filename) {
+                                    Log(Level.Verbose, LogPrefix + "Fixed reference {0}: {1} -> {2}.", 
+                                        reference.Name, originalReference, reference.Filename);
+                                }
                             }
                         }
 
                         if (!_htReferenceProjects.Contains(p.GUID) && (failed || !p.Compile(configuration, compilerArguments, logFile, verbose, showCommands))) {
                             if (!failed) {
-                                Console.WriteLine( "*** Project {0} failed!", p.Name );
-                                Console.WriteLine( "*** Continuing build with non-dependent projects:" );
+                                Log(Level.Error, LogPrefix + "Project '{0}' failed!", p.Name);
+                                Log(Level.Error, LogPrefix + "Continuing build with non-dependent projects.");
                             }
 
                             success = false;
@@ -236,7 +268,7 @@ namespace NAnt.VSNet {
                     break;
                 }
                 if (!compiledThisRound) {
-                    throw new Exception("Circular dependency detected");
+                    throw new BuildException("Circular dependency detected.", Location.UnknownLocation);
                 }
             }
 
@@ -245,11 +277,43 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Methods
 
+        #region Private Static Methods
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the underlying task.
+        /// </remarks>
+        private void Log(Level messageLevel, string message) {
+            if (_solutionTask != null) {
+                _solutionTask.Log(messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the underlying task.
+        /// </remarks>
+        private void Log(Level messageLevel, string message, params object[] args) {
+            if (_solutionTask != null) {
+                _solutionTask.Log(messageLevel, message, args);
+            }
+        }
+
+        #endregion Private Static Methods
+
         #region Private Instance Methods
 
         private void LoadProjectGUIDs(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
-                //Console.WriteLine( "{0} -> {1}", strProjectFilename, Project.LoadGUID( strProjectFilename, _tfc ) );
                 string projectGUID = Project.LoadGUID(projectFileName, _tfc);
                 _htProjectFiles[projectGUID] = projectFileName;
                 if (isReferenceProject) {
@@ -259,7 +323,6 @@ namespace NAnt.VSNet {
         }
 
         private void AddProjectDependency(string projectGUID, string dependencyGUID) {
-            //Console.WriteLine( "{0}->{1}", strProjectGUID, strDependencyGUID );
             if (!_htProjectDependencies.Contains(projectGUID)) {
                 _htProjectDependencies[projectGUID] = CollectionsUtil.CreateCaseInsensitiveHashtable();
             }
@@ -292,27 +355,31 @@ namespace NAnt.VSNet {
         }
 
         private void LoadProjects() {
+            Log(Level.Info, LogPrefix + "Loading projects...");
+
             FileSet excludes = _solutionTask.ExcludeProjects;
             foreach (DictionaryEntry de in _htProjectFiles) {
-                if (!excludes.FileNames.Contains((string)de.Value)) {
+                if (!excludes.FileNames.Contains((string) de.Value)) {
+                    Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", (string) de.Value);
                     Project p = new Project(_solutionTask, _tfc, _outputDir);
                     p.Load(this, (string) de.Value);
                     _htProjects[de.Key] = p;
                 } else {
-                    _solutionTask.Log(Level.Verbose, _solutionTask.LogPrefix + "Excluding project {0}.", (string)de.Value);
+                    Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", (string) de.Value);
                 }
             }
         }
 
         private void GetDependenciesFromProjects() {
+            Log(Level.Info, LogPrefix + "Gathering additional dependencies...");
+
             // First get all of the output files
             foreach (DictionaryEntry de in _htProjects) {
-                string strGUID = (string) de.Key;
+                string projectGuid = (string) de.Key;
                 Project p = (Project) de.Value;
 
-                foreach (string strConfiguration in p.Configurations) {
-                    //Console.WriteLine( "{0} [{1}] -> {2}", p.Name, strConfiguration, p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() );
-                    _htOutputFiles[p.GetConfigurationSettings(strConfiguration).FullOutputFile] = strGUID;
+                foreach (string configuration in p.Configurations) {
+                    _htOutputFiles[p.GetConfigurationSettings(configuration).FullOutputFile] = projectGuid;
                 }
             }
 
