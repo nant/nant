@@ -192,13 +192,11 @@
     </target>
 
     <target name="userdoc" depends="build" description="build documentation">
-        <copy todir="${build.dir}\docs">
-            <fileset basedir="doc\help">
-                <includes name="style.css"/>
-                <includes name="images\*"/>
-            </fileset>
-        </copy>
-        <ndoc>
+		<!-- copy required files for task documentation -->
+        <copy file="doc\style.css" todir="${build.dir}\docs" />
+        <copy file="doc\arrow.gif" todir="${build.dir}\docs\images" />
+
+		<ndoc>
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.Core.dll"/>
             </assemblies>
