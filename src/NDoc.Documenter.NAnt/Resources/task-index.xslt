@@ -23,7 +23,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
-    <xsl:output method="html" indent="yes" />    
+    <xsl:output method="html" indent="yes" />
 
     <xsl:template match="/">
         <html>
@@ -54,7 +54,7 @@
                             <th>Summary</th>
                         </tr>
                         <xsl:apply-templates select="//class">
-                            <xsl:sort select="attribute/property[@name='Name']/@value" />
+                            <xsl:sort select="attribute/property[@name = 'Name']/@value" />
                         </xsl:apply-templates>
                     </table>
                 </div>
@@ -66,12 +66,29 @@
 
     <!-- match class tag -->
     <xsl:template match="class">
-        <xsl:variable name="attr" select="attribute[@name='NAnt.Core.Attributes.TaskNameAttribute']/@name" />
+        <xsl:variable name="attr" select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/@name" />
         <xsl:if test="string-length(string($attr)) != 0">
-            <tr>
-                <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
-                <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
-            </tr>
+            <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
+            <xsl:choose>
+                <!-- check if the task is deprecated -->
+                <xsl:when test="count($ObsoleteAttribute) > 0">
+                    <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name = 'IsError']/@value" />
+                    <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
+                    <xsl:if test="$IsErrorValue != 'True'">
+                        <tr>
+                            <!-- output task name in italics to indicate that its deprecated -->
+                            <td><a><xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value" />task.html</xsl:attribute><i><xsl:value-of select="attribute/property[@name = 'Name']/@value" /></i></a></td>
+                            <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
+                        </tr>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <tr>
+                        <td><a><xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
+                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
+                    </tr>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
