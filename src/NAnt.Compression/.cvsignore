@@ -1,4 +1,4 @@
 .#*
-NAnt.ZipTasks.xml
+NAnt.CompressionTasks.xml
 *.user
 obj
