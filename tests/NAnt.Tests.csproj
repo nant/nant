@@ -262,7 +262,7 @@
                 <File
                     RelPath = "NAnt.Core\Tasks\GetTaskTest.cs"
                     SubType = "Code"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Core\Tasks\IfTest.cs"
@@ -287,7 +287,7 @@
                 <File
                     RelPath = "NAnt.Core\Tasks\MailTaskTest.cs"
                     SubType = "Code"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Core\Tasks\MkDirTest.cs"
