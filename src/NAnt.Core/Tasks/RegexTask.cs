@@ -88,7 +88,7 @@ namespace SourceForge.NAnt.Tasks {
             for (int i=1; i < match.Groups.Count; i++) {
                 string groupName = regex.GroupNameFromNumber(i);
 
-                Log.WriteLine("Group:{0} Value:{1}", groupName, match.Groups[groupName].Value);
+                Log.WriteLineIf(Verbose, "Setting property {0} to {1}", groupName, match.Groups[groupName].Value);
                 Properties [ groupName ] = match.Groups[groupName].Value;
             }
         }
