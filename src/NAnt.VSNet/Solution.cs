@@ -124,6 +124,7 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             _excludesProjects = excludesProjects;
             _webMaps = webMaps;
+            _outputDir = outputDir;
 
             LoadProjectGUIDs(projects, false);
             LoadProjectGUIDs(referenceProjects, true);
