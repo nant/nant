@@ -338,7 +338,7 @@ namespace NAnt.VSNet {
                                 ct.CopyFileSet.Includes.Add(file);
                             }
                             ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
-                            ct.ToDirectory = cs.OutputDir;
+                            ct.ToDirectory = new DirectoryInfo(cs.OutputDir);
 
                             ct.Project.Indent();
                             ct.Execute();
