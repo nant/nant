@@ -248,9 +248,7 @@ namespace NAnt.Console {
                             cachePath));
                             */
                         Directory.Delete(cachePath, true);
-                    } catch (FileNotFoundException ex) {
-                        ex = ex;
-
+                    } catch (FileNotFoundException) {
                         /*
                         logger.Error("Files not found.", ex);
                         */
