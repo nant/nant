@@ -88,7 +88,7 @@ namespace NAnt.Core.Tasks {
         /// provided as an alternate to using the task's fileset.
         /// </summary>
         [TaskAttribute("file")]
-        public FileInfo AttribFile {
+        public FileInfo File {
             get { return _file; }
             set { _file = value; }
         }
@@ -159,8 +159,8 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             // add the shortcut filename to the file set
-            if (AttribFile != null) {
-                AttribFileSet.Includes.Add(AttribFile.FullName);
+            if (File != null) {
+                AttribFileSet.Includes.Add(File.FullName);
             }
 
             // gather the information needed to perform the operation
@@ -168,7 +168,8 @@ namespace NAnt.Core.Tasks {
             FileAttributes fileAttributes = GetFileAttributes();
 
             // display build log message
-            Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", fileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
+            Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", 
+                fileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
 
             // perform operation
             foreach (string path in fileNames) {
@@ -182,14 +183,15 @@ namespace NAnt.Core.Tasks {
 
         private void SetFileAttributes(string path, FileAttributes fileAttributes) {
             try {
-                if (File.Exists(path)) {
+                if (System.IO.File.Exists(path)) {
                     Log(Level.Verbose, LogPrefix + path);
-                    File.SetAttributes(path, fileAttributes);
+                    System.IO.File.SetAttributes(path, fileAttributes);
                 } else {
                     throw new FileNotFoundException();
                 }
             } catch (Exception ex) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot set file attributes for '{0}'.", path);
+                string msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot set file attributes for '{0}'.", path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {

@@ -41,14 +41,14 @@ namespace NAnt.Core.Tasks {
     public class ExecTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private string _program = null;
-        private string _commandline = null;
-        private string _baseDirectory = null;
-        private string _workingDirectory = null;
-        private string _outputFile = null;
-        private bool _outputAppend = false;
+        private string _program;
+        private string _commandline;
+        private DirectoryInfo _baseDirectory;
+        private DirectoryInfo _workingDirectory;
+        private FileInfo _outputFile;
+        private bool _outputAppend;
         private OptionCollection _environment = new OptionCollection();
-        private bool _useRuntimeEngine = false;
+        private bool _useRuntimeEngine;
 
         #endregion Private Instance Fields
 
@@ -57,6 +57,10 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The program to execute without command arguments.
         /// </summary>
+        /// <remarks>
+        /// The path will not be evaluated to a full path using the project
+        /// base directory.
+        /// </remarks>
         [TaskAttribute("program", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string FileName {
@@ -84,16 +88,25 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The directory in which the command will be executed.
         /// </summary>
+        /// <value>
+        /// The directory in which the command will be executed. The default 
+        /// is the project's base directory.
+        /// </value>
         /// <remarks>
         /// <para>
         /// The working directory will be evaluated relative to the project's
-        /// baseDirectory if it is relative.
+        /// base directory if it is relative.
         /// </para>
         /// </remarks>
         [TaskAttribute("workingdir")]
-        public string WorkingDirectory {
-            get { return Project.GetFullPath(_workingDirectory); }
-            set { _workingDirectory = StringUtils.ConvertEmptyToNull(value); }
+        public DirectoryInfo WorkingDirectory {
+            get { 
+                if (_workingDirectory == null) {
+                    return base.BaseDirectory;
+                } 
+                return _workingDirectory;
+            }
+            set { _workingDirectory = value; }
         }
 
         #endregion Public Instance Properties
@@ -131,16 +144,16 @@ namespace NAnt.Core.Tasks {
                     if (!StringUtils.IsNullOrEmpty(Path.GetDirectoryName(FileName))) {
                         // resolve program to full path relative to project's base
                         // directory if program contains directory information
-                        return Path.GetFullPath(Path.Combine(Path.GetFullPath(
-                            Project.BaseDirectory), FileName));
+                        return Path.GetFullPath(Path.Combine(Project.BaseDirectory, 
+                            FileName));
                     } else {
                         // just use the filename to scan the directories on the 
                         // PATH
                         return FileName;
                     }
                 } else {
-                    return Path.GetFullPath(Path.Combine(Path.GetFullPath(
-                        BaseDirectory), FileName));
+                    return Path.GetFullPath(Path.Combine(BaseDirectory.FullName, 
+                        FileName));
                 }
             }
         }
@@ -159,15 +172,24 @@ namespace NAnt.Core.Tasks {
         /// The directory the program is in.
         /// </summary>
         /// <remarks>
+        /// <value>
+        /// The directory the program is in. The default is the project's base 
+        /// directory.
+        /// </value>
         /// <para>
-        /// The basedir will be evaluated relative to the project's baseDirectory 
-        /// if it is relative.
+        /// The basedir will be evaluated relative to the project's base 
+        /// directory if it is relative.
         /// </para>
         /// </remarks>
         [TaskAttribute("basedir")]
-        public override string BaseDirectory {
-            get { return Project.GetFullPath(_baseDirectory); }
-            set { _baseDirectory = StringUtils.ConvertEmptyToNull(value); }
+        public override DirectoryInfo BaseDirectory {
+            get {
+                if (_baseDirectory == null) {
+                    return base.BaseDirectory;
+                }
+                return _baseDirectory;
+            }
+            set { _baseDirectory = value; }
         }
 
         /// <summary>
@@ -177,9 +199,9 @@ namespace NAnt.Core.Tasks {
         /// By default, the standard output is redirected to the console.
         /// </remarks>
         [TaskAttribute("output", Required=false)]
-        public override string OutputFile {
-            get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
-            set { _outputFile = StringUtils.ConvertEmptyToNull(value); }
+        public override FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -206,12 +228,11 @@ namespace NAnt.Core.Tasks {
 
         protected override void PrepareProcess(System.Diagnostics.Process process) {
             base.PrepareProcess(process);
-            // only set WorkingDirectory if it was explicitly set, otherwise
-            // leave default (which is BaseDirectory)
-            if (_workingDirectory != null) {
-                process.StartInfo.WorkingDirectory = WorkingDirectory;
-            }
 
+            // set working directory specified by user
+            process.StartInfo.WorkingDirectory = WorkingDirectory.FullName;
+
+            // set environment variables
             foreach (Option option in Environment) {
                 if (option.IfDefined && !option.UnlessDefined) {
                     if (option.Value == null) {

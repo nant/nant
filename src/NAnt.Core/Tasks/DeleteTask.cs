@@ -34,13 +34,13 @@ namespace NAnt.Core.Tasks {
     ///   its sub-directories, or a set of files specified by one or more filesets.
     ///   </para>
     ///   <note>
-    ///   If the <see cref="FileName" /> attribute is set then the fileset contents 
+    ///   If the <see cref="File" /> attribute is set then the fileset contents 
     ///   will be ignored. To delete the files in the fileset ommit the 
-    ///   <see cref="FileName" /> attribute in the <c>&lt;delete&gt;</c> element.
+    ///   <see cref="File" /> attribute in the <c>&lt;delete&gt;</c> element.
     ///   </note>
     ///   <note>
-    ///   Read-only files cannot be deleted.  Use the <see cref="AttribTask" /> first 
-    ///   to remove the read-only attribute.
+    ///   Read-only files cannot be deleted.  Use the <see cref="AttribTask" /> 
+    ///   first to remove the read-only attribute.
     ///   </note>
     /// </remarks>
     /// <example>
@@ -64,8 +64,8 @@ namespace NAnt.Core.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Delete a set of files.  Note the lack of <see cref="FileName" /> 
-    ///   attribute in the <c>&lt;delete&gt;</c> element.
+    ///   Delete a set of files.  Note the lack of <see cref="File" /> attribute 
+    ///   in the <c>&lt;delete&gt;</c> element.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -82,8 +82,8 @@ namespace NAnt.Core.Tasks {
     public class DeleteTask : Task {
         #region Private Instance Fields
 
-        private string _file = null;
-        private string _dir = null;
+        private FileInfo _file;
+        private DirectoryInfo _dir;
         private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
@@ -94,7 +94,7 @@ namespace NAnt.Core.Tasks {
         /// The file to delete.
         /// </summary>
         [TaskAttribute("file")]
-        public string FileName {
+        public FileInfo File {
             get { return _file; }
             set { _file = value; }
         }
@@ -103,7 +103,7 @@ namespace NAnt.Core.Tasks {
         /// The directory to delete.
         /// </summary>
         [TaskAttribute("dir")]
-        public string DirectoryName {
+        public DirectoryInfo Directory {
             get { return _dir; }
             set { _dir = value; }
         }
@@ -123,48 +123,28 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             // limit task to deleting either a file, directory, or file set
-            if (FileName != null && DirectoryName != null) {
+            if (File != null && Directory != null) {
                 throw new BuildException("Cannot specify both 'file' and 'dir'" 
                     + " attribute in the same <delete> task.", Location);
             }
 
             // delete a single file
-            if (FileName != null) {
-                string filePath = null;
-
-                try {
-                    // determine full path
-                    filePath = Project.GetFullPath(FileName);
-                } catch (Exception ex) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not determine path from {0}.", FileName), 
-                        Location, ex);
-                }
-
+            if (File != null) {
                 // delete the file in verbose mode
-                DeleteFile(filePath, true);
+                DeleteFile(File.FullName, true);
             }
 
             // delete the directory
-            if (DirectoryName != null) {
-                string dirPath = null;
-
-                try {
-                    dirPath = Project.GetFullPath(DirectoryName);
-                } catch (Exception ex) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not determine path from {0}.", DirectoryName), 
-                        Location, ex);
-                }
-
-                if (!Directory.Exists(dirPath)) {
+            if (Directory != null) {
+                if (!Directory.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Cannot delete directory {0}. The directory does not exist.", 
-                        dirPath), Location);
+                        Directory.FullName), Location);
                 }
                 
-                Log(Level.Info, LogPrefix + "Deleting directory {0}.", dirPath);
-                RecursiveDeleteDirectory(dirPath);
+                Log(Level.Info, LogPrefix + "Deleting directory {0}.", 
+                    Directory.FullName);
+                RecursiveDeleteDirectory(Directory.FullName);
             } else {
                 if (DeleteFileSet.DirectoryNames.Count == 0) {
                     Log(Level.Info, LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
@@ -191,23 +171,23 @@ namespace NAnt.Core.Tasks {
         private void RecursiveDeleteDirectory(string path) {
             try {
                 // skip the directory if it doesn't exist
-                if (!Directory.Exists(path)) {
+                if (!System.IO.Directory.Exists(path)) {
                     return;
                 }
 
                 // first, recursively delete all directories in the directory
-                string[] dirs = Directory.GetDirectories(path);
+                string[] dirs = System.IO.Directory.GetDirectories(path);
                 foreach (string dir in dirs) {
                     RecursiveDeleteDirectory(dir);
                 }
 
                 // next, delete all files in the directory
-                string[] files = Directory.GetFiles(path);
+                string[] files = System.IO.Directory.GetFiles(path);
                 foreach (string file in files) {
                     try {
-                        File.SetAttributes(file, FileAttributes.Normal);
+                        System.IO.File.SetAttributes(file, FileAttributes.Normal);
                         Log(Level.Verbose, LogPrefix + "Deleting file {0}.", file);
-                        File.Delete(file);
+                        System.IO.File.Delete(file);
                     } catch (Exception ex) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
                             "Cannot delete file {0}.", file);
@@ -218,10 +198,12 @@ namespace NAnt.Core.Tasks {
                     }
                 }
 
-                // finally, delete the directory
-                File.SetAttributes(path, FileAttributes.Normal);
+                // ensure path is not read-only
+                System.IO.File.SetAttributes(path, FileAttributes.Normal);
+                // write output to build log
                 Log(Level.Verbose, LogPrefix + "Deleting directory {0}.", path);
-                Directory.Delete(path);
+                // finally, delete the directory
+                System.IO.Directory.Delete(path);
             } catch (BuildException ex) {
                 throw ex;
             } catch (Exception ex) {
@@ -242,9 +224,10 @@ namespace NAnt.Core.Tasks {
                         Log(Level.Info, LogPrefix + "Deleting file {0}.", path);
                     }
                     if (deleteInfo.Attributes != FileAttributes.Normal) {
-                        File.SetAttributes(deleteInfo.FullName, FileAttributes.Normal);
+                        System.IO.File.SetAttributes(deleteInfo.FullName, 
+                            FileAttributes.Normal);
                     }
-                    File.Delete(path);
+                    System.IO.File.Delete(path);
                 } else {
                     throw new FileNotFoundException();
                 }

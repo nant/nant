@@ -361,13 +361,14 @@ namespace NAnt.VisualCpp.Tasks {
         /// <see langword="false" />.
         /// </returns>
         private bool NeedsCompiling(string outputFile) {
-            string fullpath = Path.GetFullPath(Path.Combine(BaseDirectory, outputFile));
+            string fullpath = Path.GetFullPath(Path.Combine(
+                BaseDirectory.FullName, outputFile));
             FileInfo outputFileInfo = new FileInfo(fullpath);
             if (!outputFileInfo.Exists) {
                 return true;
             }
             StringCollection sources = new StringCollection();
-            sources.Add(Path.GetFullPath(Path.Combine(BaseDirectory, _filename)));
+            sources.Add(Path.GetFullPath(Path.Combine(BaseDirectory.FullName, _filename)));
             string fileName = FileSet.FindMoreRecentLastWriteTime(sources, outputFileInfo.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);

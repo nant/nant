@@ -84,8 +84,13 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Gets the filename of the external program to start.
         /// </summary>
-        /// <value>The filename of the external program.</value>
-        /// <remarks> Override in derived classes to explicitly set the location of the external tool </remarks>
+        /// <value>
+        /// The filename of the external program.
+        /// </value>
+        /// <remarks>
+        /// Override in derived classes to explicitly set the location of the 
+        /// external tool.
+        /// </remarks>
         public virtual string ProgramFileName { 
             get { return DetermineFilePath(); }
         }
@@ -111,7 +116,7 @@ namespace NAnt.Core.Tasks {
         /// to be redirected to a file.  Deriving classes should override this 
         /// property to change this behaviour.
         /// </remarks>
-        public virtual string OutputFile {
+        public virtual FileInfo OutputFile {
             get { return null; } 
             set {} //so that it can be overriden.
         }
@@ -135,15 +140,9 @@ namespace NAnt.Core.Tasks {
         /// <value>
         /// The working directory for the application.
         /// </value>
-        public virtual string BaseDirectory {
-            get {
-                if (Project != null) {
-                    return Project.BaseDirectory;
-                } else {
-                    return null;
-                }
-            }
-            set {} //so that it can be overriden.
+        public virtual DirectoryInfo BaseDirectory {
+            get { return new DirectoryInfo(Project.BaseDirectory); }
+            set {} // so that it can be overriden.
         }
 
         /// <summary>
@@ -310,7 +309,7 @@ namespace NAnt.Core.Tasks {
             process.StartInfo.RedirectStandardError = true;
             //required to allow redirects
             process.StartInfo.UseShellExecute = false;
-            process.StartInfo.WorkingDirectory = BaseDirectory;
+            process.StartInfo.WorkingDirectory = BaseDirectory.FullName;
 
             // set framework-specific environment variables if executing the 
             // external process using the runtime engine of the currently
@@ -349,7 +348,7 @@ namespace NAnt.Core.Tasks {
                 p.Start();
                 return p;
             } catch (Exception e) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "[{0}] {1} failed to start.", Name, p.StartInfo.FileName);
+                string msg = string.Format(CultureInfo.InvariantCulture, "[{0}] {1} failed to start.", Name, p.StartInfo.FileName);
                 logger.Error(msg, e);
                 throw new BuildException(msg, Location, e);
             }
@@ -365,20 +364,20 @@ namespace NAnt.Core.Tasks {
             bool doAppend = OutputAppend;
 
             while (true) {
-                string strLogContents = reader.ReadLine();
-                if (strLogContents == null) {
+                string logContents = reader.ReadLine();
+                if (logContents == null) {
                     break;
                 }
 
                 // Ensure only one thread writes to the log at any time
                 lock (_htThreadStream) {
-                    logger.Info(strLogContents);
+                    logger.Info(logContents);
                     //do not print LogPrefix, just pad that length.
-                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
+                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + logContents);
 
-                    if (!StringUtils.IsNullOrEmpty(OutputFile)) {
-                        StreamWriter writer = new StreamWriter(OutputFile, doAppend);
-                        writer.WriteLine(strLogContents);
+                    if (OutputFile != null) {
+                        StreamWriter writer = new StreamWriter(OutputFile.FullName, doAppend);
+                        writer.WriteLine(logContents);
                         doAppend = true;
                         writer.Close();
                     }
@@ -388,22 +387,24 @@ namespace NAnt.Core.Tasks {
         /// <summary>        /// Reads from the stream until the external program is ended.        /// </summary>
         private void StreamReaderThread_Error() {
             StreamReader reader = (StreamReader) _htThreadStream[Thread.CurrentThread.Name];
+            bool doAppend = OutputAppend;
 
             while (true) {
-                string strLogContents = reader.ReadLine();
-                if (strLogContents == null) {
+                string logContents = reader.ReadLine();
+                if (logContents == null) {
                     break;
                 }
 
                 // Ensure only one thread writes to the log at any time
                 lock (_htThreadStream) {
-                    logger.Error(strLogContents);
+                    logger.Error(logContents);
                     //do not print LogPrefix, just pad that length.
-                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
+                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + logContents);
 
-                    if (!StringUtils.IsNullOrEmpty(OutputFile)) {
-                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
-                        writer.Write(strLogContents);
+                    if (OutputFile != null) {
+                        StreamWriter writer = new StreamWriter(OutputFile.FullName, doAppend);
+                        writer.Write(logContents);
+                        doAppend = true;
                         writer.Close();
                     }
                 }

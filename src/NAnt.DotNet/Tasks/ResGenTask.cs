@@ -169,7 +169,8 @@ namespace NAnt.DotNet.Tasks {
                     throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
                 }
 
-                string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
+                string inputFile = Path.GetFullPath(Path.Combine(
+                    BaseDirectory.FullName, Input));
                 string outputFile = GetOutputFile(inputFile, null);
 
                 if (NeedsCompiling(inputFile, outputFile)) {
@@ -194,15 +195,16 @@ namespace NAnt.DotNet.Tasks {
             foreach (string filename in Resources.FileNames) {
                 string outputFile = GetOutputFile(filename, Resources.Prefix );
                 if (filename != outputFile) {
-                    File.Delete (outputFile);
+                    File.Delete(outputFile);
                 }
             }
             if (Input != null) {
-                string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
+                string inputFile = Path.GetFullPath(Path.Combine(
+                    BaseDirectory.FullName, Input));
                 string outputFile = GetOutputFile(inputFile, null);
                 
                 if (inputFile != outputFile) {
-                    File.Delete (outputFile);
+                    File.Delete(outputFile);
                 }
             }
         }

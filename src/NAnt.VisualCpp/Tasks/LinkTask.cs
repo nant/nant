@@ -131,7 +131,7 @@ namespace NAnt.VisualCpp.Tasks {
         protected virtual bool NeedsLinking() {
             // return true as soon as we know we need to compile
 
-            FileInfo outputFileInfo = new FileInfo(Path.Combine(BaseDirectory, Output));
+            FileInfo outputFileInfo = new FileInfo(Path.Combine(BaseDirectory.FullName, Output));
             if (!outputFileInfo.Exists) {
                 return true;
             }
@@ -152,11 +152,9 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             if (NeedsLinking()) {
-               if (Sources.BaseDirectory == null) {
-                   Sources.BaseDirectory = BaseDirectory;
-               }
-  
-               Log(Level.Info, LogPrefix + "Linking {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
+               Log(Level.Info, LogPrefix + "Linking {0} files to {1}.", 
+                   Sources.FileNames.Count, Path.Combine(BaseDirectory.FullName, 
+                   Output));
   
                // create temp response file to hold compiler options
                _responseFileName = Path.GetTempFileName();
@@ -165,7 +163,8 @@ namespace NAnt.VisualCpp.Tasks {
   
                try {
                    // specify the output file
-                   writer.WriteLine("/OUT:\"{0}\"", Path.Combine(BaseDirectory, Output));
+                   writer.WriteLine("/OUT:\"{0}\"", Path.Combine(
+                       BaseDirectory.FullName, Output));
   
                    // write user provided options
                    if (_options != null) {

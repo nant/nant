@@ -307,11 +307,7 @@ namespace NAnt.Win32.Tasks {
                 // using a stringbuilder vs. StreamWriter since this program will not accept response files.
                 _argumentBuilder = new StringBuilder();
 
-                if (References.BaseDirectory == null) {
-                    References.BaseDirectory = BaseDirectory;
-                }
-
-                _argumentBuilder.Append("\"" + _typelib + "\"");
+                _argumentBuilder.Append("\"" + TypeLib + "\"");
 
                 // any option that specifies a file name must be wrapped in quotes
                 // to handle cases with spaces in the path.
@@ -341,15 +337,15 @@ namespace NAnt.Win32.Tasks {
                 }
 
                 if (PublicKey != null) {
-                    _argumentBuilder.AppendFormat(" /publickey:\"{0}\"", _publicKey);
+                    _argumentBuilder.AppendFormat(" /publickey:\"{0}\"", PublicKey);
                 }
 
                 if (KeyFile != null) {
-                    _argumentBuilder.AppendFormat(" /keyfile:\"{0}\"", _keyFile);
+                    _argumentBuilder.AppendFormat(" /keyfile:\"{0}\"", KeyFile);
                 }
 
                 if (KeyContainer != null) {
-                    _argumentBuilder.AppendFormat(" /keycontainer:{0}", _keyContainer);
+                    _argumentBuilder.AppendFormat(" /keycontainer:{0}", KeyContainer);
                 }
 
                 if (StrictRef) {

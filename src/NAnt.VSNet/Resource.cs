@@ -210,7 +210,7 @@ namespace NAnt.VSNet {
             rt.Input = inFile;
             rt.Output = Path.GetFileName(outFile);
             rt.ToDirectory = Path.GetDirectoryName(outFile);
-            rt.BaseDirectory = Path.GetDirectoryName(inFile);
+            rt.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(inFile));
 
             // execute task
             rt.Project.Indent();
