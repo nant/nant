@@ -15,10 +15,10 @@
                 <includes name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
+                <includes name="${lib.framework.dir}/log4net.dll" />
                 <includes name="${build.dir}/bin/NAnt.Core.dll" />
                 <includes name="${lib.dir}/ICSharpCode.SharpZipLib.dll" />
                 <includes name="${lib.dir}/ICSharpCode.SharpCvsLib.dll" />
-                <includes name="${lib.framework.dir}/log4net.dll" />
             </references>
         </csc>
     </target>

@@ -19,6 +19,10 @@
                 <excludes name="Tasks/VjcTaskTest.cs" unless="${vjc.present}" />
             </sources>
             <references>
+                <!-- temporary workaround for Mono Runtime bug #57602 -->
+                <includes name="${lib.framework.dir}/log4net.dll" />
+		<includes name="${lib.framework.dir}/NDoc.Core.dll" />
+		<!-- end workaround -->
                 <includes name="${build.dir}/bin/NAnt.Core.dll"/>
                 <includes name="${build.dir}/bin/NAnt.Core.Tests.dll"/>
                 <includes name="${build.dir}/bin/${nant.project.name}Tasks.dll"/>

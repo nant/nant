@@ -15,6 +15,9 @@
                 <includes name="../../src/CommonAssemblyInfo.cs" />
             </sources>
             <references>
+                <!-- temporary workaround for Mono Runtime bug #57602 -->
+                <includes name="${lib.framework.dir}/log4net.dll" />
+		<!-- end workaround -->
                 <includes name="${build.dir}/bin/NAnt.Core.dll" />
                 <includes name="${build.dir}/bin/NAnt.Core.Tests.dll" />
                 <includes name="${lib.framework.dir}/nunit.framework.dll" />

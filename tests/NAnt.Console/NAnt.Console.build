@@ -16,10 +16,10 @@
                 <includes name="../../src/CommonAssemblyInfo.cs" />
             </sources>
             <references>
+                <includes name="${lib.framework.dir}/log4net.dll" />
                 <includes name="${build.dir}/bin/NAnt.Core.dll" />
                 <includes name="${build.dir}/bin/NAnt.Core.Tests.dll" />
                 <includes name="${lib.framework.dir}/nunit.framework.dll" />
-                <includes name="${lib.framework.dir}/log4net.dll"/>
             </references>
         </csc>
     </target>
