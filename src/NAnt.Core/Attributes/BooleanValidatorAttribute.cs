@@ -22,14 +22,16 @@ using System.Globalization;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Used to indicate that a property should be able to be converted into a <see cref="bool" />.
+    /// Used to indicate that a property should be able to be converted into a 
+    /// <see cref="bool" />.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class BooleanValidatorAttribute : ValidatorAttribute {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BooleanValidatorAttribute" /> class.
+        /// Initializes a new instance of the <see cref="BooleanValidatorAttribute" /> 
+        /// class.
         /// </summary>
         public BooleanValidatorAttribute() {
         }
@@ -42,17 +44,14 @@ namespace NAnt.Core.Attributes {
         /// Checks if the specified value can be converted to a <see cref="bool" />.
         /// </summary>
         /// <param name="value">The value to be checked.</param>
-        /// <returns>
-        /// <c>true</c> if the value can be converted to a <see cref="bool" />;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Validate(object value) {
+        /// <exception cref="ValidationException"><paramref name="value" /> cannot be converted to a <see cref="bool" />.</exception>
+        public override void Validate(object value) {
             try {
                 Convert.ToBoolean(value, CultureInfo.InvariantCulture);
-            } catch (Exception) {
-                throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve to '{0}' to Boolean value.", value.ToString()));
+            } catch (Exception ex) {
+                throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot resolve to '{0}' to Boolean value.", value.ToString()), ex);
             }
-            return true;
         }
 
         #endregion Override implementation of ValidatorAttribute

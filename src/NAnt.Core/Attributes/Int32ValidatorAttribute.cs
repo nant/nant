@@ -23,28 +23,23 @@ using System.Globalization;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be able to be converted into a Int32 within the given range.
+    /// Indicates that property should be able to be converted into a <see cref="Int32" /> 
+    /// within the given range.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class Int32ValidatorAttribute : ValidatorAttribute {
-        #region Private Instance Fields
-
-        int _minValue = Int32.MinValue;
-        int _maxValue = Int32.MaxValue;
-
-        #endregion Private Instance Fields
-
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Int32ValidatorAttribute" /> class.
+        /// Initializes a new instance of the <see cref="Int32ValidatorAttribute" /> 
+        /// class.
         /// </summary>
         public Int32ValidatorAttribute() {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Int32ValidatorAttribute" /> class
-        /// with the specied minimum and maximum values.
+        /// Initializes a new instance of the <see cref="Int32ValidatorAttribute" /> 
+        /// class with the specied minimum and maximum values.
         /// </summary>
         /// <param name="minValue">The minimum value.</param>
         /// <param name="maxValue">The maximum value.</param>
@@ -91,26 +86,40 @@ namespace NAnt.Core.Attributes {
         /// <see cref="MaxValue" /> properties.
         /// </summary>
         /// <param name="value">The value to be checked.</param>
-        /// <returns>
-        /// <c>true</c> if the value can be converted to an <see cref="Int32" /> and is in the 
-        /// range defined by the <see cref="MinValue" /> and <see cref="MaxValue" /> properties;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Validate(object value) {
+        /// <exception cref="ValidationException">
+        ///   <para>
+        ///   <paramref name="value" /> cannot be converted to an <see cref="Int32" />.
+        ///   </para>
+        ///   <para>-or-</para>
+        ///   <para>
+        ///   <paramref name="value" /> is not in the range defined by <see cref="MinValue" />
+        ///   and <see cref="MaxValue" />.
+        ///   </para>
+        /// </exception>
+        public override void Validate(object value) {
             Int32 intValue;
 
             try {
                 intValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
-            } catch (Exception) {
-                throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer value.", value.ToString()));
+            } catch (Exception ex) {
+                throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot resolve '{0}' to integer value.", value.ToString()), ex);
             }
 
             if (intValue < MinValue || intValue > MaxValue) {
-                throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue));
+                throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), 
+                    MinValue, MaxValue));
             }
-            return true;
         }
 
         #endregion Override implementation of ValidatorAttribute
+
+        #region Private Instance Fields
+
+        private int _minValue = Int32.MinValue;
+        private int _maxValue = Int32.MaxValue;
+
+        #endregion Private Instance Fields
     }
 }

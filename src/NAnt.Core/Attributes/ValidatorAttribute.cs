@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,9 +31,8 @@ namespace NAnt.Core.Attributes {
         /// Validates the specified value.
         /// </summary>
         /// <param name="value">The value to be validated.</param>
-        /// <returns><c>true</c> if the validation succeeds.</returns>
         /// <exception cref="ValidationException">The validation fails.</exception>
-        public abstract bool Validate(object value);
+        public abstract void Validate(object value);
 
         #endregion Public Instance Methods
     }
