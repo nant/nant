@@ -25,7 +25,7 @@ using System.Reflection;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// Represents a valid commandline argument.
+    /// Represents a valid command-line argument.
     /// </summary>
     public class CommandLineArgument {
         #region Public Instance Constructors
@@ -116,11 +116,11 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets a value indicating whether a mathing commandline argument 
+        /// Gets a value indicating whether a mathing command-line argument 
         /// was already found.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a matching commandline argument was already
+        /// <c>true</c> if a matching command-line argument was already
         /// found; otherwise, <c>false</c>.
         /// </value>
         public bool SeenValue {

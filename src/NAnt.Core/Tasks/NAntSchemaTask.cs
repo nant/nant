@@ -34,7 +34,7 @@ namespace SourceForge.NAnt.Tasks {
     /// Creates an XSD File for all available Tasks.
     /// </summary>
     /// <remarks>
-    ///   <para>This can be used in conjuntion with the command line option to do XSD Schema validation on the build file.</para>
+    ///   <para>This can be used in conjuntion with the command-line option to do XSD Schema validation on the build file.</para>
     /// </remarks>
     /// <example>
     ///   <para>Creates an NAnt.xsd file in the current project directory</para>

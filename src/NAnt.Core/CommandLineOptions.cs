@@ -22,7 +22,7 @@ using System.IO;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// Represents the set of commandline options supported by NAnt.
+    /// Represents the set of command-line options supported by NAnt.
     /// </summary>
     public class CommandLineOptions {
         #region Public Instance Properties

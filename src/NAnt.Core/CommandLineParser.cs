@@ -36,7 +36,7 @@ namespace SourceForge.NAnt {
         /// Initializes a new instance of the <see cref="CommandLineParser" /> class
         /// using possible arguments deducted from the specific <see cref="Type" />.
         /// </summary>
-        /// <param name="argumentSpecification">The <see cref="Type" /> from which the possible commandline arguments should be retrieved.</param>
+        /// <param name="argumentSpecification">The <see cref="Type" /> from which the possible command-line arguments should be retrieved.</param>
         /// <exception cref="ArgumentNullException"><paramref name="argumentSpecification" /> is a null reference.</exception>
         public CommandLineParser(Type argumentSpecification) {
             if (argumentSpecification == null) {
@@ -204,7 +204,7 @@ namespace SourceForge.NAnt {
 
         /// <summary>
         /// Gets a value indicating whether no arguments were specified on the
-        /// commandline.
+        /// command line.
         /// </summary>
         public bool NoArgs {
             get {

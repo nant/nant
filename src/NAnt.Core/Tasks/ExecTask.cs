@@ -45,7 +45,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>The program to execute without command arguments.</summary>
         [TaskAttribute("program", Required=true)]public string FileName  { set { _program = value; } }                
                 
-        /// <summary>The command line arguments for the program.</summary>
+        /// <summary>The command-line arguments for the program.</summary>
         [TaskAttribute("commandline")]public string Arguments { set { _commandline = value; } }
 
         /// <summary>

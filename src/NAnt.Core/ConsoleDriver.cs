@@ -150,7 +150,7 @@ namespace SourceForge.NAnt {
                 return 0;
             } catch (CommandLineArgumentException e) {
                 // Log exception to internal log
-                logger.Warn("Invalid commandline specified.", e);
+                logger.Warn("Invalid command line specified.", e);
 
                 // Write logo banner to conole if parser was created successfully
                 if (commandLineParser != null) {

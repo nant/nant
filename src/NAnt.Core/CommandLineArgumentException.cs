@@ -22,7 +22,7 @@ using System.Runtime.Serialization;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// The exception that is thrown when one of the commandline arguments provided 
+    /// The exception that is thrown when one of the command-line arguments provided 
     /// is not valid.
     /// </summary>
     [Serializable()]

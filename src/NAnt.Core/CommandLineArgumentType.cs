@@ -21,7 +21,7 @@ using System;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// Used to control parsing of command line arguments.
+    /// Used to control parsing of command-line arguments.
     /// </summary>
     [Flags]    
     public enum CommandLineArgumentType {

@@ -21,8 +21,8 @@ using System;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// Marks a commandline option as being the default option.  When the name of 
-    /// a commandline argument is not specified, this option will be assumed.
+    /// Marks a command-line option as being the default option.  When the name of 
+    /// a command-line argument is not specified, this option will be assumed.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class DefaultCommandLineArgumentAttribute : CommandLineArgumentAttribute {
