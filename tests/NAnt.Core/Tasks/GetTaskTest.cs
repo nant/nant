@@ -49,7 +49,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_GetFtpFile() {
             GetTask getTask = new GetTask();
             getTask.Project = CreateEmptyProject();
-            getTask.Proxy = _proxy;
+            getTask.HttpProxy = _proxy;
 
             string source = "ftp://ftp.info-zip.org/pub/infozip/zlib/zlib.html";
             string destination = Path.GetTempFileName() + ".html";
@@ -95,7 +95,7 @@ namespace Tests.NAnt.Core.Tasks {
             {
                 GetTask getTask = new GetTask();
                 getTask.Project = CreateEmptyProject();
-                getTask.Proxy = _proxy;
+                getTask.HttpProxy = _proxy;
 
                 if (File.Exists(destination)) {
                     File.Delete(destination);
@@ -116,7 +116,7 @@ namespace Tests.NAnt.Core.Tasks {
             {
                 GetTask getTask = new GetTask();
                 getTask.Project = CreateEmptyProject();
-                getTask.Proxy = _proxy;
+                getTask.HttpProxy = _proxy;
 
                 Assertion.Assert(destination + " does not exist, but should", File.Exists(destination));
 
@@ -136,7 +136,7 @@ namespace Tests.NAnt.Core.Tasks {
             {
                 GetTask getTask = new GetTask();
                 getTask.Project = CreateEmptyProject();
-                getTask.Proxy = _proxy;
+                getTask.HttpProxy = _proxy;
 
                 Assertion.Assert(destination + " doesn't exist", File.Exists(destination));
                 File.SetLastWriteTime(destination, DateTime.Parse("01/01/2000 00:00"));
@@ -220,7 +220,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_GetHtmlFile() {
             GetTask getTask = new GetTask();
             getTask.Project = CreateEmptyProject();
-            getTask.Proxy = _proxy;
+            getTask.HttpProxy = _proxy;
 
             string source = "http://nant.sourceforge.net/index.html";
             string destination = Path.GetTempFileName() + ".gif";
@@ -257,8 +257,8 @@ namespace Tests.NAnt.Core.Tasks {
             getTask.Project = CreateEmptyProject();
 
             string proxy = _proxy;
-            getTask.Proxy = proxy;
-            Assertion.Assert("Proxy accessor bug", getTask.Proxy == proxy);
+            getTask.HttpProxy = proxy;
+            Assertion.Assert("Proxy accessor bug", getTask.HttpProxy == proxy);
 
             string source = "http://nant.sourceforge.net/arrow.gif";
             getTask.Source = source;
