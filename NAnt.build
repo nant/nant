@@ -580,9 +580,15 @@
             </fileset>
         </copy>
         <echo message="Installing NAnt wrapper script to '${install.bindir}' ..." />
-        <echo file="${path::combine(install.bindir, 'nant')}">#!/bin/sh
-exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'bin')}/NAnt.exe "$@"
-        </echo>
+        <!-- store filename of wrapper script in property -->
+        <property name="wrapper" value="${path::combine(install.bindir, 'nant')}" />
+        <!-- 
+            create wrapper file using separate echo tasks for each line to ensure
+            the line endings of the generated file match the platform on which 
+            the wrapper is created
+        -->
+        <echo file="${wrapper}" append="false">#!/bin/sh</echo>
+        <echo file="${wrapper}" append="true">exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'bin')}/NAnt.exe "$@"</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
     </target>
 </project>
