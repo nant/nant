@@ -303,7 +303,7 @@ namespace NAnt.VSNet {
                                             configuration, projectReference.Name), Location.UnknownLocation);
                                     }
                                     reference.Filename = outputPath;
-                                } else if (_htOutputFiles.Contains(reference.Filename)) {
+                                } else {
                                     // if the reference is an output file of
                                     // another build configuration of a project
                                     // and this output file wasn't built before
@@ -317,18 +317,41 @@ namespace NAnt.VSNet {
                                     // instead of failing the build we use the 
                                     // release assembly of that project
 
-                                    // Note that this was designed to intentionally deviate from VS.NET's building
-                                    // strategy.
+                                    // Note that this was designed to intentionally 
+                                    // deviate from VS.NET's building strategy.
 
                                     // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
                                     // for why we must always convert file references to project references
 
-                                    // If we want a different behaviour, this should be controlled by a flag
-                                    ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
-                                    if (pRef != null) {
-                                        reference.Project = pRef;
-                                        reference.Filename = pRef.GetOutputPath(configuration);
-                                        Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", originalReference, pRef.Name);
+                                    // If we want a different behaviour, this 
+                                    // should be controlled by a flag
+
+                                    ProjectBase projectReference = null;
+
+                                    if (_htOutputFiles.Contains(reference.Filename)) {
+                                        projectReference = (ProjectBase) _htProjects[
+                                            (string) _htOutputFiles[reference.Filename]];
+                                    } else if (_outputDir != null) {
+                                        // if an output directory is set, then the 
+                                        // assembly reference might not have been 
+                                        // resolved during Reference initialization, 
+                                        // as the output file of the project might 
+                                        // not have existed at that time
+
+                                        string projectOutput = Path.Combine(
+                                            _outputDir.FullName, Path.GetFileName(
+                                            reference.Filename));
+                                        if (_htOutputFiles.Contains(projectOutput)) {
+                                            projectReference = (ProjectBase) _htProjects[
+                                                (string) _htOutputFiles[projectOutput]];
+                                        }
+                                    }
+                                        
+                                    if (projectReference != null) {
+                                        reference.Project = projectReference;
+                                        reference.Filename = projectReference.GetOutputPath(configuration);
+                                        Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", 
+                                            originalReference, projectReference.Name);
                                     }
                                 }
 
