@@ -131,6 +131,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DataTypeBaseDictionary.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "DirectoryListScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -171,10 +176,10 @@
                     BuildAction = "Compile"
                 />
                 <File
-            RelPath = "NAnt.Core.build"
-            BuildAction = "None"
-        />
-        <File
+                    RelPath = "NAnt.Core.build"
+                    BuildAction = "None"
+                />
+                <File
                     RelPath = "PathScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -218,7 +223,7 @@
                     RelPath = "TaskContainer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
-                />                
+                />
                 <File
                     RelPath = "TypeFactory.cs"
                     SubType = "Code"
