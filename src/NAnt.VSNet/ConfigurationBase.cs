@@ -39,6 +39,10 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <param name="project">The project of the configuration.</param>
         protected ConfigurationBase(ProjectBase project) {
+            if (project == null) {
+                throw new ArgumentNullException("project");
+            }
+
             _project = project;
             _extraOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }

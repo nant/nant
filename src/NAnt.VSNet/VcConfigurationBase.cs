@@ -49,6 +49,10 @@ namespace NAnt.VSNet {
         #region Protected Instance Constructors
 
         protected VcConfigurationBase(XmlElement elem, ProjectBase parentProject, DirectoryInfo outputDir) : base(parentProject) {
+            if (elem == null) {
+                throw new ArgumentNullException("elem");
+            }
+
             // set output directory (if specified)
             _outputDir = outputDir;
 
