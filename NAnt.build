@@ -108,7 +108,7 @@
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
         <echo message="Running unit tests with just built version of NAnt." />
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeegine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="${project.config}" />
             <arg value="self-test" />
@@ -165,7 +165,7 @@
         </csc>
 
         <echo message="Creating task and type documentation from ${build.dir}/bin" />
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeegine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
             <arg value="${project.config}" />
@@ -231,7 +231,7 @@
 
     <target name="sdkdoc" depends="build" description="Builds SDK documentation">
         <echo message="Creating SDK Documentation for ${build.dir}/bin/${nant.console.name}.exe" />
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeegine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
             <arg value="${project.config}" />
@@ -300,7 +300,7 @@
         <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
     </target>
     <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeegine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="${project.config}" />
             <arg value="schema" />
