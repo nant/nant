@@ -100,7 +100,19 @@ namespace NAnt.VSNet {
             ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(SolutionTask.
                 Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), 
                 "/noconfig @\"" + responseFile + "\"");
-            psi.WorkingDirectory = config.ObjectDir.FullName;
+
+            // to resolve the path to the file specified in the AssemblyKeyFile 
+            // attribute, the command line compilers try to resolve that relative 
+            // path using the output directory and the current directory
+            //
+            // VS.NET compiles assembly to the intermediate output directory and
+            // uses the solution directory as current directory
+            if (SolutionTask.SolutionFile != null) {
+                psi.WorkingDirectory = Path.GetDirectoryName(SolutionTask.SolutionFile.FullName);
+            } else {
+                psi.WorkingDirectory = ProjectDirectory.FullName;
+            }
+
             return psi;
         }
 
