@@ -700,7 +700,7 @@ namespace NAnt.Core {
 
         private static string CleanPath(string baseDirectory, string nantPath) 
         {
-            return Path.Combine(baseDirectory, CleanPath(nantPath).ToString());
+            return new DirectoryInfo(Path.Combine(baseDirectory, CleanPath(nantPath).ToString())).FullName;
         }
 
         /// <summary>

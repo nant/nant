@@ -126,6 +126,51 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
         
+        /// <summary>Tests parent directory patterns.</summary>
+        /// <remarks>
+        ///   Tests for inclusion of files in the parent directory.
+        /// </remarks>
+        [Test]
+        public void Test_ParentDirectory1() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(_folder2, "Foo2.txt"),
+                                                          Path.Combine(_folder2, "Foo3.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(_folder3, "Foo4.txt")
+                                                      };
+            _scanner.BaseDirectory = new DirectoryInfo(_folder2);
+            _scanner.Includes.Add(@"../Foo1.txt");
+            _scanner.Includes.Add(@"Foo2.txt");
+            _scanner.Includes.Add(@"../folder2\Foo3.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>Tests parent directory patterns.</summary>
+        /// <remarks>
+        ///   Tests for inclusion of files in the parent directory.
+        /// </remarks>
+        [Test]
+        public void Test_ParentDirectory2() 
+        {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(_folder2, "Foo2.txt"),
+                                                          Path.Combine(_folder2, "Foo3.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(_folder3, "Foo4.txt")
+                                                      };
+            _scanner.BaseDirectory = new DirectoryInfo(_folder2);
+            _scanner.Includes.Add(@"../**.txt");
+            _scanner.Excludes.Add(@"**/Foo4.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+
         /// <summary>Test ** wildcard.</summary>
         /// <remarks>
         ///   Matches everything in the base directory and sub directories.
