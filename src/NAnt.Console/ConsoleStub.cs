@@ -136,6 +136,13 @@ namespace NAnt.Console {
 
             // create domain setup
             AppDomainSetup domainSetup = CreateDomainSetup();
+
+            // WORKAROUND for Mono bug #65641
+            foreach (string privatePath in domainSetup.PrivateBinPath.Split(Path.PathSeparator)) {
+                AppDomain.CurrentDomain.AppendPrivatePath(privatePath);
+            }
+            // END WORKAROUND
+
             // create the domain.
             AppDomain executionAD = AppDomain.CreateDomain(domainSetup.ApplicationName,
                 AppDomain.CurrentDomain.Evidence, domainSetup);
