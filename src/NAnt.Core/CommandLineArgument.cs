@@ -212,7 +212,10 @@ namespace SourceForge.NAnt {
             if (IsCollection) {
                 _propertyInfo.SetValue(destination, _collectionValues.ToArray(_elementType), BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
             } else {
-                _propertyInfo.SetValue(destination, _argumentValue, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                // this fails on mono if the _argumentValue is null
+                if ( _argumentValue != null ) {
+                    _propertyInfo.SetValue(destination, _argumentValue, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                }
             }
         }
 

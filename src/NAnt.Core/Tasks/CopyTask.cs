@@ -169,8 +169,11 @@ namespace SourceForge.NAnt.Tasks {
                     if (Overwrite || outdated) {
                         // add to a copy map of absolute verified paths
                         FileCopyMap.Add(srcInfo.FullName, dstInfo.FullName);
-                        if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) 
+                        if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
+                        #if ! mono                        
                             File.SetAttributes( dstInfo.FullName, FileAttributes.Normal );
+                        #endif
+                        }
                     }
                 } else {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file {0} to copy.", srcInfo.FullName);
@@ -210,8 +213,11 @@ namespace SourceForge.NAnt.Tasks {
 
                         if (Overwrite || outdated) {
                             FileCopyMap.Add(srcInfo.FullName, dstFilePath);
-                            if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) 
+                            if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
+                                #if ! mono       
                                 File.SetAttributes( dstInfo.FullName, FileAttributes.Normal );
+                                #endif
+                            }
                         }
                     } else {
                         string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file {0} to copy.", srcInfo.FullName);
