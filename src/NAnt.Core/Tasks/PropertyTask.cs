@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <project name="property-example">
-    ///   <property name="debug" value="true" overwrite="false" />
+    ///   <property name="debug" value="true" unless="${property::exists('debug')}" />
     ///   <echo message="debug: ${debug}" />
     /// </project>
     ///     ]]>
@@ -149,6 +149,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("overwrite", Required=false)]
         [BooleanValidator()]
+            // TODO: remove this after the 0.85 release
+        [Obsolete("Use a \"property::exists('...')\" unless condition instead.", false)]
         public bool Overwrite {
             get { return _overwrite; }
             set { _overwrite = value; }
@@ -201,19 +203,19 @@ namespace NAnt.Core.Tasks {
             } else {
                 if (Overwrite) {
                     if (Project.Properties.IsReadOnlyProperty(PropertyName)) {
-						// for now, just output a warning when attempting to 
-						// overwrite a readonly property
-						//
-						// we should actually be throwing a BuildException here, but
-						// we currently don't have a good mechanism in place to allow
-						// users to specify properties on the command line and provide
-						// default values for these properties in the build file
-						//
-						// users could use either the "overwrite" property or a 
-						// "property::exists(...)" unless condition on the <property> 
-						// task, but these do not seem to be intuitive for users
-						Log(Level.Warning, "Read-only property \"{0}\" cannot"
-							+ " be overwritten.");
+                        // for now, just output a warning when attempting to 
+                        // overwrite a readonly property
+                        //
+                        // we should actually be throwing a BuildException here, but
+                        // we currently don't have a good mechanism in place to allow
+                        // users to specify properties on the command line and provide
+                        // default values for these properties in the build file
+                        //
+                        // users could use either the "overwrite" property or a 
+                        // "property::exists(...)" unless condition on the <property> 
+                        // task, but these do not seem to be intuitive for users
+                        Log(Level.Warning, "Read-only property \"{0}\" cannot"
+                            + " be overwritten.");
                     } else {
                         Properties[PropertyName] = propertyValue;
 
