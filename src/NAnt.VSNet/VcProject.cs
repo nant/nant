@@ -107,16 +107,39 @@ namespace NAnt.VSNet {
                         htFileConfigurations[projectConfig.Name] = new VcFileConfiguration(
                             relPath, parentName, fileConfigElem, projectConfig, outputDir);
                     }
-                } else {
-                    // TODO: we only need to do this if the project configuration 
-                    // contains file-specific values in its configuration
-                    /*
-                    foreach (VcProjectConfiguration projectConfig in _htPlatformConfigurations) {
-                        htFileConfigurations[projectConfig.Name] = new 
-                            VcFileConfiguration(relPath, parentName, projectConfig, outputDir);
-                    }
-                    */
                 }
+
+                // TODO: refactor this together with the Build methods
+
+                // we'll always create a file configuration for IDL and res 
+                // files as macro's in the configuration properties for these
+                // files will always need to be expanded on the file level
+                string ext = Path.GetExtension(relPath).ToLower(CultureInfo.InvariantCulture);
+                switch (ext) {
+                    case ".idl":
+                    case ".odl":
+                    case ".rc":
+                        // ensure there's a file configuration for each project 
+                        // configuration
+                        foreach (VcProjectConfiguration projectConfig in _htPlatformConfigurations.Values) {
+                            // if file configuration for project config existed 
+                            // in project file, then skip this project config
+                            if (htFileConfigurations != null && htFileConfigurations.ContainsKey(projectConfig.Name)) {
+                                continue;
+                            }
+
+                            // lazy initialize hashtable
+                            if (htFileConfigurations == null) {
+                                htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                            }
+
+                            // create the file configuration
+                            htFileConfigurations[projectConfig.Name] = new 
+                                VcFileConfiguration(relPath, parentName, projectConfig, outputDir);
+                        }
+                        break;
+                }
+
                 _htFiles[relPath] = htFileConfigurations;
             }
         }
@@ -750,11 +773,13 @@ namespace NAnt.VSNet {
         /// <param name="fileNames">The resource files to build.</param>
         /// <param name="projectConfig">The project configuration.</param>
         /// <param name="fileConfig">The build configuration.</param>
+        /// <remarks>
+        /// TODO: refactor this as we should always get only one element in the
+        /// <paramref name="fileNames" /> list. Each res file should be built
+        /// with its own file configuration.
+        /// </remarks>
         private void BuildResourceFiles(ArrayList fileNames, VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCResourceCompilerTool";
-
-            string intermediateDir = Path.Combine(ProjectDirectory.FullName, 
-                fileConfig.IntermediateDir);
 
             // create instance of RC task
             RcTask rcTask = new RcTask();
@@ -837,18 +862,20 @@ namespace NAnt.VSNet {
                 options.AppendFormat("/d \"_AFXDLL\"");
             }
 
-            if (options.Length > 0)
+            if (options.Length > 0) {
                 rcTask.Options = options.ToString();
+            }
 
             // Compile each resource file
             foreach (string rcFile in fileNames) {
-                string outFile = Path.Combine(intermediateDir, 
-                    Path.GetFileNameWithoutExtension(rcFile) + ".res");
+                string resourceOutputFileName = Path.Combine(ProjectDirectory.FullName,
+                    fileConfig.GetToolSetting(compilerTool, "ResourceOutputFileName",
+                    "$(IntDir)/$(InputName).res"));
 
                 // add it to _objFiles to link later on
-                _objFiles.Add(outFile);
+                _objFiles.Add(resourceOutputFileName);
 
-                rcTask.OutputFile = new FileInfo(outFile);
+                rcTask.OutputFile = new FileInfo(resourceOutputFileName);
                 rcTask.RcFile = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, rcFile));
                 
                 // execute the task
@@ -862,6 +889,11 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <param name="fileNames">The IDL files to build.</param>
         /// <param name="fileConfig">The build configuration.</param>
+        /// <remarks>
+        /// TODO: refactor this as we should always get only one element in the
+        /// <paramref name="fileNames" /> list. Each IDL file should be built
+        /// with its own file configuration.
+        /// </remarks>
         private void BuildIDLFiles(ArrayList fileNames, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCMIDLTool";
 
