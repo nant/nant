@@ -63,6 +63,7 @@ namespace NAnt.Core {
             
             // attach assembly resolver to the current domain
             assemblyResolver.Attach();
+
             try {
                 CommandLineOptions cmdlineOptions = new CommandLineOptions();
                 commandLineParser = new CommandLineParser(typeof(CommandLineOptions));
@@ -314,7 +315,7 @@ namespace NAnt.Core {
         public static void ShowProjectHelp(XmlDocument buildDoc) {
             // load our transform file out of the embedded resources
             Stream xsltStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProjectHelp.xslt");
-            if(xsltStream == null) {
+            if (xsltStream == null) {
                 throw new Exception("Missing 'ProjectHelp.xslt' Resource Stream");
             }
 
@@ -362,28 +363,42 @@ namespace NAnt.Core {
                 if (files.Length == 1) { // got a single .build
                     buildFileName = files[0].FullName;
                 } else if (files.Length > 1) {
-                    throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "More than one '{0}' file found in '{1}' and no default.build.  Use -buildfile:<file> to specify or create a default.build file.", searchPattern, directory));
+                    throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
+                        "More than one '{0}' file found in '{1}' and no default.build."
+                        + "  Use -buildfile:<file> to specify or create a default.build file.", 
+                        searchPattern, directory));
                 } else if (files.Length == 0 && findInParent) { // recurse up the tree
                     DirectoryInfo parentDirectoryInfo = directoryInfo.Parent;
                     if (findInParent && parentDirectoryInfo != null) {
                         buildFileName = GetBuildFileName(parentDirectoryInfo.FullName, searchPattern, findInParent);
                     } else {
-                        throw new ApplicationException((String.Format(CultureInfo.InvariantCulture, "Could not find a '{0}' file in directory tree.", searchPattern)));
+                        throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
+                            "Could not find a '{0}' file in directory tree.", searchPattern));
                     }
                 } else {
-                    throw new ApplicationException((String.Format(CultureInfo.InvariantCulture, "Could not find a '{0}' file in '{1}'", searchPattern, directory)));
+                    throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
+                        "Could not find a '{0}' file in '{1}'", searchPattern, directory));
                 }
             }
             return buildFileName;
         }
 
+        /// <summary>
+        /// Loads the extension assemblies in the current <see cref="AppDomain" />
+        /// and scans them for extensions.
+        /// </summary>
+        /// <param name="extensionAssemblies">The extension assemblies to load.</param>
         private static void LoadExtensionAssemblies(StringCollection extensionAssemblies) {
             foreach (string extensionAssembly in extensionAssemblies) {
                 try {
                     Assembly assembly = Assembly.LoadFrom(Path.Combine(
                         Directory.GetCurrentDirectory(), extensionAssembly));
                     TypeFactory.ScanAssembly(assembly);
-                } catch {}
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Extension assembly '{0}' could not be loaded.",
+                        extensionAssembly), Location.UnknownLocation, ex);
+                }
             }
         }
 
@@ -470,8 +485,9 @@ namespace NAnt.Core {
                 try {
                     outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read));
                 } catch (Exception ex) {
-                    logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}.", cmdlineOptions.LogFile.FullName), ex);
-                    Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}: {1}", cmdlineOptions.LogFile.FullName, ex.Message));
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Error creating output log file '{0}'.", cmdlineOptions.LogFile.FullName),
+                        Location.UnknownLocation, ex);
                 }
             }
 
@@ -479,8 +495,9 @@ namespace NAnt.Core {
                 try {
                     buildLogger = ConsoleDriver.CreateLogger(cmdlineOptions.LoggerType);
                 } catch (Exception ex) {
-                    logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}.", cmdlineOptions.LoggerType), ex);
-                    Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}: {1}", cmdlineOptions.LoggerType, ex.Message));
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Error creating logger of type '{0}'.", cmdlineOptions.LoggerType),
+                        Location.UnknownLocation, ex);
                 }
             }
 
@@ -514,8 +531,9 @@ namespace NAnt.Core {
                     IBuildListener listener = ConsoleDriver.CreateListener(listenerTypeName);
                     listeners.Add(listener);
                 } catch (Exception ex) {
-                    logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating listener of type {0}.", listenerTypeName), ex);
-                    Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating listener of type {0}: {1}", listenerTypeName, ex.Message));
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Error creating listener of type '{0}'.", listenerTypeName),
+                        Location.UnknownLocation, ex);
                 }
             }
 
