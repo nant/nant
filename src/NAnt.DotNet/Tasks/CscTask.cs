@@ -40,7 +40,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("csc")]
-    public class CscTask : MsftFXCompilerBase {
+    public class CscTask : FXCompilerBase {
         #region Private Instance Fields
        
         string _doc = null;
@@ -226,7 +226,7 @@ namespace SourceForge.NAnt.Tasks {
         protected override void WriteOptions(TextWriter writer) {
             WriteOption(writer, "fullpaths");
 
-            if (Doc != null) {             
+            if (Doc != null) {
                 WriteOption(writer, "doc", this.Doc);
             }
 

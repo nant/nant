@@ -38,7 +38,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("vjc")]
-    public class VjcTask : MsftFXCompilerBase {
+    public class VjcTask : FXCompilerBase {
         #region Private Instance Fields
 
         bool _secureScoping = false;

@@ -84,12 +84,12 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "AlTask.cs"
+                    RelPath = "AssemblyInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "AssemblyInfo.cs"
+                    RelPath = "AssemblyLinkerTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -109,17 +109,12 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "FXCompilerBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "JscTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "MsftFXCompilerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "MsftFXSDKExternalProgramBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -140,6 +135,11 @@
                 />
                 <File
                     RelPath = "ResourceFileSetCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "SdkExternalProgramBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

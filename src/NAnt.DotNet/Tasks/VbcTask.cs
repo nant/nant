@@ -55,7 +55,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("vbc")]
-    public class VbcTask : MsftFXCompilerBase {
+    public class VbcTask : FXCompilerBase {
         #region Private Instance Fields
 
         string _baseAddress     = null;

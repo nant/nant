@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System.Globalization;
@@ -22,17 +22,17 @@ using System.IO;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Provides the abstract base class for a compiler task.
+    /// Provides the abstract base class for an external SDK program task.
     /// </summary>
-    public abstract class MsftFXCompilerBase : CompilerBase {
+    public abstract class SdkExternalProgramBase : ExternalProgramBase {
         #region Override implementation of ExternalProgramBase
 
         /// <summary>
         /// Gets the filename of the external program to start.
         /// </summary>
         /// <value>The filename of the external program.</value>
-        public override string ProgramFileName  {
-            get { return DetermineFilePath(); } 
+        public override string ProgramFileName {
+            get { return DetermineFilePath(); }
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -48,9 +48,15 @@ namespace SourceForge.NAnt.Tasks {
         private string DetermineFilePath() {
             if (Project.CurrentFramework != null) {
                 if (ExeName != null) {
-                    string FrameworkDir = "";
-                    FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                    return Path.Combine(FrameworkDir, ExeName + ".exe");
+                    if (Project.CurrentFramework.SdkDirectory != null) {
+                        string SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName;
+                        return Path.Combine(SdkDirectory, ExeName +  ".exe" );
+                    } else {
+                        throw new BuildException(
+                            string.Format(CultureInfo.InvariantCulture, 
+                            "The SDK for the ({0} framework is not available or not configured.", 
+                            Project.CurrentFramework.Name));
+                    }
                 } else {
                     throw new BuildException(
                         string.Format(CultureInfo.InvariantCulture, 

@@ -1,6 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
-//
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -44,7 +43,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("resgen")]
-    public class ResGenTask : MsftFXSDKExternalProgramBase {
+    public class ResGenTask : SdkExternalProgramBase {
         #region Private Instance Fields
 
         string _arguments = null;

@@ -39,7 +39,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("jsc")]
-    public class JscTask : MsftFXCompilerBase {
+    public class JscTask : FXCompilerBase {
         #region Private Instance Fields
 
         string _warningLevel = null;
