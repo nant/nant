@@ -12,39 +12,39 @@
 
     <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
     <property name="backup.name" value="..\${project.name}-backup-${nant.dstamp}-${nant.tstamp}.zip" />
-	<property name="project.version" value="x.x"/>
+    <property name="project.version" value="x.x"/>
 
     <target name="release" depends="clean" description="makes a clean release, usage: 'nant release build'">
         <property name="debug" value="false"/>
 
-		<!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
-		<script language="C#">
-			<code><![CDATA[
-			public static void ScriptMain(Project project) {
-				string sourcePath = Path.Combine(project.BaseDirectory, Path.Combine(project.Properties["src.dir"], project.Properties["project.FormalName"]));
-				string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
-				StreamReader reader = File.OpenText(assemblyInfoFileName);
+        <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
+        <script language="C#">
+            <code><![CDATA[
+            public static void ScriptMain(Project project) {
+                string sourcePath = Path.Combine(project.BaseDirectory, Path.Combine(project.Properties["src.dir"], project.Properties["project.FormalName"]));
+                string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
+                StreamReader reader = File.OpenText(assemblyInfoFileName);
 
-				try {
-					// Regular expression built with Regex: http://www.organicbit.com/regex/
-					Regex expression = new Regex(@"^\[assembly: AssemblyVersion\(\""([0-9]+)\.([0-9]+)");
-					string line = reader.ReadLine();
-					while (line != null) {
-						Match match = expression.Match(line);
-						if (match.Success) {
-							project.Properties["project.version"] = match.Result("$1.$2");
-							break;
-						}
-						line = reader.ReadLine();
-					}
-				} finally {
-					// must remember to close the file or the compile may not work
-					reader.Close();
-				}
-			}
-		]]></code>
-		</script>
-	    <echo message="Building ${project.name}-${project.version} (release)"/>
+                try {
+                    // Regular expression built with Regex: http://www.organicbit.com/regex/
+                    Regex expression = new Regex(@"^\[assembly: AssemblyVersion\(\""([0-9]+)\.([0-9]+)");
+                    string line = reader.ReadLine();
+                    while (line != null) {
+                        Match match = expression.Match(line);
+                        if (match.Success) {
+                            project.Properties["project.version"] = match.Result("$1.$2");
+                            break;
+                        }
+                        line = reader.ReadLine();
+                    }
+                } finally {
+                    // must remember to close the file or the compile may not work
+                    reader.Close();
+                }
+            }
+        ]]></code>
+        </script>
+        <echo message="Building ${project.name}-${project.version} (release)"/>
     </target>
 
     <target name="clean" description="cleans up everything">
@@ -76,7 +76,7 @@
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnit.Core.dll"/>
                 <includes name="${build.dir}/NZipLib.dll"/>
-				<absolute file="Microsoft.JScript.dll"/>
+                <absolute file="Microsoft.JScript.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
@@ -172,22 +172,7 @@
                     <property name="IncludeAssemblyVersion" value="False" />
                     <property name="CopyrightText" value="" />
                     <property name="CopyrightHref" value="" />
-                </documenter>
-                <documenter name="NAnt">
-                    <property name="OutputDirectory" value="${build.dir}\docs\Tasks" />
-                    <property name="ShowMissingSummaries" value="False" />
-                    <property name="ShowMissingRemarks" value="False" />
-                    <property name="ShowMissingParams" value="False" />
-                    <property name="ShowMissingReturns" value="False" />
-                    <property name="ShowMissingValues" value="False" />
-                    <property name="DocumentInternals" value="True" />
-                    <property name="DocumentProtected" value="True" />
-                    <property name="DocumentPrivates" value="True" />
-                    <property name="DocumentEmptyNamespaces" value="False" />
-                    <property name="IncludeAssemblyVersion" value="False" />
-                    <property name="CopyrightText" value="" />
-                    <property name="CopyrightHref" value="" />
-                </documenter>
+                 </documenter>             
             </documenters> 
         </ndoc>
         <copy file="${build.dir}/docs/MSDN/NAnt-Developer.chm" todir="${build.dir}"/>
