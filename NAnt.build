@@ -122,6 +122,7 @@
     </target>
 
     <target name="self-test" depends="init">
+        <echo message="testing with config '${nant.location}nant.exe.config'"/>
         <nunit2>
             <test assemblyname="${build.dir}/bin/NAnt.Core.Tests.dll" appconfig="${nant.location}nant.exe.config"/>
             <test assemblyname="${build.dir}/bin/NAnt.Console.Tests.dll" appconfig="${nant.location}nant.exe.config"/>

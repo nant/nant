@@ -153,8 +153,8 @@ namespace SourceForge.NAnt.Tasks {
                 p.Start();
             } catch (Exception e) {
                 string msg = String.Format(CultureInfo.InvariantCulture, "<{0} task>{1} failed to start.", Name, p.StartInfo.FileName);
-                throw new BuildException(msg, Location, e);
                 logger.Error(msg, e);
+                throw new BuildException(msg, Location, e);
             }
             return p;
         }
