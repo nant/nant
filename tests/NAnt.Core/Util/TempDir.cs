@@ -49,6 +49,7 @@ namespace SourceForge.NAnt.Tests {
 
         /// <summary>Delete the directory at the given path and everything in it.</summary>
         public static void Delete(string path) {
+            bool bError = false;
             try {
                 if (Directory.Exists(path)) {
                     SetAllFileAttributesToNormal(path);
@@ -62,10 +63,11 @@ namespace SourceForge.NAnt.Tests {
                 }
             }
             catch(Exception e) {
-                throw new AssertionException("Unable to cleanup '" + path + "'.", e);
+                bError = true;
+                throw new AssertionException("Unable to cleanup '" + path + "'.  " + e.Message, e);
             }
             finally {
-                if (Directory.Exists(path)) {
+                if (!bError && Directory.Exists(path)) {
                     throw new AssertionException("TempDir: "+ path + " still exists.");
                 }
             }
