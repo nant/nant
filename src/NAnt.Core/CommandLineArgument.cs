@@ -231,7 +231,7 @@ namespace SourceForge.NAnt {
         /// Add method is not supported.
         /// </para>
         /// </exception>
-        [System.Security.Permissions.ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public void Finish(object destination) {
             if (IsRequired && !SeenValue) {
                 throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Missing required argument '-{0}'.", LongName));
@@ -329,12 +329,6 @@ namespace SourceForge.NAnt {
                         } else if (stringData == "-") {
                             return false;
                         }
-/*
-                    } else if (type == typeof(int)) {
-                        return int.Parse(stringData, CultureInfo.InvariantCulture);
-                    } else if (type == typeof(uint)) {
-                        return uint.Parse(stringData, CultureInfo.InvariantCulture);
-*/                        
                     } else {
                         if (type.IsEnum) {
                             try {
