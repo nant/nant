@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
-    <echo message="Using '${nant.settings.currentframework}' Framework"/>
+    <echo message="Using '${nant.settings.currentframework}' framework on '${nant.platform.name}' platform."/>
 
     <!-- global project settings -->
     <property name="project.name" value="nant" />
@@ -13,8 +13,6 @@
 
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
-    <property name="linux" value="false" />
-    <property name="sourceconfig" value="NAnt.Console.exe.config" />
     
     <!-- Win32TaskAssemblies (tas.win32) -->
     <!-- These will be used in this order -->
@@ -88,7 +86,7 @@
 
         <!-- build win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32}">
-            <nant buildfile="src/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
+            <nant buildfile="src/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
         </foreach>
 
         <!-- build NAnt.Core.Tests assembly -->
@@ -104,7 +102,7 @@
 
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
+            <nant buildfile="tests/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
         </foreach>
     </target>
     <!-- test the newly built NAnt -->
@@ -119,9 +117,9 @@
         </exec>
     </target>
     <target name="self-test" depends="init">
-        <copy file="${nant.location}nant.exe.config" tofile="${nant.location}nant.tests.config" />        
+        <copy file="${nant.location}nant.exe.config" tofile="${nant.location}nant.tests.config" />
         <xmlpoke filename="${nant.location}nant.tests.config"
-                 xpath="//configuration/nant/frameworks/@default"
+                 xpath="//configuration/nant/frameworks/platform[@name='${nant.platform.name}']/@default"
                  value="${nant.settings.currentframework}"/>
 
         <echo message="testing with config '${nant.location}nant.tests.config'"/>
@@ -139,7 +137,7 @@
 
         <!-- test win32 specific task assemblies -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${current.runtime.config.mono}"/>
+            <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${nant.platform.win32}" />
         </foreach>
     </target>
     <target name="userdoc" depends="build" description="Builds user documentation">
@@ -390,8 +388,6 @@
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
-        <property name="linux" value="false"/>
         <call target="set-runtime-configuration-flags"/>
     </target>
     <target name="set-net-1.1-runtime-configuration">
@@ -400,10 +396,8 @@
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.1" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_1" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />        
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
-        <property name="linux" value="false"/>
         <call target="set-runtime-configuration-flags" force="true" />
     </target>
     <target name="set-net-1.2-runtime-configuration">
@@ -412,10 +406,8 @@
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.2" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_2" />
         <property name="link.sdkdoc.version" value="MsdnOnline" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />        
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
-        <property name="linux" value="false"/>
         <call target="set-runtime-configuration-flags" force="true" />
     </target>
     <target name="set-netcf-1.0-runtime-configuration">
@@ -426,8 +418,6 @@
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
-        <property name="linux" value="false"/>
         <call target="set-runtime-configuration-flags" force="true" />
     </target>
     <target name="set-mono-1.0-runtime-configuration">
@@ -437,23 +427,7 @@
         <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
         <property name="link.sdkdoc.version" value="MsdnOnline" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <ifnot propertyexists="linux" propertytrue="linux">
-            <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-            <property name="linux" value="false"/>
-            <property name="sourceconfig" value="NAnt.Console.exe.config"/>
-        </ifnot>
-        <call target="set-runtime-configuration-flags" force="true" />
-    </target>
-    <target name="set-mono-1.0-linux-runtime-configuration">
-        <property name="current.runtime.config" value="mono" />
-        <property name="current.runtime.version" value="1.0" />
-        <property name="current.runtime.description" value="Mono 1.0" />
-        <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
-        <property name="link.sdkdoc.version" value="MsdnOnline" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="mono-1.0-linux" />
-        <property name="sourceconfig" value="NAnt.Console.exe.config.linux"/>
-        <property name="linux" value="true" />
+        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <call target="set-runtime-configuration-flags" force="true" />
     </target>
     <target name="set-sscli-1.0-runtime-configuration">
@@ -464,8 +438,6 @@
         <property name="link.sdkdoc.version" value="MsdnOnline" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
-        <property name="linux" value="false" />
         <call target="set-runtime-configuration-flags" force="true" />
     </target>
 </project>
