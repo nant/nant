@@ -168,7 +168,13 @@ namespace SourceForge.NAnt.Tasks {
                         if (process.ExitCode == 0) {
                             Log.WriteLine(output);
                         } else {
-                            throw new BuildException("External program returned errors, see build log for details.\n" + output, Location);
+                            throw new BuildException(
+                                string.Format(
+                                    "External Program Failed: {0} return {1}\nOutput:\n{2}", 
+                                    process.ProcessName, 
+                                    process.ExitCode, 
+                                    output), 
+                                Location);
                         }
                         Log.IndentLevel = indentLevel;
                     } else if (OutputFile != "") {

@@ -99,7 +99,7 @@ namespace SourceForge.NAnt {
         [Serializable]
         public class helperArgs {
             private string[] args = null;
-            private int ret = -1;
+            private int ret = 0;
 
             private helperArgs(){}
             public helperArgs(string[] args0) {this.args = args0;}

@@ -208,7 +208,7 @@
 		nant debug package
 	-->
 	<target name="package" depends="cleanall release test userdoc sdkdoc" description="Creates a package zip file.">
-		<move file="${build.dir}/bin/NAnt.Console.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
+		<move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
 		<!-- remove non-release files -->
 		<delete>
 			<fileset basedir="${build.dir}/bin">
@@ -230,6 +230,7 @@
 				<excludes name="**/bin/**" />
 				<excludes name="**/obj/**" />
 				<!--End "Exclude VS.Net stuff"-->
+				<excludes name="cache" />
 			</fileset>
 		</copy>
 		<!-- create zip file -->
