@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>NAnt Frequently Asked Questions</title>
+        <meta http-equiv="Content-Language" content="en-ca" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    <body>
+        <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+            <tr>
+                <td class="NavBar-Cell">
+                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a>
+                    <img src="arrow.gif" alt="->" width="13" height="9" />Frequently Asked Questions
+                </td>
+            </tr>
+        </table>
+        <table width="100%">
+            <tr>
+                <td>
+                    <h1>
+                        <span class="N">N</span><span class="Ant">Ant</span> Frequently Asked Questions</h1>
+                </td>
+                <td style="text-align: right">
+                    <a href="index.html">
+                        <img style="BORDER-TOP-WIDTH: 0px;BORDER-LEFT-WIDTH: 0px;BORDER-BOTTOM-WIDTH: 0px;BORDER-RIGHT-WIDTH: 0px"
+                            alt="NAnt logo (link to home page)" src="logo.gif" width="270" height="118" /></a>
+                </td>
+            </tr>
+        </table>
+        <h3>Contents</h3>
+        <div style="margin-left: 20px;">
+            <a href="#building">Building NAnt</a>
+            <div style="margin-left: 20px;">
+                <a href="#building-mono">Mono</a>
+                <div style="margin-left: 20px;">
+                    <a href="#building-mono-1">How can I avoid getting a NullReferenceException when building
+                        NAnt on Mono?</a>
+                </div>
+            </div>
+        </div>
+        <h3>
+            <a id="building" />Building NAnt</h3>
+        <div style="margin-left: 20px;">
+            <h4 style="margin-left: 20px;">
+                <a id="building-mono" />Mono</h4>
+            <div style="margin-left: 20px;">
+                <h5>
+                    <a id="building-mono-1" />How can I avoid getting a NullReferenceException when
+                    building NAnt on Mono?</h5>
+                <div style="margin-left: 20px;">
+                    <p>
+                        There are currently some regressions in Mono CVS (<a href="http://bugzilla.ximian.com/show_bug.cgi?id=55996">bug #55996</a>)
+                        with regards to AppDomain unloading which cause a NullReferenceException when building
+                        NAnt.
+                    </p>
+                    <p>
+                        Zoltan Varga implemented a workaround for this issue: set the environment variable
+                        <code>MONO_NO_UNLOAD</code> to any value before running NAnt:
+                    </p>
+                    <pre class="code">
+$ export MONO_NO_UNLOAD=1
+$ make clean
+$ make
+$ mono bin/NAnt.exe clean build
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
