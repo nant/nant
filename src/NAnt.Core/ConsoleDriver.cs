@@ -132,10 +132,21 @@ namespace NAnt.Core {
                         project.CurrentFramework = project.DefaultFramework = frameworkInfo; 
                     } else {
                         logger.Fatal("Invalid framework name specified: '" + cmdlineOptions.DefaultFramework + "'");
-                        Console.WriteLine("Invalid framework specified: '" + cmdlineOptions.DefaultFramework + "'. Possible values include:");
+                        Console.WriteLine(string.Format(
+                            CultureInfo.InvariantCulture, 
+                            "Invalid framework '{0}' specified.", 
+                            cmdlineOptions.DefaultFramework));
                         Console.WriteLine();
-                        foreach (string s in project.FrameworkInfoDictionary.Keys) {
-                            Console.WriteLine("  {0} ({1})", s, project.FrameworkInfoDictionary[s].Description);
+
+                        if (project.FrameworkInfoDictionary.Count == 0) {
+                            Console.WriteLine("There are no supported frameworks available on your system.");
+                        } else {
+                            Console.WriteLine("Possible values include:");
+                            Console.WriteLine();
+
+                            foreach (string s in project.FrameworkInfoDictionary.Keys) {
+                                Console.WriteLine(" {0} ({1})", s, project.FrameworkInfoDictionary[s].Description);
+                            }
                         }
                         return 1;
                     }
@@ -162,15 +173,14 @@ namespace NAnt.Core {
                 Console.WriteLine(e.Message);
                 return 1;
             } catch (ApplicationException e) {
+                Console.WriteLine(e.Message);
                 if (e.InnerException != null && e.InnerException.Message != null) {
-                    Console.WriteLine(e.Message + "\n\t" + e.InnerException.Message);
-                } else {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(" " + e.InnerException.Message);
                 }
-
                 Console.WriteLine();
+
                 if (logger.IsWarnEnabled) {
-                    logger.Warn("Internal Nant Error", e);
+                    logger.Warn("NAnt Build Failure", e);
                     Console.WriteLine("Consult the log4net output for more information.");
                 } else {
                     Console.WriteLine("For more information regarding the cause of the " +
