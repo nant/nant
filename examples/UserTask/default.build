@@ -8,8 +8,8 @@
 		<sources>
 			<includes name="UserTask.cs"/>
 		</sources>
-		<references>
-			<includes name="..\..\bin\NAnt.exe"/>
+		<references basedir="..\..\build">
+			<includes name="NAnt.exe"/>
 		</references>
 	</csc>
 

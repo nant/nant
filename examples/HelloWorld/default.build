@@ -5,9 +5,9 @@
 	<property name="basename" value="HelloWorld"/>
 
 	<target name="clean">
-		<delete file="${basename}-cs.exe"/>
-		<delete file="${basename}-js.exe"/>
-		<delete file="${basename}-vb.exe"/>
+		<delete file="${basename}-cs.exe" failonerror="false"/>
+		<delete file="${basename}-js.exe" failonerror="false"/>
+		<delete file="${basename}-vb.exe" failonerror="false"/>
 	</target>
 
 	<target name="build">

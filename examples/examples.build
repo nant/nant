@@ -1,13 +1,21 @@
 <?xml version="1.0"?>
 
 <project name="NAnt Examples" default="run" basedir=".">
+	<target name="clean">
+		<!-- UserTask build file for why we have to delete the file -->
+		<echo message="Cleaning UserTask"/>
+		<delete file="UserTask/UserTask.dll" failonerror="false"/>
+		
+		<echo message="Cleaning HelloWorld"/>
+		<nant basedir="HelloWorld" target="clean"/>
+	</target>
 	<target name="build">
-		<echo message="building NAnt examples..."/>
+		<echo message="Building NAnt examples..."/>
 		<nant basedir="HelloWorld"/>
 		<nant basedir="UserTask"/>
 	</target>
 
 	<target name="run" depends="build">
-		<echo message="running NAnt examples..."/>
+		<echo message="Running NAnt examples..."/>
 	</target>
 </project>
