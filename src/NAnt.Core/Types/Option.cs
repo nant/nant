@@ -18,8 +18,6 @@
 // Tomas Restrepo (tomasr@mvps.org)
 // Gert Driesen (gert.driesen@ardatis.com)
 
-using System;
-
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {
@@ -36,6 +34,21 @@ namespace NAnt.Core.Types {
         private bool _unlessDefined = false;
 
         #endregion Private Instance Fields
+
+		/// <summary>
+		/// name, value constructor
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		public Option(string name, string value) {
+			_name = name;
+			_value = value;
+		}
+		
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		public Option() {}
 
         #region Public Instance Properties
 

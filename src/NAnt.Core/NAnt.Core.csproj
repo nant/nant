@@ -634,6 +634,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\SetEnvTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\SleepTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
