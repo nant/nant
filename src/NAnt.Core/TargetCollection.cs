@@ -23,7 +23,7 @@ using System.Collections;
 using System.Globalization;
 
 namespace NAnt.Core {
-
+    [Serializable()]
     public class TargetCollection : ArrayList {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public virtual int Add(Target t){

@@ -28,17 +28,18 @@ namespace NAnt.Core {
     /// Encalsulates information about installed frameworks incuding version 
     /// information and directory locations for finding tools.
     /// </summary>
+    [Serializable()]
     public class FrameworkInfo {
         #region Private Instance Fields
 
-        string              _name;
-        string              _description;
-        string              _version;
-        DirectoryInfo       _frameworkDirectory;
-        DirectoryInfo       _sdkDirectory;
-        DirectoryInfo       _frameworkAssemblyDirectory;
-        FileInfo            _runtimEngine;
-        PropertyDictionary  _properties = new PropertyDictionary();
+        private string _name;
+        private string _description;
+        private string _version;
+        private DirectoryInfo _frameworkDirectory;
+        private DirectoryInfo _sdkDirectory;
+        private DirectoryInfo _frameworkAssemblyDirectory;
+        private FileInfo _runtimEngine;
+        private PropertyDictionary _properties = new PropertyDictionary();
 
         #endregion Private Instance Fields
 

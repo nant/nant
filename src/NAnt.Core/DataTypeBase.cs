@@ -29,6 +29,7 @@ namespace NAnt.Core {
     /// <summary>
     /// Provides the abstract base class for types.
     /// </summary>
+    [Serializable()]
     public abstract class DataTypeBase : Element {
         #region Private Instance Fields
 

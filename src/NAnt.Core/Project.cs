@@ -59,6 +59,7 @@ namespace NAnt.Core {
     ///     ]]>
     ///   </code>
     /// </example>
+    [Serializable()]
     public class Project {
         #region Private Static Fields
 
@@ -129,13 +130,19 @@ namespace NAnt.Core {
         private LocationMap _locationMap = new LocationMap();
         private PropertyDictionary _properties = new PropertyDictionary();
         private PropertyDictionary _frameworkNeutralProperties = new PropertyDictionary();
-        private XmlDocument _doc = null; // set in ctorHelper
-        private XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
-        private DataTypeBaseDictionary _dataTypeReferences = new DataTypeBaseDictionary();
+
         // info about frameworks
         private FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
         private FrameworkInfo _defaultFramework;
         private FrameworkInfo _currentFramework;
+
+        [NonSerialized()]
+        private XmlDocument _doc = null; // set in ctorHelper
+        [NonSerialized()]
+        private XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
+        [NonSerialized()]
+        private DataTypeBaseDictionary _dataTypeReferences = new DataTypeBaseDictionary();
+
         /// <summary>
         /// Holds the default threshold for build loggers.
         /// </summary>

@@ -32,6 +32,7 @@ namespace NAnt.Core {
     /// <summary>
     /// Maps XML nodes to the text positions from their original source.
     /// </summary>
+    [Serializable()]
     public class LocationMap {
         #region Private Instance Fields
 
@@ -255,6 +256,7 @@ namespace NAnt.Core {
         /// <summary>
         /// Represents a position in the build file.
         /// </summary>
+        [Serializable()]
         private struct TextPosition {
             #region Public Instance Constructors
 

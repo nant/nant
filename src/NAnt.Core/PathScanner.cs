@@ -35,6 +35,7 @@ namespace NAnt.Core {
     /// exact name of the file.
     /// </para>
     /// </remarks>
+    [Serializable()]
     public class PathScanner {
         #region Private Instance Fields
 

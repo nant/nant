@@ -21,6 +21,7 @@ using System;
 using System.Collections;
 
 namespace NAnt.Core {
+    [Serializable()]
     public sealed class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
         #region Private Instance Fields
 

@@ -19,6 +19,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 // Gert Driesen (gert.driesen@ardatis.com)
 
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
@@ -26,6 +27,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NAnt.Core {
+    [Serializable()]
     public class PropertyDictionary : DictionaryBase {
         #region Public Instance Properties
 

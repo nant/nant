@@ -37,6 +37,7 @@ namespace NAnt.Core.Types {
     /// <history>
     /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
     /// </history>
+    [Serializable()]
     [ElementName("fileset")]
     public class FileSet : DataTypeBase {
         #region Private Instance Fields

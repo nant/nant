@@ -29,6 +29,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
+    [Serializable()]
     public sealed class Target : Element {
         #region Private Instance Fields
 

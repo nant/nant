@@ -40,11 +40,13 @@ namespace NAnt.Core {
     /// applied to members in derived classes.
     /// </para>
     /// </remarks>
+    [Serializable()]
     public abstract class Element {
         #region Private Instance Fields
 
         private Location _location = Location.UnknownLocation;
         private Project _project = null;
+        [NonSerialized()]
         private XmlNode _xmlNode = null;
         private object _parent = null;
 

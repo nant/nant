@@ -36,6 +36,7 @@ namespace NAnt.Core {
     /// <remarks>
     /// A task is a piece of code that can be executed.
     /// </remarks>
+    [Serializable()]
     public abstract class Task : Element {
         #region Private Static Fields
 

@@ -95,6 +95,7 @@ namespace NAnt.Core {
     ///         Fixed a bug that was causing absolute pathnames to turn into an invalid regex pattern, and thus never match.
     ///     </change>
     /// </history>
+    [Serializable()]
     public class DirectoryScanner {
         #region Private Instance Fields
 
