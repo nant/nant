@@ -410,6 +410,7 @@ namespace NAnt.Core {
                         "Unary minus not supported for arguments of type '{0}'.", 
                         v.GetType().Name));
                 }
+                return null;
             }
 
             if (_tokenizer.IsKeyword("not")) {
@@ -421,6 +422,7 @@ namespace NAnt.Core {
                     bool value = Convert.ToBoolean(v, CultureInfo.InvariantCulture);
                     return !value;
                 }
+                return null;
             }
 
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LeftParen) {
@@ -520,7 +522,8 @@ namespace NAnt.Core {
                         ValidateFunction(functionOrPropertyName, args.Count);
                         return null;
                     } else {
-                        ValidateProperty(functionOrPropertyName);
+                        // we cannot validate properties because of of the short-circuit evaluation
+                        //ValidateProperty(functionOrPropertyName);
                         return null;
                     }
                 }
