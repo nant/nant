@@ -46,17 +46,16 @@
                 the <code>&lt;mail&gt;</code> task have been replaced by fileset support.
             </li>
             <li>
-                In previous versions of NAnt, the documentation stated that a target named
-                <code>nant.onfailure</code> would be executed when the build fails.  However,
-                NAnt actually executed a target named <code>nant.failure</code> (if available).
-                This has now been corrected and the old syntax (<code>nant.failure</code>) is now
-                deprecated.
+                In previous versions of NAnt, the documentation stated that a target named <code>nant.onfailure</code>
+                would be executed when the build fails. However, NAnt actually executed a 
+                target named <code>nant.failure</code> (if available). This has now been 
+                corrected and the old syntax (<code>nant.failure</code>) is now deprecated.
             </li>
         </ul>
         <h4>Fixed bugs</h4>
         <ul>
             <li>
-                <b>TO-DO</b> resourcefileset issues fixed by IAn (details ???)
+                <b>TO-DO</b> resourcefileset issues fixed by Ian (details ???)
             </li>
             <li>
                 <b>TO-DO</b>
@@ -65,9 +64,17 @@
         <h4>Other changes</h4>
         <ul>
             <li>
-                Added <code>&lt;proxy&gt;</code> and <code>&lt;credentials&gt;</code> data types 
-                that are used to provide proxy settings and authentication information for 
-                tasks that connect to external resources (eg. the <code>&lt;get&gt;</code> task).
+                Updated the <code>&lt;nunit2&gt;</code> task to use version 2.1 of NUnit.
+            </li>
+            <li>
+                <b>TO-DO</b> Added support for adding/overriding properties for nested builds 
+                to that <code>&lt;nant&gt;</code> task using a new <code>&lt;properties&gt;</code>
+                child element.
+            </li>
+            <li>
+                Added <code>&lt;proxy&gt;</code> and <code>&lt;credentials&gt;</code> data 
+                types that are used to provide proxy settings and authentication information 
+                for tasks that connect to external resources (eg. the <code>&lt;get&gt;</code> task).
             </li>
             <li>
                 The <code>httpproxy</code> attribute of the <code>&lt;get&gt;</code> task is 
@@ -118,7 +125,7 @@
                 Updated log4net to version 1.2.0 beta 8.
             </li>
             <li>
-                Updated NDoc to version 1.2.
+                Updated the <code>&lt;ndoc&gt;</code> task to using version 1.2 of NDoc.
             </li>
             <li>
                 Added support for framework-specific third party libraries.
