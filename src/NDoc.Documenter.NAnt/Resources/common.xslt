@@ -119,4 +119,20 @@
     <xsl:template match="example" mode="slashdoc">
         <xsl:apply-templates mode="slashdoc" />
     </xsl:template>
+
+    <xsl:template name="preliminary-section">
+        <p class="topicstatus">
+            <xsl:choose>
+                <xsl:when test="documentation/preliminary[text()]">
+                    <xsl:value-of select="documentation/preliminary"/>
+                </xsl:when>
+                <xsl:when test="ancestor::node()/documentation/preliminary[text()]">
+                    <xsl:value-of select="ancestor::node()/documentation/preliminary" />
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>[This is preliminary documentation and subject to change.]</xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </p>
+    </xsl:template>
 </xsl:stylesheet>

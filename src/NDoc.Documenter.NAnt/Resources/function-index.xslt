@@ -62,11 +62,14 @@
                             Function Reference
                         </td>
                         <td class="NavBar-Cell" align="right">
-                            <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
+                            v<xsl:value-of select="$productVersion" />
                         </td>
                     </tr>
                 </table>
                 <h1>Function Reference</h1>
+                <xsl:if test="ancestor-or-self::node()/documentation/preliminary | /ndoc/preliminary">
+                    <xsl:call-template name="preliminary-section"/>
+                </xsl:if>
                 <!-- table of contents, only document functions in classes that pass NamespaceFilter -->
                 <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute' and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())]">
                     <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)"

@@ -100,8 +100,8 @@ div.table {
 }
 
 div.nested-element {
-	margin-left: 40px;
-	position: relative;
+    margin-left: 40px;
+    position: relative;
 }
 
 div.nested-element table {
@@ -186,7 +186,7 @@ tr.required {
 }
 
 td.required {
-	font-weight: bolder;
+    font-weight: bolder;
 }
 
 .missing {
@@ -195,4 +195,9 @@ td.required {
 
 span.parameter {
     color: #606080;
+}
+
+p.topicstatus {
+    display: block;
+    color: red;
 }

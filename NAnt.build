@@ -217,6 +217,7 @@
             <arg value="${project.config}" />
             <arg value="self-userdoc" />
             <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
             <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
     </target>
@@ -253,8 +254,8 @@
                         <property name="NamespaceFilter" value="" />
                         <!-- set the name and version of the product for which docs are generated -->
                         <property name="ProductName" value="NAnt" />
-                        <property name="ProductVersion" value="${project.version}" if="${project.release.type='release'}" />
-                        <property name="ProductVersion" value="${project.version} ${project.release.type}" unless="${project.release.type='release'}" />
+                        <property name="ProductVersion" value="${project.version}" />
+                        <property name="Preliminary" value="${not(project.release.type='release')}" />
                         <property name="DocumentAttributes" value="True" />
                         <property name="IncludeAssemblyVersion" value="True" />
                         <property name="ShowMissingParams" value="True" />
@@ -321,11 +322,11 @@
                         <property name="SdkLinksOnWeb" value="${link.sdkdoc.web}" />
                         <property name="HtmlHelpName" value="NAnt-SDK" />
                         <property name="IncludeFavorites" value="False" />
-                        <property name="Title" value="NAnt SDK Documentation - v${project.version}" if="${project.release.type='release'}" />
-                        <property name="Title" value="NAnt SDK Documentation - v${project.version} ${project.release.type}" unless="${project.release.type='release'}" />
+                        <property name="Title" value="NAnt SDK Documentation - v${project.version}" />
                         <property name="SplitTOCs" value="False" />
                         <property name="DefaulTOC" value="" />
                         <property name="ShowVisualBasic" value="True" />
+                        <property name="Preliminary" value="${not(project.release.type='release')}" />
                         <property name="ShowMissingSummaries" value="${build.debug}" />
                         <property name="ShowMissingRemarks" value="${build.debug}" />
                         <property name="ShowMissingParams" value="${build.debug}" />

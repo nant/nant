@@ -72,7 +72,7 @@ namespace NDoc.Documenter.NAnt {
         /// <value>
         /// The documenter's output directory.
         /// </value>
-        public string OutputDirectory { 
+        public string OutputDirectory {
             get {
                 return ((NAntDocumenterConfig) Config).OutputDirectory;
             } 
@@ -85,7 +85,7 @@ namespace NDoc.Documenter.NAnt {
         /// The root namespace to document, or a empty <see cref="string" />
         /// if no restriction should be set on the namespace to document.
         /// </value>
-        public string NamespaceFilter { 
+        public string NamespaceFilter {
             get {
                 return ((NAntDocumenterConfig) Config).NamespaceFilter;
             }
@@ -99,7 +99,7 @@ namespace NDoc.Documenter.NAnt {
         /// The name of the product for which documentation should be
         /// generated.
         /// </value>
-        public string ProductName { 
+        public string ProductName {
             get {
                 return ((NAntDocumenterConfig) Config).ProductName;
             } 
@@ -113,7 +113,7 @@ namespace NDoc.Documenter.NAnt {
         /// The version of the product for which documentation should be
         /// generated.
         /// </value>
-        public string ProductVersion { 
+        public string ProductVersion {
             get {
                 return ((NAntDocumenterConfig) Config).ProductVersion;
             } 
@@ -129,7 +129,7 @@ namespace NDoc.Documenter.NAnt {
         /// <value>
         /// The documenter's main output file.
         /// </value>
-        public override string MainOutputFile { 
+        public override string MainOutputFile {
             get { return ""; } 
         }
 

@@ -64,12 +64,16 @@
                         <xsl:value-of select="$name" />
                     </td>
                     <td class="NavBar-Cell" align="right">
-                        <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
+                        v<xsl:value-of select="$productVersion" />
                     </td>
                 </tr>
             </table>
 
             <h1><xsl:value-of select="$name" /></h1>
+            <xsl:if test="ancestor-or-self::node()/documentation/preliminary | /ndoc/preliminary">
+                <xsl:call-template name="preliminary-section"/>
+            </xsl:if>
+
             <!-- output whether type is deprecated -->
             <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
             <xsl:if test="count($ObsoleteAttribute) > 0">
