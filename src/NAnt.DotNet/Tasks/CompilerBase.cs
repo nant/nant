@@ -50,7 +50,6 @@ namespace NAnt.DotNet.Tasks {
         private FileSet _references = new FileSet();
         private FileSet _modules = new FileSet();
         private FileSet _sources = new FileSet();
-        private ResGenTask _resgenTask = null;
         private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
 
         #endregion Private Instance Fields
@@ -296,10 +295,11 @@ namespace NAnt.DotNet.Tasks {
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
                 StreamWriter writer = new StreamWriter(_responseFileName);
-
+                Hashtable cultureResources = new Hashtable();
+                StringCollection compiledResourceFiles = new StringCollection();
+                
                 try {
-                    Hashtable cultureResources = new Hashtable();
-                    
+                                        
                     if (References.BaseDirectory == null) {
                         References.BaseDirectory = BaseDirectory;
                     }
@@ -370,9 +370,6 @@ namespace NAnt.DotNet.Tasks {
 
                     // compile resources
                     foreach (ResourceFileSet resources in ResourcesList) {
-                        if (resources.ResxFiles.FileNames.Count > 0) {
-                            CompileResxResources(resources.ResxFiles);
-                        }
 
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames) {
@@ -380,12 +377,11 @@ namespace NAnt.DotNet.Tasks {
                             ResourceLinkage resourceLinkage = GetFormResourceLinkage(fileName);
 
                             if (resourceLinkage != null && !resourceLinkage.HasNamespaceName) {
-                              resourceLinkage.NamespaceName = resources.Prefix;
+                                resourceLinkage.NamespaceName = resources.Prefix;
                             }
 
-                            string actualFileName = Path.GetFileNameWithoutExtension(fileName);
-                            string tmpResourcePath = Path.ChangeExtension(fileName, "resources");
-                            string manifestResourceName = Path.GetFileName(tmpResourcePath);
+                            string actualFileName = Path.GetFileNameWithoutExtension(fileName);                           
+                            string manifestResourceName = Path.ChangeExtension(Path.GetFileName(fileName), ".resources" );
 
                             // cater for asax/aspx special cases ...
                             foreach (string extension in CodebehindExtensions){
@@ -396,7 +392,7 @@ namespace NAnt.DotNet.Tasks {
                                 }
                             }
                             
-                            if (resourceLinkage != null && !resourceLinkage.HasClassName) {
+                            if ( resourceLinkage != null && !resourceLinkage.HasClassName ) {
                                 resourceLinkage.ClassName = actualFileName;
                             }
 
@@ -405,15 +401,22 @@ namespace NAnt.DotNet.Tasks {
                             }
 
                             if (resourceLinkage == null) {
-                                manifestResourceName = resources.GetManifestResourceName(fileName);
+                                manifestResourceName = Path.ChangeExtension(resources.GetManifestResourceName(fileName), "resources");
                             }
+                            
+                            string tmpResourcePath = fileName.Replace( Path.GetFileName(fileName), manifestResourceName );                            
+                            compiledResourceFiles.Add( tmpResourcePath );
+                            
+                            // compile to a temp .resources file
+                            CompileResxResource( fileName, tmpResourcePath);
                             
                             // Check for internationalised resource files.
                             string culture = "";
                             if ( ContainsCulture( fileName, ref culture )) {
                                 if (! cultureResources.ContainsKey( culture ) )  {
                                     cultureResources.Add( culture, new StringCollection() );
-                                }    
+                                }
+                                
                                 // store resulting .resoures file for later linking 
                                 ((StringCollection)cultureResources[culture]).Add( tmpResourcePath );
                             } else {
@@ -425,28 +428,14 @@ namespace NAnt.DotNet.Tasks {
                                 WriteOption(writer, "resource", resourceoption );
                             }
                         }
-                        // new localised resource dll for each culture name
+                        
+                        // create a localised resource dll for each culture name
                         foreach (string culture in cultureResources.Keys ) {
                 
                             string culturedir =  Path.GetDirectoryName( Output )  + Path.DirectorySeparatorChar +  culture;
-                            Directory.CreateDirectory(culturedir );
-                            // defer to the assembly linker task
-                            AssemblyLinkerTask alink = new AssemblyLinkerTask();
-                            alink.Project = this.Project;
-                            alink.Parent = this.Parent;
-                            alink.InitializeTaskConfiguration();
-
-                            alink.Output = Path.Combine( culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
-                            alink.Culture = culture;
-                            alink.OutputTarget = "lib";
-                            StringCollection localisedResources = (StringCollection)cultureResources[culture];
-                            foreach( string resource in localisedResources ) {
-                                alink.Sources.FileNames.Add(resource );
-                            }
-                            // Fix up the indent level
-                            Project.Indent();
-                            alink.Execute();
-                            Project.Unindent();
+                            Directory.CreateDirectory( culturedir );
+                            string outputFile =  Path.Combine( culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");                            
+                            LinkResourceAssembly( (StringCollection)cultureResources[culture],outputFile, culture );                                                       
                         }
                         
                         // other resources
@@ -474,12 +463,13 @@ namespace NAnt.DotNet.Tasks {
 
                     // call base class to do the work
                     base.ExecuteTask();
-
-                    // clean up generated resources.
-                    if (_resgenTask != null) {
-                        _resgenTask.RemoveOutputs();
-                    }
+                 
                 } finally {
+                    
+                    // cleanup .resource files
+                    foreach( string fileName in compiledResourceFiles ) {
+                        File.Delete( fileName ); 
+                    }
                     // make sure we delete response file even if an exception is thrown
                     writer.Close(); // make sure stream is closed or file cannot be deleted
                     File.Delete(_responseFileName);
@@ -657,7 +647,12 @@ namespace NAnt.DotNet.Tasks {
         protected virtual ResourceLinkage GetFormResourceLinkage(string resxPath) {
             // open matching source file if it exists
             string sourceFile = resxPath.Replace("resx", Extension);
-  
+            
+            // check if this is a localised resx file
+            string culture = "";
+            if ( ContainsCulture( sourceFile, ref culture )) {
+                sourceFile = sourceFile.Replace( string.Format( ".{0}", culture  ), "" );
+            }
             StreamReader sr = null;
             ResourceLinkage resourceLinkage  = null; 
   
@@ -682,12 +677,43 @@ namespace NAnt.DotNet.Tasks {
 
             return resourceLinkage;
         }
-
+        
         /// <summary>
-        /// Compiles the resx files to temp .resources files.
+        /// Link a list of files into a resource assembly.
         /// </summary>
-        /// <param name="resourceFileSet"></param>
-        protected void CompileResxResources(FileSet resourceFileSet) {
+        /// <param name="resourceFiles">List of files to bind into</param>
+        /// <param name="outputFile">Resource assembly to generate</param>
+        /// <param name="culture">Culture of the generated assembly.</param>
+        protected void LinkResourceAssembly( StringCollection resourceFiles, string outputFile, string culture ){
+            
+            // defer to the assembly linker task
+            AssemblyLinkerTask alink = new AssemblyLinkerTask();
+            alink.Project = this.Project;
+            alink.Parent = this.Parent;
+            alink.InitializeTaskConfiguration();
+
+            alink.Output = outputFile;
+            alink.Culture = culture;
+            alink.OutputTarget = "lib";
+            
+            foreach( string resource in resourceFiles ) {
+                alink.Sources.FileNames.Add( resource );
+            }
+            
+            // Fix up the indent level
+            Project.Indent();
+            
+            // execute the nested task
+            alink.Execute();
+            Project.Unindent();
+        }
+        
+        /// <summary>
+        /// Compiles a resx files to a .resources file.
+        /// </summary>
+        /// <param name="inputFile"></param>
+        /// <param name="outputFile"></param>
+        protected void CompileResxResource(string inputFile, string outputFile )  {
             ResGenTask resgen = new ResGenTask();
             resgen.Project = this.Project;
             resgen.Parent = this.Parent;
@@ -699,25 +725,21 @@ namespace NAnt.DotNet.Tasks {
             // available for loading the default values from the configuration
             // file if a build element is constructed from code.
             resgen.InitializeTaskConfiguration();
-
-            // set the fileset
-            resgen.Resources = new ResourceFileSet(resourceFileSet);
-            foreach (string file in resourceFileSet.FileNames ) {
-                resgen.Resources.Includes.Add(file);
-            }
-            resgen.Resources.Scan();
-
+           
             // inherit Verbose setting from current task
             resgen.Verbose = this.Verbose;
 
-            _resgenTask = resgen;
+            resgen.Input = inputFile;
+            resgen.Output = Path.GetFileName(outputFile);
+            resgen.ToDirectory = Path.GetDirectoryName(outputFile);
+            resgen.BaseDirectory = Path.GetDirectoryName(inputFile);
 
             // Fix up the indent level --
             Project.Indent();
             resgen.Execute();
             Project.Unindent();
         }
-
+        
         #endregion Protected Instance Methods
 
         /// <summary>
