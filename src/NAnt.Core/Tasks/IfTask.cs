@@ -251,9 +251,10 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Used to test arbitrary boolean expression
+        /// Used to test arbitrary boolean expression.
         /// </summary>
         [TaskAttribute("test")]
+        [BooleanValidator()]
         public string Test {
             get { return _test; }
             set { _test = StringUtils.ConvertEmptyToNull(value); }
@@ -268,9 +269,9 @@ namespace NAnt.Core.Tasks {
                 bool ret = true;
 
                 if (Test != null) {
-                    bool booleanValue = Convert.ToBoolean(Test);    // this should be a string "True" or "False"
-                    if (!booleanValue)
+                    if (!Convert.ToBoolean(Test, CultureInfo.InvariantCulture)) {
                         return false;
+                    }
                 }
 
                 // check if target exists
