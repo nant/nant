@@ -19,6 +19,7 @@
 // Brian Deacon (bdeacon@vidya.com)
 
 using System;
+using System.IO;
 using System.Globalization;
 using System.Xml;
 
@@ -27,7 +28,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Writes a message to the build log.
+    /// Writes a message to the build log or a specified file.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -35,6 +36,7 @@ namespace NAnt.Core.Tasks {
     ///   or as inline content.
     ///   </para>
     ///   <para>Macros in the message will be expanded.</para>
+    ///   <para>When writing to a file, the <see cref="Level" /> attribute is ignored. </para>
     /// </remarks>
     /// <example>
     ///   <para>Writes a message with level <see cref="Level.Debug" /> to the build log.</para>
@@ -60,12 +62,22 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>Writes the previous message to a file in the current build directory, overwriting the file if it exists.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo filename="buildmessage.txt">Base build directory = ${nant.project.basedir}</echo>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("echo")]
     public class EchoTask : Task {
         #region Private Instance Fields
 
         private string _message = null;
         private string _contents = null;
+        private string _filename = null;
+        private bool _append = false;
         private Level _messageLevel = Level.Info;
 
         #endregion Private Instance Fields
@@ -114,6 +126,24 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// The filename to write the message to.
+        /// </summary>
+        [TaskAttribute("filename")]
+        public string Filename {
+            get { return _filename; }
+            set { _filename = value; }
+        }
+
+        /// <summary>
+        /// Determines whether the echo task should append to the file, or overwrite it.  The default is false.
+        /// </summary>
+		[TaskAttribute("append")]
+		public bool Append {
+            get { return _append; }
+            set { _append = value; }
+        }
+
+        /// <summary>
         /// The logging level with which the message should be output - either 
         /// <see cref="Level.Debug" />, <see cref="Level.Verbose" />,
         /// <see cref="Level.Info" />, <see cref="Level.Warning" /> or 
@@ -139,6 +169,21 @@ namespace NAnt.Core.Tasks {
         /// Outputs the message to the build log.
         /// </summary>
         protected override void ExecuteTask() {
+            // File case
+			if (!StringUtils.IsNullOrEmpty(Filename)) {
+                using (StreamWriter writer = new StreamWriter(Filename, Append)) {
+					if (!StringUtils.IsNullOrEmpty(Message)) {
+						writer.WriteLine(Message);
+					} else if (!StringUtils.IsNullOrEmpty(Contents)) {
+						writer.WriteLine(Contents);
+					} else {
+						writer.WriteLine();
+					}
+				}
+                return;
+            }
+
+			// Log case
             if (!StringUtils.IsNullOrEmpty(Message)) {
                 Log(MessageLevel, LogPrefix + Message);
             } else if (!StringUtils.IsNullOrEmpty(Contents)) {
@@ -146,8 +191,7 @@ namespace NAnt.Core.Tasks {
             } else {
                 Log(MessageLevel, LogPrefix);
             }
-        }
-        protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
+        }                        protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
 
         #endregion Override implementation of Task
     }
