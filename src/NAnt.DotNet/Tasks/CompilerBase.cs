@@ -468,7 +468,7 @@ namespace SourceForge.NAnt.Tasks {
         protected void CompileResxResources(FileSet resourceFileSet) {
             ResGenTask resgen = new ResGenTask(); 
             resgen.Resources = resourceFileSet; // set the fileset
-            resgen.Verbose = false; 
+            resgen.Verbose = this.Verbose; 
             resgen.Parent = this.Parent;
             resgen.Project = this.Project;
 

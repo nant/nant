@@ -19,6 +19,7 @@
 // Ian MacLean ( ian_maclean@another.com )
 
 using System.IO;
+using System.Text;
 
 using SourceForge.NAnt.Attributes;
 
@@ -113,21 +114,27 @@ namespace SourceForge.NAnt.Types {
         /// <param name="fileName">The full path and name of the file as returned from <see cref="FileSet.FileNames" />.</param>
         /// <returns>The manifest resource name to be sent to the compiler.</returns>
         public string GetManifestResourceName(string fileName) {
-            string prefix = Prefix;
+            StringBuilder prefix = new StringBuilder(Prefix);
 
             if (DynamicPrefix) {
-                string filePathRelativeToBaseDir = Path.GetDirectoryName(fileName).Substring(this.BaseDirectory.Length+1);
+                string basedir = Path.GetDirectoryName(BaseDirectory + Path.DirectorySeparatorChar);
+                string filedir = Path.GetDirectoryName(fileName);
+                string filePathRelativeToBaseDir = string.Empty;
+                if (filedir != basedir) {
+                    filePathRelativeToBaseDir = filedir.Substring(basedir.Length+1);
+                }
                 string relativePrefix = filePathRelativeToBaseDir.Replace(Path.DirectorySeparatorChar, '.').Replace(Path.AltDirectorySeparatorChar, '.');
                 if(prefix.Length > 0) {
-                    prefix = prefix + ".";
+                    prefix.Append(".");
                 }
-                prefix = prefix + relativePrefix;
+                prefix.Append(relativePrefix);
             }
-            if (prefix.Length > 0 && !prefix.EndsWith(".")) {
-               prefix = prefix + ".";
+            if(prefix.Length > 0 && !prefix.ToString().EndsWith(".")) {
+                prefix.Append(".");
             }
             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
-            return Path.GetFileName(fileName).Replace(actualFileName, prefix + actualFileName);
+            prefix.Append(actualFileName);
+            return Path.GetFileName(fileName).Replace(actualFileName, prefix.ToString());
         }
 
         #endregion Public Instance Methods

@@ -38,6 +38,14 @@ namespace SourceForge.NAnt.Tests {
             fileset.BaseDirectory = @"c:\code\myproj";
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
             Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
+
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
+
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
         }
 
         [Test]
@@ -46,6 +54,14 @@ namespace SourceForge.NAnt.Tests {
             fileset.BaseDirectory = @"c:\code\myproj";
             fileset.Prefix = @"Root.MyProj.Howdy";
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
+        
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
+
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
             Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
         }
 
@@ -57,6 +73,14 @@ namespace SourceForge.NAnt.Tests {
             fileset.DynamicPrefix = true;
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
             Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".mydir.file.txt", actualName);
+        
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".mydir.file.txt", actualName);
+
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
         }
 
         [Test]
@@ -67,6 +91,14 @@ namespace SourceForge.NAnt.Tests {
             fileset.DynamicPrefix = true;
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
             Assertion.AssertEquals("Incorrect manifest resource name.", "mydir.file.txt", actualName);
+        
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", "mydir.file.txt", actualName);
+
+            fileset.BaseDirectory = @"c:\code\myproj\";
+            actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
+            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
         }
     }
 }
