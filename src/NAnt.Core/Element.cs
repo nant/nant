@@ -1131,8 +1131,29 @@ namespace NAnt.Core {
                 public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
                     string path = StringUtils.ConvertEmptyToNull(value);
                     if (path != null) {
+                        object propertyValue;
+
                         try {
-                            object propertyValue = new FileInfo(parent.Project.GetFullPath(value));
+                            propertyValue = new FileInfo(parent.Project.GetFullPath(value));
+                        } catch (Exception ex) {
+                            // check whether value is a file URI
+                            try {
+                                Uri uri = new Uri(path);
+                                if (uri.IsFile) {
+                                    propertyValue = new FileInfo(uri.LocalPath);
+                                } else {
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                        "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                        value, attributeNode.Name, parent.Name), parent.Location, ex);
+                                }
+                            } catch {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                    "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                    value, attributeNode.Name, parent.Name), parent.Location, ex);
+                            }
+                        }
+
+                        try {
                             property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                         } catch (Exception ex) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
