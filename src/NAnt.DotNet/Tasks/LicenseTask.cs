@@ -374,7 +374,13 @@ namespace NAnt.DotNet.Tasks {
                         licensesFile.FullName);
                 } finally {
                     if (BaseDirectory.Exists) {
-                        BaseDirectory.Delete(true);
+                        DeleteTask deleteTask = new DeleteTask();
+                        deleteTask.Project = Project;
+                        deleteTask.Parent = this;
+                        deleteTask.InitializeTaskConfiguration();
+                        deleteTask.Directory = BaseDirectory;
+                        deleteTask.Threshold = Level.None; // no output in build log
+                        deleteTask.Execute();
                     }
                 }
             } else {
