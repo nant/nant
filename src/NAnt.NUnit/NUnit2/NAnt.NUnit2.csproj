@@ -67,6 +67,16 @@
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
+                    Name = "nunit.util"
+                    AssemblyName = "nunit.util"
+                    HintPath = "..\..\..\bin\lib\net\1.0\nunit.util.dll"
+                />
+                <Reference
+                    Name = "nunit.core"
+                    AssemblyName = "nunit.core"
+                    HintPath = "..\..\..\bin\lib\net\1.0\nunit.core.dll"
+                />
+                <Reference
                     Name = "nunit.framework"
                     AssemblyName = "nunit.framework"
                     HintPath = "..\..\..\bin\lib\net\1.0\nunit.framework.dll"
