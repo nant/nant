@@ -284,13 +284,19 @@ namespace NAnt.VSNet {
 
                 if (de.Value != null) {
                     Hashtable _htValue = (Hashtable) de.Value;
+
+                    // obtain file configuration for current build configuration
                     VcFileConfiguration configuration = (VcFileConfiguration) 
                         _htValue[projectConfig.Name];
-                    if (configuration.ExcludeFromBuild) {
+                    if (configuration != null && configuration.ExcludeFromBuild) {
                         continue;
                     }
                     fileConfig = configuration;
-                } else {
+                }
+
+                // if there's no specific file configuration (for the current
+                // build configuration), then use the project configuration
+                if (fileConfig == null) {
                     fileConfig = projectConfig;
                 }
 
