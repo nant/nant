@@ -22,11 +22,11 @@ using System.Globalization;
 using System.Security.Permissions;
 
 using Microsoft.Win32;
-
+using NAnt.Core;
 using NAnt.Core.Attributes;
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum , Unrestricted=true)]
-namespace NAnt.Core.Tasks {
+namespace NAnt.Win32.Tasks {
     /// <summary>
     /// Reads a value or set of values from the Windows Registry into one or 
     /// more NAnt properties.
@@ -130,7 +130,10 @@ namespace NAnt.Core.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of Task
-
+        
+        /// <summary>
+        /// read the specified registry value
+        /// </summary>
         protected override void ExecuteTask() {
             object regKeyValue = null;
 
@@ -161,7 +164,13 @@ namespace NAnt.Core.Tasks {
         #endregion Override implementation of Task
 
         #region Protected Static Methods
-
+        
+        /// <summary>
+        /// return the hive for a given key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="registries"></param>
+        /// <returns></returns>
         protected RegistryKey LookupRegKey(string key, RegistryHive[] registries) {
             foreach (RegistryHive hive in registries) {
                 Log(Level.Verbose, "Opening {0}:{1}.", hive.ToString(CultureInfo.InvariantCulture), key);
@@ -172,7 +181,12 @@ namespace NAnt.Core.Tasks {
             }
             throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
         }
-
+        
+        /// <summary>
+        /// return the key for a given registry hive
+        /// </summary>
+        /// <param name="hive"></param>
+        /// <returns></returns>
         protected RegistryKey GetHiveKey(RegistryHive hive) {
             switch(hive) {
                 case RegistryHive.LocalMachine:

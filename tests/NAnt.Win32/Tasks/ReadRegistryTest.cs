@@ -20,14 +20,16 @@
 using System;
 
 using NUnit.Framework;
+using Tests.NAnt.Core.Tasks;
+using Tests.NAnt.Core;
 
-namespace Tests.NAnt.Core.Tasks {
+namespace Tests.NAnt.Win32.Tasks {
     /// <summary>
     /// Tests the ReadRegistryTask.
     /// </summary>
     [TestFixture]
     public class ReadRegistryTest : BuildTestBase {
-        
+
 		[Test]
         public void Test_Read_Defaults() {
             string _xml = @"
