@@ -56,7 +56,7 @@ namespace NAnt.VSNet {
             get { 
                 string projectPath;
 
-                if (Project.IsUrl(_projectPath)) {
+                if (ProjectFactory.IsUrl(_projectPath)) {
                     // construct uri for project path
                     Uri projectUri = new Uri(_projectPath);
 
@@ -77,7 +77,7 @@ namespace NAnt.VSNet {
         /// </summary>
         public override string ProjectPath {
             get { 
-                if (Project.IsUrl(_projectPath)) {
+                if (ProjectFactory.IsUrl(_projectPath)) {
                     return _projectPath;
                 } else {
                     return Path.GetFullPath(_projectPath);
@@ -161,7 +161,7 @@ namespace NAnt.VSNet {
             _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), TempFiles);
             _projectPath = projectPath;
 
-            _isWebProject = IsUrl(projectPath);
+            _isWebProject = ProjectFactory.IsUrl(projectPath);
             _webProjectBaseUrl = String.Empty;
             string webCacheDirectory = String.Empty;
 
