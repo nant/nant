@@ -72,7 +72,7 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The value which will replace the token when filtering.
         /// </summary>
-        [TaskAttribute("token", Required=true)]
+        [TaskAttribute("value", Required=true)]
         public string Value {
             get { return _value; }
             set { _value = value; }
