@@ -357,6 +357,11 @@ namespace NAnt.VSNet.Tasks {
                     // store the temp dir so we can clean it up later
                     basePath = tfc.BasePath;
 
+                    // ensure temp directory exists
+                    if (!Directory.Exists(tfc.BasePath)) {
+                        Directory.CreateDirectory(tfc.BasePath);
+                    }
+
                     // create temporary domain
                     AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
                         AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
@@ -418,6 +423,69 @@ namespace NAnt.VSNet.Tasks {
         }
 
         #endregion Override implementation of Task
+
+        #region Internal Instance Methods
+
+        /// <summary>
+        /// Expands the given macro.
+        /// </summary>
+        /// <param name="macro">The macro to expand.</param>
+        /// <returns>
+        /// The expanded macro or <see langword="null" /> if the macro is not
+        /// supported.
+        /// </returns>
+        /// <exception cref="BuildException">The macro cannot be expanded.</exception>
+        internal string ExpandMacro(string macro) {
+            // perform case-insensitive expansion of macros 
+            switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "solutionfilename": // E.g. WindowsApplication1.sln
+                    if (SolutionFile != null) {
+                        return Path.GetFileName(SolutionFile.FullName);
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Macro \"{0}\" cannot be expanded, no solution file specified.", 
+                            macro), Location.UnknownLocation);
+                    }
+                case "solutionpath": // Absolute path for SolutionFileName
+                    if (SolutionFile != null) {
+                        return SolutionFile.FullName;
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Macro \"{0}\" cannot be expanded, no solution file specified.", 
+                            macro), Location.UnknownLocation);
+                    }
+                case "solutiondir": // SolutionPath without SolutionFileName appended
+                    if (SolutionFile != null) {
+                        return Path.GetDirectoryName(SolutionFile.FullName) 
+                            + Path.DirectorySeparatorChar;
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Macro \"{0}\" cannot be expanded, no solution file specified.", 
+                            macro), Location.UnknownLocation);
+                    }
+                case "solutionname": // E.g. WindowsApplication1
+                    if (SolutionFile != null) {
+                        return Path.GetFileNameWithoutExtension(
+                            SolutionFile.FullName);
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Macro \"{0}\" cannot be expanded, no solution file specified.", 
+                            macro), Location.UnknownLocation);
+                    }
+                case "solutionext": // Is this ever anything but .sln?
+                    if (SolutionFile != null) {
+                        return Path.GetExtension(SolutionFile.FullName);
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Macro \"{0}\" cannot be expanded, no solution file specified.", 
+                            macro), Location.UnknownLocation);
+                    }
+                default:
+                    return null;
+            }
+        }
+
+        #endregion Internal Instance Methods
 
         #region Private Instance Methods
 
