@@ -717,17 +717,12 @@
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
-    <!-- install targets -->
-    <target name="install">
-        <if test="${platform::is-win32()}">
-            <call target="install-windows"/>
-        </if>
-        <if test="${not(platform::is-win32())}">
-            <call target="install-linux"/>
-        </if>
-    </target>
     
-    <target name="install-windows" depends="userdoc">
+    <!-- install targets -->
+    
+    <target name="install" depends="install-windows, install-linux" />
+    
+    <target name="install-windows" depends="userdoc" if="${platform::is-win32()}">
         <!-- make environment variables and special folders available as properties -->
         <sysinfo failonerror="false" />
         <property name="install.realprefix" value="${sys.os.folder.programfiles}" />
@@ -748,7 +743,7 @@
         </copy>
     </target>
     
-    <target name="install-linux" depends="build">
+    <target name="install-linux" depends="build" if="${platform::is-unix()}">
         <property name="install.realprefix" value="/usr/local" />
         <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
             <property name="install.realprefix" value="${install.prefix}" />
