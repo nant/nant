@@ -124,7 +124,7 @@ namespace Sourceforge.NAnt.Documenter {
 
                 // generate filename for page
                 XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
-                string filename = propNode.Attributes["value"].Value.ToLower(CultureInfo.InvariantCulture) + "Task.html";;    
+                string filename = propNode.Attributes["value"].Value.ToLower(CultureInfo.InvariantCulture) + "task.html";;    
 
                 // create the page
                 TransformAndWriteResult(_xsltTaskDoc, arguments, filename);
