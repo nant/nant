@@ -134,6 +134,19 @@ namespace NAnt.Core.Functions {
             return s.ToUpper(CultureInfo.InvariantCulture);
         }
         /// <summary>
+        /// Replaces one string with another.
+        /// </summary>
+        /// <param name="str">the string to be modified.</param>
+        /// <param name="strold">the string to be replaced.</param>
+        /// <param name="strnew">the string to replace <paramref name="strold" />.</param>
+        /// <returns>
+        /// The original string, <paramref name="str" />, with <paramref name="strold" /> replaced by <paramref name="strnew" />.
+        /// </returns>
+        [Function("replace")]
+        public static string Replace(string str, string strold, string strnew) {
+            return str.Replace(strold, strnew);
+        }
+        /// <summary>
         /// Determines whether a string is contained in another string.
         /// </summary>
         /// <param name="str">the string to be checked.</param>
