@@ -344,16 +344,16 @@ namespace NAnt.DotNet.Tasks {
                     // ensure base directory is set, even if fileset was not initialized
                     // from XML
                     if (References.BaseDirectory == null) {
-                        References.BaseDirectory = BaseDirectory;
+                        References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
                     }
                     if (Lib.BaseDirectory == null) {
-                        Lib.BaseDirectory = BaseDirectory;
+                        Lib.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
                     }
                     if (Modules.BaseDirectory == null) {
-                        Modules.BaseDirectory = BaseDirectory;   
+                        Modules.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);   
                     }   
                     if (Sources.BaseDirectory == null) {   
-                        Sources.BaseDirectory = BaseDirectory;   
+                        Sources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);   
                     } 
 
                     Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", 
