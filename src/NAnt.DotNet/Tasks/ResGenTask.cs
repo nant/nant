@@ -223,18 +223,19 @@ namespace NAnt.DotNet.Tasks {
         /// otherwise <see langword="false" />.
         /// </returns>
         protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
-              if (!outputFile.Exists) {
-                  return true;
-              }
+            if (!outputFile.Exists) {
+                return true;
+            }
+
+            // check if input file was updated
+            string fileName = FileSet.FindMoreRecentLastWriteTime(inputFile.FullName, outputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                return true;
+            }
   
-              if (!inputFile.Exists) {
-                  return true;
-              }
-  
-              if (outputFile.LastWriteTime < inputFile.LastWriteTime) {
-                  return true;
-              }
-              return false;
+            // if we made it here then we don't have to recompile
+            return false;
         }
 
         /// <summary>
