@@ -40,8 +40,8 @@
     </xsl:template>
 
     <xsl:template match="method" mode="FunctionDoc">
-        <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" />       
-        <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" />
+        <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value" />       
+        <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value" />
         <xsl:variable name="name"><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />

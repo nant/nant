@@ -33,8 +33,8 @@
 
     -->
     <xsl:key name="classCategory" 
-        match="class[attribute/@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']" 
-        use="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+        match="class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute']" 
+        use="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
 
     <xsl:template match="/">
         <html>
@@ -60,30 +60,30 @@
                 <h1>Function Reference</h1>
 
                 <!-- table of contents -->
-                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']">
-                    <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
-                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
+                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute']">
+                    <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
+                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
 
-                    <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+                    <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
 
                     <!-- 'unique' - see above -->
-                    <xsl:if test="generate-id()=generate-id(key('classCategory',attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value)[1])">
+                    <xsl:if test="generate-id()=generate-id(key('classCategory',attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value)[1])">
                         <a><xsl:attribute name="href">#<xsl:value-of select="$this_cat" /></xsl:attribute>
                             <xsl:value-of select="$this_cat" /> Functions</a>
                         <br/>
                     </xsl:if>
                 </xsl:for-each>
 
-                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']">
-                    <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
-                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
+                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute']">
+                    <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
+                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
 
-                    <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+                    <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
 
                     <a><xsl:attribute name="name"><xsl:value-of select="$this_cat" /></xsl:attribute></a>
 
                     <!-- 'unique' - see above -->
-                    <xsl:if test="generate-id()=generate-id(key('classCategory',attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value)[1])">
+                    <xsl:if test="generate-id()=generate-id(key('classCategory',attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value)[1])">
                         <h3><xsl:value-of select="$this_cat" /> Functions</h3>
                         <div class="table">
                             <table>
@@ -92,11 +92,11 @@
                                     <th>Summary</th>
                                 </tr>
 
-                                <!-- for each class having CustomFunctionSet attribute with this category, then for each method having CustomFunction attribute -->
+                                <!-- for each class having FunctionSet attribute with this category, then for each method having Function attribute -->
 
-                                <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value=$this_cat]/method[attribute/@name='NAnt.Core.Attributes.CustomFunctionAttribute']">
-                                    <xsl:sort select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" order="ascending" />
-                                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" order="ascending" />
+                                <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value=$this_cat]/method[attribute/@name='NAnt.Core.Attributes.FunctionAttribute']">
+                                    <xsl:sort select="../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value" order="ascending" />
+                                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value" order="ascending" />
 
                                     <xsl:apply-templates select="." />
                                 </xsl:for-each>
@@ -113,9 +113,9 @@
     <!-- match class tag -->
     <xsl:template match="method">
         <xsl:variable name="ObsoleteAttribute" select="attribute[@name='System.ObsoleteAttribute']" />
-        <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" />
-        <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" />
-        <xsl:variable name="Category" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+        <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value" />
+        <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value" />
+        <xsl:variable name="Category" select="../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
 
         <tr>
             <td>
