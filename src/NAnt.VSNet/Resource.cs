@@ -234,7 +234,6 @@ namespace NAnt.VSNet {
             rt.Verbose = false;
             rt.Project = _solutionTask.Project;
             rt.BaseDirectory = Path.GetDirectoryName(strInFile);
-            rt.ToDirectory = Path.GetDirectoryName(strInFile);
             rt.Project.Indent();
             rt.Execute();
             rt.Project.Unindent();

@@ -75,7 +75,7 @@ namespace NAnt.VSNet.Types {
                 if (value != null) {
                     // Try to locate instance using Value
                     foreach (WebMap WebMap in base.List) {
-                        if (value.Equals(WebMap.Path)) {
+                        if (value.Equals(WebMap.Url)) {
                             return WebMap;
                         }
                     }
