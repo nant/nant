@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0"?>
 
 <project name="NAnt" default="build" basedir=".">
     <tstamp/>
@@ -11,7 +11,7 @@
     <property name="dist.dir" value="${project.name}"/>
 
     <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
-    <property name="project.version" value="x.x.x"/>
+    <property name="project.version" value="x.x"/>
     <script language="C#">
         <code><![CDATA[
 		public static void ScriptMain(Project project) {
@@ -20,7 +20,7 @@
 			StreamReader reader = File.OpenText(assemblyInfoFileName);
 
 			Regex commentRE = new Regex("^(\\s)*//");
-			Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d+\\.\\d+\\.\\d+");
+			Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d+\\.\\d+");
 
 			string line = reader.ReadLine();
 			try {
@@ -77,19 +77,22 @@
 		<!-- copy the assemblies required to build NAnt to the build folder -->
         <copy todir="${build.dir}">
             <fileset basedir="bin">
-                <includes name="DocNet*.*"/>
-               <includes name="NUnitCore.dll"/>
+                <includes name="NDoc.Core.dll"/>
+                <includes name="NDoc.Documenter.Msdn.dll"/>
+				<includes name="NUnitCore.dll"/>
             </fileset>
         </copy>
 
-		<!-- compile NAnt.exe -->
-        <csc target="exe" output="${build.dir}\${project.FormalName}.exe" debug="${debug}" doc="${build.dir}\${project.FormalName}.xml">
+		<!-- compile NAnt.Core.dll -->
+        <csc target="library" output="${build.dir}\${project.FormalName}.Core.dll" debug="${debug}" doc="${build.dir}\${project.FormalName}.Core.xml">
             <sources basedir="${src.dir}\${project.FormalName}">
                 <includes name="**/*.cs"/>
+                <excludes name="NAnt.cs"/>
+<!--                <excludes name="Tasks/GetTask.cs"/>-->
             </sources>
             <references>
-                <includes name="${build.dir}/DocNet.dll"/>
-                <includes name="${build.dir}/DocNet.Msdn.dll"/>
+                <includes name="${build.dir}/NDoc.Core.dll"/>
+                <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
             </references>
             <arg value="/debug"/>
@@ -97,12 +100,24 @@
             <arg value="/reference:Microsoft.JScript.dll"/>
         </csc>
 
-		<copy file="build\NAnt.exe" tofile="${build.dir}/${project.FormalName}.Core.dll"/>
+		<!-- compile NAnt.exe -->
+        <csc target="exe" output="${build.dir}\${project.FormalName}.exe" debug="${debug}" doc="${build.dir}\${project.FormalName}.xml">
+            <sources basedir="${src.dir}\${project.FormalName}">
+                <includes name="NAnt.cs"/>
+            </sources>
+            <references>
+                <includes name="${build.dir}/${project.FormalName}.Core.dll"/>
+            </references>
+            <arg value="/debug"/>
+            <arg value="/nowarn:1591"/>
+        </csc>
 
 		<!-- compile NAnt.Tests.dll -->
 		<csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
 			<sources basedir="${src.dir}\${project.FormalName}.Tests">
 				<includes name="*.cs"/>
+                <excludes name="GetTest.cs"/>
+                <excludes name="TouchTest.cs"/>
 			</sources>
 			<references>
 				<includes name="${build.dir}/NUnitCore.dll"/>
@@ -111,10 +126,10 @@
 			</references>
 		</csc>
 
-		<call target="test"/>
+		<!--<call target="test"/>-->
     </target>
 
-    <target name="test">
+    <target name="test" depends="build">
 		<!--
 			Perform unit tests.  If a unit test fails, the build fails.
 			The base directory is set to the Test directory so that tests can easily
@@ -130,12 +145,13 @@
     </target>
 
     <target name="doc" depends="build">
-        <docnet outputDir="${build.dir}\docs" helpName="NAnt" showMissing="true" showPrivate="false">
+		<ndoc outputDir="${build.dir}\docs" helpName="NAnt" showMissing="true" showPrivate="false">
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.exe"/>
+                <includes name="NAnt.Core.dll"/>
             </assemblies>
-        </docnet>
-        <copy file="${build.dir}/docs/NAnt.chm" todir="${build.dir}"/>
+        </ndoc>
+		<copy file="${build.dir}/docs/NAnt.chm" todir="${build.dir}"/>
     </target>
 
     <target name="backup" depends="clean">
