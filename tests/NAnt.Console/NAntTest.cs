@@ -385,6 +385,7 @@ namespace Tests.NAnt.Console {
                 }
             } finally {
                 instanceFileStream.Close();
+                File.Delete(streamFileName);
             }
         }
     }
