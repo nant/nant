@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,13 +16,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
-using System.Collections;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
@@ -137,82 +133,5 @@ namespace Tests.NAnt.Core {
         }
 
         #endregion Private Instance Methods
-
-        private class TestBuildListener : IBuildListener {
-            #region Public Instance Constructors
-        
-            public TestBuildListener() {
-                _executedTargets = new Hashtable();
-                _executedTasks = new Hashtable();
-            }
-
-            #endregion Public Instance Constructors
-
-            #region Implementation of IBuildListener
-
-            public void BuildStarted(object sender, BuildEventArgs e) {
-            }
-
-            public void BuildFinished(object sender, BuildEventArgs e) {
-            }
-
-            public void TargetStarted(object sender, BuildEventArgs e) {
-                if (e.Target != null) {
-                    if (_executedTargets.ContainsKey(e.Target.Name)) {
-                        _executedTargets[e.Target.Name] = ((int) _executedTargets[e.Target.Name]) + 1;
-                    } else {
-                        _executedTargets.Add(e.Target.Name, 1);
-                    }
-                }
-            }
-
-            public void TargetFinished(object sender, BuildEventArgs e) {
-            }
-
-            public void MessageLogged(object sender, BuildEventArgs e) {
-            }
-
-            public void TaskStarted(object sender, BuildEventArgs e) {
-                if (e.Task != null) {
-                    if (_executedTasks.ContainsKey(e.Task.Name)) {
-                        _executedTasks[e.Task.Name] = ((int) _executedTasks[e.Task.Name]) + 1;
-                    } else {
-                        _executedTasks.Add(e.Task.Name, 1);
-                    }
-                }
-            }
-
-            public void TaskFinished(object sender, BuildEventArgs e) {
-            }
-
-            #endregion Implementation of IBuildListener
-
-            #region Public Instance Methods
-
-            public int GetTargetExecutionCount(string target) {
-                if (_executedTargets.ContainsKey(target)) {
-                    return (int) _executedTargets[target];
-                } else {
-                    return 0;
-                }
-            }
-
-            public int GetTaskExecutionCount(string task) {
-                if (_executedTasks.ContainsKey(task)) {
-                    return (int) _executedTasks[task];
-                } else {
-                    return 0;
-                }
-            }
-
-            #endregion Public Instance Methods
-
-            #region Private Instance Fields
-
-            private Hashtable _executedTargets;
-            private Hashtable _executedTasks;
-
-            #endregion Private Instance Fields
-        }
     }
 }
