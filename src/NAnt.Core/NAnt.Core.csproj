@@ -587,7 +587,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ScriptTask.cs"
+                    RelPath = "Tasks\ScriptTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
