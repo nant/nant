@@ -224,19 +224,7 @@ namespace NAnt.VSNet {
         #region Protected Static Methods
 
         protected static XmlDocument LoadXmlDocument(string fileName) {
-            XmlDocument doc = new XmlDocument();
-            if (!ProjectFactory.IsUrl(fileName)) {
-                doc.Load(fileName);
-            } else {
-                Uri uri = new Uri(fileName);
-                if (uri.Scheme == Uri.UriSchemeFile) {
-                    doc.Load(uri.LocalPath);
-                } else {
-                    doc.LoadXml(WebDavClient.GetFileContentsStatic(fileName));
-                }
-            }
-
-            return doc;
+        	return ProjectFactory.LoadProjectXml(fileName);
         }
 
         #endregion Protected Static Methods

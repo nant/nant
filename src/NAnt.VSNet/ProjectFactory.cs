@@ -18,6 +18,7 @@
 // Dmitry Jemerov <yole@yole.ru>
 
 using System;
+using System.Xml;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
@@ -58,7 +59,28 @@ namespace NAnt.VSNet {
         public static void ClearCache() {
             _cachedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _cachedProjectXml = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
+
+        public static XmlDocument LoadProjectXml(string path) {
+            if (!_cachedProjectXml.Contains(path)) {
+                XmlDocument doc = new XmlDocument();
+                if (!ProjectFactory.IsUrl(path)) {
+                    doc.Load(path);
+                } else {
+                    Uri uri = new Uri(path);
+                    if (uri.Scheme == Uri.UriSchemeFile) {
+                        doc.Load(uri.LocalPath);
+                    } else {
+                        doc.LoadXml(WebDavClient.GetFileContentsStatic(path));
+                    }
+                }
+                
+                _cachedProjectXml[path] = doc;
+            }
+            
+            return (XmlDocument) _cachedProjectXml[path];
+        }    
 
         public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
@@ -175,6 +197,16 @@ namespace NAnt.VSNet {
         /// of the project.
         /// </remarks>
         private static Hashtable _cachedProjectGuids;
+
+        /// <summary>
+        /// Holds a case-insensitive list of cached project GUIDs.
+        /// </summary>
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is the path of the project
+        /// file (for web projects this can be a URL) and the value is the Xml
+        /// of the project.
+        /// </remarks>
+        private static Hashtable _cachedProjectXml;
 
         #endregion Private Static Fields
     }
