@@ -74,7 +74,7 @@ namespace NAnt.NUnit2.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <nunit2>
-    ///     <formatter type="Xml" usefile="true" extension=".xml" />
+    ///     <formatter type="Xml" usefile="true" extension=".xml" outputdir="${build.dir}/results" />
     ///     <test>
     ///         <assemblies>
     ///             <includesList name="tests.txt" />
@@ -174,6 +174,9 @@ namespace NAnt.NUnit2.Tasks {
                     // temp file for storing test results
                     string xmlResultFile = Path.GetTempFileName();
 
+                    // permanent file for storing test results
+                    string outputFile = null;
+
                     try {
                         XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
                         result.Accept(resultVisitor);
@@ -182,7 +185,19 @@ namespace NAnt.NUnit2.Tasks {
                         foreach (FormatterElement formatter in _formatterElements) {
                             if (formatter.Type == FormatterType.Xml) {
                                 if (formatter.UseFile) {
-                                    File.Copy(xmlResultFile, result.Name + "-results" + formatter.Extension, true);
+                                    // determine file name for output file
+                                    outputFile = result.Name + "-results" + formatter.Extension;
+                                    
+                                    if (formatter.OutputDirectory != null) {
+                                        // make sure output directory exists
+                                        Directory.CreateDirectory(formatter.OutputDirectory);
+
+                                        // combine output directory and result filename
+                                        outputFile = Path.Combine(formatter.OutputDirectory, Path.GetFileName(outputFile));
+                                    }
+
+                                    // copy the temp result file to permanent location
+                                    File.Copy(xmlResultFile, outputFile, true);
                                 } else {
                                     using (StreamReader reader = new StreamReader(xmlResultFile)) {
                                         // strip off the xml header
@@ -197,7 +212,18 @@ namespace NAnt.NUnit2.Tasks {
                             }  else if (formatter.Type == FormatterType.Plain) {
                                 TextWriter writer;
                                 if (formatter.UseFile) {
-                                    writer = new StreamWriter(result.Name + "-results" + formatter.Extension);
+                                    // determine file name for output file
+                                    outputFile = result.Name + "-results" + formatter.Extension;
+
+                                    if (formatter.OutputDirectory != null) {
+                                        // make sure output directory exists
+                                        Directory.CreateDirectory(formatter.OutputDirectory);
+
+                                        // combine output directory and result filename
+                                        outputFile = Path.Combine(formatter.OutputDirectory, Path.GetFileName(outputFile));
+                                    }
+
+                                    writer = new StreamWriter(outputFile);
                                 } else {
                                     writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
                                 }
@@ -364,7 +390,7 @@ namespace NAnt.NUnit2.Tasks {
 
             #region Private Instance Fields
 
-            private Task _task = null;
+            private Task _task;
             private bool _needPrefix = true;
             private string _logPrefix;
             private string _message = "";
