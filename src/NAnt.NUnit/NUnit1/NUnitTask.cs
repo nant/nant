@@ -46,16 +46,22 @@ namespace NAnt.NUnit1.Tasks {
     ///   </para>
     /// </remarks>
     /// <example>
-    ///   <para>Run tests in the <c>MyProject.Tests.dll</c> assembly.</para>
-    ///   <para>The test results are logged in <c>results.xml</c> and <c>results.txt</c> using the <c>Xml</c> and <c>Plain</c> formatters, respectively.</para>
+    ///   <para>
+    ///   Run tests in the <c>MyProject.Tests.dll</c> assembly.
+    ///   </para>
+    ///   <para>
+    ///   The test results are logged in <c>results.xml</c> and <c>results.txt</c> 
+    ///   using the <see cref="FormatterType.Xml" /> and <see cref="FormatterType.Plain" /> 
+    ///   formatters, respectively.
+    ///   </para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <nunit basedir="build" verbose="false" haltonerror="true" haltonfailure="true">
-    ///     <formatter type="Xml"/>
-    ///     <formatter type="Plain"/>
+    ///     <formatter type="Xml" />
+    ///     <formatter type="Plain" />
     ///     <test name="MyProject.Tests.AllTests" assembly="MyProject.Tests.dll" outfile="results"/>
     /// </nunit>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("nunit")]
