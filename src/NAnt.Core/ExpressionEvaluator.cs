@@ -27,7 +27,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core {
-    [FunctionSet("nant", "NAnt")]
+    [FunctionSet("property", "NAnt")]
     public class ExpressionEvaluator : ExpressionEvalBase {
         #region Private Instance Fields
 
@@ -106,7 +106,7 @@ namespace NAnt.Core {
         /// <returns>
         /// The value of the specified property.
         /// </returns>
-        [Function("get-property-value")]
+        [Function("get-value")]
         public string GetPropertyValue(string propertyName) {
             if (_propDict.IsDynamicProperty(propertyName)) {
                 string currentState = (string)_state[propertyName];
