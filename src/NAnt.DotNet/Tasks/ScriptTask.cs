@@ -20,20 +20,17 @@
 // Ian MacLean ( ian at maclean.ms )
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Xml;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
-
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -99,7 +96,7 @@ namespace NAnt.DotNet.Tasks {
     ///               &lt;![CDATA[
     ///                 [Function("test-func")]
     ///                 public static string Testfunc(  ) {
-    ///                         return "some result !!!!!!!!";
+    ///                     return "some result !!!!!!!!";
     ///                 }
     ///               ]]&gt;
     ///             &lt;/code&gt;
@@ -119,6 +116,60 @@ namespace NAnt.DotNet.Tasks {
     ///               ]]&gt;
     ///             &lt;/code&gt;
     ///         &lt;/script&gt;
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>Define a custom task and call it using C#.</para>
+    ///   <code>
+    ///         &lt;script language=&quot;C#&quot; prefix=&quot;test&quot; &gt;
+    ///             &lt;code&gt;
+    ///               &lt;![CDATA[
+    ///                 [TaskName("usertask")]
+    ///                 public class TestTask : Task {
+    ///                   #region Private Instance Fields
+    ///
+    ///                   private string _message;
+    ///
+    ///                   #endregion Private Instance Fields
+    ///
+    ///                   #region Public Instance Properties
+    ///
+    ///                   [TaskAttribute("message", Required=true)]
+    ///                   public string FileName {
+    ///                       get { return _message; }
+    ///                       set { _message = value; }
+    ///                   }
+    ///
+    ///                   #endregion Public Instance Properties
+    ///
+    ///                   #region Override implementation of Task
+    ///
+    ///                   protected override void ExecuteTask() {
+    ///                       Log(Level.Info, _message.ToUpper());
+    ///                   }
+    ///                   #endregion Override implementation of Task
+    ///                 }
+    ///               ]]&gt;
+    ///             &lt;/code&gt;
+    ///         &lt;/script&gt;
+    ///         &lt;usertask message='Hello from UserTask'/&gt;
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>Define a custom task and call it using Boo (http://boo.codehaus.org/).</para>
+    ///   <code>
+    ///         &lt;script language=&quot;Boo.CodeDom.BooCodeProvider, Boo.CodeDom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67&quot;
+    ///             failonerror=&quot;true&quot;&gt;
+    ///             &lt;code&gt;
+    ///               &lt;![CDATA[
+    ///                
+    ///                 [Function(&quot;test-func&quot;)]
+    ///                 def MyFunc():
+    ///                     return &quot;Hello from Boo !!!!!!&quot;
+    ///               ]]&gt;
+    ///             &lt;/code&gt;
+    ///         &lt;/script&gt;
+    ///         &lt;echo message='${script::test-func()}'/&gt;
     ///   </code>
     /// </example>
     [TaskName("script")]
@@ -267,7 +318,7 @@ namespace NAnt.DotNet.Tasks {
                         ex);
                 }
             }
-
+            
             StringCollection imports = new StringCollection();
 
             foreach (NamespaceImport import in Imports) {
@@ -277,12 +328,17 @@ namespace NAnt.DotNet.Tasks {
             }
 
             // generate the code
-            string code = compilerInfo.GenerateCode(_rootClassName, 
+            CodeCompileUnit compileUnit = compilerInfo.GenerateCode(_rootClassName, 
                 Code.Xml.InnerText, imports, Prefix);
-
+            
+            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
+            
+            compilerInfo.CodeGen.GenerateCodeFromCompileUnit(compileUnit, sw, null);
+            string code = sw.ToString();
+            
             Log(Level.Debug, "Generated code for the script looks like :\n{0}", code);
 
-            CompilerResults results = compiler.CompileAssemblyFromSource(options, code);
+            CompilerResults results = compiler.CompileAssemblyFromDom(options, compileUnit);
 
             Assembly compiled = null;
             if (results.Errors.Count > 0) {
@@ -290,6 +346,7 @@ namespace NAnt.DotNet.Tasks {
                 foreach (CompilerError err in results.Errors) {
                     errors += err.ToString() + Environment.NewLine;
                 }
+                errors += code;
                 throw new BuildException(errors, Location);
             } else {
                 compiled = results.CompiledAssembly;
@@ -447,31 +504,21 @@ namespace NAnt.DotNet.Tasks {
         internal class CompilerInfo {
             private LanguageId _lang;
             public readonly ICodeCompiler Compiler;
-            private readonly ICodeGenerator CodeGen;
-            private readonly string CodePrologue;
+            public readonly ICodeGenerator CodeGen;
 
             public CompilerInfo(LanguageId languageId, CodeDomProvider provider) {
                 _lang = languageId;
 
                 Compiler = provider.CreateCompiler();
                 CodeGen = provider.CreateGenerator();
-                // Generate default imports section.
-                CodePrologue = "";
-                CodePrologue += GenerateImportCode(ScriptTask._defaultNamespaces);
             }
 
-            private string GenerateImportCode(IList namespaces) {
-                CodeNamespace nspace = new CodeNamespace();
-                foreach (string nameSpace in namespaces) {
-                    nspace.Imports.Add(new CodeNamespaceImport(nameSpace));
-                }
 
-                StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
-                CodeGen.GenerateCodeFromNamespace(nspace, sw, null);
-                return sw.ToString();
-            }
-
-            public string GenerateCode(string typeName, string codeBody, StringCollection imports, string prefix) {
+            public CodeCompileUnit GenerateCode(string typeName, string codeBody,
+                                       StringCollection imports,
+                                       string prefix) {
+                CodeCompileUnit compileUnit = new CodeCompileUnit();
+                
                 CodeTypeDeclaration typeDecl = new CodeTypeDeclaration(typeName);
                 typeDecl.IsClass = true;
                 typeDecl.TypeAttributes = TypeAttributes.Public;
@@ -486,7 +533,7 @@ namespace NAnt.DotNet.Tasks {
                 constructMember.BaseConstructorArgs.Add(new CodeVariableReferenceExpression ("propDict"));
                 typeDecl.Members.Add(constructMember);
                 
-                typeDecl.BaseTypes.Add(typeof(NAnt.Core.FunctionSetBase));
+                typeDecl.BaseTypes.Add(typeof(FunctionSetBase));
                 
                 // add FunctionSet attribute
                 CodeAttributeDeclaration attrDecl = new CodeAttributeDeclaration("FunctionSet");
@@ -494,28 +541,28 @@ namespace NAnt.DotNet.Tasks {
                     new CodeVariableReferenceExpression("\"" + prefix + "\"")));
                 attrDecl.Arguments.Add(new CodeAttributeArgument(
                     new CodeVariableReferenceExpression("\"" + prefix + "\"")));
-             
+                
                 typeDecl.CustomAttributes.Add(attrDecl);
                 
-                // perform some manipulation at the string level.
-                StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
-                CodeGen.GenerateCodeFromType(typeDecl, sw, null);
-                string decl = sw.ToString();
-                string extraImports = "";
-                if ( imports != null && imports.Count > 0) {
-                    extraImports = GenerateImportCode(imports);
-                }
-                string result = "";
-                string declEnd = "}";
-             
-                if (_lang == LanguageId.VisualBasic) {
-                    declEnd = "End";
-                }
-                int i = decl.LastIndexOf(declEnd);
-                result =  CodePrologue + extraImports + decl.Substring(0, i-1) 
-                    + codeBody + Environment.NewLine + decl.Substring(i);
+                // pump in the user specified code as a snippet
+                CodeSnippetTypeMember literalMember = 
+                    new CodeSnippetTypeMember(codeBody);
+                typeDecl.Members.Add( literalMember );
                 
-                return result;
+                CodeNamespace nspace = new CodeNamespace();
+
+                //Add default imports
+                foreach (string nameSpace in ScriptTask._defaultNamespaces) {
+                    nspace.Imports.Add(new CodeNamespaceImport(nameSpace));
+                }
+                foreach (string nameSpace in imports) {
+                    nspace.Imports.Add(new CodeNamespaceImport(nameSpace));
+                }
+                compileUnit.Namespaces.Add( nspace );
+                nspace.Types.Add(typeDecl);
+    
+                
+                return compileUnit;
             }
         }
     }
