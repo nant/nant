@@ -129,7 +129,7 @@ namespace SourceForge.NAnt.Tasks {
                 Sources.BaseDirectory = BaseDirectory;
             }
 
-            Log.WriteLine(LogPrefix + "Combining {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
+            Log(Level.Info, LogPrefix + "Combining {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
 
             // Create temp response file to hold compiler options
             _responseFileName = Path.GetTempFileName();

@@ -20,6 +20,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Globalization;
 using System.Runtime.Remoting;
 
 using SourceForge.NAnt.Attributes;
@@ -175,7 +176,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
                 null, null, null
                 );
             RemoteNUnitTestRunner runner = (RemoteNUnitTestRunner)(oh.Unwrap());
-            Log.WriteLine(LogPrefix + "Running {0} ", test.Class);
+            Log(Level.Info, LogPrefix + "Running {0}.", test.Class);
 
             runner.Run(LogPrefix, Verbose);
             return runner.ResultCode;
@@ -186,10 +187,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
                 NUnitTestRunner runner = new NUnitTestRunner(test);
 
                 if (runner.NeedsRunning()) {
-                    Log.WriteLine(LogPrefix + "Running {0}", test.Class);
+                    Log(Level.Info, LogPrefix + "Running {0}.", test.Class);
                     runner.Run(LogPrefix, Verbose);
                 } else {
-                    Log.WriteLine(LogPrefix + "Skipping {0} because tests haven't changed.", test.Class);
+                    Log(Level.Info, LogPrefix + "Skipping {0} because tests haven't changed.", test.Class);
                 }
                 return runner.ResultCode;
 
