@@ -22,9 +22,9 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-using NAnt.Zip.Tasks;
+using NAnt.Compression.Tasks;
 
-namespace NAnt.Zip.Types {
+namespace NAnt.Compression.Types {
     /// <summary>
     /// A <see cref="ZipFileSet" /> is a <see cref="FileSet" /> with extra 
     /// attributes useful in the context of the <see cref="ZipTask" />.

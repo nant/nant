@@ -26,7 +26,7 @@ using NUnit.Framework;
 
 using Tests.NAnt.Core;
 
-namespace Tests.NAnt.Zip.Tasks {
+namespace Tests.NAnt.Compression.Tasks {
     [TestFixture]
     public class ZipTaskTest : BuildTestBase {
         /// <summary>

@@ -32,9 +32,9 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-using NAnt.Zip.Types;
+using NAnt.Compression.Types;
 
-namespace NAnt.Zip.Tasks {
+namespace NAnt.Compression.Tasks {
     /// <summary>
     /// Creates a tar file from the specified filesets.
     /// </summary>

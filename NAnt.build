@@ -48,14 +48,14 @@
     
     <fileset id="tas.core" basedir="src">
         <include name="NAnt.DotNet/NAnt.DotNet.build" />
-        <include name="NAnt.Zip/NAnt.Zip.build" />
+        <include name="NAnt.Compression/NAnt.Compression.build" />
         <include name="NAnt.NUnit/NAnt.NUnit.build" />
         <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
     </fileset>
     
     <fileset id="tas.core.tests" basedir="tests">
         <include name="NAnt.DotNet/NAnt.DotNet.build" />
-        <include name="NAnt.Zip/NAnt.Zip.build" />
+        <include name="NAnt.Compression/NAnt.Compression.build" />
         <!--
         <include name="NAnt.NUnit/NAnt.NUnit.build" />
         <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
@@ -518,7 +518,7 @@
                 <include name="bin/NAnt.Core.dll" />
                 <include name="bin/NAnt.DotNetTasks.dll" />
                 <include name="bin/NAnt.Win32Tasks.dll" />
-                <include name="bin/NAnt.ZipTasks.dll" />
+                <include name="bin/NAnt.CompressionTasks.dll" />
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
                 <include name="doc/**/*" />
@@ -545,7 +545,7 @@
                 <include name="bin/NAnt.Core.dll" />
                 <include name="bin/NAnt.DotNetTasks.dll" />
                 <include name="bin/NAnt.Win32Tasks.dll" />
-                <include name="bin/NAnt.ZipTasks.dll" />
+                <include name="bin/NAnt.CompressionTasks.dll" />
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
                 <include name="doc/**/*" />

@@ -27,7 +27,7 @@ using NUnit.Framework;
 using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
-namespace Tests.NAnt.Zip.Tasks {
+namespace Tests.NAnt.Compression.Tasks {
     [TestFixture]
     public class UnZipTaskTest : BuildTestBase {
         const string _projectXML = @"<?xml version='1.0'?>

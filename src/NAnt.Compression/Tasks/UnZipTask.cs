@@ -27,7 +27,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
-namespace NAnt.Zip.Tasks {
+namespace NAnt.Compression.Tasks {
     /// <summary>
     /// Extracts files from a zip file.
     /// </summary>

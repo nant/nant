@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 
-namespace NAnt.Zip.Types {
+namespace NAnt.Compression.Types {
     /// <summary>
     /// Contains a collection of <see cref="ZipFileSet" /> elements.
     /// </summary>
