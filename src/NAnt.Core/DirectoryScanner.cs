@@ -113,6 +113,7 @@ namespace SourceForge.NAnt {
         // directories that should be scanned and directories scanned so far
         StringCollection _searchDirectories = null;
         StringCollection _pathsAlreadySearched = null;
+        ArrayList	 _searchDirIsRecursive = null;
 
         public StringCollection Includes {
             get { return _includes; }
