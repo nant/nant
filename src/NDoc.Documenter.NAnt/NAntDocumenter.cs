@@ -15,7 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+// File Maintainers:
 // Ian MacLean (ian@maclean.ms)
+// Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
 using System.IO;
@@ -36,16 +38,10 @@ namespace Sourceforge.NAnt.Documenter {
         XmlDocument _xmlDocumentation;
         string _resourceDirectory;
 
-        public readonly string IndexFileName = "index.html";
-
         public NAntTaskDocumenter() : base("NAntTask") {
             Clear();
         }
 
-        //------------------------------------------------------------------
-        // Private helper members
-        //------------------------------------------------------------------
-        
         private void MakeTransforms() {
             OnDocBuildingProgress(0);
 
@@ -69,126 +65,81 @@ namespace Sourceforge.NAnt.Documenter {
             }
         }
 
-        //------------------------------------------------------------------
         // IDocumenter Implementation
-        //------------------------------------------------------------------
+        public override string MainOutputFile { 
+            get { return ""; } 
+        }
 
         /// <summary>See IDocumenter.</summary>
-        public override void View() {}
-
-        /// <summary>See IDocumenter.</summary>
-
+        /// 
         public override void Clear() {
             Config = new NAntTaskDocumenterConfig();
         }
 
+        public string OutputDirectory { 
+            get {
+                return ((NAntTaskDocumenterConfig) Config).OutputDirectory;
+            } 
+        }
+
         /// <summary>See IDocumenter.</summary>
         public override void Build(Project project) {
-
             OnDocBuildingStep(0, "Initializing...");
-            // Define this when you want to edit the stylesheets
-            // without having to shutdown the application to rebuild.
-            #if NO_RESOURCES
 
-            string mainModuleDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            //_resourceDirectory = Path.GetFullPath(Path.Combine(mainModuleDirectory, @"..\..\..\Documenter\NAntTask\"));
-            #else
+            _resourceDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NDoc\\NAntTasks\\";
 
-            _resourceDirectory = Environment.GetFolderPath(
-                Environment.SpecialFolder.ApplicationData) +
-                "\\NDoc\\NAntTasks\\";
+            System.Reflection.Assembly assembly = this.GetType().Module.Assembly;
+            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.css", _resourceDirectory + "css\\");
+            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.xslt", _resourceDirectory + "xslt\\");
+            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.html", _resourceDirectory + "html\\");
 
-            EmbeddedResources.WriteEmbeddedResources(
-                this.GetType().Module.Assembly,
-                "Documenter.css",
-                _resourceDirectory + "css\\");
-
-            EmbeddedResources.WriteEmbeddedResources(
-                this.GetType().Module.Assembly,
-                "Documenter.xslt",
-                _resourceDirectory + "xslt\\");
-
-            EmbeddedResources.WriteEmbeddedResources(
-                this.GetType().Module.Assembly,
-                "Documenter.html",
-                _resourceDirectory + "html\\");
-            #endif
-
-            // Create the html output directory if it doesn't exist.
-            if (!Directory.Exists(MyConfig.OutputDirectory)) {
-                Directory.CreateDirectory(MyConfig.OutputDirectory);
+            // create the html output directory if it doesn't exist.
+            if (!Directory.Exists(OutputDirectory)) {
+                Directory.CreateDirectory(OutputDirectory);
             }
-
-            // Copy our cascading style sheet to the html output directory
-            /*
-            File.Copy(
-            _resourceDirectory + @"css\NAntDoc.css",
-            MyConfig.OutputDirectory + "\\NAntDoc.css",
-            true);
-            File.Copy(
-            _resourceDirectory + @"html\index.html",
-            MyConfig.OutputDirectory + "\\index.html",
-            true);
-            File.Copy(
-            _resourceDirectory + @"html\NAntTaskRef.html",
-            MyConfig.OutputDirectory + "\\NAntTaskRef.html",
-            true);
-            */
 
             OnDocBuildingStep(10, "Merging XML documentation...");
 
+            // crate the master xml document that contains all the documentation
             MakeXml(project);
 
-            // Load the xslt
+            // load the stylesheets that will convert the master xml into html pages
             MakeTransforms();
 
-            // Now the individual tasks
-            // Load the XML documentation into a DOM.
+            // create a xml document that will get transformed by xslt
             _xmlDocumentation = new XmlDocument();
-            _xmlDocumentation.LoadXml(Document.OuterXml);
+            _xmlDocumentation.LoadXml(Document.OuterXml); 
 
-            // Generate the Index ..
-            XsltArgumentList arguments = new XsltArgumentList();
+            // transform nant task index page transform (requires no arguments)
+            TransformAndWriteResult(_xsltTaskIndex, "index.html");
 
-            TransformAndWriteResult(_xsltTaskIndex, arguments, IndexFileName);
-
+            // generate a page for each marked task
             XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'SourceForge.NAnt.Attributes.TaskNameAttribute']");
             foreach (XmlNode node in taskAttrNodes) {
+                // create arguments for nant task page transform
+                XsltArgumentList arguments = new XsltArgumentList();
+                string classID = node.ParentNode.Attributes["id"].Value;
+                arguments.AddParam("class-id", String.Empty, classID);
 
-                XmlNode taskNode = node.ParentNode ;
+                // generate filename for page
                 XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
-                // Get the string
-                string classID = taskNode.Attributes["id"].Value;
-                string className = taskNode.Attributes["name"].Value;
-                XsltArgumentList docArguments = new XsltArgumentList();
-                docArguments.AddParam("class-id", String.Empty, classID);
-                
-                string taskFileName = propNode.Attributes["value"].Value.ToLower() + "Task.html";;    
-                TransformAndWriteResult(_xsltTaskDoc, docArguments, taskFileName);
+                string filename = propNode.Attributes["value"].Value.ToLower() + "Task.html";;    
+
+                // create the page
+                TransformAndWriteResult(_xsltTaskDoc, arguments, filename);
             }
+        }
+
+        private void TransformAndWriteResult(XslTransform transform, string filename) {
+            XsltArgumentList arguments = new XsltArgumentList();
+            TransformAndWriteResult(transform, arguments, filename);
         }
 
         private void TransformAndWriteResult(XslTransform transform, XsltArgumentList arguments, string filename) {
-            StreamWriter streamWriter = null;
-            try {
-                streamWriter = new StreamWriter(
-                    File.Open(Path.Combine(MyConfig.OutputDirectory, filename), FileMode.Create),
-                    new ASCIIEncoding());
-                    //new UTF8Encoding(true));
-                transform.Transform(_xmlDocumentation, arguments, streamWriter);
-            } finally {
-                if (streamWriter != null) {
-                    streamWriter.Close();
-                }
+            string path = Path.Combine(OutputDirectory, filename);
+            using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII)) {
+                transform.Transform(_xmlDocumentation, arguments, writer);
             }
         }
-
-        private NAntTaskDocumenterConfig MyConfig {
-            get {
-                return (NAntTaskDocumenterConfig) Config;
-            }
-        }
-
-        public override string MainOutputFile { get {return "";} }
     }
 }

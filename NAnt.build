@@ -160,19 +160,6 @@
             <documenters>
                 <documenter name="NAntTask">
                     <property name="OutputDirectory" value="${build.dir}/doc/help/tasks" />                                                      
-                    <property name="ShowMissingSummaries" value="${build.debug}" />
-                    <property name="ShowMissingRemarks" value="False" />
-                    <property name="ShowMissingParams" value="False" />
-                    <property name="ShowMissingReturns" value="False" />
-                    <property name="ShowMissingValues" value="False" />
-                    <property name="DocumentInternals" value="False" />
-                    <property name="DocumentProtected" value="True" />
-                    <property name="DocumentPrivates" value="False" />
-                    <property name="DocumentEmptyNamespaces" value="True" />
-                    <property name="IncludeAssemblyVersion" value="False" />
-                    <property name="SkipNamespacesWithoutSummaries" value="False" />
-                    <property name="CopyrightText" value="Copyright (C) 2001-2002 Gerry Shaw" />
-                    <property name="CopyrightHref" value="http://nant.sourceforge.net" />
                 </documenter>
             </documenters>
         </ndoc>

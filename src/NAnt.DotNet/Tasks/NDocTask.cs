@@ -96,27 +96,26 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>The set of assemblies to document.</summary>
         [FileSet("assemblies")]
-        public FileSet Assemblies      { get { return _assemblies; } }
+        public FileSet Assemblies { 
+            get { return _assemblies; } 
+        }
 
         /// <summary>The set of namespace summary files.</summary>
         [FileSet("summaries")]
-        public FileSet Summaries       { get { return _summaries; } }
+        public FileSet Summaries { 
+            get { return _summaries; } 
+        }
 
-        /// <summary>
-        /// Updates the progress bar representing a building step.
-        /// </summary>
+        /// <summary>Updates the progress bar representing a building step.</summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public void OnDocBuildingStep(object sender, ProgressArgs e) {
             Log.WriteLine(LogPrefix + e.Status);
         }
 
-        /// <summary>
-        /// Initialize taks and verify parameters.
-        /// </summary>
+        /// <summary>Initialize taks and verify parameters.</summary>
         /// <param name="taskNode">Node that contains the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
-
             // Expand and store the xml node
             _docNodes = taskNode.Clone().SelectNodes("documenters/documenter");
             ExpandPropertiesInNodes(_docNodes);
@@ -127,17 +126,6 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
-            // write documenter project settings to temp file
-            string projectFileName = Path.GetTempFileName(); //@"c:\work\nant\nant.xdp";
-            if (Verbose) {
-                Log.WriteLine(LogPrefix + "Writing project settings to '{0}'.", projectFileName);
-            }
-
-            FileStream file = File.OpenWrite(projectFileName);
-            StreamWriter writer = new StreamWriter(file);
-            writer.WriteLine("<project>");
-            writer.WriteLine("  <assemblies>");
-
             // Make sure there is at least one included assembly.  This can't
             // be done in the InitializeTask() method because the files might
             // not have been built at startup time.
@@ -146,12 +134,29 @@ namespace SourceForge.NAnt.Tasks {
                 throw new BuildException(msg, Location);
             }
 
+            // write documenter project settings to temp file
+            string projectFileName = Path.GetTempFileName(); //@"c:\work\nant\nant.xdp";
+            if (Verbose) {
+                Log.WriteLine(LogPrefix + "Writing project settings to '{0}'.", projectFileName);
+            }
+
+            XmlTextWriter writer = new XmlTextWriter(projectFileName, Encoding.ASCII);
+            writer.Formatting = Formatting.Indented;
+            writer.WriteStartDocument();
+            writer.WriteStartElement("project");
+
+            // write assemblies section
+            writer.WriteStartElement("assemblies");
             foreach (string assemblyPath in Assemblies.FileNames) {
                 string docPath = Path.ChangeExtension(assemblyPath, ".xml");
-                writer.WriteLine("    <assembly location='{0}' documentation='{1}' />", assemblyPath, docPath);
+                writer.WriteStartElement("assembly");
+                writer.WriteAttributeString("location", assemblyPath);
+                writer.WriteAttributeString("documentation", docPath);
+                writer.WriteEndElement();
             }
-            writer.WriteLine(@"  </assemblies>");
+            writer.WriteEndElement();
 
+            // write summaries section
             StringBuilder sb = new StringBuilder();
             foreach (string summaryPath in Summaries.FileNames) {
                 // write out the namespace summary nodes
@@ -164,35 +169,26 @@ namespace SourceForge.NAnt.Tasks {
                     throw new BuildException(msg, Location);
                 }
             }
-            writer.WriteLine(sb.ToString());
+            writer.WriteRaw(sb.ToString());
 
-            writer.WriteLine(@"  <documenters>");
-
-            // write out the documenter nodes
-            foreach( XmlNode node in _docNodes) {
-                writer.Write( node.OuterXml );
+            // write out the documenters section
+            writer.WriteStartElement("documenters");
+            foreach (XmlNode node in _docNodes) {
+                writer.WriteRaw(node.OuterXml);
             }
+            writer.WriteEndElement();
 
-            writer.WriteLine(@"  </documenters>");
-            writer.WriteLine(@"</project>");
+            writer.WriteEndElement();
             writer.Close();
-            file.Close();
 
-            if (Verbose) {
-                StreamReader reader = File.OpenText(projectFileName);
-                Log.Write(reader.ReadToEnd());
-                reader.Close();
-            }
+            Log.WriteLineIf(Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
 
             // create Project object
             NDoc.Core.Project project = null;
             try {
                 project = new NDoc.Core.Project();
-            }
-           
-            catch(Exception e) {
-                //Log.Write("NDoc Assembly is required");
-                throw new ApplicationException("NDocTask: Could not create NDoc Project Class!", e);
+            } catch (Exception e) {
+                throw new ApplicationException("Could not create NDoc Project.", e);
             }
             project.Read(projectFileName);
 

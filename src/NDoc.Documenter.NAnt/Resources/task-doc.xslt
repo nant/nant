@@ -47,7 +47,7 @@
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
             <meta name="description" content="Zip" />
             <link rel="stylesheet" type="text/css" href="../../style.css" />
-            <title><xsl:value-of select="attribute/property[@name='Name']/@value" /> Task</title>
+            <title>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task</title>
         </head>
 
         <body>
@@ -60,12 +60,12 @@
                 <img alt="->" src="../../arrow.gif" />
                 <a href="index.html">Task Reference</a>
                 <img alt="->" src="../../arrow.gif" /><xsl:text> </xsl:text>
-                <xsl:value-of select="attribute/property[@name='Name']/@value" />
+                &lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task
             </td>
             </tr>
         </table>
         
-        <h1><xsl:value-of select="attribute/property[@name='Name']/@value" /></h1>
+        <h1>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task</h1>
         <p><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></p>
         <!-- Remarks -->
         <xsl:apply-templates select="documentation/remarks/node()" mode="slashdoc"/>

@@ -192,11 +192,7 @@
      +-->
 
     <xsl:template match="c" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfc.htm">
-        <pre class="code">
-        <!-- <code class="ce"> -->
-            <xsl:apply-templates mode="slashdoc" />
-        <!-- </code> -->
-        </pre>
+        <tt class="c"><xsl:apply-templates mode="slashdoc" /></tt>
     </xsl:template>
 
     <xsl:template match="paramref[@name]" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfparamref.htm">
@@ -217,8 +213,7 @@
         <!-- If this is a task add the href-->
         <xsl:if test ="substring-before($cref, 'Task') != ''" >            
             <xsl:variable name ="taskName" select ="//class[@id=$cref]/attribute/property[@name='Name']/@value" />
-            <a> <xsl:attribute name ="href"> <xsl:value-of select ="$taskName"/>Task.html</xsl:attribute><xsl:value-of select="$taskName" />Task
-            </a>        
+            <a><xsl:attribute name ="href"><xsl:value-of select ="$taskName"/>Task.html</xsl:attribute><tt class="c">&lt;<xsl:value-of select="$taskName" />&gt;</tt></a><xsl:text> </xsl:text>task
         </xsl:if>
         <!-- Else just display the name -->
         <xsl:if test="substring-before($cref, 'Task') = ''">
