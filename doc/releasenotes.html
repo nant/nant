@@ -33,15 +33,16 @@
         <ul>
             <li>
                 Automatic quoting of arguments (built-in type) has been removed for non-file 
-                arguments (<code>&lt;arg value=&quot;...&quot;&gt;</code>. This breaks build 
+                arguments (<code>&lt;arg value=&quot;...&quot;&gt;</code>). This breaks build 
                 files that assume that argument values containing spaces will be quoted.
             </li>
         </ul>
         <h4>General&nbsp;changes</h4>
         <ul>
             <li>
-            Improved error reporting when invalid values are specified for attibutes 
-            representing files or directories. </il>
+                Improved error reporting when invalid values are specified for 
+                attibutes representing files or directories.
+            </li>
             <li>
                 Added support for .NET 2.0 Beta 1, both as a runtime framework and as a target 
                 framework. By default, NAnt will run on .NET 2.0 Beta 1 (if available).
@@ -96,6 +97,13 @@
             </li>
         </ul>
         <h4>New Tasks</h4>
+        <h5>&lt;cvs-changelog&gt;</h5>
+        <ul>
+            <li>
+                Produces an XML report that represents the cvs changes from the given start 
+                day, to a given end date.
+            </li>
+        </ul>
         <h5>&lt;cvs-export&gt;</h5>
         <ul>
             <li>
@@ -442,9 +450,8 @@
                 The <code>Task.LogPrefix</code> property has been deprecated. Messages that are 
                 written to build log by a given task, will now automatically get prefixed with 
                 the task name. This behaviour can be disabled by the new <code>-emacs</code> commandline 
-                option.</li>
-        </ul>
-        <ul>
+                option.
+            </li>
         </ul>
         <h3>0.84 (December 26, 2003)</h3>
         <h4>Task changes</h4>
