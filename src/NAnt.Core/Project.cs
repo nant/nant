@@ -1136,7 +1136,6 @@ namespace NAnt.Core {
                 string propertyValue = GetXmlAttributeValue(propertyNode, "value");
                 
                 if (propertyName == null) {
-                    Console.WriteLine(propertyNode.OuterXml);
                     throw new ArgumentException("A framework-neutral property should at least have a name.");
                 }
 
