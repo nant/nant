@@ -872,12 +872,7 @@ namespace NAnt.Core {
 
                 if (!notify) {
                     return;
-                }
-
-                string from = GetPropertyValue(properties, "from", null);
-                string toList = GetPropertyValue(properties, prefix + ".to", null);
-                string subject = GetPropertyValue(properties, prefix + ".subject",
-                    (success) ? "Build Success" : "Build Failure");
+                }            
 
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.From = GetPropertyValue(properties, "from", null);
