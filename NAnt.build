@@ -25,7 +25,7 @@
     <!-- These will be used in this order -->
     <property name="tas.core" value="NAnt.DotNet,NAnt.Zip,NAnt.NUnit,NAnt.SourceControl" />
     <property name="tas.core.tests" value="NAnt.DotNet,NAnt.Zip" /> <!-- exclude the nunit and sourcecontrol assemblies -->
-	
+    
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
@@ -93,7 +93,7 @@
 
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
-
+ 
         <!-- build NAnt.Console.Tests assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
 
@@ -133,12 +133,12 @@
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="test" />
 
         <!-- test task assemblies -->
-        <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
+         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" />
         </foreach>
 
         <!-- test win32 specific task assemblies -->
-        <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
+        <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>
