@@ -132,9 +132,8 @@ namespace NAnt.Zip.Tasks {
             } else {
                 zOutstream.SetMethod(ZipOutputStream.STORED);
             }
-          
-            string basePath = Project.GetFullPath(  Path.GetFullPath( ZipFileSet.BaseDirectory)  );
-            
+                      
+            string basePath = Path.GetDirectoryName( Project.GetFullPath(  Path.GetFullPath( ZipFileSet.BaseDirectory)  ) +  Path.DirectorySeparatorChar );
             //set comment
             if (_comment != null) {
                 zOutstream.SetComment(_comment);
