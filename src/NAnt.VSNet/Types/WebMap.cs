@@ -51,6 +51,7 @@ namespace NAnt.VSNet.Types {
         /// The URL of the project file.
         /// </value>
         [TaskAttribute("url", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Url {
             get { return _url; }
             set { _url = StringUtils.ConvertEmptyToNull(value); }
@@ -63,6 +64,7 @@ namespace NAnt.VSNet.Types {
         /// The actual path to the project file.
         /// </value>
         [TaskAttribute("path", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Path {
             get { return _path; } 
             set { _path = StringUtils.ConvertEmptyToNull(value); }

@@ -69,6 +69,7 @@ namespace NAnt.Zip.Tasks {
         /// The zip file to create.
         /// </summary>
         [TaskAttribute("zipfile", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string ZipFileName {
             get { return (_zipfile != null) ? Project.GetFullPath(_zipfile) : null; }
             set { _zipfile = StringUtils.ConvertEmptyToNull(value); }

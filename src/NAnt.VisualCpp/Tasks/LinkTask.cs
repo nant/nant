@@ -76,6 +76,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// The output file name.
         /// </summary>
         [TaskAttribute("output", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Output {
             get { return _output; }
             set { _output = value; }

@@ -56,7 +56,9 @@ namespace NAnt.NUnit1.Types {
             set { _outfile = value; }
         }
         
-        /// <summary>Directory to write the reports to.</summary>
+        /// <summary>
+        /// Directory to write the reports to.
+        /// </summary>
         [TaskAttribute("todir")]
         public string ToDir {
             get { return _todir; }
@@ -64,9 +66,10 @@ namespace NAnt.NUnit1.Types {
         }
 
         /// <summary>
-        /// Class Name of the test.
+        /// Class name of the test.
         /// </summary>
         [TaskAttribute("class", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Class {
             get { return _class; }
             set { _class = value; }
@@ -76,6 +79,7 @@ namespace NAnt.NUnit1.Types {
         /// Assembly to load the test from.
         /// </summary>
         [TaskAttribute("assembly", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Assembly {
             get { return Project.GetFullPath(_assembly); }
             set { _assembly = value; }

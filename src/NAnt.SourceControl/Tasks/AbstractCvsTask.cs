@@ -72,6 +72,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Cvsroot Variable.
         /// </summary>
         [TaskAttribute("cvsroot", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string CvsRoot {
             get { return this._cvsRoot; }
             set { _cvsRoot = StringUtils.ConvertEmptyToNull(value); }
@@ -82,6 +83,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <value>The module to perform an operation on.</value>
         [TaskAttribute("module", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Module {
             get { return _module; }
             set { _module = StringUtils.ConvertEmptyToNull(value); }
@@ -94,6 +96,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The destination directory for the checked out or updated files.
         /// </value>
         [TaskAttribute ("destination", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Destination {
             get { return (_destination != null) ? Project.GetFullPath(_destination) : null; }
             set { _destination = StringUtils.ConvertEmptyToNull(value); }

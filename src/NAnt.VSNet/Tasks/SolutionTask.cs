@@ -187,6 +187,7 @@ namespace NAnt.VSNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("configuration", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Configuration {
             get { return _configuration; }
             set { _configuration = StringUtils.ConvertEmptyToNull(value); }

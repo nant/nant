@@ -78,6 +78,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Directory where all output files are placed.
         /// </summary>
         [TaskAttribute("outputdir", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string OutputDir {
             get { return _outputdir; }
             set { _outputdir = value; }

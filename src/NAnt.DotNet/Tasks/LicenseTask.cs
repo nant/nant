@@ -75,6 +75,7 @@ namespace NAnt.DotNet.Tasks {
         /// Input file to process.
         /// </summary>
         [TaskAttribute("input", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Input {
             get { return _input; }
             set { _input = value; }
@@ -102,6 +103,7 @@ namespace NAnt.DotNet.Tasks {
         /// The output executable file for which the license will be generated.
         /// </summary>
         [TaskAttribute("licensetarget", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Target{
             get { return _strTarget; }
             set { _strTarget = value; }
