@@ -29,6 +29,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 using NAnt.VisualCpp.Util;
 
@@ -191,8 +192,8 @@ namespace NAnt.VisualCpp.Tasks {
             }
 
             if (NeedsLinking()) {
-                Log(Level.Info, "Linking {0} files to '{1}'.", 
-                    Sources.FileNames.Count, OutputFile.FullName);
+                Log(Level.Info, "Linking {0} files.", 
+                    Sources.FileNames.Count);
   
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
@@ -201,8 +202,8 @@ namespace NAnt.VisualCpp.Tasks {
   
                 try {
                     // specify the output file
-                    writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
-  
+					writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
+
                     // write user provided options
                     if (Options != null) {
                         writer.WriteLine(Options);
@@ -228,7 +229,7 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // write program database file
-                    if (ProgramDatabaseFile == null && Debug) {
+                    if (ProgramDatabaseFile == null && OutputFile != null && Debug) {
                         writer.WriteLine("/PDB:{0}", QuoteArgumentValue(
                             Path.ChangeExtension(OutputFile.FullName, ".pdb")));
                     } else if (ProgramDatabaseFile != null) {
@@ -275,18 +276,34 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         protected virtual bool NeedsLinking() {
             // return true as soon as we know we need to compile
+            if (ProgramDatabaseFile != null) {
+                if (!ProgramDatabaseFile.Exists) {
+                    Log(Level.Verbose, "PDB file '{0}' does not exist, relinking.", 
+                        ProgramDatabaseFile.FullName);
+                    return true;
+                }
 
-            if (!OutputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
-                    OutputFile.FullName);
-                return true;
+                // check if sources were updated
+                string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, ProgramDatabaseFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, relinking.", fileName);
+                    return true;
+                }
             }
 
-            // check if sources were updated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, "'{0}' is out of date, relinking.", fileName);
-                return true;
+            if (OutputFile != null) {
+                if (!OutputFile.Exists) {
+                    Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
+                        OutputFile.FullName);
+                    return true;
+                }
+
+                // check if sources were updated
+                string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, relinking.", fileName);
+                    return true;
+                }
             }
 
             return false;
