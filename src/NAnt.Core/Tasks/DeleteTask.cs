@@ -85,6 +85,7 @@ namespace NAnt.Core.Tasks {
         private FileInfo _file;
         private DirectoryInfo _dir;
         private FileSet _fileset = new FileSet();
+        private bool _includeEmptyDirs = true;
 
         #endregion Private Instance Fields
 
@@ -106,6 +107,17 @@ namespace NAnt.Core.Tasks {
         public DirectoryInfo Directory {
             get { return _dir; }
             set { _dir = value; }
+        }
+
+        /// <summary>
+        /// Remove any empty directories included in the <see cref="FileSet" />. 
+        /// The default is <see langword="true" />.
+        /// </summary>
+        [TaskAttribute("includeemptydirs")]
+        [BooleanValidator()]
+        public bool IncludeEmptyDirs {
+            get { return _includeEmptyDirs; }
+            set { _includeEmptyDirs = value; }
         }
 
         /// <summary>
@@ -156,25 +168,43 @@ namespace NAnt.Core.Tasks {
                         "Cannot delete directory '{0}'. The directory does not exist.", 
                         Directory.FullName), Location);
                 }
-                
-                Log(Level.Info, "Deleting directory '{0}'.", 
-                    Directory.FullName);
+                // log message here if we're not in verbose mode, otherwise the 
+                // RecursiveDeleteDirectory method will output verbose message 
+                // for each directory that is removed
+                if (!Verbose) {
+                    Log(Level.Info, "Deleting directory '{0}'.", Directory.FullName);
+                }
                 RecursiveDeleteDirectory(Directory.FullName);
             } else { // delete files or directories in fileset
-                if (DeleteFileSet.DirectoryNames.Count == 0) {
+                if (DeleteFileSet.FileNames.Count > 0) {
                     Log(Level.Info, "Deleting {0} files.", DeleteFileSet.FileNames.Count);
-                } else if (DeleteFileSet.FileNames.Count == 0) {
-                    Log(Level.Info, "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
-                } else {
-                    Log(Level.Info, "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
+                    foreach (string path in DeleteFileSet.FileNames) {
+                        DeleteFile(path, Verbose);
+                    }
                 }
 
-                foreach (string path in DeleteFileSet.FileNames) {
-                    DeleteFile(path, Verbose);
-                }
+                if (DeleteFileSet.DirectoryNames.Count > 0 && IncludeEmptyDirs) {
+                    int dirCount = 0;
+                    foreach (string path in DeleteFileSet.DirectoryNames) {
+                        string[] entries = System.IO.Directory.GetFileSystemEntries(path);
+                        if (entries == null || entries.Length == 0) {
+                            try {
+                                DeleteDirectory(path);
+                                dirCount++;
+                            } catch (Exception ex) {
+                                string msg = string.Format(CultureInfo.InvariantCulture, 
+                                    "Cannot delete directory '{0}'.", path);
+                                if (FailOnError) {
+                                    throw new BuildException(msg, Location, ex);
+                                }
+                                Log(Level.Warning, msg + " " + ex.Message);
+                            }
+                        }
+                    }
 
-                foreach (string path in DeleteFileSet.DirectoryNames) {
-                    RecursiveDeleteDirectory(path);
+                    if (dirCount > 0) {
+                        Log(Level.Info, "Deleted {0} directories.", dirCount);
+                    }
                 }
             }
         }
@@ -205,20 +235,14 @@ namespace NAnt.Core.Tasks {
                         System.IO.File.Delete(file);
                     } catch (Exception ex) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot delete file {0}.", file);
+                            "Cannot delete file '{0}'.", file);
                         if (FailOnError) {
                             throw new BuildException(msg, Location, ex);
                         }
                         Log(Level.Verbose, msg + " " + ex.Message);
                     }
                 }
-
-                // ensure path is not read-only
-                System.IO.File.SetAttributes(path, FileAttributes.Normal);
-                // write output to build log
-                Log(Level.Verbose, "Deleting directory '{0}'.", path);
-                // finally, delete the directory
-                System.IO.Directory.Delete(path);
+                DeleteDirectory(path);
             } catch (BuildException ex) {
                 throw ex;
             } catch (Exception ex) {
@@ -254,6 +278,15 @@ namespace NAnt.Core.Tasks {
                 }
                 Log(Level.Warning, msg + " " + ex.Message);
             }
+        }
+
+        private void DeleteDirectory(string path) {
+            // ensure path is not read-only
+            System.IO.File.SetAttributes(path, FileAttributes.Normal);
+            // write output to build log
+            Log(Level.Verbose, "Deleting directory '{0}'.", path);
+            // finally, delete the directory
+            System.IO.Directory.Delete(path);
         }
 
         #endregion Private Instance Methods
