@@ -586,6 +586,18 @@ namespace NAnt.Core.Functions {
         public static bool IsUnix() {
             return PlatformHelper.IsUnix;
         }
+        
+        /// <summary>
+        /// Checks whether NAnt is running on mono.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if NAnt is running on mono;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-mono")]
+        public static bool IsMono() {
+            return PlatformHelper.IsMono;
+        }
 
         #endregion Public Static Methods
     }
