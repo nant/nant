@@ -99,7 +99,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <returns>An instance of the checkout command.</returns>
         protected override ICommand CreateCommand () {
-            return new CheckoutModuleCommand(this.WorkingDirectory);
+            return new CheckoutModuleCommand(this.WorkingDirectory); 
         }
 
         #endregion Override implementation of AbstractCvsTask

@@ -125,7 +125,7 @@ namespace NAnt.SourceControl.Tasks {
                 "Reading all directory entries from working directory {0}.",
                 workingDirectory.WorkingDirectoryName));
 
-            Manager manager = new Manager();
+            Manager manager = new Manager(workingDirectory.WorkingPath);
             workingDirectory.FoldersToUpdate = manager.FetchFilesToUpdate(
                 Path.Combine(this.Destination, this.Module));
         }

@@ -86,6 +86,16 @@
                     AssemblyName = "ICSharpCode.SharpZipLib"
                     HintPath = "..\..\lib\ICSharpCode.SharpZipLib.dll"
                 />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.0.3705\System.Data.dll"
+                />
+                <Reference
+                    Name = "System.XML"
+                    AssemblyName = "System.XML"
+                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
+                />
             </References>
         </Build>
         <Files>
@@ -98,12 +108,13 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
-                <File   
-		    RelPath = "NAnt.SourceControl.build"                    
-		    BuildAction = "None"                
-		/>
+                <File
+                    RelPath = "NAnt.SourceControl.build"
+                    BuildAction = "None"
+                />
                 <File
                     RelPath = "Tasks\AbstractCvsTask.cs"
                     SubType = "Code"
@@ -111,6 +122,11 @@
                 />
                 <File
                     RelPath = "Tasks\CheckoutTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\RTagTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

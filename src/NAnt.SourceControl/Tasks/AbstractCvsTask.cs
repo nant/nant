@@ -26,6 +26,7 @@ using System.Text;
 using ICSharpCode.SharpCvsLib.Client;
 using ICSharpCode.SharpCvsLib.Commands;
 using ICSharpCode.SharpCvsLib.Misc;
+using ICSharpCode.SharpCvsLib.FileSystem;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -73,8 +74,55 @@ namespace NAnt.SourceControl.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Cvsroot Variable.
+        /// <para>
+        /// The cvs root variable has the following components.  The examples used is for the
+        ///     NAnt cvsroot.
+        ///     
+        ///     protocol:       ext
+        ///     username:       [username]
+        ///     servername:     cvs.sourceforge.net
+        ///     server path:    /cvsroot/nant
+        /// </para>
+        /// <para>
+        ///     Currently supported protocols include:
+        ///     <list type="table">
+        ///         <item>
+        ///             <term>ext</term>
+        ///             <description>Used for securely checking out sources from a cvs 
+        ///                 repository.  This checkout method uses a local ssh binary to
+        ///                 communicate with the repository.  If you would like to secure
+        ///                 password information then this method can be used along with 
+        ///                 public/private key pairs to authenticate against a remote server.
+        ///                 Please see: http://sourceforge.net/docman/display_doc.php?docid=761&amp;group_id=1
+        ///                 on how to do this for http://sourceforge.net.</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>ssh</term>
+        ///             <description>Similar to the ext method.</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>pserver</term>
+        ///             <description>The pserver authentication method is used to checkout 
+        ///                 sources without encryption.  Passwords are stored as plain text
+        ///                 and all files are transported unencrypted.</description>
+        ///         </item>
+        ///     </list>
+        /// </para>
         /// </summary>
+        /// <example>
+        /// <para>
+        ///     NAnt anonymous cvsroot:
+        ///     <code>
+        ///         :pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant
+        ///     </code>
+        /// </para>
+        /// <para>
+        ///     Sharpcvslib anonymous cvsroot:
+        ///     <code>
+        ///         :pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib
+        ///     </code>
+        /// </para>
+        /// </example>
         [TaskAttribute("cvsroot", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string CvsRoot {
@@ -86,6 +134,11 @@ namespace NAnt.SourceControl.Tasks {
         /// The module to perform an operation on.
         /// </summary>
         /// <value>The module to perform an operation on.</value>
+        /// <example>
+        /// <para>In Nant the module name would be:
+        ///     <code>nant</code>
+        /// </para>
+        /// </example>
         [TaskAttribute("module", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Module {
@@ -99,6 +152,10 @@ namespace NAnt.SourceControl.Tasks {
         /// <value>
         /// The destination directory for the checked out or updated files.
         /// </value>
+        /// <example>
+        /// <para>This is the current working directory that will be modifed.
+        /// </para>
+        /// </example>
         [TaskAttribute ("destination", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Destination {
@@ -133,11 +190,20 @@ namespace NAnt.SourceControl.Tasks {
         ///     </listheader>
         ///     <item>
         ///         <term>sticky-tag</term>
-        ///         <description>TO-DO</description>
+        ///         <description>A revision tag or branch tag that has been placed on the 
+        ///             repository using the 'rtag' or 'tag' commands.</description>
         ///     </item>
         ///     <item>
         ///         <term>override-directory</term>
-        ///         <description>TO-DO</description>
+        ///         <description>A directory to substitute for the module name as the top
+        ///             level directory name.  For instance specifying 'nant-cvs' for this
+        ///             value while checking out NAnt would checkout the source files into 
+        ///             a top level directory named 'nant-cvs' instead of nant.</description>
+        ///     </item>
+        ///     <item>
+        ///         <term>compression-level</term>
+        ///         <description>The compression level that files will be transported
+        ///             to and from the server at.  Valid numbers include 1 to 9.</description>
         ///     </item>
         /// </list>
         /// </remarks>
@@ -227,6 +293,15 @@ namespace NAnt.SourceControl.Tasks {
         /// The <see cref="ICommand" /> to execute against the CVS repository.
         /// </returns>
         protected abstract ICommand CreateCommand ();
+
+        /// <summary>
+        /// Populates the files and folders as well as sub-folders in the given path.
+        /// </summary>
+        /// <param name="path">The path to begin populating folders from.</param>
+        /// <returns></returns>
+        protected Folders GetFolders (String path) {
+            return new Folders();
+        }
 
         #endregion Protected Instance Methods
 
