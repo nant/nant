@@ -272,22 +272,10 @@ namespace NAnt.Core.Tasks {
                 // append any nested <arg> arguments to the command line
                 StringBuilder arguments = new StringBuilder(ProgramArguments);
 
-                foreach(Argument arg in Arguments) {
+                foreach (Argument arg in Arguments) {
                     if (arg.IfDefined && !arg.UnlessDefined) {
-                        if (arg.Value != null || arg.File != null) {
-                            string argValue = arg.File == null ? arg.Value : arg.File;
-                            arguments.Append(' ');
-                            //if the arg contains a space, but isn't quoted, quote it.
-                            if(argValue.IndexOf(" ") > 0 && !(argValue.StartsWith("\"") && argValue.EndsWith("\""))) {
-                                arguments.Append("\"");
-                                arguments.Append(argValue);
-                                arguments.Append("\"");
-                            } else {
-                                arguments.Append(argValue);
-                            }
-                        } else {
-                            Log(Level.Warning, "{0} skipped arg element without value and file attribute.", Location);
-                        }
+                        arguments.Append(' ');
+                        arguments.Append(arg.ToString());
                     }
                 }
                 return arguments.ToString();
