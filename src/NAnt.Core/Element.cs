@@ -1132,7 +1132,7 @@ namespace NAnt.Core {
                             // throw error wrong type definition
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 "Attempting to use a <{0}> reference where a <{1}> is required.", 
-                                elementTypeAttr.Name, dataTypeAttr.Name), Location);
+                                dataTypeAttr.Name, elementTypeAttr.Name), Location);
                         }
                     }
                     // re-initialize the object with current context
