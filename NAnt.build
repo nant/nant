@@ -408,25 +408,25 @@
         <property name="current.runtime.${current.runtime.config}-${current.runtime.version}" value="true" />
     </target>
     <target name="set-runtime-configuration">
-        <if test="${not(nant::property-exists('current.runtime.config'))}">
-            <if test="${not(nant::property-exists('nant.settings.currentframework'))}">
+        <if test="${not(property::exists('current.runtime.config'))}">
+            <if test="${not(property::exists('nant.settings.currentframework'))}">
                 <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
             </if>
-            <if test="${not(nant::target-exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
+            <if test="${not(target::exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
                 <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NAnt." />
             </if>
             <call target="set-${nant.settings.currentframework}-runtime-configuration" />
         </if>
-        <if test="${not(nant::property-exists('current.runtime.version'))}">
-            <if test="${not(nant::property-exists('nant.settings.currentframework'))}">
+        <if test="${not(property::exists('current.runtime.version'))}">
+            <if test="${not(property::exists('nant.settings.currentframework'))}">
                 <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
             </if>
-            <if test="${not(nant::target-exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
+            <if test="${not(target::exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
                 <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NDoc." />
             </if>
             <call target="set-${nant.settings.currentframework}-runtime-configuration" />
         </if>
-        <if test="${not(nant::target-exists('set-'+current.runtime.config+'-'+current.runtime.version+'-runtime-configuration'))}">
+        <if test="${not(target::exists('set-'+current.runtime.config+'-'+current.runtime.version+'-runtime-configuration'))}">
             <fail message="The ${current.runtime.config}-${current.runtime.version} runtime is not supported by NDoc." />
         </if>
         <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration" />
