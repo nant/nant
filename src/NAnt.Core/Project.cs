@@ -125,6 +125,7 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
+        private string _baseDirectory = null;
         private string _projectName = "";
         private string _defaultTargetName = null;
         private int _indentationSize = 4;
@@ -341,30 +342,32 @@ namespace NAnt.Core {
         /// <exception cref="BuildException">The directory is not rooted.</exception>
         /// <remarks>
         /// <para>
-        /// The <see cref="BaseDirectory" /> gets and sets the special property 
+        /// The <see cref="BaseDirectory" /> gets and sets the built-in property 
         /// named "nant.project.basedir".
         /// </para>
         /// </remarks>
         public string BaseDirectory {
             get {
-                string basedir = Properties[NAntPropertyProjectBaseDir];
-
-                if (basedir == null) {
+                if (_baseDirectory == null) {
                     return null;
                 }
 
-                if (!Path.IsPathRooted(basedir)) {
-                    throw new BuildException("BaseDirectory must be rooted! " + basedir);
+                if (!Path.IsPathRooted(_baseDirectory)) {
+                    throw new BuildException(string.Format(CultureInfo.InstalledUICulture,
+                        "Invalid base directory '{0}'. The project base directory"
+                        + "must be rooted.", _baseDirectory), Location.UnknownLocation);
                 }
 
-                return basedir;
+                return _baseDirectory;
             }
             set {
                 if (!Path.IsPathRooted(value)) {
-                    throw new BuildException("BaseDirectory must be rooted! " + value);
+                    throw new BuildException(string.Format(CultureInfo.InstalledUICulture,
+                        "Invalid base directory '{0}'. The project base directory"
+                        + "must be rooted.", value), Location.UnknownLocation);
                 }
 
-                Properties[NAntPropertyProjectBaseDir] = value;
+                Properties[NAntPropertyProjectBaseDir] = _baseDirectory = value;
             }
         }
 
@@ -1246,6 +1249,8 @@ namespace NAnt.Core {
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
 
+            // TO-DO: remove these built-in properties after NAnt 0.87 (?)
+            // as these have been deprecated since NAnt 0.85
             Properties.AddReadOnly(NAntPropertyFileName, ass.CodeBase);
             Properties.AddReadOnly(NAntPropertyVersion, ass.GetName().Version.ToString());
             Properties.AddReadOnly(NAntPropertyLocation, AppDomain.CurrentDomain.BaseDirectory);
@@ -1253,21 +1258,7 @@ namespace NAnt.Core {
             if (BuildFileUri != null) {
                 Properties.AddReadOnly(NAntPropertyProjectBuildFile, BuildFileUri.ToString());
             }
-
             Properties.AddReadOnly(NAntPropertyProjectDefault, DefaultTargetName);
-
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                "{0}={1}", NAntPropertyFileName, Properties[NAntPropertyFileName]));
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                "{0}={1}", NAntPropertyVersion, Properties[NAntPropertyVersion]));
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                "{0}={1}", NAntPropertyLocation, Properties[NAntPropertyLocation]));
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                "{0}={1}", NAntPropertyProjectName, Properties[NAntPropertyProjectName]));
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                "{0}={1}", NAntPropertyProjectBuildFile, Properties[NAntPropertyProjectBuildFile]));
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                "{0}={1}", NAntPropertyProjectDefault, Properties[NAntPropertyProjectDefault]));
         }
 
         #endregion Protected Instance Methods

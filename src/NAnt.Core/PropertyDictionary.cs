@@ -52,6 +52,9 @@ namespace NAnt.Core {
             get {
                 string value = (string) Dictionary[(object) name];
 
+                // check whether (built-in) property is deprecated
+                CheckDeprecation(name);
+
                 if (IsDynamicProperty(name)) {
                     return ExpandProperties(value, Location.UnknownLocation);
                 } else {
@@ -376,6 +379,97 @@ namespace NAnt.Core {
 
                 throw new BuildException(errorMessage.ToString(), location, 
                     ex.InnerException);
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the specified property is deprecated.
+        /// </summary>
+        /// <param name="name">The property to check.</param>
+        private void CheckDeprecation(string name) {
+            switch (name) {
+                case Project.NAntPropertyFileName:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the nant::get-location() function instead.", name);
+                    break;
+                case Project.NAntPropertyVersion:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the assembly::get-version(nant::get-location())"
+                        + " instead.", name);
+                    break;
+                case Project.NAntPropertyLocation:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the nant::get-base-directory() function instead.", 
+                        name);
+                    break;
+                case Project.NAntPropertyProjectBaseDir:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the project::get-base-directory() function instead.", 
+                        name);
+                    break;
+                case Project.NAntPropertyProjectName:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the project::get-name() function instead.", 
+                        name);
+                    break;
+                case Project.NAntPropertyProjectBuildFile:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the project::get-buildfile-uri() function"
+                        + " instead.", name);
+                    break;
+                case Project.NAntPropertyProjectDefault:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the project::get-default-target() function"
+                        + " instead.", name);
+                    break;
+                case Project.NAntPlatformName:
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the platform::get-name() function instead.", 
+                        name);
+                    break;
+                case Project.NAntPlatform + ".win32":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the platform::is-win32() function instead.",
+                        name);
+                    break;
+                case Project.NAntPlatform + ".unix":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the platform::is-unix() function instead.",
+                        name);
+                    break;
+                case "nant.settings.currentframework.description":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the framework::get-description(framework::get-target-framework())"
+                        + " function instead.", name);
+                    break;
+                case "nant.settings.currentframework.frameworkdirectory":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the framework::get-framework-directory(framework::get-target-framework())"
+                        + " function instead.", name);
+                    break;
+                case "nant.settings.currentframework.sdkdirectory":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the framework::get-sdk-directory(framework::get-target-framework())"
+                        + " function instead.", name);
+                    break;
+                case "nant.settings.currentframework.frameworkassemblydirectory":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the framework::get-assembly-directory(framework::get-target-framework())"
+                        + " function instead.", name);
+                    break;
+                case "nant.settings.currentframework.runtimeengine":
+                    Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
+                        + " Use the framework::get-runtime-engine(framework::get-target-framework())"
+                        + " function instead.", name);
+                    break;
+                default:
+                    if (name.StartsWith("nant.tasks.")) {
+                        Project.Log(Level.Warning, "Built-in property '{0}' is"
+                            + " deprecated. Use the task::exists(string) function"
+                            + " instead.", 
+                            name);
+                    }
+                    break;
             }
         }
 
