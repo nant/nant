@@ -96,7 +96,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// The logging level with which the message should be output. The default 
-        /// is <see cref="P:Level.Info" />?
+        /// is <see cref="P:Level.Info" />.
         /// </summary>
         [TaskAttribute("level")]
         public Level Level {
