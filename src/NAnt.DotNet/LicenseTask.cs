@@ -40,7 +40,7 @@ namespace SourceForge.NAnt.Tasks
 	///   <para>Generate the file <c>component.exe.licenses</c> file from <c>component.licx</c>.</para>
 	///   <code>
 	///     <![CDATA[
-	///         <resx input="component.licx" target="component.exe" />
+	///         <license input="component.licx" target="component.exe" />
 	///     ]]>
 	///   </code>
 	/// </example>
