@@ -215,7 +215,7 @@ namespace NAnt.Core.Tasks {
                         // "property::exists(...)" unless condition on the <property> 
                         // task, but these do not seem to be intuitive for users
                         Log(Level.Warning, "Read-only property \"{0}\" cannot"
-                            + " be overwritten.");
+                            + " be overwritten.", PropertyName);
                     } else {
                         Properties[PropertyName] = propertyValue;
 
