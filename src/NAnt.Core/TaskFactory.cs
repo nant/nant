@@ -37,8 +37,11 @@ namespace SourceForge.NAnt {
             // initialize builtin tasks
             AddTasks(Assembly.GetExecutingAssembly());
             AddTasks(Assembly.GetCallingAssembly());
-            ScanDir(System.AppDomain.CurrentDomain.BaseDirectory);
-            ScanDir(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "tasks"));
+            
+            // using Assembly.Location instead of AppDomain.Basedir to get around a mono bug.
+            string nantBinDir = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location ));           
+            ScanDir(nantBinDir);
+            ScanDir(Path.Combine(nantBinDir, "tasks"));                      
         }
 
         /// <summary>Scans the path for any Tasks assemblies and adds them.</summary>
