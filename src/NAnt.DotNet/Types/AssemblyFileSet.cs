@@ -34,6 +34,7 @@ namespace NAnt.DotNet.Types {
     /// The primary reason for this class is to allow the <see cref="BaseDirectory" />
     /// to always be the same value as the parent <see cref="AssemblyFileSet" />
     /// </remarks>
+    /// <seealso cref="FileSet" />
     [Serializable()]
     public class LibDirectorySet : FileSet {
         #region Public Instance Constructors
@@ -72,6 +73,82 @@ namespace NAnt.DotNet.Types {
     /// <summary>
     /// Specialized <see cref="FileSet" /> class for managing assembly files.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   If an include pattern does not contain any wildcard characters then 
+    ///   the assembly will be searched for in following locations (in the order listed):
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       <description>
+    ///       The base directory of the fileset.
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       The directories specified using the nested &lt;lib&gt; element.
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       The assembly directory of the current target framework.
+    ///       </description>
+    ///     </item>
+    ///   </list>
+    /// </remarks>
+    /// <example>
+    ///   <para>
+    ///   Define a reference with name &quot;sys.assemblies&quot;, holding
+    ///   a set of system assemblies.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <assemblyfileset id="sys.assemblies">
+    ///     <include name="System.dll" />
+    ///     <include name="System.Data.dll" />
+    ///     <include name="System.Xml.dll" />
+    /// </assemblyfileset>
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   Use the predefined set of assemblies to compile a C# assembly.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <csc target="exe" output="HelloWorld.exe">
+    ///     <sources>
+    ///         <include name="**/*.cs" />
+    ///     </sources>
+    ///     <references refid="sys.assemblies" />
+    /// </csc>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Compile a C# assembly using assembly references that are searched for
+    ///   in the &quot;Third Party Assemblies&quot; and &quot;Company Assemblies&quot;
+    ///   directories.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <csc target="exe" output="HelloWorld.exe">
+    ///     <sources>
+    ///         <include name="**/*.cs" />
+    ///     </sources>
+    ///     <references>
+    ///         <lib>
+    ///             <include name="Third Party Assemblies" />
+    ///             <include name="Company Assemblies" />
+    ///         </lib>
+    ///         <include name="log4net.dll" />
+    ///         <include name="Company.Business.dll" />
+    ///     </references>
+    /// </csc>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <seealso cref="FileSet" />
     [Serializable()]
     [ElementName("assemblyfileset")]
     public class AssemblyFileSet : FileSet, ICloneable {
