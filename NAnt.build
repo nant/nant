@@ -238,6 +238,7 @@
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${lib.framework.dir}/NDoc.ExtendedUI.dll" />
                 <include name="${lib.framework.dir}/NDoc.Core.dll" />
+                <include name="System.Web.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
                 <include name="**/*.xslt" />
