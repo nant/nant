@@ -162,7 +162,7 @@
             <arg value="${project.config}" />
             <arg value="self-test" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${framework::get-target-framework()}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
     </target>
     <target name="self-test" depends="init">
@@ -215,7 +215,7 @@
             <arg value="${project.config}" />
             <arg value="self-userdoc" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${framework::get-target-framework()}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
     </target>
     <target name="self-userdoc" depends="init">
@@ -278,7 +278,7 @@
             <arg value="${project.config}" />
             <arg value="self-sdkdoc" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${framework::get-target-framework()}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
         <!-- delete everything but the .chm -->
         <delete>
@@ -371,7 +371,7 @@
             <arg value="${project.config}" />
             <arg value="schema" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${framework::get-target-framework()}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
         <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
