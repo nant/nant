@@ -389,6 +389,17 @@
                 <include name="*.Tests.*" />
             </fileset>
         </delete>
+        <!-- filter-copy static html pages -->
+        <copy todir="${build.dir}">
+            <fileset>
+                <include name="doc/**/*.html" />
+            </fileset>
+            <filterchain encoding="utf-8">
+                <replacetokens>
+                    <token key="PRODUCT_VERSION" value="${project.version}" />
+                </replacetokens>
+            </filterchain>
+        </copy>
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
@@ -398,6 +409,8 @@
                 <include name="examples/**" />
                 <include name="schema/**" />
                 <include name="*" />
+                <!-- exclude static html pages as these will be filter-copied -->
+                <exclude name="doc/**/*.html" />
                 <!-- exclude nighlty build file -->
                 <exclude name="nightly.xml" />
                 <!-- exclude release build file -->
