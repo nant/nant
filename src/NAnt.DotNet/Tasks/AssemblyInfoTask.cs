@@ -212,8 +212,9 @@ namespace NAnt.DotNet.Tasks {
                     // flush 
                     writer.Flush();
 
+                    // check whether generated source should be persisted
                     if (NeedsPersisting(generatedAsmInfoStream)) {
-                        using (FileStream fs = new FileStream(Output.FullName, FileMode.OpenOrCreate, FileAccess.Write)) {
+                        using (FileStream fs = new FileStream(Output.FullName, FileMode.Create, FileAccess.Write)) {
                             byte[] buffer = generatedAsmInfoStream.ToArray();
                             fs.Write(buffer, 0, buffer.Length);
                             fs.Flush();
