@@ -39,8 +39,9 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     public abstract class ExternalProgramBase : Task {
         #region Private Instance Fields
-
-        private Hashtable _htThreadStream = new Hashtable();
+        
+        StreamReader _stdError = null;
+        StreamReader _stdOut = null;
         private ArgumentCollection _arguments = new ArgumentCollection();
         private bool _useRuntimeEngine = false;
         private string _exeName = null;
@@ -250,12 +251,11 @@ namespace NAnt.Core.Tasks {
             try {
                 // Start the external process
                 Process process = StartProcess();
-                Thread outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));
-                outputThread.Name = "Output";
+                Thread outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));                
                 Thread errorThread = new Thread(new ThreadStart(StreamReaderThread_Error));
-                errorThread.Name = "Error";
-                _htThreadStream[outputThread.Name] = process.StandardOutput;
-                _htThreadStream[errorThread.Name] = process.StandardError;
+                
+                _stdOut = process.StandardOutput;
+                _stdError = process.StandardError;
 
                 outputThread.Start();
                 errorThread.Start();
@@ -265,8 +265,7 @@ namespace NAnt.Core.Tasks {
 
                 // Wait for the threads to terminate
                 outputThread.Join(2000);
-                errorThread.Join(2000);
-                _htThreadStream.Clear();
+                errorThread.Join(2000); 
 
                 if (!process.HasExited) {
                     try {
@@ -406,7 +405,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>        /// Reads from the stream until the external program is ended.        /// </summary>
         private void StreamReaderThread_Output() {
-            StreamReader reader = (StreamReader) _htThreadStream[Thread.CurrentThread.Name];
+            StreamReader reader = _stdOut;
             bool doAppend = OutputAppend;
 
             while (true) {
@@ -416,7 +415,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // Ensure only one thread writes to the log at any time
-                lock (_htThreadStream) {
+                lock (_stdOut) {
                     OutputWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
@@ -430,7 +429,7 @@ namespace NAnt.Core.Tasks {
         }
         /// <summary>        /// Reads from the stream until the external program is ended.        /// </summary>
         private void StreamReaderThread_Error() {
-            StreamReader reader = (StreamReader) _htThreadStream[Thread.CurrentThread.Name];
+            StreamReader reader = _stdError;
             bool doAppend = OutputAppend;
 
             while (true) {
@@ -440,7 +439,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // Ensure only one thread writes to the log at any time
-                lock (_htThreadStream) {
+                lock (_stdError) {
                     ErrorWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
