@@ -92,6 +92,10 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec rm --force {} \;" />
         </exec>
+        
+        <!-- debug message -->
+        <echo message="Working dir: ${build.dir}/doc" />
+        
         <!-- copy html files for website to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/doc" program="scp">
             <arg value="-C" />
