@@ -242,13 +242,6 @@ namespace NAnt.Core {
                     return ;
                 }
 
-                if (ch == '<' && PeekChar() == (int)'>') {
-                    _tokenType = TokenType.NE;
-                    _tokenText = "<>";
-                    ReadChar();
-                    return ;
-                }
-
                 if (ch == '!' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.NE;
                     _tokenText = "!=";
@@ -266,13 +259,6 @@ namespace NAnt.Core {
                 if (ch == '>' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.GE;
                     _tokenText = ">=";
-                    ReadChar();
-                    return ;
-                }
-
-                if (ch == '=' && PeekChar() == (int)'=') {
-                    _tokenType = TokenType.EQ;
-                    _tokenText = "==";
                     ReadChar();
                     return ;
                 }
