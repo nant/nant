@@ -144,7 +144,7 @@
         load external data files wihtout having to worry about complicated paths.
     -->
     <target name="test" depends="build" description="run unit tests">
-        <nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltOnError="true" haltOnFailure="true">
+        <nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltonerror="true" haltonfailure="true">
             <formatter type="Xml"/>
             <formatter type="Plain"/>
             <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" outfile="${build.dir}\${project.FormalName}.Tests.Results" />
