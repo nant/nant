@@ -236,6 +236,18 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets a value indicating whether building the project for the specified
+        /// build configuration results in managed output.
+        /// </summary>
+        /// <param name="configuration">The build configuration.</param>
+        /// <returns>
+        /// <see langword="true" />.
+        /// </returns>
+        public override bool IsManaged(string configuration) {
+            return true;
+        }
+
+        /// <summary>
         /// Prepares the project for being built.
         /// </summary>
         /// <param name="config">The configuration in which the project will be built.</param>
@@ -254,7 +266,6 @@ namespace NAnt.VSNet {
             // object directory are marked read-only
             base.Prepare(config);
         }
-
 
         protected override bool Build(ConfigurationBase config) {
             bool bSuccess = true;

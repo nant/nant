@@ -212,6 +212,25 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets a value indicating whether building the project for the specified
+        /// build configuration results in managed output.
+        /// </summary>
+        /// <param name="configuration">The build configuration.</param>
+        /// <returns>
+        /// <see langword="true" /> if the project output for the specified build
+        /// configuration is either a Dynamic Library (dll) or an Application
+        /// (exe), and Managed Extensions are enabled; otherwise, 
+        /// <see langword="false" />.
+        /// </returns>
+        public override bool IsManaged(string configuration) {
+            VcProjectConfiguration projectConfig = (VcProjectConfiguration)
+                GetConfiguration(configuration);
+            return (projectConfig.Type == VcProjectConfiguration.ConfigurationType.DynamicLibrary ||
+                projectConfig.Type == VcProjectConfiguration.ConfigurationType.Application) &&
+                projectConfig.ManagedExtensions;
+        }
+
+        /// <summary>
         /// Verifies whether the specified XML fragment represents a valid project
         /// that is supported by this <see cref="ProjectBase" />.
         /// </summary>
@@ -637,6 +656,12 @@ namespace NAnt.VSNet {
 
             // add project and assembly references
             foreach (ReferenceBase reference in References) {
+                // TODO: we should actually use the name of the build configuration
+                // that is specified on the <solution> task
+                if (!reference.IsManaged(projectConfig.Name)) {
+                    continue;
+                }
+                
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
                     fileConfig);
                 foreach (string assemblyFile in assemblyReferences) {
@@ -1317,6 +1342,30 @@ namespace NAnt.VSNet {
                 linkTask.Sources.FileNames.Add(defaultLib);
             }
 
+            // add referenced static libraries
+            foreach (ReferenceBase reference in References) {
+                VcProjectReference projectReference = reference as VcProjectReference;
+                if (projectReference == null) {
+                    // we're not dealing with reference to a project
+                    continue;
+                }
+
+                VcProject project = projectReference.Project as VcProject;
+                if (project == null) {
+                    // we're not dealing with reference to VC++ project
+                    continue;
+                }
+
+                // TODO: we should actually use the name of the build configuration
+                // that is specified on the <solution> task
+                VcProjectConfiguration vcProjectConfig = (VcProjectConfiguration)
+                    project.GetConfiguration(projectConfig.Name);
+                if (vcProjectConfig.Type == VcProjectConfiguration.ConfigurationType.StaticLibrary) {
+                    linkTask.Sources.FileNames.Add(vcProjectConfig.OutputPath);
+                }
+            }
+            
+
             string addLibDirs = projectConfig.GetToolSetting(linkerTool, "AdditionalLibraryDirectories");
             if (addLibDirs != null) {
                 foreach (string addLibDir in addLibDirs.Split(',', ';')) {
@@ -1399,7 +1448,7 @@ namespace NAnt.VSNet {
         /// <paramref name="fileConfig" />.
         /// </remarks>
         private string MergeToolSetting(VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig, string tool, string setting) {
-                    const string noinherit = "$(noinherit)";
+            const string noinherit = "$(noinherit)";
 
             // get tool setting from either the file configuration or project 
             // configuration (if setting is not defined on file configuration)
@@ -1409,16 +1458,21 @@ namespace NAnt.VSNet {
                 // empty string (which will be converted to null) or the
                 // there's no file config value and the project config value
                 // for the setting does not exist or is an empty string
-                return settingValue;
+                //return settingValue;
+                settingValue = projectConfig.GetToolSetting(tool, setting);
+            } else {
+                if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
+                    string baseSettingValue = projectConfig.GetToolSetting(tool, setting);
+                    if (baseSettingValue != null) {
+                        settingValue += ";" + baseSettingValue;
+                    }
+                } else {
+                    settingValue = settingValue.Remove(settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+                }
             }
 
-            if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
-                string baseSettingValue = projectConfig.GetToolSetting(tool, setting);
-                if (baseSettingValue != null) {
-                    settingValue += ";" + baseSettingValue;
-                }
-            } else {
-                settingValue = settingValue.Remove(settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+            if (settingValue == null) {
+                return settingValue;
             }
 
             // individual values are separated by ';'

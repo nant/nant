@@ -37,7 +37,7 @@ namespace NAnt.VSNet {
                 _isPrivate = bool.Parse(privateAttribute.Value);
             }
 
-            // determine name of reference by taking filename part of relative 
+            // determine name of reference by taking filename part of relative
             // path, without extension
             XmlAttribute relativePathAttribute = XmlDefinition.Attributes["RelativePath"];
             if (relativePathAttribute != null) {

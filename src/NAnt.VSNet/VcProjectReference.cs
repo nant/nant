@@ -27,6 +27,8 @@ using NAnt.Core.Util;
 
 namespace NAnt.VSNet {
     public class VcProjectReference : ProjectReferenceBase {
+        #region Public Instance Constructors
+
         public VcProjectReference(XmlElement xmlDefinition, ReferencesResolver referencesResolver, ProjectBase parent, SolutionBase solution, TempFileCollection tfc, GacCache gacCache, DirectoryInfo outputDir) : base(referencesResolver, parent) {
             if (xmlDefinition == null) {
                 throw new ArgumentNullException("xmlDefinition");
@@ -60,6 +62,25 @@ namespace NAnt.VSNet {
             _isPrivateSpecified = isPrivateSpecified;
             _isPrivate = isPrivate;
         }
+
+        #endregion Public Instance Constructors
+
+        #region Override implementation of ReferenceBase
+
+        /// <summary>
+        /// Gets a value indicating whether the reference is managed for the
+        /// specified configuration.
+        /// </summary>
+        /// <param name="config">The build configuration of the reference.</param>
+        /// <returns>
+        /// <see langword="true" /> if the reference is managed for the
+        /// specified configuration; otherwise, <see langword="false" />.
+        /// </returns>
+        public override bool IsManaged(string config) {
+            return Project.IsManaged(config);            
+        }
+
+        #endregion Override implementation of ReferenceBase
 
         #region Override implementation of ProjectReferenceBase
 

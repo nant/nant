@@ -332,12 +332,12 @@ namespace NAnt.VSNet {
             /// <summary>
             /// Static Library (.lib).
             /// </summary>
-            StaticLibrary = 3,
+            StaticLibrary = 4,
 
             /// <summary>
             /// Utility.
             /// </summary>
-            Utility = 4
+            Utility = 10
         }
     }
 }

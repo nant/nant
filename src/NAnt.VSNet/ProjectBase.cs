@@ -415,6 +415,17 @@ namespace NAnt.VSNet {
             return outputFiles;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether building the project for the specified
+        /// build configuration results in managed output.
+        /// </summary>
+        /// <param name="configuration">The build configuration.</param>
+        /// <returns>
+        /// <see langword="true" /> if the project output for the given build
+        /// configuration is managed; otherwise, <see langword="false" />.
+        /// </returns>
+        public abstract bool IsManaged(string configuration);
+
         #endregion Public Instance Methods
 
         #region Protected Internal Instance Methods

@@ -141,6 +141,17 @@ namespace NAnt.VSNet {
         /// </returns>
         public abstract DateTime GetTimestamp(ConfigurationBase config);
 
+        /// <summary>
+        /// Gets a value indicating whether the reference is managed for the
+        /// specified configuration.
+        /// </summary>
+        /// <param name="config">The build configuration of the reference.</param>
+        /// <returns>
+        /// <see langword="true" /> if the reference is managed for the
+        /// specified configuration; otherwise, <see langword="false" />.
+        /// </returns>
+        public abstract bool IsManaged(string config);
+
         #endregion Public Instance Methods
 
         #region Protected Instance Methods

@@ -77,6 +77,22 @@ namespace NAnt.VSNet {
 
         #endregion Override implementation of ProjectReferenceBase
 
+        #region Override implementation of ReferenceBase
+
+        /// <summary>
+        /// Gets a value indicating whether the reference is managed for the
+        /// specified configuration.
+        /// </summary>
+        /// <param name="config">The build configuration of the reference.</param>
+        /// <returns>
+        /// <see langword="true" />.
+        /// </returns>
+        public override bool IsManaged(string config) {
+            return true;
+        }
+
+        #endregion Override implementation of ReferenceBase
+
         #region Private Instance Fields
 
         private readonly ProjectBase _project;
