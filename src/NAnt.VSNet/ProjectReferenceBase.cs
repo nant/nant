@@ -151,18 +151,14 @@ namespace NAnt.VSNet {
             }
 
             string projectOutputFile = Project.GetConfiguration(
-                config.Name).OutputPath;
+                config.Name).BuildPath;
 
             // check if project has output file
             if (projectOutputFile != null) {
-                if (!File.Exists(projectOutputFile)) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Output file '{0}' of project '{1}' does not exist.",
-                        projectOutputFile, Project.Name), Location.UnknownLocation);
+                if (File.Exists(projectOutputFile)) {
+                    // add primary output to list of reference assemblies
+                    assemblyReferences.Add(projectOutputFile);
                 }
-
-                // add primary output to list of reference assemblies
-                assemblyReferences.Add(projectOutputFile);
             }
 
             // return assembly references
