@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="NAnt Examples" default="test.rebuild">
+<project name="NAnt Examples" default="rebuild">
     <target name="*">
         <nant target="${target::get-current-target()}">
             <buildfiles>

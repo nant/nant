@@ -18,10 +18,6 @@
     
     <target name="rebuild" depends="clean, build" />
 
-    <target name="test.rebuild" depends="rebuild">
-        <call target="clean"/>
-    </target>
-
     <target name="build.winforms">
         <solution configuration="${configuration}" solutionfile="WinForms.sln" />
         <property name="expected.output" value="bin/${configuration}/WinForms.exe"/>

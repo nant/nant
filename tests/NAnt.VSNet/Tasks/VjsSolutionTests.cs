@@ -79,8 +79,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         [Test]
         [Ignore("Solution type not currently supported.")]
         public void TestWinForm () {
-            FileInfo solutionFile = this.GetCurrentSolutionFile("WinForms");
-            this.RunTestPlain(solutionFile, OutputType.exe);
+            this.RunTestPlain();
         }
 
         #endregion Public Instance Methods

@@ -72,17 +72,6 @@ namespace Tests.NAnt.VSNet.Tasks {
                 </target>
             </project>";
 
-        private string _copy = 
-            @"<?xml version='1.0'?>
-                <project>
-                    <mkdir dir='{0}'/>
-                    <copy todir='{1}' verbose='true'>
-                        <fileset basedir='{2}'>
-                            <include name='**' />
-                        </fileset>
-                    </copy>
-                </project>";
-
         private DirectoryInfo _currentBaseDir;
         private DirectoryInfo CurrentBaseDir {
             get {
@@ -107,6 +96,23 @@ namespace Tests.NAnt.VSNet.Tasks {
                         <solution solutionfile='{0}' configuration='{1}' verbose='true' />
                     </target>
                 </project>";
+
+        /// <summary>
+        /// Simple nant build file, builds all solutions by kicking off a default.build file
+        /// located in each language sub-folder.
+        /// </summary>
+        protected string SimpleBuild = 
+            @"<?xml version='1.0'?>
+                <project default='{0}'>
+                    <target name='*'>
+                        <nant target='${1}'>
+                            <buildfiles basedir='{2}'>
+                                <include name='default.build' />
+                            </buildfiles>
+                        </nant>
+                    </target>
+                </project>";
+
 
         /// <summary>
         /// Constructor.
@@ -143,7 +149,6 @@ namespace Tests.NAnt.VSNet.Tasks {
         [SetUp]
         protected override void SetUp () {
             base.SetUp ();
-            CopyExampleToTemp(this.CurrentBaseDir, this.TempDirectory);
         }
 
         /// <summary>
@@ -151,7 +156,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// </summary>
         [TearDown]
         protected override void TearDown () {
-            base.TearDown();
+//            base.TearDown();
         }
 
         #region Protected Instance Methods
@@ -199,8 +204,8 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// <param name="output"></param>
         /// <param name="solutionName"></param>
         protected void AssertOutputExists (ConfigurationType configType, OutputType outputType, string solutionName) {
-            string tempDir = Path.Combine(this.TempDirectory.FullName, solutionName);
-            string binDir = Path.Combine(tempDir, "bin");
+            string baseDir = Path.Combine(this.CurrentBaseDir.FullName, solutionName);
+            string binDir = Path.Combine(baseDir, "bin");
             string outputDir = Path.Combine(binDir, configType.ToString());
             string outputFile = Path.Combine(outputDir, 
                 String.Format("{0}.{1}", solutionName, outputType.ToString()));
@@ -217,34 +222,26 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// </summary>
         /// <param name="solutionFile"></param>
         /// <param name="outputType"></param>
-        protected void RunTestPlain(FileInfo solutionFile, OutputType outputType) {
-            this.RunTestPlainImpl(ConfigurationType.Release, outputType, solutionFile);
-            this.RunTestPlainImpl(ConfigurationType.Debug, outputType, solutionFile);
+        protected void RunTestPlain() {
+            try {
+                this.RunSimpleBuild("rebuild");
+            } finally {
+                this.RunSimpleBuild("clean");
+            }
         }
 
         #endregion Protected Instance Methods
 
         #region "Private Instance Methods"
 
-        /// <summary>
-        /// Copy the example directory to the temp directory to build.
-        /// </summary>
-        /// <param name="tempDir"></param>
-        /// <param name="exampleDir"></param>
-        private void CopyExampleToTemp (DirectoryInfo exampleDir, DirectoryInfo tempDir) {
-            object[] args = {tempDir.FullName, tempDir.FullName, exampleDir.FullName};
-
-            string build = FormatBuildFile(_copy, args);
-            string result = RunBuild(build, Level.Info);
-        }
-
-        private void RunTestPlainImpl(ConfigurationType configType, OutputType outputType, FileInfo solutionFile) {
+        private void RunSimpleBuild(string target) {
             // run Release build
-            object[] args = {solutionFile.FullName, configType.ToString()};
-            string build = FormatBuildFile(SolutionProject, args);
+            object[] args = {target, "{target::get-current-target()}", this.CurrentBaseDir.FullName};
+            string build = FormatBuildFile(this.SimpleBuild, args);
+
             string result = RunBuild(build, Level.Info);
-            AssertOutputExists (configType, outputType, Path.GetFileNameWithoutExtension(solutionFile.FullName));
         }
+
         #endregion "Private Instance Methods"
     }
 }
