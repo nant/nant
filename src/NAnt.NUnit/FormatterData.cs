@@ -38,21 +38,41 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets or sets the type of the formatter.
+        /// </summary>
+        /// <value>The type of the formatter.</value>
         public FormatterType Type {
             get { return _formatterType; }
             set { _formatterType = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the name of a custom formatter class.
+        /// </summary>
+        /// <value>The name of a custom formatter class.</value>
         public string ClassName {
             get { return _classname; }
             set { _classname = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether output should be persisted
+        /// to a file.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if output should be written to a file; otherwise,
+        /// <c>false</c>.
+        /// </value>
         public bool UseFile {
             get { return _usefile; }
             set { _usefile = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the extension to append to the output filename.
+        /// </summary>
+        /// <value>The extension to append to the output filename.</value>
         public string Extension {
             get { return _extension; }
             set { _extension = value; }

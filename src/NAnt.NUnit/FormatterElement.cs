@@ -27,8 +27,19 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
     /// The built-in formatter types.
     /// </summary>
     public enum FormatterType {
+        /// <summary>
+        /// A plaintext formatter.
+        /// </summary>
         Plain,
+
+        /// <summary>
+        /// An XML formatter.
+        /// </summary>
         Xml,
+
+        /// <summary>
+        /// A custom formatter.
+        /// </summary>
         Custom
     }
     
@@ -53,7 +64,7 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         [TaskAttribute("classname", Required=false)]
         public string ClassName { get { return _data.ClassName; } set { _data.ClassName = value ;} }
 
-        /// <summary>Extension to append to the output filename..</summary> 
+        /// <summary>Extension to append to the output filename.</summary> 
         [TaskAttribute("extension", Required=false)]
         public string Extension { get { return _data.Extension; } set { _data.Extension = value ;} }
         
@@ -62,6 +73,9 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         [BooleanValidator()]
         public bool UseFile { get { return _data.UseFile; } set { _data.UseFile = value; } }
 
+        /// <summary>
+        /// Gets the underlying <see cref="FormatterData" /> for the element.
+        /// </summary>
         public FormatterData Data {
             get { return _data; }
         }
@@ -70,7 +84,10 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
 
         #region Override implementation of Element
 
-        // Custom validation here
+        /// <summary>
+        /// Initializes the element using the specified XML node.
+        /// </summary>
+        /// <param name="elementNode"><see cref="XmlNode" /> containing the XML fragment used to initialize this element instance.</param>
         protected override void InitializeElement(XmlNode elementNode) {
             if ((Type != FormatterType.Custom ) && ClassName != null) {
                 throw new BuildException("Specify either type or classname - not both.", Location);
