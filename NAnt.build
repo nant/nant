@@ -77,7 +77,7 @@
             </fileset>
         </copy>
         <!-- build NAnt.Core -->
-        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
+        <csc target="library" warnaserror="true" nowarn="1591;0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
             <sources failonempty="true">
                 <includes name="src/NAnt.Core/**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -89,11 +89,10 @@
             <references basedir="${build.dir}/bin">
                 <includes name="${log4netdll}"/>
             </references>
-            <arg value="/nowarn:1591" />
             <arg value="/d:mono" if="${mono}" />
         </csc>
         <!-- build NAnt.Core.Tests -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
             <sources failonempty="true">
                 <includes name="src/NAnt.Core.Tests/**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -109,11 +108,10 @@
                 <includes name="nunit.framework.dll" />
                 <includes name="${log4netdll}"/>
             </references>
-            <arg value="/nowarn:1591" />
             <arg value="/d:mono" if="${mono}" />
         </csc>
         <!-- build NAnt.Console -->
-        <csc target="exe" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
+        <csc target="exe" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <sources failonempty="true">
                 <includes name="src/NAnt.Console/**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -122,12 +120,11 @@
             <references basedir="${build.dir}/bin">
                 <includes name="${log4netdll}"/>
             </references>
-            <arg value="/nowarn:1591" />
             <arg value="/d:mono" if="${mono}" />
         </csc>
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/${sourceconfig}" />
         <!-- compile NAnt.Console.Tests -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
             <sources failonempty="true">
                 <includes name="src/NAnt.Console.Tests/**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -139,7 +136,6 @@
                 <includes name="nunit.framework.dll" />
                 <includes name="${log4netdll}"/>
             </references>
-            <arg value="/nowarn:1591" />
         </csc>
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
             <nant buildfile="src/${filename}.build" target="build" />
@@ -165,8 +161,12 @@
     <target name="self-test" depends="init">
         <echo message="testing with config '${nant.location}nant.exe.config'"/>
         <nunit2>
-            <test assemblyname="${build.dir}/bin/NAnt.Core.Tests.dll" appconfig="${nant.location}nant.exe.config"/>
-            <test assemblyname="${build.dir}/bin/NAnt.Console.Tests.dll" appconfig="${nant.location}nant.exe.config"/>
+            <test appconfig="${nant.location}nant.exe.config">
+                <assemblies>
+                    <includes name="${build.dir}/bin/NAnt.Core.Tests.dll" />
+                    <includes name="${build.dir}/bin/NAnt.Console.Tests.dll" />
+                </assemblies>
+            </test>
         </nunit2>
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
             <nant buildfile="src/${filename}.build" target="test" />
