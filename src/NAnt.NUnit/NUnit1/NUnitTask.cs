@@ -66,6 +66,7 @@ namespace NAnt.NUnit1.Tasks {
     ///   </code>
     /// </example>
     [TaskName("nunit")]
+    [Obsolete("In a future release, this task will be moved to NAntContrib. However, we strongly advise you to upgrade to NUnit 2.x.")]
     public class NUnitTask : Task {
         #region Private Instance Fields
 
