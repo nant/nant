@@ -25,6 +25,7 @@ using System.Text;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {
+    [Serializable()]
     public class PathList {
         #region Private Instance Fields
 
