@@ -72,6 +72,7 @@ namespace NAnt.Core.Tasks {
         private string _toFile = null;
         private string _toDirectory = null;
         private bool _overwrite = false;
+        private bool _flatten = false;
         private FileSet _fileset = new FileSet();
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
@@ -117,6 +118,17 @@ namespace NAnt.Core.Tasks {
         public bool Overwrite {
             get { return _overwrite; }
             set { _overwrite = value; }
+        }
+        
+        /// <summary>
+        /// ignore directory structure of source directory, copy all files into a single directory,
+        /// specified by the todir attribute (default is <see langword="false" /> ).
+        /// </summary>
+        [TaskAttribute("flatten")]
+        [BooleanValidator()]
+        public virtual bool Flatten {
+            get { return _flatten; }
+            set { _flatten = value; }
         }
 
         /// <summary>
@@ -203,7 +215,12 @@ namespace NAnt.Core.Tasks {
             // NOTE: when working with file and directory names its useful to 
             // use the FileInfo an DirectoryInfo classes to normalize paths like:
             // c:\work\nant\extras\buildserver\..\..\..\bin
-
+            
+            if ( Flatten && StringUtils.IsNullOrEmpty(ToDirectory) ) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "flatten attribute requires that todir has been set"), 
+                        Location);
+            }
             // copy a single file.
             if (SourceFile != null) {
                 FileInfo srcInfo = new FileInfo(SourceFile);
@@ -273,8 +290,8 @@ namespace NAnt.Core.Tasks {
                             Location);
                     }
                 }
-
-                if (IncludeEmptyDirs) {
+                
+                if (IncludeEmptyDirs && ! Flatten ) {
                     // create any specified directories that weren't created during the copy (ie: empty directories)
                     foreach (string pathname in CopyFileSet.DirectoryNames) {
                         DirectoryInfo srcInfo = new DirectoryInfo(pathname);
@@ -312,6 +329,9 @@ namespace NAnt.Core.Tasks {
                 // loop thru our file list
                 foreach (string sourceFile in FileCopyMap.Keys) {
                     string destinationFile = (string) FileCopyMap[sourceFile];
+                    if ( Flatten ){
+                        destinationFile = Path.Combine( ToDirectory, Path.GetFileName( destinationFile ) );
+                    }
                     if (sourceFile == destinationFile) {
                         Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}.", sourceFile);
                         continue;
@@ -319,7 +339,7 @@ namespace NAnt.Core.Tasks {
 
                     try {
                         Log(Level.Verbose, LogPrefix + "Copying {0} to {1}.", sourceFile, destinationFile);
-
+                        
                         // create directory if not present
                         string destinationDirectory = Path.GetDirectoryName(destinationFile);
                         if (!Directory.Exists(destinationDirectory)) {
