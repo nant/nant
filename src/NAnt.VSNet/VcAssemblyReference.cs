@@ -123,7 +123,7 @@ namespace NAnt.VSNet {
 
             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                 "Assembly \"{0}\", referenced by project \"{1}\", could not be"
-                + " resolved.", Name), Location.UnknownLocation);
+                + " resolved.", Name, Parent.Name), Location.UnknownLocation);
         }
 
         #endregion Override implementation of AssemblyReferenceBase
