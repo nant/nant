@@ -22,15 +22,17 @@ using System.IO;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Provides the abstract base class for a Microsoft .Net Framework SDK external program task.
+    /// Provides the abstract base class for an external SDK program task.
     /// </summary>
     public abstract class MsftFXSDKExternalProgramBase : ExternalProgramBase {
         #region Override implementation of ExternalProgramBase
 
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
         public override string ProgramFileName  {
-            get { 
-                return determineFilePath();
-            } 
+            get { return DetermineFilePath(); } 
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -41,7 +43,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>       
         /// <returns>A fully qualifies pathname including the program name.</returns>
         /// <exception cref="BuildException">The task is not available or not configured for the current framework.</exception>
-        private string determineFilePath() {
+        private string DetermineFilePath() {
             if (Project.CurrentFramework != null) {
                 if (ExeName != null) {
                     if (Project.CurrentFramework.SdkDirectory != null) {

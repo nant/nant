@@ -17,28 +17,22 @@
 
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
-using System.Collections.Specialized;
-using System.Collections;
-using System.Configuration;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
-
-using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Provides the abstract base class for a .Net compiler task.
+    /// Provides the abstract base class for a compiler task.
     /// </summary>
     public abstract class MsftFXCompilerBase : CompilerBase {
         #region Override implementation of ExternalProgramBase
 
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
         public override string ProgramFileName  {
-            get {
-                return determineFilePath();
-            } 
+            get { return DetermineFilePath(); } 
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -51,7 +45,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>       
         /// <returns>A fully qualifies pathname including the program name.</returns>
         /// <exception cref="BuildException">The task is not available or not configured for the current framework.</exception>
-        private string determineFilePath() {
+        private string DetermineFilePath() {
             if (Project.CurrentFramework != null) {
                 if (ExeName != null) {
                     string FrameworkDir = "";
