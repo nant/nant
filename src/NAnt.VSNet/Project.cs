@@ -810,88 +810,89 @@ namespace NAnt.VSNet {
                 while (startPosition > -1) {
                     stopPosition = commands.IndexOf(")", startPosition + 2);
                     macro = commands.Substring(startPosition, stopPosition - startPosition + 1);
-                    switch (macro) { // Expand the appropriate macro
-                        case "$(OutDir)": // E.g. bin\Debug\
-                            commandsExpanded = commandsExpanded.Replace("$(OutDir)", cs.RelativeOutputDir);
+                    // perform case-insensitive expansion of macros 
+                    switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                        case "$(outdir)": // E.g. bin\Debug\
+                            commandsExpanded = commandsExpanded.Replace(macro, cs.RelativeOutputDir);
                             break;
-                        case "$(ConfigurationName)": // E.g. Debug
-                            commandsExpanded = commandsExpanded.Replace("$(ConfigurationName)", cs.Name);
+                        case "$(configurationname)": // E.g. Debug
+                            commandsExpanded = commandsExpanded.Replace(macro, cs.Name);
                             break;
-                        case "$(ProjectName)": // E.g. WindowsApplication1
-                            commandsExpanded = commandsExpanded.Replace("$(ProjectName)", Name);
+                        case "$(projectname)": // E.g. WindowsApplication1
+                            commandsExpanded = commandsExpanded.Replace(macro, Name);
                             break;
-                        case "$(ProjectPath)": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\WindowsApplications1.csproj
-                            commandsExpanded = commandsExpanded.Replace("$(ProjectPath)", ProjectPath);
+                        case "$(projectpath)": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\WindowsApplications1.csproj
+                            commandsExpanded = commandsExpanded.Replace(macro, ProjectPath);
                             break;
-                        case "$(ProjectFileName)": // E.g. WindowsApplication1.csproj
-                            commandsExpanded = commandsExpanded.Replace("$(ProjectFileName)", Path.GetFileName(ProjectPath));
+                        case "$(projectfilename)": // E.g. WindowsApplication1.csproj
+                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(ProjectPath));
                             break;
-                        case "$(ProjectExt)": // .csproj
-                            commandsExpanded = commandsExpanded.Replace("$(ProjectExt)", Path.GetExtension(ProjectPath));
+                        case "$(projectext)": // .csproj
+                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(ProjectPath));
                             break;
-                        case "$(ProjectDir)": // ProjectPath without ProjectFileName at the end
-                            commandsExpanded = commandsExpanded.Replace("$(ProjectDir)", Path.GetDirectoryName(ProjectPath) + Path.DirectorySeparatorChar);
+                        case "$(projectdir)": // ProjectPath without ProjectFileName at the end
+                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetDirectoryName(ProjectPath) + Path.DirectorySeparatorChar);
                             break;
-                        case "$(TargetName)": // E.g. WindowsApplication1
-                            commandsExpanded = commandsExpanded.Replace("$(TargetName)", ps.AssemblyName);
+                        case "$(targetname)": // E.g. WindowsApplication1
+                            commandsExpanded = commandsExpanded.Replace(macro, ps.AssemblyName);
                             break;
-                        case "$(TargetPath)": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\bin\Debug\WindowsApplications1.exe
-                            commandsExpanded = commandsExpanded.Replace("$(TargetPath)", cs.OutputPath);
+                        case "$(targetpath)": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\bin\Debug\WindowsApplications1.exe
+                            commandsExpanded = commandsExpanded.Replace(macro, cs.OutputPath);
                             break;
-                        case "$(TargetExt)": // E.g. .exe
-                            commandsExpanded = commandsExpanded.Replace("$(TargetExt)", Path.GetExtension(cs.OutputPath));
+                        case "$(targetext)": // E.g. .exe
+                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(cs.OutputPath));
                             break;
-                        case "$(TargetFileName)": // E.g. WindowsApplications1.exe
-                            commandsExpanded = commandsExpanded.Replace("$(TargetFileName)", Path.GetFileName(cs.OutputPath));
+                        case "$(targetfileName)": // E.g. WindowsApplications1.exe
+                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(cs.OutputPath));
                             break;
-                        case "$(TargetDir)": // Absolute path to OutDir
-                            commandsExpanded = commandsExpanded.Replace("$(TargetDir)", cs.OutputDir.FullName
+                        case "$(targetdir)": // Absolute path to OutDir
+                            commandsExpanded = commandsExpanded.Replace(macro, cs.OutputDir.FullName
                                 + (cs.OutputDir.FullName.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) 
                                     ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)));
                             break;
-                        case "$(SolutionFileName)": // E.g. WindowsApplication1.sln
+                        case "$(solutionfilename)": // E.g. WindowsApplication1.sln
                             if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace("$(SolutionFileName)", Path.GetFileName(solutionPath));
+                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(solutionPath));
                             } else {
                                 Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
-                        case "$(SolutionPath)": // Absolute path for SolutionFileName
+                        case "$(solutionpath)": // Absolute path for SolutionFileName
                             if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace("$(SolutionPath)", solutionPath);
+                                commandsExpanded = commandsExpanded.Replace(macro, solutionPath);
                             } else {
                                Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
-                        case "$(SolutionDir)": // SolutionPath without SolutionFileName appended
+                        case "$(solutiondir)": // SolutionPath without SolutionFileName appended
                             if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace("$(SolutionDir)", Path.GetDirectoryName(solutionPath) + Path.DirectorySeparatorChar);
+                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetDirectoryName(solutionPath) + Path.DirectorySeparatorChar);
                             } else {
                                 Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
-                        case "$(SolutionName)": // E.g. WindowsApplication1
+                        case "$(solutionname)": // E.g. WindowsApplication1
                             if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace("$(SolutionName)", Path.GetFileNameWithoutExtension(solutionPath));
+                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileNameWithoutExtension(solutionPath));
                             } else {
                                 Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
-                        case "$(SolutionExt)": // Is this ever anything but .sln?
+                        case "$(solutionext)": // Is this ever anything but .sln?
                             if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace("$(SolutionExt)", Path.GetExtension(solutionPath));
+                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(solutionPath));
                             } else {
                                 Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
-                        case "$(PlatformName)": // .NET, does this value ever change?
-                            commandsExpanded = commandsExpanded.Replace("$(PlatformName)", ".NET");
+                        case "$(platformname)": // .NET, does this value ever change?
+                            commandsExpanded = commandsExpanded.Replace(macro, ".NET");
                             break;
                         // TO-DO
                         // DevEnvDir is avaliable from the key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir"
                         // But would require Microsoft.Win32 to be included. Don't want that for mono etc. ?
-                        /* case "$(DevEnvDir)": // VS installation directory with \Common7\IDE appended
-                           commandsExpanded = commandsExpanded.Replace("$(DevEnvDir)", "To be Implemented?");
+                        /* case "$(devenvdir)": // VS installation directory with \Common7\IDE appended
+                           commandsExpanded = commandsExpanded.Replace(macro, "To be Implemented?");
                            break; */
                         default:
                             // Signal errors for macros that do not exist
