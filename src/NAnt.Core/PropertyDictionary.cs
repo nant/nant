@@ -295,7 +295,7 @@ namespace NAnt.Core {
 
                         // check for circular references
                         if (currentState == PropertyDictionary.Visiting) {
-                            // Currently visiting this node, so have a cycle
+                            // currently visiting this node, so have a cycle
                             throw CreateCircularException(propertyName, visiting);
                         }
 
@@ -375,13 +375,14 @@ namespace NAnt.Core {
             } catch (ExpressionParseException ex) {
                 StringBuilder errorMessage = new StringBuilder();
                 string reformattedInput = input;
-                reformattedInput = reformattedInput.Replace('\n', ' '); // replace CR, LF and TAB with a space
+
+                // replace CR, LF and TAB with a space
+                reformattedInput = reformattedInput.Replace('\n', ' ');
                 reformattedInput = reformattedInput.Replace('\r', ' ');
                 reformattedInput = reformattedInput.Replace('\t', ' ');
 
                 errorMessage.Append(ex.Message);
                 errorMessage.Append(Environment.NewLine);
-                //errorMessage.Append("Error: ");
 
                 string label = "Expression: ";
 
@@ -402,9 +403,8 @@ namespace NAnt.Core {
                         errorMessage.Append('^');
                 }
 
-                // don't append the trailing newline
-
-                throw new BuildException(errorMessage.ToString(), location, ex.InnerException);
+                throw new BuildException(errorMessage.ToString(), location, 
+                    ex.InnerException);
             }
         }
 
