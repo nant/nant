@@ -6,7 +6,7 @@
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" unless="${property::exists('project.version')}" />
-    <property name="project.release.type" value="rc1" unless="${property::exists('project.release.type')}" /> <!-- nightly / dev / alpha / beta# / rc# / release -->
+    <property name="project.release.type" value="dev" unless="${property::exists('project.release.type')}" /> <!-- nightly / dev / alpha / beta# / rc# / release -->
     <if test="${project.release.type == 'nightly'}">
         <property name="project.version.full" value="${project.version + '-nightly-' + build.date}" />
     </if>
@@ -19,7 +19,7 @@
         we do not want this for releases (whether they're beta or release) as
         this would cause the build number to be updated
     -->
-    <property name="create.assemblyinfo" value="false" />
+    <property name="create.assemblyinfo" value="true" />
     
     <!-- global build settings -->
     <property name="lib.dir" value="${path::combine(build.dir, 'bin/lib')}" dynamic="true" />
