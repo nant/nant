@@ -83,11 +83,7 @@
                 <attribute type="AssemblyTitleAttribute" value="NAnt" />
                 <attribute type="AssemblyDescriptionAttribute" value="A .NET Build Tool" />
                 <attribute type="AssemblyConfigurationAttribute" value="${framework::get-target-framework()}.${platform::get-name()}; nightly" />
-                <!-- temporary change to fix issue with VS.NET 2005 CP -->
-                <!--
                 <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
-                -->
-                <attribute type="AssemblyCompanyAttribute" value="NAnt Team" />
                 <attribute type="AssemblyProductAttribute" value="NAnt" />
                 <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
                 <attribute type="AssemblyTrademarkAttribute" value="" />
