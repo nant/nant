@@ -204,5 +204,75 @@ namespace SourceForge.NAnt.Tests {
             _scanner.Includes.Add(@"**\folder3\**\XYZ*");
             CheckScan(includedFileNames, excludedFileNames);
         }
+
+        /// <summary>Test excluding files.</summary>
+        /// <remarks>
+        ///   Matches all XYZ* files, but then excludes them.
+        /// </remarks>
+        [Test]
+        public void Test_Excludes1() 
+        {
+            string[] includedFileNames = new string[] {
+            };
+            string[] excludedFileNames = new string[] {
+                Path.Combine(_tempDir, "Foo2.bar"),
+                Path.Combine(_folder2, "Foo3.bar"),
+                Path.Combine(_folder3, "Foo4.bar"),
+                Path.Combine(_folder3, "XYZ.txt"),
+                Path.Combine(_folder3, "XYZ.bak"),
+                Path.Combine(_folder3, "XYZzzz.txt"),
+           };
+
+            _scanner.Includes.Add(@"folder3/XYZ*");
+            _scanner.Excludes.Add(@"**\XYZ*");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>Test excluding files.</summary>
+        /// <remarks>
+        ///   Matches all files, then excludes XYZ*.
+        /// </remarks>
+        [Test]
+        public void Test_Excludes2() 
+        {
+            string[] includedFileNames = new string[] {
+                Path.Combine(_tempDir, "Foo2.bar"),
+                Path.Combine(_folder2, "Foo3.bar"),
+                Path.Combine(_folder3, "Foo4.bar")
+            };
+            string[] excludedFileNames = new string[] {
+                Path.Combine(_folder3, "XYZ.txt"),
+                Path.Combine(_folder3, "XYZ.bak"),
+                Path.Combine(_folder3, "XYZzzz.txt"),
+            };
+
+            _scanner.Includes.Add(@"**");
+            _scanner.Excludes.Add(@"**\XYZ*");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>Test excluding files.</summary>
+        /// <remarks>
+        ///   Matches all files from the temp directory, then excludes XYZ*.  See if adding a recursive exclude to a 
+        ///   non-recursive include break things.
+        /// </remarks>
+        [Test]
+        public void Test_Excludes3() 
+        {
+            string[] includedFileNames = new string[] {
+                Path.Combine(_tempDir, "Foo2.bar")
+            };
+            string[] excludedFileNames = new string[] {
+                Path.Combine(_folder2, "Foo3.bar"),
+                Path.Combine(_folder3, "Foo4.bar"),
+                Path.Combine(_folder3, "XYZ.txt"),
+                Path.Combine(_folder3, "XYZ.bak"),
+                Path.Combine(_folder3, "XYZzzz.txt")
+            };
+
+            _scanner.Includes.Add(@"*");
+            _scanner.Excludes.Add(@"**\XYZ*");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
     }
 }
