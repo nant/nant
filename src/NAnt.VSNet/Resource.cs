@@ -192,6 +192,7 @@ namespace NAnt.VSNet {
                 outputFileName + ".licenses"));
             lt.Target = Path.GetFileName(outputFileName);
 
+            // inherit assembly references from project
             foreach (Reference reference in Project.References) {
                 lt.Assemblies.Includes.Add(reference.Filename);
             }
@@ -234,6 +235,11 @@ namespace NAnt.VSNet {
             // set task properties
             rt.InputFile = InputFile;
             rt.OutputFile = outputFile;
+
+            // inherit assembly references from project
+            foreach (Reference reference in Project.References) {
+                rt.Assemblies.Includes.Add(reference.Filename);
+            }
 
             // increment indentation level
             rt.Project.Indent();
