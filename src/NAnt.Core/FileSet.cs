@@ -188,66 +188,54 @@ namespace SourceForge.NAnt {
                 Excludes.Add("**/vssver.scc");
                 Excludes.Add("**/_vti_cnf/**");
             }
-
-            // The Element class will initialize the marked xml attributes but
-            // not the unmarked <includes> and <excludes> elements.  We have to
-            // initialize them ourselves.
-
-            foreach (XmlNode node in elementNode) 
-            {
-                if(node.Name.Equals("includes"))
-                {
-                    IncludesElement include = new IncludesElement();
-                    include.Project = Project;
-                    include.Initialize(node);
-
-                    if (include.IfDefined && !include.UnlessDefined) 
-                    {
-                        if (include.AsIs) 
-                        {
+        }
+        [BuildElementArray("includes")]
+        public IncludesElement[] SetIncludes{
+            set {
+                foreach(IncludesElement include in value) {
+                    if (include.IfDefined && !include.UnlessDefined) {
+                        if (include.AsIs) {
                             AsIs.Add(include.Pattern);
                         } 
-                        else if (include.FromPath) 
-                        {
+                        else if (include.FromPath) {
                             PathFiles.Add(include.Pattern);
                         } 
-                        else 
-                        {
+                        else {
                             Includes.Add(include.Pattern);
                         }
                     }
                 }
-                else if(node.Name.Equals("excludes"))
-                {
-                    ExcludesElement exclude = new ExcludesElement();
-                    exclude.Project = Project;
-                    exclude.Initialize(node);
+            }
+        }
 
-                    if (exclude.IfDefined && !exclude.UnlessDefined) 
-                    {
+            [BuildElementArray("excludes")]
+        public ExcludesElement[] SetExcludes{
+            set {
+                foreach(ExcludesElement exclude in value){
+                    if (exclude.IfDefined && !exclude.UnlessDefined) {
                         Excludes.Add(exclude.Pattern);
                     }
                 }
-                else if(node.Name.Equals("includesList"))
-                {
-                    IncludesListElement include = new IncludesListElement();
-                    include.Project=Project;
-                    include.Initialize(node);
-                    if (include.IfDefined && !include.UnlessDefined)
-                    {
+            }
+        }
+
+        [BuildElementArray("includesList")]
+        public IncludesListElement[] SetIncludesList{
+            set {
+                foreach(IncludesListElement include in value){
+                    if (include.IfDefined && !include.UnlessDefined) {
                         foreach(string s in include.Files)
                             AsIs.Add(s);
-                    }
+                    }               
                 }
             }
-
         }
 
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.
 
         [ElementName("excludes")]
-        class ExcludesElement : Element {
+        public class ExcludesElement : Element {
             string _pattern;
             bool _ifDefined = true;
             bool _unlessDefined = false;
@@ -277,7 +265,7 @@ namespace SourceForge.NAnt {
         }
 
         [ElementName("includes")]
-        class IncludesElement : ExcludesElement {
+        public class IncludesElement : ExcludesElement {
             bool _asIs = false;
             bool _fromPath = false;
 
@@ -299,7 +287,7 @@ namespace SourceForge.NAnt {
         }
         
         [ElementName("fromfile")]
-        class IncludesListElement : ExcludesElement {
+        public class IncludesListElement : ExcludesElement {
 
             string[] files;
             public string[] Files {

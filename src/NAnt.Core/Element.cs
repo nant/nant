@@ -38,6 +38,9 @@ namespace SourceForge.NAnt {
         private Project _project = null;
         private XmlNode _xmlNode = null;
         private object _parent = null;
+
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         //protected LocalPropertyDictionary _elementProperties = null;
 
         /// <summary>The default contstructor.</summary>
@@ -126,6 +129,12 @@ namespace SourceForge.NAnt {
                 if (buildAttribute != null) {
                     XmlNode attributeNode = elementNode.Attributes[buildAttribute.Name];
 
+                    logger.Debug(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Found {0} <attribute> for {1}", 
+                        buildAttribute.Name, 
+                        propertyInfo.DeclaringType.FullName));
+
                     // check if its required
                     if (attributeNode == null && buildAttribute.Required) {
                         throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required attribute of <{1} ... \\>.", buildAttribute.Name, this.Name), Location);
@@ -138,6 +147,15 @@ namespace SourceForge.NAnt {
                             attrValue = Project.ExpandProperties(attrValue);
                         }
 
+                        logger.Debug(string.Format(
+                            CultureInfo.InvariantCulture,
+                            "Setting value: {3}.{0} = {2}({1})", 
+                            buildAttribute.Name, 
+                            attrValue,
+                            attributeNode.Value,
+                            propertyInfo.DeclaringType.Name));
+
+
                         if (propertyInfo.CanWrite) {
                             // set the property value instead
                             MethodInfo info = propertyInfo.GetSetMethod();
@@ -146,6 +164,24 @@ namespace SourceForge.NAnt {
                             // If the object is an emum
                             Type propertyType = propertyInfo.PropertyType;
 
+                            //validate attribute value with custom ValidatorAttribute(ors)
+                            object[] validateAttributes = (ValidatorAttribute[]) 
+                                Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
+                            try {
+                                foreach(ValidatorAttribute validator in validateAttributes) {
+                                    logger.Info(string.Format(
+                                        CultureInfo.InvariantCulture,
+                                        "Validating Against {0}", 
+                                        validator.GetType().ToString()));
+
+                                    validator.Validate(attrValue);
+                                }
+                            } catch(ValidationException ve) {
+                                logger.Error("Validation Exception", ve);
+                                throw new ValidationException(ve.Message,Location);
+                            }
+                            
+                            //set paramaters[0] to value.
                             if (propertyType.IsSubclassOf(Type.GetType("System.Enum"))) {
                                 try {
                                     paramaters[0] = Enum.Parse(propertyType, attrValue);
@@ -160,20 +196,9 @@ namespace SourceForge.NAnt {
                                     throw new BuildException(message, Location);
                                 }
                             } else {
-                                
-                                //validate attribute value with custom ValidatorAttribute(ors)
-                                object[] validateAttributes = (ValidatorAttribute[]) 
-                                    Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
-                                try {
-                                    foreach(ValidatorAttribute validator in validateAttributes)
-                                        validator.Validate(attrValue);
-                                }
-                                catch(ValidationException ve) {
-                                    throw new ValidationException(ve.Message,Location);
-                                }
-
                                 paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType);
                             }
+                            //set value
                             info.Invoke(this, paramaters);
                         }
                     }

@@ -37,3 +37,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile(@"..\NAnt.key")]
 [assembly: AssemblyKeyName("")]
+[assembly: log4net.Config.DOMConfigurator(Watch=true)]

@@ -138,15 +138,10 @@ namespace SourceForge.NAnt.Tasks {
             set {_pattern = value; }
         }
 
-        protected override void InitializeTask(XmlNode taskNode) {
-            // now get formatters
-            foreach (XmlNode formatterNode in taskNode) {
-                if(formatterNode.Name.Equals("formatter")) {
-                    FormatterElement f = new FormatterElement();
-                    f.Project = Project;
-                    f.Initialize(formatterNode);
-                    _formatterElements.Add(f);
-                }
+        [BuildElementArray("formatter")]
+        protected FormatterElement[] SetFormatters{
+            set{
+                _formatterElements.AddRange(value);
             }
         }
 
@@ -178,7 +173,7 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         [ElementName("formatter")]
-            class FormatterElement : Element {
+        public class FormatterElement : Element {
             string _property;
             string _pattern;
 

@@ -79,25 +79,14 @@ namespace SourceForge.NAnt
       }
 
       /// <summary>
-      /// Initialize this element node
+      /// The options.
       /// </summary>
-      /// <param name="elementNode"></param>
-      protected override void InitializeElement(XmlNode elementNode)  
-      {
-         //
-         // Check out whatever <propvalue> elements there are
-         //
-         foreach ( XmlNode node in elementNode ) 
-         {
-            if ( node.Name.Equals("option") ) {
-               OptionElement v = new OptionElement();
-               v.Project = Project;
-               v.Initialize(node);
-               _options.Add(new OptionValue(v.OptionName, v.Value));
-            }
-         }
+      [BuildElementArray("option")]
+      public OptionElement[] SetOptions{
+          set {
+              _options = ArrayList.Adapter(value);
+          }
       }
-
 
       public IEnumerator GetEnumerator()
       {
@@ -108,7 +97,7 @@ namespace SourceForge.NAnt
 
 
    [ElementName("option")]
-   class OptionElement : Element
+   public class OptionElement : Element
    {
       private string _name = null;
       private string _value = null;

@@ -21,8 +21,10 @@
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Xml;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {
@@ -31,6 +33,7 @@ namespace SourceForge.NAnt {
     /// <remarks>A task is a piece of code that can be executed.</remarks>
     public abstract class Task : Element {
         //Target _target = null;
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         bool _failOnError = true;
         bool _verbose = false;
@@ -91,11 +94,20 @@ namespace SourceForge.NAnt {
 
         /// <summary>Executes the task unless it is skipped. <note>Do not ovveride/new this method. Use ExecuteTask instead.</note></summary>
         public void Execute() {
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "Task.Execute() for '{0}'", 
+                Name));
+                
             if (IfDefined && !UnlessDefined) {
                 try {
                     Project.OnTaskStarted(this, new BuildEventArgs(Name));
                     ExecuteTask();
                 } catch (Exception e) {
+                    logger.Error(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} Generated Exception", 
+                        Name), e);
                     if (FailOnError) {
                         throw;
                     } else {
@@ -111,6 +123,7 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary><note>Deprecated (to be deleted).</note></summary>
+        [Obsolete("Deprecated- Use InitializeTask instead")]
         protected override void InitializeElement(XmlNode elementNode) {
             // Just defer for now so that everything just works
             InitializeTask(elementNode);

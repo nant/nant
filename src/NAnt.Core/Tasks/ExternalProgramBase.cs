@@ -78,28 +78,14 @@ namespace SourceForge.NAnt.Tasks {
         protected StringCollection Args {
             get { return _args; }
         }
-
-        protected override void InitializeTask(XmlNode taskNode) {
-            // initialize the _args collection
-            foreach (XmlNode optionNode in taskNode) {
-                if(optionNode.Name.Equals("arg")) {
-
-                    // TODO: decide if we should enforce arg elements not being able
-                    // to accept a file and value attribute on the same element.
-                    // Ideally this would be done via schema and since it doesn't
-                    // really hurt for now I'll leave it in.
-
-                
-                    XmlNode valueNode = optionNode.Attributes["value"];
-                    if (valueNode != null) {
-                        _args.Add(Project.ExpandProperties(valueNode.Value));
+        
+        [BuildElementArray("arg")]
+        public ArgElement[] ArgElements{
+            set {
+                ArgElement[] args = value as ArgElement[];
+                    foreach(ArgElement arg in args){
+                        _args.Add(arg.File==null ? arg.Value : arg.File);
                     }
-
-                    XmlNode fileNode  = optionNode.Attributes["file"];
-                    if (fileNode != null) {
-                        _args.Add(Project.GetFullPath(Project.ExpandProperties(fileNode.Value)));
-                    }
-                }
             }
         }
 
@@ -216,6 +202,30 @@ namespace SourceForge.NAnt.Tasks {
                     Location, 
                     e);
             }
+        }
+    }
+    
+    
+    public class ArgElement : Element {
+        private string _value = null;
+        private string _file = null;
+
+        /// <summary>
+        /// Value of this property. Default is null;
+        /// </summary>
+        [TaskAttribute("value")]
+        public string Value {
+            get { return _value; }
+            set { _value = value; }
+        }
+
+        /// <summary>
+        /// File of this property. Default is null;
+        /// </summary>
+        [TaskAttribute("file")]
+        public string File {
+            get { return _file; }
+            set { _file = Project.GetFullPath(value); }
         }
     }
 }

@@ -49,6 +49,7 @@ namespace SourceForge.NAnt {
     /// </code>
     /// </example>
     public class Project {
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //xml element and attribute names that are not defined in metadata
         protected const string ROOT_XML = "project";
@@ -140,18 +141,18 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Constructs a new Project with the given source.
         /// </summary>
-        /// <param name="source">
+        /// <param name="URIOrFilePath">
         /// <para> The Source should be the full path to the build file.</para>
         /// <para> This can be of any form that XmlDocument.Load(string url) accepts.</para>
         /// </param>
         /// <param name="verbose"></param>
         /// <remarks><para>If the source is a uri of form 'file:///path' then use the path part.</para></remarks>
-        public Project(string source, bool verbose) {
-            string path = source;
+        public Project(string URIOrFilePath, bool verbose) {
+            string path = URIOrFilePath;
             //if the source is not a valid uri, pass it thru.
             //if the source is a file uri, pass the localpath of it thru.
             try {
-                Uri testURI = new Uri(source);
+                Uri testURI = new Uri(URIOrFilePath);
                 if(testURI.IsFile) {
                     path = testURI.LocalPath;
                 }
@@ -162,7 +163,7 @@ namespace SourceForge.NAnt {
             }
             finally{
                 if(path == null)
-                    path=source;
+                    path=URIOrFilePath;
             }
 
             ctorHelper(LoadBuildFile(path), verbose);
@@ -235,6 +236,37 @@ namespace SourceForge.NAnt {
             }
 
             Properties.AddReadOnly(NANT_PROPERTY_PROJECT_DEFAULT,   DefaultTargetName);
+
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}={1}", 
+                NANT_PROPERTY_FILENAME, 
+                Properties[NANT_PROPERTY_FILENAME]));
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}={1}", 
+                NANT_PROPERTY_VERSION, 
+                Properties[NANT_PROPERTY_VERSION]));
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}={1}", 
+                NANT_PROPERTY_LOCATION, 
+                Properties[NANT_PROPERTY_LOCATION]));
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}={1}", 
+                NANT_PROPERTY_PROJECT_NAME, 
+                Properties[NANT_PROPERTY_PROJECT_NAME]));
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}={1}", 
+                NANT_PROPERTY_PROJECT_BUILDFILE, 
+                Properties[NANT_PROPERTY_PROJECT_BUILDFILE]));
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}={1}", 
+                NANT_PROPERTY_PROJECT_DEFAULT, 
+                Properties[NANT_PROPERTY_PROJECT_DEFAULT]));
         }
 
         /// <summary>This method is only meant to be used by the <see cref="Project"/> class and <see cref="SourceForge.NAnt.Tasks.IncludeTask"/>.</summary>

@@ -29,6 +29,7 @@ namespace SourceForge.NAnt {
             bool taskAdded = false;
             if (FindBuilderForTask(builder.TaskName) == null) {
                 base.Add(builder);
+
                 taskAdded = true;
             }
             return taskAdded;

@@ -117,6 +117,16 @@ namespace SourceForge.NAnt.Tests {
         }
 
         /// <summary>
+        /// Creates an empty project xmldocument and loads it with a new project.
+        /// </summary>
+        /// <returns>The new project</returns>
+        protected Project CreateEmptyProject() {
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.AppendChild(doc.CreateElement("project"));
+            return new Project(doc, false);
+        }
+
+        /// <summary>
         /// Creates a tempfile in the test temp directory
         /// </summary>
         /// <param name="name">the filename, should not be an absolute</param>

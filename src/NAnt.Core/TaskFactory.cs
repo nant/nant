@@ -30,6 +30,7 @@ namespace SourceForge.NAnt {
     /// The TaskFactory comprises all of the loaded, and available, tasks. Use these static methods to register, initialize and create a task.
     /// </summary>
     public class TaskFactory {
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         static TaskBuilderCollection _builders = new TaskBuilderCollection();
         static ArrayList _projects = new ArrayList();
@@ -65,6 +66,7 @@ namespace SourceForge.NAnt {
 
             foreach(string assemblyFile in scanner.FileNames) {
                 //Log.WriteLine("{0}:Add Tasks from {1}", AppDomain.CurrentDomain.FriendlyName, assemblyFile);
+                logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}:Add Tasks from {1}", AppDomain.CurrentDomain.FriendlyName, assemblyFile));
                 
                 AddTasks(Assembly.LoadFrom(assemblyFile));
                 //AddTasks(AppDomain.CurrentDomain.Load(assemblyFile.Replace(AppDomain.CurrentDomain.BaseDirectory,"").Replace(".dll","")));
@@ -82,6 +84,7 @@ namespace SourceForge.NAnt {
             foreach(TaskBuilder tb in Builders) {
                 UpdateProjectWithBuilder(project, tb);
             }
+
         }
 
         /// <summary>Returns the list of loaded TaskBuilders</summary>
@@ -99,13 +102,19 @@ namespace SourceForge.NAnt {
                         TaskBuilder tb = new TaskBuilder(type.FullName, assembly.Location);
                         if (_builders.Add(tb)) {
                             foreach(WeakReference wr in _projects) {
-                                if(!wr.IsAlive)
+                                if(!wr.IsAlive) {
+                                    logger.Error("Project WeakRef is dead.");
                                     continue;
+                                }
                                 Project p = wr.Target as Project;
-                                if(p == null) 
+                                if(p == null) {
+                                    logger.Error("WeakRef not a project! This should not be possible.");
                                     continue;
+                                }
+
                                 UpdateProjectWithBuilder(p, tb);
                             }
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture,"Adding '{0}' from {1}:{2}", tb.TaskName, tb.AssemblyFileName, tb.ClassName));
                             taskCount++;
                         }
                     }

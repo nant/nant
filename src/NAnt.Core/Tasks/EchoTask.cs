@@ -68,9 +68,7 @@ namespace SourceForge.NAnt.Tasks {
 
             }
         }
-        protected override void InitializeElement(XmlNode elementNode) {
-            Contents = Project.ExpandProperties(elementNode.InnerText);
-        }
+        
         protected override void ExecuteTask() {
             if (Message != null) {
                 Log.WriteLine(LogPrefix + Message);
@@ -80,6 +78,10 @@ namespace SourceForge.NAnt.Tasks {
                 //IMHO, <echo/> should be valid.
                 Log.WriteLine(LogPrefix);
             }
+        }
+
+        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+            Contents = Project.ExpandProperties(taskNode.InnerText);
         }
     }
 }

@@ -28,7 +28,7 @@ using NUnit.Framework;
 namespace SourceForge.NAnt.Tests {
 
 	[TestFixture]
-    public class GetTaskTest {
+    public class GetTaskTest : BuildTestBase {
 
         string _proxy = null;
 
@@ -47,7 +47,7 @@ namespace SourceForge.NAnt.Tests {
         [Test]
         public void Test_GetFtpFile() {
             GetTask getTask = new GetTask();
-            getTask.Project = new Project();
+            getTask.Project = CreateEmptyProject();
             getTask.Proxy = _proxy;
 
             string source = "ftp://ftp.info-zip.org/pub/infozip/zlib/zlib.html";
@@ -93,7 +93,7 @@ namespace SourceForge.NAnt.Tests {
 
             {
                 GetTask getTask = new GetTask();
-                getTask.Project = new Project();
+                getTask.Project = CreateEmptyProject();
                 getTask.Proxy = _proxy;
 
                 if (File.Exists(destination)) {
@@ -114,7 +114,7 @@ namespace SourceForge.NAnt.Tests {
             // check for file exists using TimeStampEqual
             {
                 GetTask getTask = new GetTask();
-                getTask.Project = new Project();
+                getTask.Project = CreateEmptyProject();
                 getTask.Proxy = _proxy;
 
                 Assertion.Assert(destination + " does not exist, but should", File.Exists(destination));
@@ -134,7 +134,7 @@ namespace SourceForge.NAnt.Tests {
             // Test_FileExists_UseTimeStamp
             {
                 GetTask getTask = new GetTask();
-                getTask.Project = new Project();
+                getTask.Project = CreateEmptyProject();
                 getTask.Proxy = _proxy;
 
                 Assertion.Assert(destination + " doesn't exist", File.Exists(destination));
@@ -174,7 +174,7 @@ namespace SourceForge.NAnt.Tests {
         [Test]
         public void Test_GetBigFile() {
             GetTask getTask = new GetTask();
-            getTask.Project = new Project();
+            getTask.Project = CreateEmptyProject();
             getTask.Proxy = _proxy;
 
             string source = "http://www.tolvanen.com/eraser/eraser52.zip";
@@ -218,7 +218,7 @@ namespace SourceForge.NAnt.Tests {
         [Test]
         public void Test_GetHtmlFile() {
             GetTask getTask = new GetTask();
-            getTask.Project = new Project();
+            getTask.Project = CreateEmptyProject();
             getTask.Proxy = _proxy;
 
             string source = "http://nant.sourceforge.net/index.html";
@@ -253,7 +253,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_Accessors() {
 
             GetTask getTask = new GetTask();
-            getTask.Project = new Project();
+            getTask.Project = CreateEmptyProject();
 
             string proxy = _proxy;
             getTask.Proxy = proxy;

@@ -25,12 +25,19 @@ using System.Globalization;
 namespace SourceForge.NAnt {
 
     public class TargetCollection : ArrayList {
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public virtual int Add(Target t){
             //throw an exception if an attempt is made to add a null target
-            if(t == null)
+            if(t == null) {
                 throw new BuildException("Null Target!");
+            }
 
+            logger.Debug(string.Format(
+                CultureInfo.InvariantCulture,
+                "Adding Target '{0}'", 
+                t.Name));
+            
             //check for existing target with same name.
             if(Find(t.Name) == null) {
                 return base.Add(t);

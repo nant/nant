@@ -28,7 +28,7 @@ using SourceForge.NAnt.Tasks;
 namespace SourceForge.NAnt.Tests {
 
 	[TestFixture]
-    public class TouchTaskTest {
+    public class TouchTaskTest : BuildTestBase {
 
 		[Test]
         public void Test_Foobar() {
@@ -237,12 +237,6 @@ namespace SourceForge.NAnt.Tests {
                 Assertion.Assert("Touch: fileset ONLY, " + _fileList[i], lastTouchDate.CompareTo(newTouchDate) >= 0);
             }
         }
-
-		protected Project CreateEmptyProject() {
-			System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-			doc.AppendChild(doc.CreateElement("project"));
-			return new Project(doc);
-		}
     }
 }
 
