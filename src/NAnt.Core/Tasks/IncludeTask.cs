@@ -46,7 +46,8 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Used to check for recursived includes.</summary>
         static Stack _includedFileNames = new Stack();
         static string _currentBasedir = "";     
-        string _buildFileName = null;       
+        string _buildFileName = null;   
+        static int _nestinglevel = 0;
 
         /// <summary>Build file to include.</summary>
         [TaskAttribute("buildfile", Required=true)]
@@ -64,7 +65,7 @@ namespace SourceForge.NAnt.Tasks {
             if (Parent != null && !(Parent is Project)) {
                 throw new BuildException("Task not allowed in targets.  Must be at project level.", Location);
             }
-            if ( _currentBasedir == "" ){
+            if ( _currentBasedir == "" || _nestinglevel == 0 ){
                 _currentBasedir = Project.BaseDirectory;
             }
             // Check for recursive include.           
@@ -82,6 +83,7 @@ namespace SourceForge.NAnt.Tasks {
             // push ourselves onto the stack (prevents recursive includes)                     
             string includedFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
             _includedFileNames.Push(includedFileName);
+            _nestinglevel ++;
             
             Log.WriteLineIf(Verbose, LogPrefix + "including file {0}", includedFileName );
             string oldBaseDir = Project.BaseDirectory;           
@@ -101,6 +103,7 @@ namespace SourceForge.NAnt.Tasks {
                 
                 // pop off the stack
                 _includedFileNames.Pop();
+                _nestinglevel--;
                 
                  // reset base\dir   
                 _currentBasedir = oldBaseDir;             
