@@ -24,6 +24,7 @@ namespace SourceForge.NAnt.Tasks {
     using System.Collections;
     using System.Collections.Specialized;
     using SourceForge.NAnt.Attributes;
+    using System.Globalization;
 
     /// <summary>Checks the conditional attributes and executes the children if true.</summary>
     /// <remarks>
@@ -153,19 +154,21 @@ namespace SourceForge.NAnt.Tasks {
                     if (!ret) return false;
                 }
 
+                //Check for Property existence
+                if(_propNameExists != null) {
+                    ret = ret && (Properties[_propNameExists] != null);
+                    if (!ret) return false;
+                }
+
                 //Check for the Property value of true.
                 if(_propNameTrue != null) {
                     try {
                         ret = ret && bool.Parse(Properties[_propNameTrue]);
+                        if (!ret) return false;
                     }
                     catch (Exception e) {
-                        throw new BuildException("Property True test failed for '" + _propNameTrue + "'", Location, e);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Property True test failed for '{0}'", _propNameTrue), Location, e);
                     }
-                }
-
-                //Check for Property existence
-                if(_propNameExists != null) {
-                    ret = ret && (Properties[_propNameExists] != null);
                 }
 
                 //check for uptodate file
@@ -180,6 +183,7 @@ namespace SourceForge.NAnt.Tasks {
                         Log.WriteLineIf(Project.Verbose && bNeedsAnUpdate, "{0) is newer than {1}" , newerFile, primaryFile.Name);
                         ret = !bNeedsAnUpdate;
                     }
+                    if (!ret) return false;
                 }
 
                 return ret;
