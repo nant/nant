@@ -89,10 +89,83 @@ namespace NAnt.Core.Types {
     /// <c>**</c> is appended. For example, <c>mypackage/test/</c> is interpreted as 
     /// if it were <c>mypackage/test/**</c>.
     /// </para>
+    /// <h3>Default Excludes</h3>
+    /// <para>
+    /// There are a set of definitions that are excluded by default from all 
+    /// tasks that use filesets. They are:
+    /// </para>
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>
+    ///         **/*~
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/#*#
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/.#*
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/%*%
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/CVS
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/CVS/**
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/.cvsignore
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/.svn
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/.svn/**
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/SCCS
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/SCCS/**
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/vssver.scc
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/_vti_cnf/**
+    ///         </description>
+    ///     </item>
+    /// </list>
+    /// <para>
+    /// If you do not want these default excludes applied, you may disable them 
+    /// by setting <see cref="DefaultExcludes" /> to <see langword="false" />.
+    /// </para>
     /// </remarks>
-    /// <history>
-    /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
-    /// </history>
     /// <example>
     /// <list type="table">
     ///     <listheader>
