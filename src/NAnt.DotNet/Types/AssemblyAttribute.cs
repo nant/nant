@@ -30,7 +30,7 @@ namespace NAnt.DotNet.Types {
     /// Represents an assembly-level attribute.
     /// </summary>
     [ElementName("attribute")]
-    public class AssemblyAttribute : DataTypeBase {
+    public class AssemblyAttribute : Element {
         #region Private Instance Fields
 
         private string _typeName = null;
@@ -65,7 +65,7 @@ namespace NAnt.DotNet.Types {
         }
 
         /// <summary>
-        /// Value of this attribute.
+        /// Value of the attribute.
         /// </summary>
         [TaskAttribute("value")]
         public string Value {
