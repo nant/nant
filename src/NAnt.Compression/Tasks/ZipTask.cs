@@ -44,7 +44,7 @@ namespace NAnt.Zip.Tasks {
     ///     <![CDATA[
     /// <zip zipfile="backup.zip">
     ///     <fileset basedir="build">
-    ///         <include name="*.*"/>
+    ///         <include name="*.*" />
     ///     </fileset>
     /// </zip>
     ///     ]]>
@@ -170,13 +170,6 @@ namespace NAnt.Zip.Tasks {
                 // add files to zip
                 foreach (string file in ZipFileSet.FileNames) {
                     if (File.Exists(file)) {
-                        // read source file
-                        FileStream fStream = File.OpenRead(file);
-                        long fileSize = fStream.Length;
-                        byte[] buffer = new byte[fileSize];
-                        fStream.Read(buffer, 0, buffer.Length);
-                        fStream.Close();
-                        
                         // the name of the zip entry
                         string entryName;
 
@@ -210,18 +203,21 @@ namespace NAnt.Zip.Tasks {
 
                         Log(Level.Verbose, "Adding {0}.", entryName);
                         
-                        if (ZipLevel == 0) {
-                            entry.Size = fileSize;
-                            
-                            // calculate crc32 of current file
-                            crc.Reset();
-                            crc.Update(buffer);
-                            entry.Crc  = crc.Value;
-                        }
-
                         // write file to zip file
                         zOutstream.PutNextEntry(entry);
-                        zOutstream.Write(buffer, 0, buffer.Length);
+
+                        // write file content to stream in small chuncks
+                        using (FileStream fs = File.OpenRead(file)) {
+                            byte[] buffer = new byte[50000];
+
+                            while (true) {
+                                int bytesRead = fs.Read(buffer, 0, buffer.Length);
+                                if (bytesRead == 0) {
+                                    break;
+                                }
+                                zOutstream.Write(buffer, 0, bytesRead);
+                            }
+                        }
                     } else {
                         throw new FileNotFoundException("File no longer exists.", file);
                     }
