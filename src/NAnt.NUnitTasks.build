@@ -7,7 +7,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
             <sources>
                 <includes name="NAnt.NUnitTasks/*.cs"/>
                 <!-- common assembly-level attributes -->
