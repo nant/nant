@@ -47,7 +47,7 @@
             <body>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
-                        <td class="NavBar-Cell" width="100%">
+                        <td class="NavBar-Cell">
                             <a href="../../index.html"><b>NAnt</b></a>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>

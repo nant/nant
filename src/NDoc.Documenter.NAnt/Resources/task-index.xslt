@@ -47,7 +47,7 @@
             <body>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
-                        <td class="NavBar-Cell" width="100%">
+                        <td class="NavBar-Cell">
                             <a href="../../index.html"><b>NAnt</b></a>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
@@ -61,7 +61,7 @@
                     <table>
                         <tr>
                             <th>Task</th>
-                            <th width="100%">Summary</th>
+                            <th>Summary</th>
                             <th>Assembly</th>
                         </tr>
                         <xsl:apply-templates select="//class[attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']">

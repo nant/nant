@@ -74,7 +74,7 @@
         <body>
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                 <tr>
-                    <td class="NavBar-Cell" width="100%">
+                    <td class="NavBar-Cell">
                         <a href="../../index.html"><b>NAnt</b></a>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
@@ -82,7 +82,7 @@
                         <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                         <xsl:value-of select="$name" /> <xsl:value-of select="$refType"/>
-                        <td class="NavBar-Cell" align="right" width="100%">
+                        <td class="NavBar-Cell" align="right">
                             <xsl:value-of select="ancestor::assembly/@name" />(<xsl:value-of select="ancestor::assembly/@version" />)
                         </td>
                     </td>
