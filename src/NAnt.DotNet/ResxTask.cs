@@ -26,88 +26,80 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks
 {
-	/// <summary>
-	/// Task to generate a .resources file from a .resx file.
-	/// </summary>
-	/// <remarks>
-	/// If no output file is specified, the default filename is the name of the input file with the extension changed
-	/// to ".resources".
-	/// </remarks>
-	/// <example>
-	///   <para>Generate a .resources file for <c>translations.resx</c>.</para>
-	///   <code>
-	///     <![CDATA[
-	///         <resx input="translations.resx" />
-	///     ]]>
-	///   </code>
-	/// </example>
-	[TaskName("resx")]
-	public class ResxTask : Task
-	{
-		public ResxTask()
-		{
-		}
+    /// <summary>
+    /// Task to generate a .resources file from a .resx file.
+    /// </summary>
+    /// <remarks>
+    /// If no output file is specified, the default filename is the name of the input file with the extension changed
+    /// to ".resources".
+    /// </remarks>
+    /// <example>
+    ///   <para>Generate a .resources file for <c>translations.resx</c>.</para>
+    ///   <code>
+    ///     <![CDATA[
+    ///         <resx input="translations.resx" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    [TaskName("resx")]
+    public class ResxTask : Task
+    {
+       
+        /// <summary>Input file to process.</summary>
+        [TaskAttribute("input", Required=true)]
+        public string InputFile {
+            set { _strInput = value; }
+        }
+        
+        /// <summary>Name of the license resource file to output.</summary>
+        [TaskAttribute("output")]
+        public string OutputFile {
+            set { _strOutput = value; }
+        }
 
-		/// <summary>Input file to process.</summary>
-		[TaskAttribute("input", Required=true)]
-		public string InputFile
-		{
-			set { _strInput = value; }
-		}
-		
-		/// <summary>Name of the license resource file to output.</summary>
-		[TaskAttribute("output")]
-		public string OutputFile
-		{
-			set { _strOutput = value; }
-		}
+        protected override void ExecuteTask() {
+            // First determing the input filename
+            string strInput = null;
+            try {
+                strInput = Project.GetFullPath( _strInput );
+            } 
+            catch ( Exception e ) {
+                string msg = String.Format( "Could not determine path from {0}", _strInput );
+                throw new BuildException( msg, Location, e );
+            }
 
-		protected override void ExecuteTask()
-		{
-			// First determing the input filename
-			string strInput = null;
-			try {
-				strInput = Project.GetFullPath( _strInput );
-			} catch ( Exception e ) {
-				string msg = String.Format( "Could not determine path from {0}", _strInput );
-				throw new BuildException( msg, Location, e );
-			}
+            if ( !File.Exists( strInput ) )
+                throw new BuildException( String.Format( "Unable to find file: {0}", strInput ), Location );
 
-			if ( !File.Exists( strInput ) )
-				throw new BuildException( String.Format( "Unable to find file: {0}", strInput ), Location );
+            // Now determine the output filename, using the input filename if necessary
+            string strOutput = _strOutput;
+            if ( strOutput == null ) 
+                strOutput = Path.ChangeExtension( strInput, ".resources" );
+            else {
+                try {
+                    strOutput = Project.GetFullPath( strOutput );
+                } 
+                catch ( Exception e ) {
+                    string msg = String.Format( "Could not determine path from {0}", _strInput );
+                    throw new BuildException( msg, Location, e );
+                }
+            }
 
-			// Now determine the output filename, using the input filename if necessary
-			string strOutput = _strOutput;
-			if ( strOutput == null )
-				strOutput = Path.ChangeExtension( strInput, ".resources" );
-			else {
-				try {
-					strOutput = Project.GetFullPath( strOutput );
-				} catch ( Exception e ) {
-					string msg = String.Format( "Could not determine path from {0}", _strInput );
-					throw new BuildException( msg, Location, e );
-				}
-			}
+            Log.WriteLine( "Compiling resource file {0} to {1}", _strInput, strOutput );
 
-			Log.WriteLine( "Compiling resource file {0} to {1}", _strInput, strOutput );
-
-			// Open in the input .resx file
-			using ( ResXResourceReader rrr = new ResXResourceReader( strInput ) )
-			{
-				// Open the output .resources file
-				using ( ResourceWriter rw = new ResourceWriter( strOutput ) )
-				{
-					// Now add each of the input resources to the output resource file
-					foreach ( DictionaryEntry de in rrr )
-					{
-						rw.AddResource( ( string )de.Key, de.Value );
-						if ( Verbose )
-							Log.WriteLine( "{0}: {1}", de.Key, de.Value.GetType() );
-					}
-				}
-			}
-		}
-
-		string _strInput, _strOutput;
-	}
+            // Open in the input .resx file
+            using ( ResXResourceReader rrr = new ResXResourceReader( strInput ) ) {
+                // Open the output .resources file
+                using ( ResourceWriter rw = new ResourceWriter( strOutput ) ) {
+                    // Now add each of the input resources to the output resource file
+                    foreach ( DictionaryEntry de in rrr ) {
+                        rw.AddResource( ( string )de.Key, de.Value );
+                        if ( Verbose )
+                            Log.WriteLine( "{0}: {1}", de.Key, de.Value.GetType() );
+                    }
+                }
+            }
+        }
+        string _strInput, _strOutput;
+    }
 }
