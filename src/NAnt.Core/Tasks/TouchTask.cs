@@ -60,7 +60,7 @@ namespace NAnt.Core.Tasks {
     [TaskName("touch")]
     public class TouchTask : Task {
         #region Private Instance Fields
-
+	    
         private FileInfo _file;
         private string _millis;
         private string _datetime;
@@ -139,7 +139,7 @@ namespace NAnt.Core.Tasks {
             }
 
             if (Millis != null) {
-                touchDateTime = GetDateTime(Convert.ToInt32(Millis, CultureInfo.InvariantCulture));
+                touchDateTime = GetDateTime(Convert.ToInt64(Millis, CultureInfo.InvariantCulture));
             } else if (Datetime != null) {
                 touchDateTime = GetDateTime(Datetime);
             }
@@ -198,8 +198,8 @@ namespace NAnt.Core.Tasks {
             return touchDateTime;
         }
 
-        private DateTime GetDateTime(int milliSeconds) {
-            DateTime touchDateTime = DateTime.Parse("01/01/1970 00:00:00", CultureInfo.InvariantCulture).AddMilliseconds(milliSeconds);
+        private DateTime GetDateTime(long milliSeconds) {
+            DateTime touchDateTime = DateTime.Parse("01/01/1970 00:00:00", CultureInfo.InvariantCulture).Add(TimeSpan.FromMilliseconds(milliSeconds));            
             return touchDateTime;
         }
 

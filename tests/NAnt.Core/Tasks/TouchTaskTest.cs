@@ -36,6 +36,7 @@ namespace Tests.NAnt.Core.Tasks {
                 <touch {0}>{1}</touch>
             </project>";
 
+        private static long TICKS_PER_MILLISECOND = TimeSpan.FromMilliseconds(1).Ticks;
         StringCollection _fileList = new StringCollection();
 
         /// <summary>Create the text fixture.</summary>
@@ -88,11 +89,11 @@ namespace Tests.NAnt.Core.Tasks {
             // <touch file='myfile' millis='1000000000'/>
 
             string fileName = _fileList[0];
-            int milliSeconds = 1000000000;
+            long milliSeconds = ((DateTime.Parse("01/01/1980").Ticks - DateTime.Parse("01/01/1970").Ticks) / TICKS_PER_MILLISECOND);
+            DateTime newTouchDate = DateTime.Parse("01/01/1970").Add(TimeSpan.FromMilliseconds(milliSeconds));
             RunBuild(FormatBuildFile("file='" + fileName + "' millis='" + milliSeconds.ToString() + "'"));
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
-            DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
 
             Assert.IsTrue(newTouchDate.Equals(lastTouchDate), "Wrong touch date");
 
@@ -174,10 +175,10 @@ namespace Tests.NAnt.Core.Tasks {
             //   <fileset dir="src_dir"/>
             //</touch>
 
-            int milliSeconds = 1000000000;
-            DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
+            long milliSeconds = ((DateTime.Parse("01/01/1980").Ticks - DateTime.Parse("01/01/1970").Ticks) / TICKS_PER_MILLISECOND);
+            DateTime newTouchDate = DateTime.Parse("01/01/1970").Add(TimeSpan.FromMilliseconds(milliSeconds));
           
-            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString(CultureInfo.InvariantCulture) + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
+            RunBuild(FormatBuildFile("millis='" + milliSeconds.ToString(CultureInfo.InvariantCulture) + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
 
