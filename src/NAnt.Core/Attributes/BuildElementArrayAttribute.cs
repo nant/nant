@@ -30,9 +30,9 @@ namespace NAnt.Core.Attributes {
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public class BuildElementArrayAttribute : BuildElementAttribute {
-		private Type _elementType = null;
+	private Type _elementType = null;
 		
-		#region Public Instance Constructors
+	#region Public Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildElementArrayAttribute" /> with the 
@@ -41,18 +41,15 @@ namespace NAnt.Core.Attributes {
         /// <param name="name">The name of the attribute.</param>
         /// <param name="arrayElemetType">The contained type.</param>
         public BuildElementArrayAttribute(string name, Type arrayElemetType) : base(name) {
-			_elementType = arrayElemetType;
+		_elementType = arrayElemetType;
         }
 
         #endregion Public Instance Constructors
-
-		/// <summary>
-		/// The type of objects that this container holds. Arrays must be strongly typed.
-		/// </summary>
-		/// <value> The type of the elements.</value>
-		/// <remarks>This can be used for validation and schema generation.</remarks>
-		public Type ElementType {
-			get{ return _elementType; }
-		}
+	/// <summary>	/// The type of objects that this container holds. Arrays must be strongly typed.	/// </summary>
+	/// <value> The type of the elements.</value>
+	/// <remarks>This can be used for validation and schema generation.</remarks>
+	public Type ElementType {
+		get{ return _elementType; }
+	}
     }
 }
