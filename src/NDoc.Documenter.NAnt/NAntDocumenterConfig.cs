@@ -37,6 +37,7 @@ namespace NDoc.Documenter.NAnt {
         private bool _sdkLinksOnWeb;
         private string _productName = "NAnt";
         private string _productVersion = "";
+        private string _productUrl = "";
         private string _nantBaseUri = "";
         private string _namespaceFilter = "";
 
@@ -135,6 +136,24 @@ namespace NDoc.Documenter.NAnt {
             get { return _productVersion; }
             set { 
                 _productVersion = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the URL of product website.
+        /// </summary>
+        /// <value>
+        /// The URL of the website of the product for which documentation should
+        /// be generated.
+        /// </value>
+        [Category("Output")]
+        [Description("The URL of the website of the product for which documentation should be generated.")]
+        [DefaultValue("")]
+        public string ProductUrl {
+            get { return _productUrl; }
+            set { 
+                _productUrl = value;
                 SetDirty();
             }
         }

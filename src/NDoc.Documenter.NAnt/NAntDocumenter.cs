@@ -119,6 +119,20 @@ namespace NDoc.Documenter.NAnt {
             } 
         }
 
+        /// <summary>
+        /// Gets the URL of the website of the product for which documentation 
+        /// should be generated.
+        /// </summary>
+        /// <value>
+        /// The URL of the website of the product for which documentation should 
+        /// be generated.
+        /// </value>
+        public string ProductUrl {
+            get {
+                return ((NAntDocumenterConfig) Config).ProductUrl;
+            } 
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of IDocumenter
@@ -430,6 +444,7 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList arguments = new XsltArgumentList();
             arguments.AddParam("productName", string.Empty, ProductName);
             arguments.AddParam("productVersion", string.Empty, ProductVersion);
+            arguments.AddParam("productUrl", string.Empty, ProductUrl);
             return arguments;
         }
 

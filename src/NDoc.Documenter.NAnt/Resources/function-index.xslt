@@ -37,6 +37,7 @@
 
     <xsl:param name="productName"></xsl:param>
     <xsl:param name="productVersion"></xsl:param>
+    <xsl:param name="productUrl"></xsl:param>
 
     <!-- 
     this stylesheet uses 'unique' trick published at:
@@ -54,18 +55,17 @@
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                 <meta name="description" content="Function Reference" />
-                <link rel="stylesheet" type="text/css" href="../../style.css" />
+                <link rel="stylesheet" type="text/css" href="../style.css" />
                 <title>Function Reference</title>
             </head>
             <body>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
                         <td class="NavBar-Cell">
-                            <a href="../../index.html">
-                                <b>
-                                    <xsl:value-of select="$productName" />
-                                </b>
-                            </a>
+                            <xsl:element name="a">
+                                <xsl:attribute name="href"><xsl:value-of select="$productUrl" /></xsl:attribute>
+                                <b><xsl:value-of select="$productName" /></b>
+                            </xsl:element>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
                             <img alt="->" src="../images/arrow.gif" />

@@ -40,6 +40,7 @@
 
     <xsl:param name="productName"></xsl:param>
     <xsl:param name="productVersion"></xsl:param>
+    <xsl:param name="productUrl"></xsl:param>
 
     <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
     <xsl:param name="class-id">T:NAnt.Core.Types.FileSet</xsl:param>
@@ -75,14 +76,17 @@
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-            <link rel="stylesheet" type="text/css" href="../../style.css" />
+            <link rel="stylesheet" type="text/css" href="../style.css" />
             <title><xsl:value-of select="$name" /><xsl:text> </xsl:text><xsl:value-of select="$refType" /></title>
         </head>
         <body>
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                 <tr>
                     <td class="NavBar-Cell">
-                        <a href="../../index.html"><b><xsl:value-of select="$productName" /></b></a>
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="$productUrl" /></xsl:attribute>
+                            <b><xsl:value-of select="$productName" /></b>
+                        </xsl:element>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
@@ -239,14 +243,17 @@
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-            <link rel="stylesheet" type="text/css" href="../../style.css" />
+            <link rel="stylesheet" type="text/css" href="../style.css" />
             <title><xsl:value-of select="$name" /> enum</title>
         </head>
         <body>
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                 <tr>
                     <td class="NavBar-Cell">
-                        <a href="../../index.html"><b><xsl:value-of select="$productName" /></b></a>
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="$productUrl" /></xsl:attribute>
+                            <b><xsl:value-of select="$productName" /></b>
+                        </xsl:element>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
