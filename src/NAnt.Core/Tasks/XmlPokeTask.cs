@@ -62,7 +62,7 @@ namespace NAnt.Core.Tasks {
     ///     <code>
     ///         <![CDATA[
     /// <xmlpoke
-    ///     filename="App.config"
+    ///     file="App.config"
     ///     xpath="/configuration/appSettings/add[@key = 'server']/@value"
     ///     value="productionhost.somecompany.com" />
     ///         ]]>
@@ -84,7 +84,7 @@ namespace NAnt.Core.Tasks {
         /// The file name of the file that contains the XML document that is
         /// going to be poked.
         /// </summary>
-        [TaskAttribute("filename", Required=true)]
+        [TaskAttribute("file", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string FileName {
             get { return (_fileName != null) ? Project.GetFullPath(_fileName) : null; }
