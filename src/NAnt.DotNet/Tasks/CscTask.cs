@@ -134,7 +134,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         public override bool Debug {
             get { return DebugOutput != DebugOutput.None; }
-            set { DebugOutput = DebugOutput.@true; }
+            set { DebugOutput = DebugOutput.Enable; }
         }
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace NAnt.DotNet.Tasks {
             switch (DebugOutput) {
                 case DebugOutput.None:
                     break;
-                case DebugOutput.@true:
+                case DebugOutput.Enable:
                     WriteOption(writer, "debug");
                     WriteOption(writer, "define", "DEBUG");
                     WriteOption(writer, "define", "TRACE");

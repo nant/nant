@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -1482,7 +1483,16 @@ namespace NAnt.Core {
             private class EnumAttributeSetter : IAttributeSetter {
                 public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
                     try {
-                        object propertyValue = Enum.Parse(property.PropertyType, value);
+                        object propertyValue;
+
+                        // check for more specific type converter
+                        TypeConverter tc = TypeDescriptor.GetConverter(property.PropertyType);
+                        if (!(tc.GetType() == typeof(EnumConverter))) {
+                            propertyValue = tc.ConvertFrom(value);
+                        } else {
+                            propertyValue = Enum.Parse(property.PropertyType, value);
+                        }
+
                         property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     } catch (ArgumentException) {
                         string message = string.Format(CultureInfo.InvariantCulture, 
