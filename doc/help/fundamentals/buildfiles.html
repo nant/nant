@@ -16,7 +16,9 @@
                         Fundamentals</a> <img height="9" alt="-&gt;" src="../images/arrow.gif" width="13" />
                     Build Files
                 </td>
-                <td>@PRODUCT_VERSION@</td>
+                <td class="NavBar-Cell" align="right">
+                    v@PRODUCT_VERSION@
+                </td>
             </tr>
         </table>
         <h1>Build Files</h1>
@@ -30,7 +32,7 @@
     &lt;?xml version="1.0"?&gt;
     &lt;project name="Hello World" default="build" basedir="."&gt;
         &lt;description&gt;The Hello World of build files.&lt;/description&gt;
-        &lt;property name="debug" value="true" /&gt;
+        &lt;property name="debug" value="true" overwrite="false" /&gt;
         &lt;target name="clean" description="remove all generated files"&gt;
             &lt;delete file="HelloWorld.exe" failonerror="false" /&gt;
             &lt;delete file="HelloWorld.pdb" failonerror="false" /&gt;
@@ -44,8 +46,8 @@
         &lt;/target&gt;
     &lt;/project&gt;
         </pre>
-        <p>In this example there are two targets, clean and build.&nbsp; By default the 
-            build target will be called.
+        <p>In this example there are two targets, "clean" and "build".&nbsp; By default the 
+            "build" target will be called.
         </p>
         <h3>Examples</h3>
         <p>You can find the files you need to try out these examples in the <code>examples</code>
@@ -66,8 +68,10 @@
             </div>
         </blockquote>
         <p>Runs NAnt and builds the project in non-debug mode.&nbsp; Even though the build 
-            file sets the debug property to true, properties set on the command line 
-            override any properties set in the build file.</p>
+            file sets the debug property to true, the value that is set on the command line
+            will not be touched, as the "overwrite" attribute on the 
+            <code><a href="../tasks/property.html">&lt;property&gt;</a></code>
+            task is set to "false".</p>
         <p><strong>Important</strong>: Some tasks like the compiler tasks will only execute 
             if the date stamp of the generated file is older than the source files.&nbsp; 
             If you compile HelloWorld project in debug mode and then try to compile it 
