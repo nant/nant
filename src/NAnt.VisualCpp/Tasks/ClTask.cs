@@ -295,9 +295,11 @@ namespace NAnt.VisualCpp.Tasks {
                 try {
                     // write basic switches
                     writer.WriteLine("/c"); // compile only
- 
-                    // write user defined options
-                    writer.WriteLine(Options);
+
+                    if (Options != null) {
+                        // write user defined options
+                        writer.WriteLine(Options);
+                    }
 
                     if (ManagedExtensions) {
                         // enables Managed Extensions for C++
