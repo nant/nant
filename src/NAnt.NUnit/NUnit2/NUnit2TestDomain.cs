@@ -52,41 +52,36 @@ namespace SourceForge.NAnt.Tasks.NUnit2
       /// Run a single testcase
       /// </summary>
       /// <param name="testcase">The test to run, or null if running all tests</param>
-      /// <param name="assemblyFiles"></param>
+      /// <param name="assemblyFile"></param>
       /// <param name="configFilePath"></param>
       /// <param name="listener"></param>
       /// <returns>The results of the test</returns>
-      public TestResult[] RunTest ( 
+      public TestResult RunTest ( 
                   string testcase, 
-                  StringCollection assemblyFiles,
+                  string assemblyFile,
                   string configFilePath, 
                   EventListener listener
                )
       {
-         ArrayList results = new ArrayList();
-         foreach ( string assemblyFile in assemblyFiles ) {
-            string assemblyDir = Path.GetFullPath( Path.GetDirectoryName(assemblyFile) );
-            AppDomain domain = CreateDomain(assemblyDir, configFilePath);
+         string assemblyDir = Path.GetFullPath( Path.GetDirectoryName(assemblyFile) );
+         AppDomain domain = CreateDomain(assemblyDir, configFilePath);
 
-            string currentDir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(assemblyDir);
+         string currentDir = Directory.GetCurrentDirectory();
+         Directory.SetCurrentDirectory(assemblyDir);
 
-            try {
-                RemoteTestRunner runner = CreateTestRunner(domain);
-                if (testcase != null)
-                    runner.Initialize(testcase, assemblyFile);
-                else
-                    runner.Initialize(assemblyFile);
-                domain.DoCallBack(new CrossAppDomainDelegate(runner.BuildSuite));
-                results.Add( runner.Run(listener, _outStream, _errorStream) );
+         try {
+               RemoteTestRunner runner = CreateTestRunner(domain);
+               if (testcase != null)
+                  runner.Initialize(testcase, assemblyFile);
+               else
+                  runner.Initialize(assemblyFile);
+               runner.BuildSuite(); 
+               return runner.Run(listener, _outStream, _errorStream);
 
-            } finally {
-                Directory.SetCurrentDirectory(currentDir);
-                AppDomain.Unload(domain);
-            }
-        }
-
-        return ( TestResult[] )results.ToArray( typeof( TestResult ) );
+         } finally {
+               Directory.SetCurrentDirectory(currentDir);
+               AppDomain.Unload(domain);
+         }
       }
 
       private AppDomain CreateDomain(string basedir, string configFilePath)
@@ -97,16 +92,22 @@ namespace SourceForge.NAnt.Tasks.NUnit2
          domSetup.ConfigurationFile = configFilePath;
          domSetup.ApplicationName = "NAnt NUnit2.0 Remote Domain";
          
-         return AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
+         return AppDomain.CreateDomain ( 
+                  domSetup.ApplicationName, 
+                  AppDomain.CurrentDomain.Evidence, 
+                  domSetup
+               );
       }
 
       private RemoteTestRunner CreateTestRunner(AppDomain domain)
       {
-          ObjectHandle oh = domain.CreateInstance ( 
-                                 typeof(RemoteTestRunner).Assembly.FullName, 
-                                 typeof(RemoteTestRunner).FullName, 
-                                 false, 0, null, null, null, null, null
-                              );
+         ObjectHandle oh;
+         Type rtrType = typeof(RemoteTestRunner);
+
+         oh = domain.CreateInstance ( 
+                  rtrType.Assembly.FullName,
+                  rtrType.FullName
+               );
          return (RemoteTestRunner)oh.Unwrap();
       }
 
