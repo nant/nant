@@ -4,7 +4,7 @@
 	
 	<!-- compile the test task and add it then use it -->
 	<!-- this currently will only work in the global section of the build file -->
-	<csc target="library" output="UserTask.dll">
+	<csc target="library" output="UserTasks.dll">
 		<sources>
 			<includes name="UserTask.cs"/>
 		</sources>
@@ -14,7 +14,8 @@
 	</csc>
 
 	<!-- add task to NAnt, this task must be in the global section for now -->
-	<taskdef assembly="UserTask.dll"/>
+	<!-- must get taskdef.Tasks.dll from NAntContrib -->
+	<taskdef assembly="UserTasks.dll"/>
 
 	<!-- 
 		The test task is referenced in the newly created UserTask.dll but can 
