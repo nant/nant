@@ -24,7 +24,7 @@ namespace SourceForge.NAnt {
     /// Used to control parsing of command-line arguments.
     /// </summary>
     [Flags]    
-    public enum CommandLineArgumentType {
+    public enum CommandLineArgumentTypes {
         /// <summary>
         /// Indicates that this field is required. An error will be displayed
         /// if it is not present when parsing arguments.

@@ -31,7 +31,7 @@ namespace SourceForge.NAnt {
         /// with the specified argument type.
         /// </summary>
         /// <param name="argumentType">Specifies the checking to be done on the argument.</param>
-        public DefaultCommandLineArgumentAttribute(CommandLineArgumentType argumentType) : base(argumentType) {
+        public DefaultCommandLineArgumentAttribute(CommandLineArgumentTypes argumentType) : base(argumentType) {
         }
     }
 }

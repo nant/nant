@@ -112,7 +112,7 @@ namespace SourceForge.NAnt {
         /// <c>true</c> if the argument is required; otherwise, <c>false</c>.
         /// </value>
         public bool IsRequired {
-            get { return 0 != (_argumentType & CommandLineArgumentType.Required); }
+            get { return 0 != (_argumentType & CommandLineArgumentTypes.Required); }
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool AllowMultiple {
-            get { return IsCollection && (0 != (_argumentType & CommandLineArgumentType.Multiple)); }
+            get { return IsCollection && (0 != (_argumentType & CommandLineArgumentTypes.Multiple)); }
         }
         
         /// <summary>
@@ -148,7 +148,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool Unique {
-            get { return 0 != (_argumentType & CommandLineArgumentType.Unique); }
+            get { return 0 != (_argumentType & CommandLineArgumentTypes.Unique); }
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool IsExclusive {
-            get { return 0 != (_argumentType & CommandLineArgumentType.Exclusive); }
+            get { return 0 != (_argumentType & CommandLineArgumentTypes.Exclusive); }
         }
 
         #endregion Public Instance Properties
@@ -266,9 +266,9 @@ namespace SourceForge.NAnt {
                             return false;
                         }
                     } else if (type == typeof(int)) {
-                        return int.Parse(stringData);
+                        return int.Parse(stringData, CultureInfo.InvariantCulture);
                     } else if (type == typeof(uint)) {
-                        return int.Parse(stringData);
+                        return uint.Parse(stringData, CultureInfo.InvariantCulture);
                     } else {
                         if (type.IsEnum) {
                             try {
@@ -306,13 +306,13 @@ namespace SourceForge.NAnt {
 
         #region Private Static Methods
 
-        private static CommandLineArgumentType GetArgumentType(CommandLineArgumentAttribute attribute, PropertyInfo propertyInfo) {
+        private static CommandLineArgumentTypes GetArgumentType(CommandLineArgumentAttribute attribute, PropertyInfo propertyInfo) {
             if (attribute != null) {
                 return attribute.Type;
             } else if (IsCollectionType(propertyInfo.PropertyType)) {
-                return CommandLineArgumentType.MultipleUnique;
+                return CommandLineArgumentTypes.MultipleUnique;
             } else {
-                return CommandLineArgumentType.AtMostOnce;
+                return CommandLineArgumentTypes.AtMostOnce;
             }
         }
 
@@ -334,7 +334,7 @@ namespace SourceForge.NAnt {
 
         private Type _elementType;
         private bool _seenValue;
-        private CommandLineArgumentType _argumentType;
+        private CommandLineArgumentTypes _argumentType;
         private object _argumentValue;
         private ArrayList _collectionValues;
         private PropertyInfo _propertyInfo;

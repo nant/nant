@@ -32,7 +32,7 @@ namespace SourceForge.NAnt {
         /// with the specified argument type.
         /// </summary>
         /// <param name="argumentType">Specifies the checking to be done on the argument.</param>
-        public CommandLineArgumentAttribute(CommandLineArgumentType argumentType) {
+        public CommandLineArgumentAttribute(CommandLineArgumentTypes argumentType) {
             _argumentType = argumentType;
         }
 
@@ -44,7 +44,7 @@ namespace SourceForge.NAnt {
         /// Gets or sets the checking to be done on the argument.
         /// </summary>
         /// <value>The checking that should be done on the argument.</value>
-        public CommandLineArgumentType Type {
+        public CommandLineArgumentTypes Type {
             get { return _argumentType; }
         }
 
@@ -79,7 +79,7 @@ namespace SourceForge.NAnt {
 
         #region Private Instance Fields
 
-        private CommandLineArgumentType _argumentType;
+        private CommandLineArgumentTypes _argumentType;
         private string _name;
         private string _shortName;
         private string _description;

@@ -109,7 +109,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CommandLineArgumentType.cs"
+                    RelPath = "CommandLineArgumentTypes.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
