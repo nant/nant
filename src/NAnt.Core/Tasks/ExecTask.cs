@@ -32,7 +32,8 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("exec")]
     public class ExecTask : ExternalProgramBase {
-        
+        #region Private Instance Fields
+
         string _program = null;
         string _commandline = null;
         string _baseDirectory = null;
@@ -41,79 +42,148 @@ namespace SourceForge.NAnt.Tasks {
         string _outputFile = null;
         bool _outputAppend = false;
         private OptionSet _environment = new OptionSet();
-        
-        /// <summary>The program to execute without command arguments.</summary>
-        [TaskAttribute("program", Required=true)]public string FileName  { set { _program = value; } }                
-                
-        /// <summary>The command-line arguments for the program.</summary>
-        [TaskAttribute("commandline")]public string Arguments { set { _commandline = value; } }
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>
-        /// environment variables to pass to the program
+        /// The program to execute without command arguments.
+        /// </summary>
+        [TaskAttribute("program", Required=true)]
+        public string FileName {
+            get { return _program; }
+            set { _program = value; }
+        }
+                
+        /// <summary>
+        /// The command-line arguments for the program.
+        /// </summary>
+        [TaskAttribute("commandline")]
+        public string CommandLineArguments {
+            get { return _commandline; }
+            set { _commandline = value; }
+        }
+
+        /// <summary>
+        /// Environment variables to pass to the program.
         /// </summary>
         [OptionSetAttribute("environment")]
         public OptionSet Environment {
             get { return _environment; }
         }
-        /// <summary>The file to which the standard output will be redirected.</summary>
-        /// <remarks>By default, the standard output is redirected to the console.</remarks>
-        [TaskAttribute("output", Required=false)]public string Output { set { _outputFile = value; } }
-        
-        /// <summary>true if the output file is to be appended to.</summary>
-        /// <remarks>False by default.</remarks>
-        [TaskAttribute("append", Required=false)]
-        [BooleanValidator()]
-        public bool Append { set { _outputAppend = value; } }
 
-        public override string ProgramFileName  { 
-            get { 
-                if( null == _baseDirectory || Path.IsPathRooted(_program) ) {
+        /// <summary>
+        /// The directory in which the command will be executed.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The working directory will be evaluated relative to the project's
+        /// baseDirectory if it is relative.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("workingdir")]
+        public string WorkingDirectory {
+            get { return Project.GetFullPath(_workingDirectory); }
+            set { _workingDirectory = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
+        public override string ProgramFileName {
+            get {
+                if (_baseDirectory == null || Path.IsPathRooted(_program)) {
                     return _program;
-                }
-                else {
+                } else {
                     return Path.Combine(Path.GetFullPath(BaseDirectory), _program);
                 }
             }
-        }    
+        }
 
-        public override string ProgramArguments { get { return _commandline; } }
+        /// <summary>
+        /// Gets the command-line arguments for the external program.
+        /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
+        public override string ProgramArguments {
+            get { return _commandline; }
+        }
         
-        /// <summary>The directory the program is in.</summary>
-        /// <remarks><para>The basedir will be evaluated relative to the project's BaseDirectory if it is relative.</para></remarks>
+        /// <summary>
+        /// The directory the program is in.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The basedir will be evaluated relative to the project's baseDirectory 
+        /// if it is relative.
+        /// </para>
+        /// </remarks>
         [TaskAttribute("basedir")]
-        public override string BaseDirectory    { get { return Project.GetFullPath(_baseDirectory); } set { _baseDirectory = value; } }
+        public override string BaseDirectory {
+            get { return Project.GetFullPath(_baseDirectory); }
+            set { _baseDirectory = value; }
+        }
 
-        /// <summary>The directory in which the command will be executed.</summary>
-        /// <remarks><para>The working will be evaluated relative to the project's BaseDirectory if it is relative.</para></remarks>
-        [TaskAttribute("workingdir")]
-        public virtual string WorkingDirectory    { get { return Project.GetFullPath(_workingDirectory); } set { _workingDirectory = value; } }
-        
-        public override string OutputFile { get { return _outputFile; } }
-        
-        public override bool OutputAppend { get { return _outputAppend; } }
+        /// <summary>
+        /// The file to which the standard output will be redirected.
+        /// </summary>
+        /// <remarks>By default, the standard output is redirected to the console.</remarks>
+        [TaskAttribute("output", Required=false)]
+        public override string OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
+        }
 
-        /// <summary>Stop the build if the command does not finish within the specified time.  Specified in milliseconds.  Default is no time out.</summary>
+        /// <summary>
+        /// true if the output file is to be appended to. Default value is <c>false</c>.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if output should be appended to the <see cref="OutputFile" />; 
+        /// otherwise, <c>false</c>.
+        /// </value>
+        [TaskAttribute("append", Required=false)]
+        public override bool OutputAppend {
+            get { return _outputAppend; }
+            set { _outputAppend = value; }
+        }
+
+        /// <summary>
+        /// Stop the build if the command does not finish within the specified time. 
+        /// Specified in milliseconds. Default is no time out.
+        /// </summary>
         [TaskAttribute("timeout")]
         [Int32Validator()]
-        public override int TimeOut { get { return _timeout; } set { _timeout = value; }  }
-        
+        public override int TimeOut {
+            get { return _timeout; }
+            set { _timeout = value; }
+        }
+
         protected override void ExecuteTask() {
-            Log.WriteLine(LogPrefix + "{0} {1}", ProgramFileName, GetCommandLine());
+            Log.WriteLine(LogPrefix + "{0} {1}", ProgramFileName, CommandLine);
             base.ExecuteTask();
         }
 
-        protected override void PrepareProcess(ref System.Diagnostics.Process process) {
-            base.PrepareProcess(ref process);
-            if(_workingDirectory != null) {
+        protected override void PrepareProcess(System.Diagnostics.Process process) {
+            base.PrepareProcess(process);
+            if (_workingDirectory != null) {
                 process.StartInfo.WorkingDirectory = WorkingDirectory;
             }
 
-            foreach ( OptionValue option in Environment ) {
-                if ( option.Value == null )
+            foreach (OptionValue option in Environment) {
+                if (option.Value == null)
                    process.StartInfo.EnvironmentVariables[option.Name] = "";
                 else
                    process.StartInfo.EnvironmentVariables[option.Name] = option.Value;
             }
         }
+
+        #endregion Override implementation of ExternalProgramBase
     }
 }
