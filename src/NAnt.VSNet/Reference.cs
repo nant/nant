@@ -239,6 +239,20 @@ namespace NAnt.VSNet {
 
         #endregion Protected Instance Properties
 
+        #region Private Instance Properties
+
+        private string LogPrefix {
+            get { 
+                if (_solutionTask != null) {
+                    return _solutionTask.LogPrefix;
+                }
+
+                return string.Empty;
+            }
+        }
+
+        #endregion Private Instance Properties
+
         #region Public Instance Methods
 
         public void GetCreationCommand(ConfigurationSettings cs, out string program, out string commandLine) {
@@ -602,10 +616,10 @@ namespace NAnt.VSNet {
                         }
                     }
                 } catch (Exception ex) {
-                    Log(Level.Verbose, "Error resolve reference to '{0}' using"
+                    Log(Level.Verbose, LogPrefix + "Error resolve reference to '{0}' using"
                         + " AssemblyFolderKey '{1}'.", _referenceFile,
                         assemblyFolderKey);
-                    Log(Level.Debug, ex.ToString());
+                    Log(Level.Debug, LogPrefix + ex.ToString());
                 }
             }
 
@@ -710,15 +724,29 @@ namespace NAnt.VSNet {
                         AppDomain.Unload(temporaryDomain);
                     }
 
-                    // if the import tool is aximp, we'll use the primary interop 
-                    // assembly as runtime callable wrapper
-                    if (_importTool == "aximp") {
-                        _runtimeCallableWrapper = _referenceFile;
-                    } else {
-                        return;
+                    switch (_importTool) {
+                        case "aximp":
+                            // if the import tool is aximp, we'll use the primary 
+                            // interop assembly as runtime callable wrapper
+                            _runtimeCallableWrapper = _referenceFile;
+                            break;
+                        case "tlbimp":
+                            // if tlbimp is defined as import tool, but a primary
+                            // interop assembly is available, then output a 
+                            // warning
+                            Log(Level.Warning, LogPrefix + "The reference component"
+                                + " '{0}' has an updated custom wrapper available.", 
+                                referenceName);
+                            break;
+                        case "primary":
+                            // if we found the primary interop assembly, consider
+                            // our business here done
+                            return;
                     }
                 }
 
+                // if we were actually looking for a primary interop assembly
+                // and didn't find one, then the build should fail
                 if (_importTool == "primary") {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Couldn't find primary interop assembly '{0}' ({1}).", 
