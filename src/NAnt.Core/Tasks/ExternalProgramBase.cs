@@ -475,7 +475,7 @@ namespace SourceForge.NAnt.Tasks {
         public ProgramArgument this[string value] {
             get {
                 if (value != null) {
-                    // Try to locate instance using LongName
+                    // Try to locate instance using Value
                     foreach (ProgramArgument ProgramArgument in base.List) {
                         if (value.Equals(ProgramArgument.Value)) {
                             return ProgramArgument;

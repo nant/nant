@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,24 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-
 // Chris Jenkin (oneinchhard@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-
-/*
-March 1, 2002 - Chris
-I went the explicit route as far as attributes were concerned since this is a 
-new task rather than Ant chmod. ie hidden="true" readonly="true" rather than 
-attributes="+h+r" or some thing similar. (I am sure there is an infinitely 
-better way to do this, suggestions?)
-*/
-
-/*
-March 3, 2002 - Gerry
-Removed the dir/recursive attributes.  You can get the same effect by using
-file sets.  The .NET framework does not appear to provide a way of setting
-attributes.
-*/
 
 using System;
 using System.Collections.Specialized;
@@ -68,6 +52,7 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("attrib")]
     public class AttribTask : Task {
+        #region Private Instance Fields
 
         string _fileName = null;
         FileSet _fileset = new FileSet();
@@ -77,20 +62,31 @@ namespace SourceForge.NAnt.Tasks {
         bool _readOnlyAttrib = false;
         bool _systemAttrib = false;
 
-        /// <summary>The name of the file which will have its attributes set.  This is provided as an alternate to using the task's fileset.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The name of the file which will have its attributes set. This is 
+        /// provided as an alternate to using the task's fileset.
+        /// </summary>
         [TaskAttribute("file")]
         public string FileName {
             get { return _fileName; }
             set { _fileName = value; }
         }
 
-        /// <summary>All the files in this fileset will have their file attributes set.</summary>
+        /// <summary>
+        /// All the files in this fileset will have their file attributes set.
+        /// </summary>
         [FileSet("fileset")]
         public FileSet AttribFileSet {
             get { return _fileset; }
         }
 
-        /// <summary>Set the archive attribute.  Default is "false".</summary>
+        /// <summary>
+        /// Set the archive attribute. Default is "false".
+        /// </summary>
         [TaskAttribute("archive")]
         [BooleanValidator()]
         public bool ArchiveAttrib {
@@ -98,7 +94,9 @@ namespace SourceForge.NAnt.Tasks {
             set { _archiveAttrib = value; }
         }
 
-        /// <summary>Set the hidden attribute.  Default is "false".</summary>
+        /// <summary>
+        /// Set the hidden attribute. Default is "false".
+        /// </summary>
         [TaskAttribute("hidden")]
         [BooleanValidator()]
         public bool HiddenAttrib {
@@ -106,7 +104,10 @@ namespace SourceForge.NAnt.Tasks {
             set { _hiddenAttrib = value; }
         }
 
-        /// <summary>Set the normal file attributes.  This attribute is valid only if used alone.  Default is "false".</summary>
+        /// <summary>
+        /// Set the normal file attributes. This attribute is valid only if used 
+        /// alone. Default is "false".
+        /// </summary>
         [TaskAttribute("normal")]
         [BooleanValidator()]
         public bool NormalAttrib {
@@ -114,7 +115,9 @@ namespace SourceForge.NAnt.Tasks {
             set { _normalAttrib = value; }
         }
 
-        /// <summary>Set the read only attribute.  Default is "false".</summary>
+        /// <summary>
+        /// Set the read-only attribute. Default is "false".
+        /// </summary>
         [TaskAttribute("readonly")]
         [BooleanValidator()]
         public bool ReadOnlyAttrib {
@@ -122,13 +125,19 @@ namespace SourceForge.NAnt.Tasks {
             set { _readOnlyAttrib = value; }
         }
 
-        /// <summary>Set the system attribute.  Default is "false".</summary>
+        /// <summary>
+        /// Set the system attribute. Default is "false".
+        /// </summary>
         [TaskAttribute("system")]
         [BooleanValidator()]
         public bool SystemAttrib {
             get { return _systemAttrib; }
             set { _systemAttrib = value; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             // add the shortcut filename to the file set
@@ -137,7 +146,7 @@ namespace SourceForge.NAnt.Tasks {
                     string path = Project.GetFullPath(FileName);
                     AttribFileSet.Includes.Add(path);
                 } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file '{0}'", FileName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", FileName);
                     throw new BuildException(msg, Location, e);
                 }
             }
@@ -147,7 +156,7 @@ namespace SourceForge.NAnt.Tasks {
             FileAttributes fileAttributes = GetFileAttributes();
 
             // display build log message
-            Log.WriteLine(LogPrefix + "Setting file attributes for {0} files to {1}", fileNames.Count, fileAttributes.ToString());
+            Log.WriteLine(LogPrefix + "Setting file attributes for {0} files to {1}", fileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
 
             // perform operation
             foreach (string path in fileNames) {
@@ -155,7 +164,11 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        void SetFileAttributes(string path, FileAttributes fileAttributes) {
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        private void SetFileAttributes(string path, FileAttributes fileAttributes) {
             try {
                 if (File.Exists(path)) {
                     Log.WriteLineIf(Verbose, LogPrefix + path);
@@ -165,11 +178,15 @@ namespace SourceForge.NAnt.Tasks {
                 }
             } catch (Exception e) {
                 string msg = String.Format(CultureInfo.InvariantCulture, "Cannot set file attributes for '{0}'", path);
-                throw new BuildException(msg, Location, e);
+                if (FailOnError) {
+                    throw new BuildException(msg, Location, e);
+                } else {
+                    Log.WriteLineIf(Verbose, LogPrefix + msg);
+                }
             }
         }
 
-        FileAttributes GetFileAttributes() {
+        private FileAttributes GetFileAttributes() {
             FileAttributes fileAttributes = 0;
             if (NormalAttrib) {
                 fileAttributes = FileAttributes.Normal;
@@ -192,5 +209,7 @@ namespace SourceForge.NAnt.Tasks {
             }
             return fileAttributes;
         }
+
+        #endregion Private Instance Methods
     }
 }

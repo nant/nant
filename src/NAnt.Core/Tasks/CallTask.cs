@@ -17,16 +17,9 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
-using System.Xml;
-
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
     /// <summary>
     /// Calls a NAnt target in the current project.
     /// </summary>
@@ -52,35 +45,53 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("call")]
     public class CallTask : Task {
+        #region Private Instance Fields
 
         string _target = null;
         bool _force = false;
 
-        // Attribute properties
-        /// <summary>NAnt target to call.</summary>
-        [TaskAttribute("target", Required=true)]
-        public string TargetName { get { return _target; } set { _target = value; }}
+        #endregion Private Instance Fields
 
-        /// <summary>Force a Execute even if the target has already been executed</summary>
+        #region Public Instance Properties
+
+        /// <summary>
+        /// NAnt target to call.
+        /// </summary>
+        [TaskAttribute("target", Required=true)]
+        public string TargetName {
+            get { return _target; }
+            set { _target = value; }
+        }
+
+        /// <summary>
+        /// Force a execute even if the target has already been executed.
+        /// </summary>
         [TaskAttribute("force")]
-        public bool ForceExecute { set { _force= value; }}
+        public bool ForceExecute {
+            get { return _force; }
+            set { _force= value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            if(_force) {
-                Target t = Project.Targets.Find(_target);
-                if(t == null) {
+            if (ForceExecute) {
+                Target t = Project.Targets.Find(TargetName);
+                if (t == null) {
                     // if we can't find it, then neither should Project.Execute.
                     // Let them do the error handling and exception generation.
-                    Project.Execute(_target);
+                    Project.Execute(TargetName);
                 }
 
                 //Execute a copy.
                 t.Copy().Execute();
-
-            }
-            else {
+            } else {
                 Project.Execute(TargetName);
             }
         }
+
+        #endregion Override implementation of Task
     }
 }
