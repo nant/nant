@@ -162,15 +162,11 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("delim")]
         public string Delimiter { get { return _delim;} set {_delim = value; }}
 
-        /// <summary>
-        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
-        /// </summary>
+        /// <summary>        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.        /// </summary>
         [BuildElement("in")]
         public InElement InElement { set { _inElement = value; }}
 
-        /// <summary>
-        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
-        /// </summary>
+        /// <summary>        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.        /// </summary>
         [BuildElement("do")]
         public TaskContainer StuffToDo { set { _doStuff = value; }}
 
@@ -186,8 +182,7 @@ namespace SourceForge.NAnt.Tasks {
                 switch(ItemType) {
                     case ItemTypes.None:
                         throw new BuildException("Invalid itemtype", Location);
-                    
-                    case ItemTypes.File: {
+                    case ItemTypes.File:
                         if(_inAttribute == null && _inElement == null)
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
 
@@ -215,8 +210,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
                         
                         break;
-                    }
-                    case ItemTypes.Folder: {
+                    case ItemTypes.Folder:
                         if(_inAttribute == null && _inElement == null)
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
 
@@ -241,8 +235,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
 
                         break;
-                    }
-                    case ItemTypes.Line: {
+                    case ItemTypes.Line:
                         if(!File.Exists(Project.GetFullPath(_inAttribute)))
                             throw new BuildException("Invalid Source: " + _inAttribute, Location);
                         if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0 ) )
@@ -260,8 +253,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
                         sr.Close();
                         break;
-                    }
-                    case ItemTypes.String: {
+                    case ItemTypes.String:
                         if(_props.Length > 1)
                             throw new BuildException(@"Only one property may be specified for item=""String""");
                         if(Delimiter == null || Delimiter.Length == 0)
@@ -270,10 +262,8 @@ namespace SourceForge.NAnt.Tasks {
                         foreach(string s in items)
                             DoWork(s);
                         break;
-                    }
                 }
-            }
-            finally {
+            } finally {
                 // Restore all of the old property values
                 for ( int nIndex = 0; nIndex < oldPropVals.Length; nIndex++ ) {
                     Properties[ _props[ nIndex ] ] = oldPropVals[ nIndex ];
@@ -282,12 +272,11 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected virtual void DoWork(params string[] propVals) {
-            for ( int nIndex = 0; nIndex < propVals.Length; nIndex++ ) {
+            for (int nIndex = 0; nIndex < propVals.Length; nIndex++ ) {
                 string propValue = propVals[ nIndex ];
                 if ( nIndex >= _props.Length )
                     throw new BuildException("Too many items on line");
-                switch (_trimType)
-                {
+                switch (_trimType) {
                     case TrimTypes.Both:
                         propValue = propValue.Trim();
                         break;
@@ -302,18 +291,11 @@ namespace SourceForge.NAnt.Tasks {
             }
             base.ExecuteTask();
         }
-
-        protected override void ExecuteChildTasks() {
-            if(_doStuff == null)
-                base.ExecuteChildTasks();
-            else
-                _doStuff.Execute();
-        }
+        protected override void ExecuteChildTasks() {            if(_doStuff == null) {                base.ExecuteChildTasks();            } else {                _doStuff.Execute();            }        }
     }
 
     // These classes provide a way of getting the Element task to initialize
     // the values from the build file.
-
     public class InElement : Element {
         FileSet _items = null;
         [FileSet("items")]
