@@ -37,6 +37,16 @@ namespace NAnt.VSNet {
         #region Internal Instance Constructors
 
         internal VcFileConfiguration(string relativePath, string parentName, XmlElement elem, VcProjectConfiguration parentConfig, DirectoryInfo outputDir) : base(elem, parentConfig.Project, outputDir) {
+            if (relativePath == null) {
+                throw new ArgumentNullException("relativePath");
+            }
+            if (parentName == null) {
+                throw new ArgumentNullException("parentName");
+            }
+            if (parentConfig == null) {
+                throw new ArgumentNullException("parentConfig");
+            }
+
             _relativePath = relativePath;
             _parentName = parentName;
 
@@ -49,6 +59,16 @@ namespace NAnt.VSNet {
         }
 
         internal VcFileConfiguration(string relativePath, string parentName, VcProjectConfiguration parentConfig, DirectoryInfo outputDir) : base(parentConfig.Name, parentConfig.Project, outputDir) {
+            if (relativePath == null) {
+                throw new ArgumentNullException("relativePath");
+            }
+            if (parentName == null) {
+                throw new ArgumentNullException("parentName");
+            }
+            if (parentConfig == null) {
+                throw new ArgumentNullException("parentConfig");
+            }
+
             _relativePath = relativePath;
             _parentName = parentName;
             _parentConfig = parentConfig;
@@ -157,7 +177,7 @@ namespace NAnt.VSNet {
             get { return ExpandMacros(_parentConfig.RawReferencesPath); }
         }
 
-        public override string GetToolSetting(string toolName, string settingName, string defaultValue) {
+        public override string GetToolSetting(string toolName, string settingName, string projectDefault) {
             string setting = null;
 
             Hashtable toolSettings = (Hashtable) Tools[toolName];
@@ -170,13 +190,9 @@ namespace NAnt.VSNet {
                     return ExpandMacros(setting);
                 }
             }
-            if (_parentConfig != null) {
-                setting = _parentConfig.GetToolSetting(toolName, settingName, new ExpansionHandler(ExpandMacros));
-            }
 
-            if (setting == null && defaultValue != null) {
-                return ExpandMacros(defaultValue);
-            }
+            setting = _parentConfig.GetToolSetting(toolName, settingName, 
+                projectDefault, new ExpansionHandler(ExpandMacros));
 
             return setting;
         }
