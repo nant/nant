@@ -67,13 +67,14 @@ namespace NAnt.DotNet.Tasks {
     public class VbcTask : CompilerBase {
         #region Private Instance Fields
 
-        private string _baseAddress = null;
-        private string _optionCompare = null;
-        private bool _optionExplicit = false;
-        private bool _optionStrict = false;
-        private bool _optionOptimize = false;
-        private bool _removeintchecks = false;
-        private string _rootNamespace = null;
+        private string _baseAddress;
+        private FileInfo _docFile;
+        private string _optionCompare;
+        private bool _optionExplicit;
+        private bool _optionStrict;
+        private bool _optionOptimize;
+        private bool _removeintchecks;
+        private string _rootNamespace;
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
 
         #endregion Private Instance Fields
@@ -102,6 +103,21 @@ namespace NAnt.DotNet.Tasks {
         public string BaseAddress {
             get { return _baseAddress; }
             set { _baseAddress = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// The name of the XML documentation file to generate. Only supported
+        /// when targeting .NET 2.0 (or higher).
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/doc:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("doc")]
+        public FileInfo DocFile {
+            get { return _docFile; }
+            set { _docFile = value; }
         }
 
         /// <summary>
@@ -278,6 +294,10 @@ namespace NAnt.DotNet.Tasks {
             // the base address for the DLL
             if (BaseAddress != null) {
                 WriteOption(writer, "baseaddress", BaseAddress);
+            }
+
+            if (DocFile != null) {
+                WriteOption(writer, "doc", DocFile.FullName);
             }
 
             if (Debug) {
