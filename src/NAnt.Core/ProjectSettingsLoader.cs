@@ -32,6 +32,7 @@ using System.Xml;
 
 using Microsoft.Win32;
 
+using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -92,10 +93,6 @@ namespace NAnt.Core {
 
         #region Private Instance Properties
 
-        private PropertyDictionary Properties {
-            get { return Project.Properties; }
-        }
-
         /// <summary>
         /// Gets the <see cref="XmlNamespaceManager" />.
         /// </summary>
@@ -127,6 +124,10 @@ namespace NAnt.Core {
             ProcessPlatform(Project.ConfigurationNode.SelectSingleNode(
                 "nant:frameworks/nant:platform[@name='" + Project.PlatformName + "']",
                 NamespaceManager));
+
+            // process global properties
+            ProcessGlobalProperties(Project.ConfigurationNode.SelectNodes(
+                "nant:properties/nant:property", NamespaceManager));
         }
 
         #endregion Public Instance Methods
@@ -384,6 +385,31 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Reads the list of global properties specified in the NAnt configuration
+        /// file.
+        /// </summary>
+        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing global properties.</param>
+        private void ProcessGlobalProperties(XmlNodeList propertyNodes) {
+            //deals with xml info from the config file, not build document.
+            foreach (XmlNode propertyNode in propertyNodes) {
+                //skip special elements like comments, pis, text, etc.
+                if (!(propertyNode.NodeType == XmlNodeType.Element)) {
+                    continue;
+                }
+
+                // initialize task
+                PropertyTask propertyTask = new PropertyTask();
+                propertyTask.Parent = propertyTask.Project = Project;
+                propertyTask.NamespaceManager = NamespaceManager;
+                propertyTask.InitializeTaskConfiguration();
+                // configure using xml node
+                propertyTask.Initialize(propertyNode);
+                // execute task
+                propertyTask.Execute();
+            }
+        }
+
+        /// <summary>
         /// Processes the framework environment variables.
         /// </summary>
         /// <param name="environmentNodes">An <see cref="XmlNodeList" /> representing framework environment variables.</param>
@@ -402,7 +428,7 @@ namespace NAnt.Core {
 
                 // initialize element
                 EnvironmentVariable environmentVariable = new EnvironmentVariable();
-                environmentVariable.Project = framework.Project;
+                environmentVariable.Parent = environmentVariable.Project = framework.Project;
                 environmentVariable.NamespaceManager = NamespaceManager;
 
                 // configure using xml node
