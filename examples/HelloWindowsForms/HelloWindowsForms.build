@@ -14,41 +14,49 @@
     <property name="build.dir" value="build"/>
 
     <target name="clean" description="cleans build directory">
-        <delete dir="${build.dir}" verbose="true" failonerror="false"/>
+        <delete dir="${build.dir}" verbose="true" if="${directory::exists(build.dir)}" />
     </target>
 
     <target name="debug" depends="clean">
-        <property name="debug" value="true"/>
+        <property name="debug" value="true" />
     </target>
 
     <target name="release" depends="clean">
-        <property name="debug" value="false"/>
+        <property name="debug" value="false" />
     </target>
 
     <target name="build">
         <mkdir dir="${build.dir}"/>
         <vbc target="winexe" output="${build.dir}\${basename}.exe" debug="${debug}" 
-                imports="Microsoft.VisualBasic,System,System.Collections,System.Data,System.Diagnostics,System.Drawing,System.Windows.Forms" 
-                optioncompare="text" 
-                optionexplicit="true" 
-                optionstrict="true" 
-                rootnamespace="HelloWindowsForms" 
+                main="HelloWindowsForms.MainForm"
+                optioncompare="text"
+                optionexplicit="true"
+                optionstrict="true"
+                rootnamespace="HelloWindowsForms"
                 removeintchecks="true">
+            <imports>
+                <import name="Microsoft.VisualBasic" />
+                <import name="System" />
+                <import name="System.Collections" />
+                <import name="System.Data" />
+                <import name="System.Diagnostics" />
+                <import name="System.Drawing" />
+                <import name="System.Windows.Forms" />
+            </imports>
             <sources>
-                <includes name="*.vb"/>
+                <include name="*.vb" />
             </sources>
             <references>
-                <includes asis="true" name="System.dll"/>
-                <includes asis="true" name="System.Data.dll"/>
-                <includes asis="true" name="System.Drawing.dll"/>
-                <includes asis="true" name="System.Windows.Forms.dll"/>
-                <includes asis="true" name="System.XML.dll"/>
+                <include name="System.dll" />
+                <include name="System.Data.dll" />
+                <include name="System.Drawing.dll" />
+                <include name="System.Windows.Forms.dll" />
+                <include name="System.Xml.dll" />
             </references>
-            <arg value="/main:HelloWindowsForms.MainForm"/>
         </vbc>
     </target>
 
     <target name="run" depends="build">
-        <exec program="${basename}.exe" basedir="${build.dir}"/>
+        <exec program="${basename}.exe" basedir="${build.dir}" />
     </target>
 </project>
