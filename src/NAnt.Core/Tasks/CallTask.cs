@@ -76,6 +76,7 @@ namespace NAnt.Core.Tasks {
 
         private string _target = null;
         private bool _force = false;
+        private bool _cascade = true;
 
         #endregion Private Instance Fields
 
@@ -103,6 +104,16 @@ namespace NAnt.Core.Tasks {
             get { return _force; }
             set { _force = value; }
         }
+        
+        /// <summary>
+        /// Cascade all the specified targets dependencies. The 
+        /// default is <see langword="true" />.
+        /// </summary>
+        [TaskAttribute("cascade")] 
+        public bool CascadeDependencies {
+            get { return _cascade; }
+            set { _cascade = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -129,7 +140,7 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            Project.Execute(TargetName);
+            Project.Execute(TargetName, CascadeDependencies);
         }
 
         /// <summary>
