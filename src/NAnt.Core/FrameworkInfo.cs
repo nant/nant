@@ -44,7 +44,7 @@ namespace NAnt.Core {
         private readonly FileInfo _runtimeEngine;
         private readonly PropertyDictionary _properties;
         private EnvironmentVariableCollection _environmentVariables;
-        private FileSet _extensions;
+        private FileSet _taskAssemblies;
 
         #endregion Private Instance Fields
 
@@ -69,8 +69,8 @@ namespace NAnt.Core {
             string clrVersion, string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
             string runtimeEngine, PropertyDictionary properties) {
 
-            _extensions = new FileSet();
-            _extensions.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            _taskAssemblies = new FileSet();
+            _taskAssemblies.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 
             _family = family;
             _description = description;
@@ -276,14 +276,14 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Gets the set of assemblies and directories that should scanned for
-        /// NAnt extension classes.
+        /// NAnt tasks, types or functions.
         /// </summary>
         /// <value>
         /// The set of assemblies and directories that should be scanned for 
-        /// NAnt extension classes.
+        /// NAnt tasks, types or functions.
         /// </value>
-        public FileSet Extensions {
-            get { return _extensions; }
+        public FileSet TaskAssemblies {
+            get { return _taskAssemblies; }
         }
 
         #endregion Public Instance Properties

@@ -47,10 +47,10 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         /// <summary>
-        /// Holds a value indicating whether a scan for extensions has already 
-        /// been performed for the current runtime framework.
+        /// Holds a value indicating whether a scan for tasks, types and functions
+        /// has already been performed for the current runtime framework.
         /// </summary>
-        private static bool ScannedExtensions = false;
+        private static bool ScannedTasks = false;
 
         /// <summary>
         /// Holds the logger instance for this class.
@@ -128,19 +128,36 @@ namespace NAnt.Core {
                 "nant:frameworks/nant:platform[@name='" + Project.PlatformName + "']",
                 NamespaceManager));
 
-            // only scan the extension assemblies for the runtime framework once
-            if (!ScannedExtensions) {
-                foreach (string extensionAssembly in Project.RuntimeFramework.Extensions.FileNames) {
-                    TypeFactory.ScanAssembly(extensionAssembly);
+            // only scan the task assemblies for the runtime framework once
+            if (!ScannedTasks) {
+                /*
+                foreach (string scannedDir in Project.RuntimeFramework.TaskAssemblies.ScannedDirectories) {
+                    // check if directory is subdirectory of AppDomain base dir
+                    if (scannedDir.StartsWith(AppDomain.CurrentDomain.BaseDirectory)) {
+                        string relPath = scannedDir.Remove(0, 
+                            AppDomain.CurrentDomain.BaseDirectory.Length);
+                        if (relPath.StartsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                            relPath = relPath.Remove(0, 1);
+                        }
+
+                        if (relPath.Length != 0) {
+                            AppDomain.CurrentDomain.AppendPrivatePath(relPath);
+                        }
+                    }
+                }
+                */
+
+                foreach (string taskAssembly in Project.RuntimeFramework.TaskAssemblies.FileNames) {
+                    TypeFactory.ScanAssembly(taskAssembly);
                 }
 
-                foreach (string extensionDir in Project.RuntimeFramework.Extensions.DirectoryNames) {
-                    TypeFactory.ScanDir(extensionDir);
+                foreach (string taskDir in Project.RuntimeFramework.TaskAssemblies.DirectoryNames) {
+                    TypeFactory.ScanDir(taskDir);
                 }
 
-                // ensure we don't scan the extension assemblies for the current
+                // ensure we don't scan the task assemblies for the current
                 // runtime framework again
-                ScannedExtensions = true;
+                ScannedTasks = true;
             }
 
             // TO-DO : should we rename the <loadtasks> task to <load-extensions>
@@ -294,14 +311,16 @@ namespace NAnt.Core {
                     info.EnvironmentVariables = ProcessFrameworkEnvironmentVariables(
                         environmentNodes, info);
 
-                    // process framework extensions
-                    info.Extensions.Project = Project;
-                    info.Extensions.NamespaceManager = NamespaceManager;
-                    info.Extensions.Parent = Project; // avoid warnings by setting the parent of the fileset
-                    info.Extensions.ID = "extensions"; // avoid warnings by assigning an id
-                    XmlNode extensionsNode = frameworkNode.SelectSingleNode("nant:extensions", NamespaceManager);
-                    if (extensionsNode != null) {
-                        info.Extensions.Initialize(extensionsNode, info.Properties, info);
+                    // process framework task assemblies
+                    info.TaskAssemblies.Project = Project;
+                    info.TaskAssemblies.NamespaceManager = NamespaceManager;
+                    info.TaskAssemblies.Parent = Project; // avoid warnings by setting the parent of the fileset
+                    info.TaskAssemblies.ID = "internal-task-assemblies"; // avoid warnings by assigning an id
+                    XmlNode taskAssembliesNode = frameworkNode.SelectSingleNode(
+						"nant:task-assemblies", NamespaceManager);
+                    if (taskAssembliesNode != null) {
+                        info.TaskAssemblies.Initialize(taskAssembliesNode, 
+							info.Properties, info);
                     }
 
                     // framework is valid, so add it to framework dictionary

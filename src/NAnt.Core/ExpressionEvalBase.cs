@@ -170,19 +170,14 @@ namespace NAnt.Core {
                 switch (op) {
                     case ExpressionTokenizer.TokenType.EQ:
                         return o.Equals(o2);
-                        
                     case ExpressionTokenizer.TokenType.NE:
                         return !o.Equals(o2);
-                        
                     case ExpressionTokenizer.TokenType.LT:
                         return ((IComparable) o).CompareTo(o2) < 0;
-                        
                     case ExpressionTokenizer.TokenType.GT:
                         return ((IComparable) o).CompareTo(o2) > 0;
-                        
                     case ExpressionTokenizer.TokenType.LE:
                         return ((IComparable) o).CompareTo(o2) <= 0;
-                        
                     case ExpressionTokenizer.TokenType.GE:
                         return ((IComparable) o).CompareTo(o2) >= 0;
                 }

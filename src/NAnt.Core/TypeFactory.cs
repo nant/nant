@@ -68,13 +68,13 @@ namespace NAnt.Core {
         #region Public Static Methods
 
         /// <summary>
-        /// Scans the given assembly for extensions.
+        /// Scans the given assembly for tasks, types and functions.
         /// </summary>
-        /// <param name="assemblyFile">The assembly to scan for extensions.</param>
+        /// <param name="assemblyFile">The assembly to scan for tasks, types and functions.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanAssembly(string assemblyFile) {
             logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                "Scanning '{0}' for extensions.", assemblyFile));
+                "Scanning '{0}' for tasks, types and functions.", assemblyFile));
 
             try {
                 Assembly assembly = Assembly.LoadFrom(assemblyFile);
@@ -84,7 +84,7 @@ namespace NAnt.Core {
                 AddFunctionSets(assembly);
             } catch (Exception ex) {
                 logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning '{0}' for extensions.", 
+                    "Error scanning '{0}' for tasks, types and functions.", 
                     assemblyFile), ex);
             }
         }
@@ -100,7 +100,7 @@ namespace NAnt.Core {
                 return;
             }
 
-            // scan all dll's for extensions
+            // scan all dll's for tasks, types and functions
             DirectoryScanner scanner = new DirectoryScanner();
             scanner.BaseDirectory = new DirectoryInfo(path);
             scanner.Includes.Add("*.dll");
@@ -111,14 +111,26 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Adds any extension assemblies in the project base directory
-        /// and its <c>extensions</c> subdirectory.
+        /// Adds any task assemblies in the project base directory
+        /// and its <c>tasks</c> subdirectory.
         /// </summary>
         /// <param name="project">The project to work from.</param>
         public static void AddProject(Project project) {
             if (!StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
                 ScanDir(project.BaseDirectory);
-                ScanDir(Path.Combine(project.BaseDirectory, "extensions"));
+
+                // add framework-neutral assemblies
+                ScanDir(Path.Combine(project.BaseDirectory, "tasks"));
+
+                // add framework family assemblies
+                ScanDir(Path.Combine(
+                    Path.Combine(project.BaseDirectory, "tasks"), 
+                    project.RuntimeFramework.Family));
+
+                // add framework version specific assemblies
+                ScanDir(Path.Combine(Path.Combine(Path.Combine(
+                    project.BaseDirectory, "tasks"), 
+                    project.RuntimeFramework.Family), project.RuntimeFramework.Version));
             }
             // create weakref to project. It is possible that project may go 
             // away, we don't want to hold it

@@ -39,7 +39,7 @@ namespace NAnt.Core {
     public class ConsoleDriver {
         #region Private Static Fields
 
-        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     
         #endregion Private Static Fields
 
@@ -90,7 +90,7 @@ namespace NAnt.Core {
 
                 // Get build file name if the project has not been created.
                 // If a build file was not specified on the command line.
-                if(project == null) {
+                if (project == null) {
                     project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
                 }
 
@@ -98,7 +98,7 @@ namespace NAnt.Core {
 
                 // add build logger and build listeners to project
                 ConsoleDriver.AddBuildListeners(cmdlineOptions, project);
-
+    
                 // copy cmd line targets
                 foreach (string target in cmdlineOptions.Targets) {
                     project.BuildTargets.Add(target);
