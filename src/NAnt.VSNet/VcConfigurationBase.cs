@@ -298,21 +298,21 @@ namespace NAnt.VSNet {
 
         #endregion Internal Instance Properties
 
-        #region Internal Instance Methods
+        #region Public Instance Methods
 
-        internal string GetToolSetting(string toolName, string settingName) {
+        public string GetToolSetting(string toolName, string settingName) {
             return GetToolSetting(toolName, settingName, (string) null);
         }
 
-        internal abstract string GetToolSetting(string toolName, string settingName, string defaultValue);
+        public abstract string GetToolSetting(string toolName, string settingName, string defaultValue);
 
-        internal Hashtable GetToolArguments(string toolName, VcArgumentMap argMap) {
+        public Hashtable GetToolArguments(string toolName, VcArgumentMap argMap) {
             return GetToolArguments(toolName, argMap, VcArgumentMap.ArgGroup.Unassigned);
         }
 
-        internal abstract Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup);
+        public abstract Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup);
 
-        #endregion Internal Instance Methods
+        #endregion Public Instance Methods
 
         #region Protected Instance Fields
 

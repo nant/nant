@@ -128,7 +128,7 @@ namespace NAnt.VSNet {
             get { return ExpandMacros(_parentConfig.RawReferencesPath); }
         }
 
-        internal override string GetToolSetting(string toolName, string settingName, string defaultValue) {
+        public override string GetToolSetting(string toolName, string settingName, string defaultValue) {
             string setting = null;
 
             Hashtable toolSettings = (Hashtable) Tools[toolName];
@@ -152,7 +152,7 @@ namespace NAnt.VSNet {
             return setting;
         }
 
-        internal override Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup) {
+        public override Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup) {
             ExpansionHandler expander = new ExpansionHandler(ExpandMacros);
 
             Hashtable args;

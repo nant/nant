@@ -198,7 +198,7 @@ namespace NAnt.VSNet {
             return GetToolSetting(toolName, settingName, (string) null, expander);
         }
 
-        internal override string GetToolSetting(string toolName, string settingName, string defaultValue) {
+        public override string GetToolSetting(string toolName, string settingName, string defaultValue) {
             return GetToolSetting(toolName, settingName, defaultValue, 
                 new ExpansionHandler(ExpandMacros));
         }
@@ -224,7 +224,7 @@ namespace NAnt.VSNet {
             return setting;
         }
 
-        internal override Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup) {
+        public override Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup) {
             return GetToolArguments(toolName, argMap, ignoreGroup, new ExpansionHandler(ExpandMacros));
         }
 
