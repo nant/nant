@@ -1,82 +1,134 @@
 body {
-	font-family: Georgia, "Times New Roman", Times, "New York", serif;
-	background: white;
-	color: black
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 90%;
+    background: white;
+    color: black;
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif
+    font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
 }
 
-h1.LinkHeader, h2.LinkHeader, h3.LinkHeader { margin-bottom: -18 }
+h1.LinkHeader, h2.LinkHeader, h3.LinkHeader {
+    margin-bottom: -18px;
+}
 
 h4 {
-	margin-bottom: 0.5em
+    margin-bottom: 0.5em;
 }
 
 h5 {
-	margin-bottom: -.8em;
+    margin-bottom: -.8em;
 }
 
 
 hr {
-	color: gray
+    color: gray;
+    background-color: inherit;
 }
 
 input {
-	font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
+    font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
 }
 
-a:link		{ color: #0000cc; }
-a:visited	{ color: purple }
-a:active	{ color: #cc0000 }
-a:hover		{ color: #cc0000; }
+a:link {
+    color: #0000cc;
+    background-color: inherit;
+}
+
+a:visited {
+    color: purple;
+    background-color: inherit;
+}
+
+a:active {
+    color: #cc0000;
+    background-color: inherit;
+}
+
+a:hover {
+    color: #cc0000;
+    background-color: inherit;
+}
 
 .NavBar {
-	background-color: #dfff80;
-	border-color: #999966;
-	border-style: none none solid none;
-	border-width: 2px;
+    color: black;
+    background-color: #dfff80;
+    border-color: #999966;
+    border-style: none none solid none;
+    border-width: 2px;
 }
 
 .NavBar-Cell {
-	font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
-	font-size: 79%;
+    font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
+    font-size: 79%;
 }
 
 .SideBar {
-	font-size: 80%;
-	font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
-	padding: 8px;
+    font-size: 80%;
+    font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
+    padding: 8px;
 }
 
 .Table-Section {
-	text-align: center;
-	font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
-	font-size: 80%;
+    text-align: center;
+    font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
+    font-size: 80%;
 }
 
 .Table {
-	font-size: 100%;
-	border-collapse: collapse;
-	width: 93%;
+    font-size: 100%;
+    border-collapse: collapse;
+    width: 93%;
 }
 
 .Table-Header {
-	background-color: #eeeeee;
-	color: #000000;
-	font-weight: bolder;
-	padding: 5px;
-	border: 1px solid #999999;
-	text-align: left;
+    background-color: #eeeeee;
+    color: #000000;
+    font-weight: bolder;
+    padding: 5px;
+    border: 1px solid #999999;
+    text-align: left;
 }
 
 .Table-Cell {
-	border: 1px solid #999999;
-	padding: 5px;
+    border: 1px solid #999999;
+    padding: 5px;
 }
 
-/* color scheme */
-.N			{ color: #99cc00; }
-.Ant		{ color: #ff9900; }
+.N {
+    color: #99cc00;
+    background-color: inherit;
+}
 
+.Ant {
+    color: #ff9900;
+    background-color: inherit;
+}
+
+pre {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+code {
+    font-family: Monospace, Courier New, Courier;
+    background-color: inherit;
+    color: #0000AA;
+    font-size: 100%;
+}
+
+pre.code {
+    font-family: Monospace, Courier New, Courier;
+    background-color: inherit;
+    color: #0000AA;
+    font-size: 100%;
+    margin-left: 0px;
+}
+
+span.code {
+    font-family: Monospace, Courier New, Courier;
+    background-color: inherit;
+    color: #0000AA;
+    font-size: 100%;
+}
