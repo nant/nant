@@ -13,7 +13,7 @@
     
     <include buildfile="nant.build"/>
     <target name="nightly" depends="package" description="Perform a 'nightly' package">
-	<scp file="${project.zip-path}" server="shell1.sf.net" path="~/builds"/>
+	<scp file="${project.zip-path}" server="shell1.sf.net" path="/home/groups/n/na/nant/htdocs/builds"/>
     </target>
     
 </project>
