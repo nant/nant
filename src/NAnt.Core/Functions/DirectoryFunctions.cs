@@ -111,6 +111,19 @@ namespace NAnt.Core.Functions {
         /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
         /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         /// <exception cref="DirectoryNotFoundException">The specified path was not found.</exception>
+        /// <example>
+        ///   <para>
+        ///   Copy &quot;readme.txt&quot; from the current working directory to 
+        ///   its parent directory.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <property name="current.dir" value="${directory::get-current-directory()}" />
+        /// <property name="current.dir.parent" value="${directory::get-parent-directory(current.dir)}" />
+        /// <copy file="${path::combine(current.dir, 'readme.txt')} todir="${current.dir.parent}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-parent-directory")]
         public string GetParentDirectory(string path) {
             // do not use Directory.GetParent() as that will not return the
