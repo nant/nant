@@ -40,7 +40,6 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
         
         public VcProject(SolutionTask solutionTask, TempFileCollection tfc, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
-            _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -75,20 +74,14 @@ namespace NAnt.VSNet {
             set { _guid = value; }
         }
 
-        public override string[] Configurations {
-            get {
-                return (string[]) new ArrayList(_htConfigurations.Keys).ToArray(typeof(string));
-            }
-        }
-
         public override Reference[] References {
             get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
         }
 
-        public override bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
+        protected override bool Build(ConfigurationBase configurationSettings) {
             _objFiles.Clear();
             
-            VcConfiguration baseConfig = (VcConfiguration) _htConfigurations[configuration];
+            VcConfiguration baseConfig = (VcConfiguration) configurationSettings;
 
             // initialize hashtable for holding all build configuration
             Hashtable buildConfigs = new Hashtable();
@@ -101,7 +94,7 @@ namespace NAnt.VSNet {
                 if (de.Value != null) {
                     if (de.Value is Hashtable) {
                         Hashtable _htValue = (Hashtable) de.Value;
-                        fileConfig = (VcConfiguration) _htValue[configuration];
+                        fileConfig = (VcConfiguration) _htValue[baseConfig.Name];
                     } else {
                         fileConfig = (VcConfiguration) de.Value;
                     }
@@ -138,17 +131,8 @@ namespace NAnt.VSNet {
             return true;
         }
 
-        public override string GetOutputPath(string configuration) {
-            VcConfiguration config = (VcConfiguration) _htConfigurations [configuration];
-            if (config == null) {
-                return null;
-            }
-
-            return config.OutputPath;
-        }
-
         public DirectoryInfo GetProjectDir(string configuration) {
-            VcConfiguration config = (VcConfiguration) _htConfigurations[configuration];
+            VcConfiguration config = (VcConfiguration) ProjectConfigurations[configuration];
             if (config == null) {
                 return null;
             }
@@ -173,7 +157,7 @@ namespace NAnt.VSNet {
             XmlNodeList configurationNodes = elem.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
                 VcConfiguration config = new VcConfiguration(configElem, this, sln, OutputDir);
-                _htConfigurations[config.Name] = config;
+                ProjectConfigurations[config.Name] = config;
                 _htPlatformConfigurations[config.FullName] = config;
             }
 
@@ -201,10 +185,6 @@ namespace NAnt.VSNet {
 
                 _htFiles [relPath] = htFileConfigurations;
             }
-        }
-
-        public override ConfigurationBase GetConfiguration(string configuration) {
-            return (VcConfiguration) _htConfigurations[configuration];
         }
 
         #endregion Public Instance Methods
@@ -507,7 +487,6 @@ namespace NAnt.VSNet {
         private string _projectPath;
         private string _guid;
         private string _projectDirectory;
-        private Hashtable _htConfigurations;
         private Hashtable _htReferences;
         private Hashtable _htPlatformConfigurations;
         private Hashtable _htFiles;

@@ -42,7 +42,6 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
 
         public Project(SolutionTask solutionTask, TempFileCollection tfc, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
-            _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -97,10 +96,6 @@ namespace NAnt.VSNet {
             set { throw new InvalidOperationException( "It is not allowed to change the GUID of a C#/VB.NET project" ); }
         }
 
-        public override string[] Configurations {
-            get { return (string[]) new ArrayList(_htConfigurations.Keys).ToArray(typeof(string)); }
-        }
-
         public override Reference[] References {
             get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
         }
@@ -114,20 +109,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
-
-        #region Private Instance Properties
-
-        private string LogPrefix {
-            get { 
-                if (SolutionTask != null) {
-                    return SolutionTask.LogPrefix;
-                }
-
-                return string.Empty;
-            }
-        }
-
-        #endregion Private Instance Properties
 
         #region Public Static Methods
 
@@ -190,7 +171,7 @@ namespace NAnt.VSNet {
             nlConfigurations = doc.SelectNodes("//Config");
             foreach (XmlElement elemConfig in nlConfigurations) {
                 ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, SolutionTask, OutputDir);
-                _htConfigurations[elemConfig.Attributes["Name"].Value] = cs;
+                ProjectConfigurations[elemConfig.Attributes["Name"].Value] = cs;
             }
 
             nlReferences = doc.SelectNodes("//References/Reference");
@@ -246,18 +227,11 @@ namespace NAnt.VSNet {
             }
         }
 
-        public override bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
+        protected override bool Build(ConfigurationBase configurationSettings) {
             bool bSuccess = true;
  			bool haveCultureSpecificResources = false;
 
-            ConfigurationSettings cs = (ConfigurationSettings) _htConfigurations[configuration];
-            if (cs == null) {
-                Log(Level.Info, LogPrefix + "Configuration '{0}' does not exist. Skipping.", configuration);
-                return true;
-            }
-
-            Log(Level.Info, LogPrefix + "Building '{0}' [{1}]...", Name, configuration);
-            cs.OutputDir.Create();
+            ConfigurationSettings cs = (ConfigurationSettings) configurationSettings;
 
             // perform prebuild actions (for VS.NET 2003)
             if (ProjectSettings.RunPostBuildEvent != null) {
@@ -276,10 +250,6 @@ namespace NAnt.VSNet {
                         PostBuild(cs, true, false);
                     }
                     return true;
-                }
-
-                foreach (string setting in alCSCArguments) {
-                    sw.WriteLine(setting);
                 }
 
                 foreach (string setting in ProjectSettings.Settings) {
@@ -365,7 +335,7 @@ namespace NAnt.VSNet {
  						}
 
                         Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
-                        resource.Compile(cs, bShowCommands);
+                        resource.Compile(cs);
 
                         sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
                             "/res:\"{0}\",\"{1}\"", resource.CompiledResourceFile, 
@@ -379,14 +349,29 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (bShowCommands) {
+            Log(Level.Verbose, LogPrefix + "Starting compiler...");
+
+            if (SolutionTask.Verbose) {
                 using (StreamReader sr = new StreamReader(tempResponseFile)) {
-                    Console.WriteLine("Commands:");
-                    Console.WriteLine(sr.ReadToEnd());
+                    Log(Level.Verbose, LogPrefix + "Commands:");
+
+                    SolutionTask.Project.Indent();
+                    try {
+                        while (true) {
+                            // read line
+                            string line = sr.ReadLine();
+                            if (line == null) {
+                                break;
+                            }
+                            // display line
+                            Log(Level.Verbose, LogPrefix + "    "  + line);
+                        }
+                    } finally {
+                        SolutionTask.Project.Unindent();
+                    }
                 }
             }
 
-            Log(Level.Verbose, LogPrefix + "Starting compiler...");
             ProcessStartInfo psi = null;
             if (_projectSettings.Type == ProjectType.CSharp) {
                 psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
@@ -402,27 +387,18 @@ namespace NAnt.VSNet {
 
             Process p = Process.Start(psi);
 
-            if (strLogFile != null) {
-                using (StreamWriter sw = new StreamWriter(strLogFile, true)) {
-                    sw.WriteLine("Configuration: {0}", configuration);
-                    sw.WriteLine("");
-                    while (true) {
-                        string logContents = p.StandardOutput.ReadLine();
-                        if (logContents == null) {
-                            break;
-                        }
-                        sw.WriteLine(logContents);
-                    }
-                }
-            } else {
-                SolutionTask.Project.Indent();
+            SolutionTask.Project.Indent();
+            try {
                 while (true) {
-                    string logContents = p.StandardOutput.ReadLine();
-                    if (logContents == null) {
+                    // read line
+                    string line = p.StandardOutput.ReadLine();
+                    if (line == null) {
                         break;
                     }
-                    Log(Level.Info, "      [compile] " + logContents);
+                    // display line
+                    Log(Level.Info, "[compile] " + line);
                 }
+            } finally {
                 SolutionTask.Project.Unindent();
             }
 
@@ -510,7 +486,7 @@ namespace NAnt.VSNet {
  					al.Culture = culture;
  					al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, _projectSettings.OutputFileName));
  					foreach (Resource resource in resFiles) {
- 						resource.Compile(cs, bShowCommands);
+ 						resource.Compile(cs);
                         // add resources to embed 
                         Argument arg = new Argument();
                         arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",\"{1}\"", resource.CompiledResourceFile, resource.ManifestResourceName);
@@ -537,18 +513,6 @@ namespace NAnt.VSNet {
             }
 
             return bSuccess;
-        }
-
-        public override string GetOutputPath(string configuration) {
-            ConfigurationSettings settings = (ConfigurationSettings) GetConfiguration(configuration);
-            if (settings == null) {
-                return null;
-            }
-            return settings.OutputPath;
-        }
-
-        public override ConfigurationBase GetConfiguration(string configuration) {
-            return (ConfigurationSettings) _htConfigurations[configuration];
         }
 
         #endregion Public Instance Methods
@@ -832,40 +796,10 @@ namespace NAnt.VSNet {
             return true;
         }
 
-        /// <summary>
-        /// Logs a message with the given priority.
-        /// </summary>
-        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to be logged.</param>
-        /// <remarks>
-        /// The actual logging is delegated to the underlying task.
-        /// </remarks>
-        private void Log(Level messageLevel, string message) {
-            if (SolutionTask != null) {
-                SolutionTask.Log(messageLevel, message);
-            }
-        }
-
-        /// <summary>
-        /// Logs a message with the given priority.
-        /// </summary>
-        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to log, containing zero or more format items.</param>
-        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
-        /// <remarks>
-        /// The actual logging is delegated to the underlying task.
-        /// </remarks>
-        private void Log(Level messageLevel, string message, params object[] args) {
-            if (SolutionTask != null) {
-                SolutionTask.Log(messageLevel, message, args);
-            }
-        }
-
         #endregion Private Instance Methods
 
         #region Private Instance Fields
 
-        private Hashtable _htConfigurations;
         private Hashtable _htReferences;
         private Hashtable _htFiles;
         private Hashtable _htResources;

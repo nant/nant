@@ -75,7 +75,7 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public void Compile(ConfigurationSettings configurationSettings, bool showCommands) {
+        public void Compile(ConfigurationSettings configurationSettings) {
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
                     _compiledResourceFile = CompileResx();

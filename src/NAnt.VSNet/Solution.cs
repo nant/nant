@@ -43,6 +43,7 @@ namespace NAnt.VSNet {
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectBuildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _tfc = tfc;
             _solutionTask = solutionTask;
@@ -113,6 +114,21 @@ namespace NAnt.VSNet {
                 foreach (Match dependencyMatch in dependencyMatches) {
                     string dependency = dependencyMatch.Groups["dep"].Value;
                     AddProjectDependency(guid, dependency);
+                }
+
+                // set-up project configuration
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[a-zA-Z]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
+                MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(fileContents);
+
+                if (projectBuildMatches.Count > 0) {
+                    Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+                    foreach (Match projectBuildMatch in projectBuildMatches) {
+                        string configuration = projectBuildMatch.Groups["configuration"].Value;
+                        projectBuildConfiguration[configuration] = null;
+                    }
+
+                    _htProjectBuildConfigurations[guid] = projectBuildConfiguration;
                 }
             }
 
@@ -218,7 +234,7 @@ namespace NAnt.VSNet {
             return (ProjectBase) _htProjects[projectGuid];
         }
 
-        public bool Compile(string configuration, ArrayList compilerArguments, string logFile, bool verbose, bool showCommands) {
+        public bool Compile(string configuration) {
             Hashtable htDeps = (Hashtable) _htProjectDependencies.Clone();
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -275,7 +291,7 @@ namespace NAnt.VSNet {
                             }
                         }
 
-                        if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration, compilerArguments, logFile, verbose, showCommands))) {
+                        if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration))) {
                             if (!failed) {
                                 Log(Level.Error, LogPrefix + "Project '{0}' failed!", p.Name);
                                 Log(Level.Error, LogPrefix + "Continuing build with non-dependent projects.");
@@ -397,6 +413,36 @@ namespace NAnt.VSNet {
             return (string[]) new ArrayList(((Hashtable) _htProjectDependencies[projectGuid]).Keys).ToArray(typeof(string));
         }
 
+        private void AddProjectBuildConfiguration(string projectGuid, string configuration) {
+            if (!_htProjectBuildConfigurations.Contains(projectGuid)) {
+                _htProjectBuildConfigurations[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            }
+
+            ((Hashtable) _htProjectBuildConfigurations[projectGuid])[configuration] = null;
+        }
+
+        private void SetProjectBuildConfiguration(ProjectBase project) {
+            if (!_htProjectBuildConfigurations.Contains(project.Guid)) {
+                // project was not loaded from solution file, so there's no
+                // project configuration section available, so we'll consider 
+                // all project configurations as valid build configurations
+                project.BuildConfigurations.Clear();
+                foreach (string configuration in project.ProjectConfigurations.Keys) {
+                    project.BuildConfigurations[configuration] = project.ProjectConfigurations[configuration];
+                }
+            } else {
+                // project was loaded from solution file, so only add build
+                // configuration that were listed in project configuration
+                // section
+                Hashtable projectBuildConfigurations = (Hashtable) _htProjectBuildConfigurations[project.Guid];
+                foreach (string configuration in projectBuildConfigurations.Keys) {
+                    if (project.ProjectConfigurations.ContainsKey(configuration)) {
+                        project.BuildConfigurations[configuration] = project.ProjectConfigurations[configuration];
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Loads the projects from the file system and stores them in an 
         /// instance variable.
@@ -443,6 +489,9 @@ namespace NAnt.VSNet {
                         + " and '{2}'). Please correct this manually.", p.Name, 
                         p.Guid, de.Key.ToString()), Location.UnknownLocation);
                 }
+
+                // set project build configuration
+                SetProjectBuildConfiguration(p);
 
                 // add project to hashtable
                 _htProjects[de.Key] = p;
@@ -515,6 +564,7 @@ namespace NAnt.VSNet {
         private Hashtable _htProjects;
         private Hashtable _htProjectDirectories;
         private Hashtable _htProjectDependencies;
+        private Hashtable _htProjectBuildConfigurations;
         private Hashtable _htOutputFiles;
         private Hashtable _htReferenceProjects;
         private SolutionTask _solutionTask;

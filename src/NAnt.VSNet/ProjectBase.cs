@@ -19,9 +19,12 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Xml;
+
+using NAnt.Core;
 
 using NAnt.VSNet.Tasks;
 
@@ -36,6 +39,8 @@ namespace NAnt.VSNet {
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
         protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, DirectoryInfo outputDir) {
+            _projectConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _buildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _solutionTask = solutionTask;
             _tempFiles = tempFiles;
             _outputDir = outputDir;
@@ -67,8 +72,40 @@ namespace NAnt.VSNet {
             set;
         }
 
-        public abstract string[] Configurations {
-            get;
+        public string[] Configurations {
+            get {
+                return (string[]) new ArrayList(_projectConfigurations.Keys).ToArray(typeof(string));
+            }
+        }
+
+        /// <summary>
+        /// Gets a case-insensitive list of project configurations.
+        /// </summary>
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is the name of the 
+        /// configuration and the value is a <see cref="ConfigurationBase" />
+        /// instance.
+        /// </remarks>
+        public Hashtable ProjectConfigurations {
+            get { return _projectConfigurations; }
+        }
+
+        /// <summary>
+        /// Gets a list of project configurations that can be build.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Project configurations that are not in this list do not need to be 
+        /// compiled (unless the project was not loaded through a solution file).
+        /// </para>
+        /// <para>
+        /// The key of the <see cref="Hashtable" /> is the name of the 
+        /// configuration and the value is a <see cref="ConfigurationBase" />
+        /// instance.
+        /// </para>
+        /// </remarks>
+        public Hashtable BuildConfigurations {
+            get { return _buildConfigurations; }
         }
 
         public abstract Reference[] References {
@@ -91,19 +128,92 @@ namespace NAnt.VSNet {
             get { return _outputDir; }
         }
 
+        protected string LogPrefix {
+            get { 
+                if (SolutionTask != null) {
+                    return SolutionTask.LogPrefix;
+                }
+
+                return string.Empty;
+            }
+        }
+
         #endregion Protected Instance Properties
 
         #region Public Instance Methods
 
-        public abstract string GetOutputPath(string configuration);
+        public bool Compile(string configuration) {
+            ConfigurationBase configurationSettings = (ConfigurationBase) ProjectConfigurations[configuration];
+            if (configurationSettings == null) {
+                Log(Level.Info, LogPrefix + "Configuration '{0}' does not exist. Skipping.", configuration);
+                return true;
+            }
 
-        public abstract bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands);
+            if (!BuildConfigurations.ContainsKey(configuration)) {
+                Log(Level.Info, LogPrefix + "Skipping '{0}' [{1}]...", Name, configuration);
+                return true;
+            }
+
+            Log(Level.Info, LogPrefix + "Building '{0}' [{1}]...", Name, configuration);
+
+            // ensure output directory exists
+            configurationSettings.OutputDir.Create();
+
+            // build the project            
+            return Build(configurationSettings);
+        }
+
+        public string GetOutputPath(string configuration) {
+            ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
+            if (config == null) {
+                return null;
+            }
+
+            return config.OutputPath;
+        }
 
         public abstract void Load(Solution sln, string fileName);
 
-        public abstract ConfigurationBase GetConfiguration(string configuration);
+        public ConfigurationBase GetConfiguration(string configuration) {
+            return (ConfigurationBase) ProjectConfigurations[configuration];
+        }
 
         #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        protected abstract bool Build(ConfigurationBase configurationSettings);
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the underlying task.
+        /// </remarks>
+        protected void Log(Level messageLevel, string message) {
+            if (SolutionTask != null) {
+                SolutionTask.Log(messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the underlying task.
+        /// </remarks>
+        protected void Log(Level messageLevel, string message, params object[] args) {
+            if (SolutionTask != null) {
+                SolutionTask.Log(messageLevel, message, args);
+            }
+        }
+
+        #endregion Protected Instance Methods
 
         #region Protected Static Methods
 
@@ -134,6 +244,8 @@ namespace NAnt.VSNet {
         private SolutionTask _solutionTask;
         private TempFileCollection _tempFiles;
         private DirectoryInfo _outputDir;
+        private Hashtable _projectConfigurations;
+        private Hashtable _buildConfigurations;
 
         #endregion Private Instance Fields
     }

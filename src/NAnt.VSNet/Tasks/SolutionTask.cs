@@ -332,7 +332,7 @@ namespace NAnt.VSNet.Tasks {
                             WebMaps, ExcludeProjects, OutputDir);
                     }
 
-                    if (!sln.Compile(Configuration, new ArrayList(), null, Verbose, false)) {
+                    if (!sln.Compile(Configuration)) {
                         throw new BuildException("Project build failed.", Location);
                     }
                 }
