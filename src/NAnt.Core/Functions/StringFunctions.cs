@@ -49,6 +49,8 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <example>
         /// <code>string::get-length('foo') ==> 3</code>
+        /// </example>
+        /// <example>
         /// <code>string::get-length('') ==> 0</code>
         /// </example>
         [Function("get-length")]
@@ -79,10 +81,20 @@ namespace NAnt.Core.Functions {
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex" /> plus <paramref name="length" /> indicates a position not within <paramref name="str" />.</exception>
         /// <example>
         /// <code>string::substring('testing string', 0, 4) ==> 'test'</code>
+        /// </example>
+        /// <example>
         /// <code>string::substring('testing string', 8, 3) ==> 'str'</code>
+        /// </example>
+        /// <example>
         /// <code>string::substring('testing string', 8, 0) ==> ''</code>
+        /// </example>
+        /// <example>
         /// <code>string::substring('testing string', -1, 5) ==> ERROR</code>
+        /// </example>
+        /// <example>
         /// <code>string::substring('testing string', 8, -1) ==> ERROR</code>
+        /// </example>
+        /// <example>
         /// <code>string::substring('testing string', 5, 17) ==> ERROR</code>
         /// </example>
         [Function("substring")]
@@ -108,8 +120,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::starts-with('testing string', 'test') ==> true</code>
+        /// </example>
+        /// <example>
         /// <code>string::starts-with('testing string', 'testing') ==> true</code>
+        /// </example>
+        /// <example>
         /// <code>string::starts-with('testing string', 'string') ==> false</code>
+        /// </example>
+        /// <example>
         /// <code>string::starts-with('test', 'testing string') ==> false</code>
         /// </example>
         [Function("starts-with")]
@@ -135,8 +153,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::ends-with('testing string', 'string') ==> true</code>
+        /// </example>
+        /// <example>
         /// <code>string::ends-with('testing string', '') ==> true</code>
+        /// </example>
+        /// <example>
         /// <code>string::ends-with('testing string', 'bring') ==> false</code>
+        /// </example>
+        /// <example>
         /// <code>string::ends-with('string', 'testing string') ==> false</code>
         /// </example>
         [Function("ends-with")]
@@ -157,7 +181,11 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::to-lower('testing string') ==> 'testing string'</code>
+        /// </example>
+        /// <example>
         /// <code>string::to-lower('Testing String') ==> 'testing string'</code>
+        /// </example>
+        /// <example>
         /// <code>string::to-lower('Test 123') ==> 'test 123'</code>
         /// </example>
         [Function("to-lower")]
@@ -178,7 +206,11 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::to-upper('testing string') ==> 'TESTING STRING'</code>
+        /// </example>
+        /// <example>
         /// <code>string::to-upper('Testing String') ==> 'TESTING STRING'</code>
+        /// </example>
+        /// <example>
         /// <code>string::to-upper('Test 123') ==> 'TEST 123'</code>
         /// </example>
         [Function("to-upper")]
@@ -205,8 +237,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::replace('testing string', 'test', 'winn') ==> 'winning string'</code>
+        /// </example>
+        /// <example>
         /// <code>string::replace('testing string', 'foo', 'winn') ==> 'testing string'</code>
+        /// </example>
+        /// <example>
         /// <code>string::replace('testing string', 'ing', '') ==> 'test str'</code>
+        /// </example>
+        /// <example>
         /// <code>string::replace('banana', 'ana', 'ana') ==> 'banana'</code>
         /// </example>
         [Function("replace")]
@@ -228,8 +266,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::contains('testing string', 'test') ==> true</code>
+        /// </example>
+        /// <example>
         /// <code>string::contains('testing string', '') ==> true</code>
+        /// </example>
+        /// <example>
         /// <code>string::contains('testing string', 'Test') ==> false</code>
+        /// </example>
+        /// <example>
         /// <code>string::contains('testing string', 'foo') ==> false</code>
         /// </example>
         [Function("contains")]
@@ -260,8 +304,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::index-of('testing string', 'test') ==> 0</code>
+        /// </example>
+        /// <example>
         /// <code>string::index-of('testing string', '') ==> 0</code>
+        /// </example>
+        /// <example>
         /// <code>string::index-of('testing string', 'Test') ==> -1</code>
+        /// </example>
+        /// <example>
         /// <code>string::index-of('testing string', 'ing') ==> 4</code>
         /// </example>
         [Function("index-of")]
@@ -281,7 +331,7 @@ namespace NAnt.Core.Functions {
         /// <paramref name="str" /> if it is found, or -1 if <paramref name="str" /> 
         /// does not contain <paramref name="substr" />.
         /// </para>
-            /// <para>
+        /// <para>
         /// If <paramref name="substr" /> is an empty string, the return value
         /// is the last index position in <paramref name="str" />.
         /// </para>
@@ -292,8 +342,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::last-index-of('testing string', 'test') ==> 0</code>
+        /// </example>
+        /// <example>
         /// <code>string::last-index-of('testing string', '') ==> 0</code>
+        /// </example>
+        /// <example>
         /// <code>string::last-index-of('testing string', 'Test') ==> -1</code>
+        /// </example>
+        /// <example>
         /// <code>string::last-index-of('testing string', 'ing') ==> 4</code>
         /// </example>
         [Function("last-index-of")]
@@ -321,8 +377,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::pad-left('test', 10, ' ') ==> '      test'</code>
+        /// </example>
+        /// <example>
         /// <code>string::pad-left('test', 10, 'test') ==> 'tttttttest'</code>
+        /// </example>
+        /// <example>
         /// <code>string::pad-left('test', 3, ' ') ==> 'test'</code>
+        /// </example>
+        /// <example>
         /// <code>string::pad-left('test', -4, ' ') ==> ERROR</code>
         /// </example>
         [Function("pad-left")]
@@ -350,8 +412,14 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         /// <example>
         /// <code>string::pad-right('test', 10, ' ') ==> 'test      '</code>
+        /// </example>
+        /// <example>
         /// <code>string::pad-right('test', 10, 'abcd') ==> 'testaaaaaa'</code>
+        /// </example>
+        /// <example>
         /// <code>string::pad-right('test', 3, ' ') ==> 'test'</code>
+        /// </example>
+        /// <example>
         /// <code>string::pad-right('test', -3, ' ') ==> ERROR</code>
         /// </example>
         [Function("pad-right")]
@@ -369,6 +437,8 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <example>
         /// <code>string::trim('  test  ') ==> 'test'</code>
+        /// </example>
+        /// <example>
         /// <code>string::trim('\t\tfoo  \r\n') ==> 'foo'</code>
         /// </example>
         [Function("trim")]
@@ -386,6 +456,8 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <example>
         /// <code>string::trim-start('  test  ') ==> 'test  '</code>
+        /// </example>
+        /// <example>
         /// <code>string::trim-start('\t\tfoo  \r\n') ==> 'foo  \r\n'</code>
         /// </example>
         [Function("trim-start")]
@@ -403,6 +475,8 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <example>
         /// <code>string::trim-end('  test  ') ==> '  test'</code>
+        /// </example>
+        /// <example>
         /// <code>string::trim-end('\t\tfoo  \r\n') ==> '\t\tfoo'</code>
         /// </example>
         [Function("trim-end")]
