@@ -169,8 +169,8 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
-            // Expand and store the xml node
-            _docNodes = Documenters.Xml.SelectNodes("nant:documenter", 
+            // expand and store clone of the xml node
+            _docNodes = Documenters.Xml.Clone().SelectNodes("nant:documenter", 
                 NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
         }
