@@ -42,7 +42,7 @@ namespace NAnt.Core.Tasks {
     ///         <property name="debug" value="false" />
     ///         <call target="compile"/>
     ///         <property name="debug" value="true" />
-    ///         <call target="compile" force="true" /> <!-- notice the force attribute -->
+    ///         <call target="compile" />
     ///     </target>
     /// </project>
     ///     ]]>
@@ -69,11 +69,15 @@ namespace NAnt.Core.Tasks {
             set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        // TO-DO : remove this property after NAnt 0.8.6 or so.
+
         /// <summary>
-        /// Force an execute even if the target has already been executed.
-        /// The default is <see langword="false" />.
+        /// Force an execute even if the target has already been executed. The 
+        /// default is <see langword="false" />. <see langword="deprecated" /> as
+        /// of NAnt 0.8.4.
         /// </summary>
         [TaskAttribute("force")]
+        [System.Obsolete("The <call> task will now always force execution of the specified target, and its dependencies.", false)]
         public bool ForceExecute {
             get { return _force; }
             set { _force = value; }
@@ -87,19 +91,24 @@ namespace NAnt.Core.Tasks {
         /// Executes the specified target.
         /// </summary>
         protected override void ExecuteTask() {
-            if (ForceExecute) {
-                Target target = Project.Targets.Find(TargetName);
-                if (target == null) {
-                    // if we can't find it, then neither should Project.Execute
-                    // let them do the error handling and exception generation.
-                    Project.Execute(TargetName);
-                } else {
-                    // execute a copy
-                    target.Clone().Execute();
+            Target owningTarget = Parent as Target;
+
+            if (owningTarget != null) {
+                // topologically sorted list of targets that will be executed
+                TargetCollection targets = Project.TopologicalTargetSort(TargetName, Project.Targets);
+
+                // check if owning target is part of list of targets that will
+                // be executed again
+                if (targets.Find(owningTarget.Name) != null) {
+                    // check if owning target is actually a dependency of the 
+                    // target that should be executed
+                    if (targets.IndexOf(targets.Find(owningTarget.Name)) < targets.IndexOf(targets.Find(TargetName))) {
+                        throw new BuildException("Circular dependency: " + targets.ToString(" <- ") + " <- " + owningTarget.Name);
+                    }
                 }
-            } else {
-                Project.Execute(TargetName);
             }
+
+            Project.Execute(TargetName);
         }
 
         /// <summary>
