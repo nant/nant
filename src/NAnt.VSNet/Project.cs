@@ -374,8 +374,8 @@ namespace NAnt.VSNet {
                 if (_isWebProject) {
                     Log(Level.Info, LogPrefix + "Uploading output files...");
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                    //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
-                    wdc.UploadFile(cs.FullOutputFile, cs.RelativeOutputPath + "/" + _projectSettings.OutputFile);
+                    //wdc.DeleteFile( cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _ps.OutputFile );
+                    wdc.UploadFile(cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _projectSettings.OutputFile);
                 }
 
                 // Copy any extra files over
@@ -383,7 +383,7 @@ namespace NAnt.VSNet {
                     FileInfo sourceFile = new FileInfo(extraOutputFile);
                     if (_isWebProject) {
                         WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                        wdc.UploadFile(extraOutputFile, cs.RelativeOutputPath + "/" + sourceFile.Name);
+                        wdc.UploadFile(extraOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + sourceFile.Name);
                     } else {
                         FileInfo destFile = new FileInfo(Path.Combine(cs.OutputPath, sourceFile.Name));
 
