@@ -52,7 +52,7 @@ namespace NAnt.Core.Util {
         #region Public Instance Destructors
 
         ~GacCache() {
-            Dispose();
+            Dispose(false);
         }
 
         #endregion Public Instance Destructors
@@ -93,10 +93,14 @@ namespace NAnt.Core.Util {
         #region Implementation of IDisposable
 
         public void Dispose() {
-            if (_domain != null) {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing) {
+            if (!_disposed) {
                 AppDomain.Unload(_domain);
-                _domain = null;
-                GC.SuppressFinalize(this);
+                _disposed = true;
             }
         }
 
@@ -113,7 +117,7 @@ namespace NAnt.Core.Util {
                 AppDomain.Unload(_domain);
 
             _resolver = null;
-            _domain = AppDomain.CreateDomain("temporaryDomain", 
+            _domain = AppDomain.CreateDomain("GacCacheDomain", 
                 AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
             _hasLoadedAssembly = false;
         }
@@ -189,6 +193,11 @@ namespace NAnt.Core.Util {
         private bool _hasLoadedAssembly;
 
         private GacResolver _resolver;
+
+        /// <summary>
+        /// Holds a value indicating whether the object has been disposed.
+        /// </summary>
+        private bool _disposed;
 
         #endregion Private Instance Fields
 
