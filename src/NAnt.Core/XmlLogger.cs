@@ -118,9 +118,10 @@ namespace NAnt.Core {
         /// This event is fired before any targets have started.
         /// </remarks>
         public void BuildStarted(object sender, BuildEventArgs e) {
-            _xmlWriter.WriteStartElement(Elements.BuildResults);
-            _xmlWriter.WriteAttributeString(Attributes.Project, e.Project.ProjectName);
-
+            lock (_xmlWriter) {
+                _xmlWriter.WriteStartElement(Elements.BuildResults);
+                _xmlWriter.WriteAttributeString(Attributes.Project, e.Project.ProjectName);
+            }
             // add an item to the project stack
             _projectStack.Push(null);
         }
@@ -134,16 +135,18 @@ namespace NAnt.Core {
         /// This event will still be fired if an error occurred during the build.
         /// </remarks>
         public void BuildFinished(object sender, BuildEventArgs e) {
-            if (e.Exception != null) {
-                _xmlWriter.WriteStartElement("failure");
-                WriteErrorNode(e.Exception);
+            lock (_xmlWriter) {
+                if (e.Exception != null) {
+                    _xmlWriter.WriteStartElement("failure");
+                    WriteErrorNode(e.Exception);
+                    _xmlWriter.WriteEndElement();
+                }
+
+                // close buildresults node
                 _xmlWriter.WriteEndElement();
+                _xmlWriter.Flush();
             }
-
-            // close buildresults node
-            _xmlWriter.WriteEndElement();
-            _xmlWriter.Flush();
-
+            
             // remove an item from the project stack
             _projectStack.Pop();
 
@@ -182,9 +185,11 @@ namespace NAnt.Core {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public void TargetStarted(object sender, BuildEventArgs e) {
-            _xmlWriter.WriteStartElement(Elements.Target);
-            WriteNameAttribute(e.Target.Name);
-            _xmlWriter.Flush();
+            lock (_xmlWriter) {
+                _xmlWriter.WriteStartElement(Elements.Target);
+                WriteNameAttribute(e.Target.Name);
+                _xmlWriter.Flush();
+            }
         }
 
         /// <summary>
@@ -196,8 +201,10 @@ namespace NAnt.Core {
         /// This event will still be fired if an error occurred during the build.
         /// </remarks>
         public void TargetFinished(object sender, BuildEventArgs e) {
-            _xmlWriter.WriteEndElement();
-            _xmlWriter.Flush();
+            lock (_xmlWriter) {
+                _xmlWriter.WriteEndElement();
+                _xmlWriter.Flush();
+            }
         }
 
         /// <summary>
@@ -206,9 +213,11 @@ namespace NAnt.Core {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public void TaskStarted(object sender, BuildEventArgs e) {
-            _xmlWriter.WriteStartElement(Elements.Task);
-            WriteNameAttribute(e.Task.Name);
-            _xmlWriter.Flush();
+            lock (_xmlWriter) {
+                _xmlWriter.WriteStartElement(Elements.Task);
+                WriteNameAttribute(e.Task.Name);
+                _xmlWriter.Flush();
+            }
         }
 
         /// <summary>
@@ -220,8 +229,10 @@ namespace NAnt.Core {
         /// This event will still be fired if an error occurred during the build.
         /// </remarks>
         public void TaskFinished(object sender, BuildEventArgs e) {
-            _xmlWriter.WriteEndElement();
-            _xmlWriter.Flush();
+            lock (_xmlWriter) {
+                _xmlWriter.WriteEndElement();
+                _xmlWriter.Flush();
+            }
         }
 
         /// <summary>
@@ -240,19 +251,21 @@ namespace NAnt.Core {
                     return;
                 }
                 
-                _xmlWriter.WriteStartElement(Elements.Message);
+                lock (_xmlWriter) {
+                    _xmlWriter.WriteStartElement(Elements.Message);
 
-                // write message level as attribute
-                _xmlWriter.WriteAttributeString(Attributes.MessageLevel, e.MessageLevel.ToString(CultureInfo.InvariantCulture));
+                    // write message level as attribute
+                    _xmlWriter.WriteAttributeString(Attributes.MessageLevel, e.MessageLevel.ToString(CultureInfo.InvariantCulture));
                 
-                if (IsValidXml(rawMessage)) {
-                    rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", string.Empty);
-                    _xmlWriter.WriteRaw(rawMessage);
-                } else {
-                    _xmlWriter.WriteCData(StripCData(rawMessage));
+                    if (IsValidXml(rawMessage)) {
+                        rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", string.Empty);
+                        _xmlWriter.WriteRaw(rawMessage);
+                    } else {
+                        _xmlWriter.WriteCData(StripCData(rawMessage));
+                    }
+                    _xmlWriter.WriteEndElement();
+                    _xmlWriter.Flush();
                 }
-                _xmlWriter.WriteEndElement();
-                _xmlWriter.Flush();
             }
         }
 
@@ -301,7 +314,9 @@ namespace NAnt.Core {
         /// Flushes buffered build events or messages to the underlying storage.
         /// </summary>
         public void Flush() {
-            _xmlWriter.Flush();
+            lock (_xmlWriter) {
+                _xmlWriter.Flush();
+            }
         }
 
         #endregion Implementation of IBuildLogger
@@ -339,6 +354,8 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         private void WriteErrorNode(Exception exception) {
+            // this method assumes that a synchronization
+            // lock on _xmlWriter is already held
             if (exception == null) {
                 // build success
                 return;
@@ -433,6 +450,8 @@ namespace NAnt.Core {
         }
 
         private void WriteNameAttribute(string name) {
+            // this method assumes that a synchronization
+            // lock on _xmlWriter is already held
             _xmlWriter.WriteAttributeString("name", name);
         }
 
