@@ -195,7 +195,6 @@ namespace Tests.NAnt.Core {
         /// Test wildcard matching base directory.
         /// </summary>
         [Test]
-        [Ignore("FIXME: this is failing due to a regression in DirectoryScanner")]
         public void Test_WildcardMatching_BaseDirectory3() {
             string tempDirBin = Path.Combine(_tempDir, "bin");
             string folder1Bin = Path.Combine(_folder1, "bin");

@@ -802,6 +802,7 @@ namespace NAnt.Core {
             // subdirectories of src.
             pattern.Replace(seperator + "**" + seperator, seperator + "(.|?" + seperator + ")?" );
             pattern.Replace("**" + seperator, ".|(?<=^|" + seperator + ")" );
+            pattern.Replace(seperator + "**", "(?=$|" + seperator + ").|" );
 
             // .| is a place holder for .* to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
