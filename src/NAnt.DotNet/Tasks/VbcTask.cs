@@ -77,8 +77,12 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Instance Fields
         
-        static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Class\s+(?<class>\w+)|(?<keyword>\w+))*");
-        static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Namespace\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
+        #region Private Static Fields
+
+        private static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Class\s+(?<class>\w+)|(?<keyword>\w+))*");
+        private static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Namespace\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
+
+        #endregion Private Static Fields
      
         #region Public Instance Properties
 
@@ -281,21 +285,33 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Gets the file extension required by the current compiler.
         /// </summary>
-        /// <value>For the VB.NET compiler, the file extension is always <c>vb</c>.</value>
+        /// <value>
+        /// For the VB.NET compiler, the file extension is always <c>vb</c>.
+        /// </value>
         protected override string Extension {
             get { return "vb"; }
         }
+
         /// <summary>
-        /// Gets the class name regular expression for the language of the current compiler.
+        /// Gets the class name regular expression for the language of the 
+        /// current compiler.
         /// </summary>
-        /// <value>class name regular expression for the language of the current compiler</value>
+        /// <value>
+        /// Class name regular expression for the language of the current 
+        /// compiler.
+        /// </value>
         protected override Regex ClassNameRegex {
-            get { return _classNameRegex;  }
+            get { return _classNameRegex; }
         }
+
         /// <summary>
-        /// Gets the namespace regular expression for the language of the current compiler.
+        /// Gets the namespace regular expression for the language of the 
+        /// current compiler.
         /// </summary>
-        /// <value>namespace regular expression for the language of the current compiler</value>
+        /// <value>
+        /// Namespace regular expression for the language of the current 
+        /// compiler.
+        /// </value>
         protected override Regex NamespaceRegex {
             get { return _namespaceRegex; }
         }

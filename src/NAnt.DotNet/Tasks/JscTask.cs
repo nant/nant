@@ -51,8 +51,12 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Instance Fields
         
-        static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
-        static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|namespace\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");    
+        #region Private Static Fields
+
+        private static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
+        private static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|namespace\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
+
+        #endregion Private Static Fields
 
         #region Public Instance Properties
 
@@ -123,15 +127,27 @@ namespace NAnt.DotNet.Tasks {
         protected override string Extension { 
             get { return "js"; }
         }
+
         /// <summary>
-        /// Gets the class name regular expression for the language of the current compiler.
-        /// </summary>        
+        /// Gets the class name regular expression for the language of the 
+        /// current compiler.
+        /// </summary>
+        /// <value>
+        /// Class name regular expression for the language of the current 
+        /// compiler.
+        /// </value>
         protected override Regex ClassNameRegex {
             get { return _classNameRegex; }
         }
+
         /// <summary>
-        /// Gets the namespace regular expression for the language of the current compiler.
-        /// </summary>        
+        /// Gets the namespace regular expression for the language of the 
+        /// current compiler.
+        /// </summary>
+        /// <value>
+        /// Namespace regular expression for the language of the current 
+        /// compiler.
+        /// </value>
         protected override Regex NamespaceRegex {
             get { return _namespaceRegex; }
         }

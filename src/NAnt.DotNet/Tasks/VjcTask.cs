@@ -54,10 +54,14 @@ namespace NAnt.DotNet.Tasks {
         private string _noWarn = null;
 
         #endregion Private Instance Fields
-           
+
+        #region Private Static Fields
+
         static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
         static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|package\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
      
+        #endregion Private Static Fields
+
         #region Public Instance Properties
 
         /// <summary>
@@ -268,21 +272,33 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Gets the file extension required by the current compiler.
         /// </summary>
-        /// <value>For the J# compiler, the file extension is always <c>jsl</c>.</value>
+        /// <value>
+        /// For the J# compiler, the file extension is always <c>jsl</c>.
+        /// </value>
         protected override string Extension {
             get { return "jsl"; }
         }
+
         /// <summary>
-        /// Gets the class name regular expression for the language of the current compiler.
+        /// Gets the class name regular expression for the language of the 
+        /// current compiler.
         /// </summary>
-        /// <value> class name regular expression for the language of the current compiler</value>
+        /// <value>
+        /// Class name regular expression for the language of the current 
+        /// compiler.
+        /// </value>
         protected override Regex ClassNameRegex {
-            get { return _classNameRegex;  }
+            get { return _classNameRegex; }
         }
+
         /// <summary>
-        /// Gets the namespace regular expression for the language of the current compiler.
+        /// Gets the namespace regular expression for the language of the 
+        /// current compiler.
         ///</summary>
-        /// <value> namespace regular expression for the language of the current compiler</value>
+        /// <value>
+        /// Namespace regular expression for the language of the current 
+        /// compiler.
+        /// </value>
         protected override Regex NamespaceRegex {
             get { return _namespaceRegex; }
         }
