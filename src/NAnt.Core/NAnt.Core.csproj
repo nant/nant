@@ -9,7 +9,7 @@
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "Nant.Core"
+                AssemblyName = "NAnt.Core"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -79,11 +79,6 @@
                     Name = "log4net-net-1.0"
                     AssemblyName = "log4net-net-1.0"
                     HintPath = "..\..\bin\log4net-net-1.0.dll"
-                />
-                <Reference
-                    Name = "System.Web"
-                    AssemblyName = "System.Web"
-                    HintPath = "..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Web.dll"
                 />
             </References>
         </Build>
@@ -161,10 +156,10 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core.build"
-                    BuildAction = "None"
-                />
-                <File
+		    RelPath = "NAnt.Core.build"
+		    BuildAction = "None"
+		/>
+		<File
                     RelPath = "PathScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
