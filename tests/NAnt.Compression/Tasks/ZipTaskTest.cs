@@ -27,10 +27,14 @@ using NUnit.Framework;
 using Tests.NAnt.Core;
 
 namespace Tests.NAnt.Zip.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class ZipTaskTest : BuildTestBase {
-
-        const string _projectXML = @"<?xml version='1.0'?>
+        /// <summary>
+        /// Test to make sure debug option works.
+        /// </summary>
+        [Test]
+        public void Test_ReleaseBuild() {
+            string projectXML = @"<?xml version='1.0'?>
             <project>
                 <zip zipfile='test.zip'>
                     <fileset basedir='src'>
@@ -39,14 +43,23 @@ namespace Tests.NAnt.Zip.Tasks {
                 </zip>
             </project>";
 
-
-
-        /// <summary>Test to make sure debug option works.</summary>
-        [Test]
-        public void Test_ReleaseBuild() {
             CreateTempDir("src");
             CreateTempFile("src\\temp1.file","hello");
-            string result = RunBuild(_projectXML);
+            string result = RunBuild(projectXML);
+            Assertion.Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName,"test.zip")));
+        }
+
+        /// <summary>
+        /// Test to make sure an empty zip file can be created.
+        /// </summary>
+        [Test]
+        public void Test_CreateEmptyZipFile() {
+            string projectXML = @"<?xml version='1.0'?>
+            <project>
+                <zip zipfile='test.zip' />
+            </project>";
+
+            string result = RunBuild(projectXML);
             Assertion.Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName,"test.zip")));
         }
     }
