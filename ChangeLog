@@ -1,65 +1,131 @@
+2003-04-24	ianm74
+	* src/NAnt.Core/Tasks/StyleTask.cs 1.10:
+		committed Jason Pettys fileset patch for style task.
+
+2003-04-23	ianm74
+	* src/NAnt.Core/Tasks/IncludeTask.cs 1.7:
+		fixed include task issue with the <nant> task
+
+2003-04-22	skot
+	* src/NAnt.Core/ConsoleDriver.cs 1.12:
+		fixed bug where verbose was not set if buildfile was specified.
+
+2003-04-22	drieseng
+	* bin/nant.exe.config 1.18:
+	* src/NAnt.Console/NAnt.Console.exe.config 1.14:
+		turn off logging to log4net logging framework by default (by setting threshold attribute on log4net element to OFF).  This fixes log4net "error" message when starting nant with default log4net configuration.
+		
+		To enable logging internal messages to the console, set the threshold attribute on the log4net element to ALL.
+		
+		Added comment to the configuration file describing this.
+
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.20:
+		- fixed nullreferenceexception when arg element without value and file attribute was specified.
+		- added if/unless attributes to arg element to allow arguments to be specified conditionally.
+		- restructured code
+
+	* src/NAnt.Console/AssemblyInfo.cs 1.6:
+		added comments that make it more clear what the log4net 
+		attribute does.
+
+	* src/NAnt.Core/AssemblyInfo.cs 1.6:
+		fix for log4net error messages when unit testing nant.core.
+		
+		nant.core will not share the log4net configuration with nant.Exe if loaded in the same appdomain as nant.exe, and will create its own logging domain when executing in a separate appdomain.
+
+2003-04-20	skot
+	* src/NAnt.NUnitTasks.build 1.4:
+		Updated warnaserror to false to allow for compilation of 
+		obsolete methods to compile against the 1.1 fx.
+
+2003-04-20	drieseng
+	* src/NAnt.Core/Element.cs 1.18:
+	* src/NAnt.Core/TaskContainer.cs 1.6:
+		fixed extra linefeeds
+
+	* src/NAnt.Core/Tasks/LoopTask.cs 1.7:
+		fixed extra linefeeds + minor style changes
+
+	* src/NAnt.DotNetTasks/AlTask.cs 1.5:
+		minor style change
+
+	* src/NAnt.Core/ConsoleDriver.cs 1.11:
+		moved down the message about log4net logging.
+
+	* src/NAnt.DotNetTasks/CscTask.cs 1.9:
+	* src/NAnt.DotNetTasks/JscTask.cs 1.7:
+	* src/NAnt.DotNetTasks/MsftFXCompilerBase.cs 1.5:
+	* src/NAnt.DotNetTasks/MsftFXSDKExternalProgramBase.cs 1.8:
+	* src/NAnt.DotNetTasks/ResGenTask.cs 1.13:
+	* src/NAnt.DotNetTasks/VbcTask.cs 1.7:
+	* src/NAnt.DotNetTasks/VjcTask.cs 1.5:
+		fix for nullreference exception when no current framework is 
+		available.
+
+	* src/NAnt.Core/Project.cs 1.25:
+		output message to user if default framework does not exist or is 
+		not specified, instead of considering it as an internal message.
+
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.19:
+		fix for nullreference exception when no current framework is available
+		fixed extra linefeeds
+
+2003-04-19	skot
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.17:
+		updated streamreading from output and error streams.
+		output stream info now has format padding, but no other chars (to support passing through line info from csc etc.)
+		error stream is now passed to log4net logger, not the display log.
+
+	* NAnt.build 1.86:
+	* bin/NAnt.Core.dll 1.50:
+	* bin/NAnt.Core.xml 1.32:
+	* bin/NAnt.DotNetTasks.dll 1.21:
+	* bin/NAnt.NUnit1Tasks.dll 1.18:
+	* bin/NAnt.NUnit2Tasks.dll 1.18:
+	* bin/NAnt.NUnitFormatters.dll 1.18:
+	* bin/NAnt.VisualCppTasks.dll 1.18:
+	* bin/NAnt.Win32Tasks.dll 1.9:
+	* bin/NAnt.ZipTasks.dll 1.20:
+	* bin/nant.exe.config 1.17:
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.18:
+	* src/NAnt.Core/Tasks/NAntSchemaTask.cs 1.10:
+		updated bug in nantschema,
+		new binaries with all the days changes... :)
+
+	* src/NAnt.Core/ConsoleDriver.cs 1.10:
+	* src/NAnt.Core/Element.cs 1.17:
+	* src/NAnt.Core/Project.cs 1.24:
+	* src/NAnt.Core/Tasks/NAntSchemaTask.cs 1.9:
+	* src/NAnt.DotNetTasks/CompilerBase.cs 1.15:
+		moved some logging to debug from display logger (Log -> log4net)
+		removed duplicate config reading code from project
+
+2003-04-18	skot
+	* src/NAnt.Core.Tests/Tasks/LoopTest.cs 1.5:
+	* src/NAnt.Core/Tasks/LoopTask.cs 1.6:
+		fixed bug in <foreach Type="Folder"...> when using <in><items>
+		added more docs and examples.
+		updated tests.
+
+2003-04-17	mmastrac
+	* doc/changelog.html 1.49:
+		Update for 0.8.2-rc3
+
+	* doc/changelog.html 1.50:
+		Updates for scott's changes
+
 2003-04-17	ianm74
 	* bin/nant.exe.config 1.16:
 		tabs to spaces
 
 2003-04-17	skot
-	* bin/NAnt.Core.dll 1.49:
-	* bin/NAnt.Core.xml 1.31:
-	* bin/NAnt.DotNetTasks.dll 1.20:
-	* bin/NAnt.DotNetTasks.xml 1.14:
-	* bin/NAnt.NUnit1Tasks.dll 1.17:
-	* bin/NAnt.NUnit2Tasks.dll 1.17:
-	* bin/NAnt.NUnitFormatters.dll 1.17:
-	* bin/NAnt.VisualCppTasks.dll 1.17:
-	* bin/NAnt.Win32Tasks.dll 1.8:
-	* bin/NAnt.Win32Tasks.xml 1.4:
-	* bin/NAnt.ZipTasks.dll 1.19:
-	* bin/nant.exe.config 1.14:
-	* src/NAnt.Console/NAnt.Console.exe.config 1.12:
-		New binaries with latest changes.
-		Updates config files that turn off log4net logging.
-
 	* src/NAnt.Core/Tasks/IfTask.cs 1.11:
 		minor code change to reduce the path flow.
 
-	* bin/NAnt.NUnit1Tasks.xml 1.5:
-	* bin/NAnt.NUnit2Tasks.xml 1.7:
-	* bin/NAnt.NUnitFormatters.xml 1.4:
-	* bin/NAnt.VisualCppTasks.xml 1.4:
-	* bin/NAnt.ZipTasks.xml 1.7:
-	* bin/nant.exe.config 1.13:
-	* src/NAnt.Console/NAnt.Console.exe.config 1.11:
-	* src/NAnt.Core.Tests/BuildTestBase.cs 1.8:
-	* src/NAnt.Core.Tests/ElementTest.cs 1.3:
-	* src/NAnt.Core.Tests/Tasks/AvailableTest.cs 1.2:
-	* src/NAnt.Core.Tests/Tasks/FailTest.cs 1.3:
-	* src/NAnt.Core.Tests/Tasks/IfTest.cs 1.6:
-	* src/NAnt.Core.Tests/Tasks/IncludeTaskTest.cs 1.4:
-	* src/NAnt.Core.Tests/Tasks/LoadTasksTest.cs 1.4:
-	* src/NAnt.Core.Tests/Tasks/LoopTest.cs 1.4:
-	* src/NAnt.Core.Tests/Tasks/ReadRegistryTest.cs 1.3:
-	* src/NAnt.Core.Tests/Tasks/SleepTaskTest.cs 1.2:
-	* src/NAnt.Core.Tests/TestBuildException.cs 1.1:
-	* src/NAnt.Core/Attributes/BuildElementAttribute.cs 1.5:
-	* src/NAnt.Core/Element.cs 1.16:
-	* src/NAnt.Core/FileSet.cs 1.12:
-	* src/NAnt.Core/Project.cs 1.23:
-	* src/NAnt.Core/TaskBuilderCollection.cs 1.3:
-	* src/NAnt.Core/TaskContainer.cs 1.5:
-	* src/NAnt.Core/TaskFactory.cs 1.11:
-	* src/NAnt.Core/Tasks/IfTask.cs 1.9:
-	* src/NAnt.Core/Tasks/LoopTask.cs 1.5:
-	* src/NAnt.Core/Tasks/NAntTask.cs 1.6:
-	* src/NAnt.Tests.csproj 1.11:
-	* src/NAnt.Win32Tasks/NAnt.Win32Tasks.csproj 1.4:
-		-Added support for <foreach><in><items></></></> to loop through fileset stuff
-		-Update <if> to support uptodate test
-		-Added TestBuildException to catch output of build for further use.
-		-Updated test that looked for exceptions to look at innerexception of new TestBuildExeception
-		-Changed how Element.Initialize works to init child elements. Allows for Get/Set support for Properties in a smarter way; backwards compatible.
-		-Made BuildElementAttribute public, see <foreach> usage
-		-Made TaskContainer non-abstract so it could be used by <foreach><do></></>
-		-Misc other changes.
+	* src/NAnt.Core/Tasks/ExternalProgramBase.cs 1.16:
+	* src/NAnt.Core/Tasks/MoveTask.cs 1.5:
+		made move a little less chatty.
+		removed extra using statement.
 
 	* NAnt.build 1.85:
 	* src/NAnt.Core/Tasks/CopyTask.cs 1.8:
@@ -73,9 +139,6 @@
 		</></>
 		
 		Updated error check in GetTask.
-
-	* src/NAnt.Core/Tasks/IfTask.cs 1.10:
-		doc fixes.
 
 2003-04-17	drieseng
 	* bin/nant.exe.config 1.15:
