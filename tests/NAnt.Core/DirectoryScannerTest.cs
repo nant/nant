@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 
 using NUnit.Framework;
@@ -78,6 +79,59 @@ namespace Tests.NAnt.Core {
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
             _scanner.Includes.Add(@"*.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>
+        /// Test * wildcard with basedirectory ending with directory separator 
+        /// character.
+        /// </summary>
+        [Test]
+        public void Test_WildcardMatching3() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(_tempDir, "Foo2.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(_folder2, "Foo3.txt"),
+                                                          Path.Combine(_folder3, "Foo4.txt")
+                                                      };
+
+            // ensure base directory ends with directory separator character
+            if (!_scanner.BaseDirectory.FullName.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                _scanner.BaseDirectory = new DirectoryInfo(_scanner.BaseDirectory.FullName 
+                    + Path.DirectorySeparatorChar);
+            }
+            _scanner.Includes.Add(@"Foo*.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>
+        /// Test * wildcard with basedirectory ending with slash
+        /// character.
+        /// </summary>
+        /// <remarks>
+        ///   Matches all the files in base directory that end with .txt.
+        /// </remarks>
+        [Test]
+        public void Test_WildcardMatching4() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(_tempDir, "Foo2.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(_folder2, "Foo3.txt"),
+                                                          Path.Combine(_folder3, "Foo4.txt")
+                                                      };
+
+            // ensure base directory ends with slash
+            if (!_scanner.BaseDirectory.FullName.EndsWith("/") &&  !_scanner.BaseDirectory.FullName.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                _scanner.BaseDirectory = new DirectoryInfo(_scanner.BaseDirectory.FullName 
+                    + "/");
+            }
+            _scanner.Includes.Add(@"Foo*.txt");
             CheckScan(includedFileNames, excludedFileNames);
         }
 
