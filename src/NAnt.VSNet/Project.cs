@@ -303,7 +303,6 @@ namespace NAnt.VSNet.Tasks {
                     sw.WriteLine( @"""" + strFile + @"""");
             }
 
-            _tfc.AddFile( strTempFile, false );
             if ( bShowCommands ) {
                 using ( StreamReader sr = new StreamReader( strTempFile ) ) {
                     Console.WriteLine( "Commands:" );
