@@ -338,7 +338,7 @@ namespace NAnt.NUnit2.Tasks {
 
             /// <summary>
             /// Writes out a formatted string with prefix and a new line, using the same 
-            /// semantics as <see cref="string.Format" />.
+            /// semantics as <see cref="string.Format(string, object[])" />.
             /// </summary>
             /// <param name="line">The formatting string.</param>
             /// <param name="args">The object array to write into format string.</param>
