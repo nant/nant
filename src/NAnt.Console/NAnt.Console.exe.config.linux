@@ -106,7 +106,7 @@
         -->
     </log4net>
     <startup>
+        <supportedRuntime version="v1.1.4322" />    
         <supportedRuntime version="v1.0.3705" />
-        <supportedRuntime version="v1.1.4322" />
     </startup>
 </configuration>
