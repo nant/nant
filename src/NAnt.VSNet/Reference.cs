@@ -32,6 +32,7 @@ using System.Xml;
 using Microsoft.Win32;
 
 using NAnt.Core;
+using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;
 
@@ -42,7 +43,7 @@ namespace NAnt.VSNet {
     public class Reference {
         #region Public Instance Constructors
 
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, ReferenceGacCache gacCache, SolutionTask solutionTask, DirectoryInfo outputDir) {
+        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, SolutionTask solutionTask, DirectoryInfo outputDir) {
             _projectSettings = ps;
             _solutionTask = solutionTask;
             _referenceTimeStamp = DateTime.MinValue;
@@ -232,7 +233,7 @@ namespace NAnt.VSNet {
 
         #region Protected Instance Properties
 
-        public ReferenceGacCache GacCache {
+        public GacCache GacCache {
             get { return _gacCache; }
         }
 
@@ -800,7 +801,7 @@ namespace NAnt.VSNet {
         private ConfigurationSettings _configurationSettings;
         private ProjectBase _project;
         private SolutionTask _solutionTask;
-        private ReferenceGacCache _gacCache;
+        private GacCache _gacCache;
 
         #endregion Private Instance Fields
 

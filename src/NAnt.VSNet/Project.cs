@@ -41,7 +41,7 @@ namespace NAnt.VSNet {
     public class Project : ProjectBase {
         #region Public Instance Constructors
 
-        public Project(SolutionTask solutionTask, TempFileCollection tfc, ReferenceGacCache gacCache, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, outputDir) {
+        public Project(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, outputDir) {
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _sourceFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();

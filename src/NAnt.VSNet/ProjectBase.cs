@@ -25,6 +25,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
+using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;
 
@@ -38,7 +39,7 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
-        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, ReferenceGacCache gacCache, DirectoryInfo outputDir) {
+        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, GacCache gacCache, DirectoryInfo outputDir) {
             _projectConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _buildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _solutionTask = solutionTask;
@@ -139,7 +140,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected ReferenceGacCache GacCache {
+        protected GacCache GacCache {
             get { return _gacCache; }
         }
 
@@ -251,7 +252,7 @@ namespace NAnt.VSNet {
         private DirectoryInfo _outputDir;
         private Hashtable _projectConfigurations;
         private Hashtable _buildConfigurations;
-        private ReferenceGacCache _gacCache;
+        private GacCache _gacCache;
 
         #endregion Private Instance Fields
     }

@@ -356,7 +356,7 @@ namespace NAnt.VSNet.Tasks {
                     // store the temp dir so we can clean it up later
                     basePath = tfc.BasePath;
 
-                    using (ReferenceGacCache gacCache = new ReferenceGacCache()) {
+                    using (GacCache gacCache = new GacCache(this.Project)) {
                         // check if solution file was specified
                         if (SolutionFile == null) {
                             sln = new Solution(new ArrayList(Projects.FileNames), new ArrayList(ReferenceProjects.FileNames), tfc, 

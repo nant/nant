@@ -28,6 +28,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
@@ -36,7 +37,7 @@ namespace NAnt.VSNet {
     public class Solution {
         #region Public Instance Constructors
 
-        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, ReferenceGacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
+        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, GacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             _file = solutionFile;
 
             string fileContents;
@@ -130,7 +131,7 @@ namespace NAnt.VSNet {
             GetDependenciesFromProjects();
         }
 
-        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, ReferenceGacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
+        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, GacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             LoadProjectGuids(projects, false);
             LoadProjectGuids(referenceProjects, true);
             LoadProjects(gacCache);
@@ -504,9 +505,9 @@ namespace NAnt.VSNet {
         /// Loads the projects from the file system and stores them in an 
         /// instance variable.
         /// </summary>
-        /// <param name="gacCache"><see cref="ReferenceGacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
+        /// <param name="gacCache"><see cref="GacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
         /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
-        private void LoadProjects(ReferenceGacCache gacCache) {
+        private void LoadProjects(GacCache gacCache) {
             Log(Level.Verbose, LogPrefix + "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;

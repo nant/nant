@@ -142,11 +142,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ReferenceGacCache.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Resource.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

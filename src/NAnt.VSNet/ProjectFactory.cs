@@ -25,6 +25,8 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
+using NAnt.Core.Util;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -58,7 +60,7 @@ namespace NAnt.VSNet {
             _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
 
-        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, ReferenceGacCache gacCache, DirectoryInfo outputDir, string path) {
+        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
