@@ -44,7 +44,8 @@ namespace NDoc.Documenter.NAnt {
         private XslTransform _xsltTaskIndex;
         private XslTransform _xsltTypeIndex;
         private XslTransform _xsltFunctionIndex;
-        private XslTransform _xsltTypeDoc;        
+        private XslTransform _xsltFilterIndex;
+        private XslTransform _xsltTypeDoc;
         private XslTransform _xsltFunctionDoc;
         private XmlDocument _xmlDocumentation;
         private string _resourceDirectory;
@@ -136,6 +137,7 @@ namespace NDoc.Documenter.NAnt {
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "enums"));
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "filters"));
             } catch (Exception ex) {
                 throw new DocumenterException("The output directories could not" 
                     + " be created.", ex);
@@ -193,6 +195,12 @@ namespace NDoc.Documenter.NAnt {
 
                 // transform nant type index page transform
                 TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types/index.html");
+
+                buildStepProgress += 10;
+                OnDocBuildingStep(buildStepProgress, "Creating Filter Index Page...");
+
+                // transform nant type index page transform
+                TransformAndWriteResult(_xsltFilterIndex, indexArguments, "filters/index.html");
 
                 OnDocBuildingStep(buildStepProgress, "Creating Function Index Page...");
                 // transform nant function index page transform
@@ -271,6 +279,9 @@ namespace NDoc.Documenter.NAnt {
                     break;
                 case ElementDocType.Enum:
                     refTypeString = "Enum";
+                    break;
+                case ElementDocType.Filter:
+                    refTypeString = "Filter";
                     break;
                 default:
                     refTypeString = "Other?";
@@ -366,6 +377,7 @@ namespace NDoc.Documenter.NAnt {
             _xsltTaskIndex = new XslTransform();
             _xsltTypeIndex = new XslTransform();
             _xsltFunctionIndex = new XslTransform();
+            _xsltFilterIndex = new XslTransform();
             _xsltTypeDoc = new XslTransform();
             _xsltFunctionDoc = new XslTransform();
 
@@ -373,6 +385,8 @@ namespace NDoc.Documenter.NAnt {
             OnDocBuildingProgress(20);
             MakeTransform(_xsltTypeIndex, "type-index.xslt");
             OnDocBuildingProgress(40);
+            MakeTransform(_xsltFilterIndex, "filter-index.xslt");
+            OnDocBuildingProgress(50);
             MakeTransform(_xsltFunctionIndex, "function-index.xslt");
             OnDocBuildingProgress(60);
             MakeTransform(_xsltTypeDoc, "type-doc.xslt");
@@ -401,6 +415,7 @@ namespace NDoc.Documenter.NAnt {
         Task = 1,
         DataTypeElement = 2,
         Element = 3,
-        Enum = 4
+        Enum = 4,
+        Filter = 5
     }
 }

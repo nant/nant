@@ -27,6 +27,7 @@ using NDoc.Core;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Filters;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
@@ -111,7 +112,7 @@ namespace NDoc.Documenter.NAnt {
                         case "event":
                             _elementNames[id] = memberNode.Attributes["name"].Value;
                             break;
-                    }                
+                    }
                 }
             }
         }
@@ -284,9 +285,7 @@ namespace NDoc.Documenter.NAnt {
                 }
             }
 
-            string returnName = cref.Substring(cref.LastIndexOf(".") + 1);
-            //System.Console.WriteLine("GetName: {0} = {1}", cref, returnName);
-            return returnName;
+            return cref.Substring(cref.LastIndexOf(".") + 1);
         }
 
         /// <summary>
@@ -358,6 +357,15 @@ namespace NDoc.Documenter.NAnt {
                 }
             }
 
+            // check if type is a filter
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Filter).FullName + "']") != null) {
+                if (typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']") != null) {
+                    return ElementDocType.Filter;
+                } else {
+                    return ElementDocType.Element;
+                }
+            }
+
             // check if type is an element
             if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) { 
                 return ElementDocType.Element;
@@ -392,6 +400,18 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
+        /// Determines whether the given cref points to a <c>datatype</c>.
+        /// </summary>
+        /// <param name="cref">The cref to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the given cref points to a <c>datatype</c>;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        public bool IsFilter(string cref) {
+            return GetElementDocTypeByID(cref) == ElementDocType.Filter;
+        }
+
+        /// <summary>
         /// Determines whether the given cref points to a <c>task</c>.
         /// </summary>
         /// <param name="cref">The cref to check.</param>
@@ -421,12 +441,19 @@ namespace NDoc.Documenter.NAnt {
             if (taskName != null) {
                 return "<" + taskName + ">";
             }
-        
+
             // make sure the type has a ElementNameAttribute assigned to it
             XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (elementNameAttribute != null && 
-                (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']")!= null)) {
-                return elementNameAttribute.Value;
+            if (elementNameAttribute != null) {
+                // check if we're dealing with a data type
+                if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']")!= null) {
+                    return "<" + elementNameAttribute.Value + ">";
+                }
+
+                // check if we're dealing with a filter
+                if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Filter).FullName + "']")!= null) {
+                    return "<" + elementNameAttribute.Value + ">";
+                }
             }
 
             return null;
@@ -460,9 +487,9 @@ namespace NDoc.Documenter.NAnt {
         /// Gets the TaskNameAttrbute name for the "class" XmlNode
         /// </summary>
         /// <param name="propertyNode">The XmlNode to look for a name.</param>
-        /// <returns>The <see cref="TaskNameAttribute.Name"/> if the attribute exists for the node.</returns>
+        /// <returns>The <see cref="TaskNameAttribute.Name" /> if the attribute exists for the node.</returns>
         /// <remarks>
-        /// The class is also checked to make sure it is derived from <see cref="Task"/>
+        /// The class is also checked to make sure it is derived from <see cref="Task" />
         /// </remarks>
         internal static string GetTaskNameForType(XmlNode typeNode) {
             if (typeNode == null) {
@@ -556,8 +583,15 @@ namespace NDoc.Documenter.NAnt {
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
                     return "types/" + elementNameAttribute.Value + ".html";
-                } else {
-                    return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
+                }
+            }
+
+            // check if type derives from NAnt.Core.Filters.Filter
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Filter).FullName + "']") != null) {
+                // make sure the type has a ElementName assigned to it
+                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (elementNameAttribute != null) {
+                    return "filters/" + elementNameAttribute.Value + ".html";
                 }
             }
 
