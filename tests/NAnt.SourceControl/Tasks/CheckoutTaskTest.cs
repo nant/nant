@@ -45,6 +45,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [TearDown]
         protected override void TearDown () {
             base.TearDown ();
+
             Directory.Delete (cvsTempPath, true);
         }
     }
