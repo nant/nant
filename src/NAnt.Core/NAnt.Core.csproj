@@ -722,7 +722,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Types\PathList.cs"
+                    RelPath = "Types\PathElement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\PathSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
