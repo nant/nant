@@ -21,13 +21,13 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
-
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
@@ -61,15 +61,26 @@ namespace SourceForge.NAnt.Tasks {
     ///     </style>
     ///   ]]></code>
     /// </example>
+    /// <example>
+    /// <para>Create a some code based on a directory of templates.</para>
+    ///   <code><![CDATA[
+    /// <style style="CodeGenerator.xsl" extension="java">
+    ///   <infiles>
+    ///     <includes name="*.xml"/>
+    ///   </infiles>
+    /// <style>
+    /// ]]></code>
+    /// </example> 
     [TaskName("style")]
     public class StyleTask : Task {
                 
-        string _baseDir = null;        
-        string _destDir = null;        
-        string _extension = "html";        
-        string _xsltFile = null;        
-        string _srcFile = null;        
+        string _baseDir = null;
+        string _destDir = null;
+        string _extension = "html";
+        string _xsltFile = null;
+        string _srcFile = null;
         string _outputFile = null;
+        FileSet _inFiles = new FileSet();
 
         Hashtable _params = new Hashtable(); // TODO sort this out with an attribute
 
@@ -90,13 +101,17 @@ namespace SourceForge.NAnt.Tasks {
         public string StyleSheet               { get { return _xsltFile; } set { _xsltFile = value; } }
         
         /// <summary>Specifies a single XML document to be styled. Should be used with the out attribute.</summary>
-        [TaskAttribute("in", Required=true)]
+        [TaskAttribute("in", Required=false)]
         public string SrcFile                  { get { return _srcFile; } set { _srcFile = value; } }
         
         /// <summary>Specifies the output name for the styled result from the in attribute.</summary>
         [TaskAttribute("out", Required=false)]
         public string OutputFile               { get { return _outputFile; } set { _outputFile = value; } }
 
+       
+        /// <summary>Specifies a group of input files to which to apply the stylesheet.</summary>
+        [FileSet("infiles")]
+        public FileSet InFiles                 { get { return _inFiles; } }
 
         protected virtual XmlReader CreateXmlReader(string file) {
             XmlTextReader xmlReader = new XmlTextReader(new FileStream(file, FileMode.Open, FileAccess.Read));
@@ -108,7 +123,7 @@ namespace SourceForge.NAnt.Tasks {
             TextWriter writer = null;
 
             string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
-            if (targetDir != null && targetDir.Length != 0 && !Directory.Exists(targetDir)) {
+            if (targetDir != null && targetDir != "" && !Directory.Exists(targetDir)) {
                 Directory.CreateDirectory(targetDir);
             }
             // UTF-8 encoding will be used
@@ -133,86 +148,100 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
-            string destFile = OutputFile;
-            // TODO handle filesets
-            if (destFile == null || destFile.Length == 0) {
-                // TODO: use System.IO.Path (gs)
-                // append extension if necessary
-                string ext = Extension[0]=='.'
-                    ? Extension
-                    : "." + Extension;
-
-                int extPos = SrcFile.LastIndexOf('.');
-
-                if (extPos == -1) {
-                    destFile = SrcFile + ext;
-                } else {
-                    destFile = SrcFile.Substring(0, extPos) + ext;
+            StringCollection srcFiles = null;
+            if(SrcFile != null && SrcFile.Length > 0) {
+                srcFiles = new StringCollection();
+                srcFiles.Add(SrcFile);
+            } else if(InFiles.FileNames.Count > 0) {
+                if(OutputFile != null && OutputFile.Trim().Length > 0) {
+                    string msg = String.Format(CultureInfo.InvariantCulture, "The \"out\" attribute is not allowed when \"infiles\" is used.");
+                    throw new BuildException(msg, Location);
                 }
+                srcFiles = InFiles.FileNames;
+            }
+
+            if(srcFiles == null || srcFiles.Count == 0) {
+                string msg = String.Format(CultureInfo.InvariantCulture, "No source files indicates; use \"in\" or \"infiles\".");
+                throw new BuildException(msg, Location);
             }
 
             string basedirPath = Project.GetFullPath(BaseDir);
             string destdirPath = Project.GetFullPath(DestDir);
-            string srcPath  = Path.GetFullPath(Path.Combine(basedirPath, SrcFile));
             string xsltPath = Path.GetFullPath(Path.Combine(basedirPath, StyleSheet));
-            string destPath = Path.GetFullPath(Path.Combine(destdirPath, destFile));
-
-            FileInfo srcInfo  = new FileInfo(srcPath);
-            FileInfo destInfo = new FileInfo(destPath);
             FileInfo xsltInfo = new FileInfo(xsltPath);
-
-            if (!srcInfo.Exists) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "Unable to find source XML file {0}", srcPath);
-                throw new BuildException(msg, Location);
-            }
             if (!xsltInfo.Exists) {
                 string msg = String.Format(CultureInfo.InvariantCulture, "Unable to find stylesheet file {0}", xsltPath);
                 throw new BuildException(msg, Location);
-            }
-
-            bool destOutdated = !destInfo.Exists
-                || srcInfo.LastWriteTime  > destInfo.LastWriteTime
-                || xsltInfo.LastWriteTime > destInfo.LastWriteTime;
-
-            if (destOutdated) {
-                XmlReader xmlReader = null;
-                XmlReader xslReader = null;
-                TextWriter writer = null;
-
-                try {
-                    xmlReader = CreateXmlReader(srcPath);
-                    xslReader = CreateXmlReader(xsltPath);
-                    writer = CreateWriter(destPath);
-
-                    if (Verbose) {
-                        Log.WriteLine(LogPrefix + "Transforming into " + destdirPath );
+            }           
+            foreach(string srcFile in srcFiles) {
+                string destFile = OutputFile;
+                if (destFile == null || destFile == "") {
+                    // TODO: use System.IO.Path (gs)
+                    // append extension if necessary
+                    string ext = Extension.IndexOf(".")>-1 ? Extension : "." + Extension;
+                    int extPos = srcFile.LastIndexOf('.');
+                    if (extPos == -1) {
+                        destFile = srcFile + ext;
+                    } else {
+                        destFile = srcFile.Substring(0, extPos) + ext;
                     }
+                    destFile = Path.GetFileName(destFile);
+                }
 
-                    XslTransform xslt = new XslTransform();
-                    XPathDocument xml = new XPathDocument(xmlReader);
-                    XsltArgumentList scriptargs = new XsltArgumentList();
+                string srcPath  = Path.GetFullPath(Path.Combine(basedirPath, srcFile));
+                string destPath = Path.GetFullPath(Path.Combine(destdirPath, destFile));
+                FileInfo srcInfo  = new FileInfo(srcPath);
+                FileInfo destInfo = new FileInfo(destPath);
 
-                    if (Verbose) {
-                        Log.WriteLine(LogPrefix + "Loading stylesheet " + Path.GetFullPath(xsltPath));
+                if (!srcInfo.Exists) {
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Unable to find source XML file {0}", srcPath);
+                    throw new BuildException(msg, Location);
+                }
+
+                bool destOutdated = !destInfo.Exists
+                    || srcInfo.LastWriteTime  > destInfo.LastWriteTime
+                    || xsltInfo.LastWriteTime > destInfo.LastWriteTime;
+
+                if (destOutdated) {
+                    XmlReader xmlReader = null;
+                    XmlReader xslReader = null;
+                    TextWriter writer = null;
+    
+                    try {
+                        xmlReader = CreateXmlReader(srcPath);
+                        xslReader = CreateXmlReader(xsltPath);
+                        writer = CreateWriter(destPath);
+    
+                        if (Verbose) {
+                            Log.WriteLine(LogPrefix + "Transforming into " + destdirPath );
+                        }
+    
+                        XslTransform xslt = new XslTransform();
+                        XPathDocument xml = new XPathDocument(xmlReader);
+                        XsltArgumentList scriptargs = new XsltArgumentList();
+    
+                        if (Verbose) {
+                            Log.WriteLine(LogPrefix + "Loading stylesheet " + Path.GetFullPath(xsltPath));
+                        }
+    
+                        xslt.Load(xslReader);
+    
+                        // Load paramaters
+                        foreach (string key in _params.Keys) {
+                            scriptargs.AddParam(key, "", (string) _params[key]);
+                        }
+    
+                        Log.WriteLine(LogPrefix + "Processing " + Path.GetFullPath(srcPath) + " to " + Path.GetFullPath(destPath));
+                        xslt.Transform(xml, scriptargs, writer);
+    
+                    } catch (Exception e) {
+                        throw new BuildException("Could not perform XSLT transformation.", Location, e);
+                    } finally {
+                        // Ensure file handles are closed
+                        if (xmlReader != null) { xmlReader.Close(); }
+                        if (xslReader != null) { xslReader.Close(); }
+                        if (writer != null) { writer.Close(); }
                     }
-
-                    xslt.Load(xslReader);
-
-                    // Load paramaters
-                    foreach (string key in _params.Keys) {
-                        scriptargs.AddParam(key, "", (string) _params[key]);
-                    }
-
-                    Log.WriteLine(LogPrefix + "Processing " + Path.GetFullPath(srcPath) + " to " + Path.GetFullPath(destPath));
-                    xslt.Transform(xml, scriptargs, writer);
-
-                } catch (Exception e) {
-                    throw new BuildException("Could not perform XSLT transformation.", Location, e);
-                } finally {
-                    // Ensure file handles are closed
-                    if (xmlReader != null) { xmlReader.Close(); }
-                    if (xslReader != null) { xslReader.Close(); }
-                    if (writer != null) { writer.Close(); }
                 }
             }
         }
