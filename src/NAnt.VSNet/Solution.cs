@@ -139,6 +139,10 @@ namespace NAnt.VSNet {
             get { return _fileName; }
         }
 
+        public TempFileCollection TemporaryFiles {
+            get { return _tfc; }
+        }
+
         #endregion Public Instance Properties
 
         #region Private Instance Properties
