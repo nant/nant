@@ -17,6 +17,7 @@
 //
 // Joe Jones (joejo@microsoft.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Collections.Specialized;
@@ -63,45 +64,91 @@ namespace NAnt.DotNet.Tasks {
         private string _responseFileName;
         private FileInfo _outputFile;
         private string _target;
+        private string _algorithmID;
+        private string _company;
+        private string _configuration;
+        private string _copyright;
         private string _culture;
-        private FileInfo _templateFile;
+        private bool _delaySign;
+        private string _description;
+        private FileInfo _evidenceFile;
+        private string _fileVersion;
+        private string _flags;
+        private string _keyContainer;
         private FileInfo _keyfile;
+        private string _mainMethod;
+        private string _product;
+        private string _productVersion;
         private FileSet _resources = new FileSet();
+        private FileInfo _templateFile;
+        private string _title;
+        private string _trademark;
+        private string _version;
+        private FileInfo _win32Icon;
+        private FileInfo _win32Res;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
         /// <summary>
-        /// The name of the output file for the assembly manifest.
+        /// Specifies an algorithm (in hexadecimal) to hash all files in a 
+        /// multifile assembly except the file that contains the assembly 
+        /// manifest. The default algorithm is CALG_SHA1.
+        /// </summary>
+        [TaskAttribute("algid", Required=false)]
+        [Int32Validator(Base=16)]
+        public string AlgorithmID {
+            get { return _algorithmID; }
+            set { _algorithmID = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Company</b> field in the assembly.
         /// </summary>
         /// <value>
-        /// The complete output path for the assembly manifest.
+        /// A string for the <b>Company</b> field in the assembly.
         /// </value>
         /// <remarks>
-        /// <para>
-        /// Corresponds with the <c>/out</c> flag.
-        /// </para>
+        /// If <see cref="Company" /> is an empty string (""), the Win32 
+        /// <b>Company</b> resource appears as a single space.
         /// </remarks>
-        [TaskAttribute("output", Required=true)]
-        public FileInfo OutputFile {
-            get { return _outputFile; }
-            set { _outputFile = value; }
+        [TaskAttribute("company", Required=false)]
+        public string Company {
+            get { return _company; }
+            set { _company = value; }
         }
-        
+
         /// <summary>
-        /// The target type (one of <c>lib</c>, <c>exe</c>, or <c>winexe</c>).
+        /// Specifies a string for the <b>Configuration</b> field in the assembly.
         /// </summary>
+        /// <value>
+        /// A string for the <b>Configuration</b> field in the assembly.
+        /// </value>
         /// <remarks>
-        /// <para>
-        /// Corresponds with the <c>/t[arget]:</c> flag.
-        /// </para>
+        /// If <see cref="Configuration" /> is an empty string (""), the Win32
+        /// <b>Configuration</b> resource appears as a single space.
         /// </remarks>
-        [TaskAttribute("target", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string OutputTarget {
-            get { return _target; }
-            set { _target = StringUtils.ConvertEmptyToNull(value); }
+        [TaskAttribute("configuration", Required=false)]
+        public string Configuration {
+            get { return _configuration; }
+            set { _configuration = value; }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Copyright</b> field in the assembly.
+        /// </summary>
+        /// <value>
+        /// A string for the <b>Copyright</b> field in the assembly.
+        /// </value>
+        /// <remarks>
+        /// If <see cref="Copyright" /> is an empty string (""), the Win32
+        /// <b>Copyright</b> resource appears as a single space.
+        /// </remarks>
+        [TaskAttribute("copyright", Required=false)]
+        public string Copyright {
+            get { return _copyright; }
+            set { _copyright = value; }
         }
 
         /// <summary>
@@ -118,23 +165,83 @@ namespace NAnt.DotNet.Tasks {
             get { return _culture; }
             set { _culture = StringUtils.ConvertEmptyToNull(value); }
         }
-         
+
         /// <summary>
-        /// Specifies an assembly from which to get all options except the 
-        /// culture field.
+        /// Specifies whether the assembly should be partially signed. The default
+        /// is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("delaysign", Required=false)]
+        public bool DelaySign {
+            get { return _delaySign; }
+            set { _delaySign = value; }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Description</b> field in the assembly.
         /// </summary>
         /// <value>
-        /// The complete path to the assembly template.
+        /// A string for the <b>Description</b> field in the assembly.
+        /// </value>
+        /// <remarks>
+        /// If <see cref="Description" /> is an empty string (""), the Win32
+        /// <b>Description</b> resource appears as a single space.
+        /// </remarks>
+        [TaskAttribute("description", Required=false)]
+        public string Description {
+            get { return _description; }
+            set { _description = value; }
+        }
+
+        /// <summary>
+        /// Security evidence file to embed.
+        /// </summary>
+        /// <value>
+        /// The security evidence file to embed.
         /// </value>
         /// <remarks>
         /// <para>
-        /// Corresponds with the <c>/template:</c> flag.
+        /// Corresponds with the <c>/e[vidence]</c> flag.
         /// </para>
         /// </remarks>
-        [TaskAttribute("template", Required=false)]
-        public FileInfo TemplateFile {
-            get { return _templateFile; }
-            set { _templateFile = value; }
+        [TaskAttribute("evidence", Required=false)]
+        public FileInfo EvidenceFile {
+            get { return _evidenceFile; }
+            set { _evidenceFile = value; }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>File Version</b> field in the assembly.
+        /// </summary>
+        /// <value>
+        /// A string for the <b>File Version</b> field in the assembly.
+        /// </value>
+        [TaskAttribute("fileversion", Required=false)]
+        public string FileVersion {
+            get { return _fileVersion; }
+            set { _fileVersion = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies a value (in hexadecimal) for the <b>Flags</b> field in 
+        /// the assembly.
+        /// </summary>
+        /// <value>
+        /// A value (in hexadecimal) for the <b>Flags</b> field in the assembly.
+        /// </value>
+        [TaskAttribute("flags", Required=false)]
+        [Int32Validator(Base=16)]
+        public string Flags {
+            get { return _flags; }
+            set { _flags = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies a container that holds a key pair.
+        /// </summary>
+        [TaskAttribute("keycontainer")]
+        public string KeyContainer {
+            get { return _keyContainer; }
+            set { _keyContainer = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -156,12 +263,152 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Specifies the fully-qualified name (class.method) of the method to 
+        /// use as an entry point when converting a module to an executable file.
+        /// </summary>
+        /// <value>
+        /// The fully-qualified name (class.method) of the method to use as an 
+        /// entry point when converting a module to an executable file.
+        /// </value>
+        [TaskAttribute("main")]
+        public string MainMethod {
+            get { return _mainMethod; }
+            set { _mainMethod = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// The name of the output file for the assembly manifest.
+        /// </summary>
+        /// <value>
+        /// The complete output path for the assembly manifest.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/out</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("output", Required=true)]
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
+        }
+
+        /// <summary>
+        /// The target type (one of <c>lib</c>, <c>exe</c>, or <c>winexe</c>).
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/t[arget]:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("target", Required=true)]
+        [StringValidator(AllowEmpty=false)]
+        public string OutputTarget {
+            get { return _target; }
+            set { _target = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Product</b> field in the assembly.
+        /// </summary>
+        /// <value>
+        /// A string for the <b>Product</b> field in the assembly.
+        /// </value>
+        [TaskAttribute("product", Required=false)]
+        public string Product {
+            get { return _product; }
+            set { _product = value; }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Product Version</b> field in the assembly.
+        /// </summary>
+        /// <value>
+        /// A string for the <b>Product Version</b> field in the assembly.
+        /// </value>
+        [TaskAttribute("productversion", Required=false)]
+        public string ProductVersion {
+            get { return _productVersion; }
+            set { _productVersion = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
         /// The set of resources to embed.
         /// </summary>
         [BuildElement("sources")]
         public FileSet Resources {
             get { return _resources; }
             set { _resources = value; }
+        }
+
+        /// <summary>
+        /// Specifies an assembly from which to get all options except the 
+        /// culture field.
+        /// </summary>
+        /// <value>
+        /// The complete path to the assembly template.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/template:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("template", Required=false)]
+        public FileInfo TemplateFile {
+            get { return _templateFile; }
+            set { _templateFile = value; }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Title</b> field in the assembly.
+        /// </summary>
+        /// <value>
+        /// A string for the <b>Title</b> field in the assembly.
+        /// </value>
+        [TaskAttribute("title", Required=false)]
+        public string Title {
+            get { return _title; }
+            set { _title = value; }
+        }
+
+        /// <summary>
+        /// Specifies a string for the <b>Trademark</b> field in the assembly.
+        /// </summary>
+        /// <value>
+        /// A string for the <b>Trademark</b> field in the assembly.
+        /// </value>
+        [TaskAttribute("trademark", Required=false)]
+        public string Trademark {
+            get { return _trademark; }
+            set { _trademark = value; }
+        }
+
+        /// <summary>
+        /// Specifies version information for the assembly. The format of the 
+        /// version string is <c>major</c>.<c>minor</c>.<c>build</c>.<c>revision</c>.
+        /// </summary>
+        [TaskAttribute("version", Required=false)]
+        public string Version {
+            get { return _version; }
+            set { _version = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Icon to associate with the assembly.
+        /// </summary>
+        [TaskAttribute("win32icon", Required=false)]
+        public FileInfo Win32Icon {
+            get { return _win32Icon; }
+            set { _win32Icon = value; }
+        }
+
+        /// <summary>
+        /// Inserts a Win32 resource (.res file) in the output file.
+        /// </summary>
+        [TaskAttribute("win32res", Required=false)]
+        public FileInfo Win32Res {
+            get { return _win32Res; }
+            set { _win32Res = value; }
         }
 
         #endregion Public Instance Properties
@@ -209,27 +456,118 @@ namespace NAnt.DotNet.Tasks {
                     // write output file
                     writer.WriteLine("/out:\"{0}\"", OutputFile.FullName);
 
+                    // algorithm (in hexadecimal)
+                    if (AlgorithmID != null) {
+                        writer.WriteLine("/algid:\"{0}\"", AlgorithmID);
+                    }
+
+                    // company field
+                    if (Company != null) {
+                        writer.WriteLine("/company:\"{0}\"", Company);
+                    }
+
+                    // configuration field
+                    if (Configuration != null) {
+                        writer.WriteLine("/configuration:\"{0}\"", Configuration);
+                    }
+
+                    // copyright field
+                    if (Copyright != null) {
+                        writer.WriteLine("/copyright:\"{0}\"", Copyright);
+                    }
+
                     // write culture associated with output assembly
                     if (Culture != null) {
                         writer.WriteLine("/culture:\"{0}\"", Culture);
                     }
-                    
-                    // suppresses display of the sign-on banner
-                    writer.WriteLine("/nologo");
-                    
+
+                    // delay sign the assembly
+                    if (DelaySign) {
+                        writer.WriteLine("/delaysign+");
+                    }
+
+                    // description field
+                    if (Description != null) {
+                        writer.WriteLine("/description:\"{0}\"", Description);
+                    }
+
+                    // write path to security evidence file
+                    if (EvidenceFile != null) {
+                        writer.WriteLine("/evidence:\"{0}\"", EvidenceFile.FullName);
+                    }
+
+                    // file version field
+                    if (FileVersion != null) {
+                        writer.WriteLine("/fileversion:\"{0}\"", FileVersion);
+                    }
+
+                    // flags field
+                    if (Flags != null) {
+                        writer.WriteLine("/flags:\"{0}\"", Flags);
+                    }
+
+                    // main method
+                    if (MainMethod != null) {
+                        writer.WriteLine("/main:\"{0}\"", MainMethod);
+                    }
+
+                    // keycontainer
+                    if (KeyContainer != null) {
+                        writer.WriteLine("/keyname:\"{0}\"", KeyContainer);
+                    }
+
+                    // product field
+                    if (Product != null) {
+                        writer.WriteLine("/product:\"{0}\"", Product);
+                    }
+
+                    // product version field
+                    if (ProductVersion != null) {
+                        writer.WriteLine("/productversion:\"{0}\"", ProductVersion);
+                    }
+
                     // write path to template assembly
                     if (TemplateFile != null) {
                         writer.WriteLine("/template:\"{0}\"", TemplateFile.FullName);
                     }
 
+                    // title field
+                    if (Title != null) {
+                        writer.WriteLine("/title:\"{0}\"", Title);
+                    }
+
+                    // trademark field
+                    if (Trademark != null) {
+                        writer.WriteLine("/trademark:\"{0}\"", Trademark);
+                    }
+
+                    // key file
                     if (KeyFile != null) {
                         writer.WriteLine("/keyfile:\"{0}\"", KeyFile.FullName);
+                    }
+
+                    // assembly version
+                    if (Version != null) {
+                        writer.WriteLine("/version:\"{0}\"", Version);
+                    }
+
+                    // win32 icon
+                    if (Win32Icon != null) {
+                        writer.WriteLine("/win32icon:\"{0}\"", Win32Icon.FullName);
+                    }
+
+                    // win32 resource
+                    if (Win32Res != null) {
+                        writer.WriteLine("/win32res:\"{0}\"", Win32Res.FullName);
                     }
 
                     // write embedded resources to response file
                     foreach (string resourceFile in Resources.FileNames) {
                         writer.WriteLine("/embed:\"{0}\"", resourceFile);
                     }
+
+                    // suppresses display of the sign-on banner
+                    writer.WriteLine("/nologo");
 
                     // make sure to close the response file otherwise contents
                     // Will not be written to disk and ExecuteTask() will fail.
@@ -282,6 +620,15 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
+            // check if evidence file was updated
+            if (EvidenceFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(EvidenceFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
             // check if template file was updated
             if (TemplateFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(TemplateFile.FullName, OutputFile.LastWriteTime);
@@ -294,6 +641,24 @@ namespace NAnt.DotNet.Tasks {
             // check if key file was updated
             if (KeyFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(KeyFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // check if win32 icon file was updated
+            if (Win32Icon != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(Win32Icon.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // check if win32 resource file was updated
+            if (Win32Res != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(Win32Res.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                     return true;
