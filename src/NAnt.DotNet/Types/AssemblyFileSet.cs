@@ -83,14 +83,6 @@ namespace NAnt.DotNet.Types {
             _lib = new LibDirectorySet(this);
         }
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AssemblyFileSet" /> class from
-        /// the specified <see cref="FileSet" />.
-        /// </summary>
-        /// <param name="source">The <see cref="FileSet" /> that should be used to create a new instance of the <see cref="AssemblyFileSet" /> class.</param>
-        public AssemblyFileSet(FileSet source) : base(source) {
-        }
-
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
