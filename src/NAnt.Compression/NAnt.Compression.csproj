@@ -88,11 +88,17 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.Zip.build"
                     BuildAction = "None"
+                />
+                <File
+                    RelPath = "Tasks\TarTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Tasks\UnZipTask.cs"
@@ -105,7 +111,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\TarFileSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\TarFileSetCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\ZipFileSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\ZipFileSetCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
