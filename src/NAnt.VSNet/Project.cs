@@ -34,7 +34,7 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-    public class Project: ProjectBase {
+    public class Project : ProjectBase {
         #region Public Instance Constructors
 
         public Project(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) {
@@ -261,6 +261,9 @@ namespace NAnt.VSNet {
             if (ProjectSettings.RunPostBuildEvent != null) {
                 bSuccess = PreBuild(cs);
             }
+
+            // ensure the temp dir exists
+            Directory.CreateDirectory(_tfc.BasePath);
 
             string tempResponseFile = Path.Combine(_tfc.BasePath, Project.CommandFile);
 
