@@ -150,10 +150,9 @@ namespace SourceForge.NAnt {
                                 }
                             } else {
                                 
-                                //validate attribute value with custom ValidatorAttribute(ors)
-                                ValidatorAttribute[] validateAttributes = (ValidatorAttribute[]) 
+                                //validate attribute value with custom ValidatorAttribute(ors)                                                            
+                                object[] validateAttributes = (ValidatorAttribute[]) 
                                     Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
-                                
                                 try {
                                     foreach(ValidatorAttribute validator in validateAttributes)
                                         validator.Validate(attrValue);
