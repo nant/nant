@@ -469,8 +469,8 @@ namespace NAnt.VSNet {
                 }
 
                 // extract path to type library from reg value
-                string typeLib = ExtractTypeLibPath((string) registryKey.GetValue(null));
-                // check if the typelib actually exists
+				string typeLib = ExtractTypeLibPath(typeLibValue);
+				// check if the typelib actually exists
                 if (!File.Exists(typeLib)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Type library '{0}' no longer exists at registered path"
