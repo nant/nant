@@ -23,6 +23,14 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+// Configure log4net using the application configuration file 
+// (AppDomain.CurrentDomain.SetupInformation.ConfigurationFile).
+// The application configuration file will be directly accessed 
+// by log4net (not using the System.Configuration namespace).
+// The log4net configuration will be reloaded whenever the
+// configuration file is changed.
+[assembly: log4net.Config.DOMConfigurator(Watch=true)]
+
 // Mark NAnt.Console CLS compliant
 [assembly: CLSCompliant(true)]
 
@@ -45,4 +53,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile(@"..\NAnt.key")]
 [assembly: AssemblyKeyName("")]
-[assembly: log4net.Config.DOMConfigurator(Watch=true)]
