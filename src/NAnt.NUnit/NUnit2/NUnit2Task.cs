@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Mike Two (2@thoughtworks.com or mike2@nunit.org)
 // Tomas Restrepo (tomasr@mvps.org)
 
@@ -117,6 +117,10 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Initializes the task using the specified XML node.
+        /// </summary>
+        /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to initialize this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
             FormatterElement defaultFormatter = new FormatterElement();
             defaultFormatter.Project = Project;
@@ -125,6 +129,9 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             _formatterElements.Add(defaultFormatter);
         }
         
+        /// <summary>
+        /// Runs the tests and sets up the formatters.
+        /// </summary>
         protected override void ExecuteTask() {
             foreach (NUnit2Test test in Tests) {
                 EventListener listener = new NullListener();

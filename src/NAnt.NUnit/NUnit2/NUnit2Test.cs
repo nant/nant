@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Mike Two (2@thoughtworks.com or mike2@nunit.org)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
@@ -23,6 +23,9 @@ using System.Collections.Specialized;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
+    /// <summary>
+    /// Represents a test element of an NUnit2 task.
+    /// </summary>
     [ElementName("test")]
     public class NUnit2Test : Element {
         #region Private Instance Fields
@@ -38,27 +41,61 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 
         #region Public Instance Properties
 
-        /// <summary>Name of the assembly to search for tests.</summary>
+        /// <summary>
+        /// Name of the assembly to search for tests.
+        /// </summary>
         [TaskAttribute("assemblyname")]
-        public string AssemblyName { get { if (_assemblyName != null) return Project.GetFullPath(_assemblyName); else return null; } set {_assemblyName = value;} }
+        public string AssemblyName {
+            get {
+                if (_assemblyName != null) {
+                    return Project.GetFullPath(_assemblyName);
+                } else {
+                    return null;
+                }
+            } 
+            set { _assemblyName = value; }
+        }
         
-        /// <summary>Name of a specific test to run. If Not specified then all tests in the assembly are run.</summary>
+        /// <summary>
+        /// Name of a specific test to run. If not specified then all tests in 
+        /// the assembly are run.
+        /// </summary>
         [TaskAttribute("testname")]
-        public string TestName { get { return _testname; } set {_testname = value;} }
+        public string TestName {
+            get { return _testname; }
+            set { _testname = value; }
+        }
 
-        /// <summary>Assemblies to include in test.</summary>
+        /// <summary>
+        /// Assemblies to include in test.
+        /// </summary>
         [FileSet("assemblies")]
-        public FileSet Assemblies { get { return _assemblies; } set {_assemblies = value;} }
+        public FileSet Assemblies {
+            get { return _assemblies; }
+        }
 
-        /// <summary>Build fails on failure.</summary>
+        /// <summary>
+        /// Build fails on failure.
+        /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
-        public bool HaltOnFailure { get { return _haltOnFailure; } set { _haltOnFailure = value; } }
+        public bool HaltOnFailure {
+            get { return _haltOnFailure; }
+            set { _haltOnFailure = value; }
+        }
 
-        /// <summary>XSLT transform file to use when using the Xml formatter.</summary>
+        /// <summary>
+        /// XSLT transform file to use when using the Xml formatter.
+        /// </summary>
         [TaskAttribute("transformfile")]
-        public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
+        public string TransformFile {
+            get { return _transformFile; }
+            set { _transformFile = value; }
+        }
 
+        /// <summary>
+        /// The application configuration file to use for the NUnit test domain.
+        /// </summary>
         [TaskAttribute("appconfig")]
         public string AppConfigFile {
             get { return Project.GetFullPath(_appConfigFile); }
