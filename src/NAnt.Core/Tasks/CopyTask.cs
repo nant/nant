@@ -30,6 +30,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.Core.Filters;
+
 namespace NAnt.Core.Tasks {
     /// <summary>
     /// Copies a file or set of files to a new file or directory.
@@ -58,7 +60,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <copy todir="${build.dir}">
     ///     <fileset basedir="bin">
-    ///         <include name="*.dll" />
+    ///         <includes name="*.dll" />
     ///     </fileset>
     /// </copy>
     ///     ]]>
@@ -77,6 +79,10 @@ namespace NAnt.Core.Tasks {
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
         private string _encodingName;
+
+
+        //Chain of filters
+        private FilterChain _copyFilterChain;
 
         #endregion Private Instance Fields
 
@@ -160,6 +166,16 @@ namespace NAnt.Core.Tasks {
         public string EncodingName {
             get { return _encodingName; }
             set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+
+        /// <summary>
+        /// The filterchain definition to use when filter-copying the files.
+        /// </summary>
+        [BuildElement("filterchain")]
+        public FilterChain CopyFilterChain {
+            get { return _copyFilterChain; }
+            set { _copyFilterChain = value; }
         }
 
         #endregion Public Instance Properties
@@ -386,8 +402,10 @@ namespace NAnt.Core.Tasks {
                             Log(Level.Verbose, LogPrefix + "Created directory '{0}'.", destinationDirectory);
                         }
 
-                        // actually copy the file
-                        File.Copy(sourceFile, destinationFile, true);
+
+                        //Copy with filters
+                        FileUtils.CopyWithFilters(sourceFile, destinationFile, _copyFilterChain);
+
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Cannot copy '{0}' to '{1}'.", sourceFile, destinationFile), 

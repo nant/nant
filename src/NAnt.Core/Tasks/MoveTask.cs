@@ -25,6 +25,7 @@ using System.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+using NAnt.Core.Filters;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -55,7 +56,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <move todir="${build.dir}">
     ///     <fileset basedir="bin">
-    ///         <include name="*.dll" />
+    ///         <includes name="*.dll" />
     ///     </fileset>
     /// </move>
     ///     ]]>
@@ -63,6 +64,15 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("move")]
     public class MoveTask : CopyTask {
+
+        
+        #region Private Instance Fields
+
+        FilterChain _moveFilterChain = null;
+
+        #endregion
+
+        
         #region Override implementation of CopyTask
 
         /// <summary>
@@ -114,6 +124,16 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Chain of filters used to filter the file's steam
+        /// as it is moved.
+        /// </summary>
+        [BuildElement("filterchain")]
+        public FilterChain MoveFilterChain {
+            get { return _moveFilterChain; }
+            set { _moveFilterChain = value; }
+        }
+
+        /// <summary>
         /// Actually does the file moves.
         /// </summary>
         protected override void DoFileOperations() {
@@ -151,9 +171,10 @@ namespace NAnt.Core.Tasks {
                                     File.Delete(destinationPath);
                                 }
                             }
+                            
+                            // move the file and apply filters
+                            FileUtils.MoveWithFilters(sourcePath, destinationPath, _moveFilterChain);
 
-                            // move the file
-                            File.Move(sourcePath, destinationPath);
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
