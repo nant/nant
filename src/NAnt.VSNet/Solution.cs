@@ -383,21 +383,47 @@ namespace NAnt.VSNet {
             return (string[]) new ArrayList(((Hashtable) _htProjectDependencies[projectGuid]).Keys).ToArray(typeof(string));
         }
 
+        /// <summary>
+        /// Loads the projects from the file system and stores them in an 
+        /// instance variable.
+        /// </summary>
+        /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
         private void LoadProjects() {
             Log(Level.Verbose, LogPrefix + "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;
+
+            // _htProjectFiles contains project GUIDs read from the sln file as 
+            // keys and the corresponding full path to the project file as the 
+            // value
             foreach (DictionaryEntry de in _htProjectFiles) {
                 string projectPath = (string) de.Value;
+
+                // check whether project should be excluded from build
                 if (!excludes.FileNames.Contains(projectPath)) {
                     Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
                     ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, _outputDir, projectPath);
                     if (p.Guid == null || p.Guid == string.Empty) {
                         p.Guid = FindGuidFromPath(projectPath);
                     }
+
+                    // If the project GUID from the sln file doesn't match the project GUID
+                    // from the project file we will run into problems. Alert the user to fix this
+                    // as it is basically a corruption probably caused by user manipulation of the sln
+                    // included projects. I.e. copy and paste issue.
+                    if (!p.Guid.Equals(de.Key.ToString())) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "GUID corruption detected for project '{0}'. GUID values" 
+                            + " in project file and solution file do not match ('{1}'" 
+                            + " and '{2}'). Please correct this manually.", p.Name, 
+                            p.Guid, de.Key.ToString()), Location.UnknownLocation);
+                    }
+
+                    // add project to hashtable
                     _htProjects[de.Key] = p;
                 } else {
-                    Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", (string) de.Value);
+                    Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
+                        (string) de.Value);
                 }
             }
         }
