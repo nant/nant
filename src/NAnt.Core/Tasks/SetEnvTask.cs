@@ -22,28 +22,31 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
+
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
  namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Sets an environment variable or a whole collection of them. Use an empty value attribute
-    /// to clear a variable.
+    /// Sets an environment variable or a whole collection of them. Use an empty 
+    /// <see cref="LiteralValue" /> attribute to clear a variable.
     /// </summary>
-    ///   <remarks>
-    ///     <note>
-    ///	Variables will be set for the current NAnt process and all child processes 
-    ///	that NAnt spawns ( compilers, shell tools etc ). If the intention is to only 
-    ///	set a variable for a single child process then using the <see cref="ExecTask" /> 
-    ///	and its nested <see cref="ExecTask.Environment" /> element might be a better option. 
-    ///     </note>
-    ///     <note>
-    ///Expansion of inline environment variables is performed using the syntax of the current 
-    ///platform. So on Windows platforms using the string %PATH% in value attribute will result 
-    ///in the value of the PATH variable being expanded in place before the variable is set.      
-    ///     </note>
-    ///   </remarks>
+    /// <remarks>
+    ///   <note>
+    ///	  Variables will be set for the current NAnt process and all child 
+    ///	  processes that NAnt spawns (compilers, shell tools, etc). If the 
+    ///	  intention is to only set a variable for a single child process, then
+    ///	  using the <see cref="ExecTask" /> and its nested <see cref="ExecTask.EnvironmentSet" /> 
+    ///	  element might be a better option. 
+    ///   </note>
+    ///   <note>
+    ///   Expansion of inline environment variables is performed using the syntax 
+    ///   of the current platform. So on Windows platforms using the string %PATH% 
+    ///   in the <see cref="LiteralValue" /> attribute will result in the value of 
+    ///   the PATH variable being expanded in place before the variable is set.
+    ///   </note>
+    /// </remarks>
     /// <example>
     ///   <para>Set the MONO_PATH environment variable on a *nix platform.</para>
     ///   <code>
@@ -180,7 +183,7 @@ using NAnt.Core.Util;
         /// <param name="lpValue"></param>
         /// <returns></returns>
         [DllImport("kernel32.dll", SetLastError=true)]
-        static extern bool SetEnvironmentVariable(string lpName, string lpValue);
+        private static extern bool SetEnvironmentVariable(string lpName, string lpValue);
                 
         /// <summary>
         /// *nix dllimport for the setenv function.
@@ -190,7 +193,7 @@ using NAnt.Core.Util;
         /// <param name="overwrite"></param>
         /// <returns></returns>
         [DllImport("libc")]
-        static extern int setenv(string name, string value, int overwrite);
+        private static extern int setenv(string name, string value, int overwrite);
         
         #endregion DllImports
         
@@ -201,23 +204,24 @@ using NAnt.Core.Util;
         /// </summary>
         /// <param name="taskNode"></param>
         protected override void InitializeTask(XmlNode taskNode) {
-            if ( EnvName == null && EnvironmentVariables.Count == 0) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Either the name attribute or at least one nested <option> element is required."), Location );
+            if (EnvName == null && EnvironmentVariables.Count == 0) {
+                throw new BuildException("Either the \"name\" attribute or at"
+                    + " least one nested <variable> element is required.", 
+                    Location);
             }
         }
+
         /// <summary>
         /// Set the environment variables
         /// </summary>
         protected override void ExecuteTask() {
-            
             if (EnvName != null && _value != null ) {
-                // add the single env var
-                EnvironmentVariables.Add(new EnvironmentVariable( EnvName, _value ));
+                // add single environment variable
+                EnvironmentVariables.Add(new EnvironmentVariable(EnvName, _value));
             }
             
-            foreach( EnvironmentVariable env in EnvironmentVariables ) {
-                SetSingleEnvironmentVariable( env.VariableName, env.Value );
+            foreach (EnvironmentVariable env in EnvironmentVariables) {
+                SetSingleEnvironmentVariable(env.VariableName, env.Value);
             }
         }
         
@@ -228,26 +232,32 @@ using NAnt.Core.Util;
         /// <summary>
         /// Do the actual work here.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
+        /// <param name="name">The name of the environment variable.</param>
+        /// <param name="value">The value of the environment variable.</param>
         private void SetSingleEnvironmentVariable(string name, string value) {
-            
             bool result;
-            Log(Level.Verbose, "Setting environment variable '{0}' to '{1}'", name, value);
-            
+
+            Log(Level.Verbose, "Setting environment variable \"{0}\" to \"{1}\".", 
+                name, value);
+
             // expand any env vars in value
             string expandedValue = Environment.ExpandEnvironmentVariables(value);
-            if ( PlatformHelper.IsWin32 ) {
+            
+            // set the environment variable
+            if (PlatformHelper.IsWin32) {
                 result = SetEnvironmentVariable(name, expandedValue);
-            } 
-                else if (PlatformHelper.IsUnix){
-                    result = setenv(name, expandedValue, 1) == 0 ? true : false; 
-            } 
-            else {
-                throw new BuildException("Setenv not defined on this platform", Location );
+            } else if (PlatformHelper.IsUnix) {
+                result = setenv(name, expandedValue, 1) == 0; 
+            } else {
+                throw new BuildException("Setenv not defined on this platform", 
+                    Location);
             }
-            if ( result != true  ) {
-                throw new BuildException(string.Format("Error setting env var {0} to {1}", name, value ) , Location);
+
+            // check if setting of environment variable was succesful
+            if (!result) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error setting environment variable \"{0}\" to \"{1}\".", 
+                    name, value), Location);
             }
         }
         

@@ -85,7 +85,7 @@ namespace NAnt.Core.Tasks {
         private DirectoryInfo _workingDirectory;
         private FileInfo _output;
         private bool _outputAppend;
-        private OptionCollection _environment = new OptionCollection();
+        private EnvironmentSet _environmentSet = new EnvironmentSet();
         private bool _useRuntimeEngine;
         private string _resultProperty;
 
@@ -119,9 +119,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Environment variables to pass to the program.
         /// </summary>
-        [BuildElementCollection("environment", "option")]
-        public OptionCollection Environment {
-            get { return _environment; }
+        [BuildElement("environment")]
+        public EnvironmentSet EnvironmentSet {
+            get { return _environmentSet; }
         }
 
         /// <summary>
@@ -309,12 +309,21 @@ namespace NAnt.Core.Tasks {
             process.StartInfo.WorkingDirectory = WorkingDirectory.FullName;
 
             // set environment variables
-            foreach (Option option in Environment) {
+            foreach (Option option in EnvironmentSet.Options) {
                 if (option.IfDefined && !option.UnlessDefined) {
                     if (option.Value == null) {
                         process.StartInfo.EnvironmentVariables[option.OptionName] = "";
                     } else {
                         process.StartInfo.EnvironmentVariables[option.OptionName] = option.Value;
+                    }
+                }
+            }
+            foreach (EnvironmentVariable variable in EnvironmentSet.EnvironmentVariables) {
+                if (variable.IfDefined && !variable.UnlessDefined) {
+                    if (variable.Value == null) {
+                        process.StartInfo.EnvironmentVariables[variable.VariableName] = "";
+                    } else {
+                        process.StartInfo.EnvironmentVariables[variable.VariableName] = variable.Value;
                     }
                 }
             }

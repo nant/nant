@@ -44,19 +44,21 @@ namespace NAnt.Core.Types {
         #endregion Private Instance Fields
 
         /// <summary>
-        /// name, value constructor
+        /// Initializes a <see cref="EnvironmentVariable" /> instance with the
+        /// specified name and value.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
+        /// <param name="name">The name of the environment variable.</param>
+        /// <param name="value">The value of the environment variable.</param>
         public EnvironmentVariable(string name, string value) {
             _name = name;
             _value = value;
         }
         
         /// <summary>
-        /// Default constructor
+        /// Initializes a <see cref="EnvironmentVariable" /> instance.
         /// </summary>
-        public EnvironmentVariable() {}
+        public EnvironmentVariable() {
+        }
 
         #region Public Instance Properties
 
@@ -172,6 +174,42 @@ namespace NAnt.Core.Types {
         public bool UnlessDefined {
             get { return _unlessDefined; }
             set { _unlessDefined = value; }
+        }
+
+        #endregion Public Instance Properties
+    }
+
+    /// <summary>
+    /// A set of environment variables.
+    /// </summary>
+    [ElementName("environment")]
+    public class EnvironmentSet : Element {
+        #region Private Instance Fields
+
+        private OptionCollection _options = new OptionCollection();
+        private EnvironmentVariableCollection _environmentVariables = new EnvironmentVariableCollection();
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Environment variable to pass to a program.
+        /// </summary>
+        [BuildElementArray("option")]
+        [Obsolete("Use <variable> element instead.")]
+        public OptionCollection Options {
+            get { return _options; }
+            set { _options = value; }
+        }
+
+        /// <summary>
+        /// Environment variable to pass to a program.
+        /// </summary>
+        [BuildElementArray("variable")]
+        public EnvironmentVariableCollection EnvironmentVariables {
+            get { return _environmentVariables; }
+            set { _environmentVariables = value; }
         }
 
         #endregion Public Instance Properties
