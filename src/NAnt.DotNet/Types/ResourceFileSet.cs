@@ -145,7 +145,13 @@ namespace NAnt.DotNet.Types {
             }
             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
             prefix.Append(actualFileName);
-            return Path.GetFileName(fileName).Replace(actualFileName, prefix.ToString());
+                                             
+            int firstindex = Path.GetFileName(fileName).IndexOf(actualFileName, 0 );
+            
+            StringBuilder result =  new StringBuilder(Path.GetFileName(fileName));
+            result.Remove( firstindex, actualFileName.Length );
+            result.Insert( firstindex, prefix.ToString());
+            return result.ToString();
         }
 
         #endregion Public Instance Methods
