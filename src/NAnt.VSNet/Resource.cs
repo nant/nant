@@ -165,7 +165,7 @@ namespace NAnt.VSNet.Tasks {
             ArrayList al = new ArrayList( stReverse.ToArray() );
 
             string strClassName = String.Join( ".", ( string[] )al.ToArray( typeof( string ) ) );
-            string strResourceFilename = strClassName + ".resources";
+            string strResourceFilename = _ps.RootNamespace + "." + strClassName + ".resources";
 
             return strResourceFilename;
         }
