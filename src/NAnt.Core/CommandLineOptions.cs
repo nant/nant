@@ -161,7 +161,7 @@ namespace SourceForge.NAnt {
         /// <value>
         /// The list of targets that should be executed.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentType.MultipleUnique, Name="target")]
+        [DefaultCommandLineArgument(CommandLineArgumentType.MultipleUnique, Name="target")]
         public string[] Targets {
             get { return _targets; }
             set { _targets = value; }
