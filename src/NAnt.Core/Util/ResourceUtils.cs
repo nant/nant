@@ -18,74 +18,125 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Giuseppe Greco (giuseppe.greco@agamura.com)
+// Ian MacLean ( imaclean@gmail.com )
 
 using System.Reflection;
 using System.Resources;
 using System.Globalization;
+using System.Collections;
 
 namespace NAnt.Core.Util {
     /// <summary>
     /// Provides resource support to NAnt assemblies. This class cannot
-    /// be inherited.
+    /// be inherited from.
     /// </summary>
-    internal sealed class ResourceUtils {
+    public sealed class ResourceUtils {
 
         #region private fields
 
-        private static volatile ResourceManager _resourceManager;
+        private static ResourceManager _sharedResourceManager;
+        private static Hashtable _resourceManagerDictionary = new Hashtable();
 
         #endregion private fields
 
         #region public methods
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assembly"></param>
+        public static void RegisterAssembly(Assembly assembly) {
+            lock (_resourceManagerDictionary) {
+                _resourceManagerDictionary.Add(assembly.GetName().Name,
+                    new ResourceManager("Strings", assembly));
+            }        
+        }
+
+        /// <summary>
+        /// Register the assemlby to be used as the fallback if resources
+        /// aren't found in the local satellite assembly.
+        /// </summary>
+        /// <param name="assembly"></param>
+        private static void RegisterSharedAssembly(Assembly assembly) {
+            
+            _sharedResourceManager = new ResourceManager(assembly.GetName().Name, assembly); 
+            
+        }
         /// <summary>
         /// Returns the value of the specified string resource.
         /// </summary>
         /// <param name="name">
         /// A <see cref="System.String" /> that contains the name of the
-        /// string resource to get.
+        /// resource to get.
         /// </param>
         /// <returns>
         /// A <see cref="System.String" /> that contains the value of the
-        /// string resource localized for the current culture.
+        /// resource localized for the current culture.
         /// </returns>
         public static string GetString(string name) {
-            return GetString(name, null);
-        }
-
+            Assembly assembly = Assembly.GetCallingAssembly();
+            return GetString(name, null, assembly);
+        }        
+        
         /// <summary>
         /// Returns the value of the specified string resource localized for
         /// the specified culture.
         /// </summary>
+        /// <param name="name"></param>
+        /// <param name="culture"></param>
+        /// <returns>
+        /// A <see cref="System.String" /> that contains the value of the
+        /// resource localized for the specified culture. 
+        ///</returns>
+        public static string GetString(string name, CultureInfo culture ) {
+            Assembly assembly = Assembly.GetCallingAssembly();
+            return GetString(name, culture, assembly);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified string resource localized for
+        /// the specified culture for the specified assembly.
+        /// </summary>
         /// <param name="name">
         /// A <see cref="System.String" /> that contains the name of the
-        /// string resource to get.
+        /// resource to get.
         /// </param>
         /// <param name="culture">
         /// A <see cref="System.Globalization.CultureInfo" /> that represents
-        /// the culture for which the string resource should be localized.
+        /// the culture for which the resource is localized.
+        /// </param>
+        /// <param name="assembly">
+        /// A <see cref="System.Reflection.Assembly" />
         /// </param>
         /// <returns>
         /// A <see cref="System.String" /> that contains the value of the
-        /// string resource localized for the specified culture.
+        /// resource localized for the specified culture.
         /// </returns>
-        public static string GetString(string name, CultureInfo culture) {
-            if (_resourceManager == null) {
-                //
-                // prevent more than one instance of the ResourceManager class
-                // to be initialized
-                //
-                lock (typeof(ResourceUtils)) {
-                    if (_resourceManager == null) {
-                        Assembly assembly = Assembly.GetCallingAssembly();
-                        _resourceManager = new ResourceManager(
-                            assembly.GetName().Name, assembly);
-                    }
+        public static string GetString(string name, CultureInfo culture, Assembly assembly) {
+            string localizedString = null;
+            
+            ResourceManager resourceManager = null;
+            
+            if ( ! _resourceManagerDictionary.Contains(assembly.GetName().Name ) )  {
+                lock (_resourceManagerDictionary) 
+                {
+                    RegisterAssembly(assembly);
                 }
             }
-            return _resourceManager.GetString(name, culture);
-        }
+            // get the required Manager
+            resourceManager = _resourceManagerDictionary[assembly.GetName().Name] as ResourceManager;
+            localizedString = resourceManager.GetString(name, culture);
+            
+            // try the shared resources if we didn't find it in the specific resource manager
+            if ( localizedString == null && _sharedResourceManager != null) {
+                return _sharedResourceManager.GetString(name, culture);
+            }
+            return localizedString;
 
+        }
+        
         #endregion public methods
     }
+
 }
