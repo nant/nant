@@ -129,12 +129,19 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         }
         
         private TestResult RunRemoteTest(NUnit2Test test, EventListener listener) {
-            LogWriter writer = new LogWriter();
-            NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
-            if ( test.TestName != null ) {
-                return domain.RunTest(test.TestName, test.AssemblyName, test.AppConfigFile, listener);
-            } else {
-                return domain.Run(test.AssemblyName, test.AppConfigFile, listener);
+            try {
+               LogWriter writer = new LogWriter();
+               string assemblyName = Project.GetFullPath(test.AssemblyName);
+               string appConfig = Project.GetFullPath(test.AppConfigFile);
+
+               NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
+               if ( test.TestName != null ) {
+                  return domain.RunTest(test.TestName, assemblyName, appConfig, listener);
+               } else {
+                  return domain.Run(assemblyName, appConfig, listener);
+               }
+            } catch ( Exception e ) {
+               throw new BuildException("NUnit 2.0 Error: " + e.Message);
             }
         }
         
