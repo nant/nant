@@ -888,44 +888,40 @@ namespace NAnt.VSNet {
             string outputDirectory = fileConfig.GetToolSetting(compilerTool, "OutputDirectory");
             if (outputDirectory == null) {
                 outputDirectory = fileConfig.ProjectDir.FullName;
+            } else {
+                outputDirectory = Path.Combine(fileConfig.ProjectDir.FullName, 
+                    outputDirectory);
             }
 
             midlTask.Arguments.Add(new Argument("/out"));
             midlTask.Arguments.Add(new Argument(outputDirectory));
 
-            string typeLibraryName = fileConfig.GetToolSetting(compilerTool, "TypeLibraryName");
-            if (typeLibraryName != null) {
-                midlTask.Tlb = new FileInfo(Path.Combine(outputDirectory, typeLibraryName));
-            } else {
-                // if typeLibraryName is not supplied in the configuration, 
-                // uses the default setting
-                string intermediateDir = Path.Combine(outputDirectory, 
-                    fileConfig.IntermediateDir);
-                midlTask.Tlb = new FileInfo(Path.Combine(intermediateDir, 
-                    fileConfig.Project.Name + ".tlb"));
-            }
+            string typeLibraryName = fileConfig.GetToolSetting(compilerTool, 
+                "TypeLibraryName", "$(IntDir)/$(ProjectName).tlb");
+            midlTask.Tlb = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
+                typeLibraryName));
 
             string proxyFileName = fileConfig.GetToolSetting(compilerTool, "ProxyFileName");
             if (proxyFileName != null) {
-                midlTask.Proxy = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.Proxy = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
                     proxyFileName));
             }
 
             string interfaceIdentifierFileName = fileConfig.GetToolSetting(compilerTool, "InterfaceIdentifierFileName");
             if (interfaceIdentifierFileName != null) {
-                midlTask.Iid = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.Iid = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
                     interfaceIdentifierFileName));
             }
 
             string dllDataFileName = fileConfig.GetToolSetting(compilerTool, "DLLDataFileName");
             if (dllDataFileName != null) {
-                midlTask.DllData = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.DllData = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
                     dllDataFileName));
             }
 
             string headerFileName = fileConfig.GetToolSetting(compilerTool, "HeaderFileName");
             if (headerFileName != null) {
-                midlTask.Header = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.Header = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
                     headerFileName));
             }
 
