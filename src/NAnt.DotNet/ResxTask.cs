@@ -85,7 +85,7 @@ namespace SourceForge.NAnt.Tasks
                 }
             }
 
-            Log.WriteLine( "Compiling resource file {0} to {1}", _strInput, strOutput );
+            Log.WriteLine( LogPrefix + "Compiling resource file {0} to {1}", Path.GetFileName( _strInput ), Path.GetFileName( strOutput ) );
 
             // Open in the input .resx file
             using ( ResXResourceReader rrr = new ResXResourceReader( strInput ) ) {
@@ -95,7 +95,7 @@ namespace SourceForge.NAnt.Tasks
                     foreach ( DictionaryEntry de in rrr ) {
                         rw.AddResource( ( string )de.Key, de.Value );
                         if ( Verbose )
-                            Log.WriteLine( "{0}: {1}", de.Key, de.Value.GetType() );
+                            Log.WriteLine( LogPrefix + "{0}: {1}", de.Key, de.Value.GetType() );
                     }
                 }
             }

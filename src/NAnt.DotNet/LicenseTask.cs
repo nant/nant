@@ -73,7 +73,7 @@ namespace SourceForge.NAnt.Tasks
 				throw new BuildException( msg, Location, e );
 			}
 
-			Log.WriteLine( "Compiling license file {0} to {1} using target {2}", _input, strResourceFilename, _strTarget );
+			Log.WriteLine( LogPrefix + "Compiling license file {0} to {1} using target {2}", Path.GetFileName( _input ), Path.GetFileName( strResourceFilename ), _strTarget );
 
 			ArrayList alAssemblies = new ArrayList();
 
