@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 using ICSharpCode.SharpCvsLib.Client;
 using ICSharpCode.SharpCvsLib.Commands;
@@ -46,62 +47,62 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Default value for the recursive directive.  Default is <code>false</code>.
         /// </summary>
-        protected const bool DEFAULT_RECURSIVE = false;
+        protected const bool DefaultRecursive = false;
         /// <summary>
         /// Default value for the quiet command.
         /// </summary>
-        protected const bool DEFAULT_QUIET = false;
+        protected const bool DefaultQuiet = false;
         /// <summary>
         /// Default value for the really quiet command.
         /// </summary>
-        protected const bool DEFAULT_REALLY_QUIET = false;
+        protected const bool DefaultReallyQuiet = false;
 
         /// <summary>
         /// An environment variable that holds path information about where
         ///     cvs is located.
         /// </summary>
-        protected const string CVS_HOME = "CVS_HOME";
+        protected const string CvsHome = "CvsHome";
         /// <summary>
         /// Name of the password file that cvs stores pserver 
         ///     cvsroot/ password pairings.
         /// </summary>
-        protected const String CVS_PASSFILE = ".cvspass";
+        protected const String CvsPassfile = ".cvspass";
         /// <summary>
         /// The default compression level to use for cvs commands.
         /// </summary>
-        protected const int DEFAULT_COMPRESSION_LEVEL = 3;
+        protected const int DefaultCompressionLevel = 3;
         /// <summary>
         /// The default use of binaries, defaults to use sharpcvs
         ///     <code>true</code>.
         /// </summary>
-        protected const bool DEFAULT_USE_SHARPCVSLIB = true;
+        protected const bool DefaultUseSharpCvsLib = true;
 
         /// <summary>
         /// The name of the cvs executable.
         /// </summary>
-        protected const string CVS_EXE = "cvs.exe";
+        protected const string CvsExe = "cvs.exe";
         /// <summary>
         /// The temporary name of the sharpcvslib binary file, to avoid 
         ///     conflicts in the path variable.
         /// </summary>
-        protected const string SHARP_CVS_EXE = "scvs.exe";
+        protected const string SharpCvsExe = "scvs.exe";
         /// <summary>
         /// Environment variable that holds the executable name that is used for
         ///     ssh communication.
         /// </summary>
-        protected const string CVS_RSH = "CVS_RSH";
+        protected const string CvsRsh = "CvsRsh";
         /// <summary>
         /// Property name used to specify on a project level whether sharpcvs is
         ///     used or not.
         /// </summary>
-        protected const string USE_SHARPCVSLIB = "sourcecontrol.usesharpcvslib";
+        protected const string UseSharpCvsLibProp = "sourcecontrol.usesharpcvslib";
 
         #endregion
 
         #region Private Instance Fields
 
         private string _module;
-        private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
+        private bool _useSharpCvsLib = DefaultUseSharpCvsLib;
         private bool _isUseSharpCvsLibSet = false;
         private FileInfo _cvsFullPath;
 
@@ -122,8 +123,8 @@ namespace NAnt.SourceControl.Tasks {
         /// class.
         /// </summary>
         protected AbstractCvsTask () : base() {
-            this._sharpcvslibExeName = 
-                Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, SHARP_CVS_EXE);
+            _sharpcvslibExeName = 
+                Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, SharpCvsExe);
         }
 
         #endregion Protected Instance Constructors
@@ -134,7 +135,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The environment name for the ssh variable.
         /// </summary>
         protected override string SshEnv {
-            get {return CVS_RSH;}
+            get {return CvsRsh;}
         }
         #endregion
 
@@ -145,14 +146,14 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         public override string ExeName {
             get {
-                if (null != this.CvsFullPath) {
-                    return this.CvsFullPath.FullName;
+                if (null != CvsFullPath) {
+                    return CvsFullPath.FullName;
                 }
                 string _exeNameTemp;
-                if (this.UseSharpCvsLib) {
-                    _exeNameTemp = this._sharpcvslibExeName;
+                if (UseSharpCvsLib) {
+                    _exeNameTemp = _sharpcvslibExeName;
                 } else {
-                    _exeNameTemp = this.DeriveVcsFromEnvironment().FullName;
+                    _exeNameTemp = DeriveVcsFromEnvironment().FullName;
                 }
                 Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
                 Logger.Debug("_exeNameTemp: " + _exeNameTemp);
@@ -174,8 +175,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </value>
         [TaskAttribute("cvsfullpath", Required=false)]
         public FileInfo CvsFullPath {
-            get {return this._cvsFullPath;}
-            set {this._cvsFullPath = value;}
+            get {return _cvsFullPath;}
+            set {_cvsFullPath = value;}
         }
 
         /// <summary>
@@ -183,7 +184,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     was written.
         /// </summary>
         protected override string VcsExeName {
-            get {return CVS_EXE;}
+            get {return CvsExe;}
         }
 
         /// <summary>
@@ -191,7 +192,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     of this writing.
         /// </summary>
         protected override string PassFileName {
-            get {return CVS_PASSFILE;}
+            get {return CvsPassfile;}
         }
 
         /// <summary>
@@ -199,7 +200,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     variable.
         /// </summary>
         protected override string VcsHomeEnv {
-            get {return CVS_HOME;}
+            get {return CvsHome;}
         }
 
         /// <summary>
@@ -310,10 +311,10 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public bool UseSharpCvsLib {
-            get {return this._useSharpCvsLib;}
+            get {return _useSharpCvsLib;}
             set {
-                this._isUseSharpCvsLibSet = true;
-                this._useSharpCvsLib = value;
+                _isUseSharpCvsLibSet = true;
+                _useSharpCvsLib = value;
             }
         }
 
@@ -333,8 +334,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("quiet", Required=false)]
         [BooleanValidator()]
         public bool Quiet {
-            get {return ((Option)this.GlobalOptions["quiet"]).IfDefined;}
-            set {this.SetGlobalOption("quiet", "-q", value);}
+            get {return ((Option)GlobalOptions["quiet"]).IfDefined;}
+            set {SetGlobalOption("quiet", "-q", value);}
         }
 
         /// <summary>
@@ -344,8 +345,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("reallyquiet", Required=false)]
         [BooleanValidator()]
         public bool ReallyQuiet {
-            get {return ((Option)this.GlobalOptions["reallyquiet"]).IfDefined;}
-            set {this.SetGlobalOption("reallyquiet", "-Q", value);}
+            get {return ((Option)GlobalOptions["reallyquiet"]).IfDefined;}
+            set {SetGlobalOption("reallyquiet", "-Q", value);}
         }
 
         /// <summary>
@@ -355,8 +356,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
         public bool ReadOnly {
-            get {return ((Option)this.GlobalOptions["readonly"]).IfDefined;}
-            set {this.SetGlobalOption("readonly", "-r", value);}
+            get {return ((Option)GlobalOptions["readonly"]).IfDefined;}
+            set {SetGlobalOption("readonly", "-r", value);}
         }
 
         /// <summary>
@@ -368,13 +369,13 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("readwrite", Required=false)]
         [BooleanValidator()]
         public bool ReadWrite {
-            get {return ((Option)this.GlobalOptions["readwrite"]).IfDefined;}
+            get {return ((Option)GlobalOptions["readwrite"]).IfDefined;}
             set {
-                if (true == this.ReadOnly && 
+                if (true == ReadOnly && 
                     value == true) {
                     throw new BuildException ("Cannot set readonly and read/ write.");
                 }
-                this.SetGlobalOption("readwrite", "-w", value);
+                SetGlobalOption("readwrite", "-w", value);
             }
         }
 
@@ -391,57 +392,57 @@ namespace NAnt.SourceControl.Tasks {
         protected override void PrepareProcess (Process process) {
             // Although a global property can be set, take the property closest
             //  to the task execution, which is the attribute on the task itself.
-            if (!this._isUseSharpCvsLibSet &&
-                (null == Properties || null == Properties[USE_SHARPCVSLIB])) {
+            if (!_isUseSharpCvsLibSet &&
+                (null == Properties || null == Properties[UseSharpCvsLibProp])) {
                 // if not set and the global property is null then use the default
-                this._useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
-            } else if (!this._isUseSharpCvsLibSet &&
-                null != Properties[USE_SHARPCVSLIB]){
+                _useSharpCvsLib = UseSharpCvsLib;
+            } else if (!_isUseSharpCvsLibSet &&
+                null != Properties[UseSharpCvsLibProp]){
                 try {
-                    this._useSharpCvsLib =
-                        System.Convert.ToBoolean(Properties[USE_SHARPCVSLIB]);
+                    _useSharpCvsLib =
+                        System.Convert.ToBoolean(Properties[UseSharpCvsLibProp]);
                 } catch (Exception) {
-                    throw new BuildException (USE_SHARPCVSLIB + " must be convertable to a boolean.");
+                    throw new BuildException (UseSharpCvsLib + " must be convertable to a boolean.");
                 }
             }
 
             Logger.Debug("number of arguments: " + Arguments.Count);
-            if (null == this.Arguments || 0 == this.Arguments.Count) {
+            if (null == Arguments || 0 == Arguments.Count) {
                 if (IsCvsRootNeeded) {
-                    this.Arguments.Add(new Argument(String.Format("-d{0}", this.Root)));
+                    Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"-d{0}", Root)));
                 }
-                this.AppendGlobalOptions();
-                this.Arguments.Add(new Argument(this.CommandName));
+                AppendGlobalOptions();
+                Arguments.Add(new Argument(CommandName));
 
-                Logger.Debug("commandline args null: " + ((null == this.CommandLineArguments) ? "yes" : "no"));
-                if (null == this.CommandLineArguments) {
-                    this.AppendCommandOptions();
+                Logger.Debug("commandline args null: " + ((null == CommandLineArguments) ? "yes" : "no"));
+                if (null == CommandLineArguments) {
+                    AppendCommandOptions();
                 }
 
-                this.AppendFiles();
-                if (this.IsModuleNeeded) {
-                    this.Arguments.Add(new Argument(this.Module));
+                AppendFiles();
+                if (IsModuleNeeded) {
+                    Arguments.Add(new Argument(Module));
                 }
             }
-            Logger.Debug("Using sharpcvs" + this.UseSharpCvsLib);
+            Logger.Debug("Using sharpcvs" + UseSharpCvsLib);
 
-            if (!Directory.Exists(this.DestinationDirectory.FullName)) {
-                Directory.CreateDirectory(this.DestinationDirectory.FullName);
+            if (!Directory.Exists(DestinationDirectory.FullName)) {
+                Directory.CreateDirectory(DestinationDirectory.FullName);
             }
             base.PrepareProcess(process);
-            process.StartInfo.FileName = this.ExeName;
+            process.StartInfo.FileName = ExeName;
 
             process.StartInfo.WorkingDirectory = 
-                this.DestinationDirectory.FullName;
+                DestinationDirectory.FullName;
             Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
             Logger.Debug("executable: " + process.StartInfo.FileName);
             Logger.Debug("arguments: " + process.StartInfo.Arguments);
 
-            Log(Level.Info, String.Format("{0} working directory: {1}", 
+            Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} working directory: {1}", 
                 LogPrefix, process.StartInfo.WorkingDirectory));
-            Log(Level.Info, String.Format("{0} executable: {1}", 
+            Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} executable: {1}", 
                 LogPrefix, process.StartInfo.FileName));
-            Log(Level.Info, String.Format("{0} arguments: {1}", 
+            Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} arguments: {1}", 
                 LogPrefix, process.StartInfo.Arguments));
 
         }
@@ -451,14 +452,14 @@ namespace NAnt.SourceControl.Tasks {
         #region Private Instance Methods
 
         private void AppendGlobalOptions () {
-            foreach (Option option in this.GlobalOptions.Values) {
+            foreach (Option option in GlobalOptions.Values) {
 //              Log(Level.Verbose, 
-//                  String.Format("{0} Type '{1}'.", LogPrefix, optionte.GetType()));
+//                  String.Format(CultureInfo.InvariantCulture,"{0} Type '{1}'.", LogPrefix, optionte.GetType()));
                 if (!option.IfDefined || option.UnlessDefined) {
                     // skip option
                     continue;
                 }
-                this.AddArg(option.Value);
+                AddArg(option.Value);
             }
         }
 
@@ -468,12 +469,12 @@ namespace NAnt.SourceControl.Tasks {
         ///     command line as a switch.
         /// </summary>
         private void AppendCommandOptions () {
-            foreach (Option option in this.CommandOptions.Values) {
+            foreach (Option option in CommandOptions.Values) {
                 if (!option.IfDefined || option.UnlessDefined) {
                     // skip option
                     continue;
                 }
-                this.AddArg(option.Value);
+                AddArg(option.Value);
             }
         }
 
@@ -482,13 +483,13 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <param name="arg"></param>
         protected void AddArg (String arg) {
-            Arguments.Add(new Argument(String.Format("{0}",
+            Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"{0}",
                 arg)));
         }
 
         private bool IsModuleNeeded {
             get {
-                if (UpdateTask.COMMAND_NAME.Equals(this.CommandName)) {
+                if (UpdateTask.CvsCommandName.Equals(CommandName)) {
                     return false;
                 } else {
                     return true;
@@ -498,7 +499,7 @@ namespace NAnt.SourceControl.Tasks {
 
         private bool IsCvsRootNeeded {
             get {
-                if (UpdateTask.COMMAND_NAME.Equals(this.CommandName)) {
+                if (UpdateTask.CvsCommandName.Equals(CommandName)) {
                     return false;
                 } else {
                     return true;

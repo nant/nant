@@ -18,6 +18,7 @@
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
 using System;
+using System.Globalization;
 
 using ICSharpCode.SharpCvsLib.Util;
 
@@ -77,7 +78,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string COMMAND_NAME = "update";
+        public const string CvsCommandName = "update";
         #endregion
 
         #region Public Instance Constructors
@@ -96,7 +97,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The name of the cvs command that is going to be executed.
         /// </summary>
         public override string CommandName {
-            get {return COMMAND_NAME;}
+            get {return CvsCommandName;}
         }
 
         /// <summary>
@@ -106,8 +107,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("revision", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
-            get {return ((Option)this.CommandOptions["revision"]).Value;}
-            set {this.SetCommandOption("revision", String.Format("-r {0}", value), true);}
+            get {return ((Option)CommandOptions["revision"]).Value;}
+             set {SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture, "-r {0}", value), true);}
         }
 
         /// <summary>
@@ -115,8 +116,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("sticky-tag", Required=false)]
         public string StickyTag {
-            get {return this.Revision;}
-            set {this.Revision = value;}
+            get {return Revision;}
+            set {Revision = value;}
         }
 
         /// <summary>
@@ -127,8 +128,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("date", Required=false)]
         [DateTimeValidator()]
         public DateTime Date {
-            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
-            set {this.SetCommandOption("date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
+            get {return Convert.ToDateTime(((Option)CommandOptions["date"]).Value);}
+            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true);}
         }
 
         /// <summary>
@@ -138,8 +139,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("overridedir", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string OverrideDir {
-            get {return ((Option)this.CommandOptions["overridedir"]).Value;}
-            set {this.SetCommandOption("overridedir", String.Format("-d{0}", value), true);}
+            get {return ((Option)CommandOptions["overridedir"]).Value;}
+            set {SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true);}
         }
 
         /// <summary>
@@ -148,8 +149,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("override-directory", Required=false)]
         public string OverrideDirectory {
-            get {return this.OverrideDir;}
-            set {this.OverrideDir = value;}
+            get {return OverrideDir;}
+            set {OverrideDir = value;}
         }
 
         #endregion

@@ -61,8 +61,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("command", Required=true)]
         public override string CommandName {
-            get {return this._commandName;}
-            set {this._commandName = value;}
+            get {return _commandName;}
+            set {_commandName = value;}
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("command-line", Required=false)]
         [StringValidator(AllowEmpty=false)]
         public string RawCommandLine {
-            get {return ((Option)this.CommandOptions["command-line"]).Value;}
-            set {this.SetCommandOption("command-line", value, true);}
+            get {return ((Option)CommandOptions["command-line"]).Value;}
+            set {SetCommandOption("command-line", value, true);}
         }
 
         #endregion

@@ -21,6 +21,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
+
 using ICSharpCode.SharpCvsLib.Util;
 
 using NAnt.Core.Attributes;
@@ -70,15 +71,15 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Default value for the overwrite local directive.
         /// </summary>
-        protected const bool DEFAULT_OVERWRITE_LOCAL = false;
+        protected const bool DefaultOverwriteLocal = false;
         /// <summary>
         /// Default value for build directory directive.
         /// </summary>
-        protected const bool DEFAULT_BUILD_DIRS = true;
+        protected const bool DefaultBuildDirs = true;
         /// <summary>
         /// Default value for prune empty directories directive.
         /// </summary>
-        protected const bool DEFAULT_PRUNE_EMPTY = true;
+        protected const bool DefaultPruneEmpty = true;
         #endregion
 
         #region Public Instance Properties
@@ -86,7 +87,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The name of the cvs command that is going to be executed.
         /// </summary>
         public override string CommandName {
-            get {return COMMAND_NAME;}
+            get {return CvsCommandName;}
         }
 
         /// <summary>
@@ -98,8 +99,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("builddirs", Required=false)]
         [BooleanValidator()]
         public bool BuildDirs {
-            get {return ((Option)this.CommandOptions["builddirs"]).IfDefined;}
-            set {this.SetCommandOption("builddirs", "-d", value);}
+            get {return ((Option)CommandOptions["builddirs"]).IfDefined;}
+            set {SetCommandOption("builddirs", "-d", value);}
         }
 
         /// <summary>
@@ -111,8 +112,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("pruneempty", Required=false)]
         [BooleanValidator()]
         public bool PruneEmpty {
-            get {return ((Option)this.CommandOptions["pruneempty"]).IfDefined;}
-            set {this.SetCommandOption("pruneempty", "-P", value);}
+            get {return ((Option)CommandOptions["pruneempty"]).IfDefined;}
+            set {SetCommandOption("pruneempty", "-P", value);}
         }
 
         /// <summary>
@@ -124,8 +125,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("overwritelocal", Required=false)]
         [BooleanValidator()]
         public bool OverwriteLocal {
-            get {return ((Option)this.CommandOptions["overwritelocal"]).IfDefined;}
-            set {this.SetCommandOption("overwritelocal", "-C", value);}
+            get {return ((Option)CommandOptions["overwritelocal"]).IfDefined;}
+            set {SetCommandOption("overwritelocal", "-C", value);}
         }
 
         /// <summary>
@@ -134,8 +135,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
         public bool Recursive {
-            get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
-            set {this.SetCommandOption("recursive", "-R", value);}
+            get {return ((Option)CommandOptions["recursive"]).IfDefined;}
+            set {SetCommandOption("recursive", "-R", value);}
         }
 
         /// <summary>
@@ -145,8 +146,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("revision", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
-            get {return ((Option)this.CommandOptions["revision"]).Value;}
-            set {this.SetCommandOption("revision", String.Format("-r {0}", value), true);}
+            get {return ((Option)CommandOptions["revision"]).Value;}
+            set {SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true);}
         }
 
         /// <summary>
@@ -157,8 +158,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </value>
         [TaskAttribute("sticky-tag", Required=false)]
         public string StickyTag {
-            get {return this.Revision;}
-            set {this.Revision = value;}
+            get {return Revision;}
+            set {Revision = value;}
         }
 
         /// <summary>
@@ -172,8 +173,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("date", Required=false)]
         [DateTimeValidator()]
         public DateTime Date {
-            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
-            set {this.SetCommandOption("date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
+            get {return Convert.ToDateTime(((Option)CommandOptions["date"]).Value);}
+            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true);}
         }
 
         #endregion
@@ -189,7 +190,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string COMMAND_NAME = "update";
+        public const string CvsCommandName = "update";
         #endregion
         #region Public Instance Constructors
 
@@ -201,8 +202,8 @@ namespace NAnt.SourceControl.Tasks {
         ///     true.
         /// </summary>
         public UpdateTask() {
-            this.BuildDirs = true;
-            this.PruneEmpty = true;
+            BuildDirs = true;
+            PruneEmpty = true;
         }
 
         #endregion Public Instance Constructors

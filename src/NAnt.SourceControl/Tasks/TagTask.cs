@@ -18,6 +18,7 @@
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
 using System;
+using System.Globalization;
 
 using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
@@ -70,12 +71,12 @@ namespace NAnt.SourceControl.Tasks
     /// </example>
     [TaskName("cvs-tag")]
     public class TagTask : AbstractCvsTask {
-        private const string COMMAND_NAME = "tag";
+        private const string CvsCommandName = "tag";
         /// <summary>
         /// The name of the cvs command that is going to be executed.
         /// </summary>
         public override string CommandName {
-            get {return COMMAND_NAME;}
+            get {return CvsCommandName;}
         }
 
 
@@ -96,8 +97,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("tag", Required=true)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Tag {
-            get {return ((Option)this.CommandOptions["tag"]).Value;}
-            set {this.SetCommandOption("tag", String.Format("{0}", value), true);}
+            get {return ((Option)CommandOptions["tag"]).Value;}
+            set {SetCommandOption("tag", String.Format(CultureInfo.InvariantCulture,"{0}", value), true);}
         }
 
         /// <summary>
@@ -111,8 +112,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("remove", Required=false)]
         [BooleanValidator()]
         public bool Remove {
-            get {return ((Option)this.CommandOptions["remove"]).IfDefined;}
-            set {this.SetCommandOption("remove", "-d", value);}
+            get {return ((Option)CommandOptions["remove"]).IfDefined;}
+            set {SetCommandOption("remove", "-d", value);}
         }
 
         /// <summary>
@@ -127,8 +128,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("move-if-exists", Required=false)]
         [BooleanValidator()]
         public bool MoveIfExists {
-            get {return ((Option)this.CommandOptions["move-if-exists"]).IfDefined;}
-            set {this.SetCommandOption("move-if-exists", "-F", value);}
+            get {return ((Option)CommandOptions["move-if-exists"]).IfDefined;}
+            set {SetCommandOption("move-if-exists", "-F", value);}
         }
 
         /// <summary>
@@ -142,10 +143,10 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
         public bool Recursive {
-            get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
+            get {return ((Option)CommandOptions["recursive"]).IfDefined;}
             set {
-                this.SetCommandOption("recursive", "-R", value);
-                this.SetCommandOption("local-only", "-l", !value);
+                SetCommandOption("recursive", "-R", value);
+                SetCommandOption("local-only", "-l", !value);
             }
         }
 
@@ -161,8 +162,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("act-on-tag", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string ActOnTag {
-            get {return ((Option)this.CommandOptions["act-on-tag"]).Value;}
-            set {this.SetCommandOption("act-on-tag", String.Format("-r {0}", value), true);}
+            get {return ((Option)CommandOptions["act-on-tag"]).Value;}
+            set {SetCommandOption("act-on-tag", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true);}
         }
 
         /// <summary>
@@ -176,8 +177,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("act-on-date", Required=false)]
         [DateTimeValidator()]
         public DateTime ActOnDate {
-            get {return Convert.ToDateTime(((Option)this.CommandOptions["act-on-date"]).Value);}
-            set {this.SetCommandOption("act-on-date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
+            get {return Convert.ToDateTime(((Option)CommandOptions["act-on-date"]).Value);}
+            set {SetCommandOption("act-on-date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true);}
         }
 
         /// <summary>
@@ -192,8 +193,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("force-head", Required=false)]
         [BooleanValidator()]
         public bool ForceHead {
-            get {return ((Option)this.CommandOptions["force-head"]).IfDefined;}
-            set {this.SetCommandOption("force-head", "-f", value);}
+            get {return ((Option)CommandOptions["force-head"]).IfDefined;}
+            set {SetCommandOption("force-head", "-f", value);}
         }
 
         /// <summary>
@@ -208,8 +209,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("fail-if-modified", Required=false)]
         [BooleanValidator()]
         public bool FailIfModified {
-            get {return ((Option)this.CommandOptions["fail-if-modified"]).IfDefined;}
-            set {this.SetCommandOption("fail-if-modified", "-c", value);}
+            get {return ((Option)CommandOptions["fail-if-modified"]).IfDefined;}
+            set {SetCommandOption("fail-if-modified", "-c", value);}
         }
 
         #endregion Public Instance Properties

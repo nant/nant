@@ -22,6 +22,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 using ICSharpCode.SharpCvsLib.Client;
 using ICSharpCode.SharpCvsLib.Commands;
@@ -51,11 +52,11 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Used on windows to specify the location of application data.
         /// </summary>
-        protected const string APP_DATA = "APPDATA";
+        protected const string AppData = "APPDATA";
         /// <summary>
         /// The environment variable that holds path information.
         /// </summary>
-        protected const String PATH = "PATH";
+        protected const String PathVariable = "PATH";
         /// <summary>
         /// Property name used to specify the source control executable.  This is 
         ///     used as a readonly property.
@@ -115,7 +116,7 @@ namespace NAnt.SourceControl.Tasks {
         protected DirectoryInfo VcsHome {
             get {
                 string vcsHome =
-                    Environment.GetEnvironmentVariable(this.VcsHomeEnv);
+                    Environment.GetEnvironmentVariable(VcsHomeEnv);
                 if (null != vcsHome) {
                     if (Directory.Exists(vcsHome)) {
                         return new DirectoryInfo(vcsHome);
@@ -144,8 +145,8 @@ namespace NAnt.SourceControl.Tasks {
         /// The name of the version control system executable.
         /// </summary>
         public override string ExeName {
-            get {return this._exeName;}
-            set {this._exeName = value;}
+            get {return _exeName;}
+            set {_exeName = value;}
         }
 
         /// <summary>
@@ -163,8 +164,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [StringValidator(AllowEmpty=false)]
         public virtual string Root {
-            get {return this._root;}
-            set {this._root = value;}
+            get {return _root;}
+            set {_root = value;}
         }
 
         /// <summary>
@@ -203,19 +204,19 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("passfile")]
         public FileInfo PassFile {
             get {
-                if (null == this._passFile) {
-                    this._passFile = DerivePassFile();
+                if (null == _passFile) {
+                    _passFile = DerivePassFile();
                 }
-                return this._passFile;}
-            set {this._passFile = value;}
+                return _passFile;}
+            set {_passFile = value;}
         }
 
         /// <summary>
         /// Holds a collection of globally available options.
         /// </summary>
         public Hashtable GlobalOptions {
-            get {return this._globalOptions;}
-            set {this._globalOptions = value;}
+            get {return _globalOptions;}
+            set {_globalOptions = value;}
         }
 
         /// <summary>
@@ -225,7 +226,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         public Hashtable CommandOptions {
             get { return _commandOptions;}
-            set { this._commandOptions = value; }
+            set { _commandOptions = value; }
         }
 
         /// <summary>
@@ -233,23 +234,23 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("commandline")]
         public string CommandLineArguments {
-            get {return this._commandLineArguments;}
-            set {this._commandLineArguments = StringUtils.ConvertEmptyToNull(value);}
+            get {return _commandLineArguments;}
+            set {_commandLineArguments = StringUtils.ConvertEmptyToNull(value);}
         }
 
         /// <summary>
         /// Get the command line arguments for the task.
         /// </summary>
         public override string ProgramArguments {
-            get {return this._commandLine;}
+            get {return _commandLine;}
         }
 
         /// <summary>
         /// The name of the command that is going to be executed.
         /// </summary>
         public virtual string CommandName {
-            get {return this._commandName;}
-            set {this._commandName = value;}
+            get {return _commandName;}
+            set {_commandName = value;}
         }
 
         /// <summary>
@@ -267,8 +268,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("ssh", Required=false)]
         public virtual FileInfo Ssh {
-            get {return this._ssh;}
-            set {this._ssh = value;}
+            get {return _ssh;}
+            set {_ssh = value;}
         }
 
         /// <summary>
@@ -287,13 +288,13 @@ namespace NAnt.SourceControl.Tasks {
         ///     appended to the commandline, otherwise <code>false</code>.</param>
         protected void SetGlobalOption (String name, String value, bool on) {
             Option option;
-            if (this.GlobalOptions.Contains(name)) {
-                option = (Option)this.GlobalOptions[name];
+            if (GlobalOptions.Contains(name)) {
+                option = (Option)GlobalOptions[name];
             } else {
                 option = new Option();
                 option.OptionName = name;
                 option.Value = value;
-                this.GlobalOptions.Add(option.Name, option);
+                GlobalOptions.Add(option.Name, option);
             } 
             option.IfDefined = on;
         }
@@ -309,13 +310,13 @@ namespace NAnt.SourceControl.Tasks {
         ///     appended to the commandline, otherwise <code>false</code>.</param>
         protected void SetCommandOption (String name, String value, bool on) {
             Option option;
-            if (this.CommandOptions.Contains(name)) {
-                option = (Option)this.CommandOptions[name];
+            if (CommandOptions.Contains(name)) {
+                option = (Option)CommandOptions[name];
             } else {
                 option = new Option();
                 option.OptionName = name;
                 option.Value = value;
-                this.CommandOptions.Add(name, option);
+                CommandOptions.Add(name, option);
             } 
             option.IfDefined = on;
         }
@@ -332,7 +333,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <param name="process">The process to prepare.</param>
         protected override void PrepareProcess (Process process) {
             base.PrepareProcess(process);
-            this.SetEnvironment(process);
+            SetEnvironment(process);
         }
 
         /// <summary>
@@ -340,19 +341,19 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <param name="process">A process to setup.</param>
         protected virtual void SetEnvironment (Process process) {
-            if (this.Ssh != null && !this.Ssh.Exists) {
-                FileInfo tempLookup = this.DeriveFullPathFromEnv(PATH, this.Ssh.Name);
+            if (Ssh != null && !Ssh.Exists) {
+                FileInfo tempLookup = DeriveFullPathFromEnv(PathVariable, Ssh.Name);
                 if (null == tempLookup) {
-                    tempLookup = this.DeriveFullPathFromEnv(PATH, this.Ssh.Name + ".exe");
+                    tempLookup = DeriveFullPathFromEnv(PathVariable, Ssh.Name + ".exe");
                 } 
 
                 if (null != tempLookup) {
-                    this.Ssh = tempLookup;
+                    Ssh = tempLookup;
                 }
             }
-            if (this.Ssh != null) {
+            if (Ssh != null) {
                 try {
-                    process.StartInfo.EnvironmentVariables.Add(this.SshEnv, this.Ssh.FullName);
+                    process.StartInfo.EnvironmentVariables.Add(SshEnv, Ssh.FullName);
                 } catch (System.ArgumentException e) {
                     Logger.Warn("Possibility cvs_rsh key has already been added.", e);
                 }
@@ -381,13 +382,13 @@ namespace NAnt.SourceControl.Tasks {
         /// <returns>A <code>FileInfo</code> object that specifies the location
         ///     of the passfile or <code>null</code> if this cannot be found.</returns>
         protected FileInfo DerivePassFile () {
-            if (this._passFile == null) {
-                FileInfo passFile = this.DerivePassFile(HOME);
+            if (_passFile == null) {
+                FileInfo passFile = DerivePassFile(HOME);
 
                 // only valid on a windows machine, but should not hurt to look
                 //  for this on a linux machine
                 if (null == passFile) {
-                    passFile = this.DerivePassFile(APP_DATA);
+                    passFile = DerivePassFile(AppData);
                 }
 
                 // finally search in the root directory of the current process
@@ -395,7 +396,7 @@ namespace NAnt.SourceControl.Tasks {
                     string rootDir = 
                         Path.GetPathRoot(System.AppDomain.CurrentDomain.BaseDirectory);
                     string passFileFullName =
-                        Path.Combine(rootDir, this.PassFileName);
+                        Path.Combine(rootDir, PassFileName);
                     if (File.Exists(passFileFullName)) {
                         passFile = new FileInfo(passFileFullName);
                     } else {
@@ -404,20 +405,20 @@ namespace NAnt.SourceControl.Tasks {
                 }
                 return passFile;
             }
-            return this._passFile;
+            return _passFile;
         }
 
         private FileInfo DerivePassFile(String environmentVar) {
-            return this.DeriveFullPathFromEnv(environmentVar, this.PassFileName);
+            return DeriveFullPathFromEnv(environmentVar, PassFileName);
         }
 
         private FileInfo DeriveFullPathFromEnv(string environmentVar, string fileName) {
             string environmentValue = StringUtils.ConvertEmptyToNull(
                 System.Environment.GetEnvironmentVariable(environmentVar));
 
-            Log(Level.Debug, String.Format("{0} Environment variable: {1}",
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} Environment variable: {1}",
                 LogPrefix, environmentVar));
-            Log(Level.Debug, String.Format("{0} Environment value: {1}",
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} Environment value: {1}",
                 LogPrefix, environmentValue));
 
             string [] environmentPaths = null;
@@ -433,9 +434,9 @@ namespace NAnt.SourceControl.Tasks {
                 foreach (string environmentPath in environmentPaths) {
                     if (null != environmentPath) {
                         string fileFullName = Path.Combine(environmentPath, fileName);
-                        Log(Level.Debug, String.Format("{0} environmentPath: {1}", LogPrefix, environmentPath));
-                        Log(Level.Debug, String.Format("{0} fileName: {1}", LogPrefix, fileName));
-                        Log(Level.Debug, String.Format("{0} fileFullName: {1}", LogPrefix, fileFullName));
+                        Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} environmentPath: {1}", LogPrefix, environmentPath));
+                        Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} fileName: {1}", LogPrefix, fileName));
+                        Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} fileFullName: {1}", LogPrefix, fileFullName));
                         if (environmentPath.IndexOf(fileName) > -1 &&
                             File.Exists(fileName)) {
                             if (!(Path.GetDirectoryName(fileName).IndexOf(
@@ -460,12 +461,12 @@ namespace NAnt.SourceControl.Tasks {
         /// Append the files specified in the fileset to the command line argument.
         /// </summary>
         protected void AppendFiles () {
-            foreach (string pathname in this.VcsFileSet.FileNames) {
+            foreach (string pathname in VcsFileSet.FileNames) {
                 string relativePath = pathname;
                 if (relativePath.IndexOf('/') == 0 || relativePath.IndexOf('\\') == 0) {
                     relativePath = relativePath.Substring(1, relativePath.Length - 1);
                 }
-                relativePath = pathname.Replace(this.DestinationDirectory.FullName, "").Replace("\\", "/");
+                relativePath = pathname.Replace(DestinationDirectory.FullName, "").Replace("\\", "/");
                 try {
                     Arguments.Add(new Argument(relativePath));
                 } catch (Exception e) {
@@ -482,9 +483,9 @@ namespace NAnt.SourceControl.Tasks {
         ///     or <code>null</code> if this cannot be found.</returns>
         protected FileInfo DeriveVcsFromEnvironment () {
             FileInfo vcsFile =
-                this.DeriveFullPathFromEnv(this.VcsHomeEnv, this.VcsExeName);
+                DeriveFullPathFromEnv(VcsHomeEnv, VcsExeName);
             if (null == vcsFile) {
-                vcsFile = this.DeriveFullPathFromEnv(PATH, this.VcsExeName);
+                vcsFile = DeriveFullPathFromEnv(PathVariable, VcsExeName);
             }
             return vcsFile;
         }

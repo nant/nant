@@ -21,6 +21,7 @@ using System;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
+using System.Globalization;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -84,7 +85,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string COMMAND_NAME = "export";
+        public const string CvsCommandName = "export";
         #endregion
         #region Public Instance Constructors
         /// <summary>
@@ -97,7 +98,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     </ul>
         /// </value>
         public ExportTask() {
-            this.Recursive = true;
+            Recursive = true;
         }
         #endregion
 
@@ -107,7 +108,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The export command name for the cvs client.
         /// </summary>
         public override string CommandName {
-            get {return COMMAND_NAME;}
+            get {return CvsCommandName;}
         }
 
         /// <summary>
@@ -116,8 +117,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("no-shortening", Required=false)]
         [BooleanValidator()]
         public bool NoShortening {
-            get {return ((Option)this.CommandOptions["no-shortening"]).IfDefined;}
-            set {this.SetCommandOption("no-shortening", "-N", value);}
+            get {return ((Option)CommandOptions["no-shortening"]).IfDefined;}
+            set {SetCommandOption("no-shortening", "-N", value);}
         }
 
         /// <summary>
@@ -132,8 +133,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("force-head", Required=false)]
         [BooleanValidator()]
         public bool ForceHead {
-            get {return ((Option)this.CommandOptions["force-head"]).IfDefined;}
-            set {this.SetCommandOption("force-head", "-f", value);}
+            get {return ((Option)CommandOptions["force-head"]).IfDefined;}
+            set {SetCommandOption("force-head", "-f", value);}
         }
 
         /// <summary>
@@ -147,10 +148,10 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
         public bool Recursive {
-            get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
+            get {return ((Option)CommandOptions["recursive"]).IfDefined;}
             set {
-                this.SetCommandOption("recursive", "-R", value);
-                this.SetCommandOption("local-only", "-l", !value);
+                SetCommandOption("recursive", "-R", value);
+                SetCommandOption("local-only", "-l", !value);
             }
         }
 
@@ -162,11 +163,11 @@ namespace NAnt.SourceControl.Tasks {
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
             get {
-                if (null == this.CommandOptions["revision"]) {
+                if (null == CommandOptions["revision"]) {
                     return null;
                 }
-                return ((Option)this.CommandOptions["revision"]).Value;}
-            set {this.SetCommandOption("revision", String.Format("-r {0}", value), true);}
+                return ((Option)CommandOptions["revision"]).Value;}
+            set {SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true);}
         }
 
         /// <summary>
@@ -180,12 +181,12 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("date", Required=false)]
         [DateTimeValidator()]
         public DateTime Date {
-            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
-            set {this.SetCommandOption("date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
+            get {return Convert.ToDateTime(((Option)CommandOptions["date"]).Value);}
+            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true);}
         }
 
         private bool HasDate {
-            get {return !(null == this.CommandOptions["date"]);}
+            get {return !(null == CommandOptions["date"]);}
         }
 
         /// <summary>
@@ -195,8 +196,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("overridedir", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string OverrideDir {
-            get {return ((Option)this.CommandOptions["overridedir"]).Value;}
-            set {this.SetCommandOption("overridedir", String.Format("-d{0}", value), true);}
+            get {return ((Option)CommandOptions["overridedir"]).Value;}
+            set {SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true);}
         }
 
         #endregion
