@@ -20,9 +20,10 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Diagnostics;
+using System.Runtime.Remoting.Lifetime;
 
 using NAnt.Core;
 
@@ -30,6 +31,7 @@ namespace NAnt.Core.Util {
     /// <summary> 
     /// Resolves assemblies by caching assemblies that were loaded.
     /// </summary>
+    [Serializable()]
     public sealed class AssemblyResolver {
         #region Public Instance Constructors
 
@@ -38,7 +40,7 @@ namespace NAnt.Core.Util {
         /// class.
         /// </summary>
         public AssemblyResolver() {
-            this._assemblyCache = new Hashtable();
+            _assemblyCache = new Hashtable();
         }
 
         /// <summary> 
@@ -46,7 +48,7 @@ namespace NAnt.Core.Util {
         /// class in the context of the given <see cref="Task" />.
         /// </summary>
         public AssemblyResolver(Task task) : this() {
-            this._task = task;
+            _task = task;
         }
 
         #endregion Public Instance Constructors
@@ -106,35 +108,46 @@ namespace NAnt.Core.Util {
         /// The loaded assembly, or <see langword="null" /> if not found.
         /// </returns>
         private Assembly AssemblyResolve(object sender, ResolveEventArgs args) {
+            bool isFullName = args.Name.IndexOf("Version=") != -1;
+
             // first try to find an already loaded assembly
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblies) {
-                if (assembly.FullName == args.Name) {
+                if (isFullName) {
+                    if (assembly.FullName == args.Name) {
+                        // output debug message
+                        Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from" 
+                            + " loaded assemblies using full name.", args.Name);
+                        // return assembly from AppDomain
+                        return assembly;
+                    }
+                } else if (assembly.GetName(false).Name == args.Name) {
                     // output debug message
                     Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from" 
-                        + " loaded assemblies.", args.Name);
+                        + " loaded assemblies using name.", args.Name);
                     // return assembly from AppDomain
                     return assembly;
                 }
             }
 
-            // find assembly in cache (considering args.Name is full assembly name)
-            if (_assemblyCache.Contains(args.Name)) {
-                // output debug message
-                Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from cache.", 
-                    args.Name);
-                // return assembly from cache
-                return (Assembly) _assemblyCache[args.Name];
-            }
-
-            // find assembly in cache (considering args.Name is simple assembly name)
-            foreach (Assembly assembly in _assemblyCache) {
-                if (assembly.GetName(false).Name == args.Name) {
+            // find assembly in cache
+            if (isFullName) {
+                if (_assemblyCache.Contains(args.Name)) {
                     // output debug message
-                    Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from cache.", 
-                        args.Name);
+                    Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from"
+                        + " cache using full name.", args.Name);
                     // return assembly from cache
-                    return assembly;
+                    return (Assembly) _assemblyCache[args.Name];
+                }
+            } else {
+                foreach (Assembly assembly in _assemblyCache.Values) {
+                    if (assembly.GetName(false).Name == args.Name) {
+                        // output debug message
+                        Log(Level.Debug, LogPrefix + "Resolved assembly '{0}'"
+                            + " from cache using name.", args.Name);
+                        // return assembly from cache
+                        return assembly;
+                    }
                 }
             }
 
