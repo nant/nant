@@ -30,13 +30,13 @@ using SourceForge.NAnt.Attributes;
 namespace SourceForge.NAnt.Tasks {
     
     /// <summary>
-    ///     Compiles C/C++ programs using cl, Microsoft's C/C++ compiler.
+    /// Compiles C/C++ programs using cl, Microsoft's C/C++ compiler.
     /// </summary>
     /// <remarks>
     ///   <para>This task is intended for version 13.00.9466 of cl.exe.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Compile <c>helloworld.cpp</c> for the Common Language Runtime.</para>
+    ///   <para>Compiles <c>helloworld.cpp</c> for the Common Language Runtime.</para>
     ///   <code>
     ///     <![CDATA[
     /// <cl outputdir="build" options="/clr">
@@ -49,13 +49,18 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("cl")]
     public class ClTask : ExternalProgramBase {
-        string _responseFileName;
+        #region Private Instance Fields
 
+        string _responseFileName;
         string _outputdir = null;
         string _pchfile = null;
         FileSet _sources = new FileSet();
         FileSet _includes = new FileSet();
         string _options = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>
         /// Options to pass to the compiler.
@@ -87,8 +92,20 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("includedirs")]
         public FileSet Includes { get { return _includes; } }
 
-        // ExternalProgramBase implementation
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
+        protected string FullOutputPath {
+            get { return Path.GetFullPath(Path.Combine(BaseDirectory, OutputDir)); }
+        }
+
+        #endregion Protected Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
         public override string ProgramFileName {get {return Name;}}
+
         public override string ProgramArguments {
             get {
                 if (Verbose) {
@@ -99,13 +116,16 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        // Task implementation
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Override implementation of Task
+
         protected override void ExecuteTask() {
             if (Sources.BaseDirectory == null) {
                 Sources.BaseDirectory = BaseDirectory;
             }
 
-            Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, GetFullOutputPath());
+            Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, FullOutputPath);
 
             // Create temp response file to hold compiler options
             _responseFileName = Path.GetTempFileName();
@@ -152,10 +172,7 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        // Helper functions
-        protected string GetFullOutputPath() {
-            return Path.GetFullPath(Path.Combine(BaseDirectory, OutputDir));
-        }
+        #endregion Override implementation of Task
     }
 }
 #if unused

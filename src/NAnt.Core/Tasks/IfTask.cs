@@ -115,24 +115,35 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>
         /// The file to check against for the uptodate file.
         /// </summary>
-        [TaskAttribute("compareFile")]
-        public string CompareFile {
-            set {
-                //I'm really not sure this is the best way to do this!
-                FileSet fs = new FileSet();
-                fs.Parent = this;
-                fs.Project = this.Project;
-                fs.Includes.Add(value);
-                CompareFiles = fs;
+        [TaskAttribute("comparefile")]
+        public string CompareFile { 
+            set { 
+                if(_compareFiles != null) {
+                    _compareFiles.Includes.Add(value); 
+                }else {
+                    _compareFiles = new FileSet();
+                    _compareFiles.Parent = this;
+                    _compareFiles.Project = this.Project;
+                    _compareFiles.Includes.Add(value);
+                }
             }
         }
+
         /// <summary>
         /// The FileSet that contains the comparison files for the uptodateFile.
         /// </summary>
         [FileSet("comparefiles")]
-        public FileSet CompareFiles {
-            set {_compareFiles = value;}
-        }
+        public FileSet CompareFiles { 
+            set {
+                if(_compareFiles != null) {
+                    foreach(string s in _compareFiles.Includes) {
+                        value.Includes.Add(s);
+                    }
+                }
+                _compareFiles = value; 
+
+            }
+        } 
 
         /// <summary>
         /// Used to test whether a property is true.
@@ -153,7 +164,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>
         /// Used to test whether a target exists.
         /// </summary>
-        [TaskAttribute("targetexists")]
+       [TaskAttribute("targetexists")]
         public string TargetNameExists {
             set {_targetName = value;}
         }

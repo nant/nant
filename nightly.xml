@@ -34,11 +34,11 @@
 		<!-- make sure files are readable -->
 		<exec program="ssh">
 			<arg value="${sf.net.ssh.server}"/>
-			<arg value="chmod -R a+r ${sf.net.build.path}/*"/>
+			<arg value="chmod -R 755 ${sf.net.build.path}/*"/>
 		</exec>
 		<exec program="ssh">
 			<arg value="${sf.net.ssh.server}"/>
-			<arg value="chmod -R a+r ${sf.net.build.path}/../schema/*"/>
+			<arg value="chmod -R 755 ${sf.net.build.path}/../schema/*"/>
 		</exec>
 		
 		<!-- Try to do the update -->

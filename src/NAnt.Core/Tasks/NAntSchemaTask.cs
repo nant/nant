@@ -94,6 +94,7 @@ namespace SourceForge.NAnt.Tasks {
             IDictionary _nantComplexTypes = null;
             Type[] _tasks = null;
             XmlSchema _nantSchema = new XmlSchema();
+            string _namespaceURI = string.Empty;
             #endregion Locals			
             #region ctors
             /// <summary>
@@ -108,7 +109,13 @@ namespace SourceForge.NAnt.Tasks {
                 if(targetNS != null && targetNS != string.Empty) {
                     _nantSchema.TargetNamespace = targetNS;
                     _nantSchema.Namespaces.Add("nant", _nantSchema.TargetNamespace);
+                    _namespaceURI = targetNS;
                 }
+
+                _nantSchema.Namespaces.Add("vs","urn:schemas-microsoft-com:HTML-Intellisense");
+                
+
+
                 // Add XSD Namespace so that all xsd elements are prefix'd
                 _nantSchema.Namespaces.Add("xs",XmlSchema.Namespace);
                 //_nantSchema.ElementFormDefault = XmlSchemaForm.Unqualified;
@@ -130,7 +137,8 @@ namespace SourceForge.NAnt.Tasks {
                     XmlSchemaComplexType taskCT = CreateComplexType(t, ((TaskNameAttribute) GetDerivedAttribute(t, typeof(TaskNameAttribute), false, true)).Name, true);
                     taskCTs.Add(taskCT);
                 }
-				
+                Compile();
+
                 //create target ComplexType
                 XmlSchemaComplexType targetCT = CreateTaskListCT(taskCTs);
                 targetCT.Name="target";
@@ -205,7 +213,13 @@ namespace SourceForge.NAnt.Tasks {
                 return null;
             }
 
-            
+/*            protected XmlSchemaComplexType CreateComplexTypeForTask(Type t, string name, bool useRefs) {
+                XmlSchemaComplexType ct = CreateComplexType(t, name, useRefs);
+                ct.Content = new XmlSchemaComplexContentExtension();
+                ((XmlSchemaComplexContentExtension) ct.ContentModel).BaseTypeName = new XmlQualifiedName("Task", _namespaceURI);
+                return ct;                
+            }
+*/
             protected XmlSchemaComplexType CreateComplexType(Type t, string name, bool useRefs) {
                 XmlSchemaComplexType ct = null;
                 if(useRefs) {
@@ -215,7 +229,7 @@ namespace SourceForge.NAnt.Tasks {
                 if(ct != null) return ct;
 				
                 ct = CreateXSDCT(name, GenerateIDFromClassType(t), null);
-                XmlSchemaChoice choice = CreateXSDChoice(0, Decimal.MaxValue);
+                XmlSchemaGroupBase group1 = CreateXSDSequence(0, Decimal.MaxValue);
 
                 foreach(MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                     if(memInfo.DeclaringType.Equals(typeof(object))) continue;
@@ -229,18 +243,18 @@ namespace SourceForge.NAnt.Tasks {
                         XmlSchemaAttribute newAttr = CreateXSDAttr(taskAttrAttr.Name, taskAttrAttr.Required);
                         ct.Attributes.Add(newAttr);
                     }
-                        //Add Elements
+                    //Add Elements
                     else if(buildElemAttr != null) {
                         // Create individial choice for any individual child Element
                         Decimal min = 0;
                         if(buildElemAttr.Required) min = 1;
-                        XmlSchemaChoice elementChoice = CreateXSDChoice(min, Decimal.MaxValue);
+                        XmlSchemaGroupBase elementGroup = CreateXSDSequence(min, Decimal.MaxValue);
                         XmlSchemaElement childElement = new XmlSchemaElement();
                         childElement.Name = buildElemAttr.Name;
 						
                         Type childType;
 
-                        // We will only process child elements if they are defined for Properties or Fields, this should be inforced by the AttributeUsage on the Attribute class
+                        // We will only process child elements if they are defined for Properties or Fields, this should be enforced by the AttributeUsage on the Attribute class
                         if(memInfo is PropertyInfo)
                             childType = ((PropertyInfo)memInfo).PropertyType;
                         else if(memInfo is FieldInfo)
@@ -253,12 +267,12 @@ namespace SourceForge.NAnt.Tasks {
                             childType = childType.GetElementType();
 
                         childElement.SchemaTypeName = CreateComplexType(childType, buildElemAttr.Name, useRefs).QualifiedName;
-                        elementChoice.Items.Add(childElement);
-                        choice.Items.Add(elementChoice);
+                        elementGroup.Items.Add(childElement);
+                        group1.Items.Add(elementGroup);
                     }
                 }
 				
-                if(choice.Items.Count > 0) ct.Particle = choice;
+                if(group1.Items.Count > 0) ct.Particle = group1;
 				
                 Schema.Items.Add(ct);
                 _nantComplexTypes.Add(ct.Id, ct);
@@ -347,21 +361,38 @@ namespace SourceForge.NAnt.Tasks {
 			
             return newChoice;
         }
-		
+        
+        /// <summary>
+        /// Generates a new object.
+        /// </summary>
+        /// <param name="min">The min value to allow for this choice</param>
+        /// <param name="max">The max value to allow, Decimal.MaxValue sets it to 'unbound'</param>
+        /// <returns></returns>
+        protected static XmlSchemaSequence CreateXSDSequence(Decimal min, Decimal max) {
+            XmlSchemaSequence newSeq = new XmlSchemaSequence();
+            newSeq.MinOccurs = min;
+            if(max != Decimal.MaxValue)
+                newSeq.MaxOccurs = max;
+            else
+                newSeq.MaxOccursString = "unbounded";
+			
+            return newSeq;
+        }	
+	
         protected static XmlSchemaComplexType CreateTaskListCT(IList taskComplexTypes) {
             XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
-            tasklistCT.Particle = new XmlSchemaChoice();
-            ((XmlSchemaChoice) tasklistCT.Particle).MinOccurs = 0;
-            ((XmlSchemaChoice) tasklistCT.Particle).MaxOccursString = "unbounded";
+            
+            tasklistCT.Particle = CreateXSDSequence(0, Decimal.MaxValue);
+            XmlSchemaGroupBase group1 = CreateXSDSequence(0, Decimal.MaxValue);
+            ((XmlSchemaGroupBase)tasklistCT.Particle).Items.Add(group1);
+            //XmlSchemaGroupBase group2 = (XmlSchemaGroupBase)tasklistCT.Particle;
             foreach(XmlSchemaComplexType taskCT in taskComplexTypes) {
-                XmlSchemaChoice taskChoice = CreateXSDChoice(0, Decimal.MaxValue);
-	            
+                XmlSchemaGroupBase group2 = CreateXSDSequence(0, Decimal.MaxValue);
+                group1.Items.Add(group2);
                 XmlSchemaElement taskElement = new XmlSchemaElement();
                 taskElement.Name = taskCT.Name;
-                //taskCT.Name = null;
                 taskElement.SchemaTypeName = taskCT.QualifiedName;
-                taskChoice.Items.Add(taskElement);
-                ((XmlSchemaChoice)tasklistCT.Particle).Items.Add(taskChoice);
+                group2.Items.Add(taskElement);
             }
             return tasklistCT;
         }
@@ -407,7 +438,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <param name="bSearchObjectHier">Search the MemberInfo class ancestry</param>
         /// <param name="bSearchAttributeHier">Search the Attribute Type ancestry for a mactch to attr</param>
         /// <returns></returns>
-        public static Attribute GetDerivedAttribute(MemberInfo meminfo, Type attr, bool bSearchObjectHier, bool bSearchAttributeHier) {
+        protected static Attribute GetDerivedAttribute(MemberInfo meminfo, Type attr, bool bSearchObjectHier, bool bSearchAttributeHier) {
             if(bSearchAttributeHier) {
                 Attribute[] attrs = Attribute.GetCustomAttributes(meminfo, bSearchObjectHier);
                 foreach(Attribute a in attrs) {

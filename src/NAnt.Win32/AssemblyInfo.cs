@@ -23,10 +23,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// Mark NAnt.VisualCppTasks CLS compliant
+// Mark NAnt.Win32Tasks CLS compliant
 [assembly: CLSCompliant(true)]
 
-// Make NAnt.VisualCppTasks visible to COM
+// Make NAnt.Win32Tasks visible to COM
 [assembly: ComVisible(true)]
 
 [assembly: AssemblyTitle("NAnt")]
