@@ -54,6 +54,7 @@ namespace NAnt.VisualCpp.Tasks {
 
         private string _responseFileName;
         private FileInfo _outputFile;
+        private FileInfo _moduleDefinitionFile;
         private FileSet _sources = new FileSet();
         private FileSet _libdirs = new FileSet();
         private string _options = null;
@@ -78,6 +79,15 @@ namespace NAnt.VisualCpp.Tasks {
         public FileInfo OutputFile {
             get { return _outputFile; }
             set { _outputFile = value; }
+        }
+
+        /// <summary>
+        /// The module definition file.
+        /// </summary>
+        [TaskAttribute("moduledefinition")]
+        public FileInfo ModuleDefinitionFile {
+            get { return _moduleDefinitionFile; }
+            set { _moduleDefinitionFile = value; }
         }
 
         /// <summary>
@@ -163,6 +173,10 @@ namespace NAnt.VisualCpp.Tasks {
                 foreach (string libdir in LibDirs.DirectoryNames) {
                     writer.WriteLine("/LIBPATH:{0}", ArgumentUtils.QuoteArgumentValue(
                         libdir, BackslashProcessingMethod.None));
+                }
+
+                if (ModuleDefinitionFile != null) {
+                    writer.WriteLine("/DEF:\"{0}\"", ModuleDefinitionFile.FullName);
                 }
 
                 // suppresses display of the sign-on banner                    

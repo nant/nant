@@ -1166,6 +1166,8 @@ namespace NAnt.VSNet {
         }
 
         private void RunLibrarian(VcProjectConfiguration projectConfig) {
+            const string libTool = "VCLibrarianTool";
+
             // check if there's anything to do
             if (_objFiles.Count == 0) {
                 Log(Level.Debug, "No files to compile.");
@@ -1200,7 +1202,7 @@ namespace NAnt.VSNet {
             libTask.Sources.NamespaceManager = libTask.NamespaceManager;
 
             // set task properties
-            string outFile = projectConfig.GetToolSetting("VCLibrarianTool", "OutputFile",
+            string outFile = projectConfig.GetToolSetting(libTool, "OutputFile",
                 "$(OutDir)/$(ProjectName).lib");
             // if OutputFile is explicitly set to an empty string, VS.NET
             // uses file name of first obj file (in intermediate directory)
@@ -1214,12 +1216,55 @@ namespace NAnt.VSNet {
 
             libTask.OutputFile = new FileInfo(outFile);
 
-            Console.WriteLine("OUT=" + outFile);
+            // Additional Library Directory
+            string addLibDirs = projectConfig.GetToolSetting(libTool, "AdditionalLibraryDirectories");
+            if (!StringUtils.IsNullOrEmpty(addLibDirs)) {
+                foreach (string addLibDir in addLibDirs.Split(',', ';')) {
+                    if (addLibDir.Length == 0) {
+                        continue;
+                    }
+                    libTask.LibDirs.DirectoryNames.Add(addLibDir);
+                }
+            }
+
+            // Additional Dependencies
+            string addDeps = projectConfig.GetToolSetting(libTool, "AdditionalDependencies");
+            if (!StringUtils.IsNullOrEmpty(addDeps)) {
+                int insertedDeps = 0;
+                foreach (string addDep in addDeps.Split(' ')) {
+                    if (Path.GetExtension(addDep) == ".obj") {
+                        _objFiles.Insert(insertedDeps++, addDep);
+                    }
+                    libTask.Sources.FileNames.Add(addDep);
+                }
+            }
 
             foreach (string objFile in _objFiles) {
                 libTask.Sources.FileNames.Add(objFile);
             }
             
+            // Module Definition File Name
+            string moduleDefinitionFile = projectConfig.GetToolSetting(libTool, "ModuleDefinitionFile");
+            if (!StringUtils.IsNullOrEmpty(moduleDefinitionFile)) {
+                libTask.ModuleDefinitionFile = new FileInfo(FileUtils.CombinePaths(
+                    ProjectDirectory.FullName, moduleDefinitionFile));
+            }
+
+            // Ignore All Default Libraries
+            string ignoreAllDefaultLibraries = projectConfig.GetToolSetting(libTool, "IgnoreAllDefaultLibraries");
+            if (string.Compare(ignoreAllDefaultLibraries, "TRUE", true, CultureInfo.InvariantCulture) == 0) {
+                libTask.Options = "/NODEFAULTLIB";
+            }
+
+            // Ignore Specific Library
+            // TODO
+
+            // Export Named Functions
+            // TODO
+
+            // Force Symbol References
+            // TODO
+
             // execute the task
             ExecuteInProjectDirectory(libTask);
         }
