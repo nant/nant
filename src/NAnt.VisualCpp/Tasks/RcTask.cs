@@ -26,23 +26,29 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
-    /// Compiles resources using <c>rc.exe</c>, Microsoft's Win32 resource compiler.
+    /// Compiles resources using <c>rc.exe</c>, Microsoft's Win32 resource 
+    /// compiler.
     /// </summary>
     /// <example>
-    ///   <para>Compile <c>text.rc</c> using the default options.</para>
+    ///   <para>
+    ///   Compile <c>text.rc</c> to <c>text.res</c> using the default options.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <rc rcfile="text.rc"/>
+    /// <rc rcfile="text.rc" output="text.res" />
     ///     ]]>
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Compile <c>text.rc</c>, passing an additional option.</para>
+    ///   <para>
+    ///   Compile <c>text.rc</c>, passing an additional option.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <rc rcfile="text.rc" options="/r"/>
@@ -131,20 +137,53 @@ namespace NAnt.VisualCpp.Tasks {
         /// Compile the resource file
         /// </summary>
         protected override void ExecuteTask() {
-            string message = string.Format(CultureInfo.InvariantCulture, 
-                "Compiling '{0}'", RcFile.FullName);
+            if (NeedsCompiling()) {
+                string message = string.Format(CultureInfo.InvariantCulture, 
+                    "Compiling '{0}'", RcFile.FullName);
 
 
-            if (OutputFile != null) {
-                message += string.Format(CultureInfo.InvariantCulture, 
-                    " to '{0}'", OutputFile.FullName);
+                if (OutputFile != null) {
+                    message += string.Format(CultureInfo.InvariantCulture, 
+                        " to '{0}'", OutputFile.FullName);
+                }
+
+                Log(Level.Info, message + ".");
+                base.ExecuteTask();
             }
-
-            Log(Level.Info, message + ".");
-            base.ExecuteTask();
         }
 
         #endregion Override implementation of ExternalProgramBase
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Determines if the resource need compiling.
+        /// </summary>
+        protected virtual bool NeedsCompiling() {
+            if (OutputFile != null) {
+                if (!OutputFile.Exists) {
+                    Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                        OutputFile.FullName);
+                    return true;
+                }
+
+                // if output file file is older the resource file, it is stale
+                string fileName = FileSet.FindMoreRecentLastWriteTime(
+                    RcFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' is out of date, recompiling.", 
+                        fileName);
+                    return true;
+                }
+
+                // output file is up-to-date
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        #endregion Protected Instance Methods
     }
 }
 #if unused
