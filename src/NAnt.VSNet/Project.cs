@@ -319,58 +319,14 @@ namespace NAnt.VSNet {
                             } else {
                                 Hashtable outputFiles = reference.GetOutputFiles(cs);
 
-                                // create instance of Copy task
-                                CopyTask ct = new CopyTask();
-
-                                // inherit project from solution task
-                                ct.Project = SolutionTask.Project;
-
-                                // inherit namespace manager from solution task
-                                ct.NamespaceManager = SolutionTask.NamespaceManager;
-
-                                // parent is solution task
-                                ct.Parent = SolutionTask;
-
-                                // inherit verbose setting from solution task
-                                ct.Verbose = SolutionTask.Verbose;
-
-                                // only output warning messages or higher, unless 
-                                // we're running in verbose mode
-                                if (!ct.Verbose) {
-                                    ct.Threshold = Level.Warning;
-                                }
-
-                                // make sure framework specific information is set
-                                ct.InitializeTaskConfiguration();
-
-                                // set parent of child elements
-                                ct.CopyFileSet.Parent = ct;
-
-                                // inherit project from solution task for child elements
-                                ct.CopyFileSet.Project = SolutionTask.Project;
-
-                                // inherit namespace manager from solution task
-                                ct.CopyFileSet.NamespaceManager = SolutionTask.NamespaceManager;
-
-                                // increment indentation level
-                                ct.Project.Indent();
-
-                                try {
-                                    foreach (DictionaryEntry de in outputFiles) {
-                                        // set file to copy
-                                        ct.SourceFile = new FileInfo(
-                                            (string) de.Key);
-
-                                        // set file
-                                        ct.ToFile = new FileInfo(Path.Combine(
-                                            cs.OutputDir.FullName, (string) de.Value));
-
-                                        // execute task
-                                        ct.Execute();
-                                    }
-                                } finally {
-                                    // restore indentation level
-                                    ct.Project.Unindent();
+                                foreach (DictionaryEntry de in outputFiles) {
+                                    // determine file to copy
+                                    FileInfo srcFile = new FileInfo((string) de.Key);
+                                    // determine destination file
+                                    FileInfo destFile = new FileInfo(Path.Combine(
+                                        cs.OutputDir.FullName, (string) de.Value));
+                                    // perform actual copy
+                                    CopyFile(srcFile, destFile, SolutionTask);
                                 }
                             }
                         }
@@ -596,23 +552,11 @@ namespace NAnt.VSNet {
                             wdc.UploadFile(sourceFile.FullName, Path.Combine(cs.RelativeOutputDir, 
                                 (string) de.Value).Replace(@"\", "/"));
                         } else {
+                            // determine destination file
                             FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
                                 (string) de.Value));
-
-                            if (destFile.Exists) {
-                                // only copy the file if the source file is more 
-                                // recent than the destination file
-                                if (FileSet.FindMoreRecentLastWriteTime(sourceFile.FullName, destFile.LastWriteTime) == null) {
-                                    continue; 
-                                }
-
-                                // make sure the destination file is writable
-                                destFile.Attributes = FileAttributes.Normal;
-                            }
-
-                            // copy the file and overwrite the destination file
-                            // if it already exists
-                            sourceFile.CopyTo(destFile.FullName, true);
+                            // copy file using <copy> task
+                            CopyFile(sourceFile, destFile, SolutionTask);
                         }
                     }
 
@@ -632,23 +576,11 @@ namespace NAnt.VSNet {
                             wdc.UploadFile(sourceFile.FullName, cs.RelativeOutputDir.Replace(@"\", "/") 
                                 + (string) de.Value);
                         } else {
+                            // determine destination file
                             FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
                                 (string) de.Value));
-
-                            if (destFile.Exists) {
-                                // only copy the file if the source file is more 
-                                // recent than the destination file
-                                if (FileSet.FindMoreRecentLastWriteTime(sourceFile.FullName, destFile.LastWriteTime) == null) {
-                                    continue; 
-                                }
-
-                                // make sure the destination file is writable
-                                destFile.Attributes = FileAttributes.Normal;
-                            }
-
-                            // copy the file and overwrite the destination file
-                            // if it already exists
-                            sourceFile.CopyTo(destFile.FullName, true);
+                            // copy file using <copy> task
+                            CopyFile(sourceFile, destFile, SolutionTask);
                         }
                     }
 
@@ -871,6 +803,69 @@ namespace NAnt.VSNet {
         }
 
         #endregion Private Instance Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Copies the specified file if the destination file does not exist, or
+        /// the source file has been modified since it was previously copied.
+        /// </summary>
+        /// <param name="srcFile">The file to copy.</param>
+        /// <param name="destFile">The destination file.</param>
+        /// <param name="parent">The <see cref="Task" /> in which context the operation will be performed.</param>
+        private static void CopyFile(FileInfo srcFile, FileInfo destFile, Task parent) {
+            // create instance of Copy task
+            CopyTask ct = new CopyTask();
+
+            // inherit project from solution task
+            ct.Project = parent.Project;
+
+            // inherit namespace manager from solution task
+            ct.NamespaceManager = parent.NamespaceManager;
+
+            // parent is solution task
+            ct.Parent = parent;
+
+            // inherit verbose setting from solution task
+            ct.Verbose = parent.Verbose;
+
+            // only output warning messages or higher, unless 
+            // we're running in verbose mode
+            if (!ct.Verbose) {
+                ct.Threshold = Level.Warning;
+            }
+
+            // make sure framework specific information is set
+            ct.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            ct.CopyFileSet.Parent = ct;
+
+            // inherit project for child elements from containing task
+            ct.CopyFileSet.Project = ct.Project;
+
+            // inherit namespace manager from containing task
+            ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
+
+            // set file to copy
+            ct.SourceFile = srcFile;
+
+            // set file
+            ct.ToFile = destFile;
+
+            // increment indentation level
+            ct.Project.Indent();
+
+            try {
+                // execute task
+                ct.Execute();
+            } finally {
+                // restore indentation level
+                ct.Project.Unindent();
+            }
+        }
+
+        #endregion Private Static Methods
 
         #region Private Instance Fields
 
