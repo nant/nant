@@ -42,11 +42,13 @@ namespace SourceForge.NAnt.Tasks {
     public class VjcTask : MsftFXCompilerBase {
         #region Private Instance Fields
 
-        bool   _secureScoping = false;
-        string _x             = null;
-        string _libPath       = null;
-        string _jcpa          = null;
-        string _codepage      = null;
+        bool _secureScoping = false;
+        string _x = null;
+        string _libPath = null;
+        string _jcpa = null;
+        string _codepage = null;
+        string _warningLevel = null;
+        string _noWarn = null;
 
         #endregion Private Instance Fields
            
@@ -81,7 +83,6 @@ namespace SourceForge.NAnt.Tasks {
         /// <value>
         /// <para>The value of this property must be either <c>all</c>, <c>net</c>, or an empty string.</para>
         /// <para>Note: <c>net</c> disables only .NET Framework extensions while <c>all</c> also disables VJ++ 6.0 extensions.</para>
-        /// <para>If <c>false</c>, or an empty string, the switch is omitted.</para>
         /// </value>
         /// <example>
         /// <para>To disable only the .NET Framework extensions:<c><![CDATA[
@@ -119,7 +120,6 @@ namespace SourceForge.NAnt.Tasks {
         /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfjcpaassociatejava-compackages.htm">See the Visual J# Reference for details.</a></remarks>
         /// <value>
         /// <para>The value of this propery. must be <c>package=namespace</c>, <c>@filename</c>, or an empty string.</para>
-        /// <para>If <c>false</c>, or an empty string, the switch is omitted.</para>
         /// </value>
         /// <example>
         /// <para>Map package 'x' to namespace 'y':<c><![CDATA[
@@ -134,18 +134,46 @@ namespace SourceForge.NAnt.Tasks {
        
         /// <summary>
         /// Specifies the code page to use for all source code files in the compilation.
-        /// <para>Corresponds to the <c>/codepage</c> flag.</para>
         /// </summary>
-        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjlrfcodepagespecifycodepageforsourcecodefiles.htm">See the Visual J# Reference for details.</a></remarks>
-        /// <value>
-        /// <para>The value of this property, must be a codepage <c>id</c> string, or an empty string.</para>
-        /// <para>If <c>false</c>, or an empty string, the switch is omitted.</para>
-        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/codepage</c> flag.
+        /// </para>
+        /// <para>
+        /// <a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjlrfcodepagespecifycodepageforsourcecodefiles.htm">See the Visual J# Reference for details.</a>
+        /// </para>
+        /// </remarks>
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
             set { _codepage = value; }
         }
+
+        /// <summary>
+        /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
+        /// </summary>
+        /// <value>The warning level for the compiler to display.</value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/warn</c> option.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("warninglevel")]
+        [Int32Validator(0, 4)]
+        public string WarningLevel  { get { return _warningLevel; } set {_warningLevel = value;}}
+
+        /// <summary>
+        /// Specifies a comma-separated list of warnings that should be suppressed 
+        /// by the compiler.
+        /// </summary>
+        /// <value>Comma-separated list of warnings that should be suppressed by the compiler.</value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/nowarn</c> option.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("nowarn")]
+        public string NoWarn  { get { return _noWarn; } set {_noWarn = value;}}
 
         #endregion Public Instance Properties
 
@@ -200,6 +228,14 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "debug");
                 WriteOption(writer, "define", "DEBUG");
                 WriteOption(writer, "define", "TRACE");
+            }
+
+            if (WarningLevel != null) {
+                WriteOption(writer, "warn", WarningLevel);
+            }
+
+            if (NoWarn != null) {
+                WriteOption(writer, "nowarn", NoWarn);
             }
         }
 
