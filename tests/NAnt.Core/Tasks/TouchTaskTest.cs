@@ -106,14 +106,16 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
        public void Test_File_Default() {
-            // sleep for a bit or this test will intermittently fail on fast machines
-            System.Threading.Thread.Sleep(2000);
-            // <touch file='myfile' />
+            // avoid test failure on fast machines and linux
+            System.Threading.Thread.Sleep(1000);
 
             string fileName = _fileList[0];
             DateTime newTouchDate = DateTime.Now;
-            RunBuild(FormatBuildFile("file='" + fileName + "'"));
 
+            // avoid test failure on fast machines and linux
+            System.Threading.Thread.Sleep(1000);
+
+            RunBuild(FormatBuildFile("file='" + fileName + "'"));
 
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
@@ -188,10 +190,10 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void Test_FileSet_Default() {
-            // <touch>
-            //  <fileset dir="src_dir"/>
-            // </touch>
             DateTime newTouchDate = DateTime.Now;
+
+            // avoid test failure on linux
+            System.Threading.Thread.Sleep(1000);
           
             RunBuild(FormatBuildFile("","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
