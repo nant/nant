@@ -447,11 +447,11 @@ namespace NAnt.Core.Functions {
         /// The framework directory of the specified framework.
         /// </returns>
         [Function("get-framework-directory")]
-        public DirectoryInfo GetFrameworkDirectory(string framework) {
+        public string GetFrameworkDirectory(string framework) {
             // ensure the framework is valid
             CheckFramework(framework);
-            // return the framework directory of the specified framework
-            return Project.Frameworks[framework].FrameworkDirectory;
+            // return full path to the framework directory of the specified framework
+            return Project.Frameworks[framework].FrameworkDirectory.FullName;
         }
 
         /// <summary>
@@ -462,11 +462,11 @@ namespace NAnt.Core.Functions {
         /// The assembly directory of the specified framework.
         /// </returns>
         [Function("get-assembly-directory")]
-        public DirectoryInfo GetAssemblyDirectory(string framework) {
+        public string GetAssemblyDirectory(string framework) {
             // ensure the framework is valid
             CheckFramework(framework);
-            // return the assembly directory of the specified framework
-            return Project.Frameworks[framework].FrameworkAssemblyDirectory;
+            // return full path to the assembly directory of the specified framework
+            return Project.Frameworks[framework].FrameworkAssemblyDirectory.FullName;
         }
 
         /// <summary>
@@ -474,14 +474,18 @@ namespace NAnt.Core.Functions {
         /// </summary>
         /// <param name="framework">The framework of which the SDK directory should be returned.</param>
         /// <returns>
-        /// The SDK directory of the specified framework.
+        /// The SDK directory of the specified framework, or an empty 
+        /// <see cref="string" /> if the SDK of the specified framework is not 
+        /// installed.
         /// </returns>
         [Function("get-sdk-directory")]
-        public DirectoryInfo GetSdkDirectory(string framework) {
+        public string GetSdkDirectory(string framework) {
             // ensure the framework is valid
             CheckFramework(framework);
-            // return the SDK directory of the specified framework
-            return Project.Frameworks[framework].SdkDirectory;
+            // get the SDK directory of the specified framework
+            DirectoryInfo sdkDirectory = Project.Frameworks[framework].SdkDirectory;
+            // return directory or empty string if SDK is not installed
+            return (sdkDirectory != null) ? sdkDirectory.FullName : string.Empty;
         }
 
         /// <summary>
@@ -489,14 +493,18 @@ namespace NAnt.Core.Functions {
         /// </summary>
         /// <param name="framework">The framework of which the runtime engine should be returned.</param>
         /// <returns>
-        /// The runtime engine of the specified framework.
+        /// The full path to the runtime engine of the specified framework, or
+        /// an empty <see cref="string" /> if no runtime engine is defined
+        /// for the specified framework.
         /// </returns>
         [Function("get-runtime-engine")]
-        public FileInfo GetRuntimeEngine(string framework) {
+        public string GetRuntimeEngine(string framework) {
             // ensure the framework is valid
             CheckFramework(framework);
-            // return the runtime engine of the specified framework
-            return Project.Frameworks[framework].RuntimeEngine;
+            // getthe runtime engine of the specified framework
+            FileInfo runtimeEngine = Project.Frameworks[framework].RuntimeEngine;
+            // return runtime engine or empty string if not defined
+            return (runtimeEngine != null) ? runtimeEngine.FullName : string.Empty;
         }
 
         #endregion Public Instance Methods
