@@ -114,13 +114,9 @@ namespace NAnt.Core {
 
                 // build collection of valid properties that were specified on 
                 // the command line.
-                foreach (string property in cmdlineOptions.Properties) {
-                    Match match = Regex.Match(property, @"(\w+[^=]*)=(\w*.*)");
-                    if (match.Success) {
-                        string name = match.Groups[1].Value;
-                        string value = match.Groups[2].Value;
-                        buildOptionProps.AddReadOnly(name, value);
-                    }
+                foreach (string key in cmdlineOptions.Properties) {
+                    buildOptionProps.AddReadOnly(key, 
+                        cmdlineOptions.Properties.Get(key));
                 }
 
                 // add valid properties to the project.
@@ -184,6 +180,31 @@ namespace NAnt.Core {
                 Console.Error.WriteLine();
                 // Write message of exception to console
                 Console.Error.WriteLine(ex.Message);
+                // get first nested exception
+                Exception nestedException = ex.InnerException;
+                // set initial indentation level for the nested exceptions
+                int exceptionIndentationLevel = 0;
+                while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
+                    // indent exception message with 4 extra spaces 
+                    // (for each nesting level)
+                    exceptionIndentationLevel += 4;
+                    // output exception message
+                    Console.Error.WriteLine(new string(' ', exceptionIndentationLevel) 
+                        + nestedException.Message);
+                    // move on to next inner exception
+                    nestedException = nestedException.InnerException;
+                }
+                // output full stacktrace when NAnt is started in debug mode
+                if (Level.Debug >= projectThreshold) {
+                    // insert empty line
+                    Console.Error.WriteLine();
+                    // output header
+                    Console.Error.WriteLine("Stacktrace:");
+                    // insert empty line
+                    Console.Error.WriteLine();
+                    // output full stacktrace
+                    Console.Error.WriteLine(ex.ToString());
+                }
                 // insert empty line
                 Console.WriteLine();
                 // instruct users to check the usage instructions

@@ -172,7 +172,7 @@ namespace NAnt.Core {
         /// The list of properties that should be set.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name = "D", Description = "Use value for given property")]
-        public StringCollection Properties {
+        public NameValueCollection Properties {
             get { return _properties; }
         }
 
@@ -298,7 +298,7 @@ namespace NAnt.Core {
         private bool _emacsMode;
         private int _indentationLevel = 0;
         private bool _findInParent;
-        private StringCollection _properties = new StringCollection();
+        private NameValueCollection _properties = new NameValueCollection();
         private string _loggerType;
         private FileInfo _logFile;
         private StringCollection _listeners = new StringCollection();
