@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+﻿<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Language" content="en-ca" />
@@ -6,6 +6,11 @@
         <meta name="description" content="Installation" />
         <link rel="stylesheet" type="text/css" href="../style.css" />
         <title>Installation</title>
+        <style type="text/css">
+            ul {
+                list-style-type: square;
+            }
+        </style>
     </head>
     <body>
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
@@ -39,18 +44,60 @@
                 Remove any previous versions of NAnt you may have installed.</li>
             <li>
                 Extract the contents of the archive to the location you wish to install NAnt 
-                (eg: C:\Program Files\NAnt in windows, or /usr/local/nant in Linux)</li>
-            <li>
-                Ensure the bin folder in your NAnt installation is in your <code>PATH</code> environment 
-                variable.
+                (eg: C:\Program Files\NAnt in windows, or /usr/local/nant in Linux)
+            </li>
+            <li>Depending on your environment, create a wrapper script to run NAnt:
+                <h3>Run NAnt using Microsoft.NET</h3>
                 <ul>
                     <li>
-                        In Windows, a common method to do this is to create an environment variable <code>NANT_HOME</code>
-                        that contains the folder you installed NAnt to.</li>
+                        Create a file called <code>nant.bat</code> in a directory that is included in the <code>PATH</code> system environment variable. (eg. <i>C:\WINDOWS</i>).
+                    </li>
                     <li>
-                        Then add <code>%NANT_HOME%\bin</code> to your <code>PATH</code> variable.</li>
+                        Add the following to <code>nant.bat</code>:
+                        <pre>
+@echo off
+"C:\Program Files\NAnt\bin\NAnt.exe" %*
+                        </pre>
+                    </li>
+                </ul>
+                <h3>Run NAnt using Mono</h3>
+                <ul style="list-style-type: none;">
                     <li>
-                        Both of these should be System variables.</li>
+                <h4>Windows</h4>
+                <ul>
+                    <li>
+                        Create a file called <code>nant.bat</code> in a directory that is included in the <code>PATH</code> system environment variable. (eg. <i>C:\WINDOWS</i>).
+                    </li>
+                    <li>
+                        Add the following to <code>nant.bat</code>:
+                        <pre>
+@echo off
+mono "C:\Program Files\NAnt\bin\NAnt.exe" %*
+                                </pre>
+                    </li>
+                </ul>
+                </li>
+                <li>
+                <h4>Linux / Cygwin</h4>
+                <ul>
+                    <li>
+                        Create a file called <code>nant</code> in a suitable location in your filesystem (eg. <i>/usr/local/bin</i>).
+                    </li>
+                    <li>
+                        Add the following to <code>nant</code>:
+                        <pre>
+#!/bin/sh
+exec mono /usr/local/nant/bin/NAnt.exe "$@"
+                        </pre>
+                    </li>
+                    <li>
+                        Ensure <code>nant</code> has permission to execute, eg:
+                        <pre>
+chmod a+x /usr/local/bin/nant
+                        </pre>
+                    </li>
+                </ul>
+                </li>
                 </ul>
             </li>
             <li>
@@ -76,33 +123,31 @@
                 Open a command prompt and change into the folder you extracted the archive to.</li>
             <li>
                 Depending on your environment, build the NAnt distribution:
+                <h3>Install NAnt using Microsoft .NET</h3>
                 <ul>
-                    <h3>Install NAnt using Microsoft .NET</h3>
-                    <ul>
-                        <li>
-                            <h4>GNU Make</h4>
-                            <code>make install MONO= MCS=csc prefix=<i>installation-path</i></code>
-                            <p>eg. <code>make install MONO= MCS=csc prefix="C:\Program Files"</code></p>
-                        </li>
-                        <li>
-                            <h4>NMake</h4>
-                            <code>nmake -f Makefile.nmake install prefix=<i>installation-path</i></code>
-                            <p>eg. <code>nmake -f Makefile.nmake install prefix="C:\Program Files"</code></p>
-                        </li>
-                    </ul>
-                    <h3>Install NAnt using Mono</h3>
-                    <ul>
-                        <li>
-                            <h4>GNU Make</h4>
-                            <code>make install prefix=<i>installation-path</i></code>
-                            <p>eg. <code>make install prefix="C:\Program Files"</code></p>
-                        </li>
-                        <li>
-                            <h4>NMake</h4>
-                            <code>nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<i>installation-path</i></code>
-                            <p>eg. <code>nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/</code></p>
-                        </li>
-                    </ul>
+                    <li>
+                        <h4>GNU Make</h4>
+                        <code>make install MONO= MCS=csc prefix=<i>installation-path</i></code>
+                        <p>eg. <code>make install MONO= MCS=csc prefix="C:\Program Files"</code></p>
+                    </li>
+                    <li>
+                        <h4>NMake</h4>
+                        <code>nmake -f Makefile.nmake install prefix=<i>installation-path</i></code>
+                        <p>eg. <code>nmake -f Makefile.nmake install prefix="C:\Program Files"</code></p>
+                    </li>
+                </ul>
+                <h3>Install NAnt using Mono</h3>
+                <ul>
+                    <li>
+                        <h4>GNU Make</h4>
+                        <code>make install prefix=<i>installation-path</i></code>
+                        <p>eg. <code>make install prefix="C:\Program Files"</code></p>
+                    </li>
+                    <li>
+                        <h4>NMake</h4>
+                        <code>nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<i>installation-path</i></code>
+                        <p>eg. <code>nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/</code></p>
+                    </li>
                 </ul>
                 <p>
                     This will first build a bootstrap version of NAnt, and then 
@@ -111,7 +156,7 @@
                 </p>
             </li>
             <li>
-                Follow the instructions as for a binary release from step 4.</li>
+                Follow the instructions as for a binary release from step 5.</li>
         </ol>
     </body>
 </html>
