@@ -114,9 +114,6 @@ namespace NAnt.VSNet {
 
                 _htTools[toolName] = htToolSettings;
             }
-
-            // create the output path if it doesn't already exist
-            OutputDir.Create();
         }
 
         #endregion Internal Instance Constructors

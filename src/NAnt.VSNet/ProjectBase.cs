@@ -195,6 +195,9 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
+        public abstract ProjectReferenceBase CreateProjectReference(
+            ProjectBase project, bool isPrivateSpecified, bool isPrivate);
+
         public bool Compile(string configuration) {
             ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
             if (config == null) {
@@ -433,6 +436,65 @@ namespace NAnt.VSNet {
         }
 
         protected abstract bool Build(ConfigurationBase config);
+
+        /// <summary>
+        /// Copies the specified file if the destination file does not exist, or
+        /// the source file has been modified since it was previously copied.
+        /// </summary>
+        /// <param name="srcFile">The file to copy.</param>
+        /// <param name="destFile">The destination file.</param>
+        /// <param name="parent">The <see cref="Task" /> in which context the operation will be performed.</param>
+        protected void CopyFile(FileInfo srcFile, FileInfo destFile, Task parent) {
+            // create instance of Copy task
+            CopyTask ct = new CopyTask();
+
+            // parent is solution task
+            ct.Parent = parent;
+
+            // inherit project from parent task
+            ct.Project = parent.Project;
+
+            // inherit namespace manager from parent task
+            ct.NamespaceManager = parent.NamespaceManager;
+
+            // inherit verbose setting from parent task
+            ct.Verbose = parent.Verbose;
+
+            // only output warning messages or higher, unless 
+            // we're running in verbose mode
+            if (!ct.Verbose) {
+                ct.Threshold = Level.Warning;
+            }
+
+            // make sure framework specific information is set
+            ct.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            ct.CopyFileSet.Parent = ct;
+
+            // inherit project for child elements from containing task
+            ct.CopyFileSet.Project = ct.Project;
+
+            // inherit namespace manager from containing task
+            ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
+
+            // set file to copy
+            ct.SourceFile = srcFile;
+
+            // set file
+            ct.ToFile = destFile;
+
+            // increment indentation level
+            ct.Project.Indent();
+
+            try {
+                // execute task
+                ct.Execute();
+            } finally {
+                // restore indentation level
+                ct.Project.Unindent();
+            }
+        }
 
         /// <summary>
         /// Logs a message with the given priority.

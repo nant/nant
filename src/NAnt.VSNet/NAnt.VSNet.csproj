@@ -103,7 +103,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "AssemblyReference.cs"
+                    RelPath = "AssemblyReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -144,7 +144,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ManagedAssemblyReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ManagedProjectBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ManagedProjectReference.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -163,7 +173,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ProjectReference.cs"
+                    RelPath = "ProjectReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -174,11 +184,6 @@
                 />
                 <File
                     RelPath = "ReferenceBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ReferenceFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -213,12 +218,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "VcAssemblyReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "VcConfiguration.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "VcProject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VcProjectReference.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

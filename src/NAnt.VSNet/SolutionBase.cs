@@ -215,16 +215,16 @@ namespace NAnt.VSNet {
                                 project.References.Clone();
 
                             foreach (ReferenceBase reference in projectReferences) {
-                                FileReferenceBase fileReference = reference as 
-                                    FileReferenceBase;
-                                if (fileReference == null) {
+                                AssemblyReferenceBase assemblyReference = reference as 
+                                    AssemblyReferenceBase;
+                                if (assemblyReference == null) {
                                     // project references don't need to be fixed
                                     continue;
                                 }
 
                                 ProjectBase projectRef = null;
 
-                                string outputFile = reference.GetPrimaryOutputFile(
+                                string outputFile = assemblyReference.GetPrimaryOutputFile(
                                     projectConfig);
 
                                 if (_htOutputFiles.Contains(outputFile)) {
@@ -273,13 +273,13 @@ namespace NAnt.VSNet {
                                 }
 
                                 if (projectRef != null) {
-                                    ProjectReference projectReference = fileReference.
+                                    ProjectReferenceBase projectReference = assemblyReference.
                                         CreateProjectReference(projectRef);
-                                    Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", 
-                                        fileReference.Name, projectReference.Name);
+                                    Log(Level.Verbose, "Converted assembly reference to project reference: {0} -> {1}", 
+                                        assemblyReference.Name, projectReference.Name);
 
-                                    // remove file reference from project
-                                    project.References.Remove(fileReference);
+                                    // remove assembly reference from project
+                                    project.References.Remove(assemblyReference);
 
                                     // add project reference instead
                                     project.References.Add(projectReference);
@@ -501,8 +501,8 @@ namespace NAnt.VSNet {
                 ProjectBase project = (ProjectBase) de.Value;
 
                 foreach (ReferenceBase reference in project.References) {
-                    if (reference is ProjectReference) {
-                        AddProjectDependency(projectGuid, ((ProjectReference) reference).Project.Guid);
+                    if (reference is ProjectReferenceBase) {
+                        AddProjectDependency(projectGuid, ((ProjectReferenceBase) reference).Project.Guid);
                     } else {
                         // check if project actually support the build configuration
                         ConfigurationBase projectConfig = (ConfigurationBase) 

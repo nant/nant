@@ -37,34 +37,15 @@ namespace NAnt.VSNet {
             if (xmlDefinition == null) {
                 throw new ArgumentNullException("xmlDefinition");
             }
-
             if (gacCache == null) {
                 throw new ArgumentNullException("gacCache");
             }
 
             _xmlDefinition = xmlDefinition;
             _gacCache = gacCache;
-
-            XmlAttribute privateAttribute = xmlDefinition.Attributes["Private"];
-            if (privateAttribute != null) {
-                _isPrivateSpecified = true;
-                _isPrivate = bool.Parse(privateAttribute.Value);
-            }
         }
 
         #endregion Protected Instance Constructors
-
-        #region Override implementation of ReferenceBase
-
-        protected override bool IsPrivate {
-            get { return _isPrivate; }
-        }
-
-        protected override bool IsPrivateSpecified {
-            get { return _isPrivateSpecified; }
-        }
-
-        #endregion Override implementation of ReferenceBase
 
         #region Protected Instance Properties
 
@@ -77,15 +58,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Protected Instance Properties
-
-        #region Public Instance Methods
-
-        public ProjectReference CreateProjectReference(ProjectBase project) {
-            return new ProjectReference(project, Parent, IsPrivateSpecified, 
-                IsPrivate);
-        }
-
-        #endregion Public Instance Methods
 
         #region Protected Instance Methods
 
@@ -180,8 +152,6 @@ namespace NAnt.VSNet {
 
         private readonly XmlElement _xmlDefinition;
         private readonly GacCache _gacCache;
-        private readonly bool _isPrivateSpecified;
-        private readonly bool _isPrivate;
 
         #endregion Private Instance Fields
     }

@@ -78,13 +78,13 @@ namespace NAnt.VSNet {
 
             XmlNodeList projectReferences = xmlDefinition.SelectNodes("//References/ProjectReference");
             foreach (XmlElement referenceElem in projectReferences) {
-                ReferenceBase reference = ReferenceFactory.CreateReference(solution, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                ReferenceBase reference = CreateReference(solution, referenceElem);
                 _references.Add(reference);
             }
 
             XmlNodeList assemblyReferences = xmlDefinition.SelectNodes("//References/AssemblyReference");
             foreach (XmlElement referenceElem in assemblyReferences) {
-                ReferenceBase reference = ReferenceFactory.CreateReference(solution, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                ReferenceBase reference = CreateReference(solution, referenceElem);
                 _references.Add(reference);
             }
 
@@ -148,13 +148,11 @@ namespace NAnt.VSNet {
         /// specific to the build configuration will be stored.
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// This is a directory relative to the project directory named 
-        /// <c>temp\</c>.
-        /// </para>
+        /// This is a directory relative to the project directory, 
+        /// named <c>temp\</c>.
         /// </remarks>
         public override DirectoryInfo ObjectDir {
-            get { 
+            get {
                 return new DirectoryInfo(
                     Path.Combine(ProjectDirectory.FullName, "temp"));
             }
@@ -170,6 +168,11 @@ namespace NAnt.VSNet {
 
         public override ArrayList References {
             get { return _references; }
+        }
+
+        public override ProjectReferenceBase CreateProjectReference(ProjectBase project, bool isPrivateSpecified, bool isPrivate) {
+            return new VcProjectReference(project, this, isPrivateSpecified, 
+                isPrivate);
         }
 
         protected override bool Build(ConfigurationBase config) {
@@ -255,6 +258,26 @@ namespace NAnt.VSNet {
                 }
             }
 
+            Log(Level.Verbose, "Copying references:");
+
+            foreach (ReferenceBase reference in _references) {
+                if (reference.CopyLocal) {
+                    Log(Level.Verbose, " - " + reference.Name);
+
+                    Hashtable outputFiles = reference.GetOutputFiles(config);
+
+                    foreach (DictionaryEntry de in outputFiles) {
+                        // determine file to copy
+                        FileInfo srcFile = new FileInfo((string) de.Key);
+                        // determine destination file
+                        FileInfo destFile = new FileInfo(Path.Combine(
+                            config.OutputDir.FullName, (string) de.Value));
+                        // perform actual copy
+                        CopyFile(srcFile, destFile, SolutionTask);
+                    }
+                }
+            }
+
             return true;
         }
 
@@ -294,6 +317,35 @@ namespace NAnt.VSNet {
         }
 
         #endregion Protected Internal Instance Methods
+
+        #region Protected Instance Methods
+
+        protected virtual ReferenceBase CreateReference(SolutionBase solution, XmlElement xmlDefinition) {
+            if (solution == null) {
+                throw new ArgumentNullException("solution");
+            }
+            if (xmlDefinition == null) {
+                throw new ArgumentNullException("xmlDefinition");
+            }
+
+            switch (xmlDefinition.Name) {
+                case "ProjectReference":
+                    // project reference
+                    return new VcProjectReference(xmlDefinition, ReferencesResolver,
+                        this, solution, solution.TemporaryFiles, GacCache, 
+                        OutputDir);
+                case "AssemblyReference":
+                    // assembly reference
+                    return new VcAssemblyReference(xmlDefinition, ReferencesResolver, 
+                        this, GacCache);
+                default:
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "\"{0}\" reference not supported.", xmlDefinition.Name),
+                        Location.UnknownLocation);
+            }
+        }
+
+        #endregion Protected Instance Methods
 
         #region Private Instance Methods
 
@@ -375,7 +427,10 @@ namespace NAnt.VSNet {
             clTask.CharacterSet = fileConfig.CharacterSet;
             
             // ensure output directory exists
-            clTask.OutputDir.Create();
+            if (!clTask.OutputDir.Exists) {
+                clTask.OutputDir.Create();
+                clTask.OutputDir.Refresh();
+            }
 
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
@@ -388,7 +443,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string metadataDirs = MergeCompilerToolSetting(baseConfig, fileConfig, "AdditionalUsingDirectories");
+            string metadataDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalUsingDirectories");
             if (!StringUtils.IsNullOrEmpty(metadataDirs)) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
                     if (metadataDir.Length == 0) {

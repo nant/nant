@@ -20,6 +20,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
@@ -30,55 +31,25 @@ using NAnt.Core;
 using NAnt.Core.Util;
 
 namespace NAnt.VSNet {
-    public class ProjectReference : ReferenceBase {
-        #region Public Instance Constructors
+    public abstract class ProjectReferenceBase : ReferenceBase {
+        #region Protected Instance Constructors
 
-        public ProjectReference(XmlElement xmlDefinition, ReferencesResolver referencesResolver, ProjectBase parent, SolutionBase solution, ProjectSettings projectSettings, GacCache gacCache, DirectoryInfo outputDir) : base(referencesResolver, parent) {
-            if (xmlDefinition == null) {
-                throw new ArgumentNullException("xmlDefinition");
-            }
-
-            if (gacCache == null) {
-                throw new ArgumentNullException("gacCache");
-            }
-
-            if (projectSettings == null) {
-                throw new ArgumentNullException("projectSettings");
-            }
-
-            if (solution == null) {
-                throw new BuildException("Project reference found, but no solution"
-                    + " was specified.", Location.UnknownLocation);
-            }
-
-            XmlAttribute privateAttribute = xmlDefinition.Attributes["Private"];
-            if (privateAttribute != null) {
-                _isPrivateSpecified = true;
-                _isPrivate = bool.Parse(privateAttribute.Value);
-            }
-
-            // determine path of project file
-            string projectFile = solution.GetProjectFileFromGuid(
-                xmlDefinition.GetAttribute("Project"));
-
-            // load referenced project
-            Log(Level.Verbose, "Loading referenced project '{0}'.", projectFile);
-            _project = ProjectFactory.LoadProject(solution, 
-                SolutionTask, projectSettings.TemporaryFiles, gacCache, 
-                ReferencesResolver, outputDir, projectFile);
+        protected ProjectReferenceBase(ReferencesResolver referencesResolver, ProjectBase parent) : base(referencesResolver, parent) {
         }
 
-        public ProjectReference(ProjectBase project, ProjectBase parent, bool isPrivateSpecified, bool isPrivate) : base(project.ReferencesResolver, parent) {
-            if (project == null) {
-                throw new ArgumentNullException("project");
-            }
+        #endregion Protected Instance Constructors
 
-            _project = project;
-            _isPrivateSpecified = isPrivateSpecified;
-            _isPrivate = isPrivate;
+        #region Protected Instance Properties
+
+        protected abstract bool IsPrivate {
+            get;
         }
 
-        #endregion Public Instance Constructors
+        protected abstract bool IsPrivateSpecified {
+            get;
+        }
+
+        #endregion Protected Instance Properties
 
         #region Override implementation of ReferenceBase
 
@@ -96,14 +67,6 @@ namespace NAnt.VSNet {
 
         public override string Name {
             get { return Project.Name; }
-        }
-
-        protected override bool IsPrivate {
-            get { return _isPrivate; }
-        }
-
-        protected override bool IsPrivateSpecified {
-            get { return _isPrivateSpecified; }
         }
 
         /// <summary>
@@ -217,18 +180,10 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
-        public ProjectBase Project {
-            get { return _project; }
+        public abstract ProjectBase Project {
+            get;
         }
 
         #endregion Public Instance Properties
-
-        #region Private Instance Fields
-
-        private readonly ProjectBase _project;
-        private readonly bool _isPrivateSpecified;
-        private readonly bool _isPrivate;
-
-        #endregion Private Instance Fields
     }
 }

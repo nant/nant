@@ -85,9 +85,7 @@ namespace NAnt.VSNet {
 
             XmlNodeList nlReferences = XmlDefinition.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
-                ReferenceBase reference = ReferenceFactory.CreateReference(
-                    solution, _projectSettings, elemReference, GacCache, 
-                    ReferencesResolver, this, OutputDir);
+                ReferenceBase reference = CreateReference(solution, elemReference);
                 _references.Add(reference);
             }
 
@@ -553,6 +551,33 @@ namespace NAnt.VSNet {
         /// </returns>
         protected abstract ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile);
 
+        protected virtual ReferenceBase CreateReference(SolutionBase solution, XmlElement xmlDefinition) {
+            if (solution == null) {
+                throw new ArgumentNullException("solution");
+            }
+            if (xmlDefinition == null) {
+                throw new ArgumentNullException("xmlDefinition");
+            }
+
+            if (xmlDefinition.Attributes["Project"] != null) {
+                return new ManagedProjectReference(xmlDefinition, ReferencesResolver, this, 
+                    solution, ProjectSettings.TemporaryFiles, GacCache, OutputDir);
+            } else if (xmlDefinition.Attributes["WrapperTool"] != null) {
+                // wrapper
+                return new WrapperReference(xmlDefinition, ReferencesResolver, 
+                    this, GacCache, ProjectSettings);
+            } else {
+                // assembly reference
+                return new ManagedAssemblyReference(xmlDefinition, ReferencesResolver, 
+                    this, GacCache);
+            }
+        }
+
+        public override ProjectReferenceBase CreateProjectReference(ProjectBase project, bool isPrivateSpecified, bool isPrivate) {
+            return new ManagedProjectReference(project, this, isPrivateSpecified, 
+                isPrivate);
+        }
+
         protected virtual void WriteCompilerOptions(StreamWriter sw, ConfigurationSettings config) {
             // write project level options (eg. /target)
             foreach (string setting in ProjectSettings.Settings) {
@@ -799,69 +824,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Static Methods
-
-        #region Private Static Methods
-
-        /// <summary>
-        /// Copies the specified file if the destination file does not exist, or
-        /// the source file has been modified since it was previously copied.
-        /// </summary>
-        /// <param name="srcFile">The file to copy.</param>
-        /// <param name="destFile">The destination file.</param>
-        /// <param name="parent">The <see cref="Task" /> in which context the operation will be performed.</param>
-        private static void CopyFile(FileInfo srcFile, FileInfo destFile, Task parent) {
-            // create instance of Copy task
-            CopyTask ct = new CopyTask();
-
-            // parent is solution task
-            ct.Parent = parent;
-
-            // inherit project from parent task
-            ct.Project = parent.Project;
-
-            // inherit namespace manager from parent task
-            ct.NamespaceManager = parent.NamespaceManager;
-
-            // inherit verbose setting from parent task
-            ct.Verbose = parent.Verbose;
-
-            // only output warning messages or higher, unless 
-            // we're running in verbose mode
-            if (!ct.Verbose) {
-                ct.Threshold = Level.Warning;
-            }
-
-            // make sure framework specific information is set
-            ct.InitializeTaskConfiguration();
-
-            // set parent of child elements
-            ct.CopyFileSet.Parent = ct;
-
-            // inherit project for child elements from containing task
-            ct.CopyFileSet.Project = ct.Project;
-
-            // inherit namespace manager from containing task
-            ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
-
-            // set file to copy
-            ct.SourceFile = srcFile;
-
-            // set file
-            ct.ToFile = destFile;
-
-            // increment indentation level
-            ct.Project.Indent();
-
-            try {
-                // execute task
-                ct.Execute();
-            } finally {
-                // restore indentation level
-                ct.Project.Unindent();
-            }
-        }
-
-        #endregion Private Static Methods
 
         #region Private Instance Fields
 

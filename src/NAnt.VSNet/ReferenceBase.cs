@@ -91,14 +91,6 @@ namespace NAnt.VSNet {
             get { return _referencesResolver; }
         }
 
-        protected abstract bool IsPrivate {
-            get;
-        }
-
-        protected abstract bool IsPrivateSpecified {
-            get;
-        }
-
         #endregion Protected Instance Properties
 
         #region Public Instance Methods
