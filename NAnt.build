@@ -236,6 +236,7 @@
             </sources>
             <references failonempty="true">
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${lib.framework.dir}/NDoc.ExtendedUI.dll" />
                 <include name="${lib.framework.dir}/NDoc.Core.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
