@@ -27,6 +27,7 @@ using System.Security.Permissions;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Filters;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -34,11 +35,12 @@ namespace NAnt.Core {
     /// Comprises all of the loaded, and available, tasks. 
     /// Use these static methods to register, initialize and create a task.
     /// </summary>
-    public class TypeFactory {
+    public sealed class TypeFactory {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);        private static TaskBuilderCollection _taskBuilders = new TaskBuilderCollection();
         private static DataTypeBaseBuilderCollection _dataTypeBuilders = new DataTypeBaseBuilderCollection();
+        private static FilterBuilderCollection _filterBuilders = new FilterBuilderCollection();
         private static Hashtable _methodInfoCollection = new Hashtable();
         private static ArrayList _projects = new ArrayList();
 
@@ -57,12 +59,46 @@ namespace NAnt.Core {
 
         #endregion Static Constructor
 
+        #region Internal Static Properties
+
+        /// <summary>
+        /// Gets the list of loaded <see cref="TaskBuilder" /> instances.
+        /// </summary>
+        /// <value>
+        /// List of loaded <see cref="TaskBuilder" /> instances.
+        /// </value>
+        internal static TaskBuilderCollection TaskBuilders {
+            get { return _taskBuilders; }
+        }
+
+        /// <summary>
+        /// Gets the list of loaded <see cref="DataTypeBaseBuilder" /> instances.
+        /// </summary>
+        /// <value>
+        /// List of loaded <see cref="DataTypeBaseBuilder" /> instances.
+        /// </value>
+        internal static DataTypeBaseBuilderCollection DataTypeBuilders {
+            get { return _dataTypeBuilders; }
+        }
+
+        /// <summary>
+        /// Gets the list of loaded <see cref="FilterBuilder" /> instances.
+        /// </summary>
+        /// <value>
+        /// List of loaded <see cref="FilterBuilder" /> instances.
+        /// </value>
+        internal static FilterBuilderCollection FilterBuilders {
+            get { return _filterBuilders; }
+        }
+
+        #endregion Internal Static Properties
+
         #region Public Static Methods
 
         /// <summary>
-        /// Scans the given assembly for tasks, types and functions.
+        /// Scans the given assembly for tasks, types, functions and filters.
         /// </summary>
-        /// <param name="assemblyFile">The assembly to scan for tasks, types and functions.</param>
+        /// <param name="assemblyFile">The assembly to scan for tasks, types, functions and filters.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanAssembly(string assemblyFile) {
             Assembly assembly = null;
@@ -81,9 +117,9 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Scans the given assembly for tasks, types and functions.
+        /// Scans the given assembly for tasks, types, functions and filters.
         /// </summary>
-        /// <param name="assembly">The assembly to scan for tasks, types and functions.</param>
+        /// <param name="assembly">The assembly to scan for tasks, types, functions and filters.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanAssembly(Assembly assembly) {
             logger.Info(string.Format(CultureInfo.InvariantCulture, 
@@ -94,9 +130,10 @@ namespace NAnt.Core {
                 AddTasks(assembly);
                 AddDataTypes(assembly);
                 AddFunctionSets(assembly);
+                AddFilters(assembly);
             } catch (Exception ex) {
                 logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning '{0}' for tasks, types and functions.", 
+                    "Error scanning '{0}' for tasks, types, functions and filters.", 
                     assembly.GetName().Name), ex);
             }
         }
@@ -147,23 +184,10 @@ namespace NAnt.Core {
             // create weakref to project. It is possible that project may go 
             // away, we don't want to hold it
             _projects.Add(new WeakReference(project));
+
             foreach (TaskBuilder tb in TaskBuilders) {
                 UpdateProjectWithBuilder(project, tb);
             }
-        }
-
-        /// <summary>
-        /// Gets the list of loaded <see cref="TaskBuilder" /> instances.
-        /// </summary>
-        /// <value>
-        /// List of loaded <see cref="TaskBuilder" /> instances.
-        /// </value>
-        public static TaskBuilderCollection TaskBuilders {
-            get { return _taskBuilders; }
-        }
-
-        public static DataTypeBaseBuilderCollection DataTypeBuilders {
-            get { return _dataTypeBuilders; }
         }
 
         /// <summary>
@@ -234,6 +258,7 @@ namespace NAnt.Core {
             }
             return functionSetCount;
         }
+
         /// <summary>
         /// Scans the given assembly for any classes derived from 
         /// <see cref="Task" /> and adds a new builder for them.
@@ -333,6 +358,38 @@ namespace NAnt.Core {
             return typeCount;
         }
 
+        public static int AddFilters(Assembly taskAssembly) {
+            int filtercount = 0;
+
+            try {
+                foreach (Type type in taskAssembly.GetTypes()) {
+                    ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
+                        Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
+
+                    if (type.IsSubclassOf(typeof(Filter)) && !type.IsAbstract && elementNameAttribute != null) {
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "Creating FilterBuilder for {0}", type.Name));
+                        FilterBuilder builder = new FilterBuilder(type.FullName, taskAssembly.Location);
+                        if (FilterBuilders[builder.FilterName] == null) {
+                            FilterBuilders.Add(builder);
+
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                                "Adding filter '{0}' from {1}:{2}", builder.FilterName, 
+                                builder.AssemblyFileName, builder.ClassName));
+
+                            // increment number of types loaded from assembly
+                            filtercount++;
+                        }
+                    }
+                }
+            } catch (Exception ex) { // for assemblies that don't have types
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error loading types from {0}({1}).", taskAssembly.FullName, 
+                    taskAssembly.Location), ex);
+            }
+
+            return filtercount;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -392,6 +449,49 @@ namespace NAnt.Core {
             return task;
         }
 
+        public static Filter CreateFilter(XmlNode elementNode, Element parent) {
+            if (elementNode == null) {
+                throw new ArgumentNullException("elementNode");
+            }
+            if (parent == null) {
+                throw new ArgumentNullException("parent");
+            }
+
+            string filterName = elementNode.Name;
+
+            FilterBuilder builder = FilterBuilders[filterName];
+            if (builder == null) {
+                Location location = parent.Project.LocationMap.GetLocation(elementNode);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Unknown filter <{0}>.", filterName), location);
+            }
+
+            Filter filter = (Filter) builder.CreateFilter();
+            filter.Parent = parent;
+            filter.Project = parent.Project;
+            filter.NamespaceManager = parent.Project.NamespaceManager;
+            filter.Initialize(elementNode);
+
+            // check whether the type (or its base class) is deprecated
+            ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
+                Attribute.GetCustomAttribute(filter.GetType(), 
+                typeof(ObsoleteAttribute), true);
+
+            if (obsoleteAttribute != null) {
+                Location location = parent.Project.LocationMap.GetLocation(elementNode);
+                string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                    "{0} Filter <{1}> is deprecated.  {2}", location, filterName, 
+                    obsoleteAttribute.Message);
+                if (obsoleteAttribute.IsError) {
+                    parent.Project.Log(Level.Error, obsoleteMessage);
+                } else {
+                    parent.Project.Log(Level.Warning, obsoleteMessage);
+                }
+            }
+            return filter;
+        }
+
+
         public static DataTypeBase CreateDataType(XmlNode elementNode, Project proj) {
             if (elementNode == null) {
                 throw new ArgumentNullException("elementNode");
@@ -434,15 +534,15 @@ namespace NAnt.Core {
 
         #endregion Public Static Methods
 
-        #region Protected Static Methods
+        #region Internal Static Methods
 
-        protected static void UpdateProjectWithBuilder(Project p, TaskBuilder tb) {
+        internal static void UpdateProjectWithBuilder(Project p, TaskBuilder tb) {
             // add a true property for each task (use in build to test for task existence).
             // add a property for each task with the assembly location.
             p.Properties.AddReadOnly("nant.tasks." + tb.TaskName, Boolean.TrueString);
             p.Properties.AddReadOnly("nant.tasks." + tb.TaskName + ".location", tb.AssemblyFileName);
         }
 
-        #endregion Protected Static Methods
+        #endregion Internal Static Methods
     }
 }
