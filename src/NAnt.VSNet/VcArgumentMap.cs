@@ -27,10 +27,19 @@ namespace NAnt.VSNet {
     /// A mapping from properties in the .vcproj file to command line arguments.
     /// </summary>
     public class VcArgumentMap {
-        
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VcArgumentMap" />
+        /// class.
+        /// </summary>
         public VcArgumentMap() {
             _htArgs = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
 
         public void AddString(string propName, string argName) {
             _htArgs [propName] = new VcStringArgument(argName);
@@ -50,6 +59,8 @@ namespace NAnt.VSNet {
                 return null;
             return arg.MapValue(propValue);
         }
+
+        #endregion Public Instance Methods
 
         #region Public Static Methods
 
@@ -85,9 +96,13 @@ namespace NAnt.VSNet {
             return map;
         }
 
-        #endregion
+        #endregion Public Static Methods
+
+        #region Private Instance Fields
 
         private Hashtable _htArgs;
+
+        #endregion Private Instance Fields
 
         private abstract class VcArgument {
             private string _name;

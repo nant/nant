@@ -30,6 +30,7 @@ namespace NAnt.VSNet {
     /// file in the project.
     /// </summary>
     internal class VcConfiguration {
+        #region Internal Instance Constructors
 
         internal VcConfiguration(XmlElement elem): this(elem, null) {
         }
@@ -55,6 +56,8 @@ namespace NAnt.VSNet {
             string toolName = toolElem.GetAttribute("Name");
             Hashtable htToolSettings = CollectionsUtil.CreateCaseInsensitiveHashtable();
             foreach(XmlAttribute attr in toolElem.Attributes) {                    if (attr.Name != "Name") {                        htToolSettings [attr.Name] = attr.Value;                    }                }                _htTools [toolName] = htToolSettings;            }        }
+
+        #endregion Internal Instance Constructors
         #region Internal Instance Properties        internal string Name {            get {                int index = _name.IndexOf("|");                if (index >= 0) {                    return _name.Substring(0, index);
                 }
                 else {
@@ -65,18 +68,23 @@ namespace NAnt.VSNet {
         internal string FullName {            get { return _name; }        }
         internal string IntermediateDir {            get { return _intermediateDir; }        }
         internal bool WholeProgramOptimization {            get { return _wholeProgramOptimization; }        }
-        #endregion
+        #endregion Internal Instance Properties
         #region Internal Instance Methods
         internal string GetToolSetting(string toolName, string settingName) {            Hashtable toolSettings = (Hashtable) _htTools [toolName];            if (toolSettings != null) {                string setting = (string) toolSettings [settingName];                if (setting != null) {                    return ExpandMacros(setting);
                 }            }            if (_parent != null) {                return _parent.GetToolSetting(toolName, settingName);            }            return null;        }
         internal string[] GetToolArguments(string toolName, VcArgumentMap argMap) {            ArrayList args = new ArrayList();            Hashtable toolSettings = (Hashtable) _htTools [toolName];            if (toolSettings != null) {                foreach(DictionaryEntry de in toolSettings) {                    string arg = argMap.GetArgument((string) de.Key, ExpandMacros((string) de.Value));                    if (arg != null) {                        args.Add(arg);
                     }                }            }            return (string[]) args.ToArray(typeof(string));        }
         internal string ExpandMacros(string s) {            return _rxMacro.Replace(s, new MatchEvaluator(EvaluateMacro));        }
+
+        #endregion Internal Instance Methods
+
+        #region Private Instance Methods
         private string EvaluateMacro(Match m) {            string macroValue = (string) _htMacros [m.Groups [1].Value];            if (macroValue != null) {                return macroValue;
             }            return m.Value;        }
-        #endregion
-        #region Private Instance Fields
+
+        #endregion Private Instance Methods
+        #region Private Instance Fields
         private string          _name;        private VcConfiguration _parent;        private Hashtable       _htTools;        private string          _outputDir;        private string          _intermediateDir;        private Hashtable       _htMacros;        private Regex           _rxMacro;        private bool            _wholeProgramOptimization = false;
-        #endregion
+        #endregion Private Instance Fields
     }
 }

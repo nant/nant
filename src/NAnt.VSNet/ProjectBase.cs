@@ -19,14 +19,14 @@ using System;
 using System.Collections;
 using System.CodeDom.Compiler;
 using System.Xml;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     /// <summary>
-    /// Base class for all project classes
+    /// Base class for all project classes.
     /// </summary>
     public abstract class ProjectBase {
-
         #region Public Instance Properties
 
         public abstract string Name {
@@ -34,7 +34,8 @@ namespace NAnt.VSNet {
         }
         
         public abstract string GUID {
-            get; set;
+            get; 
+            set;
         }
 
         public abstract string[] Configurations {
@@ -45,16 +46,19 @@ namespace NAnt.VSNet {
             get;
         }
 
-        #endregion
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
 
         public abstract string GetOutputFile(string configuration);
 
         public abstract bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands);
 
+        #endregion Public Instance Methods
+
         #region Protected Static Methods
 
-        protected static bool IsURL(string fileName) 
-        {
+        protected static bool IsURL(string fileName) {
             if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
                 return true;
             }
@@ -62,18 +66,15 @@ namespace NAnt.VSNet {
             return false;
         }
 
-        protected static XmlDocument LoadXmlDocument(string fileName) 
-        {
+        protected static XmlDocument LoadXmlDocument(string fileName) {
             XmlDocument doc = new XmlDocument();
             if (!IsURL(fileName)) {
                 doc.Load(fileName);
-            } 
-            else {
+            } else {
                 Uri uri = new Uri(fileName);
                 if (uri.Scheme == Uri.UriSchemeFile) {
                     doc.Load(uri.LocalPath);
-                } 
-                else {
+                } else {
                     doc.LoadXml(WebDavClient.GetFileContentsStatic(fileName));
                 }
             }
@@ -81,6 +82,6 @@ namespace NAnt.VSNet {
             return doc;
         }
 
-        #endregion
+        #endregion Protected Static Methods
     }
 }

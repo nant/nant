@@ -198,7 +198,13 @@ namespace NAnt.VSNet {
         private string CompileLicx() {
             string outputFile = Project.ProjectSettings.OutputFile;
 
+            // create instance of License task
             LicenseTask lt = new LicenseTask();
+
+            // make sure framework specific information is set
+            lt.InitializeTaskConfiguration();
+
+            // set task properties
             lt.Input = _resourceSourceFile;
             lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFile + ".licenses");
             lt.Target = outputFile;
@@ -247,11 +253,17 @@ namespace NAnt.VSNet {
             _solutionTask.Log(Level.Verbose, _solutionTask.LogPrefix + "ResGenTask Input: {0} Output: {1}", inFile, outFile);
             _solutionTask.Project.Unindent();
 
+            // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
+
+            // make sure framework specific information is set
+            rt.InitializeTaskConfiguration();
+
+            // set task properties
             rt.Input = inFile;
             rt.Output = Path.GetFileName(outFile);
             rt.ToDirectory = Path.GetDirectoryName(outFile);
-            rt.Verbose = false;
+            rt.Verbose = _solutionTask.Verbose;
             rt.Project = _solutionTask.Project;
             rt.BaseDirectory = Path.GetDirectoryName(inFile);
             rt.Project.Indent();

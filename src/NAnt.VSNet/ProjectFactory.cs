@@ -21,6 +21,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Globalization;
 using System.IO;
+
 using NAnt.Core;
 using NAnt.VSNet.Tasks;
 
@@ -28,7 +29,17 @@ namespace NAnt.VSNet {
     /// <summary>
     /// Factory class for VcProject-derived classes.
     /// </summary>
-    public class ProjectFactory {
+    public sealed class ProjectFactory {
+        #region Public Static Methods
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectFactory" />
+        /// class.
+        /// </summary>
+        private ProjectFactory() {
+        }
+
+        #endregion Public Static Methods
 
         #region Public Static Methods
 
@@ -63,6 +74,6 @@ namespace NAnt.VSNet {
             throw new BuildException("Unknown project file extension " + projectExt);
         }
 
-        #endregion
+        #endregion Public Static Methods
     }
 }

@@ -266,7 +266,13 @@ namespace NAnt.VSNet {
                         } else {
                             StringCollection fromFilenames = reference.GetReferenceFiles(cs);
 
+                            // create instance of Copy task
                             CopyTask ct = new CopyTask();
+
+                            // make sure framework specific information is set
+                            ct.InitializeTaskConfiguration();
+
+                            // set task properties
                             foreach (string file in fromFilenames) {
                                 ct.CopyFileSet.Includes.Add(file);
                             }
