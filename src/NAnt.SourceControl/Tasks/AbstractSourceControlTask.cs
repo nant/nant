@@ -48,7 +48,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Name of the environmental variable specifying a users' home
         ///     in a *nix environment.
         /// </summary>
-        protected const String HOME = "HOME";
+        protected const String EnvHome = "HOME";
         /// <summary>
         /// Used on windows to specify the location of application data.
         /// </summary>
@@ -61,7 +61,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Property name used to specify the source control executable.  This is 
         ///     used as a readonly property.
         /// </summary>
-        protected const string EXE_NAME = "sourcecontrol.exename";
+        protected const string PropExeName = "sourcecontrol.exename";
 
         #endregion
 
@@ -383,7 +383,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     of the passfile or <code>null</code> if this cannot be found.</returns>
         protected FileInfo DerivePassFile () {
             if (_passFile == null) {
-                FileInfo passFile = DerivePassFile(HOME);
+                FileInfo passFile = DerivePassFile(EnvHome);
 
                 // only valid on a windows machine, but should not hurt to look
                 //  for this on a linux machine

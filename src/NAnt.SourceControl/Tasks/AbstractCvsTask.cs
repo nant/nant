@@ -61,7 +61,7 @@ namespace NAnt.SourceControl.Tasks {
         /// An environment variable that holds path information about where
         ///     cvs is located.
         /// </summary>
-        protected const string CvsHome = "CvsHome";
+        protected const string CvsHome = "CVS_HOME";
         /// <summary>
         /// Name of the password file that cvs stores pserver 
         ///     cvsroot/ password pairings.
@@ -90,7 +90,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Environment variable that holds the executable name that is used for
         ///     ssh communication.
         /// </summary>
-        protected const string CvsRsh = "CvsRsh";
+        protected const string CvsRsh = "CVS_RSH";
         /// <summary>
         /// Property name used to specify on a project level whether sharpcvs is
         ///     used or not.
@@ -157,7 +157,7 @@ namespace NAnt.SourceControl.Tasks {
                 }
                 Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
                 Logger.Debug("_exeNameTemp: " + _exeNameTemp);
-                Properties[EXE_NAME] = _exeNameTemp;
+                Properties[PropExeName] = _exeNameTemp;
                 return _exeNameTemp;
             }
         }
