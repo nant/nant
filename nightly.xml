@@ -16,7 +16,7 @@
     
     <include buildfile="nant.build"/>
     
-    <target name="nightly" depends="package" description="Perform a 'nightly' package">
+    <target name="nightly" depends="package UpdateBin" description="Perform a 'nightly' package, and updates the version of NAnt that is executing.">
 		
 		<!-- copy the build up to sourceforge -->
 		<scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
