@@ -38,32 +38,21 @@ namespace Tests.NAnt.Core.Filters {
         }
 
         [Test]
-        public void MalformedFilterTest () {
+        [ExpectedException(typeof(TestBuildException))]
+        public void UnknownFilterTest () {
             base.TestFilter(@"<blah />", " ", " ");
         }
 
         [Test]
         public void FilterOrderTest1a () {
-            base.TestFilter(@"<replacecharacter chartoreplace=""^"" replacementchar=""$"" order=""0"" />
-                    <expandexpressions order=""1"" />", "^{'la' + 'la'}", "lala");
+            base.TestFilter(@"<replacecharacter from=""^"" to=""$"" />
+                    <expandproperties />", "^{'la' + 'la'}", "lala");
         }
 
         [Test]
         public void FilterOrderTest1b () {
-            base.TestFilter(@"<expandexpressions order=""1"" />
-                    <replacecharacter chartoreplace=""^"" replacementchar=""$"" order=""0"" />", "^{'la' + 'la'}", "lala");
-        }
-
-        [Test]
-        public void FilterOrderTest2a () {
-            base.TestFilter(@"<replacecharacter chartoreplace=""^"" replacementchar=""$"" order=""1"" />
-                    <expandexpressions order=""0"" />", "^{'la' + 'la'}", "${'la' + 'la'}");
-        }
-
-        [Test]
-        public void FilterOrderTest2b () {
-            base.TestFilter(@"<expandexpressions order=""0"" />
-                    <replacecharacter chartoreplace=""^"" replacementchar=""$"" order=""1"" />", "^{'la' + 'la'}", "${'la' + 'la'}");
+            base.TestFilter(@"<expandproperties />
+                    <replacecharacter from=""^"" to=""$"" />", "^{'la' + 'la'}", "${'la' + 'la'}");
         }
     }
 }
