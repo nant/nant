@@ -1,0 +1,52 @@
+#NAnt nmake makefile for building on windows
+CSC=csc
+NANT=$(MONO) bootstrap\NAnt.exe
+
+!ifdef MONO
+DEFINE = MONO
+FRAMEWORK_DIR = mono
+!else
+DEFINE = NET
+FRAMEWORK_DIR = net
+!endif
+
+all:  build-bootstrap build-nant
+
+build-nant: build-bootstrap
+	$(NANT) -f:NAnt.build build
+
+clean:
+	if exist bootstrap rmdir /S /Q bootstrap
+	if exist build rmdir /S /Q build
+
+install: build-bootstrap
+	$(NANT) -f:NAnt.build install -D:install.prefix=$(prefix)
+	
+build-bootstrap: setup bootstrap\NAnt.exe bootstrap\NAnt.Core.dll bootstrap\NAnt.DotNetTasks.dll bootstrap\NAnt.CompressionTasks.dll bootstrap\NAnt.Win32Tasks.dll
+	
+setup:
+	if not exist bootstrap md bootstrap
+	if not exist bootstrap\lib md bootstrap\lib
+	xcopy lib bootstrap\lib /S /Y /Q
+	copy lib\log4net.dll bootstrap
+	cp src\NAnt.Console\NAnt.Console.exe.config bootstrap\NAnt.exe.config
+
+bootstrap\NAnt.exe:
+	$(CSC) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
+
+bootstrap\NAnt.Core.dll:
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Core.dll -r:bootstrap\log4net.dll -r:System.Web.dll -recurse:src\NAnt.Core\*.cs src\CommonAssemblyInfo.cs
+
+bootstrap\NAnt.DotNetTasks.dll:
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll -r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\$(FRAMEWORK_DIR)\1.0\NDoc.Core.dll -recurse:src\NAnt.DotNet\*.cs src\CommonAssemblyInfo.cs
+	
+bootstrap\NAnt.CompressionTasks.dll:
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.CompressionTasks.dll -r:bootstrap\NAnt.Core.dll \
+		-r:bootstrap\lib\ICSharpCode.SharpZipLib.dll -recurse:src\NAnt.Compression\*.cs \
+		src\CommonAssemblyInfo.cs
+
+bootstrap\NAnt.Win32Tasks.dll:
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Win32Tasks.dll \
+		-r:bootstrap\NAnt.Core.dll -r:System.ServiceProcess.dll \
+		-r:Microsoft.JScript.dll -recurse:src\NAnt.Win32\*.cs \
+		src\CommonAssemblyInfo.cs
