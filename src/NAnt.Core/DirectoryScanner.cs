@@ -827,7 +827,7 @@ namespace NAnt.Core {
 
         #endregion Private Static Methods
 
-		[Serializable()]
+        [Serializable()]
         private class RegexEntry {
             public bool        IsRecursive;
             public string    BaseDirectory;
