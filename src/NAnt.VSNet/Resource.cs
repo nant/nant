@@ -217,7 +217,7 @@ namespace NAnt.VSNet.Tasks {
                 strOutFile = GetDependentResourceName( _strDependentFile );
             }
             else {
-                strOutFile = _strResourceSourceFile;
+                strOutFile = _ps.RootNamespace + "." + Path.GetDirectoryName( _strResourceSourceFileRelPath ).Replace( "\\", "." ) + "." + Path.GetFileNameWithoutExtension( _strResourceSourceFile ) + ".resources";
             }
             strOutFile = _ps.GetTemporaryFilename( strOutFile );
 
