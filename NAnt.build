@@ -317,9 +317,6 @@
                 <includes name="NAnt.Console.*" />
                 <!-- remove test assemblies -->
                 <includes name="*.Tests.*" />
-                
-                <!-- do not remove this test assembly as its needed by NAntContrib -->
-                <excludes name="NAnt.Core.Tests.dll" />
             </fileset>
         </delete>
 
