@@ -143,14 +143,17 @@ namespace NAnt.VSNet {
                     _copyLocal = _privateSpecified ? _isPrivate : false;
                     _referenceFile = systemAssembly;
                     _isSystem = true;
+                    _referenceTimeStamp = GetTimestamp(_referenceFile);
                 } else {
-                    FileInfo fiRef = new FileInfo(Path.Combine(ps.RootDirectory, elemReference.Attributes["HintPath"].Value));
-                    _baseDirectory = fiRef.Directory;
-                    _referenceFile = fiRef.FullName;
+                    if (elemReference.Attributes["HintPath"] != null) {
+                        FileInfo fiRef = new FileInfo(Path.Combine(ps.RootDirectory, elemReference.Attributes["HintPath"].Value));
+                        _baseDirectory = fiRef.Directory;
+                        _referenceFile = fiRef.FullName;
+                        _referenceTimeStamp = GetTimestamp(_referenceFile);
+                    }
                     _copyLocal = _privateSpecified ? _isPrivate : true;
                 }
 
-                _referenceTimeStamp = GetTimestamp(_referenceFile);
             }
         }
 
