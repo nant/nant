@@ -78,14 +78,27 @@ namespace SourceForge.NAnt.Tasks
 			Log.WriteLine( LogPrefix + "Compiling license file {0} to {1} using target {2}", Path.GetFileName( _input ), Path.GetFileName( strResourceFilename ), _strTarget );
 
 			ArrayList alAssemblies = new ArrayList();
+            ArrayList alAssemblyFilesLoaded = new ArrayList();
 
+            foreach ( Assembly asmLoaded in AppDomain.CurrentDomain.GetAssemblies() )
+            {
+                alAssemblies.Add( asmLoaded );
+                try
+                {
+                    alAssemblyFilesLoaded.Add( Path.GetFullPath( asmLoaded.Location ).ToLower() );
+                }
+                catch ( NotSupportedException )
+                {
+                    // Sometimes thrown by dynamic assemblies
+                }
+            }
 			Log.WriteLineIf( Verbose, LogPrefix + "Loading assemblies:" );
 			// First, load all the assemblies so that we can search for the licensed component
-			foreach ( string strAssembly in _assemblies.Includes )
+			foreach ( string strAssembly in _assemblies.FileNames )
 			{
-				Log.WriteLineIf( Verbose, LogPrefix + " - " + strAssembly );
+				Log.WriteIf( Verbose, LogPrefix + " - " + strAssembly );
 
-				Assembly asm;
+				Assembly asm = null;
 
 				try
 				{
@@ -94,18 +107,30 @@ namespace SourceForge.NAnt.Tasks
 					// See if we've got an absolute path to the assembly
 					if ( File.Exists( strRealAssemblyName ) )
 					{
-						asm = Assembly.LoadFrom( strRealAssemblyName );
+                        // Don't load an assembly that has already been loaded (including assemblies loaded before this task)
+                        if ( !alAssemblyFilesLoaded.Contains( Path.GetFullPath( strRealAssemblyName ).ToLower() ) )
+                        {
+                            Log.WriteIf( Verbose, " (loaded with real filename)" );
+                            asm = Assembly.LoadFrom( strRealAssemblyName );
+                        }
+                        else
+                        {
+                            Log.WriteIf( Verbose, " (not loaded)" );
+                        }
 					}
 					else
 					{
 						// No absolute path, ask .NET to load it for us (use the original assembly name)
 						FileInfo fiAssembly = new FileInfo( strAssembly );
 						asm = Assembly.LoadWithPartialName( Path.GetFileNameWithoutExtension( fiAssembly.Name ) );
-					}
+                        Log.WriteIf( Verbose, " (loaded with partial name)" );
+                    }
 
                     // This may sometimes be true if the assembly could not load
                     if ( asm != null )
 					    alAssemblies.Add( asm );
+
+                    Log.WriteLineIf( Verbose, "" );
 				}
 				catch ( Exception e )
 				{
@@ -133,7 +158,7 @@ namespace SourceForge.NAnt.Tasks
 						continue;
 
 					if ( Verbose )
-						Log.Write( strLine + ": " );
+						Log.Write( LogPrefix + strLine + ": " );
 
 					// Strip off the assembly name, if it exists
 					string strTypeName;
