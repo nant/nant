@@ -490,7 +490,7 @@ namespace NAnt.Core {
                             // remove element from list of remaining items
                             childElementsRemaining.Remove(collectionNodes[0].Name);
 
-                            string elementName = Element.GetElementNameFromType(elementType);
+                            string elementName = buildElementCollectionAttribute.ChildElementName;
                             if (elementName == null) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                     "No name was assigned to the base element '{0}' for collection element {1} for <{2} ...//>.", 
