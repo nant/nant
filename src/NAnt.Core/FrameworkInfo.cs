@@ -20,7 +20,9 @@
 using System;
 using System.Globalization;
 using System.IO;
-    
+
+using NAnt.Core.Util;
+
 namespace NAnt.Core {
     /// <summary>
     /// Encalsulates information about installed frameworks incuding version 
@@ -116,7 +118,7 @@ namespace NAnt.Core {
             }
 
             // if runtime engine is blank assume we aren't using one
-            if (runtimeEngine != null && runtimeEngine.Length != 0) {
+            if (!StringUtils.IsNullOrEmpty(runtimeEngine)) {
                 string runtimeEnginePath = _frameworkDirectory.FullName + Path.DirectorySeparatorChar + runtimeEngine;
                 if (File.Exists(runtimeEnginePath)) {
                     _runtimEngine = new FileInfo(runtimeEnginePath);

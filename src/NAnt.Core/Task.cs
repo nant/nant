@@ -42,10 +42,10 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        bool _failOnError = true;
-        bool _verbose = false;
-        bool _ifDefined = true;
-        bool _unlessDefined = false;
+        private bool _failOnError = true;
+        private bool _verbose = false;
+        private bool _ifDefined = true;
+        private bool _unlessDefined = false;
 
         #endregion Private Instance Fields
 
@@ -53,7 +53,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Determines if task failure stops the build, or is just reported. 
-        /// Default is <c>true</c>.
+        /// The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("failonerror")]
         [BooleanValidator()]
@@ -63,7 +63,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Task reports detailed build log messages. Default is <c>false</c>.
+        /// Determines whether the task should report detailed build log messages. 
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("verbose")]
         [BooleanValidator()]
@@ -73,8 +74,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// If <c>true</c> then the task will be executed; otherwise skipped. 
-        /// Default is <c>true</c>.
+        /// If <see langword="true" /> then the task will be executed; otherwise, 
+        /// skipped. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -84,8 +85,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Opposite of if. If <c>false</c> then the task will be executed; 
-        /// otherwise skipped. Default is <c>false</c>.
+        /// Opposite of if. If <see langword="false" /> then the task will be 
+        /// executed; otherwise, skipped. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]

@@ -37,8 +37,10 @@ namespace NAnt.Core.Attributes {
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public BuildElementCollectionAttribute(string name) : base(name) {
-        }                
+        }
 
         #endregion Public Instance Constructors
     }

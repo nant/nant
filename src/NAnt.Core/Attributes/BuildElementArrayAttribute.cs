@@ -21,7 +21,8 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be treated as a xml arrayList for the task.
+    /// Indicates that property should be treated as a XML arrayList for the 
+    /// task.
     /// </summary>
     /// <remarks>
     /// Should only be applied to properties exposing strongly typed arrays or 
@@ -37,7 +38,7 @@ namespace NAnt.Core.Attributes {
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
         public BuildElementArrayAttribute(string name) : base(name) {
-        }                
+        }
 
         #endregion Public Instance Constructors
     }

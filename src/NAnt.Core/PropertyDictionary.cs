@@ -94,8 +94,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="name">The name of the property to check.</param>
         /// <returns>
-        /// <c>true</c> if the property is listed as read-only; otherwise, 
-        /// <c>false</c>.
+        /// <see langword="true" /> if the property is listed as read-only; 
+        /// otherwise, <see langword="false" />.
         /// </returns>
         public virtual bool IsReadOnlyProperty(string name) {
             return _readOnlyProperties.Contains(name);
@@ -152,8 +152,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="name">The name of the property to check.</param>
         /// <returns>
-        /// <c>true</c> if the specified property already exists; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the specified property already exists; 
+        /// otherwise, <see langword="false" />.
         /// </returns>
         public virtual bool Contains(string name) {
             return Dictionary.Contains(name) || IsReadOnlyProperty(name);

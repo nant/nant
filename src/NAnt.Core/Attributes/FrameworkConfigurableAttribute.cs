@@ -54,7 +54,7 @@ namespace NAnt.Core.Attributes {
                 throw new ArgumentNullException("name");
             }
 
-            if (name.Length == 0) {
+            if (name.Trim().Length == 0) {
                 throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
             }
 
@@ -79,8 +79,8 @@ namespace NAnt.Core.Attributes {
         /// is required.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the configuration attribute is required; otherwise, 
-        /// <c>false</c>. Default is <c>false</c>.
+        /// <see langword="true" /> if the configuration attribute is required; 
+        /// otherwise, <see langword="true" />. The default is <see langword="false" />.
         /// </value>
         public bool Required {
             get { return _required; }
@@ -94,8 +94,8 @@ namespace NAnt.Core.Attributes {
         /// be expanded.
         /// </summary>
         /// <value>
-        /// <c>true</c> if properties should be expanded; otherwise <c>false</c>.
-        /// Default is <c>true</c>.
+        /// <see langword="true" /> if properties should be expanded; otherwise 
+        /// <see langword="false" />. The default is <see langword="true" />.
         /// </value>
         public bool ExpandProperties {
             get { return _expandProperties; }

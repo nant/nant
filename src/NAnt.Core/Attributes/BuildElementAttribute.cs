@@ -21,17 +21,11 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be treated as a xml file set for the task.
+    /// Indicates that property should be treated as a XML file set for the 
+    /// task.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public class BuildElementAttribute : Attribute {
-        #region Private Instance Fields
-
-        string _name;
-        bool _required;
-
-        #endregion Private Instance Fields
-
         #region Protected Instance Constructors
 
         /// <summary>
@@ -39,8 +33,18 @@ namespace NAnt.Core.Attributes {
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public BuildElementAttribute(string name) {
-            Name = name;
+            if (name == null) {
+                throw new ArgumentNullException("name");
+            }
+
+            if (name.Trim().Length == 0) {
+                throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
+            }
+
+            _name = name;
         }
 
         #endregion Protected Instance Constructors
@@ -50,7 +54,9 @@ namespace NAnt.Core.Attributes {
         /// <summary>
         /// Gets or sets the name of the attribute.
         /// </summary>
-        /// <value>The name of the attribute.</value>
+        /// <value>
+        /// The name of the attribute.
+        /// </value>
         public string Name {
             get { return _name; }
             set { _name = value; }
@@ -60,8 +66,8 @@ namespace NAnt.Core.Attributes {
         /// Gets or sets a value indicating whether the attribute is required.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the attribute is required; otherwise, <c>false</c>. 
-        /// Default is <c>false</c>.
+        /// <see langword="true" /> if the attribute is required; otherwise, 
+        /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         public bool Required {
             get { return _required; }
@@ -69,5 +75,12 @@ namespace NAnt.Core.Attributes {
         }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private string _name;
+        private bool _required;
+
+        #endregion Private Instance Fields
     }
 }

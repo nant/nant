@@ -55,10 +55,9 @@ namespace NAnt.Core.Attributes {
         /// <summary>
         /// Gets or sets the minimum value.
         /// </summary>
-        /// <value>The minimum value.</value>
-        /// <remarks>
-        /// The default value is <see cref="Int32.MinValue" />.
-        /// </remarks>
+        /// <value>
+        /// The minimum value. The default is <see cref="Int32.MinValue" />.
+        /// </value>
         public int MinValue {
             get { return _minValue; }
             set { _minValue = value; }
@@ -67,10 +66,9 @@ namespace NAnt.Core.Attributes {
         /// <summary>
         /// Gets or sets the maximum value.
         /// </summary>
-        /// <value>The maximum value.</value>
-        /// <remarks>
-        /// The default value is <see cref="Int32.MaxValue" />.
-        /// </remarks>
+        /// <value>
+        /// The maximum value. The default is <see cref="Int32.MaxValue" />.
+        /// </value>
         public int MaxValue {
             get { return _maxValue; }
             set { _maxValue = value; }
@@ -81,9 +79,9 @@ namespace NAnt.Core.Attributes {
         #region Override implementation of ValidatorAttribute
 
         /// <summary>
-        /// Checks whether the specified value can be converted to an <see cref="Int32" /> and 
-        /// whether the value lies within the range defined by the <see cref="MinValue" /> and
-        /// <see cref="MaxValue" /> properties.
+        /// Checks whether the specified value can be converted to an <see cref="Int32" /> 
+        /// and whether the value lies within the range defined by the <see cref="MinValue" /> 
+        /// and <see cref="MaxValue" /> properties.
         /// </summary>
         /// <param name="value">The value to be checked.</param>
         /// <exception cref="ValidationException">

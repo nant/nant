@@ -233,10 +233,10 @@ namespace NAnt.Core {
             // This is a bit of a monster function but if you look at it 
             // carefully this is what it does:
             // * Looking for task attributes to initialize.
-            // * For each BuildAttribute try to find the xml attribute that corresponds to it.
+            // * For each BuildAttribute try to find the XML attribute that corresponds to it.
             // * Next process all the nested elements, same idea, look at what is supposed to
             //   be there from the attributes on the class/properties and then get
-            //   the values from the xml node to set the instance properties.
+            //   the values from the XML node to set the instance properties.
             
             //* Removed the inheritance walking as it isn't necessary for extraction of public properties
             XmlNode = elementNode;
@@ -530,7 +530,7 @@ namespace NAnt.Core {
                         childElement.Initialize(childNode);
                         // if subtype of DataTypeBase
                         DataTypeBase dataType = childElement as DataTypeBase;
-                        if (dataType != null && dataType.RefID != null && dataType.RefID.Length != 0) {
+                        if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
                             // we have a datatype reference
                             childElement = InitDataTypeBase(dataType );
                             childElement.Project = Project;
@@ -598,7 +598,7 @@ namespace NAnt.Core {
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
 
                 if (buildElementAttribute != null && buildElementArrayAttribute == null && buildElementCollectionAttribute == null) { // if we're not an array element either
-                    // get value from xml node
+                    // get value from XML node
                     XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
 
                     // check if its required

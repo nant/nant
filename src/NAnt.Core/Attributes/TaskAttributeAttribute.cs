@@ -21,7 +21,8 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be treated as a xml attribute for the task.
+    /// Indicates that property should be treated as a XML attribute for the 
+    /// task.
     /// </summary>
     /// <example>
     /// Examples of how to specify task attributes
@@ -57,7 +58,9 @@ namespace NAnt.Core.Attributes {
         /// with the specified attribute name.
         /// </summary>
         /// <param name="name">The name of the task attribute.</param>
-        public TaskAttributeAttribute(string name) : base(name){          
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is a <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
+        public TaskAttributeAttribute(string name) : base(name){
         }
 
         #endregion Public Instance Constructors

@@ -25,20 +25,23 @@ using System.Reflection;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 
 namespace NAnt.Core {
     /// <summary>
     /// Executes embedded tasks. First inherit from TaskContainer, then call ExecuteChildTasks during Exec.
-    /// <note>
-    ///     <para>
-    ///         All BuildElements (like a FileSet or OptionSet) are automatically excluded from things that get executed. 
-    ///         They are evaluted normally during xml task initialization.
-    ///     </para>
-    ///     <para>
-    ///         For an example, see <if/> or <foreach/>
-    ///     </para>
-    /// </note>
     /// </summary>
+    /// <remarks>
+    ///    <para>
+    ///    All build elements (like a <see cref="FileSet" />) are automatically 
+    ///    excluded from things that get executed. They are evaluated normally 
+    ///    during XML task initialization.
+    ///    </para>
+    ///    <para>
+    ///    For an example, see <see cref="IfTask" /> or <see cref="LoopTask" />.
+    ///    </para>
+    /// </remarks>
     public class TaskContainer : Task {
         #region Private Instance Fields
 
@@ -74,7 +77,7 @@ namespace NAnt.Core {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Creates and executes the embedded (child xml nodes) elements.
+        /// Creates and executes the embedded (child XML nodes) elements.
         /// </summary>
         /// <remarks>
         /// Skips any element defined by the host <see cref="Task" /> that has 
@@ -82,7 +85,7 @@ namespace NAnt.Core {
         /// </remarks>
         protected virtual void ExecuteChildTasks() {
             foreach (XmlNode childNode in XmlNode) {
-                if(childNode.Name.StartsWith("#") && 
+                if (childNode.Name.StartsWith("#") && 
                     childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                     continue;
                 }
@@ -92,7 +95,8 @@ namespace NAnt.Core {
                 }
 
                 Task task = CreateChildTask(childNode);
-                // for now, we should assume null tasks are because of incomplete metadata about the xml.
+                // for now, we should assume null tasks are because of incomplete 
+                // metadata about the XML.
                 if(task != null) {
                     task.Parent = this;
                     task.Execute();
@@ -104,7 +108,7 @@ namespace NAnt.Core {
             try {
                 return Project.CreateTask(node);
             } catch (BuildException ex) {
-                Log(Level.Error, "{0} Failed to created task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , ex.ToString());
+                Log(Level.Error, LogPrefix + "Failed to created task for <{0} ... /> XML element for reason:\n {1}", node.Name, ex.ToString());
             }
             return null;
         }
@@ -114,11 +118,11 @@ namespace NAnt.Core {
         }
 
         protected virtual void AddPrivateXmlElementName(string name) {
-            if(_subXMLElements == null) {
+            if (_subXMLElements == null) {
                 _subXMLElements = new StringCollection();
             }
 
-            if(!_subXMLElements.Contains(name)) {
+            if (!_subXMLElements.Contains(name)) {
                 _subXMLElements.Add(name);
             }
         }

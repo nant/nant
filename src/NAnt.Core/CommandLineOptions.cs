@@ -34,7 +34,9 @@ namespace NAnt.Core {
         /// Gets or sets the default framework to use (overrides 
         /// NAnt.exe.config settings)
         /// </summary>
-        /// <value>The framework that should be used.</value>
+        /// <value>
+        /// The framework that should be used.
+        /// </value>
         /// <remarks>
         /// For a list of possible frameworks, see NAnt.exe.config, possible
         /// values include "net-1.0", "net-1.1", etc.
@@ -48,7 +50,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the buildfile that should be executed.
         /// </summary>
-        /// <value>The buildfile that should be executed.</value>
+        /// <value>
+        /// The buildfile that should be executed.
+        /// </value>
         /// <remarks>
         /// Can be both a file or an URI.
         /// </remarks>
@@ -63,7 +67,8 @@ namespace NAnt.Core {
         /// displayed during the build process.
         /// </summary>
         /// <value>
-        /// <c>true</c> if more information should be displayed; otherwise, <c>false</c>.
+        /// <see langword="true" /> if more information should be displayed; 
+        /// otherwise, <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "verbose", ShortName="v", Description = "displays more information during build process")]
         public bool Verbose {
@@ -76,7 +81,8 @@ namespace NAnt.Core {
         /// displayed during the build process.
         /// </summary>
         /// <value>
-        /// <c>true</c> if debug information should be displayed; otherwise, <c>false</c>.
+        /// <see langword="true" /> if debug information should be displayed; 
+        /// otherwise, <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "debug", Description = "displays debug information during build process")]
         public bool Debug {
@@ -89,7 +95,9 @@ namespace NAnt.Core {
         /// displayed during the build process.
         /// </summary>
         /// <value>
-        /// <c>true</c> if only error or warning messages should be displayed; otherwise, <c>false</c>.
+        /// <see langword="true" /> if only error or warning messages should be 
+        /// displayed; otherwise, <see langword="false" />. The default is
+        /// <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "quiet", ShortName="q", Description = "displays only error or warning messages during build process")]
         public bool Quiet {
@@ -102,8 +110,9 @@ namespace NAnt.Core {
         /// for a buildfile.
         /// </summary>
         /// <value>
-        /// <c>true</c> if parent directories should be searched for a build file;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if parent directories should be searched for 
+        /// a build file; otherwise, <see langword="false" />. The default is
+        /// <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "find", Description = "search parent directories for buildfile")]
         public bool FindInParent {
@@ -115,7 +124,7 @@ namespace NAnt.Core {
         /// Gets or sets the indentation level of the build output.
         /// </summary>
         /// <value>
-        /// The indentation level of the build output.
+        /// The indentation level of the build output. The default is <c>0</c>.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "indentation level of build output")]
         public int IndentationLevel {
@@ -182,8 +191,9 @@ namespace NAnt.Core {
         /// should be printed.
         /// </summary>
         /// <value>
-        /// <c>true</c> if <see cref="Project" /> help should be printed; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if <see cref="Project" /> help should be 
+        /// printed; otherwise, <see langword="false" />. The default is
+        /// <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "projecthelp", Description = "prints project help information")]
         public bool ShowProjectHelp {
@@ -196,7 +206,8 @@ namespace NAnt.Core {
         /// printed.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the logo banner should be printed; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the logo banner should be printed; otherwise, 
+        /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "nologo", Description = "surpresses display of the logo banner")]
         public bool NoLogo {
@@ -209,7 +220,8 @@ namespace NAnt.Core {
         /// printed.
         /// </summary>
         /// <value>
-        /// <c>true</c> if NAnt help should be printed; otherwise, <c>false</c>.
+        /// <see langword="true" /> if NAnt help should be printed; otherwise, 
+        /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.Exclusive, Name = "help", ShortName = "h", Description = "prints this message")]
         public bool ShowHelp {
@@ -239,7 +251,7 @@ namespace NAnt.Core {
         private bool _quiet;
         private bool _verbose;
         private bool _debug;
-        private int _indentationLevel;
+        private int _indentationLevel = 0;
         private bool _findInParent;
         private StringCollection _properties = new StringCollection();
         private string _loggerType;

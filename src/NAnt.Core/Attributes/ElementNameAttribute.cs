@@ -31,12 +31,6 @@ namespace NAnt.Core.Attributes {
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
     public sealed class ElementNameAttribute : Attribute {
-        #region Private Instance Fields
-
-        string _name;
-
-        #endregion Private Instance Fields
-
         #region Public Instance Constructors
 
         /// <summary>
@@ -44,7 +38,17 @@ namespace NAnt.Core.Attributes {
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public ElementNameAttribute(string name) {
+            if (name == null) {
+                throw new ArgumentNullException("name");
+            }
+
+            if (name.Trim().Length == 0) {
+                throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
+            }
+
             _name = name;
         }
 
@@ -55,12 +59,20 @@ namespace NAnt.Core.Attributes {
         /// <summary>
         /// Gets or sets the name of the attribute.
         /// </summary>
-        /// <value>The name of the attribute.</value>
+        /// <value>
+        /// The name of the attribute.
+        /// </value>
         public string Name {
             get { return _name; }
             set { _name = value; }
         }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private string _name;
+
+        #endregion Private Instance Fields
     }
 }

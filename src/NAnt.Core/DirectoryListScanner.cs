@@ -25,16 +25,22 @@ using System.IO;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core {
-    /// <summary>Used to search for files on an arbitrary list of directories. 
+    /// <summary>
+    /// Used to search for files on an arbitrary list of directories. 
     /// Advanced pattern matching isn't supported here: you need to know the 
-    /// exact name of the file.</summary>
+    /// exact name of the file.
+    /// </summary>
     public class DirectoryListScanner {
+        #region Private Instance Fields
 
-        string _baseDirectory = null;
-
+        private string _baseDirectory = null;
         private StringCollection _unscannedNames = new StringCollection();
         private StringCollection _scannedNames = new StringCollection();
         private string _directoryList = String.Empty;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         [TaskAttribute("dir")]
         public string DirectoryList {
@@ -42,13 +48,25 @@ namespace NAnt.Core {
             set { _directoryList = value; }
         }
 
-        /// <summary>The base directory of this file set.  Default is project base directory.</summary>
+        /// <summary>
+        /// Gets or sets the base directory of this file set.
+        /// </summary>
+        /// <value>
+        /// The base directory of this file set. The default is the project base
+        /// directory.
+        /// </value>
         public string BaseDirectory {
             get { return _baseDirectory; }
             set { _baseDirectory = value; }
         }
 
-        /// <summary>Adds a file to the list to be scanned</summary>
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Adds a file to the list to be scanned.
+        /// </summary>
         /// <param name="fileName">The filename to add to the list</param>
         public void Add(string fileName) {
             _unscannedNames.Add(fileName);
@@ -59,21 +77,21 @@ namespace NAnt.Core {
         }
 
         public StringCollection Scan() {
-            // Clear any files we might've found previously
+            // clear any files we might've found previously
             _scannedNames.Clear();
 
             if (BaseDirectory == null) {
                 BaseDirectory = Environment.CurrentDirectory;
             }
 
-            // Break apart the directory list
+            // break apart the directory list
             string[] paths = _directoryList.Split(System.IO.Path.PathSeparator);
 
             string fullPath = null;
 
-            // Walk the names list
+            // walk the names list
             foreach(string name in _unscannedNames) {
-                // Walk the paths, and see if the given file is on the path
+                // walk the paths, and see if the given file is on the path
                 foreach(string path in paths) {
                     if ((path.Length != 0) && 
                         (Directory.Exists(path))) {
@@ -93,8 +111,10 @@ namespace NAnt.Core {
                 }
             }
 
-            // Return an enumerator to the scanned (& found) files
+            // return an enumerator to the scanned (& found) files
             return _scannedNames;
         }
+
+        #endregion Public Instance Methods
     }
 }

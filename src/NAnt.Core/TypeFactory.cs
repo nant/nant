@@ -27,6 +27,7 @@ using System.Security.Permissions;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>
@@ -74,7 +75,7 @@ namespace NAnt.Core {
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanDir(string path) {
             // Don't do anything if we don't have a valid directory path
-            if(path == null || path.Length == 0) {
+            if (StringUtils.IsNullOrEmpty(path)) {
                 return;
             }
 
@@ -103,7 +104,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="project">The project to work from.</param>
         public static void AddProject(Project project) {
-            if(project.BaseDirectory != null && project.BaseDirectory.Length != 0) {
+            if (!StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
                 ScanDir(project.BaseDirectory);
                 ScanDir(Path.Combine(project.BaseDirectory, "tasks"));
             }

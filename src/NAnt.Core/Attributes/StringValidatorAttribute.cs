@@ -49,10 +49,8 @@ namespace NAnt.Core.Attributes {
         /// <value>
         /// <see langword="true" /> if an empty string or <see langword="null" />
         /// should be considered a valid value; otherwise, <see langword="false" />.
+        /// The default is <see langword="true" />.
         /// </value>
-        /// <remarks>
-        /// The default value is <see langword="true" />.
-        /// </remarks>
         public bool AllowEmpty {
             get { return _allowEmpty; }
             set { _allowEmpty = value; }
@@ -75,7 +73,7 @@ namespace NAnt.Core.Attributes {
                 valueString = Convert.ToString(value, CultureInfo.InvariantCulture);
             } catch (Exception ex) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot resolve to '{0}' to string value.", value.ToString()), ex);
+                    "Cannot resolve '{0}' to a string value.", value.ToString()), ex);
             }
 
             if (!AllowEmpty && StringUtils.IsNullOrEmpty(valueString)) {

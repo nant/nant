@@ -82,7 +82,7 @@ namespace NAnt.Core {
             }
 
             if (FileIsMapped(fileName)) {
-                // do not re-map the file a 2nd time               
+                // do not re-map the file a 2nd time
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "XML document '{0}' has already been mapped.", fileName));
            }
 
@@ -174,7 +174,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Returns the <see cref="Location"/> in the xml file for the given node.
+        /// Returns the <see cref="Location"/> in the XML file for the given node.
         /// </summary>
         /// <remarks>
         /// The <paramref name="node" /> must be from an <see cref="XmlDocument" /> 
@@ -183,16 +183,18 @@ namespace NAnt.Core {
         public Location GetLocation(XmlNode node) {
             // find hashtable this node's file is mapped under
             string fileName = node.BaseURI;
-            if (fileName.Length == 0) {
+
+            if (StringUtils.IsNullOrEmpty(fileName)) {
                 return new Location(null, 0, 0 ); // return null location because we have a fileless node.
             } 
-            if (!_fileMap.ContainsKey(fileName)) {
+
+            if (!FileIsMapped(fileName)) {
                 throw new ArgumentException("Xml node has not been mapped.");
             }
 
             // find xpath for node
             Hashtable map = (Hashtable) _fileMap[fileName];
-            string xpath = GetXPathFromNode(node);                                                                
+            string xpath = GetXPathFromNode(node);
             if (!map.ContainsKey(xpath)) {
                 throw new ArgumentException("Xml node has not been mapped.");
             }

@@ -22,10 +22,10 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that a property should be treated as a xml file set for the task.
+    /// Indicates that a property should be treated as a XML file set for the task.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public sealed class FileSetAttribute : BuildElementAttribute {     
+    public sealed class FileSetAttribute : BuildElementAttribute {
         #region Public Instance Constructors
 
         /// <summary>
@@ -33,8 +33,10 @@ namespace NAnt.Core.Attributes {
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
-        public FileSetAttribute(string name) : base(name) {        
-        }      
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
+        public FileSetAttribute(string name) : base(name) {
+        }
 
         #endregion Public Instance Constructors
     }

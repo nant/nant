@@ -21,43 +21,54 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be treated as a xml attribute for the task.
+    /// Indicates that property should be treated as a XML attribute for the 
+    /// task.
     /// </summary>
     /// <example>
-    /// Examples of how to specify task attributes
-    /// <code>
-    /// // task XmlType default is string
+    ///   Examples of how to specify task attributes
+    ///   <code>
+    /// #region Public Instance Properties
+    /// 
     /// [BuildAttribute("out", Required=true)]
-    /// string _out = null; // assign default value here
+    /// public string Output {
+    ///     get { return _out; }
+    ///     set { _out = value; }
+    /// }
     ///
     /// [BuildAttribute("optimize")]
     /// [BooleanValidator()]
-    /// // during ExecuteTask you can safely use Convert.ToBoolean(_optimize)
-    /// string _optimize = Boolean.FalseString;
+    /// public bool Optimize {
+    ///     get { return _optimize; }
+    ///     set { _optimize = value; }
+    /// }
     ///
     /// [BuildAttribute("warnlevel")]
     /// [Int32Validator(0,4)] // limit values to 0-4
-    /// // during ExecuteTask you can safely use Convert.ToInt32(_optimize)
-    /// string _warnlevel = "0";
+    /// public int WarnLevel {
+    ///     get { return _warnLevel; }
+    ///     set { _warnLevel = value; }
+    /// }
     ///
     /// [FileSet("sources")]
-    /// FileSet _sources = new FileSet();
-    /// </code>
-    /// NOTE: Attribute values must be of type of string if you want
-    /// to be able to have macros.  The field stores the exact value during
-    /// InitializeTask.  Just before ExecuteTask is called NAnt will expand
-    /// all the macros with the current values.
+    /// public FileSet Sources {
+    ///     get { return _sources; }
+    ///     set { _sources = value; }
+    /// }
+    /// 
+    /// #endregion Public Instance Properties
+    /// 
+    /// #region Private Instance Fields
+    /// 
+    /// private string _out = null;
+    /// private bool _optimize = false;
+    /// private int _warnLevel = 4;
+    /// private FileSet _sources = new FileSet();
+    /// 
+    /// #endregion Private Instance Fields
+    ///   </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public abstract class BuildAttributeAttribute : Attribute {
-        #region Private Instance Fields
-
-        string _name;
-        bool _required = false;
-        bool _expandProperties = true;
-
-        #endregion Private Instance Fields
-
         #region Protected Instance Constructors
 
         /// <summary>
@@ -65,7 +76,17 @@ namespace NAnt.Core.Attributes {
         /// specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         protected BuildAttributeAttribute(string name) {
+            if (name == null) {
+                throw new ArgumentNullException("name");
+            }
+
+            if (name.Trim().Length == 0) {
+                throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
+            }
+
             _name = name;
         }
 
@@ -74,9 +95,11 @@ namespace NAnt.Core.Attributes {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the name of the xml attribute.
+        /// Gets or sets the name of the XML attribute.
         /// </summary>
-        /// <value>The name of the xml attribute.</value>
+        /// <value>
+        /// The name of the XML attribute.
+        /// </value>
         public string Name {
             get { return _name; }
             set { _name = value; }
@@ -86,8 +109,8 @@ namespace NAnt.Core.Attributes {
         /// Gets or sets a value indicating whether the attribute is required.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the attribute is required; otherwise, <c>false</c>. 
-        /// Default is <c>false</c>.
+        /// <see langword="true" /> if the attribute is required; otherwise, 
+        /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
         public bool Required {
             get { return _required; }
@@ -99,8 +122,8 @@ namespace NAnt.Core.Attributes {
         /// be expanded.
         /// </summary>
         /// <value>
-        /// <c>true</c> if properties should be expanded; otherwise <c>false</c>.
-        /// Default is <c>true</c>.
+        /// <see langword="true" /> if properties should be expanded; otherwise 
+        /// <see langword="false" />. The default is <see langword="true" />.
         /// </value>
         public bool ExpandProperties {
             get { return _expandProperties; }
@@ -108,5 +131,13 @@ namespace NAnt.Core.Attributes {
         }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private string _name;
+        private bool _required = false;
+        private bool _expandProperties = true;
+
+        #endregion Private Instance Fields
     }
 }

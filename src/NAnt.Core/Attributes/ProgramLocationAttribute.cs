@@ -20,32 +20,34 @@
 using System;
 
 namespace NAnt.Core.Attributes {
-        
+
+    /// <summary>
+    /// Defines possible locations in which a task executable can be located.
+    /// </summary>
     public enum LocationType {
+        /// <summary>
+        /// Locates the task executable in the current Framework directory.
+        /// </summary>
         FrameworkDir,
+
+        /// <summary>
+        /// Locates the task executable in the current Framework SDK directory.
+        /// </summary>
         FrameworkSdkDir
     }
     
     /// <summary>
-    /// Indicates that the location that a task can be located in.
-    /// Use the enum above to mark a task as being from the frameworkdir or 
-    /// FrameworkSdkDir
+    /// Indicates the location that a task executable can be located in.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
     public class ProgramLocationAttribute : Attribute {
-        #region Private Instance Fields
-
-        LocationType _locationType;        
-
-        #endregion Private Instance Fields
-
         #region Protected Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramLocationAttribute" /> with the 
-        /// specified name.
+        /// Initializes a new instance of the <see cref="ProgramLocationAttribute" /> 
+        /// with the specified location.
         /// </summary>
-        /// <param type="name">The LocationType of the attribute.</param>
+        /// <param type="type">The <see cref="LocationType" /> of the attribute.</param>
         public ProgramLocationAttribute(LocationType type) {
             LocationType = type;
         }
@@ -55,14 +57,22 @@ namespace NAnt.Core.Attributes {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the LocationType of the attribute.
+        /// Gets or sets the <see cref="LocationType" /> of the task.
         /// </summary>
-        /// <value>The location type.</value>
+        /// <value>
+        /// The location type of the task to which the attribute is assigned.
+        /// </value>
         public LocationType LocationType {
             get { return _locationType; }
             set { _locationType = value; }
-        }        
+        }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private LocationType _locationType;
+
+        #endregion Private Instance Fields
     }
 }

@@ -76,8 +76,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// If <c>true</c> then the target will be executed; otherwise skipped. 
-        /// Default is <c>true</c>.
+        /// If <see langword="true" /> then the target will be executed; 
+        /// otherwise, skipped. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -87,8 +87,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Opposite of if. If <c>false</c> then the target will be executed; 
-        /// otherwise skipped. Default is <c>false</c>.
+        /// Opposite of if. If <see langword="false" /> then the target will be 
+        /// executed; otherwise, skipped. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]
@@ -197,8 +197,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <returns>
         /// A copy of the <see cref="Target" /> with <see cref="HasExecuted" /> 
-        /// set to <c>false</c>. This allows the new <see cref="Target" /> to be 
-        /// executed.
+        /// set to <see langword="false" />. This allows the new <see cref="Target" /> 
+        /// to be executed.
         /// </returns>
         public Target Clone() {
             return new Target(this);

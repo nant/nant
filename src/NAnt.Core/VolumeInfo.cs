@@ -175,7 +175,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="uri"></param>
         /// <returns>
-        /// <c>true</c> if the specified volume is case-sensitive; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the specified volume is case-sensitive; 
+        /// otherwise, <see langword="false" />.
         /// </returns>
         public static bool IsVolumeCaseSensitive(Uri uri) {
             ValidateURI(uri);

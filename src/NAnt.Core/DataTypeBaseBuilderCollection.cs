@@ -121,8 +121,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="item">The <see cref="DataTypeBaseBuilder"/> to locate in the collection.</param> 
         /// <returns>
-        /// <c>true</c> if <paramref name="item"/> is found in the collection;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if <paramref name="item"/> is found in the 
+        /// collection; otherwise, <see langword="false" />.
         /// </returns>
         public bool Contains(DataTypeBaseBuilder item) {
             return base.List.Contains(item);
@@ -134,8 +134,9 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="taskName">The name of task for which the <see cref="DataTypeBaseBuilder" /> should be located in the collection.</param> 
         /// <returns>
-        /// <c>true</c> if a <see cref="DataTypeBaseBuilder" /> for the specified task
-        ///is found in the collection; otherwise, <c>false</c>.
+        /// <see langword="true" /> if a <see cref="DataTypeBaseBuilder" /> for 
+        /// the specified task is found in the collection; otherwise, 
+        /// <see langword="false" />.
         /// </returns>
         public bool Contains(string taskName) {
             return this[taskName] != null;
@@ -229,8 +230,9 @@ namespace NAnt.Core {
         /// Advances the enumerator to the next element of the collection.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the enumerator was successfully advanced to the next element; 
-        /// <c>false</c> if the enumerator has passed the end of the collection.
+        /// <see langword="true" /> if the enumerator was successfully advanced 
+        /// to the next element; <see langword="false" /> if the enumerator has 
+        /// passed the end of the collection.
         /// </returns>
         public bool MoveNext() {
             return _baseEnumerator.MoveNext();

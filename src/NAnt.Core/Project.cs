@@ -62,7 +62,7 @@ namespace NAnt.Core {
         /// </summary>
         private static bool ScannedTaskPath = false;
 
-        //xml element and attribute names that are not defined in metadata
+        // XML element and attribute names that are not defined in metadata
         private const string RootXml = "project";
         private const string ProjectNameAttribute = "name";
         private const string ProjectDefaultAttribte = "default";
@@ -372,8 +372,8 @@ namespace NAnt.Core {
         /// messages.
         /// </summary>
         /// <value>
-        /// <c>true</c> if tasks should output more build log message; otherwise
-        /// <c>false</c>.
+        /// <see langword="true" /> if tasks should output more build log message; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         public bool Verbose {
             get { return Level.Verbose >= Threshold; }
@@ -664,7 +664,8 @@ namespace NAnt.Core {
         /// stamping.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the build was successful; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the build was successful; otherwise, 
+        /// <see langword="false" />.
         /// </returns>
         public bool Run() {
             Exception error = null;
