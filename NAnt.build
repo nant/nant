@@ -59,7 +59,6 @@
                 <includes name="**/*" />
             </resources>
             <references basedir="${build.dir}/bin">
-                <includes name="Microsoft.JScript.dll" asis="true" />
                 <includes name="log4net-net-1.0.dll"/>
             </references>
             <arg value="/nowarn:1591" />

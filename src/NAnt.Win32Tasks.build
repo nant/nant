@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project name="nant" default="test">
+
+    <!--
+        Required properties:
+        * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
+        * build.debug   - (true|false) debug build?
+    -->
+
+    <target name="build">
+        <!-- build main assembly -->
+        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.dll" doc="${build.dir}/bin/NAnt.Win32Tasks.xml">
+            <sources basedir="NAnt.Win32Tasks">
+                <includes name="**/*.cs"/>
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NDoc.Core.dll"/>
+                <includes name="Microsoft.JScript.dll" asis="true" />
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+
+        <!-- build test assembly -->
+        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.Tests.dll">
+            <sources basedir="NAnt.Win32Tasks.Tests">
+                <includes name="**/*.cs"/>                               
+                <excludes name="**/MailTaskTest.cs"/>
+                
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NAnt.Core.Tests.dll"/>
+                <includes name="NAnt.Win32Tasks.dll"/>
+                <includes name="nunit.framework.dll"/>
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+    </target>
+
+    <target name="test" depends="build">
+         <nunit2>
+            <test assemblyname="${build.dir}/bin/NAnt.Win32Tasks.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+         </nunit2>
+    </target>
+</project>
