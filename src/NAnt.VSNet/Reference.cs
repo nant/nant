@@ -202,13 +202,13 @@ namespace NAnt.VSNet {
                 }
             }
 
-            // Get a list of the references in the output directory
+            // get a list of the references in the output directory
             foreach (string referenceFile in Directory.GetFiles(fi.DirectoryName, "*.dll")) {
-                // Now for each reference, get the related files (.xml, .pdf, etc...)
+                // now for each reference, get the related files (.xml, .pdf, etc...)
                 string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
 
                 foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
-                    // Ignore any other the garbage files created
+                    // ignore any other the garbage files created
                     string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
                     if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
                         continue;
@@ -252,7 +252,7 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Searches for the given file in all paths in <paramref name="folderList" />.
         /// </summary>
-        /// <param name="folderList">The folder to search.</param>
+        /// <param name="folderList">The folders to search.</param>
         /// <param name="fileName">The file to search for.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="fileName" /> was found
@@ -344,7 +344,7 @@ namespace NAnt.VSNet {
         private bool _isCreated;
         private bool _isSystem;
         private string _importTool;
-        private DateTime _referenceTimeStamp;    
+        private DateTime _referenceTimeStamp;
         private bool _privateSpecified;
         private bool _isPrivate;
         private ProjectSettings _projectSettings;
