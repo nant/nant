@@ -19,6 +19,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -269,9 +270,51 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
+            // check if (embedded)resources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                return true;
+            }
+
+            // check if template file was updated
+            if (TemplateFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(TemplateFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // check if key file was updated
+            if (KeyFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(KeyFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // check the arguments for /embed or /embedresource options
+            StringCollection embeddedResourceFiles = new StringCollection();
+            foreach (Argument argument in Arguments) {
+                if (argument.IfDefined && !argument.UnlessDefined) {
+                    string argumentValue = argument.Value;
+                    if (argumentValue != null && (argumentValue.StartsWith("/embed:") || argumentValue.StartsWith("/embedresource:"))) {
+                        string path = argumentValue.Substring(argumentValue.IndexOf(':') + 1);
+                        int indexOfComma = path.IndexOf(',');
+                        if (indexOfComma != -1) {
+                            path = path.Substring(0, indexOfComma);
+                        }
+                        embeddedResourceFiles.Add(path);
+                    }
+                }
+            }
+
+            // check if embedded resources passed as arguments were updated
+            fileName = FileSet.FindMoreRecentLastWriteTime(embeddedResourceFiles, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
