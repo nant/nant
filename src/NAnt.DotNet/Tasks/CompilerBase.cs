@@ -477,7 +477,7 @@ namespace SourceForge.NAnt.Tasks {
             // Fix up the indent level --
             Project.Indent();
             resgen.Execute();
-            Project.UnIndent();
+            Project.Unindent();
         }
 
         #endregion Protected Instance Methods
