@@ -368,7 +368,7 @@ namespace NAnt.VisualCpp.Tasks {
                 return true;
             }
             StringCollection sources = new StringCollection();
-            sources.Add(Path.GetFullPath(Path.Combine(BaseDirectory.FullName, _filename)));
+            sources.Add(Path.GetFullPath(Path.Combine(BaseDirectory.FullName, Filename )));
             string fileName = FileSet.FindMoreRecentLastWriteTime(sources, outputFileInfo.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
@@ -387,30 +387,30 @@ namespace NAnt.VisualCpp.Tasks {
             writer.WriteLine("/env " + _env);
 
             if ( _acf != null )
-                writer.WriteLine("/acf ", _acf);
+                writer.WriteLine("/acf {0}", _acf);
             if ( _align != null )
-                writer.WriteLine("/align ", _align);
+                writer.WriteLine("/align {0}", _align);
             if ( _appConfig )
                 writer.WriteLine("/app_config");
             if ( _char != null )
-                writer.WriteLine("/char ", _char);
+                writer.WriteLine("/char {0}", _char);
             if ( _client != null )
-                writer.WriteLine("/client ", _client);
+                writer.WriteLine("/client {0}", _client);
             if ( _cstub != null )
-                writer.WriteLine("/cstub ", _cstub);
+                writer.WriteLine("/cstub {0}", _cstub);
             if ( _dlldata != null )
-                writer.WriteLine("/dlldata ", _dlldata);
+                writer.WriteLine("/dlldata \"{0}\"", DllData );
 
             if ( _Oi != null )
                 writer.WriteLine("/Oi" + _Oi);
             if ( _tlb != null )
-                writer.WriteLine("/tlb " + _tlb);
+                writer.WriteLine("/tlb \"{0}\"", Tlb);
             if ( _header != null )
-                writer.WriteLine("/header " + _header);
+                writer.WriteLine("/header  \"{0}\"", Header);
             if ( _iid != null )
                 writer.WriteLine("/iid " + _iid);
             if ( _proxy != null )
-                writer.WriteLine("/proxy " + _proxy);
+                writer.WriteLine("/proxy \"{0}\"", Proxy);
 
             foreach (Option define in _defines) {
                 if (IfDefined && !UnlessDefined) {
@@ -432,7 +432,7 @@ namespace NAnt.VisualCpp.Tasks {
                 }
             }
 
-            writer.WriteLine(_filename);
+            writer.WriteLine("\"{0}\"", Filename);
         }
 
         #endregion Private Instance Methods

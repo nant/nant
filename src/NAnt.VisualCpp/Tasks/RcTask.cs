@@ -119,8 +119,9 @@ namespace NAnt.VisualCpp.Tasks {
                     str += string.Format(CultureInfo.InvariantCulture,
                         "{0} ", Options);
                 }
-
-                str += RcFile.FullName;
+                
+                str += string.Format(CultureInfo.InvariantCulture,
+                        "\"{0}\" ", RcFile.FullName);
 
                 return str.ToString();
             }

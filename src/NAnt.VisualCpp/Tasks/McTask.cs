@@ -151,8 +151,9 @@ namespace NAnt.VisualCpp.Tasks {
                     str += string.Format(CultureInfo.InvariantCulture, 
                         "{0} ", Options);
                 }
-
-                str += McFile.FullName;
+               
+                str += string.Format(CultureInfo.InvariantCulture, 
+                        "\"{0}\" ", McFile.FullName);
 
                 return str.ToString();
             }
