@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -71,7 +71,8 @@ namespace NAnt.Core.Tasks {
         public enum ResourceType : int {
             File = 1,
             Directory = 2,
-            Framework = 3
+            Framework = 3,
+            FrameworkSDK = 4
         }
 
         #region Public Instance Properties
@@ -86,7 +87,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The type of resource which must be present - either <c>File</c>, <c>Directory</c> or <c>Framework</c>.
+        /// The type of resource which must be present - either <c>File</c>, 
+        /// <c>Directory</c>, <c>Framework</c> or <c>FrameworkSDK</c>.
         /// </summary>
         [TaskAttribute("type", Required=true)]
         public ResourceType Type { 
@@ -135,7 +137,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Evaluates the availability of a resource.
         /// </summary>
-        /// <returns><c>true</c> if the resource is available, <c>false</c> otrherwise</returns>
+        /// <returns>
+        /// <c>true</c> if the resource is available; otherwise, <c>false</c>.
+        /// </returns>
         /// <exception cref="BuildException">The availability of the resource could not be evaluated.</exception>
         protected virtual bool Evaluate() {
             bool resourceAvailable = false;
@@ -150,9 +154,17 @@ namespace NAnt.Core.Tasks {
                 case ResourceType.Framework:
                     resourceAvailable = CheckFramework();
                     break;
+                case ResourceType.FrameworkSDK:
+                    resourceAvailable = CheckFrameworkSDK();
+                    break;
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, "No resource check is implemented for {0}", Type));
             }
+
+            if (!resourceAvailable) {
+                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
+            }
+
             return resourceAvailable;
         }
 
@@ -164,53 +176,52 @@ namespace NAnt.Core.Tasks {
         /// Checks if the file specified in the <see cref="Resource" /> property is 
         /// available on the filesystem.
         /// </summary>
-        /// <returns><c>true</c> when the file exists, <c>false</c> otherwise.</returns>
+        /// <returns>
+        /// <c>true</c> when the file exists; otherwise, <c>false</c>.
+        /// </returns>
         private bool CheckFile() {
-            bool fileAvailable = false;
-
             FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
-            if (fileInfo.Exists) {
-                fileAvailable = true;
-            } else {
-                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
-                fileAvailable = false;
-            }
-            return fileAvailable;
+            return fileInfo.Exists;
         }
 
         /// <summary>
-        /// Checks if the directory  specified in the <see cref="Resource" /> property
-        /// is available on the filesystem.
+        /// Checks if the directory specified in the <see cref="Resource" /> 
+        /// property is available on the filesystem.
         /// </summary>
-        /// <returns><c>true</c> when the directory exists, <c>false</c> otherwise.</returns>
+        /// <returns>
+        /// <c>true</c> when the directory exists; otherwise, <c>false</c>.
+        /// </returns>
         private bool CheckDirectory() {
-            bool directoryAvailable = false;
-
             DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
-            if (dirInfo.Exists) {
-                directoryAvailable = true;
-            } else {
-                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
-                directoryAvailable = false;
-            }       
-            return directoryAvailable;
+            return dirInfo.Exists;
         }
 
         /// <summary>
-        /// Checks if the framework specified in the <see cref="Resource" /> property is 
-        /// available on the current system.
+        /// Checks if the framework specified in the <see cref="Resource" /> 
+        /// property is available on the current system.
         /// </summary>
-        /// <returns><c>true</c> when the framework is available, <c>false</c> otherwise.</returns>
+        /// <returns>
+        /// <c>true</c> when the framework is available, <c>false</c> otherwise.
+        /// </returns>
         private bool CheckFramework() {
-            bool frameworkAvailable = false;
+            return Project.FrameworkInfoDictionary.Contains(Resource);
+        }
 
-            if (Project.FrameworkInfoDictionary.Contains(Resource)) {
-                frameworkAvailable = true;
+        /// <summary>
+        /// Checks if the SDK for the framework specified in the <see cref="Resource" /> 
+        /// property is available on the current system.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> when the SDK for the specified framework is available; 
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        private bool CheckFrameworkSDK() {
+            FrameworkInfo framework = Project.FrameworkInfoDictionary[Resource];
+            if (framework != null) {
+                return framework.SdkDirectory != null;
             } else {
-                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
-                frameworkAvailable = false;
+                return false;
             }
-            return frameworkAvailable;
         }
 
         #endregion Private Instance Methods
