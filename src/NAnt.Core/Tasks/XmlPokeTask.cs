@@ -25,6 +25,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -75,6 +76,7 @@ namespace NAnt.Core.Tasks {
         private FileInfo _xmlFile;
         private string _value;
         private string _xPathExpression;
+        private XmlNamespaceCollection _namespaces = new XmlNamespaceCollection();
         
         #endregion Private Instance Fields
 
@@ -110,6 +112,15 @@ namespace NAnt.Core.Tasks {
             set { _value = value; }
         }
 
+        /// <summary>
+        /// Namespace definitions to resolve prefixes in the XPath expression.
+        /// </summary>
+        [BuildElementCollection("namespaces", "namespace")]
+        public XmlNamespaceCollection Namespaces {
+            get { return _namespaces; }
+            set { _namespaces = value; }
+        }
+
         #endregion Public Instance Properties
         
         #region Override implementation of Task
@@ -126,9 +137,17 @@ namespace NAnt.Core.Tasks {
 
             try {
                 XmlDocument document = LoadDocument(XmlFile.FullName);
-                XmlNodeList nodes = SelectNodes(XPath, document);
 
-                // Don't bother trying to update any nodes or save the
+                XmlNamespaceManager nsMgr = new XmlNamespaceManager(document.NameTable);
+                foreach (XmlNamespace xmlNamespace in Namespaces) {
+                    if (xmlNamespace.IfDefined && !xmlNamespace.UnlessDefined) {
+                        nsMgr.AddNamespace(xmlNamespace.Prefix, xmlNamespace.Uri);
+                    }
+                }
+
+                XmlNodeList nodes = SelectNodes(XPath, document, nsMgr);
+
+                // don't bother trying to update any nodes or save the
                 // file if no nodes were found in the first place.
                 if (nodes.Count > 0) {
                     UpdateNodes(nodes, Value);
@@ -186,21 +205,25 @@ namespace NAnt.Core.Tasks {
         /// <param name="document">
         /// The XML document that is searched.
         /// </param>
+        /// <param name="nsMgr">
+        /// An <see cref="XmlNamespaceManager" /> to use for resolving namespaces 
+        /// for prefixes in the XPath expression.
+        /// </param>
         /// <returns>
         /// An <see cref="XmlNodeList" /> containing references to the nodes 
         /// that matched the XPath expression.
         /// </returns>
-        private XmlNodeList SelectNodes(string xpath, XmlDocument document) {
+        private XmlNodeList SelectNodes(string xpath, XmlDocument document, XmlNamespaceManager nsMgr) {
             XmlNodeList nodes = null;
 
             try {
                 Log(Level.Verbose, LogPrefix + "Selecting nodes with XPath" 
                     + " expression '{0}'.", xpath);
 
-                nodes = document.SelectNodes(xpath);
+                nodes = document.SelectNodes(xpath, nsMgr);
 
-                // Report back how many we found if any. If not then
-                // log a warning saying we didn't find any.
+                // report back how many we found if any. If not then
+                // log a message saying we didn't find any.
                 if (nodes.Count != 0) {
                     Log(Level.Info, LogPrefix + "Found '{0}' nodes matching" 
                         + " XPath expression '{1}'.", nodes.Count, xpath);
