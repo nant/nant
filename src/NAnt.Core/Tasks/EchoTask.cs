@@ -50,7 +50,7 @@ namespace NAnt.Core.Tasks {
     /// <echo>Base build directory = ${nant.project.basedir}</echo>
     ///     ]]>
     ///   </code>
-    ///   <para>Triggers a ValidationException</para>
+    ///   <para>Triggers a <see cref="ValidationException" />.</para>
     ///   <code>
     ///     <![CDATA[
     /// <echo message="Hello, World!">Hello, World</echo>
