@@ -14,7 +14,6 @@
                 <includes name="**/*.cs"/>
             </sources>
             <references basedir="${build.dir}/bin">
-                <includes name="Microsoft.JScript.dll" asis="true"/>
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NDoc.Core.dll"/>
             </references>
@@ -43,7 +42,7 @@
 
     <target name="test" depends="build">
          <nunit2>
-         	<test assemblyname="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+            <test assemblyname="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
          </nunit2>
     </target>
 </project>
