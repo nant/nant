@@ -42,6 +42,8 @@ namespace NAnt.SourceControl.Tasks {
         private string _module;
         private string _destination;
         private string _password;
+        private string _tag;
+
         private CvsRoot _root;
         private WorkingDirectory _workingDirectory;
         private CVSServerConnection _connection;
@@ -114,15 +116,28 @@ namespace NAnt.SourceControl.Tasks {
             set { _password = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// The revision tag to use when fetching/ updating the repository
+        ///     files.  If no revision tag is specified in this property then
+        ///     in the case of an update the default revision tag specified 
+        ///     in the CVS/Tag file is used.  If this does not exist then the
+        ///     default revision, or the <code>HEAD</code> revision is used.
+        /// </summary>
+        [TaskAttribute ("tag")]
+        public string Tag {
+            get {return _tag;}
+            set {_tag = StringUtils.ConvertEmptyToNull(value);}
+        }
+
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
 
-        /// <summary>
-        /// Gets or sets the root of the CVS repository.
-        /// </summary>
-        /// <value>The root of the CVS repository.</value>
-        protected CvsRoot Root {
+            /// <summary>
+            /// Gets or sets the root of the CVS repository.
+            /// </summary>
+            /// <value>The root of the CVS repository.</value>
+            protected CvsRoot Root {
             get { return this._root; }
             set { this._root = value; }
         }
@@ -172,6 +187,8 @@ namespace NAnt.SourceControl.Tasks {
                 this.Destination, this.Module);
             this.Connection = new CVSServerConnection();
             this.Command = this.CreateCommand();
+
+            this.WorkingDirectory.Revision = this.Tag;
 
             this.Validate ();
 

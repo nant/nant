@@ -3,6 +3,7 @@ using System;
 using System.IO;
 
 using NUnit.Framework;
+using NAnt.Core;
 using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
@@ -13,33 +14,33 @@ namespace Tests.NAnt.SourceControl.Tasks {
     /// </summary>
     [TestFixture]
     public class UpdateTaskTest : BuildTestBase {
-        private static readonly String cvsTempPath = 
-            Path.Combine (Path.GetTempPath (), "cvscheckout-test");
-        private static readonly String TEST_FILE = 
-            Path.Combine (cvsTempPath, "Sporadicism.Blogger/blogger.build");
+        private String destination;
 
-        /// <summary>
-        /// Project to checkout the file initially before
-        ///     the update test is done.
-        /// </summary>
+        private readonly String MODULE = "sharpcvslib-test-repository";
+        private readonly String CHECK_FILE = "test-file.txt";
+
+        private readonly String CVSROOT = 
+            ":pserver:anonymous@linux.sporadicism.com:/home/cvs/src";
+
         private readonly String _checkoutXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-checkout   module='Sporadicism.Blogger' 
-                                cvsroot=':pserver:anonymous@linux.sporadicism.com:/home/cvs/src'
-                                destination='" + cvsTempPath.Replace ("\\", "/") + @"'
-                                password='' />
+                <cvs-checkout   module='{0}' 
+                                cvsroot='{1}'
+                                destination='{2}'
+                                password='{3}'
+                                tag='{4}' />
             </project>";
-
 
         /// <summary>
         /// Project to update the working directory.
         /// </summary>
         private readonly String _projectXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-update   module='Sporadicism.Blogger' 
-                                cvsroot=':pserver:anonymous@linux.sporadicism.com:/home/cvs/src'
-                                destination='" + cvsTempPath.Replace ("\\", "/") + @"'
-                                password='' />
+                <cvs-update   module='{0}' 
+                                cvsroot='{1}'
+                                destination='{2}'
+                                password='{3}'
+                                tag='{4}' />
             </project>";
 
 
@@ -49,31 +50,13 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [SetUp]
         protected override void SetUp () {
             base.SetUp ();
-            System.Console.WriteLine (this.RunBuild (_checkoutXML));
-        }
+            this.destination = this.TempDirName;
 
-        /// <summary>
-        /// Test that a file deleted from the local working directory
-        ///     is retrieved from the cvs repository during an update.
-        /// </summary>
-        [Test]
-        public void Test_CvsUpdate () {            
-
-            if (File.Exists (TEST_FILE)) {
-                // Delete the file.
-                File.Delete (TEST_FILE);
-            }
-
-            // Make sure the file exists before we start the test.
-            Assertion.Assert ("The master.build file was not where I expected it.", 
-                !File.Exists (TEST_FILE));
-
-            // Run the update to bring the file back down.
-            String result = this.RunBuild (_projectXML);
-
-            // Check that the file is back.
-            Assertion.Assert ("File does not exist, update probably did not work.", 
-                File.Exists (TEST_FILE));
+            object[] args = { 
+                 MODULE, CVSROOT, this.destination, String.Empty, String.Empty};
+            String result = 
+                this.RunBuild (FormatBuildFile (_checkoutXML, args), 
+                                              Level.Debug);
         }
 
         /// <summary>
@@ -82,7 +65,44 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [TearDown]
         protected override void TearDown () {
             base.TearDown ();
-            Directory.Delete (cvsTempPath, true);
+        }
+
+        /// <summary>
+        /// Test that a file deleted from the local working directory
+        ///     is retrieved from the cvs repository during an update.
+        /// </summary>
+        [Test]
+        public void Test_CvsUpdate () {
+            String checkoutPath = Path.Combine (this.destination, this.MODULE);
+            String checkFilePath = Path.Combine (checkoutPath, this.CHECK_FILE);
+
+            if (File.Exists (checkFilePath)) {
+                // Delete the file.
+                File.Delete (checkFilePath);
+            }
+
+            // Make sure the file does not exist before we start the test.
+            Assertion.Assert ("The check file should not be there.", 
+                !File.Exists (checkFilePath));
+
+            // Run the update to bring the file back down.
+            object[] args = { 
+                                MODULE, CVSROOT, this.destination, String.Empty, String.Empty};
+            String result = 
+                this.RunBuild (FormatBuildFile (_projectXML, args), 
+                                              Level.Debug);
+
+            // Check that the file is back.
+            Assertion.Assert ("File does not exist, update probably did not work.", 
+                File.Exists (checkFilePath));
+        }
+
+        private String FormatBuildFile (String baseFile, object[] args) {
+            String buildFile = 
+                String.Format (baseFile, args);
+
+            //System.Console.WriteLine (buildFile);
+            return buildFile;
         }
     }
 }
