@@ -103,6 +103,10 @@ namespace NAnt.VSNet {
                 if (fileConfig == null) {
                     fileConfig = baseConfig;
                 }
+                
+                if (fileConfig.ExcludeFromBuild) {
+                    continue;
+                }
 
                 if (ext == ".cpp" || ext == ".c") {
                     if (!buildConfigs.ContainsKey(fileConfig)) {
@@ -305,7 +309,7 @@ namespace NAnt.VSNet {
             if (fileConfig.WholeProgramOptimization) {
                 clTask.Arguments.Add(new Argument("/GL"));
             }
-
+            
             Hashtable compilerArgs = fileConfig.GetToolArguments(compilerTool, _clArgMap);   
             foreach (string key in compilerArgs.Keys) {
                 switch (key) {
