@@ -40,8 +40,8 @@
 <!-- match class tag -->
 <xsl:template match="class">
 
-    <xsl:variable name = "attr" select="attribute/@name"/>
-    <xsl:if test="string($attr) = 'NAnt.Core.Attributes.TaskNameAttribute'">
+    <xsl:variable name = "attr" select="attribute[@name='NAnt.Core.Attributes.TaskNameAttribute']/@name"/>
+    <xsl:if test="string-length(string($attr)) != 0">    
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
