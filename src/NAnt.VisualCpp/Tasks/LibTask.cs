@@ -162,6 +162,14 @@ namespace NAnt.VisualCpp.Tasks {
 
                 writer.Close();
 
+                if (Verbose) {
+                    // display response file contents
+                    Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
+                    StreamReader reader = File.OpenText(_responseFileName);
+                    Log(Level.Info, reader.ReadToEnd());
+                    reader.Close();
+                }
+
                 // call base class to do the actual work
                 base.ExecuteTask();
             } finally {
