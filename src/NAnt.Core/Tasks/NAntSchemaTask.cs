@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
+// Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
 using System.Collections;
@@ -185,48 +186,6 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Create a new <see cref="XmlSchemaComplexType" /> instance.
-        /// </summary>
-        /// <param name="name">The name of the complex type.</param>
-        /// <param name="id">The id of the complex type.</param>
-        /// <param name="attributes">The attributes of the complex type; null indicates none.</param>
-        /// <returns>The new <see cref="XmlSchemaComplexType" /> instance.</returns>
-        protected static XmlSchemaComplexType CreateXsdComplexType(string name, string id, XmlSchemaAttribute[] attributes) {
-            XmlSchemaComplexType newCT = new XmlSchemaComplexType();
-
-            newCT.Name = name;
-            newCT.Id = id;
-
-            if (attributes != null) {
-                foreach (XmlSchemaAttribute attr in attributes) {
-                    newCT.Attributes.Add(attr);
-                }
-            }
-
-            return newCT;
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="XmlSchemaChoice" /> instance.
-        /// </summary>
-        /// <param name="min">The minimum value to allow for this choice</param>
-        /// <param name="max">The maximum value to allow, Decimal.MaxValue sets it to 'unbound'</param>
-        /// <returns>The new <see cref="XmlSchemaChoice" /> instance.</returns>
-        protected static XmlSchemaChoice CreateXsdChoice(Decimal min, Decimal max) {
-            XmlSchemaChoice newChoice = new XmlSchemaChoice();
-
-            newChoice.MinOccurs = min;
-
-            if (max != Decimal.MaxValue) {
-                newChoice.MaxOccurs = max;
-            } else {
-                newChoice.MaxOccursString = "unbounded";
-            }
-            
-            return newChoice;
-        }
-
-        /// <summary>
         /// Creates a new <see cref="XmlSchemaSequence" /> instance.
         /// </summary>
         /// <param name="min">The minimum value to allow for this choice</param>
@@ -246,60 +205,11 @@ namespace NAnt.Core.Tasks {
             return newSeq;
         }    
 
-        protected static XmlSchemaComplexType CreateTaskListComplexType(IList taskComplexTypes) {
-            XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
-
-            tasklistCT.Particle = CreateXsdSequence(0, Decimal.MaxValue);
-
-            XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
-
-            ((XmlSchemaGroupBase) tasklistCT.Particle).Items.Add(group1);
-
-            //XmlSchemaGroupBase group2 = (XmlSchemaGroupBase)tasklistCT.Particle;
-
-            foreach(XmlSchemaComplexType taskCT in taskComplexTypes) {
-                XmlSchemaGroupBase group2 = CreateXsdSequence(0, Decimal.MaxValue);
-
-                group1.Items.Add(group2);
-
-                XmlSchemaElement taskElement = new XmlSchemaElement();
-                taskElement.Name = taskCT.Name;
-                taskElement.SchemaTypeName = taskCT.QualifiedName;
-
-                group2.Items.Add(taskElement);
-            }
-
-            return tasklistCT;
-        }
-
-        protected static XmlNode[] TextToNodeArray(string text) {
+        protected static XmlNode[] TextToNodeArray(string text) 
+        {
             XmlDocument doc = new XmlDocument();
 
             return new XmlNode[1] {doc.CreateTextNode(text)};
-        }
-
-        protected static void AddDocumentation(XmlSchemaAnnotated ann, string doc) {
-            if(ann.Annotation == null) {
-                ann.Annotation = new XmlSchemaAnnotation();
-            }
-
-            XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
-
-            ann.Annotation.Items.Add(schemaDoc);
-
-            schemaDoc.Markup = TextToNodeArray(doc);
-        }
-
-        protected static void AddDocumentation(XmlSchemaAttribute attribute, string doc) {
-            if(attribute.Annotation == null) {
-                attribute.Annotation = new XmlSchemaAnnotation();
-            }
-
-            XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
-
-            attribute.Annotation.Items.Add(schemaDoc);
-
-            schemaDoc.Markup = TextToNodeArray(doc);
         }
 
         /// <summary>
@@ -342,6 +252,7 @@ namespace NAnt.Core.Tasks {
 
             IDictionary _nantComplexTypes = null;
             Type[] _tasks = null;
+            XmlSchemaComplexType _targetCT = null;
             XmlSchema _nantSchema = new XmlSchema();
             string _namespaceURI = string.Empty;
 
@@ -376,59 +287,65 @@ namespace NAnt.Core.Tasks {
                 //initialize stuff
                 _nantComplexTypes = new HybridDictionary(tasks.Length);
                 _tasks = tasks;
-                XmlSchemaComplexType empty_fake = CreateXsdComplexType("fake-empty", null, null);
 
-                //add timestamp and info for project.
-                AddDocumentation(empty_fake, DateTime.Now.ToString(CultureInfo.InvariantCulture) + Environment.NewLine + "Generated by" + GetType().ToString());
+                XmlSchemaAnnotation schemaAnnotation = new XmlSchemaAnnotation();
+                XmlSchemaDocumentation schemaDocumentation = new XmlSchemaDocumentation();
 
-                _nantSchema.Items.Add(empty_fake);
+                string doc = String.Format(CultureInfo.InvariantCulture, 
+                    "NAnt schema generated at {0}", DateTime.Now);
+                schemaDocumentation.Markup = TextToNodeArray(doc);
+                schemaAnnotation.Items.Add(schemaDocumentation);
+                _nantSchema.Items.Add(schemaAnnotation);
 
                 //create temp list of task Complex Types
-                IList taskCTs = new ArrayList(tasks.Length);
-				IList taskContainCTs = new ArrayList(15);
+                ArrayList taskComplexTypes = new ArrayList(tasks.Length);
+				ArrayList taskContainerComplexTypes = new ArrayList(15);
 
-                foreach (Type t in tasks) {
-                    XmlSchemaComplexType taskCT = CreateComplexType(t, ((TaskNameAttribute) GetDerivedAttribute(t, typeof(TaskNameAttribute), false, true)).Name, true);
-					taskCTs.Add(taskCT);
-	
+                XmlSchemaComplexType taskCT = FindOrCreateComplexType(typeof(TaskContainer));
+                taskComplexTypes.Add(taskCT);
+                taskContainerComplexTypes.Add(taskCT);
+
+                foreach (Type t in tasks) 
+                {
+                    taskCT = FindOrCreateComplexType(t);
+					taskComplexTypes.Add(taskCT);
+
 					//allow any tasks...
-					if(t.IsSubclassOf(typeof(TaskContainer)))
-						taskContainCTs.Add(taskCT);
+                    if(t.IsSubclassOf(typeof(TaskContainer)))
+                        taskContainerComplexTypes.Add(taskCT);
                 }
 
                 Compile();
-				
 				//update the taskcontainerCTs to allow any other task and the list of tasks generated.
-				foreach(XmlSchemaComplexType ct in taskContainCTs) {
+				foreach(XmlSchemaComplexType ct in taskContainerComplexTypes) {
 					XmlSchemaSequence seq = ct.Particle as XmlSchemaSequence;
 
 					if (seq != null) {
-						seq.Items.Add(CreateTaskListComplexType(taskCTs).Particle);
+						seq.Items.Add(CreateTaskListComplexType(tasks).Particle);
 					}
 					else {
 						logger.Error("Unable to fixup complextype with children. Particle is not XmlSchemaSequence");
 					}
 				}
-				
 				Compile();
 
                 //create target ComplexType
-                XmlSchemaComplexType targetCT = CreateTaskListComplexType(taskCTs);
-                targetCT.Name="target";
+                _targetCT = CreateTaskListComplexType(tasks);
+                _targetCT.Name="Target";
 
                 //name attribute
-                targetCT.Attributes.Add(CreateXsdAttribute("name", true));
+                _targetCT.Attributes.Add(CreateXsdAttribute("name", true));
 
                 //default attribute
-                targetCT.Attributes.Add(CreateXsdAttribute("depends", false));
+                _targetCT.Attributes.Add(CreateXsdAttribute("depends", false));
 
                 //description attribute
-                targetCT.Attributes.Add(CreateXsdAttribute("description", false));
+                _targetCT.Attributes.Add(CreateXsdAttribute("description", false));
 
-                _nantSchema.Items.Add(targetCT);
+                _nantSchema.Items.Add(_targetCT);
 
                 //add to the list of ComplexTypes so that project will get it.
-                taskCTs.Add(targetCT);
+                taskComplexTypes.Add(_targetCT);
 
                 Compile();
 
@@ -436,7 +353,7 @@ namespace NAnt.Core.Tasks {
                 XmlSchemaElement projectElement = new XmlSchemaElement();
                 projectElement.Name = "project";
 
-                XmlSchemaComplexType projectCT = CreateTaskListComplexType(taskCTs);
+                XmlSchemaComplexType projectCT = CreateTaskListComplexType(tasks, true);
 
                 projectElement.SchemaType =  projectCT;
 
@@ -452,6 +369,56 @@ namespace NAnt.Core.Tasks {
                 _nantSchema.Items.Add(projectElement);
 
                 Compile();
+            }
+
+            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks)
+            {
+                return CreateTaskListComplexType(tasks, false);
+            }
+
+            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks, bool includeProjectLevelItems)
+            {
+                XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
+                XmlSchemaChoice choice = new XmlSchemaChoice();
+                choice.MinOccurs = 0;
+                choice.MaxOccursString = "unbounded";
+
+                tasklistCT.Particle = choice;
+
+                foreach (Type t in tasks) 
+                {
+                    XmlSchemaElement taskElement = new XmlSchemaElement();
+                    string typeId = GenerateIDFromType(t);
+                    XmlSchemaComplexType taskCT = FindComplexTypeByID(typeId);
+
+                    taskElement.Name = GetTaskName(t);
+                    taskElement.SchemaTypeName = taskCT.QualifiedName;
+
+                    choice.Items.Add(taskElement);
+                }
+
+                if (includeProjectLevelItems)
+                {
+                    XmlSchemaElement targetElement = new XmlSchemaElement();
+
+                    targetElement.Name = "target";
+                    targetElement.SchemaTypeName = _targetCT.QualifiedName;
+
+                    choice.Items.Add(targetElement);
+                }
+
+                return tasklistCT;
+            }
+
+            private string GetTaskName(Type t)
+            {
+                TaskNameAttribute[] attrs = (TaskNameAttribute[])t.GetCustomAttributes(typeof(TaskNameAttribute), false);
+                if (attrs.Length == 1)
+                {
+                    return attrs[0].Name;
+                }
+                else
+                    return null;
             }
 
             /// <summary>
@@ -498,7 +465,7 @@ namespace NAnt.Core.Tasks {
                 logger.Info(args.ToString());
 
                 if (source != null) {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, "{0}({1})", source.Name, source.Id));
+                    logger.Info(string.Format(CultureInfo.InvariantCulture, "{0}", source.Name));
                 }
             }
 
@@ -509,34 +476,52 @@ namespace NAnt.Core.Tasks {
                 return null;
             }
 
-            /*            protected XmlSchemaComplexType CreateComplexTypeForTask(Type t, string name, bool useRefs) {
+            protected XmlSchemaComplexType FindOrCreateComplexType(Type t) 
+            {
+                XmlSchemaComplexType ct;
+                string typeId = GenerateIDFromType(t);
 
-                            XmlSchemaComplexType ct = CreateComplexType(t, name, useRefs);
-
-                            ct.Content = new XmlSchemaComplexContentExtension();
-
-                            ((XmlSchemaComplexContentExtension) ct.ContentModel).BaseTypeName = new XmlQualifiedName("Task", _namespaceURI);
-
-                            return ct;                
-
-                        }
-
-            */
-
-            protected XmlSchemaComplexType CreateComplexType(Type t, string name, bool useRefs) {
-                XmlSchemaComplexType ct = null;
-
-                if (useRefs) {
-                    //lookup the type to see if we have done this already.
-                    ct = FindComplexTypeByID(GenerateIDFromType(t));
-					if (ct != null) {
-						return ct;
-					}
+                ct = FindComplexTypeByID(typeId);
+                if (ct != null) {
+                    return ct;
                 }
 
-                ct = CreateXsdComplexType(name, GenerateIDFromType(t), null);
+                ct = new XmlSchemaComplexType();
+                ct.Name = typeId;
+
+#if NOT_IMPLEMENTED
+                //
+                // TODO - add task/type documentation in the future
+                //
+
+                ct.Annotation = new XmlSchemaAnnotation();
+                XmlSchemaDocumentation doc = new XmlSchemaDocumentation();
+                ct.Annotation.Items.Add(doc);
+                doc.Markup = ...;
+#endif
 
                 XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
+                XmlSchemaObjectCollection attributesCollection = ct.Attributes;
+
+                if (false && t.IsSubclassOf(typeof(TaskContainer)))
+                {
+                    //
+                    // a failed attempt to map the class hierarchy to XSD
+                    // I don't know how to do it because of "target" task which
+                    // needs to show up in "project". But perhaps this can be done...
+                    //
+                    XmlSchemaComplexContentExtension ext = new XmlSchemaComplexContentExtension();
+                    ext.BaseTypeName = FindComplexTypeByID(GenerateIDFromType(typeof(TaskContainer))).QualifiedName;
+                    ext.Particle = group1;
+                    ct.ContentModel = new XmlSchemaComplexContent();
+                    ct.ContentModel.Content = ext;
+                    attributesCollection = ext.Attributes;
+                }
+                else
+                {
+                    ct.Particle = group1;
+                    attributesCollection = ct.Attributes;
+                }
 
                 foreach (MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                     if (memInfo.DeclaringType.Equals(typeof(object))) {
@@ -548,45 +533,55 @@ namespace NAnt.Core.Tasks {
                     //Add Attributes
                     TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute) Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
                     BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementArrayAttribute), true);
-					BuildElementAttribute buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
+                    BuildElementAttribute buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
 
-					if (taskAttrAttr != null) {
-						XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
-						ct.Attributes.Add(newAttr);
-					}  else if (buildElemAttr != null) {
-						// Create individial choice for any individual child Element
-						Decimal min = 0;
+                    if (taskAttrAttr != null) {
+                        XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
+                        attributesCollection.Add(newAttr);
+                    } else if (buildElemAttr != null) {
+                        // Create individial choice for any individual child Element
+                        Decimal min = 0;
 
-						if (buildElemAttr.Required) {
-							min = 1;
-						}
+                        if (buildElemAttr.Required) 
+                        {
+                            min = 1;
+                        }
 
-						XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
-						XmlSchemaElement childElement = new XmlSchemaElement();
-						childElement.Name = buildElemAttr.Name;
+                        //XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
+                        XmlSchemaElement childElement = new XmlSchemaElement();
+                        childElement.MinOccurs = min;
+                        childElement.MaxOccurs = 1;
+                        childElement.Name = buildElemAttr.Name;
 
-						Type childType;
+                        Type childType;
 
-						// We will only process child elements if they are defined for Properties or Fields, this should be enforced by the AttributeUsage on the Attribute class
-						if (memInfo is PropertyInfo) {
-							childType = ((PropertyInfo) memInfo).PropertyType;
-						} else if (memInfo is FieldInfo) {
-							childType = ((FieldInfo) memInfo).FieldType;
-						} else {
-							throw new ApplicationException("Member Type != Field/Property");
-						}
+                        // We will only process child elements if they are defined for Properties or Fields, this should be enforced by the AttributeUsage on the Attribute class
+                        if (memInfo is PropertyInfo) {
+                            childType = ((PropertyInfo) memInfo).PropertyType;
+                        } else if (memInfo is FieldInfo) {
+                            childType = ((FieldInfo) memInfo).FieldType;
+                        } else  {
+                            throw new ApplicationException("Member Type != Field/Property");
+                        }
 
                         // determine type of child elements
-                        if (buildElementArrayAttribute != null) {
-                            if (buildElementArrayAttribute.ElementType == null) {
-                                if (childType.IsArray) {
+                        if (buildElementArrayAttribute != null) 
+                        {
+                            if (buildElementArrayAttribute.ElementType == null) 
+                            {
+                                if (childType.IsArray) 
+                                {
                                     childType = childType.GetElementType();
-                                } else {
+                                } 
+                                else 
+                                {
                                     Type elementType = null;
 
                                     // locate Add method with 1 parameter, type of that parameter is parameter type
-                                    foreach (MethodInfo method in childType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                                        if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                                    foreach (MethodInfo method in childType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) 
+                                    {
+                                        if (method.Name == "Add" && method.GetParameters().Length == 1) 
+                                        {
                                             ParameterInfo parameter = method.GetParameters()[0];
                                             elementType = parameter.ParameterType;
                                             break;
@@ -595,11 +590,14 @@ namespace NAnt.Core.Tasks {
 
                                     childType = elementType;
                                 }
-                            } else {
+                            } 
+                            else 
+                            {
                                 childType = buildElementArrayAttribute.ElementType;
                             }
 
-                            if (childType == null || !typeof(Element).IsAssignableFrom(childType)) {
+                            if (childType == null || !typeof(Element).IsAssignableFrom(childType)) 
+                            {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                     "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
                                     " should have an element type assigned that derives from Element" +
@@ -607,22 +605,14 @@ namespace NAnt.Core.Tasks {
                             }
                         }
 
-						childElement.SchemaTypeName = CreateComplexType(childType, buildElemAttr.Name, useRefs).QualifiedName;
-
-						elementGroup.Items.Add(childElement);
-
-						group1.Items.Add(elementGroup);
-					}
-                }
-
-                if (group1.Items.Count > 0) {
-                    ct.Particle = group1;
+                        childElement.SchemaTypeName = FindOrCreateComplexType(childType).QualifiedName;
+                        //elementGroup.Items.Add(childElement);
+                        group1.Items.Add(childElement);
+                    }
                 }
 
                 Schema.Items.Add(ct);
-
-                _nantComplexTypes.Add(ct.Id, ct);
-
+                _nantComplexTypes.Add(GenerateIDFromType(t), ct);
                 Compile();
 
                 return ct;
