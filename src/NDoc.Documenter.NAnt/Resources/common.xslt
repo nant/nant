@@ -97,6 +97,8 @@
                 <xsl:when test="$old-type='Object'">object</xsl:when>
                 <xsl:when test="$old-type='System.IO.FileInfo'">file</xsl:when>
                 <xsl:when test="$old-type='System.IO.DirectoryInfo'">directory</xsl:when>
+                <xsl:when test="$old-type='System.DateTime'">datetime</xsl:when>
+                <xsl:when test="$old-type='System.TimeSpan'">timespan</xsl:when>
                 <xsl:otherwise>
                     <xsl:value-of select="$old-type" />
                 </xsl:otherwise>

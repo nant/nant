@@ -93,7 +93,11 @@
                         <xsl:for-each select="parameter">
                             <tr>
                                 <td><xsl:value-of select="@name" /></td>
-                                <td><xsl:value-of select="@type" /></td>
+                                <td>
+                                    <xsl:call-template name="value">
+                                        <xsl:with-param name="type" select="@type" />
+                                    </xsl:call-template>
+                                </td>
                                 <xsl:variable name="paramname" select="@name" />
                                 <td><xsl:apply-templates select="../documentation/param[@name=$paramname]" mode="slashdoc" /></td>
                             </tr>
