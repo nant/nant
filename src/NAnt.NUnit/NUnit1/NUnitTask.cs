@@ -30,7 +30,7 @@ using NAnt.NUnit1.Types;
 
 namespace NAnt.NUnit1.Tasks {
     /// <summary>
-    /// Runs tests using the NUnit framework.
+    /// Runs tests using the NUnit V1.0 framework.
     /// </summary>
     /// <remarks>
     ///   <para>
