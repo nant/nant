@@ -30,22 +30,12 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core {
     /// <summary>
-    /// Executes embedded tasks. First inherit from TaskContainer, then call ExecuteChildTasks during Exec.
+    /// Executes embedded tasks in the order in which they are defined.
     /// </summary>
-    /// <remarks>
-    ///    <para>
-    ///    All build elements (like a <see cref="FileSet" />) are automatically 
-    ///    excluded from things that get executed. They are evaluated normally 
-    ///    during XML task initialization.
-    ///    </para>
-    ///    <para>
-    ///    For an example, see <see cref="IfTask" /> or <see cref="LoopTask" />.
-    ///    </para>
-    /// </remarks>
     public class TaskContainer : Task {
         #region Private Instance Fields
 
-        private StringCollection _subXMLElements = null;
+        private StringCollection _subXMLElements;
 
         #endregion Private Instance Fields
 
@@ -68,6 +58,12 @@ namespace NAnt.Core {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Automatically exclude build elements that are defined on the task 
+        /// from things that get executed, as they are evaluated normally during
+        /// XML task initialization.
+        /// </summary>
+        /// <param name="taskNode"><see cref="XmlNode" /> used to initialize the container.</param>
         protected override void InitializeTask(XmlNode taskNode) {
             base.InitializeTask(taskNode);
 
