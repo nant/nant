@@ -74,22 +74,22 @@ namespace NAnt.Core {
 
             if (version == null) {
                 throw new ArgumentNullException("version", string.Format(
-                    CultureInfo.InvariantCulture, "Version not configured for framework {0}.", name));
+                    CultureInfo.InvariantCulture, "Version not configured for framework '{0}'.", name));
             }
 
             if (frameworkDir == null) {
                 throw new ArgumentNullException("frameworkDir", string.Format(
-                    CultureInfo.InvariantCulture, "Framework directory not configured for framework {0}.", name));
+                    CultureInfo.InvariantCulture, "Framework directory not configured for framework '{0}'.", name));
             }
 
             if (frameworkAssemblyDir == null) {
                 throw new ArgumentNullException("frameworkAssemblyDir", string.Format(
-                    CultureInfo.InvariantCulture, "Framework assembly directory not configured for framework {0}.", name));
+                    CultureInfo.InvariantCulture, "Framework assembly directory not configured for framework '{0}'.", name));
             }
 
             if (properties == null) {
                 throw new ArgumentNullException("properties", string.Format(
-                    CultureInfo.InvariantCulture, "Framework properties not configured for framework {0}.", name));
+                    CultureInfo.InvariantCulture, "Framework properties not configured for framework '{0}'.", name));
             }
 
             _name = properties.ExpandProperties(name, Location.UnknownLocation);
@@ -98,19 +98,30 @@ namespace NAnt.Core {
             _properties = properties;
 
             frameworkDir = properties.ExpandProperties(frameworkDir, Location.UnknownLocation);
+            // ensure the framework directory exists
             if (Directory.Exists(frameworkDir)) {
                 _frameworkDirectory = new DirectoryInfo(frameworkDir);
+
             } else {
                 throw new ArgumentException(string.Format(
-                    CultureInfo.InvariantCulture, "Framework directory {0} does not exist.", frameworkDir));
+                    CultureInfo.InvariantCulture, "Framework directory '{0}' does not exist.", frameworkDir));
             }
 
             frameworkAssemblyDir = properties.ExpandProperties(frameworkAssemblyDir, (Location) null);
+            // ensure the framework assembly directory exists
             if (Directory.Exists(frameworkAssemblyDir)) {
                 _frameworkAssemblyDirectory = new DirectoryInfo(frameworkAssemblyDir);
+                // only consider framework assembly directory valid if an assembly
+                // named "System.dll" exists in that directory
+                if (!File.Exists(Path.Combine(_frameworkAssemblyDirectory.FullName, "System.dll"))) {
+                    throw new ArgumentException(string.Format(
+                        CultureInfo.InvariantCulture, "The 'System.dll' assembly" 
+                            + " does not exist in framework assembly directory" 
+                            + " '{0}'.", frameworkAssemblyDir));
+                }
             } else {
                 throw new ArgumentException(string.Format(
-                    CultureInfo.InvariantCulture, "Framework assembly directory {0} does not exist.", frameworkAssemblyDir));
+                    CultureInfo.InvariantCulture, "Framework assembly directory '{0}' does not exist.", frameworkAssemblyDir));
             }
 
             try {
@@ -131,7 +142,7 @@ namespace NAnt.Core {
                     _runtimEngine = new FileInfo(runtimeEnginePath);
                 } else {
                     throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, "Runtime engine {0} does not exist.", runtimeEnginePath));
+                        CultureInfo.InvariantCulture, "Runtime engine '{0}' does not exist.", runtimeEnginePath));
                 }
             }
         }
