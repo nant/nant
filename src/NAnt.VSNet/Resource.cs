@@ -65,12 +65,31 @@ namespace NAnt.VSNet {
             get { return _compiledResourceFile; }
         }
 
+        /// <summary>
+        /// Gets a <see cref="FileInfo" /> representing the physical location
+        /// of the resource file.
+        /// </summary>
         public FileInfo InputFile {
             get { return _resourceSourceFile; }
         }
 
         public Project Project {
             get { return _project; }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="FileInfo" /> representing the logical location
+        /// of the resource file in the project.
+        /// </summary>
+        /// <remarks>
+        /// When the resource file is not linked, this matches the
+        /// <see cref="InputFile" />.
+        /// </remarks>
+        public FileInfo LogicalFile {
+            get {
+                return new FileInfo(Path.Combine(Path.GetDirectoryName(
+                    Project.ProjectPath), _resourceSourceFileRelativePath));
+            }
         }
 
         #endregion Public Instance Properties
@@ -127,8 +146,10 @@ namespace NAnt.VSNet {
             resources.Prefix = Project.ProjectSettings.RootNamespace;
             resources.DynamicPrefix = true;
 
-            return csc.GetManifestResourceName(resources, InputFile.FullName, 
-                dependentFile);
+            // bug #1042917: use logical location of resource file to determine
+            // manifest resource name
+            return csc.GetManifestResourceName(resources, InputFile.FullName,
+                LogicalFile.FullName, dependentFile);
         }
 
         private string GetManifestResourceNameVB(ConfigurationSettings configSetting, string dependentFile) {
@@ -149,8 +170,10 @@ namespace NAnt.VSNet {
             resources.Prefix = Project.ProjectSettings.RootNamespace;
             resources.DynamicPrefix = false;
 
-            return vbc.GetManifestResourceName(resources, InputFile.FullName, 
-                dependentFile);
+            // bug #1042917: use logical location of resource file to determine
+            // manifest resource name
+            return vbc.GetManifestResourceName(resources, InputFile.FullName,
+                LogicalFile.FullName, dependentFile);
         }
 
         private string CompileResource() {
