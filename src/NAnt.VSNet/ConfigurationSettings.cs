@@ -77,11 +77,17 @@ namespace NAnt.VSNet {
             htStringSettings["BaseAddress"] = "/baseaddress:{0}";
             htStringSettings["FileAlignment"] = "/filealign:{0}";
             htStringSettings["DefineConstants"] = "/define:{0}";
-            
-            if (Project.ProjectSettings.Type == ProjectType.CSharp) {
-                htStringSettings["WarningLevel"] = "/warn:{0}";
-                htStringSettings["NoWarn"] = "/nowarn:{0}";
-                htBooleanSettings["IncrementalBuild"] = "/incremental";
+
+            switch (Project.ProjectSettings.Type) {
+                case ProjectType.CSharp:
+                    htStringSettings["WarningLevel"] = "/warn:{0}";
+                    htStringSettings["NoWarn"] = "/nowarn:{0}";
+                    htBooleanSettings["IncrementalBuild"] = "/incremental";
+                    break;
+                case ProjectType.VBNet:
+                    htStringSettings["DefineDebug"] = "/d:DEBUG={0}";
+                    htStringSettings["DefineTrace"] = "/d:TRACE={0}";
+                    break;
             }
 
             htBooleanSettings["AllowUnsafeBlocks"] = "/unsafe";
