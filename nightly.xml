@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
 <project name="nant" default="nightly">
+    <!-- set release type -->
+    <property name="project.release.type" value="nightly" />
     <!-- set build.date property to current date in format yyyyMMdd -->
     <tstamp property="build.date" pattern="yyyyMMdd" />
     <property name="sf.net.ssh.server" value="shell1.sf.net" />
