@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
     <echo message="Using '${nant.settings.currentframework}' Framework"/>
-    
+
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.4" />
@@ -10,12 +10,12 @@
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
+    <property name="build.defines" value="" />
 
-    <!-- platform specific properties. These are the defaults ( run the linux target for a linux build )-->
-    <property name="log4netdll" value="log4net-net-1.0.dll" />
-    <property name="linux" value="false"/>
-    <property name="mono" value="false"/>
-    <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+    <!-- platform specific properties. These are the defaults -->
+    <property name="current.build.defines" value="${build.defines}" />
+    <property name="linux" value="false" />
+    <property name="sourceconfig" value="NAnt.Console.exe.config" />
 
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
@@ -33,14 +33,7 @@
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
         <call target="${project.config}" />
-        <if propertytrue="linux">
-            <property name="mono" value="true" />
-            <property name="sourceconfig" value="NAnt.Console.exe.config.linux"/>
-            <property name="build.dir" value="${build.dir}/linux"/>
-        </if>
-        <if propertytrue="mono">
-            <property name="log4netdll" value="log4net-mono-0.23.dll" />
-        </if>
+        <call target="set-runtime-configuration" />
     </target>
 
     <target name="clean" depends="init" description="Deletes current build configuration">
@@ -52,31 +45,27 @@
         <delete dir="build" failonerror="false" />
     </target>
 
-    <!--run this target to create a linux build  -->
-    <target name = "linux" description="sets paramaters for a linux build">
-        <property name="linux" value="true"/>
-        <call target = "test"/>
-    </target>
-
-    <!--run this target to create a linux build without running tests -->
-    <target name = "linux-build" description="sets paramaters for a linux build">
-        <property name="linux" value="true"/>
-        <call target = "build"/>
-    </target>
-
     <target name="build" depends="init" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
         <!-- prepare build directory -->
         <mkdir dir="${build.dir}/bin" />
+
+        <!-- copy framework-neutral libraries -->
         <copy todir="${build.dir}/bin">
-            <fileset basedir="bin">
-                <includes name="NDoc.Core.dll" />
-                <includes name="NDoc.Documenter.Msdn.dll" />
+            <fileset basedir="lib">
                 <includes name="nunit.framework.dll" />
                 <includes name="NUnitCore.dll" />
                 <includes name="ICSharpCode.SharpZipLib.dll" />
                 <includes name="ICSharpCode.SharpCvsLib.dll" />
-                <includes name="${log4netdll}"/>
+            </fileset>
+        </copy>
+
+        <!-- copy framework-specific libraries -->
+        <copy todir="${build.dir}/bin">
+            <fileset basedir="${lib.dir}">
+                <includes name="NDoc.Core.dll" />
+                <includes name="NDoc.Documenter.Msdn.dll" />
+                <includes name="log4net.dll"/>
             </fileset>
         </copy>
 
@@ -93,7 +82,7 @@
 
         <!-- build win32 specific task assemblies if we are on win32 -->
         <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
-            <nant buildfile="src/${filename}/${filename}.build" target="build" unless="${mono}"/>
+            <nant buildfile="src/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
         </foreach>
 
         <!-- build NAnt.Core.Tests assembly -->
@@ -102,7 +91,6 @@
         <!-- build NAnt.Console.Tests assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
 
-
         <!-- build tests for task assemblies -->
         <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
@@ -110,7 +98,7 @@
         
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
         <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
-            <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${mono}"/>
+            <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>
 
@@ -142,13 +130,13 @@
         
         <!-- test win32 specific task assemblies -->
         <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
-            <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${mono}"/>
+            <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>
 
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
-        <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
             <sources failonempty="true">
                 <includes name="src/NDoc.Documenter.NAnt/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -293,6 +281,20 @@
             </fileset>
         </copy>
 
+        <!-- copy third-party libraries -->
+        <mkdir dir="${build.dir}/lib" />
+        <copy todir="${build.dir}/lib">
+            <fileset basedir="lib">
+                <includes name="**/NDoc.Core.dll" />
+                <includes name="**/NDoc.Documenter.Msdn.dll" />
+                <includes name="**/nunit.framework.dll" />
+                <includes name="**/NUnitCore.dll" />
+                <includes name="**/ICSharpCode.SharpZipLib.dll" />
+                <includes name="**/ICSharpCode.SharpCvsLib.dll" />
+                <includes name="**/log4net.dll"/>
+            </fileset>
+        </copy>
+
         <!-- create zip file -->
         <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
         <zip zipfile="${project.zip-path}">
@@ -324,5 +326,112 @@
                 <excludes name="${nant.console.name}.exe" />
             </fileset>
         </copy>
+    </target>
+
+    <!-- Framework support targets -->
+    <target name="set-runtime-configuration-flags">
+        <property name="current.runtime.config.net" value="false" />
+        <property name="current.runtime.config.netcf" value="false" />
+        <property name="current.runtime.config.mono" value="false" />
+        <property name="current.runtime.config.sscli" value="false" />
+        <property name="current.runtime.config.${current.runtime.config}" value="true" />
+        <property name="current.runtime.net-1.0" value="false" />
+        <property name="current.runtime.net-1.1" value="false" />
+        <property name="current.runtime.netcf-1.0" value="false" />
+        <property name="current.runtime.mono-1.0" value="false" />
+        <property name="current.runtime.sscli-1.0" value="false" />
+        <property name="current.runtime.config.${current.runtime.config}-${current.runtime.version}" value="true" />
+    </target>
+    <target name="set-runtime-configuration">
+        <ifnot propertyexists="current.runtime.config">
+            <ifnot propertyexists="nant.settings.currentframework">
+                <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
+            </ifnot>
+            <ifnot targetexists="set-${nant.settings.currentframework}-runtime-configuration">
+                <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NAnt." />
+            </ifnot>
+            <call target="set-${nant.settings.currentframework}-runtime-configuration" force="true" />
+        </ifnot>
+        <ifnot propertyexists="current.runtime.version">
+            <ifnot propertyexists="nant.settings.currentframework">
+                <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
+            </ifnot>
+            <ifnot targetexists="set-${nant.settings.currentframework}-runtime-configuration">
+                <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NDoc." />
+            </ifnot>
+            <call target="set-${nant.settings.currentframework}-runtime-configuration" force="true" />
+        </ifnot>
+        <ifnot targetexists="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration">
+            <fail message="The ${current.runtime.config}-${current.runtime.version} runtime is not supported by NDoc." />
+        </ifnot>
+        <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration" force="true" />
+    </target>
+    <target name="set-net-1.0-runtime-configuration">
+        <property name="current.runtime.config" value="net" />
+        <property name="current.runtime.version" value="1.0" />
+        <property name="current.runtime.description" value="Microsoft .NET Framework 1.0" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_0" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
+        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
+        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+        <property name="linux" value="false"/>
+        <call target="set-runtime-configuration-flags" force="true" />
+    </target>
+    <target name="set-net-1.1-runtime-configuration">
+        <property name="current.runtime.config" value="net" />
+        <property name="current.runtime.version" value="1.1" />
+        <property name="current.runtime.description" value="Microsoft .NET Framework 1.1" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_1" />
+        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
+        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+        <property name="linux" value="false"/>
+        <call target="set-runtime-configuration-flags" force="true" />
+    </target>
+    <target name="set-netcf-1.0-runtime-configuration">
+        <property name="current.runtime.config" value="netcf" />
+        <property name="current.runtime.version" value="1.0" />
+        <property name="current.runtime.description" value="Microsoft .NET Compact Framework 1.0" />
+        <property name="current.build.defines" value="${build.defines}NETCF,NETCF_1_0" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
+        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
+        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+        <property name="linux" value="false"/>
+        <call target="set-runtime-configuration-flags" force="true" />
+    </target>
+    <target name="set-mono-1.0-runtime-configuration">
+        <property name="current.runtime.config" value="mono" />
+        <property name="current.runtime.version" value="1.0" />
+        <property name="current.runtime.description" value="Mono 1.0" />
+        <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
+        <ifnot propertyexists="linux" propertytrue="linux">
+            <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
+            <property name="linux" value="false"/>
+            <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+        </ifnot>
+        <call target="set-runtime-configuration-flags" force="true" />
+    </target>
+    <target name="set-mono-1.0-linux-runtime-configuration">
+        <property name="current.runtime.config" value="mono" />
+        <property name="current.runtime.version" value="1.0" />
+        <property name="current.runtime.description" value="Mono 1.0" />
+        <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
+        <property name="nant.settings.currentframework" value="mono-1.0-linux" />
+        <property name="sourceconfig" value="NAnt.Console.exe.config.linux"/>
+        <property name="linux" value="true" />
+        <call target="set-runtime-configuration-flags" force="true" />
+    </target>
+    <target name="set-sscli-1.0-runtime-configuration">
+        <property name="current.runtime.config" value="sscli" />
+        <property name="current.runtime.version" value="1.0" />
+        <property name="current.runtime.description" value="Microsoft Shared Source CLI 1.0" />
+        <property name="current.build.defines" value="${build.defines}SSCLI,SSCLI_1_0" />
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
+        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
+        <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+        <property name="linux" value="false" />
+        <call target="set-runtime-configuration-flags" force="true" />
     </target>
 </project>
