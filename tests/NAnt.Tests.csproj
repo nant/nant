@@ -270,11 +270,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core\Tasks\ScriptTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.Core\Tasks\SleepTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -365,6 +360,15 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.MSNet\NAnt.MSNet.build"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "NAnt.MSNet\Tasks\ScriptTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.SourceControl\NAnt.SourceControl.build"
                     SubType = "Content"
                     BuildAction = "None"
@@ -408,6 +412,11 @@
                     RelPath = "NAnt.Win32\NAnt.Win32.build"
                     SubType = "Content"
                     BuildAction = "None"
+                />
+                <File
+                    RelPath = "NAnt.Win32\Tasks\ReadRegistryTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.Zip\NAnt.Zip.build"
