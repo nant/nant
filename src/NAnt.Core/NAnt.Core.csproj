@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt"
+                RootNamespace = "NAnt.Core"
                 StartupObject = ""
             >
                 <Config
@@ -159,6 +159,10 @@
                     RelPath = "Log.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core.build"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "PathScanner.cs"
