@@ -74,10 +74,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("output", Required=true)]
         public string Output {
-            get { return _output; }
+            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _output = Project.GetFullPath(value);
+                    _output = value;
                 } else {
                     _output = null;
                 }
@@ -137,10 +137,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("template", Required=false)]
         public string Template {
-            get { return _template; }
+            get { return (_template != null) ? Project.GetFullPath(_template) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _template = Project.GetFullPath(value);
+                    _template = value;
                 } else {
                     _template = null;
                 }
@@ -159,10 +159,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("keyfile", Required=false)]
         public string KeyFile {
-            get { return _keyfile; }
+            get { return (_keyfile != null) ? Project.GetFullPath(_keyfile) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _keyfile = Project.GetFullPath(value);
+                    _keyfile = value;
                 } else {
                     _keyfile = null;
                 }

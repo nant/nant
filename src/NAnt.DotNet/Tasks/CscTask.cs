@@ -70,10 +70,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("doc")]
         public string Doc {
-            get { return _doc; }
+            get { return (_doc != null) ? Project.GetFullPath(_doc) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _doc = Project.GetFullPath(value);
+                    _doc = value;
                 } else {
                     _doc = null;
                 }

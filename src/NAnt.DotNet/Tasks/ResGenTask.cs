@@ -81,7 +81,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("output", Required=false)]
         public string Output {
-            get { return _output; }
+            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
                     _output = value;
@@ -111,7 +111,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("todir", Required=false)]
         public string ToDirectory {
-            get { return _toDir; }
+            get { return (_toDir != null) ? Project.GetFullPath(_toDir) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
                     _toDir = value;

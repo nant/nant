@@ -61,10 +61,10 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("output", Required=true)]
         public string Output {
-            get { return _output; }
+            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _output = Project.GetFullPath(value);
+                    _output = value;
                 } else {
                     _output = null;
                 }
@@ -114,10 +114,10 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("win32icon")]
         public string Win32Icon {
-            get { return _win32icon; }
+            get { return (_win32icon != null) ? Project.GetFullPath(_win32icon) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _win32icon = Project.GetFullPath(value);
+                    _win32icon = value;
                 } else {
                     _win32icon = null;
                 }
