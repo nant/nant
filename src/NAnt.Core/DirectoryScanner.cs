@@ -334,10 +334,17 @@ namespace NAnt.Core {
             }
             
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
+            bool caseInsensitiveFS = !IsCaseSensitiveFileSystem(searchDirectory);
+            
+            //move everything to lowercase.
+            if(caseInsensitiveFS) {
+                searchDirectory = searchDirectory.ToLower(CultureInfo.InvariantCulture);
+            }
+
             regexPattern = ToRegexPattern(searchDirectory, modifiedNAntPattern);
 
             // specify pattern as case-insensitive if appropriate to this file system.
-            if (!IsCaseSensitiveFileSystem(searchDirectory)) {
+            if (caseInsensitiveFS) {
                 regexPattern = "(?i)" + regexPattern;
             }
         }
