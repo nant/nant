@@ -199,7 +199,7 @@
             </assemblies>
             <documenters>
                 <documenter name="NAntTask">
-                    <property name="OutputDirectory" value="${build.dir}\docs\Tasks" />
+                    <property name="OutputDirectory" value="${build.dir}\docs\tasks" />
                     <property name="ShowMissingSummaries" value="False" />
                     <property name="ShowMissingRemarks" value="False" />
                     <property name="ShowMissingParams" value="False" />
