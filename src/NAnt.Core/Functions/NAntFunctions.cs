@@ -116,26 +116,27 @@ namespace NAnt.Core.Functions {
         /// </summary>
         /// <returns>
         /// The <see cref="Uri" /> form of the build file, or 
-        /// <see langword="null" /> if the project is not file backed.
+        /// an empty <see cref="string" /> if the project is not file backed.
         /// </returns>
         [Function("get-buildfile-uri")]
         public string GetBuildFileUri() {
             if (Project.BuildFileUri != null) {
                 return Project.BuildFileUri.ToString();
             }
-            return null;
+            return string.Empty;
         }
 
         /// <summary>
         /// Gets the local path to the build file.
         /// </summary>
         /// <returns>
-        /// The local path of the build file, or <see langword="null" /> if the 
-        /// project is not file backed.
+        /// The local path of the build file, or an empty <see cref="string" />
+        /// if the project is not file backed.
         /// </returns>
         [Function("get-buildfile-path")]
         public string GetBuildFilePath() {
-            return Project.BuildFileLocalName;
+            string buildFile = Project.BuildFileLocalName;
+            return (buildFile != null) ? buildFile : string.Empty;
         }
 
         /// <summary>
@@ -186,14 +187,14 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("exists")]
         public bool Exists(string name) {
-            return Project.Targets.Find(name) != null;
+            return (Project.Targets.Find(name) != null);
         }
 
         /// <summary>
         /// Gets the name of the target being executed.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that contains the name of the target
+        /// A <see cref="string" /> that contains the name of the target
         /// being executed.
         /// </returns>
         /// <exception cref="InvalidOperationException">No target is being executed.</exception>
@@ -373,7 +374,7 @@ namespace NAnt.Core.Functions {
         [Function("sdk-exists")]
         public bool SdkExists(string name) {
             if (Project.Frameworks.ContainsKey(name)) {
-                return Project.Frameworks[name].SdkDirectory != null;
+                return (Project.Frameworks[name].SdkDirectory != null);
             } else {
                 return false;
             }
@@ -620,8 +621,27 @@ namespace NAnt.Core.Functions {
         /// The value of the specified environment variable.
         /// </returns>
         [Function("get-variable")]
-        public string GetVariable(string name) {
+        public static string GetVariable(string name) {
+            if (!VariableExists(name)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "Environment variable '{0}' does not exist.", name));
+            }
+
             return Environment.GetEnvironmentVariable(name);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the specified environment variable
+        /// exists.
+        /// </summary>
+        /// <param name="name">The environment variable that should be checked.</param>
+        /// <returns>
+        /// <see langword="true" /> if the environment variable exists; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        [Function("variable-exists")]
+        public static bool VariableExists(string name) {
+            return (Environment.GetEnvironmentVariable(name) != null);
         }
 
         #endregion Public Instance Methods
