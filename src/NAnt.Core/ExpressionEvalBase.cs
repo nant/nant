@@ -709,13 +709,13 @@ namespace NAnt.Core {
 
         protected string GetSimpleTypeName(Type t) {
             if (t == typeof(int)) {
-                return "integer";
+                return "int";
             } else if (t == typeof(double)) {
                 return "double";
             } else if (t == typeof(string)) {                    
                 return "string";
             } else if (t == typeof(bool)) {
-                return "boolean";
+                return "bool";
             } else if (t == typeof(DateTime)) {
                 return "datetime";
             } else if (t == typeof(TimeSpan)) {
