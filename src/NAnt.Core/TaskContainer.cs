@@ -54,7 +54,8 @@ namespace NAnt.Core {
         protected override void InitializeTask(XmlNode taskNode) {
             base.InitializeTask(taskNode);
 
-            //Exclude any BuildElements (like FileSets, etc.) from our execution elements.
+            // Exclude any BuildElements (like FileSets, etc.) from our execution elements.
+            // These build elements will be handled during the xml init of the task container (Element xmlinit code)
             _subXMLElements = new StringCollection();
             foreach (MemberInfo memInfo in this.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                 if(memInfo.DeclaringType.Equals(typeof(object))) {
@@ -85,17 +86,18 @@ namespace NAnt.Core {
         /// </remarks>
         protected virtual void ExecuteChildTasks() {
             foreach (XmlNode childNode in XmlNode) {
+                //we only care about xmlnodes (elements) that are of the right namespace.
                 if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                     continue;
                 }
-
+                
+                // ignore any private xml elements (by def. this includes any property with a BuildElementAttribute (name).
                 if (IsPrivateXmlElement(childNode)) {
                     continue;
                 }
 
                 Task task = CreateChildTask(childNode);
-                // for now, we should assume null tasks are because of incomplete 
-                // metadata about the XML.
+                // for now, we should assume null tasks are because of incomplete metadata about the XML.
                 if(task != null) {
                     task.Parent = this;
                     task.Execute();
