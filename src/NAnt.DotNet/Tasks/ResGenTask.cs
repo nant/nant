@@ -45,6 +45,18 @@ namespace NAnt.DotNet.Tasks {
     /// ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>Convert a fileset of.resx files to the .resources </para>
+    ///   <code>
+    /// <![CDATA[
+    /// <resgen todir="." >
+    ///     <resources>
+    ///         <includes name="translations.resx" />    
+    ///     </resources>
+    /// </resgen>
+    /// ]]>
+    ///   </code>
+    /// </example>
     [TaskName("resgen")]
     [ProgramLocation(LocationType.FrameworkSdkDir)]
     public class ResGenTask : ExternalProgramBase {
@@ -68,13 +80,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("input", Required=false)]
         public string Input {
             get { return (_input != null) ? Project.GetFullPath(_input) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _input = value;
-                } else {
-                    _input = null;
-                }
-            }
+            set { _input = SetStringValue(value); }
         }
 
         /// <summary>
@@ -83,13 +89,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("output", Required=false)]
         public string Output {
             get { return _output; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _output = value;
-                } else {
-                    _output = null;
-                }
-            }
+            set { _output = SetStringValue(value); }
         }
 
         /// <summary>
@@ -98,13 +98,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("target", Required=false)]
         public string TargetExt {
             get { return _targetExt; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _targetExt = value;
-                } else {
-                    _targetExt = null;
-                }
-            }
+            set { _targetExt = SetStringValue(value); }
         }
 
         /// <summary>
@@ -113,13 +107,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("todir", Required=false)]
         public string ToDirectory {
             get { return (_toDir != null) ? Project.GetFullPath(_toDir) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _toDir = value;
-                } else {
-                    _toDir = null;
-                }
-            }
+            set { _toDir = SetStringValue(value); }
         }
        
         /// <summary>
@@ -268,7 +256,12 @@ namespace NAnt.DotNet.Tasks {
                 }
                 outputFile = Path.ChangeExtension(outputFile, TargetExt);
             } else {
-                outputFile = Path.Combine(ToDirectory, Output);
+                if ( ToDirectory == null ) {
+                    outputFile = Path.Combine( Project.BaseDirectory, Output);
+                }
+                else {
+                    outputFile = Path.Combine(ToDirectory, Output);
+                }
             }
             return outputFile;
         }
