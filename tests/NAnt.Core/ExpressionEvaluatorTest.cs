@@ -29,7 +29,8 @@ using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core {
-    [TestFixture] public class ExpressionEvaluatorTest : BuildTestBase {
+    [TestFixture] 
+    public class ExpressionEvaluatorTest : BuildTestBase {
         #region Private Instance Fields
 
         private string _format = @"<?xml version='1.0'?>
@@ -45,21 +46,24 @@ namespace Tests.NAnt.Core {
 
         #endregion Private Instance Fields
 
-        [SetUp] protected override void SetUp() {
+        #region Override implementation of BuildTestBase
+
+        [SetUp]
+        protected override void SetUp() {
             base.SetUp();
             _buildFileName = Path.Combine(TempDirName, "test.build");
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
 
-            //_project = new Project(_buildFileName, Level.Debug);
             _project = new Project(_buildFileName, Level.Info);
             _project.Properties["prop1"] = "asdf";
         }
 
-        [TearDown] protected override void TearDown() {
-        }
+        #endregion Override implementation of BuildTestBase
+
         #region Public Instance Methods
         
-        [Test] public void TestCoreOperations() {
+        [Test]
+        public void TestCoreOperations() {
             AssertExpression("1+2", 3);
             AssertExpression("1+2+3", 6);
             AssertExpression("1+2*3", 7);
@@ -87,7 +91,8 @@ namespace Tests.NAnt.Core {
             AssertFailure("aaaa::bbbb 1");
         }
         
-        [Test] public void TestCoreOperationFailures() {
+        [Test]
+        public void TestCoreOperationFailures() {
             AssertFailure("1+aaaa");
             AssertFailure("1+");
             AssertFailure("*3");
@@ -108,7 +113,8 @@ namespace Tests.NAnt.Core {
             AssertFailure("5%0");
         }
         
-        [Test] public void TestRelationalOperators() {
+        [Test]
+        public void TestRelationalOperators() {
             AssertExpression("'a' = 'a'", true);
             AssertExpression("'a' = 'b'", false);
             AssertExpression("'a' <> 'a'", false);
@@ -134,7 +140,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("true<>true", false);
         }
         
-        [Test] public void TestLogicalOperators() {
+        [Test]
+        public void TestLogicalOperators() {
             AssertExpression("true or false or false", true);
             AssertExpression("false or false or false", false);
             AssertExpression("false or true", true);
@@ -149,7 +156,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("true or not (--1=1)", true);
         }
         
-        [Test] public void TestConversionFunctions() {
+        [Test]
+        public void TestConversionFunctions() {
             AssertExpression("convert::to-double(5)/(2+8)", 0.5);
             AssertExpression("convert::to-double(1)/2+3", 3.5);
             AssertExpression("convert::to-datetime('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
@@ -167,7 +175,9 @@ namespace Tests.NAnt.Core {
             AssertExpression("convert::to-string(1)","1");
             AssertExpression("convert::to-int('123'+'45')",12345);
         }
-        [Test] public void TestStringFunctions() {
+
+        [Test]
+        public void TestStringFunctions() {
             AssertExpression("string::get-length('')", 0);
             AssertExpression("string::get-length('')=0", true);
             AssertExpression("string::get-length('')=1", false);
@@ -189,13 +199,15 @@ namespace Tests.NAnt.Core {
             AssertExpression("string::index-of('abc','d')=-1", true);
         }
         
-        [Test] public void TestDateTimeFunctions() {
+        [Test]
+        public void TestDateTimeFunctions() {
             AssertFailure("datetime::now(111)");
             AssertFailure("datetime::add()");
             AssertFailure("datetime::now(");
         }
         
-        [Test] public void TestMathFunctions() {
+        [Test]
+        public void TestMathFunctions() {
             AssertExpression("math::round(0.1)", 0.0);
             AssertExpression("math::round(0.7)", 1.0);
             AssertExpression("math::floor(0.1)", 0.0);
@@ -206,7 +218,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("math::abs(-1)", 1.0);
         }
         
-        [Test] public void TestConditional() {
+        [Test]
+        public void TestConditional() {
             AssertExpression("if(true,1,2)", 1);
             AssertExpression("if(true,'a','b')", "a");
             AssertExpression("if(false,'a','b')", "b");
@@ -217,17 +230,20 @@ namespace Tests.NAnt.Core {
             AssertFailure("if [ true, 1, 0 ]");
         }
         
-        [Test] public void TestFileFunctions() {
+        [Test]
+        public void TestFileFunctions() {
             AssertExpression("file::exists('c:\\i_am_not_there.txt')", false);
             AssertFailure("file::get-last-write-time('c:/no-such-file.txt')");
         }
         
-        [Test] public void TestDirectoryFunctions() {
+        [Test]
+        public void TestDirectoryFunctions() {
             AssertExpression("directory::exists('c:\\i_am_not_there')", false);
             AssertExpression("directory::exists('" + Directory.GetCurrentDirectory() + "')", true);
         }
         
-        [Test] public void TestNAntFunctions() {
+        [Test]
+        public void TestNAntFunctions() {
             AssertExpression("property::get-value('prop1')", "asdf");
             AssertExpression("property::exists('prop1')", true);
             AssertExpression("property::exists('prop1a')", false);
@@ -235,7 +251,8 @@ namespace Tests.NAnt.Core {
             //AssertExpression("target::exists('test')", true);
         }
 
-        [Test] public void TestStandaloneEvaluator() {
+        [Test]
+        public void TestStandaloneEvaluator() {
             ExpressionEvaluator eval = 
                 new ExpressionEvaluator(_project, 
                         _project.Properties, 
@@ -282,9 +299,9 @@ namespace Tests.NAnt.Core {
 
             eval.CheckSyntax("1+2*3 1");
         }
-        
-        #endregion
-        
+
+        #endregion Public Instance Methods
+
         #region Private Instance Methods
 
         private void AssertExpression(string expression, object expectedReturnValue) {
@@ -314,8 +331,6 @@ namespace Tests.NAnt.Core {
             return string.Format(CultureInfo.InvariantCulture, _format, TempDirName, globalTasks, targetTasks);
         }
 
-        #endregion
-
+        #endregion Private Instance Methods
     }
 }
-
