@@ -30,9 +30,11 @@ namespace NAnt.Core.Tasks {
     /// Checks if a resource is available at runtime.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The specified property is set to <see langword="true" /> if the requested 
     /// resource is available at runtime, and <see langword="false" /> if the 
     /// resource is not available.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>

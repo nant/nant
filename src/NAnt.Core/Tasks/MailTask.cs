@@ -35,8 +35,10 @@ namespace NAnt.Core.Tasks {
     /// Sends an SMTP message.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// Text and text files to include in the message body may be specified as 
     /// well as binary attachments.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>

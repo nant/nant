@@ -34,8 +34,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    ///   <para>
-    ///   Processes a document via XSLT.</para>
+    /// Processes a document via XSLT.
     /// </summary>
     /// <example>
     ///   <para>Create a report in HTML.</para>

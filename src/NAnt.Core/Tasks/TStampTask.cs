@@ -48,8 +48,8 @@ namespace NAnt.Core.Tasks {
     ///   The date and time string displayed by the <see cref="TStampTask" /> 
     ///   uses the computer's default long date and time string format.  You 
     ///   might consider setting these to the 
-    ///   <a href="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO 8601 standard 
-    ///   for date and time notation</a>.
+    ///   <see href="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO 8601 standard 
+    ///   for date and time notation</see>.
     ///   </para>
     /// </remarks>
     /// <example>

@@ -29,34 +29,53 @@ namespace NAnt.Core.Tasks {
     /// Sets project properties based on the evaluatuion of a regular expression.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The <see cref="Pattern" /> attribute must contain one or more 
-    /// <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpcongroupingconstructs.asp">named grouping constructs</a>, 
-    /// which represents the names of the properties to be set.
-    /// These named grouping constructs can be enclosed by angle brackets (?&lt;name&gt;) or single quotes (?'name').
-    /// <note>In the build file, use the XML element <![CDATA[&lt;]]> to specify &lt;, and <![CDATA[&gt;]]> to specify &gt;.</note>
-    /// <note>The named grouping construct must not contain any punctuation and it cannot begin with a number.</note>
+    /// <see href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpcongroupingconstructs.asp">
+    /// named grouping constructs</see>, which represents the names of the 
+    /// properties to be set. These named grouping constructs can be enclosed 
+    /// by angle brackets (?&lt;name&gt;) or single quotes (?'name').
+    /// </para>
+    /// <note>
+    /// In the build file, use the XML element <![CDATA[&lt;]]> to specify &lt;, 
+    /// and <![CDATA[&gt;]]> to specify &gt;.
+    /// </note>
+    /// <note>
+    /// The named grouping construct must not contain any punctuation and it 
+    /// cannot begin with a number.
+    /// </note>
     /// </remarks>
     /// <example>
-    ///   <para>Find the last word in the given string and stores it in the property <c>lastword</c>.</para>
+    ///   <para>
+    ///   Find the last word in the given string and stores it in the property 
+    ///   <c>lastword</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <regex pattern="(?'lastword'\w+)$" input="This is a test sentence" />
     /// <echo message="${lastword}" />
     ///     ]]>
     ///   </code>
-    ///   <para>Split the full filename and extension of a filename.</para>
+    ///   <para>
+    ///   Split the full filename and extension of a filename.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <regex pattern="^(?'filename'.*)\.(?'extension'\w+)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
     ///     ]]>
     ///   </code>
-    ///   <para>Split the path and the filename. (This checks for <c>/</c> or <c>\</c> as the path separator).</para>
+    ///   <para>
+    ///   Split the path and the filename. (This checks for <c>/</c> or <c>\</c> 
+    ///   as the path separator).
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <regex pattern="^(?'path'.*(\\|/)|(/|\\))(?'file'.*)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
     ///     ]]>
     ///   </code>
-    ///   <para>Results in path=<c>d:\Temp\SomeDir\SomeDir\</c> and file=<c>bla.xml</c>.</para>
+    ///   <para>
+    ///   Results in path=<c>d:\Temp\SomeDir\SomeDir\</c> and file=<c>bla.xml</c>.
+    ///   </para>
     /// </example>
     [TaskName("regex")]
     public class RegexTask : Task {

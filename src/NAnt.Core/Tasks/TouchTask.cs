@@ -31,7 +31,10 @@ namespace NAnt.Core.Tasks {
     /// Touches a file or set of files -- corresponds to the Unix touch command.  
     /// </summary>
     /// <remarks>
-    /// If the file specified in the single-file case does not exist, the task will create it.
+    /// <para>
+    /// If the file specified in the single-file case does not exist, the task 
+    /// will create it.
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>Touch the <c>Main.cs</c> file.  The current time is used.</para>
