@@ -224,8 +224,24 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// The command-line arguments for the program.
+        /// Command-line arguments for the program.  The command line arguments are used to specify
+        /// any cvs command options that are not available as attributes.  These are appended
+        /// after the command itself and are additive to whatever attributes are currently specified.
         /// </summary>
+        /// <example>
+        ///     &lt;cvs-checkout    cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+        ///                         password=""
+        ///                         module="nant"
+        ///                         destination="e:\test\merillcornish\working"
+        ///                         readonly="true"
+        ///                         quiet="true"
+        ///                         commandline="-n"
+        ///                         cvsfullpath="C:\Program Files\TortoiseCVS\cvs.exe"
+        ///     /&gt;
+        ///     <br />
+        ///     Produces the cvs command:
+        ///     <code>c:\Program Files\TortoiseCVS\cvs.exe -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant -q checkout -n nant</code>
+        /// </example>
         [TaskAttribute("commandline")]
         public string CommandLineArguments {
             get {return _commandLineArguments;}

@@ -335,7 +335,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("read", Required=false)]
         [BooleanValidator()]
-        public bool ReadOnly {
+        public bool Read {
             get {return ((Option)GlobalOptions["readonly-attribute"]).IfDefined;}
             set {
                 SetGlobalOption("readonly-attribute", "-r", value);
@@ -354,7 +354,7 @@ namespace NAnt.SourceControl.Tasks {
         public bool ReadWrite {
             get {return ((Option)GlobalOptions["readwrite"]).IfDefined;}
             set {
-                this.ReadWrite = !value;
+                this.Read = !value;
                 SetGlobalOption("readwrite", "-w", value);
             }
         }
@@ -387,24 +387,28 @@ namespace NAnt.SourceControl.Tasks {
             }
 
             Logger.Debug("number of arguments: " + Arguments.Count);
-            if (null == Arguments || 0 == Arguments.Count) {
-                if (IsCvsRootNeeded) {
-                    Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"-d{0}", Root)));
-                }
-                AppendGlobalOptions();
-                Arguments.Add(new Argument(CommandName));
-
-                Logger.Debug("commandline args null: " + ((null == CommandLineArguments) ? "yes" : "no"));
-                if (null == CommandLineArguments) {
-                    AppendCommandOptions();
-                }
-
-                AppendFiles();
-                if (IsModuleNeeded) {
-                    Arguments.Add(new Argument(Module));
-                }
+            if (IsCvsRootNeeded) {
+                Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"-d{0}", Root)));
             }
-            Logger.Debug("Using sharpcvs" + UseSharpCvsLib);
+            AppendGlobalOptions();
+            Arguments.Add(new Argument(CommandName));
+
+            AppendCommandOptions();
+
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
+                "{0} commandline args are null: {1}", 
+                LogPrefix, ((null == CommandLineArguments) ? "yes" : "no")));
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
+                "{0} commandline: {1}", 
+                LogPrefix, CommandLineArguments));
+            if (null != CommandLineArguments) {
+                Arguments.Add(new Argument(CommandLineArguments));
+            }
+
+            AppendFiles();
+            if (IsModuleNeeded) {
+                Arguments.Add(new Argument(Module));
+            }
 
             if (!Directory.Exists(DestinationDirectory.FullName)) {
                 Directory.CreateDirectory(DestinationDirectory.FullName);
@@ -414,9 +418,6 @@ namespace NAnt.SourceControl.Tasks {
 
             process.StartInfo.WorkingDirectory = 
                 DestinationDirectory.FullName;
-            Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
-            Logger.Debug("executable: " + process.StartInfo.FileName);
-            Logger.Debug("arguments: " + process.StartInfo.Arguments);
 
             Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} working directory: {1}", 
                 LogPrefix, process.StartInfo.WorkingDirectory));
