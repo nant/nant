@@ -5,15 +5,24 @@
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" unless="${property::exists('project.version')}" />
     <property name="project.release.type" value="dev" unless="${property::exists('project.release.type')}" /> <!-- nightly / dev / alpha / beta# / rc# / release -->
+    <!-- 
+        specifies whether the CommonAssemblyInfo.cs file should be created.
+        we do not want this for releases (whether they're beta or release) as
+        this would cause the build number to be updated
+    -->
+    <property name="create.assemblyinfo" value="true" />
+    
     <!-- global build settings -->
     <property name="lib.dir" value="${path::combine(build.dir, 'bin/lib')}" dynamic="true" />
     <property name="lib.family.dir" value="${path::combine(lib.dir, framework::get-family(framework::get-target-framework()))}" dynamic="true" />
     <property name="lib.framework.dir" value="${path::combine(lib.family.dir, framework::get-version(framework::get-target-framework()))}" dynamic="true" />
+    
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
     <property name="build.defines" value="" />
     <property name="build.number" value="${math::abs(math::floor(timespan::get-total-days(datetime::now() - datetime::parse('01/01/2000'))))}" />
+    
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
 
@@ -68,7 +77,7 @@
         <call target="${project.config}" />
         <call target="set-framework-configuration" />
     </target>
-    <target name="create-common-assemblyinfo">
+    <target name="create-common-assemblyinfo" if="${create.assemblyinfo}">
         <!-- ensure src/CommonAssemblyInfo.cs is writable if it already exists -->
         <attrib file="src/CommonAssemblyInfo.cs" readonly="false" if="${file::exists('src/CommonAssemblyInfo.cs')}" />
         <!-- generate the source file holding the common assembly-level attributes -->
@@ -83,7 +92,7 @@
                 <attribute type="CLSCompliantAttribute" value="true" />
                 <attribute type="AssemblyTitleAttribute" value="NAnt" />
                 <attribute type="AssemblyDescriptionAttribute" value="A .NET Build Tool" />
-                <attribute type="AssemblyConfigurationAttribute" value="${framework::get-target-framework()}.${platform::get-name()}; ${project.release.type}" />
+                <attribute type="AssemblyConfigurationAttribute" value="${project.release.type}" />
                 <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
                 <attribute type="AssemblyProductAttribute" value="NAnt" />
                 <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
@@ -482,7 +491,7 @@
             </filterchain>
         </copy>
         <!-- determine the zip file prefix directory -->
-        <if test="${not(project.release.type == 'release')}">
+        <if test="${project.release.type == 'release'}">
             <property name="project.zip.prefix" value="${project.name}-${project.version}" />
         </if>    
         <if test="${not(project.release.type == 'release')}">
@@ -492,7 +501,7 @@
 
     <target name="package-src" depends="package-common">
         <!-- determine name of package zip file -->
-        <property name="project.zip-path.src" value="${nant.project.basedir}/build/${project.name}-${project.version}-src.zip" />
+        <property name="project.zip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version}-src.zip" />
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.src}" if="${file::exists(project.zip-path.src)}" />
         <!-- create package zip file -->
