@@ -109,6 +109,7 @@ namespace NAnt.DotNet.Tasks {
         /// This address can be specified as a decimal, hexadecimal, or octal 
         /// number. 
         /// </remarks>
+        [TaskAttribute("baseaddress")]        
         public string BaseAddress {
             get { return _baseAddress; }
             set { _baseAddress = StringUtils.ConvertEmptyToNull(value); }
