@@ -142,16 +142,16 @@ namespace NAnt.Core {
                             CultureInfo.InvariantCulture, 
                             "Invalid framework '{0}' specified.", 
                             cmdlineOptions.DefaultFramework));
-                        Console.WriteLine();
+                        Console.Error.WriteLine();
 
                         if (project.Frameworks.Count == 0) {
-                            Console.WriteLine("There are no supported frameworks available on your system.");
+                            Console.Error.WriteLine("There are no supported frameworks available on your system.");
                         } else {
-                            Console.WriteLine("Possible values include:");
-                            Console.WriteLine();
+                            Console.Error.WriteLine("Possible values include:");
+                            Console.Error.WriteLine();
 
                             foreach (string framework in project.Frameworks.Keys) {
-                                Console.WriteLine(" {0} ({1})", framework, project.Frameworks[framework].Description);
+                                Console.Error.WriteLine(" {0} ({1})", framework, project.Frameworks[framework].Description);
                             }
                         }
                         // signal error
@@ -176,7 +176,7 @@ namespace NAnt.Core {
                     Console.WriteLine(commandLineParser.LogoBanner);
                 }
                 // Write message of exception to console
-                Console.WriteLine(ex.Message);
+                Console.Error.WriteLine(ex.Message);
                 // insert empty line
                 Console.WriteLine();
                 // instruct users to check the usage instructions
@@ -184,11 +184,11 @@ namespace NAnt.Core {
                 // signal error
                 return 1;
             } catch (ApplicationException ex) {
-                Console.WriteLine("BUILD FAILED");
+                Console.Error.WriteLine("BUILD FAILED");
                 // insert empty line
-                Console.WriteLine();
+                Console.Error.WriteLine();
                 // output message of exception
-                Console.WriteLine(ex.Message);
+                Console.Error.WriteLine(ex.Message);
                 // get first nested exception
                 Exception nestedException = ex.InnerException;
                 // set initial indentation level for the nested exceptions
@@ -198,21 +198,27 @@ namespace NAnt.Core {
                     // (for each nesting level)
                     exceptionIndentationLevel += 4;
                     // output exception message
-                    Console.WriteLine(new string(' ', exceptionIndentationLevel) 
+                    Console.Error.WriteLine(new string(' ', exceptionIndentationLevel) 
                         + nestedException.Message);
                     // move on to next inner exception
                     nestedException = nestedException.InnerException;
                 }
-                // insert empty line
-                Console.WriteLine();
-                // check if warning messages will be logged to the internal log
-                if (logger.IsWarnEnabled) {
-                    logger.Warn("NAnt Build Failure", ex);
-                    Console.WriteLine("Consult the log4net output for more information.");
+                // output full stacktrace when NAnt is started in debug mode
+                if (Level.Debug >= projectThreshold) {
+                    // insert empty line
+                    Console.Error.WriteLine();
+                    // output header
+                    Console.Error.WriteLine("Stacktrace:");
+                    // insert empty line
+                    Console.Error.WriteLine();
+                    // output full stacktrace
+                    Console.Error.WriteLine(ex.ToString());
                 } else {
+                    // insert empty line
+                    Console.WriteLine();
+                    // output help text
                     Console.WriteLine("For more information regarding the cause of the " +
-                        "build failure, enable log4net using the instructions in NAnt.exe.config and " +
-                        "run the build again.");
+                        "build failure, run the build again in debug mode.");
                 }
                 // insert empty line
                 Console.WriteLine();
@@ -222,26 +228,32 @@ namespace NAnt.Core {
                 return 1;
             } catch (Exception ex) {
                 // all other exceptions should have been caught
-                Console.WriteLine("INTERNAL ERROR");
+                Console.Error.WriteLine("INTERNAL ERROR");
                 // insert empty line
-                Console.WriteLine();
+                Console.Error.WriteLine();
                 // output message of exception
-                Console.WriteLine(ex.Message);
-                // insert empty line
-                Console.WriteLine();
-                // check if fatal messages will be logged to the internal log
-                if (logger.IsFatalEnabled) {
-                    logger.Fatal("Internal Nant Error", ex);
-                    Console.WriteLine("Consult the log4net output for more information.");
+                Console.Error.WriteLine(ex.Message);
+                // output full stacktrace when NAnt is started in verbose mode
+                if (Level.Verbose >= projectThreshold) {
+                    // insert empty line
+                    Console.Error.WriteLine();
+                    // output header
+                    Console.Error.WriteLine("Stacktrace:");
+                    // insert empty line
+                    Console.Error.WriteLine();
+                    // output full stacktrace
+                    Console.Error.WriteLine(ex.ToString());
                 } else {
+                    // insert empty line
+                    Console.WriteLine();
+                    // output help text
                     Console.WriteLine("For more information regarding the cause of the " +
-                        "build failure, enable log4net using the instructions in NAnt.exe.config and " +
-                        "run the build again.");
+                        "build failure, run the build again in verbose mode.");
                 }
                 // insert empty line
                 Console.WriteLine();
                 // instruct users to report this problem
-                Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
+                Console.WriteLine("Please send a bug report (including the version of NAnt you're using) to nant-developers@lists.sourceforge.net");
                 // signal fatal error
                 return 2;
             } finally {
