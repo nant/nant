@@ -283,9 +283,6 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "warn", WarningLevel);
             }
 
-            // write list of warnings to suppress
-            WriteNoWarnList(writer);
-
             if (Codepage != null) {
                 WriteOption(writer, "codepage", Codepage);
             }
