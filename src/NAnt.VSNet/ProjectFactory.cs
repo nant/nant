@@ -98,7 +98,7 @@ namespace NAnt.VSNet {
             return projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vcproj";
         }
 
-        public static string LoadGuid(string fileName, TempFileCollection tfc) {
+        public static string LoadGuid(string fileName) {
             // check if a project with specified file is already cached
             if (_cachedProjects.ContainsKey(fileName)) {
                 // return the guid of the cached project
@@ -113,7 +113,7 @@ namespace NAnt.VSNet {
             if (!_cachedProjectGuids.Contains(fileName)) {
                 if (projectExt == ".vbproj" || projectExt == ".csproj") {
                     // add project GUID to cache
-                    _cachedProjectGuids[fileName] = Project.LoadGuid(fileName, tfc);
+                    _cachedProjectGuids[fileName] = Project.LoadGuid(fileName);
                 } else if (projectExt == ".vcproj") {
                     // add project GUID to cache
                     _cachedProjectGuids[fileName] = VcProject.LoadGuid(fileName);

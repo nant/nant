@@ -333,8 +333,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (failedProjects.Count > 0)
-            {
+            if (failedProjects.Count > 0) {
                 Log(Level.Error, LogPrefix);
                 Log(Level.Error, LogPrefix + "Solution failed to build!  Failed projects were:" );
                 foreach (string projectName in failedProjects)
@@ -383,11 +382,11 @@ namespace NAnt.VSNet {
 
         private void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
-                string projectGuid = ProjectFactory.LoadGuid(projectFileName, _tfc);
-				if (_htProjectFiles[projectGuid] != null)
-					throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-						"Error loading project {0}. " 
-						+ " Project GUID {1} already exists! Conflicting project is {2}.", 
+                string projectGuid = ProjectFactory.LoadGuid(projectFileName);
+                if (_htProjectFiles[projectGuid] != null)
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Error loading project {0}. " 
+                        + " Project GUID {1} already exists! Conflicting project is {2}.", 
                         projectFileName, projectGuid, _htProjectFiles[projectGuid]));
                 _htProjectFiles[projectGuid] = projectFileName;
                 if (isReferenceProject) {
