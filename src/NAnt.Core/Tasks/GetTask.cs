@@ -25,21 +25,36 @@ using System.Net;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Get a particular file from a URL source.
+    /// Gets a particular file from a URL source.
     /// </summary>
     /// <remarks>
-    ///   <para>Options include verbose reporting, timestamp based fetches and controlling actions on failures.</para>
-    ///   <para>Currently, only HTTP and UNC protocols are supported. FTP support may be added when more pluggable protocols are added to the System.Net assembly.</para>
-    ///   <para>The <c>useTimeStamp</c> option enables you to control downloads so that the remote file is only fetched if newer than the local copy. If there is no local copy, the download always takes place. When a file is downloaded, the timestamp of the downloaded file is set to the remote timestamp.</para>
-    ///   <note>This timestamp facility only works on downloads using the HTTP protocol.</note>
+    ///   <para>
+    ///   Options include verbose reporting and timestamp based fetches.
+    ///   </para>
+    ///   <para>
+    ///   Currently, only HTTP and UNC protocols are supported. FTP support may 
+    ///   be added when more pluggable protocols are added to the System.Net 
+    ///   assembly.
+    ///   </para>
+    ///   <para>
+    ///   The <see cref="UseTimeStamp" /> option enables you to control downloads 
+    ///   so that the remote file is only fetched if newer than the local copy. 
+    ///   If there is no local copy, the download always takes place. When a file 
+    ///   is downloaded, the timestamp of the downloaded file is set to the remote 
+    ///   timestamp.
+    ///   </para>
+    ///   <note>
+    ///   This timestamp facility only works on downloads using the HTTP protocol.
+    ///   </note>
     /// </remarks>
     /// <example>
     ///   <para>
     ///   Gets the index page of the NAnt home page, and stores it in the file 
-    ///   <c>help/index.html</c>.
+    ///   <c>help/index.html</c> relative to the project base directory.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -47,16 +62,32 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Gets the index page of a secured web site using the given credentials, 
+    ///   while connecting using the specified password-protected proxy server.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <get src="http://password.protected.site/index.html" dest="secure/index.html">
+    ///     <credentials username="user" password="guess" domain="mydomain" />
+    ///     <proxy host="proxy.company.com" port="8080">
+    ///         <credentials username="proxyuser" password="dunno" />
+    ///     </proxy>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("get")]
     public class GetTask : Task {
         #region Private Instance Fields
 
-        private string _src = null;
-        private string _dest = null;
-        private string _proxy = null;
+        private string _src;
+        private string _dest;
+        private string _httpProxy;
+        private Proxy _proxy;
         private int _timeout = 100000;
-        private bool _ignoreErrors = false;
-        private bool _useTimeStamp = false;
+        private bool _useTimeStamp;
+        private Credential _credentials;
 
         #endregion Private Instance Fields
 
@@ -69,7 +100,7 @@ namespace NAnt.Core.Tasks {
         [StringValidator(AllowEmpty=false)]
         public string Source {
             get { return _src; }
-            set { _src = value; }
+            set { _src = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -78,8 +109,8 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("dest", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Destination {
-            get { return _dest; }
-            set { _dest = value; }
+            get { return Project.GetFullPath(_dest); }
+            set { _dest = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -88,19 +119,40 @@ namespace NAnt.Core.Tasks {
         /// Example: proxy.mycompany.com:8080 
         /// </summary>
         [TaskAttribute("httpproxy")]
-        public string Proxy {
+        [Obsolete("Use the <proxy> child element instead.", false)]
+        public string HttpProxy {
+            get { return _httpProxy; }
+            set { _httpProxy = value; }
+        }
+
+        /// <summary>
+        /// The network proxy to use to access the Internet resource.
+        /// </summary>
+        [BuildElement("proxy")]
+        public Proxy Proxy {
             get { return _proxy; }
             set { _proxy = value; }
+        }
+
+        /// <summary>
+        /// The network credentials used for authenticating the request with 
+        /// the Internet resource.
+        /// </summary>
+        [BuildElement("credentials")]
+        public Credential Credentials {
+            get { return _credentials; }
+            set { _credentials = value; }
         }
 
         /// <summary>
         /// Log errors but don't treat as fatal. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("ignoreerrors")]
+        [Obsolete("Use the 'failonerror' attribute instead.")]
         [BooleanValidator()]
         public bool IgnoreErrors {
-            get { return _ignoreErrors; }
-            set { _ignoreErrors = value; }
+            get { return FailOnError; }
+            set { FailOnError = value; }
         }
 
         /// <summary>
@@ -149,6 +201,10 @@ namespace NAnt.Core.Tasks {
             if (File.Exists(Destination) && (FileAttributes.ReadOnly == (File.GetAttributes(Destination) & FileAttributes.ReadOnly))) {
                 throw new BuildException("Cannot write to " + Destination, Location);
             }
+
+            if (Proxy != null && HttpProxy != null) {
+                throw new BuildException("The <proxy> child element and the 'httpproxy' attribute are mutually exclusive.", Location);
+            }
         }
 
         /// <summary>
@@ -168,29 +224,33 @@ namespace NAnt.Core.Tasks {
                 WebRequest webRequest = GetWebRequest(Source, fileTimeStamp);
                 WebResponse webResponse = webRequest.GetResponse();
 
+                Stream responseStream = null;
+
                 // Get stream
                 // try three times, then error out
-                Stream responseStream = null;
-                for (int i = 0; i < 3; i++) {
+                int tryCount = 1;
+
+                while (true) {
                     try {
                         responseStream = webResponse.GetResponseStream();
                         break;
                     } catch (IOException ex) {
-                        Log(Level.Error, LogPrefix + "Error opening connection: " + ex.Message);
+                        if (tryCount > 3) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Unable to download '{0}' to '{1}'.", Source, Destination), Location);
+                        } else {
+                            Log(Level.Warning, LogPrefix + "Unable to open connection to '{0}' (try {1} of 3): " + ex.Message, Source, tryCount);
+                        }
                     }
+                
+                    // increment try count
+                    tryCount++;
                 }
 
-                if (responseStream == null) {
-                    Log(Level.Warning, LogPrefix + "Cannot get {0} to {1}.", Source, Destination);
-                    if (IgnoreErrors) {
-                        return;
-                    }
-                    throw new BuildException("Cannot get " + Source + " to " + Destination, Location);
-                }
-
-                // Open file for writing
-                Log(Level.Info, LogPrefix + Source);
+                // open file for writing
                 BinaryWriter destWriter = new BinaryWriter(new FileStream(Destination, FileMode.Create));
+                
+                Log(Level.Info, LogPrefix + "Retrieving '{0}' to '{1}'.", Source, Destination);
 
                 // Read in stream from URL and write data in chunks
                 // to the dest file.
@@ -232,7 +292,8 @@ namespace NAnt.Core.Tasks {
 
                 //check to see if we actually have a file...
                 if(!File.Exists(Destination)) {
-                    throw new BuildException("Unable to download file:" + Source, Location);
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Unable to download '{0}' to '{1}'.", Source, Destination), Location);
                 }
 
                 //if (and only if) the use file time option is set, then the
@@ -240,7 +301,6 @@ namespace NAnt.Core.Tasks {
                 if (UseTimeStamp)  {
                     // HTTP only
                     if (webRequest is HttpWebRequest) {
-
                         HttpWebResponse httpResponse = (HttpWebResponse) webResponse;
 
                         // get timestamp of remote file
@@ -250,16 +310,17 @@ namespace NAnt.Core.Tasks {
                         TouchFile(Destination, remoteTimestamp);
                     }
                 }
-
-            } catch (WebException webException) {
+            } catch (BuildException ex) {
+                // rethrow exception
+                throw ex;
+            } catch (WebException ex) {
                 // If status is WebExceptionStatus.ProtocolError,
                 //   there has been a protocol error and a WebResponse
                 //   should exist. Display the protocol error.
-                if (webException.Status == WebExceptionStatus.ProtocolError) {
-
+                if (ex.Status == WebExceptionStatus.ProtocolError) {
                     // test for a 304 result (HTTP only)
                     // Get HttpWebResponse so we can check the HTTP status code
-                    HttpWebResponse httpResponse = (HttpWebResponse)webException.Response;
+                    HttpWebResponse httpResponse = (HttpWebResponse) ex.Response;
                     if (httpResponse.StatusCode == HttpStatusCode.NotModified) {
                         //not modified so no file download. just return instead
                         //and trace out something so the user doesn't think that the
@@ -268,16 +329,18 @@ namespace NAnt.Core.Tasks {
                         Log(Level.Verbose, LogPrefix + "{0} not downloaded.  Not modified since {1}.", Destination, httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
                         return;
                     } else {
-                        Log(Level.Info, LogPrefix + "{0}: {1}.", (int)httpResponse.StatusCode, httpResponse.StatusDescription);
-                        return;
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Unable to download '{0}' to '{1}'.", Source, 
+                            Destination), Location, ex);
                     }
                 } else {
-                    Log(Level.Info, LogPrefix + "{0}: {1}.", webException.Status, webException.ToString());
-                    return;
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Unable to download '{0}' to '{1}'.", Source, Destination), 
+                        Location, ex);
                 }
-            } catch (IOException e) {
-                string msg = "Error getting " + Source + " to " + Destination;
-                throw new BuildException(msg, Location, e);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Unable to download '{0}' to '{1}'.", Source, Destination), Location, ex);
             }
         }
 
@@ -286,7 +349,7 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Set the timestamp of a named file to a specified time.
+        /// Sets the timestamp of a given file to a specified time.
         /// </summary>
         protected void TouchFile(string fileName, DateTime touchDateTime) {
             try {
@@ -307,6 +370,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Methods
 
         private WebRequest GetWebRequest(string url, DateTime fileLastModified) {
+            WebRequest webRequest = null;
             Uri uri = new Uri(url);
 
             // conditionally determine type of connection
@@ -314,16 +378,7 @@ namespace NAnt.Core.Tasks {
             if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) {
                 HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(uri);
 
-                // set the number of milliseconds that the request will wait 
-                // for a response
-                httpRequest.Timeout = Timeout;
-
-                if (Proxy != null) {
-                    httpRequest.Proxy = new WebProxy(Proxy);
-                }
-
                 //modify the headers
-                //things like user authentication could go in here too.
                 if (!fileLastModified.Equals(new DateTime())) {
                     // When IfModifiedSince is set, it internally converts the local time
                     // to UTC (or, for us old farts, GMT). For all locations behind UTC
@@ -339,27 +394,30 @@ namespace NAnt.Core.Tasks {
                     //REVISIT: at this point even non HTTP connections may support the if-modified-since
                     //behaviour -we just check the date of the content and skip the write if it is not
                     //newer. Some protocols (FTP) dont include dates, of course.
-
                 }
-                return httpRequest;
+
+                webRequest = httpRequest;
             } else {
-                try {
-                    WebRequest webRequest = WebRequest.Create(uri);
-
-                    // set the number of milliseconds until the request times out
-                    webRequest.Timeout = Timeout;
-
-                    if (Proxy != null) {
-                        webRequest.Proxy = new WebProxy(Proxy);
-                    }
-
-                    return webRequest;
-                } catch (Exception e) {
-                    string msg = uri.Scheme + " protocol is not supported.";
-                    Log(Level.Error, LogPrefix + msg);
-                    throw new BuildException(msg, Location, e);
-                }
+                webRequest = WebRequest.Create(uri);
             }
+
+            // set the number of milliseconds that the request will wait 
+            // for a response
+            webRequest.Timeout = Timeout;
+
+            // configure proxy settings
+            if (Proxy != null) {
+                webRequest.Proxy = Proxy.GetWebProxy();
+            } else if (HttpProxy != null) {
+                webRequest.Proxy = new WebProxy(HttpProxy);
+            }
+
+            // set authentication information
+            if (Credentials != null) {
+                webRequest.Credentials = Credentials.GetCredential();
+            }
+
+            return webRequest;
         }
 
         #endregion Private Instance Methods
