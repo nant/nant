@@ -40,16 +40,14 @@ namespace SourceForge.NAnt.Tasks {
         bool _outputAppend = false;
       
         /// <summary>The program to execute without command arguments.</summary>
-        [TaskAttribute("program", Required=true)]
-        public string FileName  { set { _program = value; } }                
+        [TaskAttribute("program", Required=true)]public string FileName  { set { _program = value; } }                
                 
         /// <summary>The command line arguments for the program.</summary>
         [TaskAttribute("commandline")]public string Arguments { set { _commandline = value; } }
 
         /// <summary>The file to which the standard output will be redirected.</summary>
         /// <remarks>By default, the standard output is redirected to the console.</remarks>
-        [TaskAttribute("output", Required=false)]
-        public string Output { set { _outputFile = value; } }
+        [TaskAttribute("output", Required=false)]public string Output { set { _outputFile = value; } }
 		
         /// <summary>true if the output file is to be appended to.</summary>
         /// <remarks>False by default.</remarks>
@@ -63,10 +61,11 @@ namespace SourceForge.NAnt.Tasks {
                     return _program;
                 }
                 else {
-                    return Path.GetFullPath( Path.Combine( BaseDirectory, _program ));
+                    return Path.Combine(Path.GetFullPath(BaseDirectory), _program);
                 }
             }
         }    
+
         public override string ProgramArguments { get { return _commandline; } }
         
         /// <summary>The directory the program is in.</summary>

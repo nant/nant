@@ -130,7 +130,12 @@ namespace SourceForge.NAnt.Tasks {
             Process p = new Process();
             PrepareProcess(ref p);
             try {
-                Log.WriteLineIf(Verbose, LogPrefix + "{0}>{1} {2}", p.StartInfo.WorkingDirectory, p.StartInfo.FileName, p.StartInfo.Arguments);
+                Log.WriteLineIf(
+                    Verbose, 
+                    LogPrefix + "Starting '{1} ({2})' in '{0}'", 
+                        p.StartInfo.WorkingDirectory, 
+                        p.StartInfo.FileName, 
+                        p.StartInfo.Arguments);
                 p.Start();
             } catch (Exception e) {
                 throw new BuildException(string.Format("<{0} task>{1} failed to start.", Name ,p.StartInfo.FileName), Location, e);

@@ -44,10 +44,14 @@ namespace SourceForge.NAnt.Tasks {
         // project's properties.  How to set properties for the new project?  
         // The same Ant task handles these issues.
 
-        /// <summary>The build file to build.</summary>
-        [TaskAttribute("buildfile", Required=true)]
+        /// <summary>The build file to build. If not specified, use the current build file.</summary>
+        [TaskAttribute("buildfile")]
         public string BuildFileName {
-            get { return _buildFileName; }
+            get { 
+                if(_buildFileName != null)
+                    return _buildFileName;
+                return Project.BuildFileLocalName; 
+            }
             set { _buildFileName = value; }
         }
 
