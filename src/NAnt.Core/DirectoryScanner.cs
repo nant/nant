@@ -44,6 +44,7 @@ foreach (string filename in GetIncludedFiles()) {
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -466,7 +467,8 @@ namespace NAnt.Core {
         #endregion Private Static Methods
     }
 
-    public class DirScannerStringCollection : System.Collections.Specialized.StringCollection {
+    [Serializable()]
+    public class DirScannerStringCollection : StringCollection {
         #region Override implementation of Object
 
         /// <summary>
