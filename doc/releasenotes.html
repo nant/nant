@@ -2,16 +2,16 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>NAnt Change Log</title>
+        <title>NAnt Release Notes</title>
         <meta http-equiv="Content-Language" content="en-ca" />
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body>
-            <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+        <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
                     <a title="NAnt home page" href="index.html"><b>NAnt</b></a>
-                    <img src="arrow.gif" alt="->" width="13" height="9" />Change Log
+                    <img src="arrow.gif" alt="->" width="13" height="9" />Release Notes
                 </td>
             </tr>
         </table>
@@ -19,20 +19,24 @@
             <tr>
                 <td>
                     <h1>
-                        <span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
+                        <span class="N">N</span><span class="Ant">Ant</span> Release Notes</h1>
                 </td>
-                <td>
+                <td style="text-align: right">
                     <a href="index.html">
                         <img style="BORDER-TOP-WIDTH: 0px;BORDER-LEFT-WIDTH: 0px;BORDER-BOTTOM-WIDTH: 0px;BORDER-RIGHT-WIDTH: 0px"
                             alt="NAnt logo (link to home page)" src="logo.gif" width="270" height="118" /></a>
                 </td>
             </tr>
         </table>
-        <h3>0.8.4-Beta 1 November 13, 2003</h3>
+        <h3>0.8.4-Beta 1</h3>
         <h4>Breaking changes</h4>
-        <p>Some existing build scripts may stop working now or in the next due to the following
-            changes:</p>
+        <p>Some existing build scripts may stop working now or in the next release due to the
+            following changes:</p>
         <ul>
+            <li>
+                The NAntContrib binaries are no longer included in the NAnt distribution package.
+                The NAntContrib distribution package can now be obtained <a href="http://nantcontrib.sourceforge.net/">here</a>.
+            </li>
             <li>
                 The <code>&lt;call&gt;</code> task now executes the given target and all its dependencies.
                 In previous versions of NAnt only the target itself would be executed.
@@ -87,7 +91,7 @@
                 and the overall format is slightly cleaner and easier to use.
             </li>
             <li>
-                Improved bootstrapping NAnt on linux. Now suports Mono 0.28.
+                Improved bootstrapping NAnt on linux. Now supports Mono 0.28.
             </li>
             <li>
                 Localization support has been improved in the <code>&lt;csc&gt;</code>, <code>&lt;jsc&gt;</code>,
@@ -104,30 +108,42 @@
             </li>
         </ul>
         <h4>New Tasks</h4>
+        <h5>&lt;fail&gt;</h5>
         <ul>
             <li>
-                <code>&lt;asminfo&gt;</code> task was moved from <a href="http://nantcontrib.sourceforge.net">NAntContrib</a>
-                to NAnt, and was rewritten to support multiple code languages and attribute types.
+                Moved from <a href="http://nantcontrib.sourceforge.net">NAntContrib</a> to NAnt,
+                and was rewritten to support multiple code languages and attribute types.
             </li>
+        </ul>
+        <h5>&lt;servicecontroller&gt;</h5>
+        <ul>
             <li>
-                <code>&lt;servicecontroller&gt;</code> task allows a Windows service to be controlled
-                (started, stopped, and restarted).
+                Allows a Windows service to be controlled (started, stopped, ...).
             </li>
+        </ul>
+        <h5>&lt;delay-sign&gt;</h5>
+        <ul>
             <li>
-                <code>&lt;delay-sign&gt;</code> task supports delay-signing of strongly named assemblies.
+                Supports delay-signing of strongly named assemblies.
             </li>
+        </ul>
+        <h5>&lt;mc&gt;,&lt;rc&gt; and &lt;midl&gt;</h5>
+        <ul>
             <li>
-                <code>&lt;mc&gt;</code>, <code>&lt;rc&gt;</code> and <code>&lt;midl&gt;</code> tasks
-                were moved <a href="http://nantcontrib.sourceforge.net">NAntContrib</a> to NAnt.
+                Moved from <a href="http://nantcontrib.sourceforge.net">NAntContrib</a> to NAnt.
                 These tasks control compilation of service messages, resources, and IDL code respectively.
             </li>
+        </ul>
+        <h5>&lt;xmlpeek&gt;</h5>
+        <ul>
             <li>
-                <code>&lt;xmlpeek&gt;</code> task extracts text from an XML file at the location
-                specified by an XPath expression.
+                Extracts text from an XML file at the location specified by an XPath expression.
             </li>
+        </ul>
+        <h5>&lt;xmlpoke&gt;</h5>
+        <ul>
             <li>
-                <code>&lt;xmlpoke&gt;</code> task replaces text in an XML file at the location specified
-                by an XPath expression.
+                Replaces text in an XML file at the location specified by an XPath expression.
             </li>
         </ul>
         <h4>Task changes</h4>
@@ -152,13 +168,66 @@
             </li>
             <li>
                 Added&nbsp;<code>flatten</code> attribute to allow all matching files to be copied
-                to a single directory.</li>
+                to a single directory.
+            </li>
+        </ul>
+        <h5>&lt;echo&gt;</h5>
+        <ul>
+            <li>
+                Added <code>level</code> attribute to allow messages to be output with a specific
+                level.
+            </li>
+        </ul>
+        <h5>&lt;fail&gt;</h5>
+        <ul>
+            <li>
+                Allow reason of failure to be specified as inline content.
+            </li>
         </ul>
         <h5>&lt;get&gt;</h5>
         <ul>
             <li>
                 The <code>httpproxy</code> attribute of the <code>&lt;get&gt;</code> task is deprecated,
                 use the new <code>&lt;proxy&gt;</code> child element instead.
+            </li>
+            <li>
+                Added <code>&lt;credentials<&gt;</code> child element used for authenticating the
+                request with the Internet resource.
+            </li>
+            <li>
+                Deprecated the <code>ignoreerrors</code> attribute in favor of the <code>failonerror</code>
+                attribute.
+            </li>
+            <li>
+                Added <code>timeout</code> attribute to allow length of time to wait for a response
+                or the request to timeout to be specified.
+            </li>
+        </ul>
+        <h5>&lt;if&gt;</h5>
+        <ul>
+            <li>
+                Added <code>&lt;uptodatefiles</code> child element for uptodate fileset support.
+            </li>
+            <li>
+                <code>&lt;if uptodatefile="..."&gt;</code> now behaves as documented, meaning that
+                nested tasks will only be executed if the file specifies in the uptodatefile attribute
+                actually exists and the file specified in the <code>uptodatefile</code> attribute
+                is more recent or the same lastwritetime than the file(s) specifies in the <code>comparefile</code>
+                attribute and <code>&lt;comparefiles&gt;</code> fileset.
+            </li>
+        </ul>
+        <h5>&lt;include&gt;</h5>
+        <ul>
+            <li>
+                A verbose message will now be output to the build log when a file is included multiple
+                times. In previous versions of NAnt, this would cause a build failure.
+            </li>
+        </ul>
+        <h5>&lt;mail&gt;</h5>
+        <ul>
+            <li>
+                The string-based <code>files</code> and <code>attachments</code> attributes have
+                been replaced by fileset support.
             </li>
         </ul>
         <h5>&lt;move&gt;</h5>
@@ -169,7 +238,8 @@
             </li>
             <li>
                 Added&nbsp;<code>flatten</code> attribute to allow all&nbsp;matching files to be
-                moved to a single directory.</li>
+                moved to a single directory.
+            </li>
         </ul>
         <h5>&lt;nant&gt;</h5>
         <ul>
@@ -211,9 +281,8 @@
                 the property already exists.
             </li>
             <li>
-                Added support for dynamic properties (by setting the <code>dynamic</code> attribute
-                to "true" on the <code>&lt;property&gt;</code> task), meaning properties of which
-                references to other properties are not expanded when the value is set.
+                Added support for dynamic properties, meaning properties of which references to
+                other properties are not expanded when the value is set.
             </li>
         </ul>
         <h5>&lt;resgen&gt;</h5>
@@ -244,6 +313,10 @@
                 that it wraps an executable that is part of either the .NET Framework or the .NET
                 Framework SDK, and have NAnt figure out the full path to the executable using the
                 framework settings in the NAnt configuration file.
+            </li>
+            <li>
+                <code>FileSetAttribute</code> has been deprecated. The <code>BuildElementAttribute</code>
+                should be used instead.
             </li>
             <li>
                 Added <code>FrameworkConfigurableAttribute</code> that can be assigned to a task
@@ -439,39 +512,6 @@
                 New attribute-driven command-line parser.
             </li>
         </ul>
-        <h4>Slingshot changes</h4>
-        <ul>
-            <li>
-                Fixed defect: slingshot now handles the fact that sln/proj files might have a disparate
-                list of configurations.
-            </li>
-            <li>
-                Fixed defect: if a configuration name contains whitespace, it is referenced in the
-                slingshot output .build file w/ hyphens replacing whitespace, as NAnt can't deal
-                w/ blanks in target names.
-            </li>
-            <li>
-                Added flexibility: the Clean.* targets are generated from the existing list of configurations,
-                in addition to the only hardcoded DebugClean and ReleaseClean targets.
-            </li>
-            <li>
-                Fixed limitation around references: references that are set to "Copy Local=true"
-                get copied to the build directory before compilation. Otherwise, the reference paths
-                are explicitly listed in &lt;references&gt;&lt;includes&gt;.
-            </li>
-            <li>
-                New parameter: (per a suggestion from a user who replied to my notice of impending
-                changes) starting slingshot with the parameter replacerefs=... triggers the reference
-                paths to be replaced with the name of the build configuration. For example, if projB
-                references d:\proj\projA\bin\Debug\projA.dll, when you slingshot projB with parameter
-                "replacerefs=Debug", the reference to projA will look like d:\proj\projA\bin\${slingshot.config}\projA.dll.
-                when you then build projB.build for config Release, the projA reference will look
-                like this: d:\proj\projA\bin\Release\projA.dll.
-            </li>
-            <li>
-                Added support for WarningLevel (now that it's available in NAnt)
-            </li>
-        </ul>
         <h4>Command-line client changes</h4>
         <ul>
             <li>
@@ -617,18 +657,6 @@
                 Have new project inherit the default framework from the current project.
             </li>
         </ul>
-        <h5>&lt;msi&gt;</h5>
-        <ul>
-            <li>
-                Only creates msm com class if needed. Patch by Justin Santa Barbara (justinsb@consonica.com).
-            </li>
-            <li>
-                Commit to the database more often, to help narrow failure points.
-            </li>
-            <li>
-                Removed re-initializing the database object after commits.
-            </li>
-        </ul>
         <h5>&lt;copy&gt;</h5>
         <ul>
             <li>
@@ -643,12 +671,6 @@
             <li>
                 Fixed logging bug with parenthesis instead of brace. Caused &lt;if uptodate...&gt;
                 to fail erroneously.
-            </li>
-        </ul>
-        <h5>&lt;gac&gt;</h5>
-        <ul>
-            <li>
-                Tom jordans patch for &lt;gac&gt; task.
             </li>
         </ul>
         <h5>&lt;cl&gt; and &lt;link&gt;</h5>
@@ -866,10 +888,6 @@
                 Tasks/Targets/FileSet includes/excludes now have if/unless attributes.
             </li>
             <li>
-                SLiNgshoT - a Visual Studio.NET solution,&nbsp;and make, converter&nbsp;- was donated
-                to the NAnt Extras by Jason Diamond.
-            </li>
-            <li>
                 New Unit Tests added.
                 <ul>
                     <li>
@@ -901,7 +919,9 @@
                     <li>
                         nant.location points to nant.exe directory
                     </li>
-                    <li>nant.tasks.[TaskName].location points to [TaskName] host assembly</li>
+                    <li>
+                        nant.tasks.[TaskName].location points to [TaskName] host assembly
+                    </li>
                 </ul>
             </li>
             <li>
@@ -928,7 +948,9 @@
                     <li>
                         TypedCollectionTask.cs
                     </li>
-                    <li>Vb6Task.cs</li>
+                    <li>
+                        Vb6Task.cs
+                    </li>
                 </ul>
             </li>
             <li>
@@ -940,9 +962,6 @@
         </ul>
         <h3>0.7.749 January 19, 2002</h3>
         <ul>
-            <li>
-                SourceSafe task added to src\Extras folder - thanks to Jason Reimer.
-            </li>
             <li>
                 &lt;docnet&gt; task added, try 'NAnt doc' to build NAnt's documentation.
             </li>
@@ -986,7 +1005,9 @@
                     <li>
                         replaced SummaryResultFormatter with improved SummaryFormatter
                     </li>
-                    <li>added VerboseFormatter</li>
+                    <li>
+                        added VerboseFormatter
+                    </li>
                 </ul>
             </li>
             <li>
@@ -1176,12 +1197,11 @@
                         nant
                     </li>
                     <li>
-                        taskdef
-                    </li>
-                    <li>
                         tstamp
                     </li>
-                    <li>exec (failonerror attribute)</li>
+                    <li>
+                        exec (failonerror attribute)
+                    </li>
                 </ul>
             </li>
         </ul>
@@ -1208,7 +1228,9 @@
                     <li>
                         mkdir (respects basedir)
                     </li>
-                    <li>exec</li>
+                    <li>
+                        exec
+                    </li>
                 </ul>
             </li>
         </ul>
