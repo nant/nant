@@ -6,57 +6,82 @@
     <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- include master build file -->
     <include buildfile="nant.build" />
+    <!-- retrieve system information and environment variables -->
+    <sysinfo />
+    <!-- setup property that holds partial path to be used by scp -->
+    <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}" />
     <!-- Perform a 'nightly' build, and update the version of NAnt that is executing -->
     <target name="nightly" depends="package" description="Perform a 'nightly' package, and updates the version of NAnt that is executing.">
-        <sysinfo />
-        <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}" />
-        <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
-        <!-- copy the build up to sourceforge -->
-        <!-- used to use scp task in nantcontrib
-        <scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>-->
-        <exec workingdir="${execpath}" program="scp">
-            <arg value="${execfilename}" />
-            <arg value="${serverpart}/builds/${execfilename}" />
-        </exec>
-        <echo message="Copied nightly build over to SF.Net" />
-        <!-- copy schema -->
-        <!-- used to use scp task in nantcontrib
-        <scp file="${build.dir}/schema" server="${sf.net.ssh.server}" path="${sf.net.build.path}/../..">
-            <arg value="-r"/>
-        </scp>
-        -->
-        <exec workingdir="${build.dir}/schema" program="scp" failonerror="false">
-            <arg value="-r" />
-            <arg value="*" />
-            <arg value="${serverpart}/schema" />
-        </exec>
-        <echo message="Copied schema over to SF.Net" />
-        <!-- copy docs -->
-        <!-- used to use scp task in nantcontrib
-        <scp file="${build.dir}/doc" server="${sf.net.ssh.server}" path="${sf.net.build.path}">
-            <arg value="-r"/>
-        </scp>
-        -->
-        <exec workingdir="${build.dir}/doc" program="scp" failonerror="false">
-            <arg value="-r" />
-            <arg value="*" />
-            <arg value="${serverpart}/builds/doc" />
-        </exec>
-        <echo message="Copied docs over to SF.Net" />
-        <!-- make sure files are readable -->
-        <exec program="ssh" failonerror="false">
-            <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod -R 755 ${sf.net.build.path}/builds/*" />
-        </exec>
-        <exec program="ssh" failonerror="false">
-            <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod -R 755 ${sf.net.build.path}/schema/*" />
-        </exec>
-        <!-- Try to do the update -->
+        <!-- copy zipped nightly build to sourceforge -->
+        <call target="deploy-zip" />
+        <!-- copy schema to sourceforge -->
+        <call target="deploy-schema" />
+        <!-- copy help to sourceforge -->
+        <call target="deploy-help" />
+        <!-- try to do the update -->
         <call target="UpdateRunningNAnt" failonerror="false" />
     </target>
-    <!-- Copies files to the nant executing dir. -->
-    <target name="UpdateRunningNAnt">
+    <!-- copy the zipped nighly build to sourceforge -->
+    <target name="deploy-zip" depends="package">
+        <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
+        <!-- make sure the directory tree exists -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/builds" />
+        </exec>
+        <!-- copy the build to sourceforge -->        
+        <exec workingdir="${execpath}" program="scp">
+            <arg value="${execfilename}" />
+            <arg value="${serverpart}/nightly/builds/${execfilename}" />
+        </exec>
+        <echo message="Copied nightly build over to SF.Net" />
+        <!-- make sure permissions are set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod 755 ${sf.net.build.path}/nightly/builds/${execfilename}" />
+        </exec>
+    </target>
+    <!-- copy schema to sourceforge -->
+    <target name="deploy-schema" depends="package">
+        <!-- make sure the directory tree exists -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/schema" />
+        </exec>
+        <!-- copy the schema file to sourceforge -->        
+        <exec workingdir="${build.dir}/schema" program="scp">
+            <arg value="${project.name}-${project.version}.xsd" />
+            <arg value="${serverpart}/nightly/schema" />
+        </exec>
+        <echo message="Copied schema over to SF.Net" />
+        <!-- make sure permissions are set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod 755 ${sf.net.build.path}/nightly/schema/${project.name}-${project.version}.xsd" />
+        </exec>
+    </target>
+    <!-- copy help to sourceforge -->
+    <target name="deploy-help" depends="package">
+        <!-- make sure the directory tree exists -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/help" />
+        </exec>
+        <!-- copy the help to sourceforge -->                
+        <exec workingdir="${build.dir}/doc/help" program="scp">
+            <arg value="-r" />
+            <arg value="*" />
+            <arg value="${serverpart}/nightly/help" />
+        </exec>
+        <echo message="Copied docs over to SF.Net" />
+        <!-- make sure permissions are set right -->
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod -R 755 ${sf.net.build.path}/nightly/help" />
+        </exec>
+    </target>
+    <!-- copies files to the NAnt executing dir. -->
+    <target name="UpdateRunningNAnt" depends="package">
         <copy todir="${nant.location}" overwrite="true">
             <fileset basedir="${build.dir}/bin/">
                 <includes name="NAnt*" />
