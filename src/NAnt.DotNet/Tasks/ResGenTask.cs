@@ -21,7 +21,6 @@
 // Klemen Zagar (klemen@zagar.ws)
 // Ian MacLean (ian_maclean@another.com)
 
-using System;
 using System.Globalization;
 using System.IO;
 
@@ -65,7 +64,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>Name of the resource file to output.</summary>
         [TaskAttribute("output", Required=false)]
-        public string Output { get { return (_output == null) ? String.Empty : _output; } set {_output = value;} }
+        public string Output { get { return (_output == null) ? string.Empty : _output; } set {_output = value;} }
 
         /// <summary>The target type (usually resources).</summary>
         [TaskAttribute("target", Required=false)]
@@ -73,7 +72,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>The directory to which outputs will be stored.</summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDirectory { get { return (_toDir == null) ? String.Empty : _toDir; } set {_toDir = value;} }
+        public string ToDirectory { get { return (_toDir == null) ? string.Empty : _toDir; } set {_toDir = value;} }
        
         /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
         [FileSet("resources")]
@@ -152,7 +151,7 @@ namespace SourceForge.NAnt.Tasks {
                         if (_arguments.Length == 0) {
                             AppendArgument ("/compile");
                         }
-                        AppendArgument(String.Format(CultureInfo.InvariantCulture, " \"{0},{1}\"", filename, outputFile));
+                        AppendArgument(string.Format(CultureInfo.InvariantCulture, " \"{0},{1}\"", filename, outputFile));
                     }
                 }
             } else {
@@ -165,7 +164,7 @@ namespace SourceForge.NAnt.Tasks {
                 string outputFile = getOutputFile(inputFile);
 
                 if (NeedsCompiling(inputFile, outputFile)) {
-                    AppendArgument(String.Format(CultureInfo.InvariantCulture, "\"{0}\" \"{1}\"", inputFile, outputFile));
+                    AppendArgument(string.Format(CultureInfo.InvariantCulture, "\"{0}\" \"{1}\"", inputFile, outputFile));
                 }
             }
 
