@@ -35,257 +35,263 @@ using NAnt.Core.Util;
 using NAnt.Zip.Types;
 
 namespace NAnt.Zip.Tasks {
-	/// <summary>
-	/// Creates a tar file from a specified fileset.
-	/// </summary>
-	/// <remarks>
-	///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Tar/Zip/GZip library written entirely in C#.</para>
-	/// </remarks>
-	/// <example>
-	///   <para>
-	///   Tar all files in the subdirectory &quot;build&quot; to &quot;backup.tar&quot;.
-	///   </para>
-	///   <code>
-	///     <![CDATA[
-	/// <tar destfile="backup.tar">
-	///     <fileset basedir="build">
-	///         <include name="*.*" />
-	///     </fileset>
-	/// </tar>
-	///     ]]>
-	///   </code>
-	/// </example>
-	[TaskName("tar")]
-	public class TarTask : Task {
-		#region Private Instance Fields
+    /// <summary>
+    /// Creates a tar file from the specified filesets.
+    /// </summary>
+    /// <remarks>
+    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Tar/Zip/GZip library written entirely in C#.</para>
+    /// </remarks>
+    /// <example>
+    ///   <para>
+    ///   Tar all files in <c>${build.dir}</c> and <c>${doc.dir}</c> into a file
+    ///   called &quot;backup.tar.gz&quot;, and apply gzip compression to it.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <tar destfile="backup.tar.gz" compression="GZip">
+    ///     <fileset basedir="${bin.dir}" prefix="bin">
+    ///         <include name="**/*" />
+    ///     </fileset>
+    ///     <fileset basedir="${doc.dir}" prefix="doc">
+    ///         <include name="**/*" />
+    ///     </fileset>
+    /// </tar>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    [TaskName("tar")]
+    public class TarTask : Task {
+        #region Private Instance Fields
 
-		private FileInfo _destFile;
-		private TarFileSet _fileset = new TarFileSet();
-		private bool _includeEmptyDirs = false;
-		private TarCompressionMethod _compressionMethod = TarCompressionMethod.None;
-		private Hashtable _addedDirs = new Hashtable();
+        private FileInfo _destFile;
+        private TarFileSetCollection _filesets = new TarFileSetCollection();
+        private bool _includeEmptyDirs = false;
+        private TarCompressionMethod _compressionMethod = TarCompressionMethod.None;
+        private Hashtable _addedDirs = new Hashtable();
 
-		#endregion Private Instance Fields
+        #endregion Private Instance Fields
 
-		#region Public Instance Properties
+        #region Public Instance Properties
 
-		/// <summary>
-		/// The tar file to create.
-		/// </summary>
-		[TaskAttribute("destfile", Required=true)]
-		public FileInfo DestFile {
-			get { return _destFile; }
-			set { _destFile = value; }
-		}
+        /// <summary>
+        /// The tar file to create.
+        /// </summary>
+        [TaskAttribute("destfile", Required=true)]
+        public FileInfo DestFile {
+            get { return _destFile; }
+            set { _destFile = value; }
+        }
 
-		/// <summary>
-		/// Include empty directories in the generated tar file. The default is
-		/// <see langword="false" />.
-		/// </summary>
-		[TaskAttribute("includeemptydirs", Required=false)]
-		[BooleanValidator()]
-		public bool IncludeEmptyDirs {
-			get { return _includeEmptyDirs; }
-			set { _includeEmptyDirs = value; }
-		}
+        /// <summary>
+        /// Include empty directories in the generated tar file. The default is
+        /// <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("includeemptydirs", Required=false)]
+        [BooleanValidator()]
+        public bool IncludeEmptyDirs {
+            get { return _includeEmptyDirs; }
+            set { _includeEmptyDirs = value; }
+        }
 
-		/// <summary>
-		/// The set of files to be included in the archive.
-		/// </summary>
-		[BuildElement("fileset")]
-		public TarFileSet TarFileSet {
-			get { return _fileset; }
-			set { _fileset = value; }
-		}
+        /// <summary>
+        /// The set of files to be included in the archive.
+        /// </summary>
+        [BuildElementArray("fileset")]
+        public TarFileSetCollection TarFileSets {
+            get { return _filesets; }
+        }
 
-		/// <summary>
-		/// The compression method. The default is <see cref="TarCompressionMethod.None" />.
-		/// </summary>
-		[TaskAttribute("compression")]
-		public TarCompressionMethod CompressionMethod {
-			get { return _compressionMethod; }
-			set { _compressionMethod = value; }
-		}
+        /// <summary>
+        /// The compression method. The default is <see cref="TarCompressionMethod.None" />.
+        /// </summary>
+        [TaskAttribute("compression")]
+        public TarCompressionMethod CompressionMethod {
+            get { return _compressionMethod; }
+            set { _compressionMethod = value; }
+        }
 
-		#endregion Public Instance Properties
+        #endregion Public Instance Properties
 
-		#region Override implementation of Task
+        #region Override implementation of Task
 
-		/// <summary>
-		/// Creates the tar file.
-		/// </summary>
-		protected override void ExecuteTask() {
-			TarArchive archive = null;
-			Stream outstream = null;
+        /// <summary>
+        /// Creates the tar file.
+        /// </summary>
+        protected override void ExecuteTask() {
+            TarArchive archive = null;
+            Stream outstream = null;
 
-			string basePath;
+            Log(Level.Info, "Tarring {0} files to '{1}'.", 
+                TarFileSets.FileCount, DestFile.FullName);
 
-			// ensure base directory is set, even if fileset was not initialized
-			// from XML
-			if (TarFileSet.BaseDirectory == null) {
-				TarFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
-			}
+            try {
+                outstream = File.Create(DestFile.FullName);
 
-			Log(Level.Info, "Tarring {0} files to '{1}'.", 
-				TarFileSet.FileNames.Count, DestFile.FullName);
+                // wrap outputstream with corresponding compression method
+                switch (CompressionMethod) {
+                    case TarCompressionMethod.GZip:
+                        outstream = new GZipOutputStream(outstream);
+                        break;
+                    case TarCompressionMethod.BZip2:
+                        outstream = new BZip2OutputStream(outstream);
+                        break;
+                }
 
-			basePath = TarFileSet.BaseDirectory.FullName;
-			if (Path.GetPathRoot(basePath) != basePath) {
-				basePath = Path.GetDirectoryName(basePath + Path.DirectorySeparatorChar);
-			}
+                // create tar archive
+                archive = TarArchive.CreateOutputTarArchive(outstream, 
+                    TarBuffer.DefaultBlockFactor);
 
-			try {
-				outstream = File.Create(DestFile.FullName);
+                // allow line endings of text files to be converted to \n
+                archive.SetAsciiTranslation(true);
 
-				switch (CompressionMethod) {
-					case TarCompressionMethod.GZip:
-						outstream = new GZipOutputStream(outstream);
-						break;
-					case TarCompressionMethod.BZip2:
-						outstream = new BZip2OutputStream(outstream);
-						break;
-				}
+                // process all filesets
+                foreach (TarFileSet fileset in TarFileSets) {
+                    string basePath = fileset.BaseDirectory.FullName;
 
-				archive = TarArchive.CreateOutputTarArchive(outstream, 
-					TarBuffer.DefaultBlockFactor);
-				archive.SetAsciiTranslation(true);
+                    if (Path.GetPathRoot(basePath) != basePath) {
+                        basePath = Path.GetDirectoryName(basePath + Path.DirectorySeparatorChar);
+                    }
 
-				// add files to tar
-				foreach (string file in TarFileSet.FileNames) {
-					if (!File.Exists(file)) {
-						throw new FileNotFoundException("File no longer exists.", file);
-					}
+                    // add files to tar
+                    foreach (string file in fileset.FileNames) {
+                        if (!File.Exists(file)) {
+                            throw new FileNotFoundException("File no longer exists.", file);
+                        }
 
-					// the name of the tar entry
-					string entryName;
+                        // the name of the tar entry
+                        string entryName;
 
-					// determine name of the tar entry
-					if (file.StartsWith(basePath)) {
-						entryName = file.Substring(basePath.Length);
-						if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
-							entryName = entryName.Substring(1);
-						}
+                        // determine name of the tar entry
+                        if (file.StartsWith(basePath)) {
+                            entryName = file.Substring(basePath.Length);
+                            if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
+                                entryName = entryName.Substring(1);
+                            }
 
-						// remember that directory was added to tar file, so
-						// that we won't add it again later
-						string dir = Path.GetDirectoryName(file);
-						if (_addedDirs[dir] == null) {
-							_addedDirs[dir] = dir;
-						}
-					} else {
-						// flatten directory structure
-						entryName = Path.GetFileName(file);
-					}
-                    
-					// add prefix if specified
-					if (TarFileSet.Prefix != null) {
-						entryName = TarFileSet.Prefix + entryName;
-					}
+                            // remember that directory was added to tar file, so
+                            // that we won't add it again later
+                            string dir = Path.GetDirectoryName(file);
+                            if (_addedDirs[dir] == null) {
+                                _addedDirs[dir] = dir;
+                            }
+                        } else {
+                            // flatten directory structure
+                            entryName = Path.GetFileName(file);
+                        }
 
-					// ensure directory separators are understood on linux
-					if (Path.DirectorySeparatorChar == '\\') {
-						entryName = entryName.Replace(@"\", "/");
-					}
+                        // add prefix if specified
+                        if (fileset.Prefix != null) {
+                            entryName = fileset.Prefix + entryName;
+                        }
 
-					TarEntry entry = TarEntry.CreateEntryFromFile(file);
-					entry.Name = entryName;
-					entry.GroupId = TarFileSet.Gid;
-					entry.GroupName = TarFileSet.GroupName;
-					entry.UserId = TarFileSet.Uid;
-					entry.UserName = TarFileSet.UserName;
-					entry.TarHeader.mode = TarFileSet.FileMode;
-					archive.WriteEntry(entry, true);
-				}
+                        // ensure directory separators are understood on linux
+                        if (Path.DirectorySeparatorChar == '\\') {
+                            entryName = entryName.Replace(@"\", "/");
+                        }
 
-				// add (possibly empty) directories to tar
-				foreach (string directory in TarFileSet.DirectoryNames) {
-					// skip directories that were already added when the 
-					// files were added
-					if (_addedDirs[directory] != null) {
-						continue;
-					}
+                        TarEntry entry = TarEntry.CreateEntryFromFile(file);
+                        entry.Name = entryName;
+                        entry.GroupId = fileset.Gid;
+                        entry.GroupName = fileset.GroupName;
+                        entry.UserId = fileset.Uid;
+                        entry.UserName = fileset.UserName;
+                        entry.TarHeader.mode = fileset.FileMode;
+                        archive.WriteEntry(entry, true);
+                    }
 
-					// skip directories that are not located beneath the base 
-					// directory
-					if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
-						continue;
-					}
+                    // add (possibly empty) directories to zip
+                    if (IncludeEmptyDirs) {
+                        // add (possibly empty) directories to tar
+                        foreach (string directory in fileset.DirectoryNames) {
+                            // skip directories that were already added when the 
+                            // files were added
+                            if (_addedDirs[directory] != null) {
+                                continue;
+                            }
 
-					// determine tar entry name
-					string entryName = directory.Substring(basePath.Length + 1);
+                            // skip directories that are not located beneath the base 
+                            // directory
+                            if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
+                                continue;
+                            }
 
-					// add prefix if specified
-					if (TarFileSet.Prefix != null) {
-						entryName = TarFileSet.Prefix + entryName;
-					}
+                            // determine tar entry name
+                            string entryName = directory.Substring(basePath.Length + 1);
 
-					// ensure directory separators are understood on linux
-					if (Path.DirectorySeparatorChar == '\\') {
-						entryName = entryName.Replace(@"\", "/");
-					}
+                            // add prefix if specified
+                            if (fileset.Prefix != null) {
+                                entryName = fileset.Prefix + entryName;
+                            }
 
-					if (!entryName.EndsWith("/")) {
-						// trailing directory signals to #ziplib that we're
-						// dealing with directory entry
-						entryName += "/";
-					}
+                            // ensure directory separators are understood on linux
+                            if (Path.DirectorySeparatorChar == '\\') {
+                                entryName = entryName.Replace(@"\", "/");
+                            }
 
-					// create directory entry
-					TarEntry entry = TarEntry.CreateTarEntry(entryName);
-					entry.GroupId = TarFileSet.Gid;
-					entry.GroupName = TarFileSet.GroupName;
-					entry.UserId = TarFileSet.Uid;
-					entry.UserName = TarFileSet.UserName;
-					entry.TarHeader.mode = TarFileSet.DirMode;
+                            if (!entryName.EndsWith("/")) {
+                                // trailing directory signals to #ziplib that we're
+                                // dealing with directory entry
+                                entryName += "/";
+                            }
 
-					// write directory to tar file
-					archive.WriteEntry(entry, false);
-				}
+                            // create directory entry
+                            TarEntry entry = TarEntry.CreateTarEntry(entryName);
+                            entry.GroupId = fileset.Gid;
+                            entry.GroupName = fileset.GroupName;
+                            entry.UserId = fileset.Uid;
+                            entry.UserName = fileset.UserName;
+                            entry.TarHeader.mode = fileset.DirMode;
 
-				// close the tar archive
-				archive.CloseArchive();
-			} catch (Exception ex) {
-				// close the tar output stream
-				if (outstream != null) {
-					outstream.Close();
-				}
+                            // write directory to tar file
+                            archive.WriteEntry(entry, false);
+                        }
+                    }
+                }
 
-				// close the tar archive
-				if (archive != null) {
-					archive.CloseArchive();
-				}
+                // close the tar archive
+                archive.CloseArchive();
+            } catch (Exception ex) {
+                // close the tar output stream
+                if (outstream != null) {
+                    outstream.Close();
+                }
 
-				// delete the (possibly corrupt) tar file
-				if (DestFile.Exists) {
-					DestFile.Delete();
-				}
+                // close the tar archive
+                if (archive != null) {
+                    archive.CloseArchive();
+                }
 
-				throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-					"Tar file '{0}' could not be created.", DestFile.FullName), 
-					Location, ex);
-			}
-		}
+                // delete the (possibly corrupt) tar file
+                if (DestFile.Exists) {
+                    DestFile.Delete();
+                }
 
-		#endregion Override implementation of Task
-	}
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Tar file '{0}' could not be created.", DestFile.FullName), 
+                    Location, ex);
+            }
+        }
 
-	/// <summary>
-	/// Specifies the compression methods support by <see cref="TarTask" />.
-	/// </summary>
-	public enum TarCompressionMethod {
-		/// <summary>
-		/// No compression.
-		/// </summary>
-		None = 0,
+        #endregion Override implementation of Task
+    }
 
-		/// <summary>
-		/// GZIP compression.
-		/// </summary>
-		GZip = 1,
+    /// <summary>
+    /// Specifies the compression methods support by <see cref="TarTask" />.
+    /// </summary>
+    public enum TarCompressionMethod {
+        /// <summary>
+        /// No compression.
+        /// </summary>
+        None = 0,
 
-		/// <summary>
-		/// BZIP2 compression.
-		/// </summary>
-		BZip2 = 2
-	}
+        /// <summary>
+        /// GZIP compression.
+        /// </summary>
+        GZip = 1,
+
+        /// <summary>
+        /// BZIP2 compression.
+        /// </summary>
+        BZip2 = 2
+    }
 }
