@@ -132,28 +132,10 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec rm --force {} \;" />
         </exec>
-        <!-- copy html files for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
-            <arg value="-C" />
-            <arg value="*.html" />
-            <arg value="${serverpart}" />
-        </exec>
         <!-- copy images for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
+        <exec workingdir="${build.dir}/web" program="scp">
             <arg value="-C" />
-            <arg value="*.gif" />
-            <arg value="${serverpart}" />
-        </exec>
-        <!-- copy stylesheet for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
-            <arg value="-C" />
-            <arg value="style.css" />
-            <arg value="${serverpart}" />
-        </exec>
-        <!-- copy logo's for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
-            <arg value="-C" />
-            <arg value="logo.*" />
+            <arg value="*" />
             <arg value="${serverpart}" />
         </exec>
         <echo message="Copied website over to SF.Net" />
