@@ -93,7 +93,7 @@ namespace NAnt.Core.Tasks {
         /// The input for the regular expression.
         /// </value>
         [TaskAttribute("input", Required=true)]
-        [StringValidator(AllowEmpty=false)]
+        [StringValidator(AllowEmpty=true)]
         public string Input {
             get { return _input;}
             set { _input = value; }
@@ -110,19 +110,20 @@ namespace NAnt.Core.Tasks {
             Regex regex = new Regex(_pattern);
             Match match = regex.Match(_input);
 
-            if(match.Groups.Count == 0) {
-                string msg = string.Format(CultureInfo.InvariantCulture, "No match found for expr '{0}' in '{1}'", _pattern, _input);
-                throw new BuildException(msg, Location);
+            if (match.Groups.Count == 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "No match found for expression '{0}' in '{1}'.", _pattern, 
+                    _input), Location);
             }
 
             // we start the iteration at 1, since the collection of groups 
-            // always starts with a group which matches the entire input and is named '0'
-            // this group is of no interest to us
-            for (int i=1; i < match.Groups.Count; i++) {
+            // always starts with a group which matches the entire input and 
+            // is named '0', this group is of no interest to us
+            for (int i = 1; i < match.Groups.Count; i++) {
                 string groupName = regex.GroupNameFromNumber(i);
 
-                Log(Level.Verbose, "{2}Setting property {0} to {1}.", groupName, match.Groups[groupName].Value, LogPrefix);
-                Properties [ groupName ] = match.Groups[groupName].Value;
+                Log(Level.Verbose, LogPrefix + "Setting property {0} to {1}.", groupName, match.Groups[groupName].Value);
+                Properties[groupName] = match.Groups[groupName].Value;
             }
         }
 
