@@ -19,8 +19,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         private const String _checkoutXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-checkout   module='sharpcvslib' 
-                                cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib'
+                <cvs-checkout   module='NAnt' 
+                                cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant'
                                 destination='c:/temp/cvscheckout-test'
                                 password='' />
             </project>";
@@ -30,8 +30,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         private const String _projectXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-update   module='sharpcvslib' 
-                                cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib'
+                <cvs-update   module='NAnt' 
+                                cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant'
                                 destination='c:/temp/cvscheckout-test'
                                 password='' />
             </project>";
@@ -52,7 +52,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [Test]
         public void Test_CvsUpdate () {            
             const String TEST_FILE = 
-                "c:/temp/cvscheckout-test/sharpcvslib/SharpCvsLib.build";
+                "c:/temp/cvscheckout-test/nant/NAnt.build";
 
             // Make sure the file exists before we start the test.
             Assertion.Assert ("The master.build file was not where I expected it.  Please run the checkout test.", 
