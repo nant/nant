@@ -75,7 +75,7 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\bin\lib\net\1.0\log4net.dll"
+                    HintPath = "..\..\bin\log4net.dll"
                 />
                 <Reference
                     Name = "ICSharpCode.SharpCvsLib"
@@ -90,12 +90,10 @@
                 <Reference
                     Name = "System.Data"
                     AssemblyName = "System.Data"
-                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.0.3705\System.Data.dll"
                 />
                 <Reference
                     Name = "System.XML"
                     AssemblyName = "System.Xml"
-                    HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
                 />
                 <Reference
                     Name = "NAnt.Core"
