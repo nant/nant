@@ -627,10 +627,18 @@ namespace NAnt.Core {
             }
             
             // Check to see if the empty string matches the pattern
-            if (path.Length == entry.BaseDirectory.Length)
+            if (path.Length == entry.BaseDirectory.Length) {
+#if DEBUG_REGEXES
+                Console.WriteLine("{0} (empty string) [basedir={1}]", entry.Pattern, entry.BaseDirectory);
+#endif
                 return r.IsMatch(String.Empty);
+            }
 
-            if (StringUtils.EndsWith(entry.BaseDirectory, Path.DirectorySeparatorChar)) {
+            bool endsWithSlash = StringUtils.EndsWith(entry.BaseDirectory, Path.DirectorySeparatorChar);
+#if DEBUG_REGEXES
+            Console.WriteLine("{0} ({1}) [basedir={2}]", entry.Pattern, path.Substring(entry.BaseDirectory.Length + ((endsWithSlash) ? 0 : 1)), entry.BaseDirectory);
+#endif
+            if (endsWithSlash) {
                 return r.IsMatch(path.Substring(entry.BaseDirectory.Length));
             } else {
                 return r.IsMatch(path.Substring(entry.BaseDirectory.Length + 1));
@@ -670,7 +678,7 @@ namespace NAnt.Core {
             if (!included) {
                 foreach (RegexEntry entry in includedPatterns) {
 #if DEBUG_REGEXES
-                    Console.WriteLine("Test include pattern: {0} ({1})", entry.Pattern, path.Substring(entry.BaseDirectory.Length));
+                    Console.Write("Test include pattern: ");
 #endif
                     if (TestRegex(path, entry, caseSensitive)) 
                     {
@@ -704,7 +712,7 @@ namespace NAnt.Core {
             if (included) {
                 foreach (RegexEntry entry in excludedPatterns) {
 #if DEBUG_REGEXES
-                    Console.WriteLine("Test exclude pattern: {0} ({1})", entry.Pattern, path.Substring(entry.BaseDirectory.Length));
+                    Console.Write("Test exclude pattern: ");
 #endif
                     if (TestRegex(path, entry, caseSensitive)) 
                     {
@@ -792,16 +800,13 @@ namespace NAnt.Core {
             // we do this then we can write something like 'src/**/*.cs'
             // to match all the files ending in .cs in the src directory OR
             // subdirectories of src.
-            pattern.Replace("**" + seperator, "(?:.+" + seperator + ")|");
+            pattern.Replace(seperator + "**" + seperator, seperator + "(.|?" + seperator + ")?" );
+            pattern.Replace("**" + seperator, ".|(?<=^|" + seperator + ")" );
 
-            // SPECIAL CASE: to have a pattern like 'bin/**' match subdirectories 
-            // or files, and the directory itself
-            pattern.Replace(seperator + "**", "(?:" + seperator + ".+)|");
-
-            // | is a place holder for * to prevent it from being replaced in next line
+            // .| is a place holder for .* to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
             pattern.Replace("*", "[^" + seperator + "]*");
-            pattern.Replace('|', '*'); // replace place holder string
+            pattern.Replace(".|", ".*"); // replace place holder string
 
             // Help speed up the search
             if (pattern.Length > 0) {
