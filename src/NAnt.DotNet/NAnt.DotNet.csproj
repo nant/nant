@@ -196,6 +196,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\CompilerWarning.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\CompilerWarningCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\Package.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -212,6 +222,11 @@
                 />
                 <File
                     RelPath = "Types\ResourceFileSetCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\WarningAsError.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
