@@ -90,11 +90,11 @@ namespace NAnt.MSNet.Tasks {
 
         /// <summary>
         /// Specifies whether or not the disassembler should combine the
-        /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>TOKENS</c> options.
+        /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>/TOKENS</c> options.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the disassembler should combine the
-        /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>TOKENS</c> options;
+        /// <c>/HEADER</c>, <c>/BYTE</c>, and <c>/TOKENS</c> options;
         /// otherwise, <see langword="false" />. The default is
         /// <see langword="false" />.
         /// </value>
