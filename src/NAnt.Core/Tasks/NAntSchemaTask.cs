@@ -262,12 +262,15 @@ namespace NAnt.Core.Tasks {
                 schemaAnnotation.Items.Add(schemaDocumentation);
                 _nantSchema.Items.Add(schemaAnnotation);
 
-                // create temp list of task Complex Types
-                ArrayList taskComplexTypes = new ArrayList(tasks.Length);
-                ArrayList taskContainerComplexTypes = new ArrayList(15);
+                // create temp list of taskcontainer Complex Types
+                ArrayList taskContainerComplexTypes = new ArrayList(4);
 
                 XmlSchemaComplexType containerCT = FindOrCreateComplexType(typeof(TaskContainer));
-                taskComplexTypes.Add(containerCT);
+                if (containerCT.Particle == null) {
+                    // just create empty sequence to which elements will 
+                    // be added later
+                    containerCT.Particle = CreateXsdSequence(0, Decimal.MaxValue);
+                }
                 taskContainerComplexTypes.Add(containerCT);
 
                 // create temp list of task Complex Types
@@ -279,7 +282,6 @@ namespace NAnt.Core.Tasks {
 
                 foreach (Type t in tasks) {
                     XmlSchemaComplexType taskCT = FindOrCreateComplexType(t);
-                    taskComplexTypes.Add(taskCT);
 
                     // allow any tasks...
                     if (t.IsSubclassOf(typeof(TaskContainer))) {
@@ -317,9 +319,6 @@ namespace NAnt.Core.Tasks {
                 _targetCT.Attributes.Add(CreateXsdAttribute("description", false));
 
                 _nantSchema.Items.Add(_targetCT);
-
-                // add to the list of ComplexTypes so that project will get it.
-                taskComplexTypes.Add(_targetCT);
 
                 Compile();
 
@@ -468,24 +467,6 @@ namespace NAnt.Core.Tasks {
 
                 XmlSchemaSequence group1 = null;
                 XmlSchemaObjectCollection attributesCollection = ct.Attributes;
-
-                /*
-                if (t.IsSubclassOf(typeof(TaskContainer))) {
-                    //
-                    // a failed attempt to map the class hierarchy to XSD
-                    // I don't know how to do it because of "target" task which
-                    // needs to show up in "project". But perhaps this can be done...
-                    //
-                    XmlSchemaComplexContentExtension ext = new XmlSchemaComplexContentExtension();
-                    ext.BaseTypeName = FindComplexTypeByID(GenerateIDFromType(typeof(TaskContainer))).QualifiedName;
-                    ext.Particle = group1;
-                    ct.ContentModel = new XmlSchemaComplexContent();
-                    ct.ContentModel.Content = ext;
-                    attributesCollection = ext.Attributes;
-                } else {
-                */
-                    attributesCollection = ct.Attributes;
-                //}
 
                 foreach (MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                     if (memInfo.DeclaringType.Equals(typeof(object))) {
