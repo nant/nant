@@ -31,6 +31,7 @@ namespace NAnt.VSNet.Types {
     /// Represents a single mapping from URL project path to physical project 
     /// path.
     /// </summary>
+    [Serializable()]
     public class WebMap : Element {
         #region Private Instance Fields
 
