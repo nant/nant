@@ -654,39 +654,56 @@ namespace NAnt.DotNet.Tasks {
                     ResourceLinkage resourceLinkage = GetResourceLinkage(
                         dependentFile, resourceCulture);
 
-                    if (resourceLinkage != null && !resourceLinkage.HasNamespaceName) {
-                        resourceLinkage.NamespaceName = resources.Prefix;
-                    }
-
-                    string actualFileName = Path.GetFileNameWithoutExtension(
-                        resourcePhysicalFile);
-                    
-                    manifestResourceName = Path.ChangeExtension(
-                        Path.GetFileName(resourcePhysicalFile), ".resources");
-
-                    // cater for asax/aspx special cases ...
-                    foreach (string extension in CodebehindExtensions) {
-                        if (manifestResourceName.IndexOf(extension) > -1) {
-                            manifestResourceName = manifestResourceName.Replace(extension, "");
-                            actualFileName = actualFileName.Replace(extension, "");
-                            break;
-                        }
-                    }
-                            
-                    if (resourceLinkage != null && !resourceLinkage.HasClassName) {
-                        resourceLinkage.ClassName = actualFileName;
-                    }
-
-                    if (resourceLinkage != null && resourceLinkage.IsValid) {
-                        manifestResourceName = manifestResourceName.Replace(
-                            actualFileName, resourceLinkage.ToString());
-                    }
-
                     if (resourceLinkage == null) {
                         manifestResourceName = Path.ChangeExtension(
                             resources.GetManifestResourceName(resourcePhysicalFile,
                             resourceLogicalFile), "resources");
+                    } else {
+                        if (!resourceLinkage.HasNamespaceName) {
+                            resourceLinkage.NamespaceName = resources.Prefix;
+                        }
+
+                        if (!resourceLinkage.HasClassName) {
+                            // use filename of resource file to determine class name
+
+                            string className = Path.GetFileNameWithoutExtension(
+                                resourcePhysicalFile);
+
+                            // cater for asax/aspx special cases. eg. a resource file 
+                            // named "WebForm1.aspx(.resx)" will here be transformed to
+                            // "WebForm1"
+                            // we assume that the class name of a codebehind file 
+                            // is equal to the file name of that codebehind file 
+                            // (without extension)
+                            if (Path.GetExtension(className) != string.Empty) {
+                                string codebehindExtension = Path.GetExtension(
+                                    className).ToLower(CultureInfo.InvariantCulture);
+                                foreach (string extension in CodebehindExtensions) {
+                                    if (extension == codebehindExtension) {
+                                        className = Path.GetFileNameWithoutExtension(
+                                            className);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            resourceLinkage.ClassName = className;
+                        }
+
+
+                        // ensure we have information necessary to determine the
+                        // manifest resource name
+                        if (resourceLinkage.IsValid) {
+                            manifestResourceName = resourceLinkage.ToString() 
+                                + ".resources";
+                        } else {
+                            // we should actually never get here, but just in case ...
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "The manifest resource name for '{0}' could not be determined.",
+                                resourcePhysicalFile), Location);
+                        }
                     }
+
                     break;
                 case ".resources":
                     // determine resource name, and leave culture information
