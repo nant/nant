@@ -52,11 +52,16 @@ namespace NAnt.DotNet.Tasks {
     [TaskName("delay-sign")]
     [ProgramLocation(LocationType.FrameworkSdkDir)]
     public class DelaySignTask : ExternalProgramBase  {
+        #region Private Instance Fields
         private FileSet _targets        = new FileSet();
         private string  _keyFilename    = null;
         private string  _keyContainer   = null;
         private string  _arguments      = null;
         private bool    _quiet          = true;
+        private string _exeName         = "sn"; 
+        
+        #endregion Private Instance Fields
+                       
         
         /// <summary>
         /// Takes a list of assemblies/executables to sign
@@ -72,8 +77,10 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("keyfile")]
         public string KeyFile {
-            get { return _keyFilename;  }
-            set { _keyFilename = value; }
+            //get { return (_keyFilename != null) ? Project.GetFullPath(_keyFilename) : null; }           
+            get { return _keyFilename; }
+            set { _keyFilename = setStringValue(value); }
+           
         }
 
         /// <summary>
@@ -81,10 +88,11 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("keycontainer")]
         public string KeyContainer {
-            get { return _keyContainer;  }
-            set { _keyContainer = value; }
+            get { return (_keyContainer != null) ? Project.GetFullPath(_keyContainer) : null; }                 
+            set { _keyContainer = setStringValue(value); }
+            
         }
-
+                
         /// <summary>
         /// Specifies whether non-error output should be suppressed.
         /// </summary>
@@ -107,24 +115,25 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Override the ExeName paramater for sn.exe
         /// </summary>       
-        public override string ExeName {
-            get { return "sn"; }
+        [FrameworkConfigurable("exename")]
+        public override string ExeName {            
+            get { return _exeName; }
+            set { _exeName = setStringValue(value); }
         }
+        
         /// <summary>
         /// Converts a single file or group of files.
         /// </summary>
         protected override void ExecuteTask() {
-            bool keyAvail =
-                (_keyFilename != null && _keyFilename.Length > 0);
-            bool containerAvail = 
-                (_keyContainer != null && _keyContainer.Length > 0);
+            bool keyAvail = (KeyFile != null );
+            bool containerAvail = (KeyContainer != null );
             if ((keyAvail && containerAvail) ||
-                (!keyAvail && !containerAvail)) {
+                (! keyAvail && ! containerAvail)) {
                 throw new BuildException
                     ("either 'keyfile' or 'keycontainer' must be specified");
             }
 
-            string keyname =  (containerAvail ? _keyContainer : _keyFilename);
+            string keyname =  (containerAvail ? KeyContainer : KeyFile);
 
             foreach (string filename in Targets.FileNames)  {
                 // Try to guess the buffer length
