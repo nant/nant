@@ -195,11 +195,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core\Filters\ReplaceCharacterTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                      RelPath = "NAnt.Core\Filters\ReplaceStringTest.cs"
                      SubType = "Code"
                      BuildAction = "Compile"
