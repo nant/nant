@@ -180,6 +180,52 @@ reefer.maddness",
             Assert.IsTrue(f1.FullName == newestfile.FullName, "Most Recent File should be '{0}', but was '{1}'", f1.Name, newestfile.Name);
         }
 
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_IncludesFile_NotExists() {
+            const string buildXML = @"<project name=""fileset-test"">
+	                <fileset id=""whatever"">
+		                <includesfile name=""notexists.txt"" />
+	                </fileset>
+                </project>";
+
+            RunBuild(buildXML);
+        }
+
+        [Test]
+        public void Test_IncludesFile_NotExists_Conditional() {
+            const string buildXML = @"<project name=""fileset-test"">
+	                <fileset id=""whatever"">
+		                <includesfile name=""notexists.txt"" if=""${file::exists('notexists.txt')}"" />
+	                </fileset>
+                </project>";
+
+            RunBuild(buildXML);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_ExcludesFile_NotExists() {
+            const string buildXML = @"<project name=""fileset-test"">
+	                <fileset id=""whatever"">
+		                <excludesfile name=""notexists.txt"" />
+	                </fileset>
+                </project>";
+
+            RunBuild(buildXML);
+        }
+
+        [Test]
+        public void Test_ExcludesFile_NotExists_Conditional() {
+            const string buildXML = @"<project name=""fileset-test"">
+	                <fileset id=""whatever"">
+		                <excludesfile name=""notexists.txt"" if=""${file::exists('notexists.txt')}"" />
+	                </fileset>
+                </project>";
+
+            RunBuild(buildXML);
+        }
+
         void AssertMatch(string fileName) {
             AssertMatch(fileName, true);
         }

@@ -903,7 +903,6 @@ namespace NAnt.Core.Types {
             private bool _ifDefined = true;
             private bool _unlessDefined;
             private FileInfo _patternFile;
-            private StringCollection _patterns = new StringCollection();
 
             #endregion Private Instance Fields
 
@@ -913,7 +912,26 @@ namespace NAnt.Core.Types {
             /// Gets the list of patterns in <see cref="PatternFile" />.
             /// </summary>
             public StringCollection Patterns {
-                get { return _patterns; }
+                get {
+                    StringCollection patterns = new StringCollection();
+                    if (PatternFile == null) {
+                        return patterns;
+                    }
+
+                    try {
+                        using (Stream file = File.OpenRead(PatternFile.FullName)) {
+                            StreamReader rd = new StreamReader(file);
+                            while (rd.Peek() > -1) {
+                                patterns.Add(rd.ReadLine());
+                            }
+                        }
+                        return patterns;
+                    } catch (Exception ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "'{0}' list could not be opened.", PatternFile.FullName), 
+                            Location, ex);
+                    }
+                }
             }
 
             /// <summary>
@@ -951,25 +969,6 @@ namespace NAnt.Core.Types {
             }
 
             #endregion Public Instance Properties
-
-            #region Override implementation of Element
-
-            protected override void InitializeElement(XmlNode elementNode) {
-                try {
-                    using (Stream file = File.OpenRead(PatternFile.FullName)) {
-                        StreamReader rd = new StreamReader(file);
-                        while (rd.Peek() > -1) {
-                            _patterns.Add(rd.ReadLine());
-                        }
-                    }
-                } catch (Exception ex) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "'{0}' list could not be opened.", PatternFile.FullName), 
-                        Location, ex);
-                }
-            }
-
-            #endregion Override implementation of Element
         }
         
         public class IncludesFile : ExcludesFile {
