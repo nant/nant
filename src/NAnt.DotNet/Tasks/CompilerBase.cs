@@ -229,9 +229,8 @@ namespace SourceForge.NAnt.Tasks
                     // Resx args
                     foreach (string fileName in Resources.ResxFiles.FileNames ) {
                         string prefix = GetFormNamespace(fileName); // try and get it from matching form
-                        if (prefix = "")
-                            prefix = Resources.Prefix;
-                        
+                        if (prefix == "")
+                            prefix = Resources.Prefix;                        
                         string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                         string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
                         string manifestResourceName = Path.GetFileName(tmpResourcePath).Replace(actualFileName, prefix + "." + actualFileName );          
