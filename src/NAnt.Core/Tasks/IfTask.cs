@@ -29,9 +29,20 @@ namespace SourceForge.NAnt.Tasks {
     /// <summary>Checks the conditional attributes and executes the children if true.</summary>
     /// <remarks>
     ///     <para>If no conditions are checked, all child tasks are executed. 
-    ///     True is the default condition result.</para>
+    ///     True is the default condition result (with no conditions specified).</para>
     ///     <para>If more than one attribute is used, they are &amp;&amp;'d. The first to fail stops the check.</para>
+    ///     <para>The order of condition evaluation is, target, propertyexists, propertytrue, uptodate.</para>
     /// </remarks>
+    /// <example>
+    ///   <para>Check that a target exists</para>
+    ///   <code>
+    ///   <![CDATA[
+    ///   <target name="myTarget"/>
+    ///   <if targetexists="myTarget">
+    ///     <echo message="myTarget exists."/>
+    ///   </if>
+    ///   ]]></code>
+    /// </example>
     /// <example>
     ///   <para>Check existence of a property</para>
     ///   <code>
@@ -50,15 +61,24 @@ namespace SourceForge.NAnt.Tasks {
     ///   ]]></code>
     /// </example>
     /// <example>
-    ///   <para>Check that a target exists</para>
+    ///   <para>Check that a property exists and is true (uses multiple conditions)</para>
     ///   <code>
     ///   <![CDATA[
-    ///   <target name="myTarget"/>
-    ///   <if targetexists="myTarget">
-    ///     <echo message="myTarget exists."/>
+    ///   <if propertyexists="myProp" propertytrue="myProp">
+    ///     <echo message="myProp is '${myProp}'"/>    
+    ///   </if>
+    ///   ]]></code>
+    ///   <para>which is the same as</para>
+    ///   <code>
+    ///   <![CDATA[
+    ///   <if propertyexists="myProp">
+    ///     <if propertytrue="myProp">
+    ///         <echo message="myProp is '${myProp}'"/>    
+    ///     </if>
     ///   </if>
     ///   ]]></code>
     /// </example>
+    /// 
     /// <example>
     ///   <para>Checks file dates</para>
     ///   <code>
@@ -74,7 +94,7 @@ namespace SourceForge.NAnt.Tasks {
     ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
     ///   </if>
     ///   ]]></code>
-    /// </example>    /// 
+    /// </example>
     [TaskName("if")]
     public class IfTask : TaskContainer{
         
