@@ -48,16 +48,21 @@ namespace NAnt.VSNet {
 
             _projectSettings = projectSettings;
             _name = elemConfig.GetAttribute("Name").ToLower(CultureInfo.InvariantCulture);
-            _docFilename = null;
 
             if (!StringUtils.IsNullOrEmpty(elemConfig.GetAttribute("DocumentationFile"))) {
                 if (StringUtils.IsNullOrEmpty(outputDir)) {
-                    FileInfo fiDocumentation = new FileInfo(projectSettings.RootDirectory + @"/" + elemConfig.Attributes["DocumentationFile"].Value);
-                    _docFilename = fiDocumentation.FullName;
+                    // combine project root directory with (relative) path for 
+                    // documentation file
+                    _docFilename = Path.GetFullPath(Path.Combine(
+                        projectSettings.RootDirectory, elemConfig.GetAttribute("DocumentationFile")));
                 } else {
-                    _docFilename = Path.GetFullPath(Path.Combine(outputDir, elemConfig.GetAttribute("DocumentationFile")));
+                    // combine output directory and filename of document file (do not use path information)
+                    _docFilename = Path.GetFullPath(Path.Combine(outputDir,
+                        Path.GetFileName(elemConfig.GetAttribute("DocumentationFile"))));
                 }
                 _settings.Add(@"/doc:""" + _docFilename + @"""");
+
+                // make sure the output directory for the doc file exists
                 Directory.CreateDirectory(Path.GetDirectoryName(_docFilename));
             }
 
