@@ -1,8 +1,8 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
+        ProductVersion = "7.0.9466"
+        SchemaVersion = "1.0"
         ProjectGuid = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
     >
         <Build>
@@ -16,10 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
-                RootNamespace = ""
-                RunPostBuildEvent = "OnBuildSuccess"
+                RootNamespace = "NAnt.Compression"
                 StartupObject = ""
             >
                 <Config
@@ -33,8 +30,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.Compression\"
                     RegisterForComInterop = "false"
@@ -53,8 +48,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.Compression\"
                     RegisterForComInterop = "false"
