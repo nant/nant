@@ -58,9 +58,9 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <loadtasks>
     ///    <fileset>
-    ///        <includes name="C:\cvs\NAntContrib\build"/>
-    ///        <includes name="C:\cvs\NAntContrib\build\NAnt.Contrib.Tasks.dll"/>
-    ///    </fileset>   
+    ///        <includes name="C:\cvs\NAntContrib\build" />
+    ///        <includes name="C:\cvs\NAntContrib\build\NAnt.Contrib.Tasks.dll" />
+    ///    </fileset>
     ///</loadtasks>
     ///     ]]>
     ///   </code>

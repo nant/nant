@@ -39,7 +39,11 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>Include the script task that fetches the project version from the file "GetProjectVersion.include".</para>
-    ///   <code><![CDATA[<include buildfile="GetProjectVersion.include"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <include buildfile="GetProjectVersion.include" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("include")] // TODO make into ant:include
     public class IncludeTask : Task {
