@@ -65,7 +65,7 @@ namespace NAnt.DotNet.Tasks {
         private string _culture = null;
         private string _template = null;
         private string _keyfile = null;
-        private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
+        private FileSet _resources = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -156,9 +156,9 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The set of resources to embed.
         /// </summary>
-        [BuildElementArray("sources")]
-        public ResourceFileSetCollection EmbeddedResourcesList {
-            get { return _resourcesList; }
+        [BuildElement("sources")]
+        public FileSet Resources {
+            get { return _resources; }
         }
 
         #endregion Public Instance Properties
@@ -192,6 +192,8 @@ namespace NAnt.DotNet.Tasks {
                 StreamWriter writer = new StreamWriter(_responseFileName);
 
                 try {
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Resources.FileNames.Count, Output);
+
                     // write output target
                     writer.Write(" /target:{0}", OutputTarget);
 
@@ -213,41 +215,10 @@ namespace NAnt.DotNet.Tasks {
                         writer.Write(" /keyfile:\"{0}\"", KeyFile);
                     }
 
-                    // field for holding total numbers of resources to embed
-                    int resourceCount = 0;
-
                     // write embedded resources to response file
-                    foreach (ResourceFileSet resources in EmbeddedResourcesList) {
-                        // add resources to total number of resources to embed
-                        resourceCount += resources.FileNames.Count;
-
-                        foreach (string fileName in resources.FileNames) {
-                            if (Path.GetExtension(fileName) == ".resources") {
-                                // no need to determine name of resource to embed
-                                writer.Write(" /embed:\"{0}\"", fileName);
-                            } else {
-                                CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
-                                if (resourceCulture != null) {
-                                    // determine resource name
-                                    string resourceName = resources.GetManifestResourceName(fileName);
-
-                                    // remove culture name from name of resource
-                                    int cultureIndex = resourceName.LastIndexOf("." + resourceCulture.Name);
-                                    resourceName = resourceName.Substring(0, cultureIndex) 
-                                        + resourceName.Substring(cultureIndex).Replace("." 
-                                        + resourceCulture.Name, string.Empty);
-
-                                    // write option to response file
-                                    writer.Write(" /embed:\"{0},{1}\"", fileName, resourceName);
-                                } else {
-                                    // write option to response file
-                                    writer.Write(" /embed:\"{0}\"", fileName);
-                                }
-                            }
-                        }
+                    foreach (string resourceFile in Resources.FileNames) {
+                        writer.Write(" /embed:\"{0}\"", resourceFile);
                     }
-
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", resourceCount, Output);
 
                     // make sure to close the response file otherwise contents
                     // Will not be written to disk and ExecuteTask() will fail.
@@ -292,12 +263,10 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
-            foreach (ResourceFileSet resources in EmbeddedResourcesList) {
-                string fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, outputFileInfo.LastWriteTime);
-                if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
-                    return true;
-                }
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, outputFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
+                return true;
             }
 
             // if we made it here then we don't have to recompile
