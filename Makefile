@@ -18,6 +18,8 @@ windows-bootstrap:
 	echo Windows-based make is not yet supported; exit 1; \
 
 linux-bootstrap-nant:
+	# temporary workaround for Mono Runtime bug #57602
+	cp bin/lib/mono/1.0/log4net.dll bin
 	$(MCS) -target:exe -define:MONO -debug -o bin/NAnt.exe -r:bin/lib/mono/1.0/log4net.dll -recurse:src/NAnt.Console/*.cs src/CommonAssemblyInfo.cs
 	cp src/NAnt.Console/NAnt.Console.exe.config bin/NAnt.exe.config
 
