@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project name="NAnt.Resources" default="build">
+    <!--
+        Required properties:
+            * build.dir             - (path) root level to build to, assemblies will go in ${build.dir}/bin
+            * build.debug           - (true|false) debug build?
+            * current.build.defines - framework-specific build defines
+            
+            * This is a resource-only assembly for sommon/shared resources. All other resources
+            will be stored with the assembly that uses them.
+    -->
+    <target name="build">
+        <!-- build main assembly -->
+        <resgen todir=".">
+            <resources>
+               <include name="Resources/*.resx" />
+            </resources>
+        </resgen>
+        <al target="library" output="${build.dir}/bin/${nant.project.name}.dll">
+            <sources>
+                <include name="*.resources"/>
+            </sources>
+        </al>
+    </target>
+</project>
