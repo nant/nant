@@ -316,11 +316,18 @@ namespace NAnt.VSNet {
                                     // being built in release configuration, so
                                     // instead of failing the build we use the 
                                     // release assembly of that project
-                                    if (!System.IO.File.Exists(reference.Filename)) {
-                                        ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
-                                        if (pRef != null) {
-                                            reference.Filename = pRef.GetOutputPath(configuration);
-                                        }
+
+                                    // Note that this was designed to intentionally deviate from VS.NET's building
+                                    // strategy.
+
+                                    // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
+                                    // for why we must always convert file references to project references
+
+                                    // If we want a different behaviour, this should be controlled by a flag
+                                    ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
+                                    if (pRef != null) {
+                                        reference.Filename = pRef.GetOutputPath(configuration);
+                                        Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", originalReference, pRef.Name);
                                     }
                                 }
 

@@ -78,6 +78,7 @@ namespace NAnt.VSNet {
             _isCreated = false;
             _gacCache = gacCache;
             _refResolver = refResolver;
+            _deferCopyLocalGacDetermination = false;
 
             // Read the private flag
             _privateSpecified = (elemReference.Attributes["Private"] != null);
@@ -137,7 +138,15 @@ namespace NAnt.VSNet {
         /// should be copied locally; otherwise, <see langword="false" />.
         /// </value>
         public bool CopyLocal {
-            get { return _copyLocal; }
+            get 
+            { 
+                // Do we need to check the GAC for copy local information?
+                // This prevents locking of files before they are built
+                if ( _deferCopyLocalGacDetermination )
+                    _copyLocal = !GacCache.IsAssemblyInGac(_referenceFile);
+
+                return _copyLocal; 
+            }
         }
 
         public bool IsCreated {
@@ -656,7 +665,7 @@ namespace NAnt.VSNet {
                 if (!_privateSpecified) {
                     // assembly should only be copied locally if its not
                     // installed in the GAC
-                    _copyLocal = !GacCache.IsAssemblyInGac(_referenceFile);
+                    _deferCopyLocalGacDetermination = true;
                 } else {
                     _copyLocal = _isPrivate;
                 }
@@ -860,6 +869,7 @@ namespace NAnt.VSNet {
         private string _namespace;
         private string _interopFile;
         private string _typelibFile;
+        private bool _deferCopyLocalGacDetermination;
         private bool _copyLocal;
         private bool _isCreated;
         private bool _isSystem;
