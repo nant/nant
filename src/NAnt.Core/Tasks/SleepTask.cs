@@ -36,6 +36,8 @@ namespace NAnt.Core.Tasks {
     /// <sleep hours="1" minutes="2" seconds="3" milliseconds="4" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Sleep 123 milliseconds.</para>
     ///   <code>
     ///     <![CDATA[

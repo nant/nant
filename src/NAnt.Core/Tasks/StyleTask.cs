@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    /// <para>Create some code based on a directory of templates.</para>
+    ///   <para>Create some code based on a directory of templates.</para>
     ///   <code>
     ///     <![CDATA[
     /// <style style="CodeGenerator.xsl" extension="java">

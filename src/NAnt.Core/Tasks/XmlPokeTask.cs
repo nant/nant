@@ -41,33 +41,35 @@ namespace NAnt.Core.Tasks {
     /// </para>
     /// </remarks>
     /// <example>
-    ///     <para>
-    ///     The example provided assumes that the following XML file (App.config)
-    ///     exists in the current build directory.
-    ///     </para>
-    ///     <code>
-    ///         <![CDATA[
+    ///   <para>
+    ///   The example provided assumes that the following XML file (App.config)
+    ///   exists in the current build directory.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
     /// <?xml version="1.0" encoding="utf-8" ?>
     /// <configuration>
     ///     <appSettings>
     ///         <add key="server" value="testhost.somecompany.com" />
     ///     </appSettings>
     /// </configuration>
-    ///         ]]>
-    ///     </code>
-    ///     <para>
-    ///     The example will change the <c>server</c> setting in the above 
-    ///     configuration from <c>testhost.somecompany.com</c> to
-    ///     <c>productionhost.somecompany.com</c>.
-    ///     </para>
-    ///     <code>
-    ///         <![CDATA[
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   The example will change the <c>server</c> setting in the above 
+    ///   configuration from <c>testhost.somecompany.com</c> to
+    ///   <c>productionhost.somecompany.com</c>.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
     /// <xmlpoke
     ///     file="App.config"
     ///     xpath="/configuration/appSettings/add[@key = 'server']/@value"
     ///     value="productionhost.somecompany.com" />
-    ///         ]]>
-    ///     </code>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("xmlpoke")]
     public class XmlPokeTask : Task {

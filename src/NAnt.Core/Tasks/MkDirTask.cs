@@ -36,6 +36,8 @@ namespace NAnt.Core.Tasks {
     /// <mkdir dir="build" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Create the directory tree <c>one/two/three</c>.</para>
     ///   <code>
     ///     <![CDATA[

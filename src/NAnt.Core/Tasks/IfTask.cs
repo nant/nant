@@ -65,6 +65,8 @@ namespace NAnt.Core.Tasks {
     /// </if>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Check that a property value is true.</para>
     ///   <code>
     ///     <![CDATA[

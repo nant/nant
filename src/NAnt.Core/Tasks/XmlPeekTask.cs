@@ -39,26 +39,28 @@ namespace NAnt.Core.Tasks {
     /// </para>
     /// </remarks>
     /// <example>
-    ///     <para>
-    ///     The example provided assumes that the following XML file (App.config)
-    ///     exists in the current build directory.
-    ///     </para>
-    ///     <code>
-    ///         <![CDATA[
+    ///   <para>
+    ///   The example provided assumes that the following XML file (App.config)
+    ///   exists in the current build directory.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
     /// <?xml version="1.0" encoding="utf-8" ?>
     /// <configuration xmlns="http://www.gordic.cz/shared/project-config/v_1.0.0.0">
     ///     <appSettings>
     ///         <add key="server" value="testhost.somecompany.com" />
     ///     </appSettings>
     /// </configuration>
-    ///         ]]>
-    ///     </code>
-    ///     <para>
-    ///     The example will read the server value from the above
-    ///     configuration file.
-    ///     </para>
-    ///     <code>
-    ///         <![CDATA[
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   The example will read the server value from the above
+    ///   configuration file.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
     /// <xmlpeek
     ///     file="App.config"
     ///     xpath="/x:configuration/x:appSettings/x:add[@key = 'server']/@value"
@@ -67,8 +69,8 @@ namespace NAnt.Core.Tasks {
     ///         <namespace prefix="x" uri="http://www.gordic.cz/shared/project-config/v_1.0.0.0" />
     ///     </namespaces>
     /// </xmlpeek>
-    ///         ]]>
-    ///     </code>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("xmlpeek")]
     public class XmlPeekTask : Task {

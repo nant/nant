@@ -25,13 +25,20 @@ namespace NAnt.Core.Tasks {
     /// Calls a NAnt target in the current project.
     /// </summary>
     /// <example>
-    ///   <para>Call the target &quot;build&quot;.</para>
+    ///   <para>
+    ///   Call the target &quot;build&quot;.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <call target="build" />
     ///     ]]>
     ///   </code>
-    ///   <para>This shows how a project could 'compile' a debug and release build using a common compile target.</para>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   This shows how a project could 'compile' a debug and release build 
+    ///   using a common compile target.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <project default="build">

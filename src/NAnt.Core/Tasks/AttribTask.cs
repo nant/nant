@@ -52,6 +52,8 @@ namespace NAnt.Core.Tasks {
     /// <attrib file="myfile.txt" readonly="true" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///     Set the <c>normal</c> file attribute for the specified file.
     ///   </para>
@@ -60,6 +62,8 @@ namespace NAnt.Core.Tasks {
     /// <attrib file="myfile.txt" normal="true" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///     Set the <c>normal</c> file attribute for all executable files in 
     ///     the current project directory and sub-directories.

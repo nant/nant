@@ -51,6 +51,8 @@ namespace NAnt.Core.Tasks {
     /// <move file="myfile.txt" tofile="mytarget.txt" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Move a set of files.</para>
     ///   <code>
     ///     <![CDATA[

@@ -59,6 +59,8 @@ namespace NAnt.Core.Tasks {
     /// <tstamp property="build.date" pattern="yyyyMMdd" verbose="true" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Set a number of properties for Ant like compatibility.</para>
     ///   <code>
     ///     <![CDATA[

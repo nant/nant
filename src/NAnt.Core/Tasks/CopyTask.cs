@@ -54,6 +54,8 @@ namespace NAnt.Core.Tasks {
     /// <copy file="myfile.txt" tofile="mycopy.txt" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Copy a set of files to a new directory.</para>
     ///   <code>
     ///     <![CDATA[

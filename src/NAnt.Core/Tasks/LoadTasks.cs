@@ -34,8 +34,7 @@ namespace NAnt.Core.Tasks {
     /// Loads tasks form a given assembly or all assemblies in a given directory
     /// or <see cref="FileSet" />.
     /// </summary>
-    /// <remarks></remarks>
-     /// <example>
+     ///<example>
     ///   <para>
     ///   Load tasks from a single assembly.
     ///   </para>
@@ -44,6 +43,8 @@ namespace NAnt.Core.Tasks {
     /// <loadtasks assembly="c:foo\NAnt.Contrib.Tasks.dll" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Scan a single directory for task assemblies.
     ///   </para>
@@ -52,6 +53,8 @@ namespace NAnt.Core.Tasks {
     /// <loadtasks path="c:\foo" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Use a <see cref="TaskFileSet" /> containing both a directory and an 
     ///   assembly.

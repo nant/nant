@@ -43,6 +43,8 @@ namespace NAnt.Core.Tasks {
     /// <touch file="Main.cs" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Touch all executable files in the current directory and its subdirectories.</para>
     ///   <code>
     ///     <![CDATA[

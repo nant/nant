@@ -47,6 +47,8 @@ namespace NAnt.Core.Tasks {
     /// <available type="File" resource="myfile.txt" property="myfile.present" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Sets the <c>build.dir.present</c> property to <see langword="true" /> 
     ///   if the directory is available on the filesystem and <see langword="false" /> 
@@ -57,6 +59,8 @@ namespace NAnt.Core.Tasks {
     /// <available type="Directory" resource="build" property="build.dir.present" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Sets the <c>mono-0.21.framework.present</c> property to <see langword="true" /> 
     ///   if the Mono 0.21 framework is available on the current system and 
@@ -67,6 +71,8 @@ namespace NAnt.Core.Tasks {
     /// <available type="Framework" resource="mono-0.21" property="mono-0.21.framework.present" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Sets the <c>net-1.1.frameworksdk.present</c> property to <see langword="true" /> 
     ///   if the .NET 1.1 Framework SDK is available on the current system and 

@@ -51,6 +51,8 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Loops over all files in the project directory.</para>
     ///   <code>
     ///     <![CDATA[
@@ -66,6 +68,8 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Loops over the folders in <c>c:\</c>.</para>
     ///   <code>
     ///     <![CDATA[
@@ -74,6 +78,8 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Loops over all folders in the project directory.</para>
     ///   <code>
     ///     <![CDATA[
@@ -89,6 +95,8 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Loops over a list.</para>
     ///   <code>
     ///     <![CDATA[
@@ -97,6 +105,8 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Loops over lines in the file <c>properties.csv</c>, where each line 
     ///   is of the format name,value.

@@ -58,6 +58,8 @@ namespace NAnt.Core.Tasks {
     /// <echo message="${lastword}" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Split the full filename and extension of a filename.
     ///   </para>
@@ -66,6 +68,8 @@ namespace NAnt.Core.Tasks {
     /// <regex pattern="^(?'filename'.*)\.(?'extension'\w+)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Split the path and the filename. (This checks for <c>/</c> or <c>\</c> 
     ///   as the path separator).

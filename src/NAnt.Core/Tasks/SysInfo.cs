@@ -93,12 +93,16 @@ namespace NAnt.Core.Tasks {
     /// <sysinfo />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Register the properties without a prefix.</para>
     ///   <code>
     ///     <![CDATA[
     /// <sysinfo prefix="" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Register properties and display a summary.</para>
     ///   <code>
     ///     <![CDATA[
