@@ -176,28 +176,6 @@ namespace NAnt.VSNet {
             get { return ProjectFactory.IsUrl(_projectPath); }
         }
 
-        /// <summary>
-        /// Gets a value indicating if there are culture-specific resources
-        /// in the project.
-        /// </summary>
-        /// <value>
-        /// <see langword="true" /> if there are culture-specific resources in
-        /// the project; otherwise, <see langword="false" />.
-        /// </value>
-        private bool HasCultureSpecificResources {
-            get {
-                bool hasCultureSpecificResources = false;
-                foreach (Resource resource in _resources) {
-                    // ignore resource files associated with a culture
-                    if (resource.Culture != null) {
-                        hasCultureSpecificResources = true;
-                        break;;
-                    }
-                }
-                return hasCultureSpecificResources;
-            }
-        }
-
         #endregion Private Instance Properties
 
         #region Override implementation of ProjectBase
@@ -257,8 +235,30 @@ namespace NAnt.VSNet {
             get { return _references; }
         }
 
+        /// <summary>
+        /// Prepares the project for being built.
+        /// </summary>
+        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <remarks>
+        /// Ensures the configuration-level object directory exists and ensures 
+        /// that none of the output files are marked read-only.
+        /// </remarks>
+        protected override void Prepare(ConfigurationBase config) {
+            // ensure configuration-level object directory exists
+            if (!config.ObjectDir.Exists) {
+                config.ObjectDir.Create();
+                config.ObjectDir.Refresh();
+            }
+
+            // ensure that none of the output files in the configuration-level 
+            // object directory are marked read-only
+            base.Prepare(config);
+        }
+
+
         protected override bool Build(ConfigurationBase config) {
             bool bSuccess = true;
+            bool outputUpdated;
             string tempFile = null;
 
             GacCache.RecreateDomain();
@@ -267,173 +267,62 @@ namespace NAnt.VSNet {
                 ConfigurationSettings cs = (ConfigurationSettings) config;
 
                 // perform prebuild actions (for VS.NET 2003 and higher)
-                // TODO: should we stop build if prebuild event fails?
-                bSuccess = PreBuild(cs);
+                if (!PreBuild(cs)) {
+                    // no longer bother trying to build the project and do not
+                    // execute any post-build events
+                    return false;
+                }
 
                 // ensure temp directory exists
                 if (!Directory.Exists(TemporaryFiles.BasePath)) {
                     Directory.CreateDirectory(TemporaryFiles.BasePath);
                 }
 
-                // check if project needs to be rebuilt
+                // check if project output needs to be rebuilt
                 if (CheckUpToDate(cs)) {
                     Log(Level.Verbose, "Project is up-to-date.");
-                    // check if postbuild event needs to be executed
-                    if (ProjectSettings.RunPostBuildEvent != null) {
-                        // TODO: should we stop build if postbuild event fails?
-                        PostBuild(cs, true, false);
-                    }
-                    return true;
-                }
 
-                Log(Level.Verbose, "Copying references:");
-
-                foreach (ReferenceBase reference in _references) {
-                    if (reference.CopyLocal) {
-                        Log(Level.Verbose, " - " + reference.Name);
-
-                        Hashtable outputFiles = reference.GetOutputFiles(cs);
-
-                        foreach (DictionaryEntry de in outputFiles) {
-                            // determine file to copy
-                            FileInfo srcFile = new FileInfo((string) de.Key);
-                            // determine destination file
-                            FileInfo destFile = new FileInfo(Path.Combine(
-                                cs.OutputDir.FullName, (string) de.Value));
-                            // perform actual copy
-                            CopyFile(srcFile, destFile, SolutionTask);
-                        }
-                    }
-                }
-
-                // check if project does not contain any sources
-                if (_sourceFiles.Count == 0) {
-                    // create temp file
-                    tempFile = Path.GetTempFileName();
-
-                    // add temp file to collection of sources to compile 
-                    // as command line compilers require a least one source
-                    // file to be specified, but VS.NET supports empty
-                    // projects
-                    _sourceFiles[tempFile] = null;
-                }
-
-                string tempResponseFile = Path.Combine(TemporaryFiles.BasePath, 
-                    CommandFile);
-
-                using (StreamWriter sw = File.CreateText(tempResponseFile)) {
-                    // write compiler options
-                    WriteCompilerOptions(sw, cs);
-                }
-
-                Log(Level.Verbose, "Starting compiler...");
-
-                if (SolutionTask.Verbose) {
-                    using (StreamReader sr = new StreamReader(tempResponseFile)) {
-                        Log(Level.Verbose, "Commands:");
-
-                        // increment indentation level
-                        SolutionTask.Project.Indent();
-                        try {
-                            while (true) {
-                                // read line
-                                string line = sr.ReadLine();
-                                if (line == null) {
-                                    break;
-                                }
-                                // display line
-                                Log(Level.Verbose, "    "  + line);
-                            }
-                        } finally {
-                            // restore indentation level
-                            SolutionTask.Project.Unindent();
-                        }
-                    }
-                }
-
-                ProcessStartInfo psi = GetProcessStartInfo(cs, tempResponseFile);
-                psi.UseShellExecute = false;
-                psi.RedirectStandardOutput = true;
-
-                // start compiler
-                Process p = Process.Start(psi);
-
-                while (true) {
-                    // read line
-                    string line = p.StandardOutput.ReadLine();
-                    if (line == null) {
-                        break;
-                    }
-                    // display line
-                    Log(Level.Info, line);
-                }
-
-                p.WaitForExit();
-
-                int exitCode = p.ExitCode;
-                Log(Level.Verbose, "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
-
-                if (exitCode > 0) {
-                    bSuccess = false;
+                    // project output is up-to-date
+                    outputUpdated = false;
                 } else {
-                    #region Process culture-specific resource files
+                    // check if project does not contain any sources
+                    if (_sourceFiles.Count == 0) {
+                        // create temp file
+                        tempFile = Path.GetTempFileName();
 
-                    if (HasCultureSpecificResources) {
-                        Log(Level.Verbose, "Compiling satellite assemblies:");
-                        Hashtable cultures = new Hashtable();
-                        foreach (Resource resource in _resources) {
-                            // ignore resource files NOT associated with a culture
-                            if (resource.Culture == null) {
-                                continue;
-                            }
-                            ArrayList resFiles = null;
-                            if (!cultures.ContainsKey(resource.Culture)) {
-                                resFiles = new ArrayList();
-                                cultures.Add(resource.Culture, resFiles);
-                            } else {
-                                resFiles = (ArrayList) cultures[resource.Culture];
-                            }
-                            resFiles.Add(resource);
-                        }
+                        // add temp file to collection of sources to compile 
+                        // as command line compilers require a least one source
+                        // file to be specified, but VS.NET supports empty
+                        // projects
+                        _sourceFiles[tempFile] = null;
+                    }
 
-                        foreach (DictionaryEntry de in cultures) {
-                            string culture = ((CultureInfo) de.Key).Name;
-                            ArrayList resFiles = (ArrayList) de.Value;
+                    string tempResponseFile = Path.Combine(TemporaryFiles.BasePath, 
+                        CommandFile);
 
-                            AssemblyLinkerTask al = new AssemblyLinkerTask();
-                            al.Project = SolutionTask.Project;
-                            al.NamespaceManager = SolutionTask.NamespaceManager;
-                            al.Parent = SolutionTask;
-                            al.BaseDirectory = cs.OutputDir;
-                            al.InitializeTaskConfiguration();
+                    using (StreamWriter sw = File.CreateText(tempResponseFile)) {
+                        // write compiler options
+                        WriteCompilerOptions(sw, cs);
+                    }
 
-                            string satellitePath = cs.OutputDir.FullName;
-                            satellitePath = Path.Combine (satellitePath, culture);
-                            Directory.CreateDirectory(satellitePath);
-                            satellitePath = Path.Combine(satellitePath, string.Format(
-                                CultureInfo.InvariantCulture, "{0}.resources.dll", 
-                                ProjectSettings.AssemblyName));
-                            al.OutputFile = new FileInfo(satellitePath);
-                            al.OutputTarget = "lib";
-                            al.Culture = culture;
-                            al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, ProjectSettings.OutputFileName));
-                            foreach (Resource resource in resFiles) {
-                                resource.Compile(cs);
-                                // add resources to embed 
-                                Argument arg = new Argument();
-                                arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",\"{1}\"", resource.CompiledResourceFile, resource.ManifestResourceName);
-                                al.Arguments.Add(arg);
-                            }
+                    Log(Level.Verbose, "Starting compiler...");
+
+                    if (SolutionTask.Verbose) {
+                        using (StreamReader sr = new StreamReader(tempResponseFile)) {
+                            Log(Level.Verbose, "Commands:");
 
                             // increment indentation level
                             SolutionTask.Project.Indent();
                             try {
-                                Log(Level.Verbose, " - {0}", culture);
-                                // run assembly linker
-                                al.Execute();
-                                // add satellite assembly to extra output files
-                                ExtraOutputFiles[al.OutputFile.FullName] = Path.Combine(
-                                    al.Culture, al.OutputFile.Name);
+                                while (true) {
+                                    // read line
+                                    string line = sr.ReadLine();
+                                    if (line == null) {
+                                        break;
+                                    }
+                                    // display line
+                                    Log(Level.Verbose, "    "  + line);
+                                }
                             } finally {
                                 // restore indentation level
                                 SolutionTask.Project.Unindent();
@@ -441,79 +330,126 @@ namespace NAnt.VSNet {
                         }
                     }
 
-                    #endregion Process culture-specific resource files
+                    ProcessStartInfo psi = GetProcessStartInfo(cs, tempResponseFile);
+                    psi.UseShellExecute = false;
+                    psi.RedirectStandardOutput = true;
 
-                    #region Deploy project-level output files
+                    // start compiler
+                    Process p = Process.Start(psi);
 
-                    // copy primary project output (and related files)
-                    if (IsWebProject) {
-                        Hashtable primaryOutputFiles = ReferenceBase.GetRelatedFiles(
-                            cs.OutputPath);
-
-                        Log(Level.Verbose, "Uploading output files...");
-
-                        // copy primary project output (and related files)
-                        foreach (DictionaryEntry de in ExtraOutputFiles) {
-                            WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                            wdc.UploadFile((string) de.Key, Path.Combine(cs.RelativeOutputDir,
-                                (string) de.Value).Replace(@"\", "/"));
+                    while (true) {
+                        // read line
+                        string line = p.StandardOutput.ReadLine();
+                        if (line == null) {
+                            break;
                         }
+                        // display line
+                        Log(Level.Info, line);
                     }
 
-                    if (ExtraOutputFiles.Count > 0) {
-                        Log(Level.Verbose, "Deploying extra project output files ...");
+                    p.WaitForExit();
+
+                    int exitCode = p.ExitCode;
+                    Log(Level.Verbose, "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
+
+                    if (exitCode > 0) {
+                        bSuccess = false;
                     }
 
-                    // copy any extra project-level output files
-                    foreach (DictionaryEntry de in ExtraOutputFiles) {
-                        FileInfo sourceFile = new FileInfo((string) de.Key);
-                        if (IsWebProject) {
-                            WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                            wdc.UploadFile(sourceFile.FullName, Path.Combine(cs.RelativeOutputDir, 
-                                (string) de.Value).Replace(@"\", "/"));
-                        } else {
-                            // determine destination file
-                            FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
-                                (string) de.Value));
-                            // copy file using <copy> task
-                            CopyFile(sourceFile, destFile, SolutionTask);
-                        }
-                    }
-
-                    #endregion Deploy project-level output files
-
-                    #region Deploy configuration-specific output files
-
-                    if (cs.ExtraOutputFiles.Count > 0) {
-                        Log(Level.Verbose, "Deploying extra config output files ...");
-                    }
-
-                    // copy any extra configuration-specific output files
-                    foreach (DictionaryEntry de in cs.ExtraOutputFiles) {
-                        FileInfo sourceFile = new FileInfo((string) de.Key);
-                        if (IsWebProject) {
-                            WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                            wdc.UploadFile(sourceFile.FullName, cs.RelativeOutputDir.Replace(@"\", "/") 
-                                + (string) de.Value);
-                        } else {
-                            // determine destination file
-                            FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
-                                (string) de.Value));
-                            // copy file using <copy> task
-                            CopyFile(sourceFile, destFile, SolutionTask);
-                        }
-                    }
-
-                    #endregion Deploy configuration-specific output files
+                    // project output has been updated
+                    outputUpdated = true;
                 }
 
+                #region Process culture-specific resource files
+
+                Log(Level.Verbose, "Building satellite assemblies...");
+
+                Hashtable cultureResources = GetCultureSpecificResources();
+                foreach (DictionaryEntry de in cultureResources) {
+                    string culture = ((CultureInfo) de.Key).Name;
+                    ArrayList resFiles = (ArrayList) de.Value;
+
+                    AssemblyLinkerTask al = new AssemblyLinkerTask();
+                    al.Project = SolutionTask.Project;
+                    al.NamespaceManager = SolutionTask.NamespaceManager;
+                    al.Parent = SolutionTask;
+                    al.BaseDirectory = cs.OutputDir;
+                    al.InitializeTaskConfiguration();
+
+                    string satelliteBuildDir = Path.Combine(
+                        cs.ObjectDir.FullName, culture);
+
+                    // ensure satellite build directory exists
+                    if (!Directory.Exists(satelliteBuildDir)) {
+                        Directory.CreateDirectory(satelliteBuildDir);
+                    }
+
+                    string satelliteBuildFile = Path.Combine(satelliteBuildDir,
+                        string.Format(CultureInfo.InvariantCulture, "{0}.resources.dll", 
+                        ProjectSettings.AssemblyName));
+
+                    al.OutputFile = new FileInfo(satelliteBuildFile);
+                    al.OutputTarget = "lib";
+                    al.Culture = culture;
+                    al.TemplateFile = new FileInfo(cs.BuildPath);
+                    foreach (Resource resource in resFiles) {
+                        // compile resource
+                        FileInfo compiledResourceFile = resource.Compile(cs);
+                        // add resources to embed 
+                        Argument arg = new Argument();
+                        arg.Value = string.Format(CultureInfo.InvariantCulture, 
+                            "/embed:\"{0}\",\"{1}\"", compiledResourceFile.FullName, 
+                            resource.ManifestResourceName);
+                        al.Arguments.Add(arg);
+                    }
+
+                    // increment indentation level
+                    SolutionTask.Project.Indent();
+                    try {
+                        Log(Level.Verbose, " - {0}", culture);
+                        // run assembly linker
+                        al.Execute();
+                        // add satellite assembly to extra output files
+                        ExtraOutputFiles[al.OutputFile.FullName] = Path.Combine(
+                            al.Culture, al.OutputFile.Name);
+                    } finally {
+                        // restore indentation level
+                        SolutionTask.Project.Unindent();
+                    }
+                }
+
+                #endregion Process culture-specific resource files
+
+                #region Deploy project and configuration level output files
+
+                // copy primary project output (and related files)
+                Hashtable outputFiles = GetOutputFiles(config.Name);
+                foreach (DictionaryEntry de in outputFiles) {
+                    string srcPath = (string) de.Key;
+                    string relativePath = (string) de.Value;
+
+                    if (IsWebProject) {
+                        WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
+                        wdc.UploadFile(srcPath, Path.Combine(cs.RelativeOutputDir,
+                            relativePath).Replace(@"\", "/"));
+                    } else {
+                        // determine destination file
+                        FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
+                            relativePath));
+                        // copy file using <copy> task
+                        CopyFile(new FileInfo(srcPath), destFile, SolutionTask);
+                    }
+                }
+
+                #endregion Deploy project and configuration level output files
+
                 if (ProjectSettings.RunPostBuildEvent != null) {
-                    if (!PostBuild(cs, (exitCode == 0) ? true : false, (exitCode == 0) ? true : false)) {
+                    if (!PostBuild(cs, !outputUpdated || bSuccess, outputUpdated)) {
                         bSuccess = false;
                     }
                 }
 
-                if (!bSuccess ) {
+                if (!bSuccess) {
                     Log(Level.Error, "Build failed.");
                 }
 
@@ -600,10 +536,12 @@ namespace NAnt.VSNet {
                     }
 
                     Log(Level.Verbose, " - {0}", resource.InputFile);
-                    resource.Compile(config);
+
+                    // compile resource
+                    FileInfo compileResourceFile = resource.Compile(config);
 
                     sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                        "/res:\"{0}\",\"{1}\"", resource.CompiledResourceFile, 
+                        "/res:\"{0}\",\"{1}\"", compileResourceFile.FullName, 
                         resource.ManifestResourceName)); 
                 }
             }
@@ -698,8 +636,10 @@ namespace NAnt.VSNet {
 
         private bool CheckUpToDate(ConfigurationSettings cs) {
             DateTime dtOutputTimeStamp;
-            if (File.Exists(cs.OutputPath)) {
-                dtOutputTimeStamp = File.GetLastWriteTime(cs.OutputPath);
+
+            // check if project build output exists
+            if (File.Exists(cs.BuildPath)) {
+                dtOutputTimeStamp = File.GetLastWriteTime(cs.BuildPath);
             } else {
                 return false;
             }
@@ -711,9 +651,27 @@ namespace NAnt.VSNet {
                 }
             }
 
-            // check all resources
+            // check all culture-neutral resources
             foreach (Resource resource in _resources) {
+                // we're only interested in culture neutral resources, as these
+                // are the only resources that are embedded in the output assembly
+                if (resource.Culture != null) {
+                    continue;
+                }
+
+                // check if input file was updated since last compile
                 if (dtOutputTimeStamp < resource.InputFile.LastWriteTime) {
+                    return false;
+                }
+
+                // check if compiled resource file exists
+                FileInfo compiledResourceFile = resource.GetCompiledResourceFile(cs);
+                if (!compiledResourceFile.Exists) {
+                    return false;
+                }
+
+                // check if compiled resource file is up-to-date
+                if (dtOutputTimeStamp < compiledResourceFile.LastWriteTime) {
                     return false;
                 }
             }
@@ -726,6 +684,36 @@ namespace NAnt.VSNet {
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Returns <see cref="Hashtable" /> containing culture-specific resources.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Hashtable" /> containing culture-specific resources.
+        /// </returns>
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is <see cref="CultureInfo" />
+        /// and the value is an <see cref="ArrayList" /> containing a list of
+        /// <see cref="Resource" /> instances for that culture.
+        /// </remarks>
+        private Hashtable GetCultureSpecificResources() {
+            Hashtable cultureResources = new Hashtable();
+            foreach (Resource resource in _resources) {
+                // ignore resource files NOT associated with a culture
+                if (resource.Culture == null) {
+                    continue;
+                }
+                ArrayList resFiles = null;
+                if (!cultureResources.ContainsKey(resource.Culture)) {
+                    resFiles = new ArrayList();
+                    cultureResources.Add(resource.Culture, resFiles);
+                } else {
+                    resFiles = (ArrayList) cultureResources[resource.Culture];
+                }
+                resFiles.Add(resource);
+            }
+            return cultureResources;
         }
 
         #endregion Private Instance Methods
