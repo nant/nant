@@ -27,7 +27,7 @@
             <arg value="ln -s ${sf.net.web.path}/${nightly.builds.path} ${sf.net.web.path}/nightly/latest" />
         </exec>
     </target>
-    <!-- copy the zipped nighly build to sourceforge -->
+    <!-- copy the nighly build distributions to sourceforge -->
     <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
@@ -54,7 +54,7 @@
             <arg value="${path::get-file-name(project.gzip-path.bin)}" />
             <arg value="${serverpart}/${nightly.builds.path}/${project.name}-bin.tar.gz" />
         </exec>
-        <echo message="Copied nightly build over to SF.Net" />
+        <echo message="Copied distributions over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -93,6 +93,11 @@
     </target>
     <!-- copy help to sourceforge -->
     <target name="deploy-help-sf" depends="set-net-1.0-framework-configuration, package">
+        <!-- make sure the directory tree exists -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/${nightly.builds.path}" />
+        </exec>
         <!-- copy the gzipped tar help distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.gzip-path.help)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.help)}" />
