@@ -491,12 +491,6 @@ namespace NDoc.Documenter.NAnt {
                 return elementCollectionNode.Value;
             }
 
-            // check whether property is a FileSet
-            XmlAttribute fileSetNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FileSetAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (fileSetNode != null) {
-                return fileSetNode.Value;
-            }
-
             // check whether property is an xml element
             XmlAttribute buildElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
             if (buildElementNode != null) {
