@@ -40,6 +40,8 @@ namespace NAnt.Core.Tasks {
     /// <property name="debug" value="true" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Use the user-defined <c>debug</c> property.
     ///   </para>
@@ -48,6 +50,8 @@ namespace NAnt.Core.Tasks {
     /// <property name="trace" value="${debug}" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Define a read-only property. This is just like passing in the param 
     ///   on the command line.
@@ -55,6 +59,28 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <property name="do_not_touch_ME" value="hammer" readonly="true" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Define a property, but do not overwrite the value if the property already exists (eg. it was specified on the command line).
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <project name="property-example">
+    ///   <property name="debug" value="true" overwrite="false" />
+    ///   <echo message="debug: ${debug}" />
+    /// </project>
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   Executing this build file with the command line option <c>-D:debug=false</c>,
+    ///   would cause the value specified on the command line to remain unaltered.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// [echo] debug: true
     ///     ]]>
     ///   </code>
     /// </example>
