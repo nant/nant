@@ -35,11 +35,17 @@ namespace NAnt.Core.Tasks {
     ///   The message can be specified using the <see cref="Message" /> attribute 
     ///   or as inline content.
     ///   </para>
-    ///   <para>Macros in the message will be expanded.</para>
-    ///   <para>When writing to a file, the <see cref="Level" /> attribute is ignored. </para>
+    ///   <para>
+    ///   Macros in the message will be expanded.
+    ///   </para>
+    ///   <para>
+    ///   When writing to a file, the <see cref="Level" /> attribute is ignored.
+    ///   </para>
     /// </remarks>
     /// <example>
-    ///   <para>Writes a message with level <see cref="Level.Debug" /> to the build log.</para>
+    ///   <para>
+    ///   Writes a message with level <see cref="Level.Debug" /> to the build log.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <echo message="Hello, World!" level="Debug" />
@@ -47,7 +53,9 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Writes a message with expanded macro to the build log.</para>
+    ///   <para>
+    ///   Writes a message with expanded macro to the build log.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <echo message="Base build directory = ${nant.project.basedir}" />
@@ -55,7 +63,9 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Functionally equivalent to the previous example.</para>
+    ///   <para>
+    ///   Functionally equivalent to the previous example.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <echo>Base build directory = ${nant.project.basedir}</echo>
@@ -63,10 +73,13 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Writes the previous message to a file in the current build directory, overwriting the file if it exists.</para>
+    ///   <para>
+    ///   Writes the previous message to a file in the project directory, 
+    ///   overwriting the file if it exists.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <echo filename="buildmessage.txt">Base build directory = ${nant.project.basedir}</echo>
+    /// <echo file="buildmessage.txt">Base build directory = ${nant.project.basedir}</echo>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -74,9 +87,9 @@ namespace NAnt.Core.Tasks {
     public class EchoTask : Task {
         #region Private Instance Fields
 
-        private string _message = null;
-        private string _contents = null;
-        private string _filename = null;
+        private string _message;
+        private string _contents;
+        private FileInfo _file;
         private bool _append = false;
         private Level _messageLevel = Level.Info;
 
@@ -85,7 +98,7 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The message to display.
+        /// The message to output.
         /// </summary>
         [TaskAttribute("message")]
         public string Message {
@@ -104,11 +117,10 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Gets or sets the inline content that should be output in the build
-        /// log.
+        /// Gets or sets the inline content that should be output.
         /// </summary>
         /// <value>
-        /// The inline content that should be output in the build log.
+        /// The inline content that should be output.
         /// </value>
         public string Contents {
             get { return _contents; }
@@ -126,17 +138,23 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The filename to write the message to.
+        /// The file to write the message to.
         /// </summary>
-        [TaskAttribute("filename")]
-        public string Filename {
-            get { return _filename; }
-            set { _filename = value; }
+        [TaskAttribute("file")]
+        public FileInfo File {
+            get { return _file; }
+            set { _file = value; }
         }
 
         /// <summary>
-        /// Determines whether the echo task should append to the file, or overwrite it.  The default is false.
+        /// Determines whether the <see cref="EchoTask" /> should append to the 
+        /// file, or overwrite it.  By default, the file will be overwritten.
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if output should be appended to the file; 
+        /// otherwise, <see langword="false" />. The default is 
+        /// <see langword="false" />.
+        /// </value>
         [TaskAttribute("append")]
         public bool Append {
             get { return _append; }
@@ -166,30 +184,36 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Outputs the message to the build log.
+        /// Outputs the message to the build log or the specified file.
         /// </summary>
         protected override void ExecuteTask() {
-            // File case
-            if (!StringUtils.IsNullOrEmpty(Filename)) {
-                using (StreamWriter writer = new StreamWriter(Filename, Append)) {
-                    if (!StringUtils.IsNullOrEmpty(Message)) {
-                        writer.WriteLine(Message);
-                    } else if (!StringUtils.IsNullOrEmpty(Contents)) {
-                        writer.WriteLine(Contents);
-                    } else {
-                        writer.WriteLine();
+            if (File != null) { // output to file
+                try {
+                    // ensure the output directory exists
+                    Directory.CreateDirectory(File.DirectoryName);
+                    // write the message to the file
+                    using (StreamWriter writer = new StreamWriter(File.FullName, Append)) {
+                        if (!StringUtils.IsNullOrEmpty(Message)) {
+                            writer.WriteLine(Message);
+                        } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+                            writer.WriteLine(Contents);
+                        } else {
+                            writer.WriteLine();
+                        }
                     }
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Failed to write message to file '{0}'.", File.FullName), 
+                        Location, ex);
                 }
-                return;
-            }
-
-            // Log case
-            if (!StringUtils.IsNullOrEmpty(Message)) {
-                Log(MessageLevel, LogPrefix + Message);
-            } else if (!StringUtils.IsNullOrEmpty(Contents)) {
-                Log(MessageLevel, LogPrefix + Contents);
-            } else {
-                Log(MessageLevel, LogPrefix);
+            } else { // output to build log
+                if (!StringUtils.IsNullOrEmpty(Message)) {
+                    Log(MessageLevel, LogPrefix + Message);
+                } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+                    Log(MessageLevel, LogPrefix + Contents);
+                } else {
+                    Log(MessageLevel, LogPrefix);
+                }
             }
         }                        protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
 
