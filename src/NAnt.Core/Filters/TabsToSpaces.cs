@@ -29,6 +29,10 @@ namespace NAnt.Core.Filters {
     /// <remarks>
     /// The <see cref="TabsToSpaces" /> filter replaces tabs in a text file 
     /// with spaces.
+	/// <para>
+	/// Filters are intended to be used as a element of a <see cref="FilterChain"/>. A FilterChain can 
+	/// be applied to a given task.
+	/// </para>
     /// </remarks>
     /// <example>
     ///  <para>Replace all tabs with four spaces.</para>

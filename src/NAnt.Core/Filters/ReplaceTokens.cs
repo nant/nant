@@ -29,28 +29,42 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
 namespace NAnt.Core.Filters {
-    /// <summary>
-    /// Replaces tokens in the original input with user-supplied values.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Replaces all tokens between the beginning and ending
-    /// token.
-    /// </para>
-    /// <para>
-    /// Tokens are specified using <see cref="Token" /> elements.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    ///  <para>Standard Syntax</para>
-    ///  <code>
-    ///  <![CDATA[
-    ///  <replacetokens begintoken="@" endtoken="@">
-    ///   <token key="DATE" value="${TODAY}" />
-    ///  </replacetokens>
-    ///  ]]>
-    ///  </code>
-    /// </example>
+	/// <summary>
+	/// Replaces tokens in the original input with user-supplied values.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// This filter replaces all token surrounded by a beginning and ending
+	/// token. The default beginning and ending tokens both default to '@'. The 
+	/// optional <see cref="BeginToken"/> and <see cref="EndToken	"/> can 
+	/// be specified to change either token.
+	/// </para>
+	/// <para>
+	/// Tokens are specified by using the <see cref="Token"/> element. It is possiable
+	/// to specify from 1 to n tokens and replacement values. Values can be any valid NAnt 
+	/// expression 
+	/// </para>
+	/// <para>
+	/// Filters are intended to be used as a element of a <see cref="FilterChain"/>. A FilterChain can 
+	/// be applied to a given task.
+	/// </para>
+	/// </remarks>
+	/// <example>
+	///  <para>Standard Syntax</para>
+	///  <code>
+	///  <![CDATA[
+	///  <replacetokens>
+	///   <token key="DATE" value="${TODAY}" />
+	///  </replacetokens>
+	///  
+	///  <replacetokens begintoken="~" endtoken="@">
+	///   <token key="DATE" value="${TODAY}" />
+	///  </replacetokens>
+	///  ]]>
+	///  </code>
+	/// </example>
+ 
+
 	[ElementName("replacetokens")] 
     public class ReplaceTokens : Filter {
         /// <summary>
@@ -103,6 +117,7 @@ namespace NAnt.Core.Filters {
 
         /// <summary>
         /// Tokens and replacement values.
+        /// See <see cref="Token"/>
         /// </summary>
         [BuildElementArray("token")]
         public Token[] Tokens {

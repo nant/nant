@@ -35,6 +35,8 @@ namespace NAnt.Core.Filters {
     /// Note: Due to limitations on buffering, expressions longer than 2048 
     /// characters are not guaranteed to be expanded.
     /// </para>
+	/// Filters are intended to be used as a element of a <see cref="FilterChain"/>. A FilterChain can 
+	/// be applied to a given task.
     /// </remarks>
     /// <example>
     ///   <para>Standard Syntax</para>
