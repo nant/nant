@@ -86,22 +86,6 @@ namespace NAnt.Core.Types {
 
         #endregion Public Instance Constructors
 
-        #region Public Instance Properties
-
-        /*
-        /// <summary>
-        /// The value for a a PATH-like string; you can use <c>:</c> or <c>;</c> 
-        /// as path separators and NAnt will convert it to the platform's local 
-        /// conventions, while resolving references to environment variables.
-        /// </summary>
-        [TaskAttribute("path")]
-        public PathSet Path {
-            set { _elements.Add(value); } 
-        }
-        */
-
-        #endregion Public Instance Properties
-
         #region Override implementation of Object
 
         /// <summary>
