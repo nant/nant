@@ -48,8 +48,8 @@ namespace NAnt.Core.Functions {
         /// Rounded value.
         /// </returns>
         [Function("round")]
-        public static double Round(object value) {
-            return Math.Round(Convert.ToDouble(value, CultureInfo.InvariantCulture));
+        public static double Round(double value) {
+            return Math.Round(value);
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace NAnt.Core.Functions {
         /// than or equal to zero; otherwise, -<paramref name="value" />.
         /// </returns>
         [Function("abs")]
-        public static object Abs(object value) {
-            return Math.Abs(Convert.ToDouble(value, CultureInfo.InvariantCulture));
+        public static double Abs(double value) {
+            return Math.Abs(value);
         }
 
         #endregion Public Static Methods

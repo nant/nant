@@ -31,6 +31,7 @@ using NAnt.Core.Attributes;
 namespace NAnt.Core.Functions {
     [FunctionSet("convert", "Conversion")]
     public class ConversionFunctions : FunctionSetBase {
+
         #region Public Instance Constructors
 
         public ConversionFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {}
@@ -45,8 +46,8 @@ namespace NAnt.Core.Functions {
         /// <param name="value">value to be converted</param>
         /// <returns><paramref name="value" /> converted to integer. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-int")]
-        public static int ToInt(object value) {
-            return Convert.ToInt32(value, CultureInfo.InvariantCulture);
+        public static int ToInt(int value) {
+            return value; // conversion is done at the invocation level
         }
 
         /// <summary>
@@ -55,8 +56,8 @@ namespace NAnt.Core.Functions {
         /// <param name="value">The value to be converted.</param>
         /// <returns><paramref name="value" /> converted to double. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-double")]
-        public static double ToDouble(object value) {
-            return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+        public static double ToDouble(double value) {
+            return value; // conversion is done at the invocation level
         }
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace NAnt.Core.Functions {
         /// CLS compliance.
         /// </remarks>
         [Function("to-string")]
-        public static string ConvertToString(object value) {
-            return Convert.ToString(value, CultureInfo.InvariantCulture);
+        public static string ConvertToString(string value) {
+            return value; // conversion is done at the invocation level
         }
 
         /// <summary>
@@ -82,8 +83,8 @@ namespace NAnt.Core.Functions {
         /// <param name="value">value to be converted</param>
         /// <returns><paramref name="value" /> converted to datetime. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-datetime")]
-        public static DateTime ToDateTime(object value) {
-            return Convert.ToDateTime(value, CultureInfo.InvariantCulture);
+        public static DateTime ToDateTime(DateTime value) {
+            return value; // conversion is done at the invocation level
         }
 
         /// <summary>
@@ -95,8 +96,8 @@ namespace NAnt.Core.Functions {
         /// with an exception when the conversion is not possible.
         /// </returns>
         [Function("to-boolean")]
-        public static bool ToBoolean(string value) {
-            return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+        public static bool ToBoolean(bool value) {
+            return value; // conversion is done at the invocation level
         }
 
         #endregion Public Static Methods

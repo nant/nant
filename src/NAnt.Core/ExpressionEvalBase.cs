@@ -70,31 +70,32 @@ namespace NAnt.Core {
         }
 
         private object ParseBooleanOr() {
+            ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseBooleanAnd();
+            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
             EvalMode oldEvalMode = _evalMode;
             try {
                 while (_tokenizer.IsKeyword("or")) {
+                    bool v1 = true;
+
                     if (!SyntaxCheckOnly()) {
-                        if (((bool)o)) {
+                        v1 = (bool)SafeConvert(typeof(bool), o, "the left hand side of the 'or' operator", p0, _tokenizer.CurrentPosition);
+
+                        if (v1) {
                             // we're lazy - don't evaluate anything from now, we know that the result is 'true'
                             _evalMode = EvalMode.ParseOnly;
                         }
                     }
 
-                    if (!SyntaxCheckOnly()) {
-                        if (!(o is bool)) {
-                            return ReportParseError("Boolean value expected.");
-                        }
-                    }
 
                     _tokenizer.GetNextToken();
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseBooleanAnd();
-                    if (!SyntaxCheckOnly()) {
-                        if (!(o2 is bool)) {
-                            return ReportParseError("Boolean value expected.");
-                        }
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
-                        o = (bool) o || (bool) o2;
+                    if (!SyntaxCheckOnly()) {
+                        bool v2 = (bool)SafeConvert(typeof(bool), o2, "the right hand side of the 'or' operator", p2, p3);
+                        o = v1 || v2;
                     }
                 }
                 return o;
@@ -104,32 +105,32 @@ namespace NAnt.Core {
         }
 
         private object ParseBooleanAnd() {
+            ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseRelationalExpression();
+            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
             EvalMode oldEvalMode = _evalMode;
 
             try {
                 while (_tokenizer.IsKeyword("and")) {
+                    bool v1 = true;
+
                     if (!SyntaxCheckOnly()) {
-                        if (!((bool)o)) {
-                            // we're lazy - don't evaluate anything from now, we know that the result is 'false'
+                        v1 = (bool)SafeConvert(typeof(bool), o, "the left hand side of the 'and' operator", p0, _tokenizer.CurrentPosition);
+
+                        if (!v1) {
+                            // we're lazy - don't evaluate anything from now, we know that the result is 'true'
                             _evalMode = EvalMode.ParseOnly;
                         }
                     }
 
-                    if (!SyntaxCheckOnly()) {
-                        if (!(o is bool)) {
-                            ReportParseError("Boolean value expected.");
-                        }
-                    }
-
                     _tokenizer.GetNextToken();
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseRelationalExpression();
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
                     if (!SyntaxCheckOnly()) {
-                        if (!(o2 is bool)) {
-                            ReportParseError("Boolean value expected.");
-                        }
+                        bool v2 = (bool)SafeConvert(typeof(bool), o2, "the right hand side of the 'and' operator", p2, p3);
 
-                        o = (bool) o && (bool) o2;
+                        o = v1 && v2;
                     }
                 }
                 return o;
@@ -139,109 +140,109 @@ namespace NAnt.Core {
         }
 
         private object ParseRelationalExpression() {
+            ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseAddSubtract();
-            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.EQ) {
-                _tokenizer.GetNextToken();
-                object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly()) {
-                    return o.Equals(o2);
-                } else {
-                    return null;
-                }
-            }
-            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.NE) {
+            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.EQ
+             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.NE
+             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LT
+             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GT
+             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LE
+             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GE) {
+                
+                ExpressionTokenizer.TokenType op = _tokenizer.CurrentToken;
                 _tokenizer.GetNextToken();
+                
+                ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
                 object o2 = ParseAddSubtract();
-                if (!SyntaxCheckOnly()) {
-                    return !o.Equals(o2);
-                } else {
-                    return null;
-                }
-            }
-            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LT) {
-                _tokenizer.GetNextToken();
-                object o2 = ParseAddSubtract();
+                ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
 
-                if (!SyntaxCheckOnly()) {
-                    return ((IComparable) o).CompareTo(o2) < 0;
-                } else {
+                if (SyntaxCheckOnly()) {
                     return null;
                 }
-            }
-            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GT) {
-                _tokenizer.GetNextToken();
-                object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly()) {
-                    return ((IComparable) o).CompareTo(o2) > 0;
-                } else {
-                    return null;
-                }
-            }
-            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LE) {
-                _tokenizer.GetNextToken();
-                object o2 = ParseAddSubtract();
+                switch (op) {
+                    case ExpressionTokenizer.TokenType.EQ:
+                        return o.Equals(o2);
+                        
+                    case ExpressionTokenizer.TokenType.NE:
+                        return !o.Equals(o2);
+                        
+                    case ExpressionTokenizer.TokenType.LT:
+                        return ((IComparable) o).CompareTo(o2) < 0;
+                        
+                    case ExpressionTokenizer.TokenType.GT:
+                        return ((IComparable) o).CompareTo(o2) > 0;
+                        
+                    case ExpressionTokenizer.TokenType.LE:
+                        return ((IComparable) o).CompareTo(o2) <= 0;
+                        
+                    case ExpressionTokenizer.TokenType.GE:
+                        return ((IComparable) o).CompareTo(o2) >= 0;
 
-                if (!SyntaxCheckOnly()) {
-                    return ((IComparable) o).CompareTo(o2) <= 0;
-                } else {
-                    return null;
+                    default:
+                        throw new Exception(); // shouldn't happen
                 }
+            } else {
+                return o;
             }
-            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GE) {
-                _tokenizer.GetNextToken();
-                object o2 = ParseAddSubtract();
-
-                if (!SyntaxCheckOnly()) {
-                    return ((IComparable) o).CompareTo(o2) >= 0;
-                } else {
-                    return null;
-                }
-            }
-            return o;
         }
 
         private object ParseAddSubtract() {
+            ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseMulDiv();
+            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
 
             while (true) {
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Plus) {
                     _tokenizer.GetNextToken();
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseMulDiv();
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
                         if (o is string || o2 is string) {
                             // promote to strings and concatenate
-                            o = Convert.ToString(o, CultureInfo.InvariantCulture) 
-                                + Convert.ToString(o2, CultureInfo.InvariantCulture);
+                            //
+                            string s1 = (string)SafeConvert(typeof(string), o, "the left hand side of the concatenation operator", p0, p1);
+                            string s2 = (string)SafeConvert(typeof(string), o2, "the right hand side of the concatenation operator", p2, p3);
+                            o = s1 + s2;
                         } else if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
-                                + Convert.ToDouble(o2, CultureInfo.InvariantCulture);
+                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the addition operator", p0, p1);
+                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the addition operator", p2, p3);
+                            o = d1 + d2;
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
-                                + Convert.ToInt32(o2, CultureInfo.InvariantCulture);
+                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the addition operator", p0, p1);
+                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the addition operator", p2, p3);
+
+                            o = i1 + i2;
                         } else {
                             ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Addition not supported for arguments of type '{0}' and '{1}'.", 
-                                o.GetType().Name, o2.GetType().Name));
+                                        "Addition not supported for arguments of type '{0}' and '{1}'.", 
+                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus) {
                     _tokenizer.GetNextToken();
+
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseMulDiv();
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
-                                - Convert.ToDouble(o2, CultureInfo.InvariantCulture);
+                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the subtraction operator", p0, p1);
+                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the subtraction operator", p2, p3);
+                            o = d1 - d2;
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
-                                - Convert.ToInt32(o2, CultureInfo.InvariantCulture);
+                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the subtraction operator", p0, p1);
+                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the subtraction operator", p2, p3);
+
+                            o = i1 - i2;
                         } else {
                             ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
-                                o.GetType().Name, o2.GetType().Name));
+                                        "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
+                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else {
@@ -252,52 +253,71 @@ namespace NAnt.Core {
         }
 
         private object ParseMulDiv() {
+            ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseValue();
+            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
 
             while (true) {
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Mul) {
                     _tokenizer.GetNextToken();
+                    
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseValue();
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
+
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
-                                * Convert.ToDouble(o2, CultureInfo.InvariantCulture);
+                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the mutliplication operator", p0, p1);
+                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the mutliplication operator", p2, p3);
+                            o = d1 * d2;
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
-                                * Convert.ToInt32(o2, CultureInfo.InvariantCulture);
+                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the mutliplication operator", p0, p1);
+                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the mutliplication operator", p2, p3);
+                            o = i1 * i2;
                         } else {
                             ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Multiplication not supported for arguments of type '{0}' and '{1}'.", 
-                                o.GetType().Name, o2.GetType().Name));
+                                        "Multiplication not supported for arguments of type '{0}' and '{1}'.", 
+                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Div) {
                     _tokenizer.GetNextToken();
+                    
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseValue();
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
+
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
-                                / Convert.ToDouble(o2, CultureInfo.InvariantCulture);
+                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the division operator", p0, p1);
+                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the division operator", p2, p3);
+                            o = d1 / d2;
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
-                                / Convert.ToInt32(o2, CultureInfo.InvariantCulture);
+                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the division operator", p0, p1);
+                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the division operator", p2, p3);
+                            o = i1 / i2;
                         } else {
                             ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Division not supported for arguments of type '{0}' and '{1}'.", 
-                                o.GetType().Name, o2.GetType().Name));
+                                        "Division not supported for arguments of type '{0}' and '{1}'.", 
+                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Mod) {
                     _tokenizer.GetNextToken();
+
+                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseValue();
+                    ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
+
                     if (!SyntaxCheckOnly()) {
                         if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
-                                % Convert.ToInt32(o2, CultureInfo.InvariantCulture);
+                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the modulus operator", p0, p1);
+                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the modulus operator", p2, p3);
+                            o = i1 % i2;
                         } else {
                             ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Modulo not supported for arguments of type '{0}' and '{1}'", 
-                                o.GetType().Name, o2.GetType().Name));
+                                        "Modulus not supported for arguments of type '{0}' and '{1}'", 
+                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p1);
                         }
                     }
                 } else {
@@ -309,26 +329,27 @@ namespace NAnt.Core {
 
         private object ParseConditional() {
             if (_tokenizer.TokenText != "if") {
-                ReportParseError("'if' expected.");
+                ReportParseError("'if' expected.", _tokenizer.CurrentPosition);
             }
             _tokenizer.GetNextToken();
             if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
-                ReportParseError("'(' expected.");
+                ReportParseError("'(' expected.", _tokenizer.CurrentPosition);
             }
             _tokenizer.GetNextToken();
 
+            
+            ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object val = ParseExpression();
+            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
+            
             bool cond = false;
             if (!SyntaxCheckOnly()) {
-                if (!(val is bool)) {
-                    ReportParseError("Boolean value expected in conditional.");
-                }
-                cond = (bool)val;
+                cond = (bool)SafeConvert(typeof(bool), val, "the conditional expression", p0, p1);
             }
 
             // skip comma between condition value and then
             if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
-                ReportParseError("',' expected.");
+                ReportParseError("',' expected.", _tokenizer.CurrentPosition);
             }
             _tokenizer.GetNextToken();
 
@@ -345,7 +366,7 @@ namespace NAnt.Core {
                 _evalMode = oldEvalMode;
 
                 if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
-                    ReportParseError("',' expected.");
+                    ReportParseError("',' expected.", _tokenizer.CurrentPosition);
                 }
                 _tokenizer.GetNextToken(); // skip comma
 
@@ -361,7 +382,7 @@ namespace NAnt.Core {
 
                 // skip closing ')'
                 if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
-                    ReportParseError("')' expected.");
+                    ReportParseError("')' expected.", _tokenizer.CurrentPosition);
                 }
                 _tokenizer.GetNextToken();
 
@@ -387,7 +408,7 @@ namespace NAnt.Core {
                     number += ".";
                     _tokenizer.GetNextToken();
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Number) {
-                        ReportParseError("Fractional part expected.");
+                        ReportParseError("Fractional part expected.", _tokenizer.CurrentPosition);
                     }
                     number += _tokenizer.TokenText;
                     _tokenizer.GetNextToken();
@@ -401,7 +422,9 @@ namespace NAnt.Core {
                 _tokenizer.GetNextToken();
 
                 // unary minus
+                ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
                 object v = ParseValue();
+                ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
                 if (!SyntaxCheckOnly()) {
                     if (v is int) {
                         return -((int) v);
@@ -411,7 +434,7 @@ namespace NAnt.Core {
                     }
                     ReportParseError(string.Format(CultureInfo.InvariantCulture, 
                         "Unary minus not supported for arguments of type '{0}'.", 
-                        v.GetType().Name));
+                        GetSimpleTypeName(v.GetType())), p0, p1);
                 }
                 return null;
             }
@@ -420,9 +443,11 @@ namespace NAnt.Core {
                 _tokenizer.GetNextToken();
 
                 // unary boolean not
+                ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
                 object v = ParseValue();
+                ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
                 if (!SyntaxCheckOnly()) {
-                    bool value = Convert.ToBoolean(v, CultureInfo.InvariantCulture);
+                    bool value = (bool)SafeConvert(typeof(bool), v, "the argument of 'not' operator", p0, p1);
                     return !value;
                 }
                 return null;
@@ -432,13 +457,15 @@ namespace NAnt.Core {
                 _tokenizer.GetNextToken();
                 object v = ParseExpression();
                 if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
-                    ReportParseError("')' expected.");
+                    ReportParseError("')' expected.", _tokenizer.CurrentPosition);
                 }
                 _tokenizer.GetNextToken();
                 return v;
             }
 
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Keyword) {
+                ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
+
                 string functionOrPropertyName = _tokenizer.TokenText;
                 if (functionOrPropertyName == "if") {
                     return ParseConditional();
@@ -468,15 +495,15 @@ namespace NAnt.Core {
                     functionOrPropertyName += "::";
                     _tokenizer.GetNextToken();
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Keyword) {
-                        throw new ExpressionParseException("Function name expected.");
+                        ReportParseError("Function name expected.", p0, _tokenizer.CurrentPosition);
                     }
                     functionOrPropertyName += _tokenizer.TokenText;
                     _tokenizer.GetNextToken();
                 } else {
                     while (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Dot
-                           || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus
-                           || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Keyword
-                           || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Number) {
+                            || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus
+                            || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Keyword
+                            || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Number) {
                         functionOrPropertyName += _tokenizer.TokenText;
                         _tokenizer.GetNextToken();
                     }
@@ -490,45 +517,68 @@ namespace NAnt.Core {
 
                 if (isFunction) {
                     if ( _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
-                        throw new ExpressionParseException("'(' expected.");
+                        ReportParseError("'(' expected.", _tokenizer.CurrentPosition);
                     }
 
                     _tokenizer.GetNextToken();
 
+                    int currentArgument = 0;
+                    ParameterInfo[] formalParameters = null;
+
+                    try {
+                        formalParameters = GetFunctionParameters(functionOrPropertyName);
+                    } catch (Exception e) {
+                        ReportParseError(e.Message, p0, _tokenizer.CurrentPosition);
+                    }
+
                     while (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen &&
                             _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
+                        if (currentArgument >= formalParameters.Length) {
+                            ReportParseError(string.Format(CultureInfo.InvariantCulture,
+                                        "Too many actual parameters for '{0}'.", functionOrPropertyName), p0, _tokenizer.CurrentPosition);
+                        }
+
+                        ExpressionTokenizer.Position beforeArgument = _tokenizer.CurrentPosition;
                         object e = ParseExpression();
-                        args.Add(e);
+                        ExpressionTokenizer.Position afterArgument = _tokenizer.CurrentPosition;
+
+                        if (!SyntaxCheckOnly()) {
+                            object convertedValue = SafeConvert(formalParameters[currentArgument].ParameterType,
+                                    e,
+                                    string.Format(CultureInfo.InvariantCulture, "argument {1}({0}) of {2}()", formalParameters[currentArgument].Name, currentArgument + 1, functionOrPropertyName),
+                                    beforeArgument, afterArgument);
+                            args.Add(convertedValue);
+                        }
+                        currentArgument++;
                         if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.RightParen) {
                             break;
                         }
                         if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
-                            ReportParseError("',' expected.");
+                            ReportParseError("',' expected.", _tokenizer.CurrentPosition);
                         }
                         _tokenizer.GetNextToken();
                     }
+                    if (currentArgument < formalParameters.Length) {
+                        ReportParseError(string.Format(CultureInfo.InvariantCulture,
+                                    "Too few actual parameters for '{0}'.", functionOrPropertyName), p0, _tokenizer.CurrentPosition);
+                    }
 
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
-                        ReportParseError("')' expected.");
+                        ReportParseError("')' expected.", _tokenizer.CurrentPosition);
                     }
                     _tokenizer.GetNextToken();
                 }
 
-                if (!SyntaxCheckOnly()) {
-                    if (isFunction) {
-                        return EvaluateFunction(functionOrPropertyName, args);
-                    } else {
-                        return EvaluateProperty(functionOrPropertyName);
+                try {
+                    if (!SyntaxCheckOnly()) {
+                        if (isFunction) {
+                            return EvaluateFunction(functionOrPropertyName, args.ToArray());
+                        } else {
+                            return EvaluateProperty(functionOrPropertyName);
+                        }
                     }
-                } else {
-                    if (isFunction) {
-                        ValidateFunction(functionOrPropertyName, args.Count);
-                        return null;
-                    } else {
-                        // we cannot validate properties because of of the short-circuit evaluation
-                        //ValidateProperty(functionOrPropertyName);
-                        return null;
-                    }
+                } catch (Exception e) {
+                    ReportParseError(e.Message, p0, _tokenizer.CurrentPosition);
                 }
             }
 
@@ -536,22 +586,97 @@ namespace NAnt.Core {
             return null;
         }
 
+        protected void ReportParseError(string desc, ExpressionTokenizer.Position p0) {
+            throw new ExpressionParseException(desc, p0.CharIndex);
+        }
+        
+        protected void ReportParseError(string desc, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1) {
+            throw new ExpressionParseException(desc, p0.CharIndex, p1.CharIndex);
+        }
+        
+        protected void ReportParseError(string desc, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1, Exception ex) {
+            throw new ExpressionParseException(desc, p0.CharIndex, p1.CharIndex, ex);
+        }
+
+        protected object SafeConvert(Type returnType, object source, string description, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1) {
+            try {
+                //
+                // TODO - Convert.ChangeType() is very liberal. It allows you to convert "true" to Double (1.0).
+                // We shouldn't allow this. Add more cases like this here.
+                //
+                bool disallow = false;
+                
+                if (source.GetType() == typeof(bool)) {
+                    if (returnType != typeof(string) && returnType != typeof(bool)) {
+                        // boolean can only be converted to string or boolean
+                        disallow = true;
+                    }
+                }
+
+                if (returnType == typeof(bool)) {
+                    if (!(source is string || source is bool)) {
+                        // only string and boolean can be converted to boolean
+                        disallow = true;
+                    }
+                }
+
+                if (source.GetType() == typeof(DateTime)) {
+                    if (returnType != typeof(string) && returnType != typeof(DateTime)) {
+                        // DateTime can only be converted to string or DateTime
+                        disallow = true;
+                    }
+                }
+
+                if (returnType == typeof(DateTime)) {
+                    if (!(source is DateTime || source is DateTime)) {
+                        // only string and DateTime can be converted to DateTime
+                        disallow = true;
+                    }
+                }
+
+                if (disallow) {
+                    ReportParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1);
+                }
+                
+                return Convert.ChangeType(source, returnType, CultureInfo.InvariantCulture);
+            }
+            catch (Exception ex) {
+                ReportParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1, ex);
+                return null; // never gets here
+            }
+        }
+
+        protected string GetSimpleTypeName(Type t) {
+            if (t == typeof(int)) {
+                return "integer";
+            } else if (t == typeof(double)) {
+                return "double";
+            } else if (t == typeof(string)) {                    
+                return "string";
+            } else if (t == typeof(bool)) {
+                return "boolean";
+            } else if (t == typeof(DateTime)) {
+                return "datetime";
+            } else if (t == typeof(FileInfo)) {
+                return "file";
+            } else if (t == typeof(DirectoryInfo)) {
+                return "directory";
+            } else {
+                return t.FullName;
+            }
+        }
+        
 #endregion
 
 #region Overridables
 
-        protected abstract object EvaluateFunction(string functionName, ArrayList args);
-        protected abstract void ValidateFunction(string functionName, int argCount);
+        protected abstract object EvaluateFunction(string functionName, object[] args);
+        protected abstract ParameterInfo[] GetFunctionParameters(string functionName);
         protected abstract object EvaluateProperty(string propertyName);
-        protected abstract void ValidateProperty(string propertyName);
 
         protected virtual void UnexpectedToken() {
             ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                "Unexpected token '{0}'.", _tokenizer.CurrentToken));
-        }
-
-        protected virtual object ReportParseError(string desc) {
-            throw new ExpressionParseException(desc, _tokenizer);
+                "Unexpected token '{0}'.", _tokenizer.CurrentToken), _tokenizer.CurrentPosition);
         }
 #endregion
     }

@@ -57,52 +57,41 @@ namespace NAnt.Core {
             return GetPropertyValue(propertyName);
         }
 
-        protected override void ValidateProperty(string propertyName) {
-            if (!_propDict.Contains(propertyName)) {
-                ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                    "Property '{0}' has not been set.", propertyName));
-            }
-        }
-
-        protected override object EvaluateFunction(string functionName, ArrayList args) {
+        protected override ParameterInfo[] GetFunctionParameters(string functionName) {
             MethodInfo methodInfo = TypeFactory.LookupFunction(functionName);
             if (methodInfo == null) {
-                return ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "Unknown function '{0}'.", functionName));
             }
+            return methodInfo.GetParameters();
+        }
 
-            if (methodInfo.IsStatic) {
-                return methodInfo.Invoke(null, args.ToArray());
-            } else if (methodInfo.DeclaringType.IsAssignableFrom(typeof(ExpressionEvaluator))) {
-                return methodInfo.Invoke(this, args.ToArray());
-            } else {
-                // create new instance.
-                ConstructorInfo constructor = methodInfo.DeclaringType.GetConstructor(new Type[] {typeof(Project), typeof(PropertyDictionary)});
-                object o = constructor.Invoke(new object[] {_project, _propDict});
+        protected override object EvaluateFunction(string functionName, object[] args) {
+            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName);
+            if (methodInfo == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Unknown function '{0}'.", functionName));
+            }
 
-                try {
-                    return methodInfo.Invoke(o, args.ToArray());
-                } catch (TargetInvocationException ex) {
-                    if (ex.InnerException != null) {
-                        // throw actual exception
-                        throw ex.InnerException;
-                    }
-                    // re-throw exception
-                    throw;
+            try {
+                if (methodInfo.IsStatic) {
+                    return methodInfo.Invoke(null, args);
+                } else if (methodInfo.DeclaringType.IsAssignableFrom(typeof(ExpressionEvaluator))) {
+                    return methodInfo.Invoke(this, args);
+                } else {
+                    // create new instance.
+                    ConstructorInfo constructor = methodInfo.DeclaringType.GetConstructor(new Type[] {typeof(Project), typeof(PropertyDictionary)});
+                    object o = constructor.Invoke(new object[] {_project, _propDict});
+
+                    return methodInfo.Invoke(o, args);
                 }
-            }
-        }
-
-        protected override void ValidateFunction(string functionName, int argCount) {
-            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName);
-            if (methodInfo == null) {
-                ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                    "Unknown function '{0}'.", functionName));
-            }
-            if (methodInfo.GetParameters().Length != argCount) {
-                ReportParseError(string.Format(CultureInfo.InvariantCulture,
-                    "Function '{0}' expects {1} arguments while {2} were supplied.", 
-                    functionName, methodInfo.GetParameters().Length, argCount));
+            } catch (TargetInvocationException ex) {
+                if (ex.InnerException != null) {
+                    // throw actual exception
+                    throw ex.InnerException;
+                }
+                // re-throw exception
+                throw;
             }
         }
 
@@ -133,7 +122,7 @@ namespace NAnt.Core {
 
                 string propertyValue = _propDict.GetPropertyValue(propertyName);
                 if (propertyValue == null) {
-                    ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Property '{0}' has not been set.", propertyName));
                 }
 
@@ -144,7 +133,7 @@ namespace NAnt.Core {
             } else {
                 string propertyValue = _propDict.GetPropertyValue(propertyName);
                 if (propertyValue == null) {
-                    ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Property '{0}' has not been set.", propertyName));
                 }
 

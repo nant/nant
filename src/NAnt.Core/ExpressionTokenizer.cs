@@ -23,7 +23,27 @@ using System.Text;
 using System.Globalization;
 
 namespace NAnt.Core {
+
+    /// <summary>
+    /// Splits an input string into a sequence of tokens used during parsing.
+    /// </summary>
     public class ExpressionTokenizer {
+
+        public struct Position {
+            private int _charIndex;
+
+            public Position(int charIndex) {
+                _charIndex = charIndex;
+            }
+
+            public int CharIndex {
+                get { return _charIndex; }
+            }
+        }
+
+        /// <summary>
+        /// Available tokens
+        /// </summary>
         public enum TokenType {
             BOF,
             EOF,
@@ -95,12 +115,17 @@ namespace NAnt.Core {
             get { return _tokenText; }
         }
 
+        public Position CurrentPosition {
+            get { return _tokenStartPosition; }
+        }
+
         #endregion Public Instance Properties
 
         #region Public Instance Methods
 
         public void InitTokenizer(string s) {
-            _reader = new StringReader(s);
+            _text = s;
+            _position = 0;
             _tokenType = TokenType.BOF;
 
             GetNextToken();
@@ -108,13 +133,15 @@ namespace NAnt.Core {
 
         public void GetNextToken() {
             if (_tokenType == TokenType.EOF)
-                throw new ExpressionParseException("Cannot read past end of stream.", this);
+                throw new ExpressionParseException("Cannot read past end of stream.", -1, -1);
 
             if (IgnoreWhitespace) {
                 SkipWhitespace();
             };
 
-            int i = _reader.Peek();
+            _tokenStartPosition = new Position(_position);
+
+            int i = PeekChar();
             if (i == -1) {
                 _tokenType = TokenType.EOF;
                 return ;
@@ -127,13 +154,13 @@ namespace NAnt.Core {
                     StringBuilder sb = new StringBuilder();
                     int ch2;
 
-                    while ((ch2 = _reader.Peek()) != -1) {
+                    while ((ch2 = PeekChar()) != -1) {
                         if (!Char.IsWhiteSpace((char)ch2)) {
                             break;
                         }
 
                         sb.Append((char)ch2);
-                        _reader.Read();
+                        ReadChar();
                     };
 
                     _tokenType = TokenType.Whitespace;
@@ -146,13 +173,13 @@ namespace NAnt.Core {
                     string s = "";
 
                     s += ch;
-                    _reader.Read();
+                    ReadChar();
 
-                    while ((i = _reader.Peek()) != -1) {
+                    while ((i = PeekChar()) != -1) {
                         ch = (char)i;
 
                         if (Char.IsDigit(ch)) {
-                            s += (char)_reader.Read();
+                            s += (char)ReadChar();
                         } else {
                             break;
                         };
@@ -166,13 +193,13 @@ namespace NAnt.Core {
                     _tokenType = TokenType.String;
 
                     string s = "";
-                    _reader.Read();
-                    while ((i = _reader.Read()) != -1) {
+                    ReadChar();
+                    while ((i = ReadChar()) != -1) {
                         ch = (char)i;
 
                         if (ch == '\'') {
-                            if (_reader.Peek() == (int)'\'') {
-                                _reader.Read();
+                            if (PeekChar() == (int)'\'') {
+                                ReadChar();
                             } else
                                 break;
                         }
@@ -190,11 +217,11 @@ namespace NAnt.Core {
 
                     sb.Append((char)ch);
 
-                    _reader.Read();
+                    ReadChar();
 
-                    while ((i = _reader.Peek()) != -1) {
+                    while ((i = PeekChar()) != -1) {
                         if ((char)i == '_' || (char)i == '-' || Char.IsLetterOrDigit((char)i)) {
-                            sb.Append((char)_reader.Read());
+                            sb.Append((char)ReadChar());
                         } else {
                             break;
                         };
@@ -202,56 +229,56 @@ namespace NAnt.Core {
 
                     _tokenText = sb.ToString();
                     if (_tokenText.EndsWith("-"))
-                        throw new ExpressionParseException(String.Format(CultureInfo.InvariantCulture, "Identifier cannot end with a dash: {0}", _tokenText), this);
+                        throw new ExpressionParseException(String.Format(CultureInfo.InvariantCulture, "Identifier cannot end with a dash: {0}", _tokenText), CurrentPosition.CharIndex);
                     return ;
                 }
 
-                _reader.Read();
+                ReadChar();
 
-                if (ch == ':' && _reader.Peek() == (int)':') {
+                if (ch == ':' && PeekChar() == (int)':') {
                     _tokenType = TokenType.DoubleColon;
                     _tokenText = "::";
-                    _reader.Read();
+                    ReadChar();
                     return ;
                 }
 
-                if (ch == '<' && _reader.Peek() == (int)'>') {
+                if (ch == '<' && PeekChar() == (int)'>') {
                     _tokenType = TokenType.NE;
                     _tokenText = "<>";
-                    _reader.Read();
+                    ReadChar();
                     return ;
                 }
 
-                if (ch == '!' && _reader.Peek() == (int)'=') {
+                if (ch == '!' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.NE;
                     _tokenText = "!=";
-                    _reader.Read();
+                    ReadChar();
                     return ;
                 }
 
-                if (ch == '<' && _reader.Peek() == (int)'=') {
+                if (ch == '<' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.LE;
                     _tokenText = "<=";
-                    _reader.Read();
+                    ReadChar();
                     return ;
                 }
 
-                if (ch == '>' && _reader.Peek() == (int)'=') {
+                if (ch == '>' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.GE;
                     _tokenText = ">=";
-                    _reader.Read();
+                    ReadChar();
                     return ;
                 }
 
-                if (ch == '=' && _reader.Peek() == (int)'=') {
+                if (ch == '=' && PeekChar() == (int)'=') {
                     _tokenType = TokenType.EQ;
                     _tokenText = "==";
-                    _reader.Read();
+                    ReadChar();
                     return ;
                 }
 
             } else {
-                _reader.Read();
+                ReadChar();
             }
             _tokenText = new String(ch, 1);
             _tokenType = TokenType.Punctuation;
@@ -268,13 +295,29 @@ namespace NAnt.Core {
 
         #region Private Instance Methods
 
+        private int ReadChar() {
+            if (_position < _text.Length) {
+                return _text[_position++];
+            } else {
+                return -1;
+            }
+        }
+
+        private int PeekChar() {
+            if (_position < _text.Length) {
+                return _text[_position];
+            } else {
+                return -1;
+            }
+        }
+
         private void SkipWhitespace() {
             int ch;
 
-            while ((ch = _reader.Peek()) != -1) {
+            while ((ch = PeekChar()) != -1) {
                 if (!Char.IsWhiteSpace((char)ch))
                     break;
-                _reader.Read();
+                ReadChar();
             };
         }
 
@@ -282,7 +325,9 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private StringReader _reader = null;
+        private string _text = null;
+        private int _position;
+        private Position _tokenStartPosition;
         private TokenType _tokenType;
         private string _tokenText;
         private bool _ignoreWhiteSpace = true;
