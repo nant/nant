@@ -379,20 +379,21 @@ namespace NAnt.Core {
                 reformattedInput = reformattedInput.Replace('\r', ' ');
                 reformattedInput = reformattedInput.Replace('\t', ' ');
 
-                errorMessage.Append("Error: ");
+                Exception innerException = null;
                 errorMessage.Append(ex.Message);
                 errorMessage.Append(Environment.NewLine);
+                //errorMessage.Append("Error: ");
 
                 string label = "Expression: ";
 
                 errorMessage.Append(label);
                 errorMessage.Append(reformattedInput);
-                errorMessage.Append(Environment.NewLine);
 
                 int p0 = ex.StartPos;
                 int p1 = ex.EndPos;
 
                 if (p0 != -1 || p1 != -1) {
+                    errorMessage.Append(Environment.NewLine);
                     if (p1 == -1)
                         p1 = p0 + 1;
 
@@ -400,11 +401,15 @@ namespace NAnt.Core {
                         errorMessage.Append(' ');
                     for (int i = p0; i < p1; ++i)
                         errorMessage.Append('^');
-
-                    errorMessage.Append(Environment.NewLine);
                 }
 
-                throw new BuildException(errorMessage.ToString(), location, null);
+                // don't append the trailing newline
+
+                if (ex.InnerException is BuildException) {
+                    innerException = ex.InnerException;
+                }
+
+                throw new BuildException(errorMessage.ToString(), location, innerException);
             }
         }
 

@@ -578,7 +578,11 @@ namespace NAnt.Core {
                         }
                     }
                 } catch (Exception e) {
-                    ReportParseError(e.Message, p0, _tokenizer.CurrentPosition);
+                    if (isFunction) {
+                        ReportParseError("Function call failed.", p0, _tokenizer.CurrentPosition, e);
+                    } else {
+                        ReportParseError("Property evaluation failed.", p0, _tokenizer.CurrentPosition, e);
+                    }
                 }
             }
 

@@ -126,7 +126,12 @@ namespace NAnt.Core {
                         "Property '{0}' has not been set.", propertyName));
                 }
 
-                propertyValue = _propDict.ExpandProperties(propertyValue, _location, _state, _visiting);
+                Location propertyLocation = Location.UnknownLocation;
+
+                // TODO - get the proper location of the property declaration
+                
+                propertyValue = _propDict.ExpandProperties(propertyValue, propertyLocation, _state, _visiting);
+
                 _visiting.Pop();
                 _state[propertyName] = PropertyDictionary.Visited;
                 return propertyValue;
