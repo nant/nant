@@ -203,7 +203,7 @@ namespace NAnt.DotNet.Tasks {
             } catch (Exception ex) {
                 throw new BuildException(string.Format(
                     CultureInfo.InvariantCulture,
-                    "AssemblyInfo file {0} could not be generated.",
+                    "AssemblyInfo file '{0}' could not be generated.",
                     Output), Location, ex);
             }
         }
@@ -405,94 +405,101 @@ namespace NAnt.DotNet.Tasks {
             /// <para>A <see cref="Type" /> identified by <paramref name="typename" /> could not be located or loaded.</para>
             /// </exception>
             public object GetTypedValue(StringCollection assemblies, StringCollection imports, string typename, string value) {
-                Type type = null;
+                // create assembly resolver
+                AssemblyResolver assemblyResolver = new AssemblyResolver();
 
-                // load each assembly and try to get type from it
-                foreach (string assemblyFileName in assemblies) {
-                    Assembly assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                // attach assembly resolver to the current domain
+                assemblyResolver.Attach();
 
-                    if (assembly == null) {
-                        // skip the assembly
-                        continue;
+                try {
+                    Type type = null;
+
+                    // load each assembly and try to get type from it
+                    foreach (string assemblyFileName in assemblies) {
+                        // load assembly from filesystem
+                        Assembly assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                        // try to load type from assembly
+                        type = assembly.GetType(typename, false, false);
+                        if (type == null) {
+                            foreach (string import in imports) {
+                                type = assembly.GetType(import + "." + typename, false, false);
+                                if (type != null) {
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (type != null) {
+                            break;
+                        }
                     }
 
-                    type = assembly.GetType(typename, false, false);
+                    // try to load type from all assemblies loaded from disk, if
+                    // it was not loaded from the references assemblies 
                     if (type == null) {
-                        foreach (string import in imports) {
-                            type = assembly.GetType(import + "." + typename, false, false);
-                            if (type != null) {
-                                break;
+                        type = Type.GetType(typename, false, false);
+                        if (type == null) {
+                            foreach (string import in imports) {
+                                type = Type.GetType(import + "." + typename, false, false);
+                                if (type != null) {
+                                    break;
+                                }
                             }
                         }
                     }
 
                     if (type != null) {
-                        break;
-                    }
-                }
-
-                // try to load type from all assemblies loaded from disk, if
-                // it was not loaded from the references assemblies 
-                if (type == null) {
-                    type = Type.GetType(typename, false, false);
-                    if (type == null) {
-                        foreach (string import in imports) {
-                            type = Type.GetType(import + "." + typename, false, false);
-                            if (type != null) {
-                                break;
+                        object typedValue = null;
+                        if (value == null) {
+                            ConstructorInfo defaultConstructor = type.GetConstructor(
+                                BindingFlags.Public | BindingFlags.Instance, null, 
+                                new Type[0], new ParameterModifier[0]);
+                            if (defaultConstructor != null) {
+                                throw new BuildException(string.Format(
+                                    CultureInfo.InvariantCulture, 
+                                    "Assembly attribute {0} has no default public constructor.",
+                                    type.FullName), Location.UnknownLocation);
                             }
-                        }
-                    }
-                }
-
-                if (type != null) {
-                    object typedValue = null;
-                    if (value == null) {
-                        ConstructorInfo defaultConstructor = type.GetConstructor(
-                            BindingFlags.Public | BindingFlags.Instance, null, 
-                            new Type[0], new ParameterModifier[0]);
-                        if (defaultConstructor != null) {
-                            throw new BuildException(string.Format(
-                                CultureInfo.InvariantCulture, 
-                                "Assembly attribute {0} has no default public constructor.",
-                                type.FullName), Location.UnknownLocation);
-                        }
-                        typedValue = null;
-                    } else {
-                        ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-                        for (int counter = 0; counter < constructors.Length; counter++) {
-                            ParameterInfo[] parameters = constructors[counter].GetParameters();
-                            if (parameters.Length == 1) {
-                                if (parameters[0].ParameterType.IsPrimitive || parameters[0].ParameterType == typeof(string)) {
-                                    try {
-                                        // convert value to type of constructor parameter
-                                        typedValue = Convert.ChangeType(value, parameters[0].ParameterType, CultureInfo.InvariantCulture);
-                                        break;
-                                    } catch (Exception ex) {
-                                        throw new BuildException(string.Format(
-                                            CultureInfo.InvariantCulture, 
-                                            "Value '{0}' cannot be converted to type '{1}' of assembly attribute {2}.",
-                                            value, parameters[0].ParameterType.FullName, type.FullName), 
-                                            Location.UnknownLocation, ex);
+                            typedValue = null;
+                        } else {
+                            ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+                            for (int counter = 0; counter < constructors.Length; counter++) {
+                                ParameterInfo[] parameters = constructors[counter].GetParameters();
+                                if (parameters.Length == 1) {
+                                    if (parameters[0].ParameterType.IsPrimitive || parameters[0].ParameterType == typeof(string)) {
+                                        try {
+                                            // convert value to type of constructor parameter
+                                            typedValue = Convert.ChangeType(value, parameters[0].ParameterType, CultureInfo.InvariantCulture);
+                                            break;
+                                        } catch (Exception ex) {
+                                            throw new BuildException(string.Format(
+                                                CultureInfo.InvariantCulture, 
+                                                "Value '{0}' cannot be converted to type '{1}' of assembly attribute {2}.",
+                                                value, parameters[0].ParameterType.FullName, type.FullName), 
+                                                Location.UnknownLocation, ex);
+                                        }
                                     }
                                 }
                             }
+
+                            if (typedValue == null) {
+                                throw new BuildException(string.Format(
+                                    CultureInfo.InvariantCulture, 
+                                    "Value of assembly attribute {0} cannot be set as it has no constructor accepting a primitive type or string.",
+                                    typename), Location.UnknownLocation);
+                            }
                         }
 
-                        if (typedValue == null) {
-                            throw new BuildException(string.Format(
-                                CultureInfo.InvariantCulture, 
-                                "Value of assembly attribute {0} cannot be set as it has no constructor accepting a primitive type or string.",
-                                typename), Location.UnknownLocation);
-                        }
+                        return typedValue;
+                    } else {
+                        throw new BuildException(string.Format(
+                            CultureInfo.InvariantCulture, 
+                            "Assembly attribute with type {0} could not be loaded.",
+                            typename), Location.UnknownLocation);
                     }
-
-                    return typedValue;
-                } else {
-                    throw new BuildException(string.Format(
-                        CultureInfo.InvariantCulture, 
-                        "Assembly attribute with type {0} could not be loaded.",
-                        typename), Location.UnknownLocation);
+                } finally {
+                    // detach assembly resolver from the current domain
+                    assemblyResolver.Detach();
                 }
             }
         }
