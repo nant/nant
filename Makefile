@@ -1,6 +1,7 @@
 #NAnt make file for *nix
 MONO=mono
 MCS=mcs
+RESGEN=resgen
 
 ifndef DIRSEP
 ifeq ($(OS),Windows_NT)
@@ -59,7 +60,9 @@ setup:
 	cp src/NAnt.Console/App.config bootstrap/NAnt.exe.config
 
 bootstrap/NAnt.Core.dll:
-	$(MCS) -target:library -warn:0 -define:${DEFINE} -out:bootstrap/NAnt.Core.dll -r:lib${DIRSEP}log4net.dll \
+	$(RESGEN)  src/NAnt.Core/Resources/Strings.resx bootstrap/Strings.resources
+	$(MCS) -target:library -warn:0 -define:${DEFINE} -out:bootstrap/NAnt.Core.dll -debug -resource:bootstrap/Strings.resources \
+	    -r:lib${DIRSEP}log4net.dll \
 		-r:System.Web.dll -recurse:src${DIRSEP}NAnt.Core${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 
 bootstrap/NAnt.DotNetTasks.dll:

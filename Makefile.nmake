@@ -1,5 +1,6 @@
 #NAnt nmake makefile for building on windows
 CSC=csc
+RESGEN=resgen
 NANT=$(MONO) bootstrap\NAnt.exe
 
 !ifdef MONO
@@ -35,7 +36,8 @@ bootstrap\NAnt.exe:
 	$(CSC) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Core.dll:
-	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Core.dll -r:bootstrap\log4net.dll -r:System.Web.dll -recurse:src\NAnt.Core\*.cs src\CommonAssemblyInfo.cs
+	$(RESGEN)  src\NAnt.Core\Resources\Strings.resx bootstrap\Strings.resources
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Core.dll -r:bootstrap\log4net.dll -r:System.Web.dll -resource:bootstrap\Strings.resources -recurse:src\NAnt.Core\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.DotNetTasks.dll:
 	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll -r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\$(FRAMEWORK_DIR)\1.0\NDoc.Core.dll -recurse:src\NAnt.DotNet\*.cs src\CommonAssemblyInfo.cs
