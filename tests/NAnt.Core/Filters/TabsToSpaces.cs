@@ -18,10 +18,12 @@
 
 using System;
 using System.Text;
-using NAnt.Core.Filters;
+
 using NUnit.Framework;
 
-//Test
+using NAnt.Core;
+using NAnt.Core.Filters;
+
 namespace Tests.NAnt.Core.Filters {
     /// <summary>
     /// Tests the TabsToSpaces classes.
@@ -30,15 +32,13 @@ namespace Tests.NAnt.Core.Filters {
     public class TabsToSpaces : FilterTestBase {
         const string _tagName = "tabstospaces";
 
-
         /// <summary>
         /// Empty input file
         /// </summary>
         [Test]
         public void EmptyFileBasicTest () {
-            base.TestFilter(@"<" + _tagName + @" order=""0""/>", "", "");
+            base.TestFilter(@"<" + _tagName + @" />", "", "");
         }
-
 
         /// <summary>
         /// Test default parameters
@@ -47,40 +47,31 @@ namespace Tests.NAnt.Core.Filters {
         public void DefaultParam() {
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" order=""0""/>";
+            string filterXml = @"<" + _tagName + @" />";
 
-            string input = "\t\tTEST\t\t";
+            string input = "\tTEST\t";
             string expectedOutput = @"        TEST        ";
             base.TestFilter(filterXml, input, expectedOutput, prologueXml);
         }
 
         /// <summary>
-        /// Test specify replacement character
+        /// Test with tab length that is lower than minimum length (which is 1)
         /// </summary>
         [Test]
-        public void SpecityCharacter() {
-            string prologueXml = null;
-
-            string filterXml = @"<" + _tagName + @" replacementchar=""*"" order=""0""/>";
-
-            string input = "\t\tTEST\t\t";
-            string expectedOutput = @"********TEST********";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+        [ExpectedException(typeof(TestBuildException))]
+        public void TabLengthLow() {
+            string filterXml = @"<" + _tagName + @" tablength=""0"" />";
+            base.TestFilter(filterXml, " ", " ");
         }
 
-
         /// <summary>
-        /// Test specity replacement character and replacement spaces
+        /// Test with tab length that is higher than maximum length (which is 100)
         /// </summary>
         [Test]
-        public void SpecityAll() {
-            string prologueXml = null;
-
-            string filterXml = @"<" + _tagName + @" replacementchar=""*"" replacementspaces=""6"" order=""0""/>";
-
-            string input = "\t\tTEST\t\t";
-            string expectedOutput = @"************TEST************";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
+        [ExpectedException(typeof(TestBuildException))]
+        public void TabLengthHigh() {
+            string filterXml = @"<" + _tagName + @" tablength=""101"" />";
+            base.TestFilter(filterXml, " ", " ");
         }
 
         /// <summary>
@@ -90,30 +81,12 @@ namespace Tests.NAnt.Core.Filters {
         public void SpecityAllNoTabs() {
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" replacementchar=""*"" replacementspaces=""6"" order=""0""/>";
+            string filterXml = @"<" + _tagName + @" />";
 
             string input = "NO TABS ARE PRESENT";
             string expectedOutput = @"NO TABS ARE PRESENT";
             base.TestFilter(filterXml, input, expectedOutput, prologueXml);
         }
-
-        /// <summary>
-        /// Test using the filter tag instead of <tabstospaces>
-        /// </summary>
-        [Test]
-        public void UsingFilterTag() {
-            string prologueXml = null;
-
-            string filterXml = @"<filter assembly=""NAnt.Core"" class=""NAnt.Core.Filters.TabsToSpaces"" order=""0"">
-                               <param name=""replacementchar"" value=""*""/>
-                               <param name=""replacementspaces"" value=""6""/>
-                               </filter>";
-
-            string input = "\t\tTEST\t\t";
-            string expectedOutput = @"************TEST************";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
-        }
-
 
         /// <summary>
         /// Test mixing tabs and characters
@@ -122,13 +95,11 @@ namespace Tests.NAnt.Core.Filters {
         public void Scattered() {
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" replacementchar=""*"" replacementspaces=""1"" order=""0""/>";
+            string filterXml = @"<" + _tagName + @" tablength=""1"" />";
 
             string input = "aaaa\tbb\t\tb\tzzzz\tz\tz\tffff";
-            string expectedOutput = @"aaaa*bb**b*zzzz*z*z*ffff";
+            string expectedOutput = @"aaaa bb  b zzzz z z ffff";
             base.TestFilter(filterXml, input, expectedOutput, prologueXml);
         }
-
-
     }
 }
