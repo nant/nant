@@ -70,6 +70,16 @@ namespace NAnt.VSNet {
             get { return _excludeFromBuild; }
         }
 
+        /// <summary>
+        /// Gets the relative path of the file.
+        /// </summary>
+        /// <value>
+        /// The path of the file relative to the project directory.
+        /// </value>
+        public string RelativePath {
+            get { return _relativePath; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ConfigurationBase
