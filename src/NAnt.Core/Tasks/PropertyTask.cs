@@ -171,7 +171,22 @@ namespace NAnt.Core.Tasks {
 
             // Special check for framework setting.
             if (PropertyName == "nant.settings.currentframework") {
-                if (Project.Frameworks.Contains(propertyValue)) {
+                FrameworkInfo newTargetFramework = Project.Frameworks[propertyValue];
+
+                // check if target framework exists
+                if (newTargetFramework != null) {
+                    if (Project.TargetFramework != null) {
+                        if (Project.TargetFramework != newTargetFramework) {
+                            // only output message in build log if target 
+                            // framework is actually changed
+                            Log(Level.Info, "Target framework changed to \"{0}\".", 
+                                newTargetFramework.Description);
+                        }
+                    } else {
+                        Log(Level.Info, "Target framework set to \"{0}\".", 
+                            newTargetFramework.Description);
+
+                    }
                     Project.TargetFramework = Project.Frameworks[propertyValue];
                     return;
                 } else {
