@@ -1,14 +1,16 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
-    <echo message="Using '${nant.settings.currentframework}' framework on '${nant.platform.name}' platform." />
+    <echo message="Using '${framework::get-target-framework()}' framework on '${platform::get-name()}' platform." />
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" overwrite="false" />
+    <!-- global build settings -->
+    <property name="lib.dir" value="lib/${framework::get-family(framework::get-target-framework())}/${framework::get-version(framework::get-target-framework())}" dynamic="true" />    
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
     <property name="build.defines" value="" />
-    <property name="build.number" value="${math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01-01-2000')))}" dynamic="true" />
+    <property name="build.number" value="${math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01/01/2000')))}" dynamic="true" />
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
     <!-- MSNetTaskAssemblies (tas.msnet) -->
@@ -28,7 +30,7 @@
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
-        <property name="build.dir" value="${nant.project.basedir}/build/${nant.settings.currentframework}.${nant.platform.name}/${project.name}-${project.version}-${project.config}" />
+        <property name="build.dir" value="${nant.project.basedir}/build/${framework::get-target-framework()}.${platform::get-name()}/${project.name}-${project.version}-${project.config}" />
     </target>
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
@@ -38,7 +40,7 @@
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
         <call target="${project.config}" />
-        <call target="set-runtime-configuration" />
+        <call target="set-framework-configuration" />
     </target>
     <target name="create-common-assemblyinfo">
         <!-- ensure src/CommonAssemblyInfo.cs is writable if it already exists -->
@@ -55,7 +57,7 @@
                 <attribute type="CLSCompliantAttribute" value="true" />
                 <attribute type="AssemblyTitleAttribute" value="NAnt" />
                 <attribute type="AssemblyDescriptionAttribute" value="A .NET Build Tool" />
-                <attribute type="AssemblyConfigurationAttribute" value="${nant.settings.currentframework}.${nant.platform.name}; nightly" />
+                <attribute type="AssemblyConfigurationAttribute" value="${framework::get-target-framework()}.${platform::get-name()}; nightly" />
                 <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
                 <attribute type="AssemblyProductAttribute" value="NAnt" />
                 <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
@@ -102,23 +104,15 @@
         <foreach item="String" delim="," property="filename" in="${tas.core}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" />
         </foreach>
-        <!-- build Microsoft.NET specific task assemblies if we are on win32-->
-        <if test="${nant.platform.win32 and framework::exists('net-1.0')}">
-            <!-- store current framework -->
-            <property name="original.framework" value="${nant.settings.currentframework}" />
-            <!-- change framework to .NET 1.0 -->
-            <property name="nant.settings.currentframework" value="net-1.0" />
-            <!-- build all Microsoft.NET specific task assemblies -->            
+        <!-- build Microsoft.NET specific task assemblies if we are on win32 and targeting a .NET Framework -->
+        <if test="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
             <foreach item="String" delim="," property="filename" in="${tas.msnet}">
-                <!-- build NAnt.MSNetTasks assembly -->
                 <nant buildfile="src/${filename}/${filename}.build" target="build" />
             </foreach>
-            <!-- restore original framework -->
-            <property name="nant.settings.currentframework" value="${original.framework}" />
         </if>            
         <!-- build win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32}">
-            <nant buildfile="src/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
+            <nant buildfile="src/${filename}/${filename}.build" target="build" if="${platform::is-win32()}" />
         </foreach>
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
@@ -128,20 +122,15 @@
         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
         </foreach>
-        <!-- build tests for Microsoft.NET task assemblies if we are on win32-->
-        <if test="${nant.platform.win32 and framework::exists('net-1.0')}">
-            <!-- store current framework -->
-            <property name="original.framework" value="${nant.settings.currentframework}" />
-            <!-- build tests for Microsoft.NET specific task assemblies if we are on win32 -->
+        <!-- build tests for Microsoft.NET specific extension assemblies if we are on win32 and targeting a .NET Framework -->
+        <if test="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
             <foreach item="String" delim="," property="filename" in="${tas.msnet.tests}">
                 <nant buildfile="tests/${filename}/${filename}.build" target="build" />
             </foreach>
-            <!-- restore original framework -->
-            <property name="nant.settings.currentframework" value="${original.framework}" />
-        </if>            
+        </if>
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
+            <nant buildfile="tests/${filename}/${filename}.build" target="build" if="${platform::is-win32()}" />
         </foreach>
     </target>
     <!-- test the newly built NAnt -->
@@ -152,7 +141,7 @@
             <arg value="${project.config}" />
             <arg value="self-test" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${nant.settings.currentframework}" />
+            <arg value="-k:${framework::get-target-framework()}" />
         </exec>
     </target>
     <target name="self-test" depends="init">
@@ -161,8 +150,8 @@
         <attrib file="${path::combine(nant.location, 'nant.tests.config')}" readonly="false" />
         <!-- ensure the tests target the current framework -->
         <xmlpoke file="${path::combine(nant.location, 'nant.tests.config')}"
-                 xpath="//configuration/nant/frameworks/platform[@name='${nant.platform.name}']/@default"
-                 value="${nant.settings.currentframework}"/>
+                 xpath="//configuration/nant/frameworks/platform[@name='${platform::get-name()}']/@default"
+                 value="${framework::get-target-framework()}"/>
         <!-- output the config file that will be used to run the tests -->
         <echo message="testing with config '${path::combine(nant.location, 'nant.tests.config')}'" />
         <!-- test NAnt.Console assembly -->
@@ -173,20 +162,15 @@
         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" />
         </foreach>
-        <!-- test Microsoft.NET specific task assemblies -->
-        <if test="${nant.platform.win32 and framework::exists('net-1.0')}">
-            <!-- store current framework -->
-            <property name="original.framework" value="${nant.settings.currentframework}" />
-            <!-- test win32 specific task assemblies -->
+        <!-- test Microsoft.NET specific extensions assemblies if we are on win32 and targeting a .NET Framework -->
+        <if test="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
             <foreach item="String" delim="," property="filename" in="${tas.msnet.tests}">
                 <nant buildfile="tests/${filename}/${filename}.build" target="test" />
             </foreach>
-            <!-- restore original framework -->
-            <property name="nant.settings.currentframework" value="${original.framework}" />
         </if>            
         <!-- test win32 specific task assemblies -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${nant.platform.win32}" />
+            <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${platform::is-win32()}" />
         </foreach>
     </target>
     <target name="userdoc" depends="build" description="Builds user documentation">
@@ -213,7 +197,7 @@
             <arg value="${project.config}" />
             <arg value="self-userdoc" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${nant.settings.currentframework}" />
+            <arg value="-k:${framework::get-target-framework()}" />
         </exec>
     </target>
     <target name="self-userdoc" depends="init">
@@ -290,7 +274,7 @@
             <arg value="${project.config}" />
             <arg value="self-sdkdoc" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${nant.settings.currentframework}" />
+            <arg value="-k:${framework::get-target-framework()}" />
         </exec>
         <!-- delete everything but the .chm -->
         <delete>
@@ -357,7 +341,7 @@
         <property name="schema.output" value="${build.dir}/schema/${project.name}-${project.version}.xsd"/>
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
-        <nantschema output="${schema.output}" target-ns="http://nant.sf.net/schemas/${project.name}-${project.version}.${nant.platform.name}.${nant.settings.currentframework}.xsd"/>
+        <nantschema output="${schema.output}" target-ns="http://nant.sf.net/schemas/${project.name}-${project.version}.${platform::get-name()}.${framework::get-target-framework()}.xsd"/>
     </target>
     
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
@@ -382,7 +366,7 @@
             <arg value="${project.config}" />
             <arg value="schema" />
             <arg value="-D:project.version=${project.version}" />
-            <arg value="-k:${nant.settings.currentframework}" />
+            <arg value="-k:${framework::get-target-framework()}" />
         </exec>
         <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
@@ -463,102 +447,40 @@
         </copy>
     </target>
     <!-- Framework support targets -->
-    <target name="set-runtime-configuration-flags">
-        <property name="current.runtime.config.net" value="false" />
-        <property name="current.runtime.config.netcf" value="false" />
-        <property name="current.runtime.config.mono" value="false" />
-        <property name="current.runtime.config.sscli" value="false" />
-        <property name="current.runtime.config.${current.runtime.config}" value="true" />
-        <property name="current.runtime.net-1.0" value="false" />
-        <property name="current.runtime.net-1.1" value="false" />
-        <property name="current.runtime.net-1.2" value="false" />
-        <property name="current.runtime.netcf-1.0" value="false" />
-        <property name="current.runtime.mono-1.0" value="false" />
-        <property name="current.runtime.sscli-1.0" value="false" />
-        <property name="current.runtime.${current.runtime.config}-${current.runtime.version}" value="true" />
+    <target name="set-framework-configuration">
+        <if test="${not(target::exists('set-'+framework::get-target-framework()+'-framework-configuration'))}">
+            <fail message="The '${framework::get-target-framework()}' framework is not supported by this version of NAnt." />
+        </if>
+        <call target="set-${framework::get-target-framework()}-framework-configuration" />
     </target>
-    <target name="set-runtime-configuration">
-        <if test="${not(property::exists('current.runtime.config'))}">
-            <if test="${not(property::exists('nant.settings.currentframework'))}">
-                <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
-            </if>
-            <if test="${not(target::exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
-                <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NAnt." />
-            </if>
-            <call target="set-${nant.settings.currentframework}-runtime-configuration" />
-        </if>
-        <if test="${not(property::exists('current.runtime.version'))}">
-            <if test="${not(property::exists('nant.settings.currentframework'))}">
-                <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
-            </if>
-            <if test="${not(target::exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
-                <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NDoc." />
-            </if>
-            <call target="set-${nant.settings.currentframework}-runtime-configuration" />
-        </if>
-        <if test="${not(target::exists('set-'+current.runtime.config+'-'+current.runtime.version+'-runtime-configuration'))}">
-            <fail message="The ${current.runtime.config}-${current.runtime.version} runtime is not supported by NDoc." />
-        </if>
-        <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration" />
-    </target>
-    <target name="set-net-1.0-runtime-configuration">
-        <property name="current.runtime.config" value="net" />
-        <property name="current.runtime.version" value="1.0" />
-        <property name="current.runtime.description" value="Microsoft .NET Framework 1.0" />
-        <property name="current.build.defines" value="${build.defines}NET,NET_1_0" />
+    <target name="set-net-1.0-framework-configuration">
+        <property name="nant.settings.currentframework" value="net-1.0" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags" />
     </target>
-    <target name="set-net-1.1-runtime-configuration">
-        <property name="current.runtime.config" value="net" />
-        <property name="current.runtime.version" value="1.1" />
-        <property name="current.runtime.description" value="Microsoft .NET Framework 1.1" />
-        <property name="current.build.defines" value="${build.defines}NET,NET_1_1" />
+    <target name="set-net-1.1-framework-configuration">
+        <property name="nant.settings.currentframework" value="net-1.1" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_1" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags" />
     </target>
-    <target name="set-net-1.2-runtime-configuration">
-        <property name="current.runtime.config" value="net" />
-        <property name="current.runtime.version" value="1.2" />
-        <property name="current.runtime.description" value="Microsoft .NET Framework 1.2" />
-        <property name="current.build.defines" value="${build.defines}NET,NET_1_2" />
+    <target name="set-net-1.2-framework-configuration">
+        <property name="nant.settings.currentframework" value="net-1.2" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_2" dynamic="true" />
         <property name="link.sdkdoc.version" value="MsdnOnline" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags" />
     </target>
-    <target name="set-netcf-1.0-runtime-configuration">
-        <property name="current.runtime.config" value="netcf" />
-        <property name="current.runtime.version" value="1.0" />
-        <property name="current.runtime.description" value="Microsoft .NET Compact Framework 1.0" />
-        <property name="current.build.defines" value="${build.defines}NETCF,NETCF_1_0" />
+    <target name="set-netcf-1.0-framework-configuration">
+        <property name="nant.settings.currentframework" value="netcf-1.0" />
+        <property name="current.build.defines" value="${build.defines}NETCF,NETCF_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags" />
     </target>
-    <target name="set-mono-1.0-runtime-configuration">
-        <property name="current.runtime.config" value="mono" />
-        <property name="current.runtime.version" value="1.0" />
-        <property name="current.runtime.description" value="Mono 1.0" />
-        <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
+    <target name="set-mono-1.0-framework-configuration">
+        <property name="nant.settings.currentframework" value="mono-1.0" />
+        <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="MsdnOnline" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags" />
     </target>
-    <target name="set-sscli-1.0-runtime-configuration">
-        <property name="current.runtime.config" value="sscli" />
-        <property name="current.runtime.version" value="1.0" />
-        <property name="current.runtime.description" value="Microsoft Shared Source CLI 1.0" />
-        <property name="current.build.defines" value="${build.defines}SSCLI,SSCLI_1_0" />
+    <target name="set-sscli-1.0-framework-configuration">
+        <property name="nant.settings.currentframework" value="sscli-1.0" />
+        <property name="current.build.defines" value="${build.defines}SSCLI,SSCLI_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="MsdnOnline" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
-        <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags" />
     </target>
 </project>
