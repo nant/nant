@@ -83,6 +83,9 @@ namespace NAnt.DotNet.Tasks {
         private string _codepage;
         private string _baseAddress;
 
+        // framework configuration settings
+        private bool _supportsDocGeneration = true;
+
         #endregion Private Instance Fields
 
         #region Private Static Fields
@@ -248,6 +251,17 @@ namespace NAnt.DotNet.Tasks {
             set { _codepage = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// Specifies whether the compiler for the active target framework
+        /// supports generation of XML Documentation file. The default is 
+        /// <see langword="true" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsdocgeneration")]
+        public bool SupportsDocGeneration {
+            get { return _supportsDocGeneration; }
+            set { _supportsDocGeneration = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
@@ -266,8 +280,15 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "baseaddress", BaseAddress);
             }
 
+            // XML documentation
             if (DocFile != null) {
-                WriteOption(writer, "doc", DocFile.FullName);
+                if (SupportsDocGeneration) {
+                    WriteOption(writer, "doc", DocFile.FullName);
+                } else {
+                    Log(Level.Warning, "The compiler for \"{0}\" does not support"
+                        + " generation of XML Documentation file.", 
+                        Project.TargetFramework.Description);
+                }
             }
 
             if (Debug) {
@@ -309,7 +330,7 @@ namespace NAnt.DotNet.Tasks {
         /// Determines whether compilation is needed.
         /// </summary>
         protected override bool NeedsCompiling() {
-            if (DocFile != null) {
+            if (DocFile != null && SupportsDocGeneration) {
                 if (!DocFile.Exists) {
                     Log(Level.Verbose, "Doc file '{0}' does not exist, recompiling.", 
                         DocFile.FullName);
