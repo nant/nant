@@ -4,6 +4,7 @@
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" overwrite="false" />
+    <property name="project.release.type" value="dev" overwrite="false" /> <!-- nightly / dev / alpha / beta# / rc# / release -->
     <!-- global build settings -->
     <property name="lib.dir" value="${path::combine(build.dir, 'bin/lib')}" dynamic="true" />
     <property name="lib.family.dir" value="${path::combine(lib.dir, framework::get-family(framework::get-target-framework()))}" dynamic="true" />
@@ -82,7 +83,7 @@
                 <attribute type="CLSCompliantAttribute" value="true" />
                 <attribute type="AssemblyTitleAttribute" value="NAnt" />
                 <attribute type="AssemblyDescriptionAttribute" value="A .NET Build Tool" />
-                <attribute type="AssemblyConfigurationAttribute" value="${framework::get-target-framework()}.${platform::get-name()}; nightly" />
+                <attribute type="AssemblyConfigurationAttribute" value="${framework::get-target-framework()}.${platform::get-name()}; ${project.release.type}" />
                 <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
                 <attribute type="AssemblyProductAttribute" value="NAnt" />
                 <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
@@ -250,8 +251,10 @@
                         <property name="NAntBaseUri" value="../" />
                         <!-- do not filter on namespace -->
                         <property name="NamespaceFilter" value="" />
-                        <!-- set the name of the application for which docs are generated -->
-                        <property name="ApplicationName" value="NAnt" />
+                        <!-- set the name and version of the product for which docs are generated -->
+                        <property name="ProductName" value="NAnt" />
+                        <property name="ProductVersion" value="${project.version}" if="${project.release.type='release'}" />
+                        <property name="ProductVersion" value="${project.version} ${project.release.type}" unless="${project.release.type='release'}" />
                         <property name="DocumentAttributes" value="True" />
                         <property name="IncludeAssemblyVersion" value="True" />
                         <property name="ShowMissingParams" value="True" />
@@ -318,7 +321,8 @@
                         <property name="SdkLinksOnWeb" value="${link.sdkdoc.web}" />
                         <property name="HtmlHelpName" value="NAnt-SDK" />
                         <property name="IncludeFavorites" value="False" />
-                        <property name="Title" value="NAnt SDK Documentation - v.${project.version}" />
+                        <property name="Title" value="NAnt SDK Documentation - v${project.version}" if="${project.release.type='release'}" />
+                        <property name="Title" value="NAnt SDK Documentation - v${project.version} ${project.release.type}" unless="${project.release.type='release'}" />
                         <property name="SplitTOCs" value="False" />
                         <property name="DefaulTOC" value="" />
                         <property name="ShowVisualBasic" value="True" />
@@ -328,7 +332,7 @@
                         <property name="ShowMissingReturns" value="${build.debug}" />
                         <property name="ShowMissingValues" value="${build.debug}" />
                         <property name="DocumentAttributes" value="True" />
-                        <property name="ShowTypeIdInAttributes" value="True" />
+                        <property name="ShowTypeIdInAttributes" value="False" />
                         <property name="DocumentInternals" value="False" />
                         <property name="DocumentPrivates" value="False" />
                         <property name="DocumentProtected" value="True" />
@@ -457,7 +461,7 @@
     <target name="set-net-2.0-framework-configuration">
         <property name="nant.settings.currentframework" value="net-2.0" />
         <property name="current.build.defines" value="${build.defines}NET,NET_2_0" dynamic="true" />
-        <property name="link.sdkdoc.version" value="SDK_v1_1" />        
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-netcf-1.0-framework-configuration">
