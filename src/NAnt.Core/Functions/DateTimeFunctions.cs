@@ -171,7 +171,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-day-of-year")]
         public static int GetDayOfYear(DateTime date) {
-            return (int) date.DayOfWeek;
+            return (int) date.DayOfYear;
         }
 
         /// <summary>
