@@ -143,11 +143,11 @@ namespace NAnt.VSNet.Tasks {
 
             while ( m.Success ) {            
                 string strValue = m.Value.Trim();
-		if ( strValue.StartsWith( "End " ) ) {
+        if ( strValue.StartsWith( "End " ) ) {
                     if ( st.Count > 0 )
                         st.Pop();
                 }                
-		else if ( strValue.StartsWith( "Namespace" ) ) {
+        else if ( strValue.StartsWith( "Namespace" ) ) {
                     st.Push( m.Result( "${ns}" ).Trim() );
                 }
                 else if ( strValue.IndexOf( "Class" ) >= 0 ) {

@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
+using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Collections;
 using System.Diagnostics;
@@ -102,13 +103,17 @@ namespace NAnt.VSNet.Tasks {
                 }
             }
             
-            if (_strSolutionFile == null) {
-                sln = new Solution(new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), this);
-            } else {
-                sln = new Solution(_strSolutionFile, new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), this);
-            }
-            if (!sln.Compile(_strConfiguration, new ArrayList(), null, Verbose, false)) {
-                throw new BuildException("Project build failed");
+            using (TempFileCollection tfc = new TempFileCollection()) {
+                if (_strSolutionFile == null) {
+                    sln = new Solution(new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), tfc, this);
+                } else {
+                    sln = new Solution(_strSolutionFile, new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), tfc, this);
+                }
+                if (!sln.Compile(_strConfiguration, new ArrayList(), null, Verbose, false)) {
+                    throw new BuildException("Project build failed");
+                }
+                
+                System.IO.Directory.Delete( tfc.BasePath, true );
             }
         }
 

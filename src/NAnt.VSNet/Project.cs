@@ -37,13 +37,14 @@ namespace NAnt.VSNet.Tasks {
     public class Project {
         private const string COMMAND_FILE = "compile-commands.txt";
 
-        public Project(Task nanttask) {
+        public Project(Task nanttask, TempFileCollection tfc) {
             _htConfigurations = new Hashtable();
             _htReferences = new Hashtable();
             _htFiles = new Hashtable();
             _htResources = new Hashtable();
             _htAssemblies = new Hashtable();
             _nanttask = nanttask;
+            _tfc = tfc;
         }
 
         private static bool IsURL( string strFilename ) {
@@ -78,17 +79,17 @@ namespace NAnt.VSNet.Tasks {
             return ( doc.DocumentElement.Name.ToString() == "EFPROJECT" );
         }
 
-        public static string LoadGUID( string strFilename ) {
+        public static string LoadGUID( string strFilename, TempFileCollection tfc ) {
             XmlDocument doc = LoadXmlDocument( strFilename );
 
-            ProjectSettings ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ) );
+            ProjectSettings ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ), tfc );
             return ps.GUID;
         }
 
         public void Load( Solution sln, string strFilename ) {
             XmlDocument doc = LoadXmlDocument( strFilename );
 
-            _ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ) );
+            _ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ), _tfc );
 
             _bWebProject = IsURL( strFilename );
             _strWebProjectBaseUrl = String.Empty;
@@ -219,8 +220,6 @@ namespace NAnt.VSNet.Tasks {
         }
 
         public bool Compile(string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
-            TempFileCollection tfc = new TempFileCollection();
-            Directory.CreateDirectory( tfc.BasePath );
             bool bSuccess = true;
 
             ConfigurationSettings cs = ( ConfigurationSettings )_htConfigurations[ strConfiguration.ToLower() ];
@@ -232,164 +231,158 @@ namespace NAnt.VSNet.Tasks {
             Log(Level.Info, _nanttask.LogPrefix + "Building {0} [{1}]...", Name, strConfiguration);
             Directory.CreateDirectory( cs.OutputPath );
 
-            try {
-                string strTempFile = tfc.BasePath + "\\" + COMMAND_FILE;
-            
-                using ( StreamWriter sw = File.CreateText( strTempFile ) ) {
-                    if ( CheckUpToDate( cs ) ) {    
-                        Log(Level.Verbose, _nanttask.LogPrefix + "Project is up-to-date" );
-                        return true;
-                    }
+            string strTempFile = _tfc.BasePath + "\\" + COMMAND_FILE;
 
-                    foreach ( string strSetting in alCSCArguments )
-                        sw.WriteLine( strSetting );
+            using ( StreamWriter sw = File.CreateText( strTempFile ) ) {
+                if ( CheckUpToDate( cs ) ) {    
+                    Log(Level.Verbose, _nanttask.LogPrefix + "Project is up-to-date" );
+                    return true;
+                }
 
-                    foreach ( string strSetting in ProjectSettings.Settings )
-                        sw.WriteLine( strSetting );
+                foreach ( string strSetting in alCSCArguments )
+                    sw.WriteLine( strSetting );
 
-                    foreach ( string strSetting in cs.Settings )
-                        sw.WriteLine( strSetting );
+                foreach ( string strSetting in ProjectSettings.Settings )
+                    sw.WriteLine( strSetting );
 
-                    if ( _ps.Type == ProjectType.VBNet )
-                        sw.WriteLine( _strImports );
+                foreach ( string strSetting in cs.Settings )
+                    sw.WriteLine( strSetting );
 
-                    Log(Level.Verbose, _nanttask.LogPrefix + "Copying references:" );
-                    foreach ( Reference reference in _htReferences.Values ) {
-                        Log(Level.Verbose, _nanttask.LogPrefix + " - " + reference.Name );
+                if ( _ps.Type == ProjectType.VBNet )
+                    sw.WriteLine( _strImports );
 
-                        if ( reference.CopyLocal ) {
-                            if ( reference.IsCreated ) {
-                                string strProgram, strCommandLine;
-                                reference.GetCreationCommand( cs, out strProgram, out strCommandLine );
+                Log(Level.Verbose, _nanttask.LogPrefix + "Copying references:" );
+                foreach ( Reference reference in _htReferences.Values ) {
+                    Log(Level.Verbose, _nanttask.LogPrefix + " - " + reference.Name );
 
-                                Log(Level.Verbose, _nanttask.LogPrefix + strProgram + " " + strCommandLine);
-                                ProcessStartInfo psiRef = new ProcessStartInfo( strProgram, strCommandLine );
-                                psiRef.UseShellExecute = false;
-                                psiRef.WorkingDirectory = cs.OutputPath;
-                                try {
-                                    Process pRef = Process.Start( psiRef );
-                                    pRef.WaitForExit();
-                                }
-                                catch ( Win32Exception e ) {
-                                    throw new BuildException(String.Format("Unable to start process with commandline: {0} {1}", strProgram, strCommandLine), e);
-                                }
+                    if ( reference.CopyLocal ) {
+                        if ( reference.IsCreated ) {
+                            string strProgram, strCommandLine;
+                            reference.GetCreationCommand( cs, out strProgram, out strCommandLine );
+
+                            Log(Level.Verbose, _nanttask.LogPrefix + strProgram + " " + strCommandLine);
+                            ProcessStartInfo psiRef = new ProcessStartInfo( strProgram, strCommandLine );
+                            psiRef.UseShellExecute = false;
+                            psiRef.WorkingDirectory = cs.OutputPath;
+                            try {
+                                Process pRef = Process.Start( psiRef );
+                                pRef.WaitForExit();
                             }
-                            else {
-                                string[] strFromFilenames = reference.GetReferenceFiles( cs );
-
-                                CopyTask ct = new CopyTask();
-                                foreach ( string strFile in strFromFilenames )
-                                    ct.CopyFileSet.Includes.Add( strFile );
-                                ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory( cs );
-                                ct.ToDirectory = cs.OutputPath;
-                                ct.Project = _nanttask.Project;
-                                ct.Verbose = _nanttask.Verbose;
-
-                                _nanttask.Project.Indent();
-                                ct.Execute();
-                                _nanttask.Project.Unindent();
+                            catch ( Win32Exception e ) {
+                                throw new BuildException(String.Format("Unable to start process with commandline: {0} {1}", strProgram, strCommandLine), e);
                             }
-                        }
-                        sw.WriteLine( reference.Setting );
-                    }
-
-                    Log(Level.Verbose, _nanttask.LogPrefix + "Compiling resources:" );
-                    foreach ( Resource resource in _htResources.Values ) {
-                        Log(Level.Info, _nanttask.LogPrefix + " - {0}", resource.InputFile, Level.Verbose);
-                        resource.Compile( cs, bShowCommands );
-                        sw.WriteLine( resource.Setting );
-                    }
-
-                    // Add the compiled files
-                    foreach ( string strFile in _htFiles.Keys )
-                        sw.WriteLine( @"""" + strFile + @"""");
-                }
-
-                tfc.AddFile( strTempFile, false );
-                if ( bShowCommands ) {
-                    using ( StreamReader sr = new StreamReader( strTempFile ) ) {
-                        Console.WriteLine( "Commands:" );
-                        Console.WriteLine( sr.ReadToEnd() );
-                    }
-                }
-
-                Log(Level.Verbose, _nanttask.LogPrefix + "Starting compiler...");
-                ProcessStartInfo psi = null;
-                if ( _ps.Type == ProjectType.CSharp ) {
-                    psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe" ), "@" + strTempFile );
-                }
-
-                if ( _ps.Type == ProjectType.VBNet ) {
-                    psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe" ), "@" + strTempFile );
-                }
-
-                psi.UseShellExecute = false;
-                psi.RedirectStandardOutput = true;
-                psi.WorkingDirectory = _strProjectDirectory;
-
-                Process p = Process.Start( psi );
-
-                if ( strLogFile != null ) {
-                    using ( StreamWriter sw = new StreamWriter( strLogFile, true ) ) {
-                        sw.WriteLine( "Configuration: {0}", strConfiguration );
-                        sw.WriteLine( "" );
-                        while ( true ) {
-                            string strLogContents = p.StandardOutput.ReadLine();
-                            if ( strLogContents == null )
-                                break;
-                            sw.WriteLine( strLogContents );
-                        }
-                    }
-                }
-                else {
-                    _nanttask.Project.Indent();
-                    while ( true ) {                        
-                        string strLogContents = p.StandardOutput.ReadLine();
-                        if ( strLogContents == null )
-                            break;                    
-                        Log(Level.Info, "      [compile] " + strLogContents);
-                    }
-                    _nanttask.Project.Unindent();
-                }
-
-                p.WaitForExit();
-
-                int nExitCode = p.ExitCode;
-                Log(Level.Verbose, _nanttask.LogPrefix + "{0}! (exit code = {1})", ( nExitCode == 0 ) ? "Success" : "Failure", nExitCode );
-
-                if ( nExitCode > 0 )
-                    bSuccess = false;
-                else {
-                    if ( _bWebProject ) {
-                        Log(Level.Info, _nanttask.LogPrefix + "Uploading output files");
-                        WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
-                        //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
-                        wdc.UploadFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
-                    }
-
-                    // Copy any extra files over
-                    foreach ( string strExtraOutputFile in cs.ExtraOutputFiles ) {
-                        FileInfo fi = new FileInfo( strExtraOutputFile );
-                        if ( _bWebProject ) {
-                            WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
-                            wdc.UploadFile( strExtraOutputFile, cs.RelOutputPath + "/" + fi.Name );
                         }
                         else {
-                            string strOutFile = cs.OutputPath + @"\" + fi.Name;
+                            string[] strFromFilenames = reference.GetReferenceFiles( cs );
 
-                            if ( File.Exists( strOutFile ) ) {
-                                File.SetAttributes( strOutFile, FileAttributes.Normal );
-                                File.Delete( strOutFile );
-                            }
+                            CopyTask ct = new CopyTask();
+                            foreach ( string strFile in strFromFilenames )
+                                ct.CopyFileSet.Includes.Add( strFile );
+                            ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory( cs );
+                            ct.ToDirectory = cs.OutputPath;
+                            ct.Project = _nanttask.Project;
+                            ct.Verbose = _nanttask.Verbose;
 
-                            File.Copy( fi.FullName, strOutFile );
+                            _nanttask.Project.Indent();
+                            ct.Execute();
+                            _nanttask.Project.Unindent();
                         }
+                    }
+                    sw.WriteLine( reference.Setting );
+                }
+
+                Log(Level.Verbose, _nanttask.LogPrefix + "Compiling resources:" );
+                foreach ( Resource resource in _htResources.Values ) {
+                    Log(Level.Info, _nanttask.LogPrefix + " - {0}", resource.InputFile, Level.Verbose);
+                    resource.Compile( cs, bShowCommands );
+                    sw.WriteLine( resource.Setting );
+                }
+
+                // Add the compiled files
+                foreach ( string strFile in _htFiles.Keys )
+                    sw.WriteLine( @"""" + strFile + @"""");
+            }
+
+            _tfc.AddFile( strTempFile, false );
+            if ( bShowCommands ) {
+                using ( StreamReader sr = new StreamReader( strTempFile ) ) {
+                    Console.WriteLine( "Commands:" );
+                    Console.WriteLine( sr.ReadToEnd() );
+                }
+            }
+
+            Log(Level.Verbose, _nanttask.LogPrefix + "Starting compiler...");
+            ProcessStartInfo psi = null;
+            if ( _ps.Type == ProjectType.CSharp ) {
+                psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe" ), "@" + strTempFile );
+            }
+
+            if ( _ps.Type == ProjectType.VBNet ) {
+                psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe" ), "@" + strTempFile );
+            }
+
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.WorkingDirectory = _strProjectDirectory;
+
+            Process p = Process.Start( psi );
+
+            if ( strLogFile != null ) {
+                using ( StreamWriter sw = new StreamWriter( strLogFile, true ) ) {
+                    sw.WriteLine( "Configuration: {0}", strConfiguration );
+                    sw.WriteLine( "" );
+                    while ( true ) {
+                        string strLogContents = p.StandardOutput.ReadLine();
+                        if ( strLogContents == null )
+                            break;
+                        sw.WriteLine( strLogContents );
                     }
                 }
             }
-            finally {
-                tfc.Delete();
-                Directory.Delete( tfc.BasePath, true );
+            else {
+                _nanttask.Project.Indent();
+                while ( true ) {                        
+                    string strLogContents = p.StandardOutput.ReadLine();
+                    if ( strLogContents == null )
+                        break;                    
+                    Log(Level.Info, "      [compile] " + strLogContents);
+                }
+                _nanttask.Project.Unindent();
+            }
+
+            p.WaitForExit();
+
+            int nExitCode = p.ExitCode;
+            Log(Level.Verbose, _nanttask.LogPrefix + "{0}! (exit code = {1})", ( nExitCode == 0 ) ? "Success" : "Failure", nExitCode );
+
+            if ( nExitCode > 0 )
+                bSuccess = false;
+            else {
+                if ( _bWebProject ) {
+                    Log(Level.Info, _nanttask.LogPrefix + "Uploading output files");
+                    WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
+                    //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
+                    wdc.UploadFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
+                }
+
+                // Copy any extra files over
+                foreach ( string strExtraOutputFile in cs.ExtraOutputFiles ) {
+                    FileInfo fi = new FileInfo( strExtraOutputFile );
+                    if ( _bWebProject ) {
+                        WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
+                        wdc.UploadFile( strExtraOutputFile, cs.RelOutputPath + "/" + fi.Name );
+                    }
+                    else {
+                        string strOutFile = cs.OutputPath + @"\" + fi.Name;
+
+                        if ( File.Exists( strOutFile ) ) {
+                            File.SetAttributes( strOutFile, FileAttributes.Normal );
+                            File.Delete( strOutFile );
+                        }
+
+                        File.Copy( fi.FullName, strOutFile );
+                    }
+                }
             }
 
             if ( !bSuccess )
@@ -440,8 +433,9 @@ namespace NAnt.VSNet.Tasks {
         private Task _nanttask;
         private bool        _bWebProject;
 
-        private string            _strProjectDirectory;
-        private string            _strWebProjectBaseUrl;
+        private string                 _strProjectDirectory;
+        private string                 _strWebProjectBaseUrl;
         private ProjectSettings        _ps;
+        private TempFileCollection     _tfc;
     }
 }
