@@ -131,14 +131,22 @@ namespace SourceForge.NAnt.Tasks {
         #region Override implementation of ExternalProgramBase
            
         public override string ExeName {
-            get { return Project.CurrentFramework.BasicCompilerName; }
+            get {
+                if (Project.CurrentFramework != null) {
+                    return Project.CurrentFramework.BasicCompilerName;
+                } else {
+                    return Name;
+                }
+            }
         }
 
         protected override bool UsesRuntimeEngine { 
             get {
-                // find better way of doing this
-                if ( Project.CurrentFramework.Name.IndexOf( "mono", 0 ) != -1 ) {
-                    return true;
+                if (Project.CurrentFramework != null) {
+                    // TO-DO : find better of doing this than relying on the name of the framework
+                    if (Project.CurrentFramework.Name.IndexOf("mono", 0) != -1) {
+                        return true;
+                    }
                 }
                 return false;
             }

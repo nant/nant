@@ -25,37 +25,42 @@ namespace SourceForge.NAnt.Tasks {
     /// Provides the abstract base class for a Microsoft .Net Framework SDK external program task.
     /// </summary>
     public abstract class MsftFXSDKExternalProgramBase : ExternalProgramBase {
+        #region Override implementation of ExternalProgramBase
 
         public override string ProgramFileName  {
             get { 
                 return determineFilePath();
             } 
         }
+
+        #endregion Override implementation of ExternalProgramBase
+
         /// <summary>
         /// Instead of relying on the .NET external program to be in the user's path, point
         /// to the compiler directly since it lives in the .NET Framework's bin directory.
-        /// <note>If the file path returned does not exist then there is some issue with the users framework setup</note>
         /// </summary>       
         /// <returns>A fully qualifies pathname including the program name.</returns>
+        /// <exception cref="BuildException">The task is not available or not configured for the current framework.</exception>
         private string determineFilePath() {
-            if (ExeName != null) {
-                if (Project.CurrentFramework != null ) {
+            if (Project.CurrentFramework != null) {
+                if (ExeName != null) {
                     if (Project.CurrentFramework.SdkDirectory != null) {
                         string SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName; 
                         return Path.Combine(SdkDirectory, ExeName +  ".exe" );               
                     } else {
                         throw new BuildException(
                             string.Format(CultureInfo.InvariantCulture, 
-                                "The SDK for the ({0} framework is not available or not configured.", 
-                                Project.CurrentFramework.Name
-                            )                            
-                        );
+                            "The SDK for the ({0} framework is not available or not configured.", 
+                            Project.CurrentFramework.Name));
                     }
                 } else {
-                    return ExeName;
-                }    
+                    throw new BuildException(
+                        string.Format(CultureInfo.InvariantCulture, 
+                        "The {0} task is not available or not configured for the {1} framework.", 
+                        Name, Project.CurrentFramework.Name));
+                }
             } else {
-                throw new BuildException("This task is not available or not configured for the current framework.");
+                return ExeName;
             }
         }            
     }

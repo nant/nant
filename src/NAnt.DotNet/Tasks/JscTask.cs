@@ -44,14 +44,22 @@ namespace SourceForge.NAnt.Tasks {
         #region Override implementation of ExternalProgramBase
            
         public override string ExeName {           
-            get { return Project.CurrentFramework.JScriptCompilerName; }
+            get { 
+                if (Project.CurrentFramework != null) {
+                    return Project.CurrentFramework.JScriptCompilerName; 
+                } else {
+                    return Name;
+                }
+            }
         }
 
         protected override bool UsesRuntimeEngine { 
             get {
-                // find better way of doing this
-                if (Project.CurrentFramework.Name.IndexOf("sscli", 0 ) != -1 ) {
-                    return true;
+                if (Project.CurrentFramework != null) {
+                    // TO-DO : find better of doing this than relying on the name of the framework
+                    if (Project.CurrentFramework.Name.IndexOf("sscli", 0) != -1) {
+                        return true;
+                    }
                 }
                 return false;
             }

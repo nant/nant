@@ -81,7 +81,13 @@ namespace SourceForge.NAnt.Tasks {
         }
         
         public override string ExeName {           
-            get {return Project.CurrentFramework.ResGenToolName; }                          
+            get {
+                if (Project.CurrentFramework != null) {
+                    return Project.CurrentFramework.ResGenToolName;
+                } else {
+                    return Name;
+                }
+            }
         }
                 
         protected virtual bool NeedsCompiling(string input, string output) {
@@ -184,11 +190,13 @@ namespace SourceForge.NAnt.Tasks {
             }                     
         }
 
-        protected override bool UsesRuntimeEngine{ 
+        protected override bool UsesRuntimeEngine { 
             get {                 
-                // uncomment this when monoresgen no longer crashes when run with the mono runtime.
-                //if ( Project.CurrentFramework.Name.IndexOf( "mono", 0 ) != -1 ) { // remove hardcoded ness
-                //    return true;
+                // TO-DO : uncomment this when monoresgen no longer crashes when run with the mono runtime.
+                //if (Project.CurrentFramework != null) {
+                //      if (Project.CurrentFramework.Name.IndexOf("mono", 0) != -1 ) { // remove hardcoded ness
+                //          return true;
+                //      }
                 //}                
                 return false;                
             }

@@ -152,7 +152,13 @@ namespace SourceForge.NAnt.Tasks {
         #region Override implementation of ExternalProgramBase
 
         public override string ExeName {
-            get { return Project.CurrentFramework.JSharpCompilerName; }
+            get {
+                if (Project.CurrentFramework != null) {
+                    return Project.CurrentFramework.JSharpCompilerName;
+                } else {
+                    return Name;
+                }
+            }
         }
 
         #endregion Override implementation of ExternalProgramBase

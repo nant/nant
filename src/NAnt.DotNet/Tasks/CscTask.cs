@@ -42,23 +42,32 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("csc")]
     public class CscTask : MsftFXCompilerBase {
+        #region Private Instance Fields
        
         string _doc = null;
         bool _nostdlib = false;
         bool _noconfig = false;
         bool _checked = false;
         bool _unsafe = false;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
         
-        public override string ExeName {           
-            get { return Project.CurrentFramework.CSharpCompilerName; }
-        }
-        // C# specific compiler options
-        /// <summary>The name of the XML documentation file to generate.
-        ///     This attribute corresponds to the <c>/doc:</c> flag.</summary>
+        /// <summary>
+        /// The name of the XML documentation file to generate.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/doc:</c> flag.
+        /// </para>
+        /// </remarks>
         [TaskAttribute("doc")]
         public string Doc        { get { return _doc; } set {_doc = value; } }
 
-        /// <summary>Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
+        /// <summary>
+        /// Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// </summary>
         /// <remarks>
         /// <para>
         /// This attribute corresponds to the <c>/nostdlib[+|-]</c> flag.
@@ -67,7 +76,9 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("nostdlib")]
         public bool NoStdLib     { get { return _nostdlib; } set {_nostdlib = value; } }
 
-        /// <summary>Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
+        /// <summary>
+        /// Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// </summary>
         /// <remarks>
         /// <para>
         /// This attribute corresponds to the <c>/noconfig</c> flag.
@@ -100,6 +111,36 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("unsafe")]
         public bool Unsafe      { get { return _unsafe; } set {_unsafe = value; } }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
+        public override string ExeName {
+            get { 
+                if (Project.CurrentFramework != null) {
+                    return Project.CurrentFramework.CSharpCompilerName; 
+                } else {
+                    return Name;
+                }
+            }
+        }
+
+        protected override bool UsesRuntimeEngine { 
+            get {
+                if (Project.CurrentFramework != null) {
+                    // TO-DO : find better of doing this than relying on the name of the framework
+                    if (Project.CurrentFramework.Name.IndexOf("mono", 0) != -1) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Override implementation of CompilerBase
+
         protected override void WriteOptions(TextWriter writer) {
             WriteOption(writer, "fullpaths");
 
@@ -129,18 +170,11 @@ namespace SourceForge.NAnt.Tasks {
                 Args.Add("/noconfig");
             }
         }
-        #region overrides      
-        protected override string GetExtension(){ return "cs";}
-        
-        protected override bool UsesRuntimeEngine { 
-            get {                
-                // find better way of doing this
-                if ( Project.CurrentFramework.Name.IndexOf( "mono", 0 ) != -1 ) {          
-                    return true;
-                }                
-                return false;                
-            }
+
+        protected override string GetExtension() { 
+            return "cs";
         }
-        #endregion
+
+        #endregion Override implementation of CompilerBase
     }
 }
