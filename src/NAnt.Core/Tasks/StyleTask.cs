@@ -30,12 +30,34 @@ using SourceForge.NAnt.Attributes;
 namespace SourceForge.NAnt.Tasks {
 
     /// <summary>
-    /// Process a document via XSLT.
-    /// This is useful for building views of XML based documentation, or in generating code.
+    /// <para>
+    ///     Process a document via XSLT.</para>
+    /// <para>
+    ///     This is useful for building views of XML based documentation, or in generating code.</para>
+    /// <para>
+    ///     Note: <![CDATA[<param name="" expression=""/>]]> are allowed.
+    ///     </para>
+    /// 
     /// </summary>
     /// <example>
     ///   <para>Create a report in HTML.</para>
     ///   <code>&lt;style style="report.xsl" in="data.xml" out="report.html" /&gt;</code>
+    /// </example>
+    /// <example>
+    ///   <para>Create a report in HTML, with a param.</para>
+    ///   <code><![CDATA[
+    ///     <style style="report.xsl" in="data.xml" out="report.html">
+    ///         <param name="reportType" expression="Plain"/>
+    ///     </style>
+    ///   <code>]]></code>
+    /// </example>
+    /// <example>
+    ///   <para>Create a report in HTML, with a expanded param.</para>
+    ///   <code><![CDATA[
+    ///     <style style="report.xsl" in="data.xml" out="report.html">
+    ///         <param name="reportType" expression="${report.type}"/>
+    ///     </style>
+    ///   <code>]]></code>
     /// </example>
     [TaskName("style")]
     public class StyleTask : Task {
@@ -100,8 +122,8 @@ namespace SourceForge.NAnt.Tasks {
             // Load parameters
             foreach (XmlNode node in taskNode) {
                 if(node.Name.Equals("param")) {
-                    string paramname = node.Attributes["name"].Value;
-                    string paramval = node.Attributes["expression"].Value;
+                    string paramname = Project.ExpandProperties(node.Attributes["name"].Value);
+                    string paramval = Project.ExpandProperties(node.Attributes["expression"].Value);
                     _params[paramname] = paramval;
                 }
             }
