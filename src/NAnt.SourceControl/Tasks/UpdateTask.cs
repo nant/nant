@@ -50,7 +50,7 @@ namespace NAnt.SourceControl.Tasks {
     ///     in the folder "c:\src\nant\replacement_for_module_directory_name".</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvs-checkout 
+    /// <cvs-update 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     password="" 
@@ -59,7 +59,7 @@ namespace NAnt.SourceControl.Tasks {
     ///         <option name="sticky-tag" value="your_favorite_revision_here" />
     ///         <option name="override-directory" value="replacement_for_module_directory_name" />
     ///     </options>
-    /// <cvs-checkout>
+    /// </cvs-update>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -77,7 +77,7 @@ namespace NAnt.SourceControl.Tasks {
     ///         <option name="-r" value="your_favorite_revision_here" />
     ///         <option name="-d" value="replacement_for_module_directory_name" />
     ///     </options>
-    /// <cvs-update>
+    /// </cvs-update>
     ///     ]]>
     ///   </code>
     /// </example>

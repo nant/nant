@@ -57,7 +57,7 @@ namespace NAnt.SourceControl.Tasks {
     ///         <option name="sticky-tag" value="your_favorite_revision_here" />
     ///         <option name="override-directory" value="replacement_for_module_directory_name" />
     ///     </options>
-    /// <cvs-checkout>
+    /// </cvs-checkout>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -76,7 +76,7 @@ namespace NAnt.SourceControl.Tasks {
     ///         <option name="-r" value="your_favorite_revision_here" />
     ///         <option name="-d" value="replacement_for_module_directory_name" />
     ///     </options>
-    /// <cvs-checkout>
+    /// </cvs-checkout>
     ///     ]]>
     ///   </code>
     /// </example>
