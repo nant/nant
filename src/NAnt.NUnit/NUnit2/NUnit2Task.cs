@@ -290,9 +290,11 @@ namespace NAnt.NUnit2.Tasks {
 
         private TestResult RunSingleRemoteTest(NUnit2Test test, FileInfo testAssembly, EventListener listener) {
             try {
-                LogWriter writer = new LogWriter(this, Level.Info, LogPrefix, CultureInfo.InvariantCulture);
+                LogWriter writer = new LogWriter(this, Level.Info, LogPrefix, 
+                    CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
-                return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, listener);
+                return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, 
+                    listener);
             } catch (Exception ex) {
                 if (HaltOnError) {
                     throw new BuildException("NUnit error.", Location, ex);
