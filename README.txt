@@ -12,7 +12,8 @@ Ant project web site (http://ant.apache.org/).
 Why NAnt?
 ---------
 Because Ant was too Java specific.
-Because Ant needed the Java runtime.  NAnt only needs the .NET runtime.
+Because Ant needed the Java runtime.  NAnt only needs the .NET 
+or Mono runtime.
 
 
 The Latest Version
