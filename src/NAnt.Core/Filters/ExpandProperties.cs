@@ -18,63 +18,78 @@
 
 using System;
 using System.Text;
+using System.Xml;
+
+using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Filters {
     /// <summary>
     /// Parses NAnt properties and expressions
     /// </summary>
     /// <remarks>
-    /// <para>This filter parses any NAnt properties or expressions found in its input, inlining their values in its output.</para>
-    /// <para>Note: Due to limitations on buffering, expressions longer than 2048 characters are not guaranteed to be expanded.</para>
-    /// <para>Parameters:</para>
-    /// <list type="table">
-    ///    <listheader>
-    ///   <term>Parameter</term>
-    ///   <description>Description</description>
-    ///  </listheader>
-    ///  <item>
-    ///   <term><code>&lt;order&gt;</code></term>
-    ///   <description>The order this filter will be in the <see cref="FilterChain"></see></description>
-    ///  </item>
-    /// </list>
+    /// <para>
+    /// This filter parses any NAnt properties or expressions found in its input, 
+    /// inlining their values in its output.
+    /// </para>
+    /// <para>
+    /// Note: Due to limitations on buffering, expressions longer than 2048 
+    /// characters are not guaranteed to be expanded.
+    /// </para>
     /// </remarks>
     /// <example>
-    ///  <para>Standard Syntax</para>
-    ///  <code><![CDATA[
-    ///    <expandexpressions order="0" />
-    ///  ]]></code>
-    ///  <para>Generic Syntax</para>
-    ///   <code><![CDATA[
-    ///    <filter assembly="NAnt.Core" class="NAnt.Core.Filters.ExpandExpressions" order="0" />
-    ///  ]]></code>
+    ///   <para>Standard Syntax</para>
+    ///   <code>
+    ///     <![CDATA[
+    ///       <expandexpressions />
+    ///     ]]>
+    ///   </code>
     /// </example>
-    public class ExpandExpressions : Filter {
+    [ElementName("expandproperties")]
+    public class ExpandProperties : Filter {
+        #region Private Instance Fields
+
+        /// <summary>
+        /// Holds data for expression expansion between input and output.
+        /// </summary>
+        private StringBuilder _buffer;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
         // Due to limitations on buffering, expressions longer than this number of characters are not guaranteed to be expanded.
         const ushort MAX_RELIABLE_EXPRESSION_LENGTH = 2048;
 
         // A buffer this size ensures that any expression up to MAX_RELIABLE_EXPRESSION_LENGTH will be sent in one piece to ExpandExpression.
         const int BUFFER_LENGTH = MAX_RELIABLE_EXPRESSION_LENGTH * 2 - 1;
 
-        StringBuilder _buffer;  // Holds data for expression expansion between input and output.
+        #endregion Private Static Fields
+
+        #region Private Instance Properties
 
         /// <summary>
-        /// Construct that allows this filter to be chained to the one
-        /// in the parameter chainedReader.
+        /// Determines whether we've passed the end of our data.
         /// </summary>
-        /// <param name="chainedReader">Filter that the filter will be chained to</param>
-        public ExpandExpressions(ChainableReader chainedReader) : base(chainedReader) { }
+        private bool AtEnd {
+            get { return _buffer.Length == 0; }
+        }
+
+        #endregion Private Instance Properties
+
+        #region Override implementation of Filter
 
         /// <summary>
-        /// .) Called after construction and after properties are set.
+        /// Called after construction and after properties are set. Allows
+        /// for filter initialization.
         /// </summary>
-        /// <remarks>
-        /// <para>See <see cref="Filter.Initialize()">Filter.Initialize</see> for contract information.</para>
-        /// <para>Initializes the internal buffer.</para>
-        /// </remarks>
-        public override void Initialize() {
+        public override void InitializeFilter() {
             _buffer = new StringBuilder(BUFFER_LENGTH);
             ReplenishBuffer();
         }
+
+        #endregion Override implementation of Filter
+
+        #region Override implementation of ChainableReader
 
         /// <summary>
         /// Reads the next character applying the filter logic.
@@ -82,7 +97,7 @@ namespace NAnt.Core.Filters {
         /// <returns>Char as an int or -1 if at the end of the stream</returns>
         public override int Read() {
             int temp = Peek();
-            if ( ! AtEnd) {
+            if (! AtEnd) {
                 Advance();
             }
             return temp;
@@ -100,19 +115,14 @@ namespace NAnt.Core.Filters {
             }
         }
 
-        /// <summary>
-        /// Determines whether we've passed the end of our data.
-        /// </summary>
-        bool AtEnd {
-            get {
-                return _buffer.Length == 0;
-            }
-        }
+        #endregion Override implementation of ChainableReader
+
+        #region Private Instance Methods
 
         /// <summary>
         /// Moves to the next character.
         /// </summary>
-        void Advance () {
+        private void Advance() {
             if (AtEnd) {
                 throw new IndexOutOfRangeException("End of output has been reached.");
             }
@@ -127,7 +137,7 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Refills the buffer, running our input through our Project.Properties.ExpandProperties. (See <see cref="PropertyDictionary.ExpandProperties"/>.)
         /// </summary>
-        void ReplenishBuffer () {
+        private void ReplenishBuffer () {
             // Fill buffer from input.
             bool isMoreInput = true;
             int curCharInt;
@@ -158,5 +168,7 @@ namespace NAnt.Core.Filters {
                 _buffer = new StringBuilder(bufferAfterExpand, Math.Max(BUFFER_LENGTH, bufferAfterExpand.Length));
             }
         }
+
+        #endregion Private Instance Methods
     }
 }
