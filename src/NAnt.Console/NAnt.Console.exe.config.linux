@@ -17,8 +17,8 @@
     </appSettings>
     <!-- nant config settings -->
     <nant taskpath=".\optional">
-        <frameworks default="mono-1.0">
-            <framework name="mono-1.0" description="GNOME projects port of the .NET Framework" version="${version}"
+        <frameworks default="mono-1.0-linux">
+            <framework name="mono-1.0-linux" description="GNOME projects port of the .NET Framework" version="${version}"
                 runtimeengine="mono" sdkdirectory="/usr/local/bin" frameworkdirectory="/usr/local/bin"
                 frameworkassemblydirectory="/usr/local/lib">
                 <properties>
