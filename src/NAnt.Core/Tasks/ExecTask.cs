@@ -149,14 +149,16 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// <para>
         /// The name of a property in which the exit code of the program should 
         /// be stored. Only of interest if <see cref="Task.FailOnError" /> is 
         /// <see langword="false" />.
+        /// </para>
+        /// <para>
+		/// If the exit code of the program is "-1000" then the program could 
+		/// not be started, or did not exit (in time).
+        /// </para>
         /// </summary>
-        /// <remarks>
-        /// If the exit code of the program is <c>-1000</c> then the program 
-        /// could not be started, or did not exit (in time).
-        /// </remarks>
         [TaskAttribute("resultproperty")]
         [StringValidator(AllowEmpty=false)]
         public string ResultProperty {
