@@ -20,8 +20,7 @@
 
 using System;
 using System.Collections;
-using System.IO;
-using System.Xml;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -42,7 +41,7 @@ namespace SourceForge.NAnt.Tasks {
     /// <example>
     ///   <para>Set the build.date property.</para>
     ///   <code><![CDATA[<tstamp property="build.date" pattern="yyyyMMdd" verbose="true"/>]]></code>
-    ///   <para>Set a number of properties for for Ant like compatibility.</para>
+    ///   <para>Set a number of properties for Ant like compatibility.</para>
     ///   <code>
     /// <![CDATA[
     /// <tstamp verbose="true">
@@ -55,16 +54,23 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("tstamp")]
     public class TStampTask : Task {
+        #region Private Instance Fields
 
         string _property = null;
         string _pattern = null;
-        FormatterElementCollection _formatterElements = new FormatterElementCollection();
+        TimestampFormatterElementCollection _timestampFormatterElements = new TimestampFormatterElementCollection();
 
-        /// <summary>The property to receive the date/time string in the given pattern.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The property to receive the date/time string in the given pattern.
+        /// </summary>
         [TaskAttribute("property", Required=false)]
         public string Property {
             get { return _property; }
-            set {_property = value; }
+            set { _property = value; }
         }
 
         /// <summary>The date/time pattern to be used.</summary>
@@ -136,15 +142,17 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("pattern", Required=false)]
         public string Pattern {
             get { return _pattern; }
-            set {_pattern = value; }
+            set { _pattern = value; }
         }
 
         [BuildElementArray("formatter")]
-        protected FormatterElement[] SetFormatters{
-            set{
-                _formatterElements.AddRange(value);
-            }
+        public TimestampFormatterElement[] SetFormatters {
+            set { _timestampFormatterElements.AddRange(value); }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task            
 
         protected override void ExecuteTask() {
             // get and print current date
@@ -152,45 +160,59 @@ namespace SourceForge.NAnt.Tasks {
             Log.WriteLine(LogPrefix + now.ToLongDateString() + " " + now.ToLongTimeString());
 
             // set default properties
-            Properties["tstamp.date"] = now.ToString("yyyyMMdd");
-            Properties["tstamp.time"] = now.ToString("HHmm");
-            Properties["tstamp.now"] = now.ToString();
+            Properties["tstamp.date"] = now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            Properties["tstamp.time"] = now.ToString("HHmm", CultureInfo.InvariantCulture);
+            Properties["tstamp.now"] = now.ToString(CultureInfo.InvariantCulture);
 
             // set custom property
             if (_property != null && _pattern != null) {
-                Properties[_property] = now.ToString(_pattern);
-                Log.WriteLineIf(Verbose, LogPrefix + _property + " = " + Properties[_property].ToString());
+                Properties[_property] = now.ToString(_pattern, CultureInfo.InvariantCulture);
+                Log.WriteLineIf(Verbose, LogPrefix + _property + " = " + Properties[_property].ToString(CultureInfo.InvariantCulture));
             }
 
             // set properties set in formatters nested elements
-            foreach (FormatterElement f in _formatterElements) {
-                Properties[f.Property] = now.ToString(f.Pattern);
-                Log.WriteLineIf(Verbose, LogPrefix + f.Property + " = " + Properties[f.Property].ToString());
-            }
-
-        }
-
-        class FormatterElementCollection : ArrayList {
-        }
-
-        [ElementName("formatter")]
-        public class FormatterElement : Element {
-            string _property;
-            string _pattern;
-
-            /// <summary>The property to set.</summary>       
-            [TaskAttribute("property", Required=true)]
-            public string Property {
-                get { return _property; }
-                set { _property= value; }
-            }
-
-            /// <summary>The string pattern to use to format the property.</summary>       
-            [TaskAttribute("pattern", Required=true)]
-            public string Pattern {
-                get { return _pattern; }
-                set { _pattern= value; }
+            foreach (TimestampFormatterElement f in _timestampFormatterElements) {
+                Properties[f.Property] = now.ToString(f.Pattern, CultureInfo.InvariantCulture);
+                Log.WriteLineIf(Verbose, LogPrefix + f.Property + " = " + Properties[f.Property].ToString(CultureInfo.InvariantCulture));
             }
         }
+
+        #endregion Override implementation of Task
+
+        private class TimestampFormatterElementCollection : ArrayList {
+        }
+
+    }
+
+    [ElementName("formatter")]
+    public class TimestampFormatterElement : Element {
+        #region Private Instance Fields
+
+        string _property;
+        string _pattern;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The property to set.
+        /// </summary>       
+        [TaskAttribute("property", Required=true)]
+        public string Property {
+            get { return _property; }
+            set { _property= value; }
+        }
+
+        /// <summary>
+        /// The string pattern to use to format the property.
+        /// </summary>       
+        [TaskAttribute("pattern", Required=true)]
+        public string Pattern {
+            get { return _pattern; }
+            set { _pattern= value; }
+        }
+
+        #endregion Public Instance Properties
     }
 }
