@@ -262,8 +262,10 @@
         <delete>
             <fileset basedir="${build.dir}/bin">
                 <includes name="*.Tests.*" />
-                <includes name="NDoc.Documenter.NAnt" />
                 <includes name="NAnt.Console.*" />
+
+                <!-- do not remove this test assembly as its needed by NAntContrib -->
+                <excludes name="NAnt.Core.Tests.dll" />                
             </fileset>
         </delete>
 
