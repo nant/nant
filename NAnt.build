@@ -551,20 +551,13 @@
         <zip zipfile="${project.zip-path.src}" ziplevel="9">
             <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
                 <include name="Makefile" />
+                <include name="Makefile.nmake" />                
                 <include name="NAnt.build" />
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
-                <!-- NAnt assemblies necessary for bootstrap -->
-                <include name="bin/NAnt.exe" />
-                <include name="bin/NAnt.exe.config" />
-                <include name="bin/NAnt.Core.dll" />
-                <include name="bin/NAnt.DotNetTasks.dll" />
-                <include name="bin/NAnt.Win32Tasks.dll" />
-                <include name="bin/NAnt.CompressionTasks.dll" />
                 <!-- third party assemblies -->
-                <include name="bin/log4net.dll" />
-                <include name="bin/lib/**/*" />
+                <include name="lib/**/*" />
                 <!-- license & release notes -->
                 <include name="doc/*" />
                 <!-- user manual (no SDK) -->
@@ -585,20 +578,13 @@
         <tar destfile="${project.gzip-path.src}" compression="GZip">
             <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
                 <include name="Makefile" />
+                <include name="Makefile.nmake" />
                 <include name="NAnt.build" />
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
-                <!-- assemblies necessary for bootstrap -->
-                <include name="bin/NAnt.exe" />
-                <include name="bin/NAnt.exe.config" />
-                <include name="bin/NAnt.Core.dll" />
-                <include name="bin/NAnt.DotNetTasks.dll" />
-                <include name="bin/NAnt.Win32Tasks.dll" />
-                <include name="bin/NAnt.CompressionTasks.dll" />
                 <!-- third party assemblies -->
-                <include name="bin/log4net.dll" />
-                <include name="bin/lib/**/*" />
+                <include name="lib/**/*" />
                 <!-- license & release notes -->
                 <include name="doc/*" />
                 <!-- user manual (no SDK) -->
