@@ -203,29 +203,31 @@ namespace NAnt.DotNet.Tasks {
                     Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", Resources.FileNames.Count, OutputFile.FullName);
 
                     // write output target
-                    writer.Write(" /target:{0}", OutputTarget);
+                    writer.WriteLine("/target:\"{0}\"", OutputTarget);
 
                     // write output file
-                    writer.Write(" /out:\"{0}\"", OutputFile.FullName);
+                    writer.WriteLine("/out:\"{0}\"", OutputFile.FullName);
 
+                    // write culture associated with output assembly
                     if (Culture != null) {
-                        writer.Write(" /culture:{0}", Culture);
+                        writer.WriteLine("/culture:\"{0}\"", Culture);
                     }
                     
-                    // suppresses display of the sign-on banner                    
-                    writer.Write(" /nologo" );
+                    // suppresses display of the sign-on banner
+                    writer.WriteLine("/nologo");
                     
+                    // write path to template assembly
                     if (TemplateFile != null) {
-                        writer.Write(" /template:\"{0}\"", TemplateFile.FullName);
+                        writer.WriteLine("/template:\"{0}\"", TemplateFile.FullName);
                     }
 
                     if (KeyFile != null) {
-                        writer.Write(" /keyfile:\"{0}\"", KeyFile.FullName);
+                        writer.WriteLine("/keyfile:\"{0}\"", KeyFile.FullName);
                     }
 
                     // write embedded resources to response file
                     foreach (string resourceFile in Resources.FileNames) {
-                        writer.Write(" /embed:\"{0}\"", resourceFile);
+                        writer.WriteLine("/embed:\"{0}\"", resourceFile);
                     }
 
                     // make sure to close the response file otherwise contents
@@ -300,12 +302,17 @@ namespace NAnt.DotNet.Tasks {
             foreach (Argument argument in Arguments) {
                 if (argument.IfDefined && !argument.UnlessDefined) {
                     string argumentValue = argument.Value;
+                    // check whether argument specifies resource file to embed
                     if (argumentValue != null && (argumentValue.StartsWith("/embed:") || argumentValue.StartsWith("/embedresource:"))) {
+                        // determine path to resource file
                         string path = argumentValue.Substring(argumentValue.IndexOf(':') + 1);
                         int indexOfComma = path.IndexOf(',');
                         if (indexOfComma != -1) {
                             path = path.Substring(0, indexOfComma);
                         }
+                        // resolve path to full path (relative to project base dir)
+                        path = Project.GetFullPath(path);
+                        // add path to collection of resource files
                         embeddedResourceFiles.Add(path);
                     }
                 }
