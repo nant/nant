@@ -147,6 +147,29 @@ reefer.maddness",
             Assertion.AssertEquals(3, _fileSet.FileNames.Count);
         }
 
+        [Test]
+        public void Test_NewestFile() {
+            string file1 = this.CreateTempFile("testfile1.txt", "hellow");
+            string file2 = this.CreateTempFile("testfile2.txt", "hellow");
+            string file3 = this.CreateTempFile("testfile3.txt", "hellow");
+            string file4 = this.CreateTempFile("testfile4.txt", "hellow");
+
+            //file1 was created first, but we will set the time in the future.
+            FileInfo f1 = new FileInfo(file1);
+            f1.LastWriteTime = DateTime.Now.AddDays(2);
+
+            FileSet fs = new FileSet();
+            fs.Includes.Add(file1);
+            fs.Includes.Add(file2);
+            fs.Includes.Add(file3);
+            fs.Includes.Add(file4);
+
+            FileInfo newestfile = fs.MostRecentLastWriteTimeFile;
+
+            Assertion.Assert(string.Format("Most Recent File should be '{0}', but was '{1}'", f1.Name, newestfile.Name), f1.FullName == newestfile.FullName);
+
+        }
+
         void AssertMatch(string fileName) 
         {
             AssertMatch(fileName, true);

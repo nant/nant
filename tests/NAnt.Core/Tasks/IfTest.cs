@@ -48,7 +48,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
-            Assertion.Assert(result.IndexOf("is same/newer than") != -1);
+            Assertion.Assert(result, result.IndexOf("is same/newer than") != -1);
         }
         
         [Test]
@@ -60,7 +60,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
-            Assertion.Assert(result.IndexOf("is not same/newer than") == -1);
+            Assertion.Assert(result, result.IndexOf("is not same/newer than") == -1);
         }
 
         [Test]
@@ -75,14 +75,17 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
-            Assertion.Assert(result.IndexOf("is same/newer than") != -1);
+            Assertion.Assert(result, result.IndexOf("is same/newer than") != -1);
         }
 
         [Test]
-        public void Test_IFNot_NewerFiles() {
+        public void Test_IFNot_NewerFilesUptodateFiles() {
             string _xml = @"
                     <project>
-                        <ifnot uptodatefile='{0}'>
+                        <ifnot >
+                            <uptodatefiles>
+                                <includes name='{0}'/>
+                            </uptodatefiles>
                             <comparefiles>
                                 <includes name='{1}'/>
                             </comparefiles>
@@ -90,8 +93,27 @@ namespace Tests.NAnt.Core.Tasks {
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
-            Assertion.Assert(result.IndexOf("is not same/newer than") == -1);
+            Assertion.Assert(result, result.IndexOf("is not same/newer than") == -1);
         }
+
+        [Test]
+        public void Test_IFNot_NewerFilesUptodateFilesWithWildcard() {
+            string _xml = @"
+                    <project>
+                        <ifnot >
+                            <uptodatefiles>
+                                <includes name='{0}'/>
+                            </uptodatefiles>
+                            <comparefiles>
+                                <includes name='{1}'/>
+                            </comparefiles>
+                            <echo message='{0} is not same/newer than {1}'/>
+                        </ifnot>
+                    </project>";
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, (new FileInfo(_newFile)).Directory.FullName + "\\*", _oldFile));
+            Assertion.Assert(result, result.IndexOf("is not same/newer than") == -1);
+        }
+
 
         [Test]
         public void Test_IF_PropExists_Positive() {
@@ -104,7 +126,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("line=hi") != -1);
+            Assertion.Assert(result, result.IndexOf("line=hi") != -1);
         }
 
         [Test]
@@ -117,7 +139,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("line=") == -1);
+            Assertion.Assert(result, result.IndexOf("line=") == -1);
         }
 
         [Test]
@@ -131,7 +153,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("Hello") != -1);
+            Assertion.Assert(result, result.IndexOf("Hello") != -1);
         }
 
         [Test]
@@ -145,7 +167,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("Hello") == -1);
+            Assertion.Assert(result, result.IndexOf("Hello") == -1);
         }
         
         [Test]
@@ -161,7 +183,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("called") != -1);
+            Assertion.Assert(result, result.IndexOf("called") != -1);
         }
 
         [Test]
@@ -174,7 +196,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("failed") == -1);
+            Assertion.Assert(result, result.IndexOf("failed") == -1);
         }
    }
 }

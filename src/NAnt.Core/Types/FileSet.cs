@@ -242,6 +242,34 @@ namespace NAnt.Core.Types {
             }
         }
 
+
+        /// <summary>
+        /// Determines the most recently modified file in the fileset (by LastWriteTime of the <see cref="FileInfo"/>).
+        /// </summary>
+        /// <returns>
+        /// The <see cref="FileInfo"/> of the file that has the newest (closest to present) last write time.
+        /// </returns>
+        public FileInfo MostRecentLastWriteTimeFile {
+            get{
+                FileInfo newestFile = null;
+
+                foreach (string fileName in FileNames) {
+                    FileInfo fileInfo = new FileInfo(fileName);
+                    if(newestFile == null && fileInfo.Exists) {
+                        newestFile = fileInfo;
+                    }
+                    if (!fileInfo.Exists) {
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is not newer than {1})", fileName, newestFile));
+                        continue;
+                    }
+                    if (newestFile != null && fileInfo.LastWriteTime > newestFile.LastWriteTime) {
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, newestFile));
+                        newestFile = fileInfo;
+                    }
+                }
+                return newestFile;
+            }
+        }
         #endregion Public Instance Properties
 
         #region Override implementation of Element
@@ -306,7 +334,6 @@ namespace NAnt.Core.Types {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, "The fileset specified is empty after scanning '{0}' for: {1}", _scanner.BaseDirectory, _scanner.Includes.ToString()), Location);
             }
         }
-
         #endregion Public Instance Methods
 
         #region Public Static Methods
@@ -354,7 +381,7 @@ namespace NAnt.Core.Types {
             }
             return null;
         }
-
+        
         #endregion Public Static Methods
 
         // These classes provide a way of getting the Element task to initialize
@@ -474,6 +501,45 @@ namespace NAnt.Core.Types {
             }
 
             #endregion Override implementation of Element
+        }
+    
+        public override string ToString() {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            if(!_hasScanned){
+                sb.AppendFormat("Base path: {0}", _baseDirectory);
+                sb.Append(Environment.NewLine);
+                
+                sb.Append("AsIs:");
+                sb.Append(Environment.NewLine);
+                sb.Append(_asis.ToString());
+                sb.Append(Environment.NewLine);
+
+                sb.Append("Files:");
+                sb.Append(Environment.NewLine);
+                sb.Append(_scanner.ToString());
+                sb.Append(Environment.NewLine);
+
+                sb.Append("PathFiles:");
+                sb.Append(Environment.NewLine);
+                sb.Append(_pathFiles.ToString());
+                sb.Append(Environment.NewLine);
+
+            } else {
+                sb.Append("Files:");
+                sb.Append(Environment.NewLine);
+                foreach(string file in this.FileNames) {
+                    sb.Append(file);
+                    sb.Append(Environment.NewLine);
+                }
+                sb.Append("Dirs:");
+                sb.Append(Environment.NewLine);
+                foreach(string dir in this.DirectoryNames) {
+                    sb.Append(dir);
+                    sb.Append(Environment.NewLine);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

@@ -41,7 +41,7 @@ namespace NAnt.Core.Tasks {
     ///     <para>
     ///     The order of condition evaluation is, <see cref="TargetNameExists" />, 
     ///     <see cref="PropertyNameExists" />, <see cref="PropertyNameTrue" />, 
-    ///     <see cref="PrimaryFile" />.
+    ///     <see cref="UpToDateFile" />.
     ///     </para>
     /// </remarks>
     /// <example>
@@ -117,6 +117,20 @@ namespace NAnt.Core.Tasks {
     /// </if>
     ///     ]]>
     ///   </code>
+    ///   <para>or</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <if>
+    ///     <updatefiles>
+    ///         <includes name="myfile.dll" />
+    ///     </updatefiles>
+    ///     <comparefiles>
+    ///         <includes name="*.cs" />
+    ///     </comparefiles>
+    ///     <echo message="myfile.dll is newer/same-date as myfile.cs" />
+    /// </if>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("if")]
     public class IfTask : TaskContainer {
@@ -125,8 +139,8 @@ namespace NAnt.Core.Tasks {
         private string _propNameTrue = null;
         private string _propNameExists = null;
         private string _targetName = null;
-        private string _primaryFile = null;
         private FileSet _compareFiles = null;
+        private FileSet _uptodateFiles = null;
 
         #endregion Private Instance Fields
 
@@ -136,9 +150,12 @@ namespace NAnt.Core.Tasks {
         /// The file to compare if uptodate.
         /// </summary>
         [TaskAttribute("uptodatefile")]
-        public string PrimaryFile {
-            get { return (_primaryFile != null) ? Project.GetFullPath(_primaryFile) : null; }
-            set { _primaryFile = StringUtils.ConvertEmptyToNull(value); }
+        public string UpToDateFile {
+            set { 
+                if (_uptodateFiles == null) {
+                    _uptodateFiles = new FileSet();                    _uptodateFiles.Parent = this;                    _uptodateFiles.Project = this.Project;                    _uptodateFiles.FailOnEmpty = true;                }
+                _uptodateFiles.Includes.Add(value); 
+            }
         }
 
         /// <summary>
@@ -148,20 +165,30 @@ namespace NAnt.Core.Tasks {
         public string CompareFile {
             set { 
                 if (_compareFiles == null) {
-                    _compareFiles = new FileSet();                    _compareFiles.Parent = this;                    _compareFiles.Project = this.Project;                }
+                    _compareFiles = new FileSet();                    _compareFiles.Parent = this;                    _compareFiles.Project = this.Project;                    _compareFiles.FailOnEmpty=true;                }
                 _compareFiles.Includes.Add(value); 
             }
         }
 
         /// <summary>
         /// The <see cref="FileSet" /> that contains the comparison files for 
-        /// the <see cref="PrimaryFile" /> check.
+        /// the <see cref="UpToDateFile" />(s) check.
         /// </summary>
         [FileSet("comparefiles")]
         public FileSet CompareFiles {
             get { return _compareFiles; }
             set { _compareFiles = value; }
         } 
+        
+        /// <summary>
+        /// The <see cref="FileSet" /> that contains the uptodate files for 
+        /// the <see cref="CompareFile" />(s) check.
+        /// </summary>
+        [FileSet("uptodatefiles")]
+        public FileSet UpToDateFiles {
+            get { return _uptodateFiles; }
+            set { _uptodateFiles = value; }
+        }
 
         /// <summary>
         /// Used to test whether a property is true.
@@ -228,10 +255,11 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // check if file is up-to-date
-                if (PrimaryFile != null) {
-                    FileInfo primaryFile = new FileInfo(PrimaryFile);
-                    if (!primaryFile.Exists) {
+                if (UpToDateFiles != null) {
+                    FileInfo primaryFile = UpToDateFiles.MostRecentLastWriteTimeFile;
+                    if (primaryFile == null || !primaryFile.Exists) {
                         ret = false;
+                        Log(Level.Verbose, LogPrefix + "Uptodatefile(s) do(es) not exist.");
                     } else {
                         string newerFile = FileSet.FindMoreRecentLastWriteTime(_compareFiles.FileNames, primaryFile.LastWriteTime);
                         bool needsAnUpdate = (newerFile != null);
@@ -264,7 +292,7 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {            base.InitializeTask (taskNode);
-            //check that we have something to do.            if(PrimaryFile == null && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {                throw new BuildException(LogPrefix + " at least one if condition" +                    " must be set (propertytrue, targetexists, etc...):", Location);            }        }
+            //check that we have something to do.            if((UpToDateFiles == null || CompareFiles == null) && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {                throw new BuildException(LogPrefix + " at least one if condition" +                    " must be set (propertytrue, targetexists, etc...):", Location);            }        }
 
         #endregion Override implementation of Task
     }
