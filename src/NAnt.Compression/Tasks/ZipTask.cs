@@ -184,8 +184,18 @@ namespace NAnt.Zip.Tasks {
                         fStream.Read(buffer, 0, buffer.Length);
                         fStream.Close();
                         
+                        // the name of the zip entry
+                        string entryName;
+
                         // determine name of the zip entry
-                        string entryName = file.Substring(basePath.Length + 1);
+                        if (file.StartsWith(basePath)) {
+                            entryName = file.Substring(basePath.Length);
+                            if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
+                                entryName = entryName.Substring(1);
+                            }
+                        } else {
+                            entryName = Path.GetFileName(file);
+                        }
 
                         // create zip entry
                         ZipEntry entry = new ZipEntry(entryName);
