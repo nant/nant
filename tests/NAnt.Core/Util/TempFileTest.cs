@@ -33,11 +33,13 @@ namespace Tests.NAnt.Core.Util {
             string fileName = TempFile.Create();
             Assertion.Assert(fileName + " does not exists.", File.Exists(fileName));
 
-            TimeSpan diff = DateTime.Now - File.GetCreationTime(fileName);
-            Assertion.Assert("Creation time should be less than 10 seconds ago.", diff.TotalSeconds < 10.0);
-
-            File.Delete(fileName);
-            Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
+            try {
+                TimeSpan diff = DateTime.Now - File.GetCreationTime(fileName);
+                Assertion.Assert("Creation time should be less than 10 seconds ago.", diff.TotalSeconds < 10.0);
+            } finally {
+                File.Delete(fileName);
+                Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
+            }
         }
 
         [Test]
@@ -53,12 +55,15 @@ namespace Tests.NAnt.Core.Util {
         public void Test_Create_WithContents() {
             string expected = string.Format(CultureInfo.InvariantCulture, "Line 1{0}Line Two{0}{0}Line Three", Environment.NewLine);
             string fileName = TempFile.CreateWithContents(expected);
-            string actual = TempFile.Read(fileName);
-            Assertion.AssertEquals(expected, actual);
 
-            // delete the temp file
-            File.Delete(fileName);
-            Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
+            try {
+                string actual = TempFile.Read(fileName);
+                Assertion.AssertEquals(expected, actual);
+            } finally {
+                // delete the temp file
+                File.Delete(fileName);
+                Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
+            }
         }
     }
 }
