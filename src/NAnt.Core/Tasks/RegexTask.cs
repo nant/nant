@@ -140,7 +140,16 @@ namespace NAnt.Core.Tasks {
         /// Executes the task.
         /// </summary>
         protected override void ExecuteTask() {
-            Regex regex = new Regex(Pattern, Options);
+            Regex regex = null;
+
+            try {
+                regex = new Regex(Pattern, Options);
+            } catch (ArgumentException ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Invalid value \"{0}\" for \"pattern\" attribute.", Pattern),
+                    Location, ex);
+            }
+
             Match match = regex.Match(Input);
 
             if (match.Groups.Count == 0) {
