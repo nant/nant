@@ -60,6 +60,18 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Gets the current working directory.
+        /// </summary>
+        /// <value>
+        /// A <see cref="string" /> containing the path of the current working 
+        /// directory.
+        /// </value>
+        [Function("get-current-directory")]
+        public static string GetCurrentDirectory() {
+            return Directory.GetCurrentDirectory();
+        }
+
+        /// <summary>
         /// Returns the date and time the specified directory was last written to.
         /// </summary>
         /// <param name="path">The directory for which to obtain write date and time information.</param>
