@@ -18,17 +18,16 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
 
-using System;
-
-using SourceForge.NAnt.Attributes;
-using System.IO;
-using System.Globalization;
-using System.Reflection;
-using System.Text;
-using System.Xml;
-
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Reflection;
+    using System.Text;
+    using System.Xml;
+
+    using SourceForge.NAnt.Attributes;
 
     /// <summary>Tell Nant to load a tasks form a given assembly or all assemblies in given directories.</summary>
     /// <remarks></remarks>
@@ -65,45 +64,37 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("loadtasks")]
     public class LoadTasksTask : Task {
+        #region Private Instance Fields
 
         string _assembly = null;
         string _path = null;
-        string _toDirectory = null;
-        bool _overwrite = false;
-    
         FileSet _fileset = new FileSet();        
+
+        #endregion Private Instance Fields
         
-        #region Public Attribute Properties
+        #region Public Instance Properties
+
         /// <summary>An assembly to load tasks from.</summary>
         [TaskAttribute("assembly")]
-        public string AssemblyPath        { get { return _assembly; } set {_assembly = value; } }
+        public string AssemblyPath      { get { return _assembly; } set {_assembly = value; } }
 
         /// <summary>A directory to scan for task assemblies.</summary>
         [TaskAttribute("path")]
-        public string Path            { get { return _path; } set {_path = value; } }
+        public string Path              { get { return _path; } set {_path = value; } }
         
          /// <summary>Filesets are used to select which directories or individual assemblies to scan.</summary>
         [FileSet("fileset")]
         public FileSet TaskFileSet      { get { return _fileset; } }
         
-        #endregion
-        /// <summary>
-        ///  Validate eAttributes
-        /// </summary>        
-        protected  void ValidateAttributes(){ 
-            //verify that our params are correct
-            if ( AssemblyPath != null  && (Path != null) ){
-                string msg = "Both asssembly  and path attributes are set. Use one or the other.";
-                throw new BuildException( msg, Location );
-            }
-        }
+        #endregion Public Instance Properties
+
+        #region Override implemenation of Task
         
         /// <summary>
         /// Executes the Load Tasks task.
         /// </summary>
         /// <exception cref="BuildException">A file that has to be copied does not exist or could not be copied.</exception>
         protected override void ExecuteTask() {
-            
             ValidateAttributes();
             // single file case
             if ( AssemblyPath != null ) {
@@ -121,15 +112,33 @@ namespace SourceForge.NAnt.Tasks {
                 TaskFileSet.DirectoryNames.Add( Project.GetFullPath( Path ) );
             }
             // process the fileset
-            foreach ( string assemblyPath in TaskFileSet.FileNames){
+            foreach (string assemblyPath in TaskFileSet.FileNames) {
                 Log.WriteLine( LogPrefix + "Loading Tasks from Assembly {0}", assemblyPath );
                 TaskFactory.AddTasks( Assembly.LoadFrom(assemblyPath) );
             }
             // now the filenames
-            foreach ( string scanPath in TaskFileSet.DirectoryNames ){
+            foreach (string scanPath in TaskFileSet.DirectoryNames) {
                 Log.WriteLine( LogPrefix + "Scanning directory {0} for task assemblies", scanPath );
                 TaskFactory.ScanDir( scanPath );
             }            
         }
+
+        #endregion Override implemenation of Task
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Validates the attributes.
+        /// </summary>        
+        /// <exception cref="BuildException">Both <see cref="AssemblyPath" /> and <see cref="Path" /> are set.</exception>
+        protected void ValidateAttributes(){ 
+            //verify that our params are correct
+            if (AssemblyPath != null  && Path != null) {
+                string msg = "Both asssembly and path attributes are set. Use one or the other.";
+                throw new BuildException(msg, Location);
+            }
+        }
+
+        #endregion Protected Instance Methods
     }
 }
