@@ -22,6 +22,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
@@ -269,7 +270,7 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             if (NoConfig && !Arguments.Contains("/noconfig")) {
-                Arguments.Add(new ProgramArgument("/noconfig"));
+                Arguments.Add(new Argument("/noconfig"));
             }
         }
 

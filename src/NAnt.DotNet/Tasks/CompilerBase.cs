@@ -24,6 +24,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
@@ -388,7 +389,7 @@ namespace SourceForge.NAnt.Tasks {
  
             // check the args for /res or /resource options.
             StringCollection resourceFileNames = new StringCollection();
-            foreach (ProgramArgument argument in Arguments) {
+            foreach (Argument argument in Arguments) {
                 if (argument.IfDefined && !argument.UnlessDefined) {
                     string argumentValue = argument.Value;
                     if (argumentValue != null && (argumentValue.StartsWith("/res:") || argumentValue.StartsWith("/resource:"))) {
