@@ -103,13 +103,13 @@ namespace NAnt.Core.Tasks {
             // single file case
             if (AssemblyPath != null) {
                 if (!File.Exists(Project.GetFullPath(AssemblyPath))) {
-                    string msg = String.Format(CultureInfo.InvariantCulture,"assembly {0} does not exist. Can't scan for tasks", AssemblyPath);
+                    string msg = String.Format(CultureInfo.InvariantCulture,"Assembly {0} does not exist. Can't scan for tasks.", AssemblyPath);
                     throw new BuildException(msg, Location);
                 }  
                 TaskFileSet.FileNames.Add(Project.GetFullPath(AssemblyPath));
             } else if (Path != null) {
                 if (!Directory.Exists(Project.GetFullPath(Path))) {
-                    string msg = String.Format(CultureInfo.InvariantCulture,"Path {0} does not exist. Can't scan for tasks", Path);
+                    string msg = String.Format(CultureInfo.InvariantCulture,"Path {0} does not exist. Can't scan for tasks.", Path);
                     throw new BuildException(msg, Location);
                 }
                 TaskFileSet.DirectoryNames.Add(Project.GetFullPath(Path));
