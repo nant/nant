@@ -22,7 +22,7 @@
 using System;
 using System.Reflection;
 
-// Mark NAnt.DotNetTasks CLS compliant
+// Mark NAnt.VSNetTasks CLS compliant
 [assembly: CLSCompliant(true)]
 
 // This will not compile with Visual Studio.  If you want to build a signed
