@@ -155,7 +155,6 @@ namespace SourceForge.NAnt.Tasks {
                     Log.WriteLine(errors);
                     Log.IndentLevel = indentLevel;
                 }
-
                 */
 
                 // wait for program to exit
@@ -166,13 +165,10 @@ namespace SourceForge.NAnt.Tasks {
                         int indentLevel = Log.IndentLevel;
                         Log.IndentLevel = 0;
                         
-                        if (process.ExitCode == 0)
-                        {
-                        	Log.WriteLine(output);
-                        }
-                        else
-                        {
-                        	Log.WriteMessage(output, "compilerError");
+                        if (process.ExitCode == 0) {
+                            Log.WriteLine(output);
+                        } else {
+                            throw new BuildException("External program returned errors, see build log for details.\n" + output, Location);
                         }
                         Log.IndentLevel = indentLevel;
                     } else if (OutputFile != "") {
@@ -181,13 +177,14 @@ namespace SourceForge.NAnt.Tasks {
                         writer.Close();
                     }
                 }
+            } catch (BuildException e) {
+                if (FailOnError) {
+                    throw;
+                } else {
+                    Log.WriteLine(e.Message, "error");
+                }
             } catch (Exception e) {
                 throw new BuildException(this.GetType().ToString() + ": Error during external program execution (" + ProgramFileName + "), see build log for details.", Location, e);
-            }
-
-            // Keep the FailOnError check to prevent programs that return non-zero even if they are not returning errors.
-            if (FailOnError && process!= null && process.ExitCode != 0) {
-                throw new BuildException("External program returned errors, see build log for details.", Location);
             }
         }
     }

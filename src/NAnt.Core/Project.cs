@@ -457,22 +457,18 @@ namespace SourceForge.NAnt {
                 return true;
 
             } catch (BuildException e) {
-                Log.WriteLine();
-                Log.WriteLine("BUILD FAILED");
-                Log.WriteLine(e.Message);
+                string message = "\nBUILD FAILED\n" + e.Message;
                 if (e.InnerException != null) {
-                    Log.WriteLine(e.InnerException.Message);
+                    message += e.InnerException.Message; 
                 }
+                Log.WriteMessage(message, "error");
                 success = false;
                 return false;
 
             } catch (Exception e) {
                 // all other exceptions should have been caught
-                Log.WriteLine();
-                Log.WriteLine("INTERNAL ERROR");
-                Log.WriteLine(e.ToString());
-                Log.WriteLine();
-                Log.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
+                string message = "\nINTERNAL ERROR\n" + e.ToString() + "\nPlease send bug report to nant-developers@lists.sourceforge.net";
+                Log.WriteMessage(message, "error");
                 success = false;
                 return false;
             }

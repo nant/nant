@@ -97,7 +97,7 @@ namespace SourceForge.NAnt {
                     ExecuteTask();
                 } catch (Exception e) {
                     if (FailOnError) {
-                        throw e;
+                        throw;
                     } else {
                         Log.WriteLine(e.Message);
                         if (e.InnerException != null) {

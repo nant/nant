@@ -32,7 +32,6 @@ namespace SourceForge.NAnt.Tests {
         public XmlLoggerTest(string name) : base(name) { }
 		
         protected override void SetUp() {
-		
             _log = CreateXmlLogger();
         }
 	

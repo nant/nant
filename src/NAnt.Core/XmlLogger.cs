@@ -62,7 +62,8 @@ namespace SourceForge.NAnt {
             Regex r = new Regex(@"(?ms)^\s*?\[[\s\w\d]+\](.+)");
 
             Match m = r.Match(message);
-            if(m.Success) {
+            if(m.Success) 
+            {
                 return m.Groups[1].Captures[0].Value.Trim();
             }
             return message;
@@ -84,17 +85,26 @@ namespace SourceForge.NAnt {
             WriteLine(message, null);
         }
         
-        public override void WriteLine(string message, string messageType) {
+        public override void WriteLine(string message, string messageType) 
+        {
             string rawMessage = StripFormatting(message.Trim());
             if (IsJustWhiteSpace(rawMessage)) {
                 return;
             }
-            else if (IsValidXml(rawMessage)) {
-                WriteXmlMessage(rawMessage, messageType);
+            
+            _xmlWriter.WriteStartElement(Elements.MESSAGE);
+
+            if (messageType != null && messageType != String.Empty) {
+                _xmlWriter.WriteAttributeString(Attributes.MESSAGETYPE, messageType);
             }
-            else {
-                WriteTextMessage(rawMessage);
+            
+            if (IsValidXml(rawMessage)) {
+                rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", String.Empty);
+                _xmlWriter.WriteRaw(rawMessage);
+            } else {
+                _xmlWriter.WriteCData(StripCData(rawMessage));
             }
+            _xmlWriter.WriteEndElement();
             _xmlWriter.Flush();
         }
 
@@ -109,25 +119,7 @@ namespace SourceForge.NAnt {
             }
             return false;
         }
-		
-        private void WriteXmlMessage(string message, string messageType) {
-            message = Regex.Replace(message, @"<\?.*\?>", String.Empty);
-
-            _xmlWriter.WriteStartElement(Elements.MESSAGE);
-
-            if (messageType != null && messageType != String.Empty) {
-                _xmlWriter.WriteAttributeString(Attributes.MESSAGETYPE, messageType);
-            }
-            _xmlWriter.WriteRaw(message);
-            _xmlWriter.WriteEndElement();
-        }
-
-        private void WriteTextMessage(string message) {
-            _xmlWriter.WriteStartElement(Elements.MESSAGE);
-            _xmlWriter.WriteCData(StripCData(message));
-            _xmlWriter.WriteEndElement();
-        }
-
+        
         private string StripCData(string message) {
             string strippedMessage = Regex.Replace(message, @"<!\[CDATA\[", String.Empty);
             return Regex.Replace(strippedMessage, @"\]\]>", String.Empty);
