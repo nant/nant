@@ -19,10 +19,11 @@
 
 using System;
 
-using ICSharpCode.SharpCvsLib.Commands;
+using ICSharpCode.SharpCvsLib.Util;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -51,34 +52,23 @@ namespace NAnt.SourceControl.Tasks {
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     password="" 
-    ///     module="nant">
-    ///     <options>
-    ///         <option name="sticky-tag" value="your_favorite_revision_here" />
-    ///         <option name="override-directory" value="replacement_for_module_directory_name" />
-    ///     </options>
+    ///     module="nant"
+    ///     revision="your_favorite_revision_here"
+    ///     overridedir="replacement_for_module_directory_name">
     /// </cvs-checkout>
     ///     ]]>
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>
-    ///   Checkout NAnt revision named <c>your_favorite_revision_here</c> to the 
-    ///   folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
-    ///   </para>
-    ///   <code>
-    ///     <![CDATA[
     /// <cvs-checkout 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     password="" 
-    ///     module="nant">
-    ///     <options>
-    ///         <option name="-r" value="your_favorite_revision_here" />
-    ///         <option name="-d" value="replacement_for_module_directory_name" />
-    ///     </options>
+    ///     module="nant"
+    ///     date="2003/08/16"
+    ///     overridedir="2003_08_16"
+    ///     usesharpcvslib="false">
     /// </cvs-checkout>
-    ///     ]]>
-    ///   </code>
     /// </example>
     [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
@@ -99,5 +89,38 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Specify the revision to checkout.
+        /// </summary>
+        [TaskAttribute("revision", Required=false)]
+        [BooleanValidator()]
+        public string Revision {
+            get {return ((Option)this.CommandOptions["revision"]).Value;}
+            set {this.SetCommandOption("revision", String.Format("r {0}", value), true);}
+        }
+
+        /// <summary>
+        /// Specify the revision to checkout.
+        /// </summary>
+        [TaskAttribute("overridedir", Required=false)]
+        public string OverrideDir {
+            get {return ((Option)this.CommandOptions["overridedir"]).Value;}
+            set {this.SetCommandOption("overridedir", String.Format("d{0}", value), true);}
+        }
+
+        /// <summary>
+        /// Specify the revision to checkout.
+        /// </summary>
+        [TaskAttribute("date", Required=false)]
+        [DateTimeValidator()]
+        public DateTime Date {
+            get {return Convert.ToDateTime(((Option)this.CommandOptions["date"]).Value);}
+            set {this.SetCommandOption("date", String.Format("D {0}", DateParser.GetCvsDateString(value)), true);}
+        }
+
+        #endregion
     }
 }

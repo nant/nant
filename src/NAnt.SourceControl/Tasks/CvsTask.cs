@@ -66,6 +66,5 @@ namespace NAnt.SourceControl.Tasks {
         }
 
 		#endregion
-
 	}
 }
