@@ -59,7 +59,6 @@
         <!-- copy framework-neutral libraries -->
         <copy todir="${build.dir}/bin">
             <fileset basedir="lib">
-                <includes name="nunit.framework.dll" />
                 <includes name="NUnitCore.dll" />
                 <includes name="ICSharpCode.SharpZipLib.dll" />
                 <includes name="ICSharpCode.SharpCvsLib.dll" />
@@ -71,6 +70,7 @@
             <fileset basedir="${lib.dir}">
                 <includes name="NDoc.Core.dll" />
                 <includes name="NDoc.Documenter.Msdn.dll" />
+                <includes name="nunit.framework.dll" />
                 <includes name="log4net.dll"/>
             </fileset>
         </copy>

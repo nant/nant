@@ -65,9 +65,9 @@ namespace NAnt.NUnit2.Tasks {
             try {
                 RemoteTestRunner runner = CreateTestRunner(domain);
                 if (testcase != null) {
-                    runner.Initialize(testcase, assemblyFile);
+                    runner.TestFileName = assemblyFile;
                 } else {
-                    runner.Initialize(assemblyFile);
+                    runner.TestFileName = assemblyFile;
                 }
                 runner.BuildSuite(); 
                 return runner.Run(listener, _outStream, _errorStream);
