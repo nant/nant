@@ -56,7 +56,8 @@ namespace NAnt.NUnit2.Tasks {
         /// </returns>
         public TestResult RunTest(string testcase, FileInfo assemblyFile, FileInfo configFile, EventListener listener) {
             // create test domain
-            AppDomain domain = CreateDomain(assemblyFile.Directory, configFile);
+            AppDomain domain = CreateDomain(assemblyFile.Directory, assemblyFile, 
+                configFile);
 
             // assemble directories which can be probed for missing unresolved 
             // assembly references
@@ -122,13 +123,25 @@ namespace NAnt.NUnit2.Tasks {
 
         #region Private Instance Methods
 
-        private AppDomain CreateDomain(DirectoryInfo basedir, FileInfo configFile) {
+        private AppDomain CreateDomain(DirectoryInfo basedir, FileInfo assemblyFile, FileInfo configFile) {
             // spawn new domain in specified directory
             AppDomainSetup domSetup = new AppDomainSetup();
             domSetup.ApplicationBase = basedir.FullName;
+
+            // use explicitly specified configuration file, or fall back to
+            // configuration file for given assembly file
+            string configurationFile = null;
             if (configFile != null) {
+                configurationFile = configFile.FullName;                    
+            } else {
+                configurationFile = Path.Combine(assemblyFile.FullName, ".config");
+            }
+
+            // only set configuration file if it actually exists
+            if (File.Exists(configurationFile)) {
                 domSetup.ConfigurationFile = configFile.FullName;
             }
+                
             domSetup.ApplicationName = "NAnt NUnit Remote Domain";
          
             return AppDomain.CreateDomain( 

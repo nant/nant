@@ -40,7 +40,7 @@ namespace NAnt.NUnit2.Types {
         private string _testname;
         private bool _haltOnFailure = true;
         private FileInfo _xsltFile;
-        private FileSet _assemblies = new FileSet();
+        private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileInfo _appConfigFile;
 
         #endregion Private Instance Fields
@@ -70,7 +70,7 @@ namespace NAnt.NUnit2.Types {
         /// Assemblies to include in test.
         /// </summary>
         [BuildElement("assemblies")]
-        public FileSet Assemblies {
+        public AssemblyFileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
         }
@@ -97,6 +97,8 @@ namespace NAnt.NUnit2.Types {
 
         /// <summary>
         /// The application configuration file to use for the NUnit test domain.
+        /// If not specified, NAnt will try to use a configuration name matching
+        /// the file name of the assembly with extension ".config".
         /// </summary>
         [TaskAttribute("appconfig")]
         public FileInfo AppConfigFile {
@@ -117,22 +119,6 @@ namespace NAnt.NUnit2.Types {
                 if (AssemblyFile != null) {
                     files.Add(AssemblyFile.FullName);
                 } else {
-                    // fix references to system assemblies
-                    if (Project.TargetFramework != null) {
-                        foreach (string pattern in Assemblies.Includes) {
-                            if (Path.GetFileName(pattern) == pattern) {
-                                string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                                string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
-                                string fullPath = Path.Combine(frameworkDir, pattern);
-
-                                if (!File.Exists(localPath) && File.Exists(fullPath)) {
-                                    // found a system reference
-                                    Assemblies.FileNames.Add(fullPath);
-                                }
-                            }
-                        }
-                    }
-
                     files = Assemblies.FileNames;
                 }
 
