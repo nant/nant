@@ -225,7 +225,7 @@ namespace NAnt.VSNet {
             string inFile = _resourceSourceFile;
             string outFile;
             
-            if (_dependentFile != null) {
+            if (!StringUtils.IsNullOrEmpty(_dependentFile)) {
                 outFile = GetDependentResourceName(_dependentFile);
             } else {
                 StringBuilder sb = new StringBuilder();
