@@ -58,6 +58,9 @@ namespace NAnt.VSNet.Tasks {
     /// this to a project dependency on project B and will reference the appropriate configuration output
     /// directory at the final build time (ie: reference the debug version of B if the solution is built as debug).
     /// </para>
+    /// <note>
+    /// Only VS.NET 2002 and VS.NET 2003 solutions are supported right now.
+    /// </note>
     /// </remarks>
     /// <example>
     ///   <para>
@@ -334,8 +337,6 @@ namespace NAnt.VSNet.Tasks {
         protected override void ExecuteTask() {
             Log(Level.Info, "Starting solution build.");
 
-            Solution sln;
-
             if (Projects.FileNames.Count > 0) {
                 Log(Level.Verbose, "Included projects:" );
                 foreach (string projectFile in Projects.FileNames) {
@@ -372,16 +373,8 @@ namespace NAnt.VSNet.Tasks {
                             typeof(ReferencesResolver).FullName).Unwrap());
 
                         using (GacCache gacCache = new GacCache(this.Project)) {
-                            // check if solution file was specified
-                            if (SolutionFile == null) {
-                                sln = new Solution(new ArrayList(Projects.FileNames), new ArrayList(ReferenceProjects.FileNames), tfc, 
-                                    this, WebMaps, ExcludeProjects, OutputDir, gacCache, referencesResolver);
-                            } else {
-                                sln = new Solution(SolutionFile, new ArrayList(Projects.FileNames), 
-                                    new ArrayList(ReferenceProjects.FileNames), tfc, this, 
-                                    WebMaps, ExcludeProjects, OutputDir, gacCache, referencesResolver);
-                            }
-
+							SolutionBase sln = SolutionFactory.LoadSolution(this, 
+								tfc, gacCache, referencesResolver);
                             if (!sln.Compile(Configuration)) {
                                 throw new BuildException("Project build failed.", Location);
                             }
