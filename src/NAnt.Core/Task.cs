@@ -323,18 +323,6 @@ namespace NAnt.Core {
 
         #region Protected Instance Methods
 
-        /// <summary>
-        /// Sets a string value ensuring that it will be <see langword="null" />
-        /// if an empty string is passed.
-        /// </summary>
-        protected string SetStringValue(string value) {
-            if (value != null && value.Trim().Length != 0) {
-                return value;
-            } else {
-                return null;
-            }
-        }
-        
         /// <summary><note>Deprecated (to be deleted).</note></summary>
         [Obsolete("Deprecated- Use InitializeTask instead")]
         protected override void InitializeElement(XmlNode elementNode) {
