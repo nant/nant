@@ -72,7 +72,8 @@ namespace NAnt.NUnit.Types {
         }
         
         /// <summary>
-        /// Determines whether output should be sent to a file.
+        /// Determines whether output should be persisted to a file. Default is
+        /// <c>false</c>.
         /// </summary> 
         [TaskAttribute("usefile", Required=false)]
         [BooleanValidator()]
