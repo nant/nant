@@ -767,7 +767,7 @@ namespace NAnt.Core {
                         } catch (ValidationException ve) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                                 "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
-                                attributeValue, attributeNode.Name, Name), Location, ve);
+                                attributeValue, attributeNode.Name, ElementXml.Name), Location, ve);
                         }
 
                         // create an attribute setter for the type of the property
