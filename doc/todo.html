@@ -9,29 +9,28 @@
 
 <body>
 	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
-		<tr><td class="NavBar-Cell" width="100%"><a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->"/> To Do</td></tr>
+		<tr><td class="NavBar-Cell" width="100%"><a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9"/> To Do</td></tr>
 	</table>
 
 	<h1><span class="N">N</span><span class="Ant">Ant</span> To Do</h1>
+	<p>The following is a rough guide to what features are being worked on and when they will be worked on in the future.</p>
+	<p>For a list of what is actively being worked refer to the <a title="SourceForge task manager for NAnt" href="https://sourceforge.net/pm/?group_id=31650">NAnt Task Manager</a> on SourceForge.</p>
 
 	<h3>0.2</h3>
 	<ul>
-		<li>validate build file for valid xml before starting build</li>
-		<li>validate build file using a schema before starting build</li>
+		<li>validate build file for valid xml and against a schema before starting build</li>
 		<li>add basedir attribute to target to override project basedir</li>
-		<li>standard project directory structure (see below)</li>
-		<li>build file that performs all actions from clean to package (use external zip program)</li>
-		<li>command line parsing using clippy (another tool I'm working on that will be posted soon)</li>
-		<li>clippy task</li>
+		<li>build file that performs all actions from clean to package (use external zip program). Should create a file called dist\nant-src-0.2.0.zip</li>
 	</ul>
 
 	<h3>0.3</h3>
 	<ul>
-		<li>proper use of properties (rather than public fields)</li>
+		<li>command line parsing using clippy (another tool I'm working on that will be posted soon)</li>
+		<li>clippy task (for command line parsing)</li>
 		<li>nunit tests</li>
 		<li>nunit task</li>
-		<li>massive code cleanup</li>
-		<li>design document</li>
+		<li>code xml docs for all non private members</li>
+		<li>developer docs (code conventions, how to use sourceforge, high level design)</li>
 		<li>post newsgroup announcment</li>
 		<li>request code review and project help</li>
 	</ul>
@@ -55,58 +54,6 @@
 	<ul>
 		<li>additional optional but useful tasks (sql, touch, email, xsl, grep)</li>
 	</ul>
-
-
-	<h2>Things to ponder...</h2>
-	<ul>
-		<li>A target is just a different kind of task - one that contains sub tasks, should this be explored more??</li>
-		<li>should the name be NAnt or Nant?  NAnt implies its true origins from Ant, but is a pain to type.  Ahhh if this was the only thing I needed to worry about :)</li>
-		<li>
-			change directory structure to something like this. Wait until I get a VS.NET<br>
-			<pre>
-ReadMe.html
-NAnt.build
-make.bat (calls bin\nant)
-bin\
-	Clippy.exe
-	NAnt.exe
-	zip.exe (Info-ZIP is a great free program)
-
-doc\
-	index.html
-	changelog.html
-	todo.html
-	license.html
-	style.css
-
-examples\
-
-lib\
-	Clip.netmodule
-
-src\
-	NAnt.Test\
-	NAnt\
-		bin\Debug <= results of build appear here
-		bin\Release <= results of build appear here
-		Tasks\
-			Optional\
-				NUnitTask.cs
-				ClippyTask.cs
-				ZipTask.cs
-
-- temp folders -
-build\
-	resulting files go here
-dist\
-	NAnt-0.0.1.bin.zip
-	NAnt-0.0.1.src.zip
-	src\
-	bin\
-			</pre>
-		</li>
-	</ul>
-
 </body>
 
 </html>

@@ -24,7 +24,7 @@ input {
 a:link		{ color: #0000cc; }
 a:visited	{ color: purple }
 a:active	{ color: #cc0000 }
-a:hover		{ color: #cc0000 }
+a:hover		{ color: #cc0000; }
 
 /*
 
