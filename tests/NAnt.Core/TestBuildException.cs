@@ -29,7 +29,7 @@ namespace Tests.NAnt.Core {
     public class TestBuildException : ApplicationException {
         #region Private Instance Fields
 
-        private string _buildResults = null;
+        private string _buildResults;
 
         #endregion Private Instance Fields
 
@@ -98,6 +98,18 @@ namespace Tests.NAnt.Core {
 
         #region Override implementation of ApplicationException
 
+        public override string Message {
+            get {
+                if (_buildResults == null || _buildResults.Length == 0) {
+                    return base.Message;
+                } else {
+                    return base.Message + Environment.NewLine + "Build Log:"
+                        + Environment.NewLine + _buildResults;
+                }
+            }
+        }
+
+
         /// <summary>
         /// Serializes this object into the <see cref="SerializationInfo" /> provided.
         /// </summary>
@@ -109,17 +121,6 @@ namespace Tests.NAnt.Core {
         }
 
         #endregion Override implementation of ApplicationException
-
-        #region Override implementation of Object
-        /// <summary>
-        /// Creates and returns a string representation of the current exception.
-        /// </summary>
-        /// <returns>
-        /// A string representation of the current exception.
-        /// </returns>
-        public override string ToString() {            return string.Format(CultureInfo.InvariantCulture, "{0}:{1}{2}{1}Build Log:{1}{3}",                 Message, Environment.NewLine, base.ToString(), _buildResults);        }
-
-        #endregion Override implementation of Object
     }
 }
 
