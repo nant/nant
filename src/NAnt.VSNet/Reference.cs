@@ -190,7 +190,8 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Gets the project which is referenced by this <see cref="Reference" />.
+        /// Gets or sets the project which is referenced by this 
+        /// <see cref="Reference" />.
         /// </summary>
         /// <value>
         /// The project which is referenced by this <see cref="Reference" />, or
@@ -198,6 +199,7 @@ namespace NAnt.VSNet {
         /// </value>
         public ProjectBase Project {
             get { return _project; }
+            set { _project = value; }
         }
 
         /// <summary>
