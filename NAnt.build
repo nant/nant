@@ -175,7 +175,7 @@
 
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
-        <csc target="library" warnaserror="true" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll" debug="${build.debug}">
+        <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
             <sources basedir="src/NDoc.Documenter.NAnt" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
