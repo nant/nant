@@ -190,6 +190,31 @@ namespace NAnt.Core.Functions {
             return fi.Length;
         }
 
+        /// <summary>
+        /// Gets the contents of a file.
+        /// </summary>
+        /// <param name="file">filename</param>
+        /// <returns>
+        /// The contents of a file named <paramref name="file" />.
+        /// </returns>
+        /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
+        /// <example>
+        ///   <para>Set a property to equal the contents of a file.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <property name="file-content" value="${file::get-content('build.date')}"/>
+        ///     ]]>
+        ///   </code>
+        /// </example>
+        [Function("get-content")]
+        public string ReadContent(string file) {
+            string content;
+            using (StreamReader streamReader = File.OpenText(Project.GetFullPath(file))) {
+                content = streamReader.ReadToEnd();
+            }
+            return content;
+        }
+
         #endregion Public Instance Methods
     }
 }
