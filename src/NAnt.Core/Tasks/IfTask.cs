@@ -216,7 +216,7 @@ namespace SourceForge.NAnt.Tasks {
                     else {
                         string newerFile = FileSet.FindMoreRecentLastWriteTime(_compareFiles.FileNames, primaryFile.LastWriteTime);
                         bool bNeedsAnUpdate = !(null == newerFile);
-                        Log.WriteLineIf(Project.Verbose && bNeedsAnUpdate, "{2}:{0) is newer than {1}. Excuting Embedded Tasks" , newerFile, primaryFile.Name, LogPrefix);
+                        Log.WriteLineIf(Project.Verbose && bNeedsAnUpdate, "{2}:{0} is newer than {1}. Excuting Embedded Tasks" , newerFile, primaryFile.Name, LogPrefix);
                         ret = ret && bNeedsAnUpdate;
                     }
                     if (!ret) return false;
