@@ -25,7 +25,8 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Util {
     /// <summary>
-    /// Provides modified version for Copy and Move from the File class that allow for filter chain processing.
+    /// Provides modified version for Copy and Move from the File class that 
+    /// allow for filter chain processing.
     /// </summary>
     public sealed class FileUtils {
         private FileUtils() {
@@ -34,16 +35,15 @@ namespace NAnt.Core.Util {
         /// <summary>
         /// Copies a file filtering its content through the filter chain.
         /// </summary>
-        /// <param name="sourceFileName">Pathname of file to copy</param>
-        /// <param name="destFileName">Pathname of file to copy to</param>
-        /// <param name="filterChain">Chain of filter to apply when copying. Null is allowed</param>
-        /// <param name="encoding">The character encoding to use.</param>
-        public static void CopyWithFilters(string sourceFileName, string destFileName, FilterChain filterChain, Encoding encoding) {
+        /// <param name="sourceFileName">The file to copy</param>
+        /// <param name="destFileName">The file to copy to</param>
+        /// <param name="filterChain">Chain of filters to apply when copying, or <see langword="null" /> is no filters should be applied.</param>
+        public static void CopyWithFilters(string sourceFileName, string destFileName, FilterChain filterChain) {
             if (filterChain == null || filterChain.Filters.Count == 0) {
                 File.Copy(sourceFileName, destFileName, true);
             } else {
                 // get base filter built on the file's reader. Use a 4k buffer.
-                using (StreamReader sourceFileReader = new StreamReader(sourceFileName, encoding, true, 4096)) {
+                using (StreamReader sourceFileReader = new StreamReader(sourceFileName, filterChain.Encoding, true, 4096)) {
                     Filter baseFilter = filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
 
                     // writer for destination file
@@ -66,15 +66,14 @@ namespace NAnt.Core.Util {
         /// <summary>
         /// Moves a file filtering its content through the filter chain.
         /// </summary>
-        /// <param name="sourceFileName">Pathname of file to move</param>
-        /// <param name="destFileName">Pathname of file to move to</param>
-        /// <param name="filterChain">Chain of filter to apply when moving. Null is allowed</param>
-        /// <param name="encoding">The character encoding to use.</param>
-        public static void MoveWithFilters(string sourceFileName, string destFileName, FilterChain filterChain, Encoding encoding) {
+        /// <param name="sourceFileName">The file to move</param>
+        /// <param name="destFileName">The file to move move to</param>
+        /// <param name="filterChain">Chain of filters to apply when moving, or <see langword="null" /> is no filters should be applied.</param>
+        public static void MoveWithFilters(string sourceFileName, string destFileName, FilterChain filterChain) {
             if (filterChain == null || filterChain.Filters.Count == 0) {
                 File.Move(sourceFileName, destFileName);
             } else {
-                CopyWithFilters(sourceFileName, destFileName, filterChain, encoding);
+                CopyWithFilters(sourceFileName, destFileName, filterChain);
                 File.Delete(sourceFileName);
             }
         }

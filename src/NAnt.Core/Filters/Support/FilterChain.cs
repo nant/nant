@@ -20,10 +20,12 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Filters;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Filters {
     /// <summary>
@@ -52,6 +54,7 @@ namespace NAnt.Core.Filters {
     public class FilterChain : DataTypeBase {
         #region Private Instance Fields
 
+        private string _encodingName;
         private FilterCollection _filters = new FilterCollection();
 
         #endregion Private Instance Fields
@@ -66,9 +69,53 @@ namespace NAnt.Core.Filters {
             get { return _filters; }
         }
 
+        /// <summary>
+        /// The encoding to assume when filter-copying files. The default is
+        /// UTF-8.
+        /// </summary>
+        [TaskAttribute("encoding")]
+        [StringValidator(AllowEmpty=false)]
+        public string EncodingName {
+            get { return _encodingName; }
+            set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Gets the encoding that will be used when filter-copying the files.
+        /// </summary>
+        public Encoding Encoding {
+            get { 
+                if (EncodingName != null) {
+                    return System.Text.Encoding.GetEncoding(EncodingName);
+                }
+
+                return Encoding.UTF8;
+            }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Element
+
+        /// <summary>
+        /// Ensures the encoding set using <see cref="EncodingName" /> is valid.
+        /// </summary>
+        /// <param name="elementNode">The <see cref="XmlNode" /> used to initialized the element.</param>
+        protected override void InitializeElement(XmlNode elementNode) {
+            if (EncodingName != null) {
+                try {
+                    System.Text.Encoding.GetEncoding(EncodingName);
+                } catch (ArgumentException) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "{0} is not a valid encoding.",
+                        EncodingName), Location);
+                } catch (NotSupportedException) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "{0} encoding is not supported on the current platform.",
+                        EncodingName), Location);
+                }
+            }
+        }
 
         /// <summary>
         /// Initializes all build attributes and child elements.

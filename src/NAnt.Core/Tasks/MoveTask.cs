@@ -164,7 +164,7 @@ namespace NAnt.Core.Tasks {
                             }
                             
                             // move the file and apply filters
-                            FileUtils.MoveWithFilters(sourcePath, destinationPath, Filters, Encoding);
+                            FileUtils.MoveWithFilters(sourcePath, destinationPath, Filters);
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,

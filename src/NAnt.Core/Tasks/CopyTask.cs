@@ -24,7 +24,6 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Xml;
-using System.Text;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -78,7 +77,6 @@ namespace NAnt.Core.Tasks {
         private FileSet _fileset = new FileSet();
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
-        private string _encodingName;
         private FilterChain _filters;
 
         #endregion Private Instance Fields
@@ -157,15 +155,6 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The encoding to assume when filter-copying the files.
-        /// </summary>
-        [TaskAttribute("encoding")]
-        public string EncodingName {
-            get { return _encodingName; }
-            set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
         /// The filterchain definition to use when filter-copying the files.
         /// </summary>
         [BuildElement("filterchain")]
@@ -178,19 +167,6 @@ namespace NAnt.Core.Tasks {
 
         #region Protected Instance Properties
 
-        /// <summary>
-        /// Gets the encoding that will be used when filter-copying the files.
-        /// </summary>
-        protected Encoding Encoding {
-            get { 
-                if (EncodingName != null) {
-                    return System.Text.Encoding.GetEncoding(EncodingName);
-                }
-
-                return Encoding.Default;
-            }
-        }
-
         protected Hashtable FileCopyMap {
             get { return _fileCopyMap; }
         }
@@ -200,25 +176,10 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Checks whether the given encoding is supported on the current 
-        /// platform.
+        /// Checks whether the task is initialized with valid attribute.
         /// </summary>
         /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
         protected override void InitializeTask(XmlNode taskNode) {
-            if (EncodingName != null) {
-                try {
-                    System.Text.Encoding.GetEncoding(EncodingName);
-                } catch (ArgumentException) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "{0} is not a valid encoding.",
-                        EncodingName), Location);
-                } catch (NotSupportedException) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "{0} encoding is not supported on the current platform.",
-                        EncodingName), Location);
-                }
-            }
-
             if (Flatten && ToDirectory == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "'flatten' attribute requires that 'todir' has been set."), 
@@ -398,9 +359,8 @@ namespace NAnt.Core.Tasks {
                             Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
                         }
 
-                        //Copy with filters
-                        FileUtils.CopyWithFilters(sourceFile, destinationFile, Filters, Encoding);
-
+                        // copy the file with filters
+                        FileUtils.CopyWithFilters(sourceFile, destinationFile, Filters);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Cannot copy '{0}' to '{1}'.", sourceFile, destinationFile), 
