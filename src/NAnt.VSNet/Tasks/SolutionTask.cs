@@ -20,11 +20,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet.Tasks {
@@ -117,7 +120,6 @@ namespace NAnt.VSNet.Tasks {
         /// Initializes a new instance of the <see cref="SolutionTask" /> class.
         /// </summary>
         public SolutionTask() {
-            _configuration = "";
             _projects = new FileSet();
             _referenceProjects = new FileSet();
             _excludeProjects = new FileSet();
@@ -126,21 +128,114 @@ namespace NAnt.VSNet.Tasks {
 
         #endregion Public Instance Constructors
 
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The names of the projects to build.
+        /// </summary>
+        [FileSet("projects", Required=false)]
+        public FileSet Projects {
+            get { return _projects; }
+            set { _projects = value; }
+        }
+
+        /// <summary>
+        /// The names of the projects to scan, but not build.
+        /// </summary>
+        /// <remarks>
+        /// These projects are used to resolve project references.  These projects 
+        /// are generally external to the solution being built.  References to 
+        /// these project's output files are converted to use the appropriate 
+        /// solution configuration at build time.
+        /// </remarks>
+        [FileSet("referenceprojects", Required=false)]
+        public FileSet ReferenceProjects {
+            get { return _referenceProjects; }
+            set { _referenceProjects = value; }
+        }
+
+        /// <summary>
+        /// The name of the VS.NET solution file to build.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The <see cref="Projects" /> can be used instead to supply a list 
+        /// of Visual Studio.NET projects that should be built.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("solutionfile", Required=false)]
+        public string SolutionFile {
+            get { return (_solutionFile != null) ? Project.GetFullPath(_solutionFile) : null; }
+            set { 
+                if (!StringUtils.IsNullOrEmpty(value)) {
+                    _solutionFile = value.ToLower();
+                } else {
+                    _solutionFile = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The name of the solution configuration to build.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Generally <c>release</c> or <c>debug</c>.  Not case-sensitive.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("configuration", Required=true)]
+        public string Configuration {
+            get { return _configuration; }
+            set { _configuration = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// The directory where compiled targets will be placed.  This
+        /// overrides path settings contained in the solution/project.
+        /// </summary>
+        [TaskAttribute("outputdir", Required=false)]
+        public string OutputDir {
+            get { return _outputDir; }
+            set { _outputDir = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// WebMap of URL's to project references.
+        /// </summary>
+        [BuildElementCollection("webmap", Required=false)]
+        public WebMapCollection WebMaps {
+            get { return _webMaps; }
+        }
+
+        /// <summary>
+        /// Fileset of projects to exclude.
+        /// </summary>
+        [FileSet("excludeprojects", Required=false)]
+        public FileSet ExcludeProjects {
+            get { return _excludeProjects; }
+            set { _excludeProjects = value; }
+        }
+
+        #endregion Public Instance Properties
+
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "Starting solution build.");
-        
-            Solution sln;
-            if (Verbose) {
-                Log(Level.Info, LogPrefix + "Included projects:" );
-                foreach (string projectFile in _projects.FileNames) {
-                    Log(Level.Info, LogPrefix + " - " + projectFile);
-                }
 
-                Log(Level.Info, LogPrefix + "Reference projects:");
-                foreach (string projectFile in _referenceProjects.FileNames) {
-                    Log(Level.Info, LogPrefix + " - " + projectFile);
+            Solution sln;
+
+            if (Projects.FileNames.Count > 0) {
+                Log(Level.Verbose, LogPrefix + "Included projects:" );
+                foreach (string projectFile in Projects.FileNames) {
+                    Log(Level.Verbose, LogPrefix + " - " + projectFile);
+                }
+            }
+
+            if (ReferenceProjects.FileNames.Count > 0) {
+                Log(Level.Verbose, LogPrefix + "Reference projects:");
+                foreach (string projectFile in ReferenceProjects.FileNames) {
+                    Log(Level.Verbose, LogPrefix + " - " + projectFile);
                 }
             }
             
@@ -148,16 +243,16 @@ namespace NAnt.VSNet.Tasks {
 
             try {
                 using (TempFileCollection tfc = new TempFileCollection()) {
-                    if (_solutionFile == null) {
-                        sln = new Solution(new ArrayList(_projects.FileNames), new ArrayList(_referenceProjects.FileNames), tfc, 
+                    if (SolutionFile == null) {
+                        sln = new Solution(new ArrayList(Projects.FileNames), new ArrayList(ReferenceProjects.FileNames), tfc, 
                             this, WebMaps, ExcludeProjects, OutputDir);
                     } else {
-                        sln = new Solution(_solutionFile, new ArrayList(_projects.FileNames), 
-                            new ArrayList(_referenceProjects.FileNames), tfc, this, WebMaps, ExcludeProjects, OutputDir);
+                        sln = new Solution(SolutionFile, new ArrayList(Projects.FileNames), 
+                            new ArrayList(ReferenceProjects.FileNames), tfc, this, WebMaps, ExcludeProjects, OutputDir);
                     }
 
-                    if (!sln.Compile(_configuration, new ArrayList(), null, Verbose, false)) {
-                        throw new BuildException("Project build failed.");
+                    if (!sln.Compile(Configuration, new ArrayList(), null, Verbose, false)) {
+                        throw new BuildException("Project build failed.", Location);
                     }
                 
                     basePath = tfc.BasePath;
@@ -181,103 +276,19 @@ namespace NAnt.VSNet.Tasks {
             }
         }
 
+        protected override void InitializeTask(XmlNode taskNode) {
+            if (SolutionFile != null) {
+                if (!File.Exists(SolutionFile)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Couldn't find solution file '{0}'.", SolutionFile), Location);
+                }
+            }
+
+            base.InitializeTask (taskNode);
+        }
+
+
         #endregion Override implementation of Task
-
-        #region Public Instance Properties
-
-        /// <summary>
-        /// The names of the projects to build.
-        /// </summary>
-        [FileSet("projects")]
-        public FileSet Projects {
-            get { return _projects; }
-            set { _projects = value; }
-        }
-
-        /// <summary>
-        /// The names of the projects to scan, but not build.
-        /// </summary>
-        /// <remarks>
-        /// These projects are used to resolve project references.  These projects 
-        /// are generally external to the solution being built.  References to 
-        /// these project's output files are converted to use the appropriate 
-        /// solution configuration at build time.
-        /// </remarks>
-        [FileSet("referenceprojects")]
-        public FileSet ReferenceProjects {
-            get { return _referenceProjects; }
-            set { _referenceProjects = value; }
-        }
-
-        /// <summary>
-        /// The name of the VS.NET solution file to build.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The <see cref="Projects" /> can be used instead to supply a list 
-        /// of Visual Studio.NET projects that should be built.
-        /// </para>
-        /// </remarks>
-        [TaskAttribute("solutionfile")]
-        public string SolutionFile {
-            get { return (_solutionFile != null) ? Project.GetFullPath(_solutionFile) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _solutionFile = value.ToLower();
-                } else {
-                    _solutionFile = null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The name of the solution configuration to build.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Generally <c>release</c> or <c>debug</c>.  Not case-sensitive.
-        /// </para>
-        /// </remarks>
-        [TaskAttribute("configuration")]
-        public string Configuration {
-            get { return _configuration; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _configuration = value;
-                } else {
-                    _configuration = null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The directory where compiled targets will be placed.  This
-        /// overrides path settings contained in the solution/project.
-        /// </summary>
-        [TaskAttribute("outputdir", Required=false)]
-        public string OutputDir {
-            set { _outputDir = value; }
-            get { return _outputDir; }
-        }
-
-        /// <summary>
-        /// WebMap of URL's to project references.
-        /// </summary>
-        [BuildElementCollection("webmap")]
-        public WebMapCollection WebMaps {
-            get { return _webMaps; }
-        }
-
-        /// <summary>
-        /// Fileset of projects to exclude.
-        /// </summary>
-        [FileSet("excludeprojects", Required=false)]
-        public FileSet ExcludeProjects {
-            get { return _excludeProjects; }
-            set { _excludeProjects = value; }
-        }
-
-        #endregion Public Instance Properties
 
         #region Private Instance Fields
 
