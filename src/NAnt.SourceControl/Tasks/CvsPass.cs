@@ -101,12 +101,17 @@ namespace NAnt.SourceControl.Tasks {
         /// Update the .cvspass file with the given password.
         /// </summary>
         protected override void ExecuteTask () {
+            if (null == this.PassFile) {
+                throw new BuildException ("Passfile cannot be null.");
+            }
+
             ICSharpCode.SharpCvsLib.FileSystem.Manager manager = 
                 new ICSharpCode.SharpCvsLib.FileSystem.Manager(this.DestinationDirectory);
 
             Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.PasswordFile.FullName);
+
             manager.UpdatePassFile(this.Password, 
-                new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root));
+                new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root), this.PassFile);
         }
 
         #endregion Override implementation of Task
