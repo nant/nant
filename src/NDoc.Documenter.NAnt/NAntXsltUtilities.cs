@@ -32,11 +32,11 @@ namespace NDoc.Documenter.NAnt {
     public class NAntXsltUtilities {
         #region Private Instance Fields
 
-        private SdkDocVersion _linkToSdkDocVersion;
         private string _sdkDocBaseUrl; 
         private string _sdkDocExt; 
         private StringDictionary _elementNames = new StringDictionary();
         private XmlDocument _doc;
+        private NAntTaskDocumenterConfig _config;
 
         #endregion Private Instance Fields
 
@@ -59,11 +59,11 @@ namespace NDoc.Documenter.NAnt {
         /// Initializes a new instance of the <see cref="NAntXsltUtilities" />
         /// class.
         /// </summary>
-        private NAntXsltUtilities(XmlDocument doc, SdkDocVersion linkToSdkDocVersion) {
+        private NAntXsltUtilities(XmlDocument doc, NAntTaskDocumenterConfig config) {
             _doc = doc;
-            _linkToSdkDocVersion = linkToSdkDocVersion;
+            _config = config;
 
-            switch (linkToSdkDocVersion) {
+            switch (config.LinkToSdkDocVersion) {
                 case SdkDocVersion.SDK_v1_0:
                     _sdkDocBaseUrl = SdkDoc10BaseUrl;
                     _sdkDocExt = SdkDocPageExt;
@@ -79,7 +79,7 @@ namespace NDoc.Documenter.NAnt {
             }
 
             //create a list of element names by id
-            XmlNodeList types = _doc.SelectNodes("//class");
+            XmlNodeList types = Document.SelectNodes("//class");
             foreach (XmlElement typeNode in types) {
                 string typeId = typeNode.Attributes["id"].Value;
                 _elementNames[typeId] = GetElementNameForType(typeNode);
@@ -134,7 +134,30 @@ namespace NDoc.Documenter.NAnt {
 
         #endregion Public Instance Properties
 
+        #region Private Instance Properties
+
+        private XmlDocument Document {
+            get { return _doc; }
+        }
+
+        private NAntTaskDocumenterConfig Config {
+            get { return _config; }
+        }
+
+        #endregion Private Instance Properties
+
         #region Public Instance Methods
+
+        /// <summary>
+        /// Gets the root namespace to document.
+        /// </summary>
+        /// <returns>
+        /// The root namespace to document, or a empty <see cref="string" />
+        /// if no restriction should be set on the namespace to document.
+        /// </returns>
+        public string GetNamespaceFilter() {
+            return Config.NamespaceFilter;
+        }
 
         /// <summary>
         /// Searches the document for a 
@@ -145,7 +168,7 @@ namespace NDoc.Documenter.NAnt {
             if (!id.StartsWith("T:")) {
                 id = "T:" + id;
             }
-            XmlNode typeNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
+            XmlNode typeNode = Document.SelectSingleNode("//class[@id='" + id + "']");
             if (typeNode == null) {
                 return null;
             }
@@ -165,14 +188,14 @@ namespace NDoc.Documenter.NAnt {
             }
             
             //get the underlying type of the array
-            if(cref.EndsWith("[]")){
+            if (cref.EndsWith("[]")){
                 cref=cref.Replace("[]","");
             }
 
             //check if the ref is for a system namespaced element or not
             if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
-                //not a system one.
-                if(!cref.StartsWith("T:")){
+                // not a system one.
+                if (!cref.StartsWith("T:")){
                     return string.Empty;
                 }
 
@@ -181,10 +204,14 @@ namespace NDoc.Documenter.NAnt {
                 if (fileName == null) {
                     return string.Empty;
                 } else {
-                    return "../" + fileName;
+                    if (cref.Substring(2).StartsWith("NAnt.") && !cref.Substring(2).StartsWith("NAnt.Contrib")) {
+                        return Config.NAntBaseUri + fileName;
+                    } else {
+                        return "../" + fileName;
+                    }
                 }
             } else {
-                //a system cref
+                // a system cref
                 switch (cref.Substring(0, 2)) {
                     case "N:":  // Namespace
                         return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + SdkDocExt;
@@ -299,7 +326,6 @@ namespace NDoc.Documenter.NAnt {
             return GetFileNameForType(GetTypeByID(type));
         }
 
-
         private string GetFilenameForSystemMember(string cref) {
             string crefName;
             int index;
@@ -317,7 +343,7 @@ namespace NDoc.Documenter.NAnt {
         }
 
         private XmlNode GetTypeByID(string id){
-           
+          
             /*
             // if it is a property, field, method or such, remove the last element name, and search for the parent type.
             // ie. P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined becomes T:NAnt.Core.Types.FileSet.ExcludesElement
@@ -344,7 +370,7 @@ namespace NDoc.Documenter.NAnt {
                 id = "T:" + id;
             }
             
-            XmlNode classNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
+            XmlNode classNode = Document.SelectSingleNode("//class[@id='" + id + "']");
             if (classNode == null) {
                 //System.Console.WriteLine("Could not find: {0}", id);
             }
@@ -479,15 +505,15 @@ namespace NDoc.Documenter.NAnt {
             return "functions/" + name + ".html";
         }
         
-        internal static NAntXsltUtilities CreateInstance(XmlDocument doc, SdkDocVersion linkToSdkDocVersion){
+        internal static NAntXsltUtilities CreateInstance(XmlDocument doc, NAntTaskDocumenterConfig config){
             //just in case... but we should never see this happen.
-            lock(typeof(NAntXsltUtilities)) {
-                foreach (NAntXsltUtilities util in Instances){
-                    if (util._doc == doc && util._linkToSdkDocVersion.Equals(linkToSdkDocVersion)) {
+            lock (Instances) {
+                foreach (NAntXsltUtilities util in Instances) {
+                    if (util.Document == doc && util.Config.LinkToSdkDocVersion.Equals(config.LinkToSdkDocVersion)) {
                         return util;
                     }
                 }
-                NAntXsltUtilities inst = new NAntXsltUtilities(doc, linkToSdkDocVersion);
+                NAntXsltUtilities inst = new NAntXsltUtilities(doc, config);
                 Instances.Add(inst);
                 return inst;
             }

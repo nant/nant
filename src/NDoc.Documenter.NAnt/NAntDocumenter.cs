@@ -90,6 +90,19 @@ namespace NDoc.Documenter.NAnt {
             } 
         }
 
+        /// <summary>
+        /// Gets or sets the root namespace to document.
+        /// </summary>
+        /// <value>
+        /// The root namespace to document, or a empty <see cref="string" />
+        /// if no restriction should be set on the namespace to document.
+        /// </value>
+        public string NamespaceFilter { 
+            get {
+                return ((NAntTaskDocumenterConfig) Config).NamespaceFilter;
+            }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of IDocumenter
@@ -159,7 +172,8 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList indexArguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(
+                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
@@ -184,16 +198,15 @@ namespace NDoc.Documenter.NAnt {
             OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
 
             // generate a page for each marked task
-            XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("//class[attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
+            XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "') and attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
             foreach (XmlNode taskNode in taskAttrNodes) {
-                //OnDocBuildingStep(buildStepProgress++, "Doc'n Task:" + taskNode.Attributes["id"].Value);
                 DocumentType(taskNode, ElementDocType.Task);
             }
 
             OnDocBuildingStep(buildStepProgress, "Generating Function Documents...");
             
             // generate a page for each function - TODO - change the XPath expression to select more functions
-            XmlNodeList functionNodes = _xmlDocumentation.SelectNodes("//method[attribute/@name = 'NAnt.Core.Attributes.FunctionAttribute']");
+            XmlNodeList functionNodes = _xmlDocumentation.SelectNodes("//method[attribute/@name = 'NAnt.Core.Attributes.FunctionAttribute' and ancestor::class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]]");
             foreach (XmlElement function in functionNodes) {
                 DocumentFunction(function);
             }
@@ -201,7 +214,7 @@ namespace NDoc.Documenter.NAnt {
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Generating Type Documents...");
             // generate a page for each marked type
-            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("//class[descendant::base/@id='T:" + typeof(DataTypeBase).FullName + "']");
+            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "') and descendant::base/@id='T:" + typeof(DataTypeBase).FullName + "']");
             foreach (XmlNode typeNode in typeAttrNodes) {
                 //OnDocBuildingStep(buildStepProgress++, "Doc'n DataType:" + typeNode.Attributes["id"].Value);
                 DocumentType(typeNode, ElementDocType.DataTypeElement);
@@ -261,7 +274,8 @@ namespace NDoc.Documenter.NAnt {
             arguments.AddParam("refType", string.Empty, refTypeString);
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
+                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -348,7 +362,8 @@ namespace NDoc.Documenter.NAnt {
             arguments.AddParam("functionName", string.Empty, functionElement.GetAttribute("name"));
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
+                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -386,7 +401,8 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList arguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
+                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
 
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 

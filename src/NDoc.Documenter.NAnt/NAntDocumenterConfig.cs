@@ -35,14 +35,20 @@ namespace NDoc.Documenter.NAnt {
 
         private string _outputDirectory = @"doc/help/tasks";
         private SdkDocVersion _linkToSdkDocVersion = SdkDocVersion.MsdnOnline;
+        private string _applicationName = "NAnt";
+        private string _nantBaseUri = "";
+        private string _namespaceFilter = "";
 
         #endregion Private Instance Fields
 
         #region Public Instance Constructors
-        protected NAntTaskDocumenterConfig(string name) : base(name){}
+
+        protected NAntTaskDocumenterConfig(string name) : base(name){
+        }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="NAntTaskDocumenterConfig" /> class.
+        /// Initializes a new instance of the <see cref="NAntTaskDocumenterConfig" /> 
+        /// class.
         /// </summary>
         public NAntTaskDocumenterConfig() : base("NAntTask") {
             // set reasonable ndoc defaults so we don't have to do this in the build file
@@ -66,15 +72,17 @@ namespace NDoc.Documenter.NAnt {
 
         #region Public Instance Properties
 
-        /// <summary>Gets or sets the output directory.</summary>
-        /// <value>The output directory.</value>
-        [
-            Category("Output"),
-            Description("The path to the Output Directory where the generated doc will be placed.")
-        ]
+        /// <summary>
+        /// Gets or sets the output directory.
+        /// </summary>
+        /// <value>
+        /// The output directory.
+        /// </value>
+        [Category("Documentation Main Settings")]
+        [Description("The path to the output directory where the generated docs will be placed.")]
         public string OutputDirectory {
             get { return _outputDirectory; }
-            set  { 
+            set { 
                 _outputDirectory = value; 
                 SetDirty();
             }
@@ -88,12 +96,63 @@ namespace NDoc.Documenter.NAnt {
         /// The .NET Framework SDK version to provide links to for system types.
         /// The default is <see cref="SdkDocVersion.MsdnOnline" />.
         /// </value>
-        [Category("HTML Help Options")]
+        [Category("Output")]
         [Description("Specifies to which version of the .NET Framework SDK documentation the links to system types will be pointing.")]
         public SdkDocVersion LinkToSdkDocVersion {
             get { return _linkToSdkDocVersion; }
             set {
                 _linkToSdkDocVersion = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the application for which documentation 
+        /// should be generated.
+        /// </summary>
+        /// <value>
+        /// The name of the application for which documentation should be 
+        /// generated.
+        /// </value>
+        [Category("Output")]
+        [Description("The name of the application for which documentation should be generated.")]
+        public string ApplicationName {
+            get { return _applicationName; }
+            set { 
+                _applicationName = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the base URI for linking to NAnt docs.
+        /// </summary>
+        /// <value>
+        /// The base URI for linking to NAnt docs.
+        /// </value>
+        [Category("Output")]
+        [Description("The base URI for linking to NAnt docs.")]
+        public string NAntBaseUri {
+            get { return _nantBaseUri; }
+            set { 
+                _nantBaseUri = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the root namespace to document.
+        /// </summary>
+        /// <value>
+        /// The root namespace to document, or a empty <see cref="string" />
+        /// if no restriction should be set on the namespace to document.
+        /// </value>
+        [Category("Output")]
+        [Description("The root namespace to document, or an empty string to document all namespaces.")]
+        public string NamespaceFilter {
+            get { return _namespaceFilter; }
+            set { 
+                _namespaceFilter = value;
                 SetDirty();
             }
         }
