@@ -85,18 +85,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("output", Required=true)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _output = value;
-                } else {
-                    _output = null;
-                }
-            }
+            set { _output = SetStringValue(value); }
         }
 
         /// <summary>
         /// The code language in which the AssemblyInfo file should be 
-        /// generated - either <c>CSharp</c> or <c>VB</c>.
+        /// generated - either <see cref="CodeLanguage.CSharp" />  or 
+        /// <see cref="CodeLanguage.VB" />..
         /// </summary>
         /// <value>
         /// The code language in which the AssemblyInfo file should be 

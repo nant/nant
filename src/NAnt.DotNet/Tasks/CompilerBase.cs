@@ -265,7 +265,7 @@ namespace NAnt.DotNet.Tasks {
                     // specific compiler options
                     WriteOptions(writer);
 
-                    //  suppresses display of the sign-on banner 
+                    // suppresses display of the sign-on banner 
                     WriteOption(writer, "nologo");
 
                     // specify output file format

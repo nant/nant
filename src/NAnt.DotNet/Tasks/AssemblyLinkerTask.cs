@@ -29,13 +29,18 @@ using NAnt.Core.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
-    /// Wraps Al.exe, the assembly linker for the .NET Framework.
+    /// Wraps <c>al.exe</c>, the assembly linker for the .NET Framework.
     /// </summary>
     /// <remarks>
-    ///   <para>All specified sources will be embedded using the <c>/embed</c> flag.  Other source types are not supported.</para>
+    ///   <para>
+    ///   All specified sources will be embedded using the <c>/embed</c> flag.  
+    ///   Other source types are not supported.
+    ///   </para>
     /// </remarks>
     /// <example>
-    ///   <para>Create a library containing all icon files in the current directory.</para>
+    ///   <para>
+    ///   Create a library containing all icon files in the current directory.
+    ///   </para>
     ///   <code>
     /// <![CDATA[
     /// <al output="MyIcons.dll" target="lib">
@@ -66,7 +71,9 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The name of the output file for the assembly manifest.
         /// </summary>
-        /// <value>The complete output path for the assembly manifest.</value>
+        /// <value>
+        /// The complete output path for the assembly manifest.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/out</c> flag.
@@ -85,7 +92,7 @@ namespace NAnt.DotNet.Tasks {
         }
         
         /// <summary>
-        /// The target type (one of "lib", "exe", or "winexe").
+        /// The target type (one of <c>lib</c>, <c>exe</c>, or <c>winexe</c>).
         /// </summary>
         /// <remarks>
         /// <para>
@@ -95,13 +102,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("target", Required=true)]
         public string OutputTarget {
             get { return _target; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _target = value;
-                } else {
-                    _target = null;
-                }
-            }
+            set { _target = SetStringValue(value); }
         }
 
         /// <summary>
@@ -116,20 +117,16 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("culture", Required=false)]
         public string Culture {
             get { return _culture; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _culture = value;
-                } else {
-                    _culture = null;
-                }
-            }
+            set { _culture = SetStringValue(value); }
         }
          
         /// <summary>
         /// Specifies an assembly from which to get all options except the 
         /// culture field.
         /// </summary>
-        /// <value>The complete path to the assembly template.</value>
+        /// <value>
+        /// The complete path to the assembly template.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/template:</c> flag.
@@ -138,13 +135,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("template", Required=false)]
         public string Template {
             get { return (_template != null) ? Project.GetFullPath(_template) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _template = value;
-                } else {
-                    _template = null;
-                }
-            }
+            set { _template = SetStringValue(value); }
         }
 
         /// <summary>
@@ -160,13 +151,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("keyfile", Required=false)]
         public string KeyFile {
             get { return (_keyfile != null) ? Project.GetFullPath(_keyfile) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _keyfile = value;
-                } else {
-                    _keyfile = null;
-                }
-            }
+            set { _keyfile = SetStringValue(value); }
         }
 
         /// <summary>

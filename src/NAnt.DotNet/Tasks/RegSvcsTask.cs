@@ -132,7 +132,8 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Defines the action to take with the assembly. Supported actions are: 
-        /// <c>FindOrCreate</c> (the default), <c>Create</c>, or <c>Uninstall</c>.
+        /// <see cref="ActionType.FindOrCreate" /> (the default), <see cref="ActionType.Create" />, 
+        /// or <see cref="ActionType.Uninstall" />.
         /// </summary>
         [TaskAttribute("action")]
         public ActionType Action {
@@ -170,7 +171,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Uses an existing type library.
+        /// Uses an existing type library. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("existingtlb")]
         [BooleanValidator]
@@ -180,7 +181,8 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Do not reconfigure an existing target application.
+        /// Do not reconfigure an existing target application. 
+        /// Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("noreconfig")]
         [BooleanValidator]
@@ -191,6 +193,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Configures components only; ignores methods and interfaces.
+        /// Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("componentsonly")]
         [BooleanValidator]
@@ -200,7 +203,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Expect an existing application.
+        /// Expect an existing application. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("existingapp")]
         [BooleanValidator]
@@ -301,7 +304,7 @@ namespace NAnt.DotNet.Tasks {
                 _argumentBuilder.Append("/quiet ");
             }
 
-            // suppresses the Microsoft startup banner display
+            // suppresses display of the sign-on banner 
             _argumentBuilder.Append("/nologo ");
 
             // output the assembly name enclosed with quotes

@@ -95,9 +95,9 @@ namespace NAnt.DotNet.Tasks {
     public class NDocTask : Task {
         #region Private Instance Fields
 
-        XmlNodeList _docNodes;
-        FileSet _assemblies = new FileSet();
-        FileSet _summaries = new FileSet();
+        private XmlNodeList _docNodes;
+        private FileSet _assemblies = new FileSet();
+        private FileSet _summaries = new FileSet();
 
         #endregion Private Instance Fields
 

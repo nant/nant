@@ -66,7 +66,7 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Takes a list of assemblies/executables to sign.
+        /// List of assemblies/executables to sign.
         /// </summary>
         [FileSet("targets")]
         public FileSet Targets {

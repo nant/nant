@@ -128,7 +128,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the <c>/optionexplicit</c> option gets passed to 
-        /// the compiler.
+        /// the compiler. Default is <c>false</c>.
         /// </summary>
         /// <value>
         /// <c>true</c> if the option should be passed to the compiler; otherwise,
@@ -144,7 +144,7 @@ namespace NAnt.DotNet.Tasks {
         
         /// <summary>
         /// Specifies whether the <c>/optimize</c> option gets passed to the 
-        /// compiler.
+        /// compiler. Default is <c>false</c>.
         /// </summary>
         /// <value>
         /// <c>true</c> if the option should be passed to the compiler; otherwise,
@@ -160,7 +160,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the <c>/optionstrict</c> option gets passed to 
-        /// the compiler.
+        /// the compiler. Default is <c>false</c>.
         /// </summary>
         /// <value>
         /// <c>true</c> if the option should be passed to the compiler; otherwise,
@@ -176,7 +176,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the <c>/removeintchecks</c> option gets passed to 
-        /// the compiler.
+        /// the compiler. Default is <c>false</c>.
         /// </summary>
         /// <value>
         /// The value of this attribute must be either <c>true</c> or <c>false</c>.  

@@ -43,13 +43,13 @@ namespace NAnt.DotNet.Tasks {
     public class VjcTask : CompilerBase {
         #region Private Instance Fields
 
-        bool _secureScoping = false;
-        string _x = null;
-        string _libPath = null;
-        string _jcpa = null;
-        string _codepage = null;
-        string _warningLevel = null;
-        string _noWarn = null;
+        private bool _secureScoping = false;
+        private string _x = null;
+        private string _libPath = null;
+        private string _jcpa = null;
+        private string _codepage = null;
+        private string _warningLevel = null;
+        private string _noWarn = null;
 
         #endregion Private Instance Fields
            
@@ -58,14 +58,20 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Specifies whether package-scoped members are accessible outside of the assembly.
         /// In other words, package scope is treated as assembly scope when emitting metadata.
-        /// <para>By default, secure scoping is off.</para>
-        /// <para>Corresponds to the <c>/securescoping</c> flag.</para>
+        /// Default is <c>false</c>.
         /// </summary>
         /// <value>
         /// <c>true</c> if the option should be passed to the compiler; otherwise,
         /// <c>false</c>.
         /// </value>
-        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfsecurescopingmakepackage-scopedmembersinaccessibleoutsideassembly.htm">See the Visual J# Reference for details.</a></remarks>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to the <c>/securescoping</c> flag.
+        /// </para>
+        /// <para>
+        /// <a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfsecurescopingmakepackage-scopedmembersinaccessibleoutsideassembly.htm">See the Visual J# Reference for details.</a>
+        /// </para>
+        /// </remarks>
         /// <example>
         /// <code><![CDATA[<vjc securescoping='true'/>]]></code>
         /// </example>
@@ -96,13 +102,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("x")]
         public string X {
             get { return _x; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _x = value;
-                } else {
-                    _x = null;
-                }
-            }
+            set { _x = SetStringValue(value); }
         }
        
         /// <summary>
@@ -117,13 +117,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("libpath")]
         public string LibPath {
             get { return _libPath; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _libPath = value;
-                } else {
-                    _libPath = null;
-                }
-            }
+            set { _libPath = SetStringValue(value); }
         }
        
         /// <summary>
@@ -142,17 +136,12 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("jcpa")]
         public string Jcpa {
             get { return _jcpa; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _jcpa = value;
-                } else {
-                    _jcpa = null;
-                }
-            }
+            set { _jcpa = SetStringValue(value); }
         }
        
         /// <summary>
-        /// Specifies the code page to use for all source code files in the compilation.
+        /// Specifies the code page to use for all source code files in the 
+        /// compilation.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -165,19 +154,16 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _codepage = value;
-                } else {
-                    _codepage = null;
-                }
-            }
+            set { _codepage = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
+        /// Specifies the warning level for the compiler to display. Valid values 
+        /// are <c>0</c>-<c>4</c>. Default is <c>4</c>.
         /// </summary>
-        /// <value>The warning level for the compiler to display.</value>
+        /// <value>
+        /// The warning level for the compiler to display.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/warn</c> option.
@@ -187,20 +173,17 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _warningLevel = value;
-                } else {
-                    _warningLevel = null;
-                }
-            }
+            set { _warningLevel = SetStringValue(value); }
         }
 
         /// <summary>
         /// Specifies a comma-separated list of warnings that should be suppressed 
         /// by the compiler.
         /// </summary>
-        /// <value>Comma-separated list of warnings that should be suppressed by the compiler.</value>
+        /// <value>
+        /// Comma-separated list of warnings that should be suppressed by the 
+        /// compiler.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/nowarn</c> option.
@@ -209,13 +192,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("nowarn")]
         public string NoWarn {
             get { return _noWarn; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _noWarn = value;
-                } else {
-                    _noWarn = null;
-                }
-            }
+            set { _noWarn = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties

@@ -62,12 +62,12 @@ namespace NAnt.DotNet.Tasks {
     public class ResGenTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _arguments = null;
-        string _input = null; 
-        string _output = null;
-        FileSet _resources = new FileSet();
-        string _targetExt = "resources";
-        string _toDir = null;
+        private string _arguments = null;
+        private string _input = null; 
+        private string _output = null;
+        private FileSet _resources = new FileSet();
+        private string _targetExt = "resources";
+        private string _toDir = null;
 
         #endregion Private Instance Fields
 
@@ -76,7 +76,9 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Input file to process.
         /// </summary>
-        /// <value>The full path to the input file.</value>
+        /// <value>
+        /// The full path to the input file.
+        /// </value>
         [TaskAttribute("input", Required=false)]
         public string Input {
             get { return (_input != null) ? Project.GetFullPath(_input) : null; }

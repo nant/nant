@@ -44,17 +44,20 @@ namespace NAnt.DotNet.Tasks {
     public class JscTask : CompilerBase {
         #region Private Instance Fields
 
-        string _warningLevel = null;
-        string _codepage = null;
+        private string _warningLevel = null;
+        private string _codepage = null;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
         /// <summary>
-        /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
+        /// Specifies the warning level for the compiler to display. Valid 
+        /// values are <c>0</c>-<c>4</c>. Default is <c>4</c>.
         /// </summary>
-        /// <value>The warning level for the compiler to display.</value>
+        /// <value>
+        /// The warning level for the compiler to display.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/warn</c> flag.
@@ -64,17 +67,12 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _warningLevel = value;
-                } else {
-                    _warningLevel = null;
-                }
-            }
+            set { _warningLevel = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Specifies the code page to use for all source code files in the compilation.
+        /// Specifies the code page to use for all source code files in the 
+        /// compilation.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -84,13 +82,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _codepage = value;
-                } else {
-                    _codepage = null;
-                }
-            }
+            set { _codepage = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
@@ -98,7 +90,7 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of CompilerBase
 
         /// <summary>
-        /// Writes the compiler options to the specified TextWriter.
+        /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
@@ -120,7 +112,9 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Gets the file extension required by the current compiler.
         /// </summary>
-        /// <value>For the JScript.NET compiler, the file extension is always <c>js</c>.</value>
+        /// <value>
+        /// For the JScript.NET compiler, the file extension is always <c>js</c>.
+        /// </value>
         protected override string Extension { 
             get { return "js"; }
         }
