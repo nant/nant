@@ -51,16 +51,8 @@ namespace NAnt.Core {
         /// current domain.
         /// </summary>
         static TypeFactory() {
-            // initialize builtin tasks
-            AddTasks(Assembly.GetExecutingAssembly());
-            AddTasks(Assembly.GetCallingAssembly());
-            
-            // TO-DO combine these two AddTasks and AddDataTypes
-            AddDataTypes(Assembly.GetExecutingAssembly());
-            AddDataTypes(Assembly.GetCallingAssembly());
-
-            AddFunctionSets(Assembly.GetExecutingAssembly());
-            AddFunctionSets(Assembly.GetCallingAssembly());
+            ScanAssembly(Assembly.GetExecutingAssembly());
+            ScanAssembly(Assembly.GetCallingAssembly());
         }
 
         #endregion Static Constructor
@@ -73,19 +65,39 @@ namespace NAnt.Core {
         /// <param name="assemblyFile">The assembly to scan for tasks, types and functions.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanAssembly(string assemblyFile) {
-            logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                "Scanning '{0}' for tasks, types and functions.", assemblyFile));
+            Assembly assembly = null;
 
             try {
-                Assembly assembly = Assembly.LoadFrom(assemblyFile);
+                assembly = Assembly.LoadFrom(assemblyFile);
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error loading assembly '{0}' for scan.", 
+                    assemblyFile), ex);
+            }
 
+            if (assembly != null) {
+                ScanAssembly(assembly);
+            }
+        }
+
+        /// <summary>
+        /// Scans the given assembly for tasks, types and functions.
+        /// </summary>
+        /// <param name="assembly">The assembly to scan for tasks, types and functions.</param>
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
+        public static void ScanAssembly(Assembly assembly) {
+            logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                "Scanning '{0}' for tasks, types and functions.", 
+                assembly.GetName().Name));
+
+            try {
                 AddTasks(assembly);
                 AddDataTypes(assembly);
                 AddFunctionSets(assembly);
             } catch (Exception ex) {
                 logger.Error(string.Format(CultureInfo.InvariantCulture, 
                     "Error scanning '{0}' for tasks, types and functions.", 
-                    assemblyFile), ex);
+                    assembly.GetName().Name), ex);
             }
         }
 
