@@ -108,7 +108,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.DynamicPrefix = true;
 
             cscTask.GetManifestResourceName(resources, "I_dont_exist.txt");
@@ -120,14 +120,15 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.DynamicPrefix = true;
 
             // holds the path to the resource file
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -135,7 +136,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -143,7 +145,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -152,7 +154,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -161,7 +163,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -176,7 +178,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.Prefix = "TestNamespace";
             resources.DynamicPrefix = true;
 
@@ -184,7 +186,8 @@ namespace Tests.NAnt.DotNet.Tasks {
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -192,7 +195,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -200,7 +204,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -210,7 +214,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -220,7 +224,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -236,7 +240,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.Prefix = "TestNamespace";
             resources.DynamicPrefix = false;
 
@@ -244,7 +248,8 @@ namespace Tests.NAnt.DotNet.Tasks {
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -252,7 +257,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -260,7 +265,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -269,7 +274,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -278,7 +283,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
@@ -293,68 +298,70 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.DynamicPrefix = true;
 
             // holds the path to the resource file
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
-                resources.BaseDirectory, "ResourceFile." + cscTask.Extension));
+                resources.BaseDirectory.FullName, "ResourceFile." + cscTask.Extension));
             // assert manifest resource name
             Assertion.AssertEquals("ResourceTest.HelloWorld.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.resx");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
-                resources.BaseDirectory, "ResourceFile.cs"));
+                resources.BaseDirectory.FullName, "ResourceFile.cs"));
             // assert manifest resource name
             Assertion.AssertEquals("ResourceTest.HelloWorld.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
-                resources.BaseDirectory, "SubDir" + Path.DirectorySeparatorChar 
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
                 + "ResourceFile." + cscTask.Extension));
             // assert manifest resource name
             Assertion.AssertEquals("ResourceTest.HelloWorld.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
-                resources.BaseDirectory, "SubDir" + Path.DirectorySeparatorChar 
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
                 + "ResourceFile." + cscTask.Extension));
             // assert manifest resource name
             Assertion.AssertEquals("ResourceTest.HelloWorld.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
             // create resource file
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
-                resources.BaseDirectory, "SubDir" + Path.DirectorySeparatorChar 
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
                 + "ResourceFile.en-US.dunno." + cscTask.Extension));
             // assert manifest resource name
             Assertion.AssertEquals("ResourceTest.HelloWorld.en-US.resources", 
@@ -367,14 +374,15 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.DynamicPrefix = true;
 
             // holds the path to the resource file
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.txt");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.txt");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -382,7 +390,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.txt");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -390,7 +399,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -399,7 +408,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -408,7 +417,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -423,7 +432,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.Prefix = "TestNamespace";
             resources.DynamicPrefix = true;
 
@@ -431,7 +440,8 @@ namespace Tests.NAnt.DotNet.Tasks {
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.txt");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.txt");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -439,7 +449,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.txt");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -447,7 +458,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -456,7 +467,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -465,7 +476,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -481,7 +492,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             cscTask.Project = CreateEmptyProject();
             
             ResourceFileSet resources = new ResourceFileSet();
-            resources.BaseDirectory = TempDirName;
+            resources.BaseDirectory = TempDirectory;
             resources.Prefix = "TestNamespace";
             resources.DynamicPrefix = false;
 
@@ -489,7 +500,8 @@ namespace Tests.NAnt.DotNet.Tasks {
             string resourceFile = null;
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.txt");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.txt");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -497,7 +509,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "ResourceFile.en-US.txt");
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
@@ -505,7 +518,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.txt");
             // create resource file
             CreateTempFile(resourceFile);
@@ -514,7 +527,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
-            resourceFile = Path.Combine(resources.BaseDirectory, "SubDir" 
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
                 + Path.DirectorySeparatorChar + "ResourceFile.en-US.txt");
             // create resource file
             CreateTempFile(resourceFile);
