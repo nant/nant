@@ -58,7 +58,7 @@ namespace NAnt.DotNet.Tasks {
     ///         <attribute type="ApplicationNameAttribute" value="FunAssembly" />
     ///     </attributes>
     ///     <references>
-    ///         <includes name="${nant.settings.currentframework.frameworkassemblydirectory}/System.EnterpriseServices.dll" />
+    ///         <includes name="System.EnterpriseServices.dll" />
     ///     </references>
     /// </asminfo>
     ///     ]]>
