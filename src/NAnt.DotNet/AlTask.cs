@@ -91,10 +91,8 @@ namespace SourceForge.NAnt.Tasks {
         private string determineFilePath() {
             if (Project.CurrentFramework != null ) {                        
                 string FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                              
-                return Path.Combine(FrameworkDir, ExeName +  ".exe" );      
-            }
-            else {
+                return Path.Combine(FrameworkDir, ExeName + ".exe" );      
+            } else {
                 return ExeName;
             }                         
         }      
