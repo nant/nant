@@ -208,7 +208,7 @@ namespace Tests.NAnt.Console {
             Assertion.Assert("Version numbers must be positive.", buildMinor >= 0);
             Assertion.Assert("Version numbers must be positive.", buildBuild >= 0);
             Assertion.Assert("Version numbers must be positive.", buildRevision >= 0);
-            Assertion.AssertEquals(DateTime.Now.Year, year);
+            Assertion.Assert("Copyright year should be equal or less than current year.", year <= DateTime.Now.Year);
         }
 
         [Test]
