@@ -169,17 +169,147 @@ namespace NAnt.Core {
 
                 switch (op) {
                     case ExpressionTokenizer.TokenType.EQ:
-                        return o.Equals(o2);
+                        if (o is string && o2 is string) {
+                            return o.Equals(o2);
+                        } else if (o is bool && o2 is bool) {
+                            return o.Equals(o2);
+                        } else if (o is int && o2 is int) {
+                            return o.Equals(o2);
+                        } else if (o is int && o2 is double) {
+                            return (Convert.ToDouble(o)).Equals(o2);
+                        } else if (o is double && o2 is double) {
+                            return o.Equals(o2);
+                        } else if (o is double && o2 is int) {
+                            return o.Equals(Convert.ToDouble(o2));
+                        } else if (o is DateTime && o2 is DateTime) {
+                            return o.Equals(o2);
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return o.Equals(o2);
+                        }
+
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                            "Operator '=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                            p0, p2);
                     case ExpressionTokenizer.TokenType.NE:
-                        return !o.Equals(o2);
+                        if (o is string && o2 is string) {
+                            return !o.Equals(o2);
+                        } else if (o is bool && o2 is bool) {
+                            return !o.Equals(o2);
+                        } else if (o is int && o2 is int) {
+                            return !o.Equals(o2);
+                        } else if (o is int && o2 is double) {
+                            return !(Convert.ToDouble(o)).Equals(o2);
+                        } else if (o is double && o2 is double) {
+                            return !o.Equals(o2);
+                        } else if (o is double && o2 is int) {
+                            return !o.Equals(Convert.ToDouble(o2));
+                        } else if (o is DateTime && o2 is DateTime) {
+                            return !o.Equals(o2);
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return !o.Equals(o2);
+                        }
+
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                            "Operator '!=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                            p0, p2);
                     case ExpressionTokenizer.TokenType.LT:
-                        return ((IComparable) o).CompareTo(o2) < 0;
+                        if (o is string && o2 is string) {
+                            return string.Compare((string) o, (string) o2, false, 
+                                CultureInfo.InvariantCulture) < 0;
+                        } else if (o is bool && o2 is bool) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is int && o2 is int) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) < 0;
+                        } else if (o is double && o2 is double) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) < 0;
+                        } else if (o is DateTime && o2 is DateTime) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
+                        }
+
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                            "Operator '<' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                            p0, p2);
                     case ExpressionTokenizer.TokenType.GT:
-                        return ((IComparable) o).CompareTo(o2) > 0;
+                        if (o is string && o2 is string) {
+                            return string.Compare((string) o, (string) o2, false, 
+                                CultureInfo.InvariantCulture) > 0;
+                        } else if (o is bool && o2 is bool) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is int && o2 is int) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) > 0;
+                        } else if (o is double && o2 is double) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) > 0;
+                        } else if (o is DateTime && o2 is DateTime) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        }
+
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                            "Operator '>' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                            p0, p2);
                     case ExpressionTokenizer.TokenType.LE:
-                        return ((IComparable) o).CompareTo(o2) <= 0;
+                        if (o is string && o2 is string) {
+                            return string.Compare((string) o, (string) o2, false, 
+                                CultureInfo.InvariantCulture) <= 0;
+                        } else if (o is bool && o2 is bool) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is int && o2 is int) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) <= 0;
+                        } else if (o is double && o2 is double) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) <= 0;
+                        } else if (o is DateTime && o2 is DateTime) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
+                        }
+
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                            "Operator '<=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                            p0, p2);
                     case ExpressionTokenizer.TokenType.GE:
-                        return ((IComparable) o).CompareTo(o2) >= 0;
+                        if (o is string && o2 is string) {
+                            return string.Compare((string) o, (string) o2, false, 
+                                CultureInfo.InvariantCulture) >= 0;
+                        } else if (o is bool && o2 is bool) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is int && o2 is int) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) >= 0;
+                        } else if (o is double && o2 is double) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) >= 0;
+                        } else if (o is DateTime && o2 is DateTime) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        }
+
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                            "Operator '>=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                            p0, p2);
                 }
             }
             return o;
@@ -198,34 +328,25 @@ namespace NAnt.Core {
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
-                        if (o is string || o2 is string) {
-                            // promote to strings and concatenate
-                            //
-                            string s1 = (string) SafeConvert(typeof(string), o, 
-                                "the left hand side of the concatenation operator", p0, p1);
-                            string s2 = (string) SafeConvert(typeof(string), o2, 
-                                "the right hand side of the concatenation operator", p2, p3);
-                            o = s1 + s2;
-                        } else if (o is double || o2 is double) {
-                            double d1 = (double) SafeConvert(typeof(double), o, 
-                                "the left hand side of the addition operator", p0, p1);
-                            double d2 = (double) SafeConvert(typeof(double), o2, 
-                                "the right hand side of the addition operator", p2, p3);
-                            o = d1 + d2;
-                        } else if (o is int || o2 is int) {
-                            int i1 = (int) SafeConvert(typeof(int), o, 
-                                "the left hand side of the addition operator", p0, p1);
-                            int i2 = (int) SafeConvert(typeof(int), o2, 
-                                "the right hand side of the addition operator", p2, p3);
-                            o = i1 + i2;
+                        if (o is string && o2 is string) {
+                            o = (string) o + (string) o2;
+                        } else if (o is int && o2 is int) {
+                            o = (int) o + (int) o2;
+                        } else if (o is int && o2 is double) {
+                            o = (int) o + (double) o2;
+                        } else if (o is double && o2 is double) {
+                            o = (double) o + (double) o2;
+                        } else if (o is double && o2 is int) {
+                            o = (double) o + (int) o2;
                         } else if (o is DateTime && o2 is TimeSpan) {
-                            DateTime i1 = (DateTime) o; 
-                            TimeSpan i2 = (TimeSpan) o2;
-                            o = i1 + i2;
+                            o = (DateTime) o + (TimeSpan) o2;
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            o = (TimeSpan) o + (TimeSpan) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Addition not supported for arguments of type '{0}' and '{1}'.", 
-                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
+                                "Operator '+' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                                p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus) {
@@ -236,32 +357,25 @@ namespace NAnt.Core {
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
-                        if (o is double || o2 is double) {
-                            double d1 = (double) SafeConvert(typeof(double), o, 
-                                "the left hand side of the subtraction operator", p0, p1);
-                            double d2 = (double) SafeConvert(typeof(double), o2, 
-                                "the right hand side of the subtraction operator", p2, p3);
-                            o = d1 - d2;
-                        } else if (o is int || o2 is int) {
-                            int i1 = (int) SafeConvert(typeof(int), o, 
-                                "the left hand side of the subtraction operator", p0, p1);
-                            int i2 = (int) SafeConvert(typeof(int), o2, 
-                                "the right hand side of the subtraction operator", p2, p3);
-                            o = i1 - i2;
-                        } else if (o is DateTime && (o2 is TimeSpan || o2 is DateTime)) {
-                            DateTime date1 = (DateTime) o;
-
-                            if (o2 is TimeSpan) {
-                                // result is DateTime
-                                o = ((DateTime) o) - ((TimeSpan) o2);
-                            } else if (o2 is DateTime) {
-                                // result is TimeSpan
-                                o = ((DateTime) o) - ((DateTime) o2);
-                            }
+                        if (o is int && o2 is int) {
+                            o = (int) o - (int) o2;
+                        } else if (o is int && o2 is double) {
+                            o = (int) o - (double) o2;
+                        } else if (o is double && o2 is double) {
+                            o = (double) o - (double) o2;
+                        } else if (o is double && o2 is int) {
+                            o = (double) o - (int) o2;
+                        } else if (o is DateTime && o2 is DateTime) {
+                            o = (DateTime) o - (DateTime) o2;
+                        } else if (o is DateTime && o2 is TimeSpan) {
+                            o = (DateTime) o - (TimeSpan) o2;
+                        } else if (o is TimeSpan && o2 is TimeSpan) {
+                            o = (TimeSpan) o - (TimeSpan) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
-                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
+                                "Operator '-' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
+                                p0, p3);
                         }
                     }
                 } else {
@@ -285,17 +399,17 @@ namespace NAnt.Core {
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
-                        if (o is double || o2 is double) {
-                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the mutliplication operator", p0, p1);
-                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the mutliplication operator", p2, p3);
-                            o = d1 * d2;
-                        } else if (o is int || o2 is int) {
-                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the mutliplication operator", p0, p1);
-                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the mutliplication operator", p2, p3);
-                            o = i1 * i2;
+                        if (o is int && o2 is int) {
+                            o = (int) o * (int) o2;
+                        } else if (o is int && o2 is double) {
+                            o = (int) o * (double) o2;
+                        } else if (o is double && o2 is double) {
+                            o = (double) o * (double) o2;
+                        } else if (o is double && o2 is int) {
+                            o = (double) o * (int) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Multiplication not supported for arguments of type '{0}' and '{1}'.", 
+                                        "Operator '*' cannot be applied to arguments of type '{0}' and '{1}'.", 
                                         GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
@@ -307,23 +421,38 @@ namespace NAnt.Core {
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
-                        if (o is double || o2 is double) {
-                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the division operator", p0, p1);
-                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the division operator", p2, p3);
-                            o = d1 / d2;
-                        } else if (o is int || o2 is int) {
-                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the division operator", p0, p1);
-                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the division operator", p2, p3);
-                            if (i2 == 0) {
+                        if (o is int && o2 is int) {
+                            if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                            "Attempt to divide by zero."), p2, p3);
+                                    "Attempt to divide by zero."), p2, p3);
                             }
-                                
-                            o = i1 / i2;
+
+                            o = (int) o / (int) o2;
+                        } else if (o is int && o2 is double) {
+                            if ((double) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (int) o / (double) o2;
+                        } else if (o is double && o2 is double) {
+                            if ((double) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (double) o / (double) o2;
+                        } else if (o is double && o2 is int) {
+                            if ((int) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (double) o / (int) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Division not supported for arguments of type '{0}' and '{1}'.", 
-                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
+                                "Operator '/' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Mod) {
@@ -334,13 +463,39 @@ namespace NAnt.Core {
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
-                        int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the modulus operator", p0, p1);
-                        int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the modulus operator", p2, p3);
-                        if (i2 == 0) {
+                        if (o is int && o2 is int) {
+                            if ((int) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (int) o % (int) o2;
+                        } else if (o is int && o2 is double) {
+                            if ((double) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (int) o % (double) o2;
+                        } else if (o is double && o2 is double) {
+                            if ((double) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (double) o % (double) o2;
+                        } else if (o is double && o2 is int) {
+                            if ((int) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (double) o % (int) o2;
+                        } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Attempt to divide by zero."), p2, p3);
+                                "Operator '%' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
-                        o = i1 % i2;
                     }
                 } else {
                     break;
@@ -423,7 +578,12 @@ namespace NAnt.Core {
 
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Number) {
                 string number = _tokenizer.TokenText;
+
+                ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
                 _tokenizer.GetNextToken();
+                ExpressionTokenizer.Position p1 = new ExpressionTokenizer.Position(
+                    _tokenizer.CurrentPosition.CharIndex - 1);
+
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Dot) {
                     number += ".";
                     _tokenizer.GetNextToken();
@@ -431,10 +591,24 @@ namespace NAnt.Core {
                         throw BuildParseError("Fractional part expected.", _tokenizer.CurrentPosition);
                     }
                     number += _tokenizer.TokenText;
+
                     _tokenizer.GetNextToken();
-                    return Double.Parse(number, CultureInfo.InvariantCulture);
+
+                    p1 = _tokenizer.CurrentPosition;
+
+                    try {
+                        return Double.Parse(number, CultureInfo.InvariantCulture);
+                    } catch (OverflowException) {
+                        throw BuildParseError("Value was either too large or too"
+                            + " small for type 'double'.", p0, p1);
+                    }
                 } else {
-                    return Int32.Parse(number, CultureInfo.InvariantCulture);
+                    try {
+                        return Int32.Parse(number, CultureInfo.InvariantCulture);
+                    } catch (OverflowException) {
+                        throw BuildParseError("Value was either too large or too"
+                            + " small for type 'int'.", p0, p1);
+                    }
                 }
             }
 

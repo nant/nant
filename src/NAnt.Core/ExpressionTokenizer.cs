@@ -276,7 +276,6 @@ namespace NAnt.Core {
                     ReadChar();
                     return ;
                 }
-
             } else {
                 ReadChar();
             }
