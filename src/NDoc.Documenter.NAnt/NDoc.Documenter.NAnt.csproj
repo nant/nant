@@ -1,8 +1,8 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
+        ProductVersion = "7.0.9466"
+        SchemaVersion = "1.0"
         ProjectGuid = "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
     >
         <Build>
@@ -16,10 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
                 RootNamespace = "NDoc.Documenter.NAnt"
-                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
                 <Config
@@ -33,14 +30,13 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
+                    NoWarn = "0618"
                     Optimize = "false"
-                    OutputPath = "bin\Debug\"
+                    OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
                 <Config
                     Name = "Debug Main NAnt BuildFile"
@@ -53,14 +49,13 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
+                    NoWarn = "0618"
                     Optimize = "false"
-                    OutputPath = "bin\Debug Main NAnt BuildFile\"
+                    OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
             </Settings>
             <References>
@@ -113,27 +108,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "MissingDocumenter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "MissingDocumenterConfig.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAntTaskDocumenter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAntTaskDocumenterConfig.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAntTaskMissingDocsDocumenter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
