@@ -34,8 +34,8 @@
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
                 <Config
                     Name = "Debug Main NAnt BuildFile"
@@ -52,8 +52,8 @@
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
             </Settings>
             <References>
@@ -111,6 +111,11 @@
                 />
                 <File
                     RelPath = "NAntTaskDocumenterConfig.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAntXsltUtilities.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
