@@ -105,6 +105,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Compression\NAnt.Compression.build"
+                    SubType = "Content"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "NAnt.Compression\Tasks\UnZipTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Compression\Tasks\ZipTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Console\NAnt.Console.build"
                     SubType = "Content"
                     BuildAction = "None"
@@ -205,9 +220,9 @@
                     BuildAction = "Compile"
                 />
                 <File
-                     RelPath = "NAnt.Core\Filters\ReplaceStringTest.cs"
-                     SubType = "Code"
-                     BuildAction = "Compile"
+                    RelPath = "NAnt.Core\Filters\ReplaceStringTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.Core\Filters\ReplaceTokensTest.cs"
@@ -469,6 +484,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.VisualCpp\Util\ArgumentUtilsTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.VSNet\NAnt.VSNet.build"
                     SubType = "Content"
                     BuildAction = "None"
@@ -495,21 +515,6 @@
                 />
                 <File
                     RelPath = "NAnt.Win32\Tasks\ReadRegistryTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Compression\NAnt.Compression.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Compression\Tasks\UnZipTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Compression\Tasks\ZipTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
