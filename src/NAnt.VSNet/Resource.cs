@@ -17,12 +17,15 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.DotNet.Tasks;
 using NAnt.VSNet.Tasks;
 
@@ -32,7 +35,6 @@ namespace NAnt.VSNet {
 
         public Resource(Project project, string resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask) {
             _project = project;
-            _projectSettings = project.ProjectSettings;
             _resourceSourceFile = resourceSourceFile;
             _resourceSourceFileRelativePath = resourceSourceFileRelativePath;
             _dependentFile = dependentFile;
@@ -51,13 +53,15 @@ namespace NAnt.VSNet {
             get { return _resourceSourceFile; }
         }
 
+        public Project Project {
+            get { return _project; }
+        }
+
         #endregion Public Instance Properties
 
         #region Public Instance Methods
 
         public void Compile(ConfigurationSettings configurationSettings, bool showCommands) {
-            _configurationSettings = configurationSettings;
-
             FileInfo fiResource = new FileInfo(_resourceSourceFile);
 
             switch (fiResource.Extension.ToLower()) {
@@ -78,13 +82,16 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         private string GetDependentResourceName(string dependentFile) {
-            switch (Path.GetExtension(dependentFile).ToLower()) {
+            string extension = Path.GetExtension(dependentFile);
+
+            switch (extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".cs":
                     return GetDependentResourceNameCSharp(dependentFile);
                 case ".vb":
                     return GetDependentResourceNameVB(dependentFile);
                 default:
-                    throw new ArgumentException("Unknown file extension");
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                        "Unsupported file extension '{0}'.", extension));
             }
         }
 
@@ -105,13 +112,13 @@ namespace NAnt.VSNet {
             Stack st = new Stack();
 
             while (m.Success) {
-                string strValue = m.Value;
-                if (strValue.StartsWith( "namespace")) {
+                string value = m.Value;
+                if (value.StartsWith("namespace")) {
                     st.Push(m.Result("${ns}").Trim());
-                } else if (strValue.StartsWith("class")) {
+                } else if (value.StartsWith("class")) {
                     st.Push(m.Result("${class}").Trim());
                     break;
-                } else if (strValue == "}") {
+                } else if (value == "}") {
                     if (st.Count > 0) {
                         st.Pop();
                     }
@@ -148,14 +155,14 @@ namespace NAnt.VSNet {
             Stack st = new Stack();
 
             while (m.Success) {
-                string strValue = m.Value.Trim();
-                if (strValue.StartsWith("End ")) {
+                string value = m.Value.Trim();
+                if (value.StartsWith("End ")) {
                     if (st.Count > 0) {
                         st.Pop();
                     }
-                } else if (strValue.StartsWith("Namespace")) {
+                } else if (value.StartsWith("Namespace")) {
                     st.Push(m.Result("${ns}").Trim());
-                } else if (strValue.IndexOf("Class") >= 0) {
+                } else if (value.IndexOf("Class") >= 0) {
                     st.Push(m.Result("${class}").Trim());
                     break;
                 }
@@ -171,11 +178,13 @@ namespace NAnt.VSNet {
             ArrayList al = new ArrayList(stReverse.ToArray());
 
             string className = string.Join(".", (string[]) al.ToArray(typeof(string)));
-            return _projectSettings.RootNamespace + "." + className + ".resources";
+            return Project.ProjectSettings.RootNamespace + "." + className + ".resources";
         }
 
         private string CompileResource() {
-            string outputFile = _projectSettings.GetTemporaryFilename(_projectSettings.RootNamespace + "." + _resourceSourceFileRelativePath.Replace("\\", "."));
+            string outputFile = Project.ProjectSettings.GetTemporaryFilename(
+                Project.ProjectSettings.RootNamespace + "." + 
+                _resourceSourceFileRelativePath.Replace("\\", "."));
             
             if (File.Exists(outputFile)) {
                 File.SetAttributes(outputFile, FileAttributes.Normal);
@@ -187,21 +196,21 @@ namespace NAnt.VSNet {
         }
 
         private string CompileLicx() {
-            string outputFile = _projectSettings.OutputFile;
+            string outputFile = Project.ProjectSettings.OutputFile;
 
             LicenseTask lt = new LicenseTask();
             lt.Input = _resourceSourceFile;
-            lt.Output = _projectSettings.GetTemporaryFilename(outputFile + ".licenses");
+            lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFile + ".licenses");
             lt.Target = outputFile;
             lt.Verbose = _solutionTask.Verbose;
             lt.Project = _solutionTask.Project;
             lt.Assemblies = new FileSet();
 
-            foreach (Reference r in _project.References) {
-                if (r.IsSystem) {
-                    lt.Assemblies.AsIs.Add(r.Name);
+            foreach (Reference reference in Project.References) {
+                if (reference.IsSystem) {
+                    lt.Assemblies.AsIs.Add(reference.Name);
                 } else {
-                    lt.Assemblies.Includes.Add(r.Filename);
+                    lt.Assemblies.Includes.Add(reference.Filename);
                 }
             }
 
@@ -213,32 +222,43 @@ namespace NAnt.VSNet {
         }
 
         private string CompileResx() {
-            string strInFile = _resourceSourceFile;
-            string strOutFile;
+            string inFile = _resourceSourceFile;
+            string outFile;
             
             if (_dependentFile != null) {
-                strOutFile = GetDependentResourceName(_dependentFile);
+                outFile = GetDependentResourceName(_dependentFile);
             } else {
-                strOutFile = _projectSettings.RootNamespace + "." + Path.GetDirectoryName(_resourceSourceFileRelativePath).Replace("\\", ".") + "." + Path.GetFileNameWithoutExtension(_resourceSourceFile) + ".resources";
+                StringBuilder sb = new StringBuilder();
+                if (!StringUtils.IsNullOrEmpty(Project.ProjectSettings.RootNamespace)) {
+                    sb.Append(Project.ProjectSettings.RootNamespace);
+                }
+                if (!StringUtils.IsNullOrEmpty(Path.GetDirectoryName(_resourceSourceFileRelativePath))) {
+                    sb.AppendFormat(".{0}", Path.GetDirectoryName(_resourceSourceFileRelativePath).Replace("\\", "."));
+                }
+                if (!StringUtils.IsNullOrEmpty(_resourceSourceFile)) {
+                    sb.AppendFormat(".{0}", Path.GetFileNameWithoutExtension(_resourceSourceFile));
+                }
+                sb.Append(".resources");
+                outFile = sb.ToString();
             }
-            strOutFile = _projectSettings.GetTemporaryFilename(strOutFile);
+            outFile = Project.ProjectSettings.GetTemporaryFilename(outFile);
 
             _solutionTask.Project.Indent();
-            _solutionTask.Log(Level.Verbose, _solutionTask.LogPrefix + "ResGenTask Input: {0} Output: {1}", strInFile, strOutFile);
+            _solutionTask.Log(Level.Verbose, _solutionTask.LogPrefix + "ResGenTask Input: {0} Output: {1}", inFile, outFile);
             _solutionTask.Project.Unindent();
 
             ResGenTask rt = new ResGenTask();
-            rt.Input = strInFile;
-            rt.Output = Path.GetFileName(strOutFile);
-            rt.ToDirectory = Path.GetDirectoryName(strOutFile);
+            rt.Input = inFile;
+            rt.Output = Path.GetFileName(outFile);
+            rt.ToDirectory = Path.GetDirectoryName(outFile);
             rt.Verbose = false;
             rt.Project = _solutionTask.Project;
-            rt.BaseDirectory = Path.GetDirectoryName(strInFile);
+            rt.BaseDirectory = Path.GetDirectoryName(inFile);
             rt.Project.Indent();
             rt.Execute();
             rt.Project.Unindent();
 
-            return strOutFile;
+            return outFile;
         }
 
         #endregion Private Instance Methods
@@ -249,9 +269,7 @@ namespace NAnt.VSNet {
         private string _resourceSourceFile;
         private string _dependentFile;
         private string _resourceSourceFileRelativePath;
-        private ProjectSettings _projectSettings;
         private Project _project;
-        private ConfigurationSettings _configurationSettings;
         private SolutionTask _solutionTask;
 
         #endregion Private Instance Fields
