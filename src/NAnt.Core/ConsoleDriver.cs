@@ -132,7 +132,7 @@ namespace NAnt.Core {
                 project.Properties.AddReadOnly(Project.NAntPropertyLocation, Path.GetDirectoryName(ass.Location));
 
                 if (cmdlineOptions.DefaultFramework != null) {
-                    FrameworkInfo frameworkInfo = project.FrameworkInfoDictionary[cmdlineOptions.DefaultFramework];
+                    FrameworkInfo frameworkInfo = project.Frameworks[cmdlineOptions.DefaultFramework];
 
                     if (frameworkInfo != null) {
                         project.TargetFramework = frameworkInfo; 
@@ -144,14 +144,14 @@ namespace NAnt.Core {
                             cmdlineOptions.DefaultFramework));
                         Console.WriteLine();
 
-                        if (project.FrameworkInfoDictionary.Count == 0) {
+                        if (project.Frameworks.Count == 0) {
                             Console.WriteLine("There are no supported frameworks available on your system.");
                         } else {
                             Console.WriteLine("Possible values include:");
                             Console.WriteLine();
 
-                            foreach (string s in project.FrameworkInfoDictionary.Keys) {
-                                Console.WriteLine(" {0} ({1})", s, project.FrameworkInfoDictionary[s].Description);
+                            foreach (string framework in project.Frameworks.Keys) {
+                                Console.WriteLine(" {0} ({1})", framework, project.Frameworks[framework].Description);
                             }
                         }
                         // signal error

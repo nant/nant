@@ -253,7 +253,7 @@ namespace NAnt.Core.Tasks {
         /// <see langword="false" />.
         /// </returns>
         private bool CheckFramework() {
-            return Project.FrameworkInfoDictionary.Contains(Resource);
+            return Project.Frameworks.Contains(Resource);
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace NAnt.Core.Tasks {
         /// available; otherwise, <see langword="false" />.
         /// </returns>
         private bool CheckFrameworkSDK() {
-            FrameworkInfo framework = Project.FrameworkInfoDictionary[Resource];
+            FrameworkInfo framework = Project.Frameworks[Resource];
             if (framework != null) {
                 return framework.SdkDirectory != null;
             } else {

@@ -214,7 +214,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("exists")]
         public bool Exists(string name) {
-            return Project.FrameworkInfoDictionary.ContainsKey(name);
+            return Project.Frameworks.ContainsKey(name);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the family of the specified framework
-            return Project.FrameworkInfoDictionary[framework].Family;
+            return Project.Frameworks[framework].Family;
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the family of the specified framework
-            return Project.FrameworkInfoDictionary[framework].Version;
+            return Project.Frameworks[framework].Version;
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the description of the specified framework
-            return Project.FrameworkInfoDictionary[framework].Description;
+            return Project.Frameworks[framework].Description;
         }
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the family of the specified framework
-            return Project.FrameworkInfoDictionary[framework].ClrVersion;
+            return Project.Frameworks[framework].ClrVersion;
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the framework directory of the specified framework
-            return Project.FrameworkInfoDictionary[framework].FrameworkDirectory;
+            return Project.Frameworks[framework].FrameworkDirectory;
         }
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the assembly directory of the specified framework
-            return Project.FrameworkInfoDictionary[framework].FrameworkAssemblyDirectory;
+            return Project.Frameworks[framework].FrameworkAssemblyDirectory;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the SDK directory of the specified framework
-            return Project.FrameworkInfoDictionary[framework].SdkDirectory;
+            return Project.Frameworks[framework].SdkDirectory;
         }
 
         /// <summary>
@@ -345,7 +345,7 @@ namespace NAnt.Core.Functions {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the runtime engine of the specified framework
-            return Project.FrameworkInfoDictionary[framework].RuntimeEngine;
+            return Project.Frameworks[framework].RuntimeEngine;
         }
 
         #endregion Public Instance Methods
@@ -358,7 +358,7 @@ namespace NAnt.Core.Functions {
         /// <param name="framework">The framework to check.</param>
         /// <exception cref="ArgumentException">The framework is not valid.</exception>
         private void CheckFramework(string framework) {
-            if (!Project.FrameworkInfoDictionary.ContainsKey(framework)) {
+            if (!Project.Frameworks.ContainsKey(framework)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                     "'{0}' is not a valid framework identifier.", framework));
             }

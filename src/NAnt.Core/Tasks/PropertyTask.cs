@@ -144,12 +144,12 @@ namespace NAnt.Core.Tasks {
 
             // Special check for framework setting.
             if (PropertyName == "nant.settings.currentframework") {
-                if (Project.FrameworkInfoDictionary.Contains(propertyValue)) {
-                    Project.TargetFramework = Project.FrameworkInfoDictionary[propertyValue];
+                if (Project.Frameworks.Contains(propertyValue)) {
+                    Project.TargetFramework = Project.Frameworks[propertyValue];
                     return;
                 } else {
                     ArrayList validvalues = new ArrayList();
-                    foreach (FrameworkInfo framework in Project.FrameworkInfoDictionary) {
+                    foreach (FrameworkInfo framework in Project.Frameworks) {
                         validvalues.Add(framework.Name);
                     }
                     string validvaluesare = string.Empty;
