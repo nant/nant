@@ -172,7 +172,6 @@ namespace NAnt.Core.Tasks {
         /// <c>true</c> if the external program should be executed using a 
         /// runtime engine; otherwise, <c>false</c>.
         /// </value>
-        [TaskAttribute("useruntimeengine")]
         [FrameworkConfigurable("useruntimeengine")]
         public virtual bool UseRuntimeEngine {
             get { return _useRuntimeEngine; }
