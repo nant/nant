@@ -814,7 +814,8 @@ namespace NAnt.Core {
                 if (!StringUtils.IsNullOrEmpty(deprecatedFailureTarget)) {
                     Log(Level.Warning, "The 'nant.failure' property has been deprecated." + 
                         " You should use '{0}' to designate the target that should be" + 
-                        " executed when the build fails.\n", Project.NAntPropertyOnFailure);
+                        " executed when the build fails." + Environment.NewLine, 
+                        Project.NAntPropertyOnFailure);
                     if (error != null) {
                         Execute(deprecatedFailureTarget);
                     }
@@ -1165,7 +1166,7 @@ namespace NAnt.Core {
                     // we are an datatype declaration
                     DataTypeBase dataType = CreateDataTypeBase(childNode);
 
-                    Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);                    
+                    Log(Level.Debug, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);                    
                     if ( ! DataTypeReferences.Contains(dataType.ID ) ) {
                         DataTypeReferences.Add(dataType.ID, dataType);
                     } else {
@@ -1305,7 +1306,7 @@ namespace NAnt.Core {
             // dependency tree, not just on the Targets that depend on the
             // build Target.
             TopologicalTargetSort(root, targets, state, visiting, executeTargets);
-            Log(Level.Verbose, "Build sequence for target `" + root + "' is " + executeTargets);
+            Log(Level.Debug, "Build sequence for target `" + root + "' is " + executeTargets);
             foreach (Target target in targets) {
                 string st = (string) state[target.Name];
 
@@ -1316,7 +1317,7 @@ namespace NAnt.Core {
                 }
             }
 
-            Log(Level.Verbose, "Complete build sequence is " + executeTargets);
+            Log(Level.Debug, "Complete build sequence is " + executeTargets);
             return executeTargets;
         }
 
