@@ -38,7 +38,7 @@ namespace NAnt.Core.Functions {
 
         #endregion Public Instance Constructors
 
-        #region Public Static Methods
+        #region Public Instance Methods
 
         /// <summary>
         /// Gets the creation date and time of the specified file or directory.
@@ -48,8 +48,8 @@ namespace NAnt.Core.Functions {
         /// The creation date and time of the specified file or directory.
         /// </returns>
         [Function("get-creation-time")]
-        public static DateTime GetCreationTime(string path) {
-            return File.GetCreationTime(path);
+        public DateTime GetCreationTime(string path) {
+            return File.GetCreationTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace NAnt.Core.Functions {
         /// The date and time the specified file or directory was last written to.
         /// </returns>
         [Function("get-last-write-time")]
-        public static DateTime GetLastWriteTime(string path) {
-            return File.GetLastWriteTime(path);
+        public DateTime GetLastWriteTime(string path) {
+            return File.GetLastWriteTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -72,8 +72,8 @@ namespace NAnt.Core.Functions {
         /// The date and time the specified file or directory was last accessed.
         /// </returns>
         [Function("get-last-access-time")]
-        public static DateTime GetLastAccessTime(string path) {
-            return File.GetLastAccessTime(path);
+        public DateTime GetLastAccessTime(string path) {
+            return File.GetLastAccessTime(Project.GetFullPath(path));
         }
 
         /// <summary>
@@ -85,8 +85,34 @@ namespace NAnt.Core.Functions {
         /// existing file; otherwise, <see langword="false" />.
         /// </returns>
         [Function("exists")]
-        public static bool Exists(string file) {
-            return File.Exists(file);
+        public bool Exists(string file) {
+            return File.Exists(Project.GetFullPath(file));
+        }
+
+        /// <summary>
+        /// Determines whether <paramref name="targetFile" /> is more or equal 
+        /// up-to-date than <paramref name="srcFile" />.
+        /// </summary>
+        /// <param name="srcFile">The file to check against the target file.</param>
+        /// <param name="targetFile">The file for which we want to determine the status.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="targetFile" /> is more 
+        /// or equal up-to-date than <paramref name="srcFile" />; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        [Function("up-to-date")]
+        public bool UpToDate(string srcFile, string targetFile) {
+            // get lastwritetime of targetFile
+            DateTime targetLastWriteTime = File.GetLastWriteTime(
+                Project.GetFullPath(targetFile));
+
+            // determine whether lastwritetime of srcFile is more recent
+            // than lastwritetime or targetFile
+            string newerFile = FileSet.FindMoreRecentLastWriteTime(
+                Project.GetFullPath(srcFile), targetLastWriteTime);
+
+            // return true if srcFile is not newer than target file
+            return newerFile == null;
         }
 
         /// <summary>
@@ -97,11 +123,11 @@ namespace NAnt.Core.Functions {
         /// Length in bytes, of the file named <paramref name="file" />.
         /// </returns>
         [Function("get-length")]
-        public static int Length(string file) {
-            FileInfo fi = new FileInfo(file);
-            return (int)fi.Length;
+        public int Length(string file) {
+            FileInfo fi = new FileInfo(Project.GetFullPath(file));
+            return (int) fi.Length;
         }
 
-        #endregion Public Static Methods
+        #endregion Public Instance Methods
     }
 }
