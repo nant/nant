@@ -396,7 +396,7 @@ namespace NAnt.Core.Util {
             if (IsCollection || IsArray) {
                 if (Unique && _collectionValues.Contains(newValue)) {
                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                        "Duplicate value '-{0}' for command-line argument '{1}'.", value, LongName));
+                        "Duplicate value '{0}' for command-line argument '-{1}'.", value, LongName));
                 } else {
                     _collectionValues.Add(newValue);
                 }
