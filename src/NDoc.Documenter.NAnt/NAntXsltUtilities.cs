@@ -23,6 +23,8 @@ using System.Collections.Specialized;
 using System.Xml;
 using System.Xml.XPath;
 
+using NDoc.Core;
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 
@@ -64,19 +66,20 @@ namespace NDoc.Documenter.NAnt {
             _doc = doc;
             _config = config;
 
-            switch (config.LinkToSdkDocVersion) {
-                case SdkDocVersion.SDK_v1_0:
-                    _sdkDocBaseUrl = SdkDoc10BaseUrl;
-                    _sdkDocExt = SdkDocPageExt;
-                    break;
-                case SdkDocVersion.SDK_v1_1:
-                    _sdkDocBaseUrl = SdkDoc11BaseUrl;
-                    _sdkDocExt = SdkDocPageExt;
-                    break;
-                case SdkDocVersion.MsdnOnline:
-                    _sdkDocBaseUrl = MsdnOnlineSdkBaseUrl;
-                    _sdkDocExt = MsdnOnlineSdkPageExt;
-                    break;
+            if (config.SdkLinksOnWeb) {
+                _sdkDocBaseUrl = MsdnOnlineSdkBaseUrl;
+                _sdkDocExt = MsdnOnlineSdkPageExt;
+            } else {
+                switch (config.SdkDocVersion) {
+                    case SdkVersion.SDK_v1_0:
+                        _sdkDocBaseUrl = SdkDoc10BaseUrl;
+                        _sdkDocExt = SdkDocPageExt;
+                        break;
+                    case SdkVersion.SDK_v1_1:
+                        _sdkDocBaseUrl = SdkDoc11BaseUrl;
+                        _sdkDocExt = SdkDocPageExt;
+                        break;
+                }
             }
 
             //create a list of element names by id
@@ -518,10 +521,10 @@ namespace NDoc.Documenter.NAnt {
         }
         
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, NAntDocumenterConfig config){
-            //just in case... but we should never see this happen.
+            // just in case... but we should never see this happen.
             lock (Instances) {
                 foreach (NAntXsltUtilities util in Instances) {
-                    if (util.Document == doc && util.Config.LinkToSdkDocVersion.Equals(config.LinkToSdkDocVersion)) {
+                    if (util.Document == doc && util.Config.SdkDocVersion.Equals(config.SdkDocVersion) && util.Config.SdkLinksOnWeb == config.SdkLinksOnWeb) {
                         return util;
                     }
                 }

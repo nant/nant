@@ -78,20 +78,6 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets the .NET Framework SDK version to provide links to for system 
-        /// types.
-        /// </summary>
-        /// <value>
-        /// The .NET Framework SDK version to provide links to for system types.
-        /// The default is <see cref="F:SdkDocVersion.MsdnOnline" />.
-        /// </value>
-        public SdkDocVersion LinkToSdkDocVersion {
-            get {
-                return ((NAntDocumenterConfig) Config).LinkToSdkDocVersion;
-            } 
-        }
-
-        /// <summary>
         /// Gets or sets the root namespace to document.
         /// </summary>
         /// <value>
@@ -444,25 +430,7 @@ namespace NDoc.Documenter.NAnt {
         }
         #endregion
     }
-    /// <summary>
-    /// Specifies a version of the .NET Framework documentation.
-    /// </summary>
-    public enum SdkDocVersion {
-        /// <summary>
-        /// The SDK version 1.0.
-        /// </summary>
-        SDK_v1_0,
 
-        /// <summary>
-        /// The SDK version 1.1.
-        /// </summary>
-        SDK_v1_1,
-
-        /// <summary>
-        /// The online version of the SDK documentation.
-        /// </summary>
-        MsdnOnline
-    }
     public enum ElementDocType {
         Task,
         DataTypeElement,

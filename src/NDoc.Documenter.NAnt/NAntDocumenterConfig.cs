@@ -34,7 +34,7 @@ namespace NDoc.Documenter.NAnt {
         #region Private Instance Fields
 
         private string _outputDirectory = @"doc/help/tasks";
-        private SdkDocVersion _linkToSdkDocVersion = SdkDocVersion.MsdnOnline;
+        private bool _sdkLinksOnWeb;
         private string _applicationName = "NAnt";
         private string _nantBaseUri = "";
         private string _namespaceFilter = "";
@@ -43,9 +43,6 @@ namespace NDoc.Documenter.NAnt {
 
         #region Public Instance Constructors
 
-        protected NAntDocumenterConfig(string name) : base(name){
-        }
-        
         /// <summary>
         /// Initializes a new instance of the <see cref="NAntDocumenterConfig" /> 
         /// class.
@@ -89,19 +86,16 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets the .NET Framework SDK version to provide links to for
-        /// system types.
+        /// Gets or sets a value indicating whether .NET Framework SDK links 
+        /// should point to the online MSDN library.
         /// </summary>
-        /// <value>
-        /// The .NET Framework SDK version to provide links to for system types.
-        /// The default is <see cref="SdkDocVersion.MsdnOnline" />.
-        /// </value>
-        [Category("Output")]
-        [Description("Specifies to which version of the .NET Framework SDK documentation the links to system types will be pointing.")]
-        public SdkDocVersion LinkToSdkDocVersion {
-            get { return _linkToSdkDocVersion; }
+        [Category("Documentation Main Settings")]
+        [Description("Turning this flag on will point all SDK links to the online MSDN library")]
+        [DefaultValue(false)]
+        public bool SdkLinksOnWeb {
+            get { return _sdkLinksOnWeb; }
             set {
-                _linkToSdkDocVersion = value;
+                _sdkLinksOnWeb= value;
                 SetDirty();
             }
         }
