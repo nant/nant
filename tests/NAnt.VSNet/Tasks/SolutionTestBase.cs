@@ -151,7 +151,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// </summary>
         [TearDown]
         protected override void TearDown () {
-//            base.TearDown();
+            base.TearDown();
         }
 
         #region Protected Instance Methods
