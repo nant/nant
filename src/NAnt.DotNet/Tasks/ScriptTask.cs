@@ -33,6 +33,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Types;
 
 namespace NAnt.Core.Tasks {
@@ -125,9 +126,9 @@ namespace NAnt.Core.Tasks {
         private string _mainClass = "";
         private static Hashtable _compilerMap;
         private string _rootClassName;
-        private string _code;
         private string _prefix = "script";
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
+        private RawXml _code;
 
         #endregion Private Instance Fields
 
@@ -191,6 +192,15 @@ namespace NAnt.Core.Tasks {
             get { return _imports; }
         }
 
+        /// <summary>
+        /// The code to execute.
+        /// </summary>
+        [BuildElement("code", Required=true)]
+        public RawXml Code {
+            get { return _code; }
+            set { _code = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Static Constructor
@@ -222,18 +232,8 @@ namespace NAnt.Core.Tasks {
         /// Initializes the task using the specified xml node.
         /// </summary>
         protected override void InitializeTask(XmlNode taskNode) {
-            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
-            XmlNodeList codeList = taskNode.SelectNodes("nant:code", NamespaceManager);
-            if (codeList.Count < 1) {
-                throw new BuildException("<code> block not found.", Location);
-            }
-
-            if (codeList.Count > 1) {
-                throw new BuildException("Only one <code> block allowed.", Location);
-            }
-            _code = codeList.Item(0).InnerText;
-
-            _rootClassName = "nant" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+            _rootClassName = "nant" + Guid.NewGuid().ToString("N", 
+                CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -294,7 +294,10 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            string code = compilerInfo.GenerateCode(_rootClassName, _code, imports, Prefix);
+            // generate the code
+            string code = compilerInfo.GenerateCode(_rootClassName, 
+                Code.Xml.InnerText, imports, Prefix);
+
             Log(Level.Debug, "Generated code for the script looks like :\n{0}", code);
 
             CompilerResults results = compiler.CompileAssemblyFromSource(options, code);
