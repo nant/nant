@@ -348,12 +348,13 @@ namespace NAnt.VSNet {
             Hashtable unresolvedReferences = new Hashtable();
 
             // create temporary domain
-            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
+				AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
 
             try {
                 ReferencesResolver referencesResolver =
                     ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                        typeof(ReferencesResolver).FullName).Unwrap());
+                    typeof(ReferencesResolver).FullName).Unwrap());
 
                 allReferences.Add(fullPathToModule, null);
                 unresolvedReferences.Add(fullPathToModule, null);
@@ -370,6 +371,10 @@ namespace NAnt.VSNet {
                         referenceToResolve, ref allReferences, ref unresolvedReferences);
 
                 }
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error resolving module references of '{0}'.", fullPathToModule),
+                    Location.UnknownLocation, ex);
             } finally {
                 // unload temporary domain
                 AppDomain.Unload(temporaryDomain);
@@ -663,7 +668,8 @@ namespace NAnt.VSNet {
 
                     // construct separate appdomain used to obtain information
                     // on primary interop assembly
-                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
+						AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
 
                     try {
                         ReferencesResolver referencesResolver =
