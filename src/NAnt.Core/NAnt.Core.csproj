@@ -76,9 +76,9 @@
                     AssemblyName = "System.Xml"
                 />
                 <Reference
-                    Name = "log4net-net-1.0"
-                    AssemblyName = "log4net-net-1.0"
-                    HintPath = "..\..\bin\log4net-net-1.0.dll"
+                    Name = "log4net"
+                    AssemblyName = "log4net"
+                    HintPath = "..\..\lib\net\1.0\log4net.dll"
                 />
             </References>
         </Build>
