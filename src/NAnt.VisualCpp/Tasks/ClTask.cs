@@ -450,23 +450,29 @@ namespace NAnt.VisualCpp.Tasks {
 
 			/// <summary>
 			/// Create a precompiled header file.
+			/// </summary>
+			/// <remarks>
 			/// For further information on the use of this option
 			/// see the Microsoft documentation on the C++ compiler flag /Yc.
-			/// </summary>
+			/// </remarks>
 			Create = 1,
 
 			/// <summary>
 			/// Automatically create a precompiled header file if necessary.
+			/// </summary>
+			/// <remarks>
 			/// For further information on the use of this option
 			/// see the Microsoft documentation on the C++ compiler flag /YX.
-			/// </summary>
+			/// </remarks>
 			AutoCreate = 2,
 
 			/// <summary>
 			/// Use a (previously generated) precompiled header file.
+			/// </summary>
+			/// <remarks>
 			/// For further information on the use of this option
 			/// see the Microsoft documentation on the C++ compiler flag /Yu.
-			/// </summary>
+			/// </remarks>
 			Use = 0,
 		}
     }
