@@ -66,7 +66,7 @@ namespace NAnt.VSNet {
 
             XmlNodeList configurationNodes = xmlDefinition.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
-                VcConfiguration config = new VcConfiguration(configElem, this, solution, OutputDir);
+                VcProjectConfiguration config = new VcProjectConfiguration(configElem, this, OutputDir);
                 ProjectConfigurations[config.Name] = config;
                 _htPlatformConfigurations[config.FullName] = config;
             }
@@ -85,21 +85,39 @@ namespace NAnt.VSNet {
 
             XmlNodeList fileNodes = xmlDefinition.SelectNodes("//File");
             foreach (XmlElement fileElem in fileNodes) {
-                string relPath = fileElem.GetAttribute("RelativePath");
-                
-                Hashtable htFileConfigurations = null;
-                XmlNodeList fileConfigList = fileElem.GetElementsByTagName("FileConfiguration");
-                if (fileConfigList.Count > 0) {
-                    htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
-                    foreach (XmlElement fileConfigElem in fileConfigList) {
-                        string fileConfigName = fileConfigElem.GetAttribute("Name");
-                        VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations[fileConfigName];
-                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, solution, baseConfig, OutputDir);
-                        htFileConfigurations [fileConfig.Name] = fileConfig;
+                string parentName = Name;
+
+                // determine name of parent
+                if (fileElem.ParentNode != null && fileElem.ParentNode.Name == "Filter") {
+                    XmlNode filterName = fileElem.ParentNode.Attributes.GetNamedItem("Name");
+                    if (filterName != null) {
+                        parentName = filterName.Value;
                     }
                 }
 
-                _htFiles [relPath] = htFileConfigurations;
+                string relPath = fileElem.GetAttribute("RelativePath");
+                Hashtable htFileConfigurations = null;
+
+                XmlNodeList fileConfigList = fileElem.GetElementsByTagName("FileConfiguration");
+                if (fileConfigList.Count > 0) {
+                    htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable(fileConfigList.Count);
+                    foreach (XmlElement fileConfigElem in fileConfigList) {
+                        string fileConfigName = fileConfigElem.GetAttribute("Name");
+                        VcProjectConfiguration projectConfig = (VcProjectConfiguration) _htPlatformConfigurations[fileConfigName];
+                        htFileConfigurations[projectConfig.Name] = new VcFileConfiguration(
+                            relPath, parentName, fileConfigElem, projectConfig, outputDir);
+                    }
+                } else {
+                    // TODO: we only need to do this if the project configuration 
+                    // contains file-specific values in its configuration
+                    /*
+                    foreach (VcProjectConfiguration projectConfig in _htPlatformConfigurations) {
+                        htFileConfigurations[projectConfig.Name] = new 
+                            VcFileConfiguration(relPath, parentName, projectConfig, outputDir);
+                    }
+                    */
+                }
+                _htFiles[relPath] = htFileConfigurations;
             }
         }
 
@@ -209,7 +227,7 @@ namespace NAnt.VSNet {
         protected override bool Build(ConfigurationBase config) {
             _objFiles.Clear();
             
-            VcConfiguration baseConfig = (VcConfiguration) config;
+            VcProjectConfiguration projectConfig = (VcProjectConfiguration) config;
 
             // initialize hashtable for holding the C++ sources for each build
             // configuration
@@ -238,23 +256,19 @@ namespace NAnt.VSNet {
             foreach (DictionaryEntry de in _htFiles) {
                 string fileName = (string) de.Key;
                 string ext = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
-                
-                VcConfiguration fileConfig = null;
-                if (de.Value != null) {
-                    if (de.Value is Hashtable) {
-                        Hashtable _htValue = (Hashtable) de.Value;
-                        fileConfig = (VcConfiguration) _htValue[baseConfig.Name];
-                    } else {
-                        fileConfig = (VcConfiguration) de.Value;
-                    }
-                }
 
-                if (fileConfig == null) {
-                    fileConfig = baseConfig;
-                }
-                
-                if (fileConfig.ExcludeFromBuild) {
-                    continue;
+                VcConfigurationBase fileConfig = null;
+
+                if (de.Value != null) {
+                    Hashtable _htValue = (Hashtable) de.Value;
+                    VcFileConfiguration configuration = (VcFileConfiguration) 
+                        _htValue[projectConfig.Name];
+                    if (configuration.ExcludeFromBuild) {
+                        continue;
+                    }
+                    fileConfig = configuration;
+                } else {
+                    fileConfig = projectConfig;
                 }
 
                 switch (ext) {
@@ -287,49 +301,49 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string nmakeCommand = baseConfig.GetToolSetting("VCNMakeTool", "BuildCommandLine");
+            string nmakeCommand = projectConfig.GetToolSetting("VCNMakeTool", "BuildCommandLine");
             if (nmakeCommand != null) {
                 RunNMake(nmakeCommand);
                 return true;
             }
 
-            VcConfiguration stdafxConfig = null;
+            VcConfigurationBase stdafxConfig = null;
 
             // build idl files before everything else
-            foreach (VcConfiguration idlConfig in buildIdlConfigs.Keys) {
+            foreach (VcConfigurationBase idlConfig in buildIdlConfigs.Keys) {
                 BuildIDLFiles((ArrayList) buildIdlConfigs[idlConfig], idlConfig);
             }
 
             // If VC project uses precompiled headers then the precompiled header
             // output (.pch file) must be generated before compiling any other
             // source files.
-            foreach (VcConfiguration vcConfig in buildConfigs.Keys) {
+            foreach (VcConfigurationBase vcConfig in buildConfigs.Keys) {
                 if (vcConfig.UsePrecompiledHeader == UsePrecompiledHeader.Create) {
-                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig, vcConfig);
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], projectConfig, vcConfig);
                     stdafxConfig = vcConfig;
                 }
             }
 
-            foreach (VcConfiguration vcConfig in buildConfigs.Keys) {
+            foreach (VcConfigurationBase vcConfig in buildConfigs.Keys) {
                 if (vcConfig != stdafxConfig) {
-                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig,
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], projectConfig,
                         vcConfig);
                 }
             }
 
             // build resource files
-            foreach (VcConfiguration rcConfig in buildRcConfigs.Keys) {
-                BuildResourceFiles((ArrayList) buildRcConfigs[rcConfig],
-                    rcConfig);
+            foreach (VcConfigurationBase rcConfig in buildRcConfigs.Keys) {
+                BuildResourceFiles((ArrayList) buildRcConfigs[rcConfig], 
+                    projectConfig, rcConfig);
             }
 
-            string libOutput = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
+            string libOutput = projectConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
             if (libOutput != null) {
-                RunLibrarian(baseConfig);
+                RunLibrarian(projectConfig);
             } else {
-                string linkOutput = baseConfig.GetToolSetting("VCLinkerTool", "OutputFile");
+                string linkOutput = projectConfig.GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
-                    RunLinker(baseConfig);
+                    RunLinker(projectConfig);
                 }
             }
 
@@ -448,11 +462,11 @@ namespace NAnt.VSNet {
             }
         }
 
-        private void BuildCPPFiles(ArrayList fileNames, VcConfiguration baseConfig, VcConfiguration fileConfig) {
+        private void BuildCPPFiles(ArrayList fileNames, VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCCLCompilerTool";
 
             string intermediateDir = Path.Combine(ProjectDirectory.FullName, 
-                fileConfig.IntermediateDir);
+                projectConfig.IntermediateDir);
 
             // create instance of Cl task
             ClTask clTask = new ClTask();
@@ -533,7 +547,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            clTask.CharacterSet = fileConfig.CharacterSet;
+            clTask.CharacterSet = projectConfig.CharacterSet;
             
             // ensure output directory exists
             if (!clTask.OutputDir.Exists) {
@@ -541,7 +555,7 @@ namespace NAnt.VSNet {
                 clTask.OutputDir.Refresh();
             }
 
-            string includeDirs = MergeCompilerToolSetting(baseConfig, fileConfig, 
+            string includeDirs = MergeCompilerToolSetting(projectConfig, fileConfig, 
                 "AdditionalIncludeDirectories");
             if (includeDirs != null) {
                 foreach (string includeDir in includeDirs.Split(',', ';')) {
@@ -553,7 +567,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string metadataDirs = MergeCompilerToolSetting(baseConfig, fileConfig, 
+            string metadataDirs = MergeCompilerToolSetting(projectConfig, fileConfig, 
                 "AdditionalUsingDirectories");
             if (metadataDirs != null) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
@@ -561,11 +575,11 @@ namespace NAnt.VSNet {
                         continue;
                     }
                     clTask.MetaDataIncludeDirs.DirectoryNames.Add(
-                        CleanPath(baseConfig.ExpandMacros(metadataDir)));
+                        CleanPath(fileConfig.ExpandMacros(metadataDir)));
                 }
             }
 
-            string forcedUsingFiles = MergeCompilerToolSetting(baseConfig, fileConfig, 
+            string forcedUsingFiles = MergeCompilerToolSetting(projectConfig, fileConfig, 
                 "ForcedUsingFiles");
             if (forcedUsingFiles != null) {
                 foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
@@ -573,7 +587,7 @@ namespace NAnt.VSNet {
                         continue;
                     }
                     clTask.ForcedUsingFiles.Includes.Add(
-                        CleanPath(baseConfig.ExpandMacros(forcedUsingFile)));
+                        CleanPath(fileConfig.ExpandMacros(forcedUsingFile)));
                 }
             }
 
@@ -619,7 +633,7 @@ namespace NAnt.VSNet {
                     Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
-            string preprocessorDefs = MergeCompilerToolSetting(baseConfig, fileConfig, "PreprocessorDefinitions");
+            string preprocessorDefs = MergeCompilerToolSetting(projectConfig, fileConfig, "PreprocessorDefinitions");
             if (preprocessorDefs != null) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     if (def.Length != 0) {
@@ -639,7 +653,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string addOptions = baseConfig.GetToolSetting(compilerTool, "AdditionalOptions");
+            string addOptions = fileConfig.GetToolSetting(compilerTool, "AdditionalOptions");
             if (addOptions != null) {
                 using (StringReader reader = new StringReader(addOptions)) {
                     string addOptionsLine = reader.ReadLine();
@@ -652,7 +666,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string exceptionHandling = baseConfig.GetToolSetting(compilerTool, "ExceptionHandling");
+            string exceptionHandling = fileConfig.GetToolSetting(compilerTool, "ExceptionHandling");
             if (exceptionHandling == null || string.Compare(exceptionHandling, "true", true, CultureInfo.InvariantCulture) == 0) {
                 clTask.Arguments.Add(new Argument("/EHsc"));
             }
@@ -675,12 +689,12 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (fileConfig.Type == VcConfiguration.ConfigurationType.DynamicLibrary) {
+            if (projectConfig.Type == VcProjectConfiguration.ConfigurationType.DynamicLibrary) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_WINDLL"));
             }
 
-            if (fileConfig.WholeProgramOptimization) {
+            if (projectConfig.WholeProgramOptimization) {
                 clTask.Arguments.Add(new Argument("/GL"));
             }
 
@@ -706,13 +720,13 @@ namespace NAnt.VSNet {
             }
 
             // check for shared MFC
-            if (baseConfig.UseOfMFC == UseOfMFC.Shared) {
+            if (projectConfig.UseOfMFC == UseOfMFC.Shared) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_AFXDLL"));
             }
 
             // check for shared ATL
-            switch (baseConfig.UseOfATL) {
+            switch (projectConfig.UseOfATL) {
                 case UseOfATL.Shared:
                     clTask.Arguments.Add(new Argument("/D"));
                     clTask.Arguments.Add(new Argument("_ATL_DLL"));
@@ -724,7 +738,7 @@ namespace NAnt.VSNet {
             }
                 
             // enable/disable Managed Extensions for C++
-            clTask.ManagedExtensions = fileConfig.ManagedExtensions;
+            clTask.ManagedExtensions = projectConfig.ManagedExtensions;
 
             // execute the task
             ExecuteInProjectDirectory(clTask);
@@ -734,8 +748,9 @@ namespace NAnt.VSNet {
         /// Build resource files for the given configuration.
         /// </summary>
         /// <param name="fileNames">The resource files to build.</param>
+        /// <param name="projectConfig">The project configuration.</param>
         /// <param name="fileConfig">The build configuration.</param>
-        private void BuildResourceFiles(ArrayList fileNames, VcConfiguration fileConfig) {
+        private void BuildResourceFiles(ArrayList fileNames, VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCResourceCompilerTool";
 
             string intermediateDir = Path.Combine(ProjectDirectory.FullName, 
@@ -818,7 +833,7 @@ namespace NAnt.VSNet {
             }
 
             // check for shared MFC
-            if (fileConfig.UseOfMFC == UseOfMFC.Shared) {
+            if (projectConfig.UseOfMFC == UseOfMFC.Shared) {
                 options.AppendFormat("/d \"_AFXDLL\"");
             }
 
@@ -847,7 +862,7 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <param name="fileNames">The IDL files to build.</param>
         /// <param name="fileConfig">The build configuration.</param>
-        private void BuildIDLFiles(ArrayList fileNames, VcConfiguration fileConfig) {
+        private void BuildIDLFiles(ArrayList fileNames, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCMIDLTool";
 
             // create instance of MIDL task
@@ -996,7 +1011,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        private void RunLibrarian(VcConfiguration baseConfig) {
+        private void RunLibrarian(VcProjectConfiguration projectConfig) {
             // create instance of Lib task
             LibTask libTask = new LibTask();
 
@@ -1025,7 +1040,7 @@ namespace NAnt.VSNet {
             libTask.Sources.NamespaceManager = libTask.NamespaceManager;
 
             // set task properties
-            string outFile = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
+            string outFile = projectConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
             libTask.OutputFile = new FileInfo(Path.Combine(
                 ProjectDirectory.FullName, outFile));
 
@@ -1037,7 +1052,7 @@ namespace NAnt.VSNet {
             ExecuteInProjectDirectory(libTask);
         }
 
-        private void RunLinker(VcConfiguration baseConfig) {
+        private void RunLinker(VcProjectConfiguration projectConfig) {
             const string linkerTool = "VCLinkerTool";
 
             // create instance of Link task
@@ -1077,13 +1092,13 @@ namespace NAnt.VSNet {
             linkTask.EmbeddedResources.NamespaceManager = linkTask.NamespaceManager;
 
             // set base directory of filesets
-            linkTask.Sources.BaseDirectory = baseConfig.ProjectDir;
-            linkTask.LibDirs.BaseDirectory = baseConfig.ProjectDir;
-            linkTask.Modules.BaseDirectory = baseConfig.ProjectDir;
-            linkTask.EmbeddedResources.BaseDirectory = baseConfig.ProjectDir;
+            linkTask.Sources.BaseDirectory = projectConfig.ProjectDir;
+            linkTask.LibDirs.BaseDirectory = projectConfig.ProjectDir;
+            linkTask.Modules.BaseDirectory = projectConfig.ProjectDir;
+            linkTask.EmbeddedResources.BaseDirectory = projectConfig.ProjectDir;
 
             // output file name
-            string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");
+            string outFile = projectConfig.GetToolSetting(linkerTool, "OutputFile");
             if (OutputDir != null) {
                 linkTask.OutputFile = new FileInfo(Path.Combine(OutputDir.FullName, 
                     Path.GetFileName(outFile)));
@@ -1098,11 +1113,11 @@ namespace NAnt.VSNet {
             }
 
             // generation of debug information
-            linkTask.Debug = bool.Parse(baseConfig.GetToolSetting(linkerTool, "GenerateDebugInformation", "FALSE"));
+            linkTask.Debug = bool.Parse(projectConfig.GetToolSetting(linkerTool, "GenerateDebugInformation", "FALSE"));
 
-            string pdbFile = baseConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
+            string pdbFile = projectConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
             if (pdbFile == null && linkTask.Debug) {
-                pdbFile = baseConfig.ExpandMacros("$(OutDir)/$(ProjectName).pdb");
+                pdbFile = projectConfig.ExpandMacros("$(OutDir)/$(ProjectName).pdb");
             }
             if (pdbFile != null) {
                 if (OutputDir != null) {
@@ -1120,7 +1135,7 @@ namespace NAnt.VSNet {
             }
 
             // generation of import library
-            string importLibrary = baseConfig.GetToolSetting(linkerTool, "ImportLibrary");
+            string importLibrary = projectConfig.GetToolSetting(linkerTool, "ImportLibrary");
             if (importLibrary != null) {
                 if (OutputDir != null) {
                     importLibrary = Path.Combine(OutputDir.FullName, Path.GetFileName(importLibrary));
@@ -1135,11 +1150,11 @@ namespace NAnt.VSNet {
             }
 
             // generation of map file during linking
-            bool generateMapFile = bool.Parse(baseConfig.GetToolSetting(linkerTool, "GenerateMapFile", "FALSE"));
+            bool generateMapFile = bool.Parse(projectConfig.GetToolSetting(linkerTool, "GenerateMapFile", "FALSE"));
             if (generateMapFile) {
                 Argument mapArg = new Argument();
 
-                string mapFileName = baseConfig.GetToolSetting(linkerTool, "MapFileName");
+                string mapFileName = projectConfig.GetToolSetting(linkerTool, "MapFileName");
                 if (mapFileName != null) {
                     mapArg.Line = "/MAP:" + LinkTask.QuoteArgumentValue(mapFileName);;
                 } else {
@@ -1150,11 +1165,11 @@ namespace NAnt.VSNet {
             }
 
             // total heap allocation size
-            string heapReserveSize = baseConfig.GetToolSetting(linkerTool, "HeapReserveSize");
+            string heapReserveSize = projectConfig.GetToolSetting(linkerTool, "HeapReserveSize");
             if (heapReserveSize != null) {
                 Argument heapArg = new Argument();
 
-                string heapCommitSize = baseConfig.GetToolSetting(linkerTool, "HeapCommitSize");
+                string heapCommitSize = projectConfig.GetToolSetting(linkerTool, "HeapCommitSize");
                 if (heapCommitSize != null) {
                     heapArg.Line = string.Format(CultureInfo.InvariantCulture, 
                         "/HEAP:{0},{1}", heapReserveSize, heapCommitSize);
@@ -1166,11 +1181,11 @@ namespace NAnt.VSNet {
             }
 
             // total stack allocation size
-            string stackReserveSize = baseConfig.GetToolSetting(linkerTool, "StackReserveSize");
+            string stackReserveSize = projectConfig.GetToolSetting(linkerTool, "StackReserveSize");
             if (stackReserveSize != null) {
                 Argument stackArg = new Argument();
 
-                string stackCommitSize = baseConfig.GetToolSetting(linkerTool, "StackCommitSize");
+                string stackCommitSize = projectConfig.GetToolSetting(linkerTool, "StackCommitSize");
                 if (stackCommitSize != null) {
                     stackArg.Line = string.Format(CultureInfo.InvariantCulture, 
                         "/STACK:{0},{1}", stackReserveSize, stackCommitSize);
@@ -1181,7 +1196,7 @@ namespace NAnt.VSNet {
                 linkTask.Arguments.Add(stackArg);
             }
 
-            if (baseConfig.Type == VcConfiguration.ConfigurationType.DynamicLibrary) {
+            if (projectConfig.Type == VcProjectConfiguration.ConfigurationType.DynamicLibrary) {
                 linkTask.Arguments.Add(new Argument("/DLL"));
             }
 
@@ -1189,7 +1204,7 @@ namespace NAnt.VSNet {
                 linkTask.Sources.FileNames.Add(objFile);
             }
 
-            string addDeps = baseConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
+            string addDeps = projectConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
             if (addDeps != null) {
                 foreach (string addDep in addDeps.Split(' ')) {
                     linkTask.Sources.FileNames.Add(addDep);
@@ -1200,7 +1215,7 @@ namespace NAnt.VSNet {
                 linkTask.Sources.FileNames.Add(defaultLib);
             }
 
-            string addLibDirs = baseConfig.GetToolSetting(linkerTool, "AdditionalLibraryDirectories");
+            string addLibDirs = projectConfig.GetToolSetting(linkerTool, "AdditionalLibraryDirectories");
             if (addLibDirs != null) {
                 foreach (string addLibDir in addLibDirs.Split(',', ';')) {
                     if (addLibDir.Length == 0) {
@@ -1211,7 +1226,7 @@ namespace NAnt.VSNet {
             }
 
             // links to modules
-            string modules = baseConfig.GetToolSetting(linkerTool, "AddModuleNamesToAssembly");
+            string modules = projectConfig.GetToolSetting(linkerTool, "AddModuleNamesToAssembly");
             if (modules != null) {
                 foreach (string module in modules.Split(';')) {
                     linkTask.Modules.FileNames.Add(module);
@@ -1219,21 +1234,21 @@ namespace NAnt.VSNet {
             }
 
             // embedded resources
-            string embeddedResources = baseConfig.GetToolSetting(linkerTool, "EmbedManagedResourceFile");
+            string embeddedResources = projectConfig.GetToolSetting(linkerTool, "EmbedManagedResourceFile");
             if (embeddedResources != null) {
                 foreach (string embeddedResource in embeddedResources.Split(';')) {
                     linkTask.EmbeddedResources.FileNames.Add(embeddedResource);
                 }
             }
 
-            Hashtable linkerArgs = baseConfig.GetToolArguments(linkerTool, _linkerArgMap);
+            Hashtable linkerArgs = projectConfig.GetToolArguments(linkerTool, _linkerArgMap);
             foreach (string arg in linkerArgs.Values) {
                 Argument linkArg = new Argument();
                 linkArg.Line = (string) arg;
                 linkTask.Arguments.Add(linkArg);
             }
 
-            string addOptions = baseConfig.GetToolSetting(linkerTool, "AdditionalOptions");
+            string addOptions = projectConfig.GetToolSetting(linkerTool, "AdditionalOptions");
             if (addOptions != null) {
                 using (StringReader reader = new StringReader(addOptions)) {
                     string addOptionsLine = reader.ReadLine();
@@ -1246,7 +1261,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (baseConfig.WholeProgramOptimization) {
+            if (projectConfig.WholeProgramOptimization) {
                 linkTask.Arguments.Add(new Argument("/LTCG"));
             }
 
@@ -1274,24 +1289,24 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Merges the specified tool setting of <paramref name="baseConfig" /> 
+        /// Merges the specified tool setting of <paramref name="projectConfig" /> 
         /// with <paramref name="fileConfig" />.
         /// </summary>
         /// <remarks>
         /// The merge is suppressed when the flag $(noinherit) is defined in
         /// <paramref name="fileConfig" />.
         /// </remarks>
-        private string MergeCompilerToolSetting(VcConfiguration baseConfig, VcConfiguration fileConfig, string setting) {
+        private string MergeCompilerToolSetting(VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig, string setting) {
             const string compilerTool = "VCCLCompilerTool";
             const string noinherit = "$(noinherit)";
             string settingValue = fileConfig.GetToolSetting(compilerTool, setting);
 
             if (settingValue == null) {
-                return baseConfig.GetToolSetting(compilerTool, setting);
+                return projectConfig.GetToolSetting(compilerTool, setting);
             }
 
             if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
-                string baseSettingValue = baseConfig.GetToolSetting(compilerTool, setting);
+                string baseSettingValue = projectConfig.GetToolSetting(compilerTool, setting);
                 if (baseSettingValue != null) {
                     settingValue += ";" + baseSettingValue;
                 }

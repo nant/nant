@@ -17,6 +17,7 @@
                 DelaySign = "false"
                 OutputType = "Library"
                 RootNamespace = "NAnt.VSNet"
+                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
                 <Config
@@ -223,12 +224,22 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "VcConfiguration.cs"
+                    RelPath = "VcConfigurationBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VcFileConfiguration.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "VcProject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VcProjectConfiguration.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
