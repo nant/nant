@@ -224,7 +224,7 @@
                 <include name="examples/**" />
             </fileset>
         </copy>    
-        <nant target="build">
+        <nant target="build clean">
             <buildfiles basedir="${build.dir}/examples">
                 <include name="examples.build" />
             </buildfiles>
