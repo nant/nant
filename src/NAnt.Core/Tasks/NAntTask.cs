@@ -18,11 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
-using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 
@@ -36,19 +32,21 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("nant")]
     public class NAntTask : Task {
+        #region Private Instance Fields        
 
         string _buildFileName = null;
         string _target = null;
         bool _inheritAll = true;
         bool _newAppDomain = false;
 
-        // TODO: Support for handling properties.  Should it inherit the parent 
-        // project's properties.  How to set properties for the new project?  
-        // The same Ant task handles these issues.
+        #endregion Private Instance Fields        
+
+        #region Public Instance Properties
 
         /// <summary>The build file to build. If not specified, use the current build file.</summary>
         [TaskAttribute("newappdomain")]
         public bool NewAppDomain {
+            get { return _newAppDomain; }
             set { _newAppDomain = value; }
         }
 
@@ -56,8 +54,9 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("buildfile")]
         public string BuildFileName {
             get { 
-                if(_buildFileName != null)
+                if (_buildFileName != null) {
                     return _buildFileName;
+                }
                 return Project.BuildFileLocalName; 
             }
             set { _buildFileName = value; }
@@ -77,6 +76,10 @@ namespace SourceForge.NAnt.Tasks {
             set { _inheritAll = value; }
         }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         protected override void ExecuteTask() {
             try {
                 //TODO: Add NewAppDomain code here.!
@@ -84,9 +87,8 @@ namespace SourceForge.NAnt.Tasks {
                 Log.WriteLine(LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
                 Log.Indent();
                 Project project = new Project(Project.GetFullPath(BuildFileName), Verbose);
-                //project.Verbose = Verbose;
 
-                if ( _inheritAll ) {
+                if (_inheritAll) {
                     StringCollection excludes = new StringCollection();
                     excludes.Add(Project.NANT_PROPERTY_FILENAME);
                     excludes.Add(Project.NANT_PROPERTY_LOCATION);
@@ -116,5 +118,7 @@ namespace SourceForge.NAnt.Tasks {
                 Log.Unindent();
             }
         }
+
+        #endregion Override implementation of Task
     }
 }

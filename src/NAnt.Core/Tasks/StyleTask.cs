@@ -24,10 +24,10 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
@@ -73,6 +73,7 @@ namespace SourceForge.NAnt.Tasks {
     /// </example> 
     [TaskName("style")]
     public class StyleTask : Task {
+        #region Private Instance Fields
                 
         string _baseDir = null;
         string _destDir = null;
@@ -83,6 +84,10 @@ namespace SourceForge.NAnt.Tasks {
         FileSet _inFiles = new FileSet();
 
         Hashtable _params = new Hashtable(); // TODO sort this out with an attribute
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>Where to find the source XML file, default is the project's basedir.</summary>
         [TaskAttribute("basedir", Required=false)]
@@ -113,30 +118,10 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("infiles")]
         public FileSet InFiles                 { get { return _inFiles; } }
 
-        protected virtual XmlReader CreateXmlReader(string file) {
-            XmlTextReader xmlReader = new XmlTextReader(new FileStream(file, FileMode.Open, FileAccess.Read));
-            return xmlReader;
-        }
-
-        protected virtual TextWriter CreateWriter(string filepath) {
-            string xmlPath = filepath;
-            TextWriter writer = null;
-
-            string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
-            if (targetDir != null && targetDir != "" && !Directory.Exists(targetDir)) {
-                Directory.CreateDirectory(targetDir);
-            }
-            // UTF-8 encoding will be used
-            //xmlWriter = new XmlTextWriter(xmlPath, null);
-            // Create text writer first
-            writer = new StreamWriter(xmlPath);
-
-            return writer;
-        }
+        #region Override implementation of Task
 
         ///<param name="taskNode"> taskNode used to define this task instance </param>
         protected override void InitializeTask(XmlNode taskNode) {
-
             // Load parameters
             foreach (XmlNode node in taskNode) {
                 if(node.Name.Equals("param")) {
@@ -175,7 +160,7 @@ namespace SourceForge.NAnt.Tasks {
             }           
             foreach(string srcFile in srcFiles) {
                 string destFile = OutputFile;
-                if (destFile == null || destFile == "") {
+                if (destFile == null || destFile.Length == 0) {
                     // TODO: use System.IO.Path (gs)
                     // append extension if necessary
                     string ext = Extension.IndexOf(".")>-1 ? Extension : "." + Extension;
@@ -245,5 +230,34 @@ namespace SourceForge.NAnt.Tasks {
                 }
             }
         }
+
+        #endregion Override implementation of Task
+
+        #endregion Public Instance Properties
+
+        #region Protected Instance Methods
+
+        protected virtual XmlReader CreateXmlReader(string file) {
+            XmlTextReader xmlReader = new XmlTextReader(new FileStream(file, FileMode.Open, FileAccess.Read));
+            return xmlReader;
+        }
+
+        protected virtual TextWriter CreateWriter(string filepath) {
+            string xmlPath = filepath;
+            TextWriter writer = null;
+
+            string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
+            if (targetDir != null && targetDir.Length > 0 && !Directory.Exists(targetDir)) {
+                Directory.CreateDirectory(targetDir);
+            }
+            // UTF-8 encoding will be used
+            //xmlWriter = new XmlTextWriter(xmlPath, null);
+            // Create text writer first
+            writer = new StreamWriter(xmlPath);
+
+            return writer;
+        }
+
+        #endregion Protected Instance Methods
     }
 }
