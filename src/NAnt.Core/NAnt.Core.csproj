@@ -400,6 +400,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\TimeSpanFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Resources\ProjectHelp.xslt"
                     BuildAction = "EmbeddedResource"
                 />
