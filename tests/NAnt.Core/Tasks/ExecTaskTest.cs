@@ -24,7 +24,7 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
-
+using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
@@ -39,8 +39,13 @@ namespace Tests.NAnt.Core.Tasks {
 
         /// <summary>Test <arg> option.</summary>
         [Test]
-        public void Test_ArgOption() {
-            string result = RunBuild(FormatBuildFile("program='cmd.exe'", "<arg value='/c echo Hello, World!'/>"));
+        public void Test_ArgOption() {            
+            string result = "";
+            if ( PlatformHelper.IsWindows ) {
+                result = RunBuild(FormatBuildFile("program='cmd.exe'", "<arg value='/c echo Hello, World!'/>"));
+            } else {
+                result = RunBuild(FormatBuildFile("program='echo'", "<arg value='Hello, World!'/>"));
+            }
             Assertion.Assert("Could not find expected text from external program, <arg> element is not working correctly.", result.IndexOf("Hello, World!") != -1);
         }
 
@@ -60,7 +65,12 @@ namespace Tests.NAnt.Core.Tasks {
 			string tempFileName = Path.Combine(TempDirName, "bigfile.txt");
             TempFile.Create(tempFileName);
 
-            string result = RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type " + tempFileName + "'", ""));
+            string result = "";
+            if ( PlatformHelper.IsWindows ) {
+                result = RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type " + tempFileName + "'", ""));
+            } else {
+                result = RunBuild(FormatBuildFile("program='cat' commandline=' " + tempFileName + "'", ""));
+            }
             // if we get here then we passed, ie, no hang = bug fixed
         }
 

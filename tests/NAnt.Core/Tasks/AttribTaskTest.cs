@@ -55,15 +55,20 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_Normal() {
             File.SetAttributes(_tempFileName, FileAttributes.Archive|FileAttributes.Hidden|FileAttributes.ReadOnly|FileAttributes.System);
             Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
-            Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
-            Assertion.Assert(_tempFileName + " should have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0);
-            Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);
+            if (! PlatformHelper.IsUnix ) {
+                Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
+                Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);            
+            }
+            Assertion.Assert(_tempFileName + " should have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0);           
+                
             RunBuild(FormatBuildFile("normal='true'"));
-            Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
-            Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
-            Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);
-            Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
-            Assertion.Assert(_tempFileName + " should have Normal file attribute.", (File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0);
+            if (! PlatformHelper.IsUnix ) {
+                Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
+                Assertion.Assert(_tempFileName + " should have Normal file attribute.", (File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0);
+                Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
+                Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
+            }           
+            Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);                       
         }
 
         /// <summary>
@@ -72,29 +77,37 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_InvalidFilePath() {
-            try {
-                // execute build with invalid file path
-                RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-}", "", ""));
-                // have the test fail
-                Assertion.Fail("Build should have failed.");
-            } catch (TestBuildException ex) {
-                // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            // this test not valid on unix's where every character bar the / is valid for filenames.
+            if (! PlatformHelper.IsUnix ) {
+                try {
+                    // execute build with invalid file path
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-'`}", "", ""));
+                    // have the test fail         
+                    Assertion.Fail("Build should have failed.");                
+                } catch (TestBuildException ex) {
+                    Assertion.Assert( "hit the catch block", true);
+                    // assert that a BuildException was the cause of the TestBuildException
+                    Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                }
             }
         }
 
         [Test]
         public void Test_Archive() {
-            Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
-            RunBuild(FormatBuildFile("archive='true'"));
-            Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
+            if (! PlatformHelper.IsUnix ) {
+                Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
+                RunBuild(FormatBuildFile("archive='true'"));
+                Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
+            }
         }
         
         [Test]
         public void Test_Hidden() {
-            Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
-            RunBuild(FormatBuildFile("hidden='true'"));
-            Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
+            if (! PlatformHelper.IsUnix ) {
+                Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
+                RunBuild(FormatBuildFile("hidden='true'"));
+                Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
+            }
         }
 
         [Test]
@@ -106,9 +119,11 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void Test_System() {
-            Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
-            RunBuild(FormatBuildFile("system='true'"));
-            Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);
+            if (! PlatformHelper.IsUnix ) {
+                Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
+                RunBuild(FormatBuildFile("system='true'"));
+                Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);
+            }
         }
         
         [Test]

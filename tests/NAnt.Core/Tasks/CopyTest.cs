@@ -150,13 +150,15 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_InvalidDestinationDirectory() {
-            try {
-                RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "abc#?-{", tempDir1, string.Empty));
-                // have the test fail
-                Assertion.Fail("Build should have failed.");
-            } catch (TestBuildException ex) {
-                // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            if (! PlatformHelper.IsUnix ) {
+                try {
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "abc#?-{", tempDir1, string.Empty));
+                    // have the test fail
+                    Assertion.Fail("Build should have failed.");
+                } catch (TestBuildException ex) {
+                    // assert that a BuildException was the cause of the TestBuildException
+                    Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                }   
             }
         }
 
@@ -293,15 +295,16 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Copy_Files_InvalidSourceFilePath() {
             File.Delete(tempFile2);
-
-            try {
-                RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
-                    "abc#?-{", tempFile2));
-                // have the test fail
-                Assertion.Fail("Build should have failed.");
-            } catch (TestBuildException ex) {
-                // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            if (! PlatformHelper.IsUnix ) {
+                try {
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
+                        "abc#?-{", tempFile2));
+                    // have the test fail
+                    Assertion.Fail("Build should have failed.");
+                } catch (TestBuildException ex) {
+                    // assert that a BuildException was the cause of the TestBuildException
+                    Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                }
             }
         }
 
@@ -311,14 +314,16 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_Files_InvalidDestinationFilePath() {
-            try {
-                RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
-                    tempFile1, "abc#?-{"));
-                // have the test fail
-                Assertion.Fail("Build should have failed.");
-            } catch (TestBuildException ex) {
-                // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            if (! PlatformHelper.IsUnix ) {
+                try {
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
+                        tempFile1, "abc#?-{"));
+                    // have the test fail
+                    Assertion.Fail("Build should have failed.");
+                } catch (TestBuildException ex) {
+                    // assert that a BuildException was the cause of the TestBuildException
+                    Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                }
             }
         }
 
