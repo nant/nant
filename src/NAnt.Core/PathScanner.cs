@@ -21,6 +21,8 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 
+using NAnt.Core.Util;
+
 namespace NAnt.Core {
     /// <summary>
     /// Used to search for files on the PATH. 
@@ -40,7 +42,6 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private StringCollection _unscannedNames = new StringCollection();
-        private StringCollection _scannedNames = new StringCollection();
 
         #endregion Private Instance Fields
 
@@ -64,7 +65,6 @@ namespace NAnt.Core {
         /// </returns>
         public PathScanner Clone() {
             PathScanner clone = new PathScanner();
-            clone._scannedNames = Clone(_scannedNames);
             clone._unscannedNames = Clone(_unscannedNames);
             return clone;
         }
@@ -76,7 +76,7 @@ namespace NAnt.Core {
         /// <summary>
         /// Adds a file to the list of files to be scanned for.
         /// </summary>
-        /// <param name="fileName">The filename to add to the list.</param>
+        /// <param name="fileName">The filename or search pattern to add to the list.</param>
         public void Add(string fileName) {
             _unscannedNames.Add(fileName);
         }
@@ -98,24 +98,38 @@ namespace NAnt.Core {
         /// <summary>
         /// Scans all directories in the given environment variable for files.
         /// </summary>
+        /// <param name="name">The environment variable of which the directories should be scanned.</param>
         /// <returns>
         /// List of matching files found in the directory of the given 
         /// environment variable.
         /// </returns>
         public StringCollection Scan(string name) {
-            // clear any files we might've found previously
-            _scannedNames.Clear();
+            StringCollection scannedNames = new StringCollection();
 
             string envValue = Environment.GetEnvironmentVariable(name);
             if (envValue == null) {
-                return _scannedNames;
+                return scannedNames;
             }
 
             // break apart the PATH
             string[] paths = envValue.Split(Path.PathSeparator);
 
             // walk the names list
-            foreach (string fileName in _unscannedNames) {
+            foreach (string unscannedName in _unscannedNames) {
+                // check if file is rooted
+                if (Path.IsPathRooted(unscannedName)) {
+                    if (File.Exists(unscannedName)) {
+                        scannedNames.Add(unscannedName);
+                    } else {
+                        // no need to scan paths in environment variable for
+                        // this file as it does not exist
+                        continue;
+                    }
+                }
+
+                string fileName = Path.GetFileName(unscannedName);
+                string directoryName = Path.GetDirectoryName(unscannedName);
+
                 // walk the paths, and see if the given file is on the path
                 foreach (string path in paths) {
                     //do not scan inaccessible directories.
@@ -123,17 +137,27 @@ namespace NAnt.Core {
                         continue;
                     }
 
-                    string[] found = Directory.GetFiles(path, fileName);
+                    // search pattern might include directory part (eg. foo\bar.txt)
+                    string scanPath = path;
+                    if (!StringUtils.IsNullOrEmpty(directoryName)) {
+                        scanPath = FileUtils.CombinePaths(path, directoryName);
+                        //do not scan inaccessible directories.
+                        if (!Directory.Exists(scanPath)) {
+                            continue;
+                        }
+                    }
+
+                    string[] found = Directory.GetFiles(scanPath, fileName);
 
                     if (found.Length > 0) {
-                        _scannedNames.Add(found[0]);
+                        scannedNames.Add(found[0]);
                         break;
                     }
                 }
             }
 
             // return an enumerator to the scanned (& found) files
-            return _scannedNames;
+            return scannedNames;
         }
 
 
