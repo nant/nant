@@ -118,6 +118,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\DelaySignTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\JscTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -128,7 +133,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\DelaySignTask.cs"
+                    RelPath = "Tasks\RegSvcsTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
