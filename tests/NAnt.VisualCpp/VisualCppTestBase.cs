@@ -88,6 +88,18 @@ namespace Tests.NAnt.VisualCpp {
             get { return _supportedCompiler; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the VC++ Resource Compiler (rc.exe)
+        /// is present in the PATH.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the VC++ Resource Compiler is present in 
+        /// the PATH; otherwise, <see langword="false" />.
+        /// </value>
+        protected static bool ResourceCompilerPresent {
+            get { return _resourceCompilerPresent; }
+        }
+
         #endregion Protected Static Methods
 
         #region Private Static Properties
@@ -186,6 +198,19 @@ namespace Tests.NAnt.VisualCpp {
             return scanner.Scan("PATH");
         }
 
+        /// <summary>
+        /// Routine which checks if the resource compiler is present.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the resource compiler is present; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        private static bool CheckResourceCompilerPresent() {
+            PathScanner scanner = new PathScanner();
+            scanner.Add("rc.exe");
+            return scanner.Scan("PATH").Count > 0;
+        }
+
         #endregion Private Static Methods
 
         #region Private Static Fields
@@ -212,6 +237,7 @@ namespace Tests.NAnt.VisualCpp {
         private static readonly bool _libsPresent = CheckLibsPresent();
         private static readonly bool _headerFilesPresent = CheckHeaderFilesPresent();
         private static readonly bool _supportedCompiler = CheckSupportedCompiler();
+        private static readonly bool _resourceCompilerPresent = CheckResourceCompilerPresent();
 
         #endregion Private Static Fields
     }
