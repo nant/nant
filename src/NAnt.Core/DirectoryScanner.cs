@@ -367,7 +367,7 @@ namespace NAnt.Core {
 
             // substring preceding the separator represents our search directory and the part following it represents nant search pattern relative to it            
             if (indexOfLastDirectorySeparator != -1) {
-                s = originalNAntPattern.Substring(0, indexOfLastDirectorySeparator);
+                s = originalNAntPattern.Substring(0, indexOfLastDirectorySeparator + 1);
             } else {
                 s = "";
             }
