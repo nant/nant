@@ -11,7 +11,7 @@
     <!-- perform a 'release' package and upload to sf.net -->
     <target name="build-release" depends="set-net-1.0-framework-configuration, release, package, deploy-sf" description="Perform a 'release' package and uploads to sf.net" />
     <!-- deploy content to sourceforge -->
-    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf">
+    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf">
         <!-- remove existing symlink, if it exists -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
@@ -23,7 +23,7 @@
             <arg value="ln -s ${sf.net.web.path}/release/${project.version.full} ${sf.net.web.path}/release/latest" />
         </exec>
     </target>    
-    <!-- copy the release distributions to sourceforge -->
+    <!-- copy the release distributions, release notes and license to sourceforge -->
     <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
@@ -33,24 +33,30 @@
         <!-- copy the source zip distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
             <arg value="${path::get-file-name(project.zip-path.src)}" />
-            <arg value="${serverpart}/release/${project.version.full}/${project.name}-src.zip" />
+            <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
         <!-- copy the source gzipped tar distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.src)}" />
-            <arg value="${serverpart}/release/${project.version.full}/${project.name}-src.tar.gz" />
+            <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
         <!-- copy the binary zip distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
             <arg value="${path::get-file-name(project.zip-path.bin)}" />
-            <arg value="${serverpart}/release/${project.version.full}/${project.name}-bin.zip" />
+            <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
         <!-- copy the binary gzipped tar distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.bin)}" />
-            <arg value="${serverpart}/release/${project.version.full}/${project.name}-bin.tar.gz" />
+            <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
-        <echo message="Copied distributions over to SF.Net" />
+        <!-- copy the release notes and license to sourceforge -->
+        <exec workingdir="${build.dir}/doc" program="scp">
+            <arg value="-C" />
+            <arg value="*.html" />
+            <arg value="${serverpart}/release/${project.version.full}/" />
+        </exec>
+        <echo message="Copied distributions and release notes over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -128,28 +134,10 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec rm --force {} \;" />
         </exec>
-        <!-- copy html files for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
+        <!-- copy images and html files for website to sourceforge (using compression) -->
+        <exec workingdir="${build.dir}/web" program="scp">
             <arg value="-C" />
-            <arg value="*.html" />
-            <arg value="${serverpart}" />
-        </exec>
-        <!-- copy images for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
-            <arg value="-C" />
-            <arg value="*.gif" />
-            <arg value="${serverpart}" />
-        </exec>
-        <!-- copy stylesheet for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
-            <arg value="-C" />
-            <arg value="style.css" />
-            <arg value="${serverpart}" />
-        </exec>
-        <!-- copy logo's for website to sourceforge (using compression) -->
-        <exec workingdir="${build.dir}/doc" program="scp">
-            <arg value="-C" />
-            <arg value="logo.*" />
+            <arg value="*" />
             <arg value="${serverpart}" />
         </exec>
         <echo message="Copied website over to SF.Net" />
