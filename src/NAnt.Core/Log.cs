@@ -468,7 +468,7 @@ namespace NAnt.Core {
             } else {
                 OutputMessage(Level.Error, string.Empty, indentationLevel);
                 if (report.Errors == 0 && report.Warnings == 0) {
-                    OutputMessage(Level.Error, "Build failure", indentationLevel);
+                    OutputMessage(Level.Error, "Build failed", indentationLevel);
                 } else {
                     OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
                         "Build failed - {0} non-fatal error(s), {1} warning(s)", 
