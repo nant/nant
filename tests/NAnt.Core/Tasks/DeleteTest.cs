@@ -44,17 +44,9 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <delete verbose='true' {0}='{1}'/>
             </project>";
-        const string _xmlProjectTemplate2 = @"
-            <project>
-                <delete verbose='true'>
-                    <fileset>
-                        <include name='{0}' />
-                    </fileset>
-                </delete>
-            </project>";
         
-        string tempFile1, tempFile2, tempFile3, tempFile4, tempFile5, tempFile6, tempFile7;
-        string tempDir1, tempDir2, tempDir3, tempDir4;
+        string tempFile1, tempFile2, tempFile3, tempFile4, tempFile5, tempFile6, tempFile7, tempFile8, tempFile9, tempFile10;
+        string tempDir1, tempDir2, tempDir3, tempDir4, tempDir5, tempDir6, tempDir7, tempDir8;
 
         /// <summary>
         /// Creates a structure like so:
@@ -69,6 +61,13 @@ namespace Tests.NAnt.Core.Tasks {
         ///         ha.he
         ///         ha.he2*
         ///         ha.he3*
+        ///         a.boo
+        ///         boo
+        /// a.c\
+        /// a.d\
+        ///     boo\
+        /// a.e\
+        ///     a.ee
         /// </summary>
         [SetUp]
         protected override void SetUp() {
@@ -78,6 +77,10 @@ namespace Tests.NAnt.Core.Tasks {
             tempDir2 = CreateTempDir(Path.Combine(tempDir1, "foo"));
             tempDir3 = CreateTempDir(Path.Combine(tempDir1, "goo"));
             tempDir4 = CreateTempDir(Path.Combine(tempDir1, Path.Combine(tempDir3, "x")));
+            tempDir5 = CreateTempDir("a.c");
+            tempDir6 = CreateTempDir("a.d");
+            tempDir7 = CreateTempDir(Path.Combine(tempDir6, "boo"));
+            tempDir8 = CreateTempDir("a.e");
 
             tempFile1 = CreateTempFile(Path.Combine(tempDir1, "a.bb"));
             tempFile2 = CreateTempFile(Path.Combine(tempDir1, "a.bc"));
@@ -86,6 +89,9 @@ namespace Tests.NAnt.Core.Tasks {
             tempFile5 = CreateTempFile(Path.Combine(tempDir3, "ha.he"));
             tempFile6 = CreateTempFile(Path.Combine(tempDir3, "ha.he2"));
             tempFile7 = CreateTempFile(Path.Combine(tempDir3, "ha.he3"));
+            tempFile8 = CreateTempFile(Path.Combine(tempDir8, "a.ee"));
+            tempFile9 = CreateTempFile(Path.Combine(tempDir3, "a.boo"));
+            tempFile10 = CreateTempFile(Path.Combine(tempDir3, "boo"));
 
             /*
             File.SetAttributes(tempDir2, FileAttributes.ReadOnly);
@@ -127,7 +133,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
             Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "dir", tempDir2 ));
+            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "dir", tempDir2));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
             Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
@@ -156,8 +162,256 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
             Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
             Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+        }
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1 ));
+        /// <summary>
+        /// Checks whether an include pattern (without wildcards) that matches 
+        /// a directory containing both files an directories, will NOT cause 
+        /// that directory to be removed.
+        /// </summary>
+        [Test]
+        public void Test_DeleteFileSet2() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='{1}' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                xmlProjectTemplateFileSet, TempDirName, "a.b"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        /// <summary>
+        /// Checks whether an include pattern (without wildcards) that matches 
+        /// a directory containing subdirectories, will NOT cause that directory 
+        /// to be removed.
+        /// </summary>
+        [Test]
+        public void Test_DeleteFileSet3() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='{1}' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                xmlProjectTemplateFileSet, TempDirName, "a.d"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        /// <summary>
+        /// Checks whether an include pattern (without wildcards) that matches 
+        /// a directory containing files, will NOT cause that directory to be 
+        /// removed.
+        /// </summary>
+        [Test]
+        public void Test_DeleteFileSet4() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='{1}' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            /// Checks whether an include pattern (without wildcards) that matches 
+            /// a directory containing files, will NOT cause that directory to be 
+            /// removed.
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                xmlProjectTemplateFileSet, TempDirName, "a.e"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+
+            /// Checks whether removing the last file from a directory, with a 
+            /// pattern that does not match the directory itself, will not CAUSE
+            /// that directory to be removed.
+
+            result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                xmlProjectTemplateFileSet, TempDirName, "a.e/a.ee"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+
+            /// Checks whether an include pattern that matches all files in an 
+            /// empty directory, will NOT cause that directory to be removed.
+
+            result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                xmlProjectTemplateFileSet, TempDirName, "a.e/**/*"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted in previous step:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+
+            /// Checks whether an include pattern that matches all files in a
+            /// empty directory and the directory itself, will cause that 
+            /// directory to be removed.
+
+            result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                xmlProjectTemplateFileSet, TempDirName, "a.e/**"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted in previous step:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsFalse(Directory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
+        }
+
+        /// <summary>
+        /// Checks whether an include pattern that matches all files in a 
+        /// non-empty directory (and its subdirectories) and that directory 
+        /// itself, will cause that directory to be removed.
+        /// </summary>
+        [Test]
+        public void Test_DeleteFileSet5() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='{1}' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, TempDirName, "a.e/**"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsFalse(Directory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
+        }
+
+        /// <summary>
+        /// Checks whether an include pattern that matches all files in the base 
+        /// directory (and its subdirectories), will NOT cause that directory 
+        /// to be removed.
+        /// </summary>
+        [Test]
+        public void Test_DeleteFileSet6() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='{1}' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, tempDir1, "**/*"));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
             Assert.IsFalse(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
@@ -166,11 +420,256 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
             Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
             Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
+            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_DeleteFileSet7() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='{1}' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            // pattern should match both directories and files named "boo"
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, TempDirName, "**/boo"));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should not have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+            Assert.IsTrue(File.Exists(tempFile9), "File should not have been deleted:" + tempFile9);
+            Assert.IsFalse(File.Exists(tempFile10), "File should have been deleted:" + tempFile10);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsFalse(Directory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_ExcludePattern1() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='goo/**' />
+                            <exclude name='goo/**/ha.he3' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, tempDir1));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_ExcludePattern1_NoIncludeEmptyDirs() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true' includeemptydirs='false'>
+                        <fileset basedir='{0}'>
+                            <include name='goo/**' />
+                            <exclude name='goo/**/ha.he3' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, tempDir1));
+
+            Assert.IsTrue(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_ExcludePattern2() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='**/*' />
+                            <exclude name='**/a.e/*' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, TempDirName));
+
+            Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsFalse(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
             Assert.IsFalse(Directory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
             Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
             Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
             Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsFalse(Directory.Exists(tempDir5), "Dir should have been deleted:" + tempDir5);
+            Assert.IsFalse(Directory.Exists(tempDir6), "Dir should have been deleted:" + tempDir6);
+            Assert.IsFalse(Directory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_ExcludePattern2_NoIncludeEmptyDirs() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true' includeemptydirs='false'>
+                        <fileset basedir='{0}'>
+                            <include name='**/*' />
+                            <exclude name='**/a.e/*' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, TempDirName));
+
+            Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsFalse(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
+            Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_ExcludePattern3() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true'>
+                        <fileset basedir='{0}'>
+                            <include name='**/*' />
+                            <exclude name='**/a.e/*.whatever' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, TempDirName));
+
+            Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsFalse(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
+            Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
+
+            Assert.IsFalse(Directory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
+            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsFalse(Directory.Exists(tempDir5), "Dir should have been deleted:" + tempDir5);
+            Assert.IsFalse(Directory.Exists(tempDir6), "Dir should have been deleted:" + tempDir6);
+            Assert.IsFalse(Directory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
+            Assert.IsFalse(Directory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
+        }
+
+        [Test]
+        public void Test_ExcludePattern3_NoIncludeEmptyDirs() {
+            string xmlProjectTemplateFileSet = @"
+                <project>
+                    <delete verbose='true' includeemptydirs='false'>
+                        <fileset basedir='{0}'>
+                            <include name='**/*' />
+                            <exclude name='**/a.e/*.whatever' />
+                        </fileset>
+                    </delete>
+                </project>";
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                xmlProjectTemplateFileSet, TempDirName));
+
+            Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsFalse(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
+            Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
+
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
     }
 }
