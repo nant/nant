@@ -84,7 +84,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The registry key to read (without a leading slash).
+        /// The registry key to read, including the path.
         /// </summary>
         /// <example>
         /// SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot
@@ -94,9 +94,14 @@ namespace NAnt.Core.Tasks {
         public virtual string RegistryKey {
             get { return _regKey; }
             set {
-                string[] pathParts = value.Split("\\".ToCharArray(0,1)[0]);
+                string key = value;
+                if(value.StartsWith("\\")) {
+                    key = value.Substring(1);
+                }
+                string[] pathParts = key.Split("\\".ToCharArray(0,1)[0]);
+                //split the key/path apart.
                 _regKeyValueName = pathParts[pathParts.Length - 1];
-                _regKey = value.Substring(0, (value.Length - _regKeyValueName.Length));
+                _regKey = key.Substring(0, (value.Length - _regKeyValueName.Length));
             }
         }
 
