@@ -295,11 +295,10 @@
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
-            <arg value="${project.config}" />
-            <arg value="self-sdkdoc" />
-            <arg value="changelog" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-sdkdoc" />
         </exec>
         <!-- delete everything but the .chm -->
         <delete>
