@@ -46,21 +46,42 @@ namespace NAnt.VSNet.Tasks {
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This task will analyze each of the given .csproj or .vbproj files and
-    /// build them in the proper order.  It supports reading solution files, as well
-    /// as enterprise template projects.
+    /// This task support the following projects:
     /// </para>
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>Visual Basic .NET</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>Visual C# .NET</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>Visual J# .NET</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>Visual C++ .NET</description>
+    ///     </item>
+    /// </list>
+    /// <note>
+    /// Right now, only Microsoft Visual Studio .NET 2002 and 2003 solutions
+    /// and projects are supported.  Support for .NET Compact Framework projects
+    /// is also not available at this time.
+    /// </note>
     /// <para>
-    /// This task also supports the model of referencing projects by their
-    /// output filenames, rather than referencing them inside the solution.  It will
-    /// automatically detect the existance of a file reference and convert it to a 
-    /// project reference.  For example, if project A references the file in the
-    /// release output directory of project B, the solution task will automatically convert
-    /// this to a project dependency on project B and will reference the appropriate configuration output
-    /// directory at the final build time (ie: reference the debug version of B if the solution is built as debug).
+    /// The <see cref="SolutionTask" /> also supports the model of referencing 
+    /// projects by their output filenames, rather than referencing them inside 
+    /// the solution.  It will automatically detect the existance of a file 
+    /// reference and convert it to a project reference.  For example, if project
+    /// &quot;A&quot; references the file in the release output directory of 
+    /// project &quot;B&quot;, the <see cref="SolutionTask" /> will automatically 
+    /// convert this to a project dependency on project &quot;B&quot; and will 
+    /// reference the appropriate configuration output directory at the final 
+    /// build time (ie: reference the debug version of &quot;B&quot; if the 
+    /// solution is built as debug).
     /// </para>
     /// <note>
-    /// Only VS.NET 2002 and VS.NET 2003 solutions are supported right now.
+    /// The <see cref="SolutionTask" />  expects all project files to be valid
+    /// XML files.
     /// </note>
     /// </remarks>
     /// <example>
