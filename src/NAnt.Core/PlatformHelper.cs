@@ -18,10 +18,7 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.Collections.Specialized;
-using System.IO;
 using System.Runtime.InteropServices;
-
 using System.Text;
 
 namespace NAnt.Core {
@@ -41,7 +38,7 @@ namespace NAnt.Core {
                 IsMono = false;
             }
             
-            PlatformID platformID = System.Environment.OSVersion.Platform;
+            PlatformID platformID = Environment.OSVersion.Platform;
 
             if (platformID == PlatformID.Win32NT || platformID == PlatformID.Win32Windows) {
                 IsWin32 = true;
