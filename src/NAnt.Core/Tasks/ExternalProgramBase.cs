@@ -52,7 +52,7 @@ namespace NAnt.Core.Tasks {
 
         #endregion Private Instance Fields
 
-        #region Private Static Fields
+        #region Public Static Fields
 
         /// <summary>
         /// Defines the exit code that will be returned by <see cref="ExitCode" />
@@ -60,7 +60,16 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         public const int UnknownExitCode = -1000;
 
+        #endregion Public Static Fields
+
+        #region Private Static Fields        
+
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
+        /// Will be used to ensure thread-safe operations.
+        /// </summary>
+        private static object _lockObject = new object();
 
         #endregion Private Static Fields
 
@@ -417,8 +426,8 @@ namespace NAnt.Core.Tasks {
                     break;
                 }
 
-                // Ensure only one thread writes to the log at any time
-                lock (_stdOut) {
+                // ensure only one thread writes to the log at any time
+                lock (_lockObject) {
                     OutputWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
@@ -441,8 +450,8 @@ namespace NAnt.Core.Tasks {
                     break;
                 }
 
-                // Ensure only one thread writes to the log at any time
-                lock (_stdError) {
+                // ensure only one thread writes to the log at any time
+                lock (_lockObject) {
                     ErrorWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
