@@ -25,6 +25,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using X = System.Xml;
 
 using NUnit.Framework;
 
@@ -324,31 +325,45 @@ namespace Tests.NAnt.Console {
 
         [Test]
         public void Test_ShowProjectHelp() {
+           DoTestShowProjectHelp(string.Empty,string.Empty);
+        }
+        [Test]
+        public void Test_ShowProjectHelpWithNamespace() {
+            DoTestShowProjectHelp("urn:nant",string.Empty);
+        }
+        [Test]
+        public void Test_ShowProjectHelpWithNamespacePrefix() {
+            DoTestShowProjectHelp("urn:nant","n");
+        }
+        public void DoTestShowProjectHelp(string nantNamespace, string prefix) {
             string buildFileContents = @"<?xml version='1.0' ?>
-                <project name='Hello World' default='build' basedir='.'>
+                <{1}{2}project {0} name='Hello World' default='build' basedir='.'>
 
-                    <property name='basename' value='HelloWorld'/>
-                    <target name='init'/> <!-- fake subtarget for unit test -->
+                    <{1}{2}property name='basename' value='HelloWorld'/>
+                    <{1}{2}target name='init'/> <!-- fake subtarget for unit test -->
 
-                    <target name='clean' description='cleans build directory'>
-                        <delete file='${basename}.exe' failonerror='false'/>
-                    </target>
+                    <{1}{2}target name='clean' description='cleans build directory'>
+                        <{1}{2}delete file='${{basename}}.exe' failonerror='false'/>
+                    </{1}{2}target>
 
-                    <target name='build' description='compiles the source code'>
-                        <csc target='exe' output='${basename}.exe'>
-                            <sources>
-                                <include name='${basename}.cs'/>
-                            </sources>
-                        </csc>
-                    </target>
+                    <{1}{2}target name='build' description='compiles the source code'>
+                        <{1}{2}csc target='exe' output='${{basename}}.exe'>
+                            <{1}{2}sources>
+                                <{1}{2}include name='${{basename}}.cs'/>
+                            </{1}{2}sources>
+                        </{1}{2}csc>
+                    </{1}{2}target>
 
-                    <target name='test' depends='build' description='run the program'>
-                        <exec program='${basename}.exe'/>
-                    </target>
-                </project>";
+                    <{1}{2}target name='test' depends='build' description='run the program'>
+                        <{1}{2}exec program='${{basename}}.exe'/>
+                    </{1}{2}target>
+                </{1}{2}project>";
 
+            string colon = prefix.Length == 0? string.Empty: ":";
+            string namespaceDecl = nantNamespace.Length == 0? string.Empty:
+                string.Format("xmlns{2}{1}=\"{0}\"",nantNamespace,prefix,colon);
             // write build file to temp file
-            string buildFileName = CreateTempFile("buildfile.xml", buildFileContents);
+            string buildFileName = CreateTempFile("buildfile.xml", string.Format(buildFileContents,namespaceDecl,prefix,colon));
             Assert.IsTrue(File.Exists(buildFileName), buildFileName + " does not exist.");
 
             string[] args = {
@@ -356,12 +371,13 @@ namespace Tests.NAnt.Console {
                 String.Format("-buildfile:{0}", buildFileName),
             };
 
+            X.XmlDocument document = new Project(buildFileName,Level.Warning,0).Document;
+            Assert.AreEqual(nantNamespace,document.DocumentElement.NamespaceURI);
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                ConsoleDriver.Main(args);
+                ConsoleDriver.ShowProjectHelp(document);
                 result = c.Close();
             }
-
             /* expecting output in the form of"
 
                 Default Target:

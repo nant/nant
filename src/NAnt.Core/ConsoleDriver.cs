@@ -318,9 +318,15 @@ namespace NAnt.Core {
                 throw new Exception("Missing 'ProjectHelp.xslt' Resource Stream");
             }
 
+            XmlTextReader reader = new XmlTextReader(xsltStream, XmlNodeType.Document,null);
+
+            //first load in an XmlDocument so we can set the appropriate nant-namespace
+            XmlDocument xsltDoc = new XmlDocument();
+            xsltDoc.Load(reader);
+            xsltDoc.DocumentElement.SetAttribute("xmlns:nant",buildDoc.DocumentElement.NamespaceURI);
+
             XslTransform transform = new XslTransform();
-            XmlTextReader reader = new XmlTextReader(xsltStream, XmlNodeType.Document, null);
-            transform.Load(reader);
+            transform.Load(xsltDoc);
 
             StringBuilder sb = new StringBuilder();
             StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);

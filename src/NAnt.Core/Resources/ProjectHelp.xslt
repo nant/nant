@@ -21,7 +21,8 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 -->
 <xslt:stylesheet xmlns:xslt="http://www.w3.org/1999/XSL/Transform" version="1.0" xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-    xmlns:stringutils="urn:schemas-sourceforge.net-blah">
+    xmlns:stringutils="urn:schemas-sourceforge.net-blah" xmlns:nant="unknown-at-this-time"
+>
     <xslt:output method="text" />
     <msxsl:script language="C#" implements-prefix="stringutils">
     <![CDATA[
@@ -42,21 +43,21 @@
     <xslt:variable name="space">
         <xslt:text></xslt:text>
     </xslt:variable>
-    <xslt:template match="target/@name"></xslt:template>
-    <xslt:template match="project">
+    <xslt:template match="nant:target/@name"></xslt:template>
+    <xslt:template match="nant:project">
         <!-- get the project description -->
-        <xslt:apply-templates select="description" />
+        <xslt:apply-templates select="nant:description" />
         <!-- output default target -->
         <xslt:text>Default Target: </xslt:text>
         <xslt:value-of select="$newline" />
         <xslt:value-of select="$newline" />
-        <xslt:apply-templates select="target[@name=(../@default) ]" />
+        <xslt:apply-templates select="nant:target[@name=(../@default) ]" />
         <xslt:value-of select="$newline" />
         <!-- output main targets (targets with a description) -->
         <xslt:text>Main Targets: </xslt:text>
         <xslt:value-of select="$newline" />
         <xslt:value-of select="$newline" />
-        <xslt:apply-templates select="target[string(@description) != '' ]">
+        <xslt:apply-templates select="nant:target[string(@description) != '' ]">
             <xslt:sort select="@name" order="ascending" />
         </xslt:apply-templates>
         <xslt:value-of select="$newline" />
@@ -64,20 +65,20 @@
         <xslt:text>Sub Targets: </xslt:text>
         <xslt:value-of select="$newline" />
         <xslt:value-of select="$newline" />
-        <xslt:if test="count(target[string(@description) = '' ]) > 0">
-            <xslt:apply-templates select="target[string(@description) = '' ]">
+        <xslt:if test="count(nant:target[string(@description) = '' ]) > 0">
+            <xslt:apply-templates select="nant:target[string(@description) = '' ]">
                 <xslt:sort select="@name" order="ascending" />
             </xslt:apply-templates>
             <xslt:value-of select="$newline" />
         </xslt:if>
     </xslt:template>
-    <xslt:template match="target">
+    <xslt:template match="nant:target">
         <xslt:value-of select="$space" />
         <xslt:value-of select="stringutils:PadRight(@name, 20)" />
         <xslt:value-of select="@description" />
         <xslt:value-of select="$newline" />
     </xslt:template>
-    <xslt:template match="description">
+    <xslt:template match="nant:description">
         <xslt:value-of select="$space" />
         <xslt:value-of select="./node()" />
         <xslt:value-of select="$newline" />
