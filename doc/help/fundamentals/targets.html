@@ -69,7 +69,7 @@
             The optional <code>description</code> attribute can be used to provide a one-line
             description of this target, which is printed by the <code style="whitespace: nowrap;">-projecthelp</code>
             command-line option.</p>
-        <h3>Dependencies</h3>
+        <h3><a id="dependencies" />Dependencies</h3>
         <p>
             A target can depend on other targets.&nbsp; You might have a target for compiling,
             for example, and a target for creating a distributable.&nbsp; You can only build
@@ -94,7 +94,7 @@
             A target gets executed only once, even when more than one target depends on it (see
             the previous example). However, when the <a href="../tasks/call.html">&lt;call&gt;</a> task is used to execute
             a target, both the target and all its dependent targets will be re-executed.</p>
-        <h3>Wild Targets</h3>
+        <h3><a id="wild-targets" />Wild Targets</h3>
         <p>
              A target can be marked as <i>wild</i> by setting the <code>name</code> attribute to "*".
              A build file can contain up to one wild target, and it is executed if and only if the
@@ -108,7 +108,7 @@
          </pre>
          <p>
              The last target is executed if the invoked target is neither A nor B.</p>
-         <h3>Conditional Execution</h3>
+         <h3><a id="conditional-execution" />Conditional Execution</h3>
         <p>
             A target also has the ability to perform its execution if or unless a property has
             been set.&nbsp; This allows, for example, better control on the building process
