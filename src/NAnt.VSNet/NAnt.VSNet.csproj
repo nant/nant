@@ -124,6 +124,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "CSharpProject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "FileReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -134,13 +139,13 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.VSNet.build"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "Project.cs"
+                    RelPath = "ManagedProjectBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.VSNet.build"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "ProjectBase.cs"
@@ -189,6 +194,11 @@
                 />
                 <File
                     RelPath = "SolutionFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VBProject.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
