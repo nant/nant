@@ -103,27 +103,29 @@ namespace NAnt.Core.Tasks {
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         protected override void ExecuteTask() {
             ArrayList taskTypes;
+            ArrayList dataTypes;
 
             if (ForType == null) {
-                taskTypes = new ArrayList(TypeFactory.TaskBuilders.Count + TypeFactory.DataTypeBuilders.Count - 1);
+                taskTypes = new ArrayList(TypeFactory.TaskBuilders.Count);
+                dataTypes = new ArrayList(TypeFactory.DataTypeBuilders.Count);
 
                 foreach (TaskBuilder tb in TypeFactory.TaskBuilders) {
                     taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
                 }
-                /*
-                foreach (DataTypeBaseBuilder tb in TypeFactory.DataTypeBuilders) {
-                    taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
-                }
-                */
 
+                foreach (DataTypeBaseBuilder db in TypeFactory.DataTypeBuilders) {
+                    dataTypes.Add(Assembly.LoadFrom(db.AssemblyFileName).GetType(db.ClassName, true, true));
+                }
             } else {
                 taskTypes = new ArrayList(1);
                 taskTypes.Add(Type.GetType(ForType, true, true));
+                dataTypes = new ArrayList();
             }
             
             FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile.FullName);             FilePermission.Assert();
             using (FileStream file = File.Open(OutputFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
-                WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)), TargetNamespace);
+                WriteSchema(file, (Type[]) taskTypes.ToArray(typeof(Type)), 
+                    (Type[]) dataTypes.ToArray(typeof(Type)), TargetNamespace);
 
                 file.Flush();
                 file.Close();
@@ -139,12 +141,13 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Creates a NAnt Schema for given types
         /// </summary>
-        /// <param name="stream">The output stream to save the schema to. If null, writing is ignored, no exception generated</param>
-        /// <param name="tasks">The list of Types to generate Schema for</param>
-        /// <param name="targetNS">The target Namespace to output</param>
-        /// <returns>The new NAnt Schema</returns>
-        public static XmlSchema WriteSchema(System.IO.Stream stream, Type[] tasks, string targetNS) {
-            NAntSchemaGenerator gen = new NAntSchemaGenerator(tasks, targetNS);
+        /// <param name="stream">The output stream to save the schema to. If <see langword="null" />, writing is ignored, no exception generated.</param>
+        /// <param name="tasks">The list of tasks to generate XML Schema for.</param>
+        /// <param name="dataTypes">The list of datatypes to generate XML Schema for.</param>
+        /// <param name="targetNS">The target namespace to output.</param>
+        /// <returns>The new NAnt Schema.</returns>
+        public static XmlSchema WriteSchema(System.IO.Stream stream, Type[] tasks, Type[] dataTypes, string targetNS) {
+            NAntSchemaGenerator gen = new NAntSchemaGenerator(tasks, dataTypes, targetNS);
 
             if (!gen.Schema.IsCompiled) {
                 gen.Compile();
@@ -211,49 +214,15 @@ namespace NAnt.Core.Tasks {
             return new XmlNode[1] {doc.CreateTextNode(text)};
         }
 
-        /// <summary>
-        /// Searches throught custom attributes for any attribute based on
-        /// <paramref name="attributeType" />.
-        /// </summary>
-        /// <param name="member">Member that should be searched for custom attributes based on <paramref name="attributeType" />.</param>
-        /// <param name="attributeType">Custom attribute type that should be searched for; meaning that you want something derived by it.</param>
-        /// <param name="searchMemberHierarchy">Value indicating whether the <paramref name="member" /> class hierarchy should be searched for custom attributes.</param>
-        /// <param name="searchAttributeHierarchy">Value indicating whether the <paramref name="attributeType" /> class hierarchy should be searched for a match.</param>
-        /// <returns>
-        /// A custom attribute matching the search criteria or a null reference 
-        /// when no matching custom attribute is found.
-        /// </returns>
-        protected static Attribute GetDerivedAttribute(MemberInfo member, Type attributeType, bool searchMemberHierarchy, bool searchAttributeHierarchy) {
-            if (searchAttributeHierarchy) {
-                Attribute[] attrs = Attribute.GetCustomAttributes(member, searchMemberHierarchy);
-
-                foreach (Attribute a in attrs) {
-                    Type aType = a.GetType();
-
-                    while (!typeof(object).Equals(aType.BaseType) && aType.BaseType != null) {
-                        if (aType.Equals(attributeType)) {
-                            return a;
-                        }
-                        aType = aType.BaseType;
-                    }
-                }
-            } else {
-                return Attribute.GetCustomAttribute(member, attributeType, searchMemberHierarchy);
-            }
-
-            return null;
-        }
-
         #endregion Protected Static Methods
 
         private class NAntSchemaGenerator {
             #region Private Instance Fields
 
-            IDictionary _nantComplexTypes = null;
-            Type[] _tasks = null;
-            XmlSchemaComplexType _targetCT = null;
-            XmlSchema _nantSchema = new XmlSchema();
-            string _namespaceURI = string.Empty;
+            private IDictionary _nantComplexTypes;
+            private XmlSchemaComplexType _targetCT;
+            private XmlSchema _nantSchema = new XmlSchema();
+            private string _namespaceURI = string.Empty;
 
             #endregion Private Instance Fields
 
@@ -264,10 +233,11 @@ namespace NAnt.Core.Tasks {
             /// class.
             /// </summary>
             /// <param name="tasks">Tasks for which a schema should be generated.</param>
+            /// <param name="dataTypes">Data Types for which a schema should be generated.</param>
             /// <param name="targetNS">The namespace to use.
             /// <example> http://tempuri.org/nant.xsd </example>
             /// </param>
-            public NAntSchemaGenerator(Type[] tasks, string targetNS) {
+            public NAntSchemaGenerator(Type[] tasks, Type[] dataTypes, string targetNS) {
                 //setup namespace stuff
                 if (targetNS != null) {
                     _nantSchema.TargetNamespace = targetNS;
@@ -280,9 +250,8 @@ namespace NAnt.Core.Tasks {
 
                 _nantSchema.ElementFormDefault = XmlSchemaForm.Qualified;
 
-                //initialize stuff
-                _nantComplexTypes = new HybridDictionary(tasks.Length);
-                _tasks = tasks;
+                // initialize stuff
+                _nantComplexTypes = new HybridDictionary(tasks.Length + dataTypes.Length);
 
                 XmlSchemaAnnotation schemaAnnotation = new XmlSchemaAnnotation();
                 XmlSchemaDocumentation schemaDocumentation = new XmlSchemaDocumentation();
@@ -293,27 +262,36 @@ namespace NAnt.Core.Tasks {
                 schemaAnnotation.Items.Add(schemaDocumentation);
                 _nantSchema.Items.Add(schemaAnnotation);
 
-                //create temp list of task Complex Types
+                // create temp list of task Complex Types
                 ArrayList taskComplexTypes = new ArrayList(tasks.Length);
                 ArrayList taskContainerComplexTypes = new ArrayList(15);
 
-                XmlSchemaComplexType taskCT = FindOrCreateComplexType(typeof(TaskContainer));
-                taskComplexTypes.Add(taskCT);
-                taskContainerComplexTypes.Add(taskCT);
+                XmlSchemaComplexType containerCT = FindOrCreateComplexType(typeof(TaskContainer));
+                taskComplexTypes.Add(containerCT);
+                taskContainerComplexTypes.Add(containerCT);
+
+                // create temp list of task Complex Types
+                ArrayList dataTypeComplexTypes = new ArrayList(dataTypes.Length);
+
+                foreach (Type t in dataTypes) {
+                    dataTypeComplexTypes.Add(FindOrCreateComplexType(t));
+                }
 
                 foreach (Type t in tasks) {
-                    taskCT = FindOrCreateComplexType(t);
+                    XmlSchemaComplexType taskCT = FindOrCreateComplexType(t);
                     taskComplexTypes.Add(taskCT);
 
-                    //allow any tasks...
-                    if(t.IsSubclassOf(typeof(TaskContainer))) {
+                    // allow any tasks...
+                    if (t.IsSubclassOf(typeof(TaskContainer))) {
                         taskContainerComplexTypes.Add(taskCT);
                     }
                 }
 
+
                 Compile();
 
-                //update the taskcontainerCTs to allow any other task and the list of tasks generated.
+                // update the taskcontainerCTs to allow any other task and the 
+                // list of tasks generated
                 foreach(XmlSchemaComplexType ct in taskContainerComplexTypes) {
                     XmlSchemaSequence seq = ct.Particle as XmlSchemaSequence;
 
@@ -325,22 +303,22 @@ namespace NAnt.Core.Tasks {
                 }
                 Compile();
 
-                //create target ComplexType
-                _targetCT = CreateTaskListComplexType(tasks);
+                // create target ComplexType
+                _targetCT = CreateTaskListComplexType(tasks, dataTypes, false);
                 _targetCT.Name = "Target";
 
-                //name attribute
+                // name attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("name", true));
 
-                //default attribute
+                // default attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("depends", false));
 
-                //description attribute
+                // description attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("description", false));
 
                 _nantSchema.Items.Add(_targetCT);
 
-                //add to the list of ComplexTypes so that project will get it.
+                // add to the list of ComplexTypes so that project will get it.
                 taskComplexTypes.Add(_targetCT);
 
                 Compile();
@@ -349,9 +327,9 @@ namespace NAnt.Core.Tasks {
                 XmlSchemaElement projectElement = new XmlSchemaElement();
                 projectElement.Name = "project";
 
-                XmlSchemaComplexType projectCT = CreateTaskListComplexType(tasks, true);
+                XmlSchemaComplexType projectCT = CreateTaskListComplexType(tasks, dataTypes, true);
 
-                projectElement.SchemaType =  projectCT;
+                projectElement.SchemaType = projectCT;
 
                 //name attribute
                 projectCT.Attributes.Add(CreateXsdAttribute("name", true));
@@ -365,57 +343,6 @@ namespace NAnt.Core.Tasks {
                 _nantSchema.Items.Add(projectElement);
 
                 Compile();
-            }
-
-            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks) {
-                return CreateTaskListComplexType(tasks, false);
-            }
-
-            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks, bool includeProjectLevelItems) {
-                XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
-                XmlSchemaChoice choice = new XmlSchemaChoice();
-                choice.MinOccurs = 0;
-                choice.MaxOccursString = "unbounded";
-
-                tasklistCT.Particle = choice;
-
-                foreach (Type t in tasks) {
-                    XmlSchemaElement taskElement = new XmlSchemaElement();
-                    string typeId = GenerateIDFromType(t);
-                    XmlSchemaComplexType taskCT = FindComplexTypeByID(typeId);
-
-                    taskElement.Name = GetTaskName(t);
-                    taskElement.SchemaTypeName = taskCT.QualifiedName;
-
-                    choice.Items.Add(taskElement);
-                }
-
-                if (includeProjectLevelItems) {
-                    XmlSchemaElement targetElement = new XmlSchemaElement();
-
-                    targetElement.Name = "target";
-                    targetElement.SchemaTypeName = _targetCT.QualifiedName;
-
-                    choice.Items.Add(targetElement);
-                }
-
-                return tasklistCT;
-            }
-
-            private string GetTaskName(Type t) {
-                TaskNameAttribute[] attrs = (TaskNameAttribute[])t.GetCustomAttributes(typeof(TaskNameAttribute), false);
-                if (attrs.Length == 1) {
-                    return attrs[0].Name;
-                } else {
-                    return null;
-                }
-            }
-
-            /// <summary>
-            /// Creates a new SchemaGenerator without a TargetNamespace.
-            /// </summary>
-            /// <param name="tasks">The Collection of Type(s) that represent the Task Classes to generation XSD for.</param>
-            public NAntSchemaGenerator(Type[] tasks) : this(tasks, null) {
             }
 
             #endregion Public Instance Constructors
@@ -443,6 +370,52 @@ namespace NAnt.Core.Tasks {
 
             #region Protected Instance Methods
 
+            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks) {
+                return CreateTaskListComplexType(tasks, new Type[0], false);
+            }
+
+            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks, Type[] dataTypes, bool includeProjectLevelItems) {
+                XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
+                XmlSchemaChoice choice = new XmlSchemaChoice();
+                choice.MinOccurs = 0;
+                choice.MaxOccursString = "unbounded";
+
+                tasklistCT.Particle = choice;
+
+                foreach (Type t in tasks) {
+                    XmlSchemaElement taskElement = new XmlSchemaElement();
+                    string typeId = GenerateIDFromType(t);
+                    XmlSchemaComplexType taskCT = FindComplexTypeByID(typeId);
+
+                    taskElement.Name = GetTaskName(t);
+                    taskElement.SchemaTypeName = taskCT.QualifiedName;
+
+                    choice.Items.Add(taskElement);
+                }
+
+                foreach (Type t in dataTypes) {
+                    XmlSchemaElement dataTypeElement = new XmlSchemaElement();
+                    string typeId = GenerateIDFromType(t);
+                    XmlSchemaComplexType dataTypeCT = FindComplexTypeByID(typeId);
+
+                    dataTypeElement.Name = GetDataTypeName(t);
+                    dataTypeElement.SchemaTypeName = dataTypeCT.QualifiedName;
+
+                    choice.Items.Add(dataTypeElement);
+                }
+
+                if (includeProjectLevelItems) {
+                    XmlSchemaElement targetElement = new XmlSchemaElement();
+
+                    targetElement.Name = "target";
+                    targetElement.SchemaTypeName = _targetCT.QualifiedName;
+
+                    choice.Items.Add(targetElement);
+                }
+
+                return tasklistCT;
+            }
+
             protected void ValidationEH(object sender, ValidationEventArgs args) {
                 if (args.Severity == XmlSeverityType.Warning) {
                     logger.Info("WARNING: ");
@@ -466,7 +439,7 @@ namespace NAnt.Core.Tasks {
                 return null;
             }
 
-            protected XmlSchemaComplexType FindOrCreateComplexType(Type t)  {
+            protected XmlSchemaComplexType FindOrCreateComplexType(Type t) {
                 XmlSchemaComplexType ct;
                 string typeId = GenerateIDFromType(t);
 
@@ -521,9 +494,13 @@ namespace NAnt.Core.Tasks {
                    
                     //Check for any return type that is derived from Element
 
-                    //Add Attributes
-                    TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute) Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
-                    BuildElementAttribute buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
+                    // add Attributes
+                    TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute) 
+                        Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute),
+                        false);
+                    BuildElementAttribute buildElemAttr = (BuildElementAttribute)
+                        Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute),
+                        false);
 
                     if (taskAttrAttr != null) {
                         XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
@@ -561,8 +538,9 @@ namespace NAnt.Core.Tasks {
                             throw new ApplicationException("Member Type != Field/Property/Method");
                         }
 
-                        BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementArrayAttribute), true);
-                        
+                        BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute)
+                            Attribute.GetCustomAttribute(memInfo, typeof(BuildElementArrayAttribute), false);
+
                         // determine type of child elements
 
                         if (buildElementArrayAttribute != null)  {
@@ -597,7 +575,7 @@ namespace NAnt.Core.Tasks {
                             }
                         }
 
-                        BuildElementCollectionAttribute buildElementCollectionAttribute = (BuildElementCollectionAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementCollectionAttribute), true);
+                        BuildElementCollectionAttribute buildElementCollectionAttribute = (BuildElementCollectionAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementCollectionAttribute), false);
                         if (buildElementCollectionAttribute != null) {
                             XmlSchemaComplexType collectionType = new XmlSchemaComplexType();
                             XmlSchemaSequence sequence = new XmlSchemaSequence();
@@ -633,7 +611,29 @@ namespace NAnt.Core.Tasks {
                 return ct;
             }
 
-            #endregion Public Instance Methods
+            #endregion Protected Instance Methods
+
+            #region Private Instance Methods
+
+            private string GetTaskName(Type t) {
+                TaskNameAttribute[] attrs = (TaskNameAttribute[])t.GetCustomAttributes(typeof(TaskNameAttribute), false);
+                if (attrs.Length == 1) {
+                    return attrs[0].Name;
+                } else {
+                    return null;
+                }
+            }
+
+            private string GetDataTypeName(Type t) {
+                ElementNameAttribute[] attrs = (ElementNameAttribute[]) t.GetCustomAttributes(typeof(ElementNameAttribute), false);
+                if (attrs.Length == 1) {
+                    return attrs[0].Name;
+                } else {
+                    return null;
+                }
+            }
+
+            #endregion Private Instance Methods
         }
     }
 }
