@@ -1,5 +1,3 @@
-NAnt.xml
-*.dat
-*.suo
+NAnt.Console.xml
 *.user
 obj

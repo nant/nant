@@ -1,5 +1,3 @@
 NAnt.Core.xml
-*.dat
-*.suo
 *.user
 obj

@@ -1,5 +1,3 @@
 Nant.Win32Tasks.xml
-*.dat
-*.suo
 *.user
 obj

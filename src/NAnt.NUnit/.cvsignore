@@ -1,5 +1,3 @@
 Nant.NUnit.xml
-*.dat
-*.suo
 *.user
 obj
