@@ -30,6 +30,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
+using NAnt.VisualCpp.Util;
+
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
     /// Links files using <c>link.exe</c>, Microsoft's Incremental Linker.
@@ -57,8 +59,12 @@ namespace NAnt.VisualCpp.Tasks {
 
         private string _responseFileName;
         private FileInfo _outputFile;
+        private FileInfo _pdbFile;
+        private bool _debug;
         private FileSet _sources = new FileSet();
         private FileSet _libdirs = new FileSet();
+        private FileSet _modules = new FileSet();
+        private FileSet _embeddedResources = new FileSet();
         private string _options = null;
 
         #endregion Private Instance Fields
@@ -75,12 +81,32 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
+        /// Create debugging information for the .exe file or DLL. The default is
+        /// <see langword="false" />.
+        /// </summary>
+        public bool Debug {
+            get { return _debug; }
+            set { _debug = value; }
+        }
+
+        /// <summary>
         /// The output file.
         /// </summary>
         [TaskAttribute("output", Required=true)]
         public FileInfo OutputFile {
             get { return _outputFile; }
             set { _outputFile = value; }
+        }
+
+        /// <summary>
+        /// A user-specified name for the program database (PDB) that the linker 
+        /// creates. The default file name for the PDB has the base name of the 
+        /// <see cref="OutputFile" /> and the extension .pdb.
+        /// </summary>
+        [TaskAttribute("pdbfile")]
+        public FileInfo ProgramDatabaseFile {
+            get { return _pdbFile; }
+            set { _pdbFile = value; }
         }
 
         /// <summary>
@@ -99,6 +125,24 @@ namespace NAnt.VisualCpp.Tasks {
         public FileSet LibDirs {
             get { return _libdirs; }
             set { _libdirs = value; }
+        }
+
+        /// <summary>
+        /// Link the specified modules into this assembly.
+        /// </summary>
+        [BuildElement("modules")]
+        public FileSet Modules {
+            get { return _modules; }
+            set { _modules = value; }
+        }
+
+        /// <summary>
+        /// Embed the specified resources into this assembly.
+        /// </summary>
+        [BuildElement("embeddedresources")]
+        public FileSet EmbeddedResources {
+            get { return _embeddedResources; }
+            set { _embeddedResources = value; }
         }
 
         #endregion Public Instance Properties
@@ -160,61 +204,115 @@ namespace NAnt.VisualCpp.Tasks {
             if (LibDirs.BaseDirectory == null) {
                 LibDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
+            if (Modules.BaseDirectory == null) {
+                Modules.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (EmbeddedResources.BaseDirectory == null) {
+                EmbeddedResources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
 
             if (NeedsLinking()) {
-               Log(Level.Info, "Linking {0} files to '{1}'.", 
-                   Sources.FileNames.Count, OutputFile.FullName);
+                Log(Level.Info, "Linking {0} files to '{1}'.", 
+                    Sources.FileNames.Count, OutputFile.FullName);
   
-               // create temp response file to hold compiler options
-               _responseFileName = Path.GetTempFileName();
+                // create temp response file to hold compiler options
+                _responseFileName = Path.GetTempFileName();
 
-               StreamWriter writer = new StreamWriter(_responseFileName);
+                StreamWriter writer = new StreamWriter(_responseFileName);
   
-               try {
-                   // specify the output file
-                   writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
+                try {
+                    // specify the output file
+                    writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
   
-                   // write user provided options
-                   if (Options != null) {
-                       writer.WriteLine(Options);
-                   }
+                    // write user provided options
+                    if (Options != null) {
+                        writer.WriteLine(Options);
+                    }
   
-                   // write each of the filenames
-                   foreach (string filename in Sources.FileNames) {
-                       writer.WriteLine("\"{0}\"", filename);
-                   }
-  
-                   // write each of the libdirs
-                   foreach (string libdir in LibDirs.DirectoryNames) {
-                       writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
-                   }
+                    // write each of the libdirs
+                    foreach (string libdir in LibDirs.DirectoryNames) {
+                        writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
+                    }
 
-                   // suppresses display of the sign-on banner                    
-                   writer.WriteLine("/nologo");
+                    // write each of the module references
+                    foreach (string module in Modules.FileNames) {
+                        writer.WriteLine("/ASSEMBLYMODULE:{0}", QuoteArgumentValue(module));
+                    }
 
-                   writer.Close();
+                    // write each of the embedded resources
+                    foreach (string resource in EmbeddedResources.FileNames) {
+                        writer.WriteLine("/ASSEMBLYRESOURCE:{0}", QuoteArgumentValue(resource));
+                    }
+
+                    if (Debug) {
+                        writer.WriteLine("/DEBUG");
+                    }
+
+                    // write program database file
+                    if (ProgramDatabaseFile == null && Debug) {
+                        writer.WriteLine("/PDB:{0}", QuoteArgumentValue(
+                            Path.ChangeExtension(OutputFile.FullName, ".pdb")));
+                    } else if (ProgramDatabaseFile != null) {
+                        writer.WriteLine("/PDB:{0}", QuoteArgumentValue(
+                            ProgramDatabaseFile.FullName));
+                    }
+
+                    // suppresses display of the sign-on banner                    
+                    writer.WriteLine("/nologo");
+
+                    // write each of the filenames
+                    foreach (string filename in Sources.FileNames) {
+                        writer.WriteLine("\"{0}\"", filename);
+                    }
+
+                    writer.Close();
   
-                   if (Verbose) {
-                       // display response file contents
-                       Log(Level.Info, "Contents of {0}.", _responseFileName);
-                       StreamReader reader = File.OpenText(_responseFileName);
-                       Log(Level.Info, reader.ReadToEnd());
-                       reader.Close();
-                   }
+                    if (Verbose) {
+                        // display response file contents
+                        Log(Level.Info, "Contents of {0}.", _responseFileName);
+                        StreamReader reader = File.OpenText(_responseFileName);
+                        Log(Level.Info, reader.ReadToEnd());
+                        reader.Close();
+                    }
 
-                   // call base class to do the actual work
-                   base.ExecuteTask();
-               } finally {
-                   // make sure we delete response file even if an exception is thrown
-                   writer.Close(); // make sure stream is closed or file cannot be deleted
-                   File.Delete(_responseFileName);
-                   _responseFileName = null;
-               }
-           }
+                    // call base class to do the actual work
+                    base.ExecuteTask();
+                } finally {
+                    // make sure we delete response file even if an exception is thrown
+                    writer.Close(); // make sure stream is closed or file cannot be deleted
+                    File.Delete(_responseFileName);
+                    _responseFileName = null;
+                }
+            }
             
         }
 
         #endregion Override implementation of Task
+
+        #region Public Static Methods
+
+        /// <summary>
+        /// Quotes an argument value and duplicates trailing backslahes.
+        /// </summary>
+        /// <param name="value">The argument value to quote.</param>
+        /// <returns>
+        /// The quotes argument value.
+        /// </returns>
+        public static string QuoteArgumentValue(string value) {
+            // duplicate trailing backslashes (even if value is quoted)
+            string quotedValue = ArgumentUtils.DuplicateTrailingBackSlash(value);
+            
+            // determine if value is already quoted
+            bool isQuoted = value.StartsWith("\"") && value.EndsWith("\"");
+
+            if (!isQuoted) {
+                quotedValue = "\"" + quotedValue + "\"";
+            }
+
+            return quotedValue;
+        }
+
+        #endregion Public Static Methods
     }
 }
 #if unused
