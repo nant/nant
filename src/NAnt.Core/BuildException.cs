@@ -33,9 +33,7 @@ namespace NAnt.Core {
     public class BuildException : ApplicationException {
         #region Private Instance Fields
 
-        /// <summary>
-        /// The location of the exception in the build document (xml file).
-        /// </summary>
+        /// <summary>        /// The location of the exception in the build document (xml file).        /// </summary>
         private Location _location = Location.UnknownLocation;
 
         #endregion Private Instance Fields
@@ -133,7 +131,7 @@ namespace NAnt.Core {
                 string message = base.Message;
                 // only include location string if not empty
                 string locationString = String.Empty;
-                if (null != _location) {
+                if (_location != null) {
                     locationString = _location.ToString();
                 }
                 
@@ -153,7 +151,8 @@ namespace NAnt.Core {
         /// </summary>
         /// <returns>A string representation of the current exception.</returns>
         public override string ToString() {
-            return string.Format(CultureInfo.InvariantCulture,"{0}:{1}{2}", Message, Environment.NewLine, base.ToString());
+            return string.Format(CultureInfo.InvariantCulture, "{0}:{1}{2}", 
+                Message, Environment.NewLine, base.ToString());
         }
 
         #endregion Override implementation of Object
