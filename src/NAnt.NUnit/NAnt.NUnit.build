@@ -18,8 +18,8 @@
                 <!-- temporary workaround for Mono Runtime bug #57602 -->
                 <include name="${lib.framework.dir}/log4net.dll" />
                 <!-- end workaround -->
-                <include name="${build.dir}/bin/NAnt.Core.dll"/>
-                <include name="${lib.framework.dir}/nunit.framework.dll"/>
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${lib.framework.dir}/nunit.framework.dll" />
             </references>
         </csc>
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
@@ -32,9 +32,9 @@
                 <!-- temporary workaround for Mono Runtime bug #57602 -->
                 <include name="${lib.framework.dir}/log4net.dll" />
                 <!-- end workaround -->
-                <include name="${build.dir}/bin/NAnt.Core.dll"/>
-                <include name="${build.dir}/bin/NAnt.NUnit.dll"/>
-                <include name="${lib.dir}/NUnitCore.dll"/>
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${build.dir}/bin/NAnt.NUnit.dll" />
+                <include name="${lib.dir}/NUnitCore.dll" />
             </references>
         </csc>
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
@@ -47,9 +47,10 @@
                 <!-- temporary workaround for Mono Runtime bug #57602 -->
                 <include name="${lib.framework.dir}/log4net.dll" />
                 <!-- end workaround -->
-                <include name="${build.dir}/bin/NAnt.Core.dll"/>
-                <include name="${build.dir}/bin/NAnt.NUnit.dll"/>
-                <include name="${lib.framework.dir}/nunit.framework.dll"/>
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${build.dir}/bin/NAnt.NUnit.dll" />
+                <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />                
+                <include name="${lib.framework.dir}/nunit.framework.dll" />
             </references>
         </csc>
     </target>
