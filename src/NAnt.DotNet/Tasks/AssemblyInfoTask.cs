@@ -26,6 +26,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -188,32 +189,120 @@ namespace NAnt.DotNet.Tasks {
                     }
                 }
 
-                using (StreamWriter writer = new StreamWriter(Output.FullName, false, System.Text.Encoding.Default)) {
-                    // create new instance of CodeProviderInfo for specified CodeLanguage
-                    CodeProvider codeProvider = new CodeProvider(Language);
+                // will hold filename of newly generated AssemblyInfo file
+                string tempFile = null;
 
-                    // only generate imports here for C#, for VB we create the 
-                    // imports as part of the assembly attributes compile unit
-                    if (Language == CodeLanguage.CSharp) {
-                        // generate imports code
-                        codeProvider.GenerateImportCode(imports, writer);
+                try {
+                    tempFile = Path.GetTempFileName();
+
+                    using (StreamWriter writer = new StreamWriter(tempFile, false, Encoding.Default)) {
+                        // create new instance of CodeProviderInfo for specified CodeLanguage
+                        CodeProvider codeProvider = new CodeProvider(Language);
+
+                        // only generate imports here for C#, for VB we create the 
+                        // imports as part of the assembly attributes compile unit
+                        if (Language == CodeLanguage.CSharp) {
+                            // generate imports code
+                            codeProvider.GenerateImportCode(imports, writer);
+                        }
+
+                        // generate code for assembly attributes
+                        codeProvider.GenerateAssemblyAttributesCode(AssemblyAttributes, imports, References.FileNames, writer);
+
+                        // close writer
+                        writer.Close();
                     }
 
-                    // generate code for assembly attributes
-                    codeProvider.GenerateAssemblyAttributesCode(AssemblyAttributes, imports, References.FileNames, writer);
-
-                    // close writer
-                    writer.Close();
+                    // only copy temporary AssemblyInfo file to output file if
+                    // these files differ (this avoid unnecessary rebuilds of
+                    // assemblies)
+                    if (NeedsCompiling(tempFile)) {
+                        File.Copy(tempFile, Output.FullName, true);
+                    }
+                } finally {
+                    if (tempFile != null) {
+                        File.Delete(tempFile);
+                    }
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(
                     CultureInfo.InvariantCulture,
                     "AssemblyInfo file '{0}' could not be generated.",
                     Output.FullName), Location, ex);
+            } finally {
             }
         }
 
         #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Determines whether the specified AssemblyInfo file differs from
+        /// the output file.
+        /// </summary>
+        /// <param name="tempAssemblyInfo">The newly generated AssemblyInfo file.</param>
+        /// <returns>
+        /// <see langword="true" /> if the output file needs to be updated;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        private bool NeedsCompiling(string tempAssemblyInfo) {
+            // if output file doesn't exist, temporary AssemblyInfo file will
+            // always need to be copied to output file
+            if (!Output.Exists) {
+                return true;
+            }
+
+            StreamReader existingAsmInfo = null;
+            StreamReader newAsmInfo = null;
+
+            try {
+                existingAsmInfo = new StreamReader(Output.FullName, Encoding.Default);
+                newAsmInfo = new StreamReader(tempAssemblyInfo, Encoding.Default);
+
+                string existingLine = existingAsmInfo.ReadLine();
+                string newLine = newAsmInfo.ReadLine();
+
+                while (existingLine != null && newLine != null) {
+                    if (existingLine.StartsWith("//")) {
+                        // skip source comment
+                        existingLine = existingAsmInfo.ReadLine();
+                        continue;
+                    }
+
+                    if (newLine.StartsWith("//")) {
+                        // skip source comment
+                        newLine = newAsmInfo.ReadLine();
+                        continue;
+                    }
+
+                    // if both lines are not equal, asminfo file needs to
+                    // be updated on filesystem
+                    if (existingLine.Trim() != newLine.Trim()) {
+                        break;
+                    }
+
+                    // read next line of both files
+                    existingLine = existingAsmInfo.ReadLine();
+                    newLine = newAsmInfo.ReadLine();
+                }
+
+                // if the end of both files was not reached, the files differ
+                if (existingLine != null || newLine != null) {
+                    return true;
+                }
+                return false;
+            } finally {
+                if (existingAsmInfo != null) {
+                    existingAsmInfo.Close();
+                }
+                if (newAsmInfo != null) {
+                    newAsmInfo.Close();
+                }
+            }
+        }
+
+        #endregion Private Instance Methods
 
         /// <summary>
         /// Defines the supported code languages for generating an AssemblyInfo
