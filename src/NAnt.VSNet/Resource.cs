@@ -197,6 +197,11 @@ namespace NAnt.VSNet {
                 Path.Combine(Path.GetDirectoryName(_resourceSourceFileRelativePath), Path.GetFileNameWithoutExtension(
                     InputFile.Name) + ".resources")));
 
+            // ensure output directory exists
+            if (!outputFile.Directory.Exists) {
+                outputFile.Directory.Create();
+            }
+
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
 
