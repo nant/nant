@@ -260,7 +260,7 @@ namespace NAnt.VSNet {
 
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
-                foreach (string includeDir in includeDirs.Split(',')) {
+                foreach (string includeDir in includeDirs.Split(new char[] {',', ';'})) {
                     clTask.IncludeDirs.DirectoryNames.Add(includeDir);
                 }
             }
