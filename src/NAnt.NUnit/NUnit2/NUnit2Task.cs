@@ -30,12 +30,11 @@ using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
 
-using NUnit.Framework;
 using NUnit.Core;
+using NUnit.Framework;
 
 using SourceForge.NAnt.Attributes;
 using SourceForge.NAnt.Tasks.NUnit.Formatters;
-
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
     /// <summary>Runs tests using the NUnit V2.0 framework.</summary>
@@ -57,7 +56,9 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
     /// <![CDATA[
     /// <nunit2>
     ///     <test>
-    ///         <includesList name="tests.txt" />
+    ///         <assemblies>
+    ///             <includesList name="tests.txt" />
+    ///         </assemblies>
     ///     </test>
     /// </nunit2>
     /// ]]>
@@ -65,43 +66,58 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
     /// </example>
     [TaskName("nunit2")]
     public class NUnit2Task : Task {
+        #region Private Instance Fields
+
         private bool _haltOnFailure = false;
         private bool _haltOnError = true;
-        private ArrayList tests = new ArrayList();
+        private NUnit2TestCollection _tests = new NUnit2TestCollection();
+        private FormatterElementCollection _formatterElements = new FormatterElementCollection();
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
        
-        /// <summary>Stop the build process if a test fails.</summary>
+        /// <summary>
+        /// Stop the build process if a test fails.
+        /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
-        public bool HaltOnFailure       { get { return _haltOnFailure; } set { _haltOnFailure = value; }}
+        public bool HaltOnFailure {
+            get { return _haltOnFailure; }
+            set { _haltOnFailure = value; }
+        }
 
-        /// <summary>Build fails on error</summary>
+        /// <summary>
+        /// Build fails on error.
+        /// </summary>
         [TaskAttribute("haltonerror")]
         [BooleanValidator()]
-        public bool HaltOnError { get { return _haltOnError; } set { _haltOnError = value; } }
+        public bool HaltOnError {
+            get { return _haltOnError; }
+            set { _haltOnError = value; }
+        }
 
-        
-        FormatterElementCollection _formatterElements = new FormatterElementCollection();
-        
+        /// <summary>
+        /// Tests to run.
+        /// </summary>
+        [BuildElementArray("test")]
+        public NUnit2TestCollection Tests {
+            get { return _tests; }
+        }
+
+        /// <summary>
+        /// Formatters to output results of unit tests 
+        /// </summary>
+        [BuildElementArray("formatter")]
+        public FormatterElementCollection FormatterElements {
+            get { return _formatterElements; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         protected override void InitializeTask(XmlNode taskNode) {
-            foreach (XmlNode testNode in taskNode) {
-                if(testNode.Name.Equals("test")) {
-                    NUnit2Test test = new NUnit2Test();
-                    test.Project = Project; 
-                    test.Initialize(testNode);
-                    tests.Add(test);
-                }
-            }
-            
-            // now get formatters
-            foreach (XmlNode formatterNode in taskNode) {
-                if(formatterNode.Name.Equals("formatter")) {
-                    FormatterElement formatter = new FormatterElement();
-                    formatter.Project = Project;
-                    formatter.Initialize(formatterNode);
-                    _formatterElements.Add(formatter);
-                }
-            }
-            
             FormatterElement defaultFormatter = new FormatterElement();
             defaultFormatter.Project = Project;
             defaultFormatter.Type = FormatterType.Plain;
@@ -110,26 +126,25 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         }
         
         protected override void ExecuteTask() {
-            foreach (NUnit2Test test in tests) {
+            foreach (NUnit2Test test in Tests) {
                 EventListener listener = new NullListener();
                 TestResult[] results = RunRemoteTest(test, listener);
-            
+
                 // no tests results. An error might have occurred
-                if ( results == null || results.Length == 0 )
+                if (results == null || results.Length == 0)
                     continue;
 
                 StringCollection assemblies = test.GetTestAssemblies();
-                for ( int i = 0; i < results.Length; i++ ) {
-                        
+                for (int i = 0; i < results.Length; i++) {
                     string assemblyFile = assemblies[i];
                     TestResult result = results[i];
 
-                    string xmlResultFile = result.Name + "-results.xml";                    
-                                
+                    string xmlResultFile = result.Name + "-results.xml";
+
                     XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
                     result.Accept(resultVisitor);
-                    resultVisitor.Write();    
-                    
+                    resultVisitor.Write();
+
                     foreach (FormatterElement formatter in _formatterElements) {
                         if (formatter.Type == FormatterType.Xml) {
                             if (!formatter.UseFile) {
@@ -137,18 +152,17 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                                     // strip off the xml header
                                     reader.ReadLine();
                                     StringBuilder builder = new StringBuilder();
-                                    while (reader.Peek() > -1)
+                                    while (reader.Peek() > -1) {
                                         builder.Append(reader.ReadLine().Trim()).Append("\n");
+                                    }
                                     Log.WriteLine(LogPrefix + builder.ToString());
                                 }
                             }
-                        } 
-                        else if (formatter.Type == FormatterType.Plain) {
+                        }  else if (formatter.Type == FormatterType.Plain) {
                             TextWriter writer;
                             if (formatter.UseFile) {
                                 writer = new StreamWriter(result.Name + "-results" + formatter.Extension);
-                            } 
-                            else {
+                            } else {
                                 writer = new LogWriter(LogPrefix, CultureInfo.InvariantCulture);
                             }
                             CreateSummaryDocument(xmlResultFile, writer, test);
@@ -157,23 +171,27 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                     }
                     if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
                         throw new BuildException("Tests Failed");
-                    }        
+                    }
                 }
             }
         }
         
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
 
         private TestResult[] RunRemoteTest(NUnit2Test test, EventListener listener) {
             StringCollection assemblies = test.GetTestAssemblies();
             ArrayList results = new ArrayList();
 
-            foreach ( string assembly in assemblies ) {
+            foreach (string assembly in assemblies) {
                 TestResult res = RunSingleRemoteTest(test, assembly, listener);
-                if ( res != null )
+                if (res != null) {
                     results.Add(res);
+                }
             }
 
-            return (TestResult[])results.ToArray(typeof(TestResult));
+            return (TestResult[]) results.ToArray(typeof(TestResult));
         }
 
         private TestResult RunSingleRemoteTest(NUnit2Test test, string testAssembly, EventListener listener) {
@@ -181,80 +199,130 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                 LogWriter writer = new LogWriter(LogPrefix, CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
                 return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, listener);
-            } 
-            catch ( Exception e ) {
-                if ( HaltOnError )
-                    throw new BuildException("NUnit 2.0 Error: ", e);
-               
-                Log.WriteLine(LogPrefix + "NUnit 2.0 Error: " + e.ToString());
+            } catch (Exception ex) {
+                if (HaltOnError) {
+                    throw new BuildException("NUnit 2.0 Error: ", ex);
+                }
+                Log.WriteLine(LogPrefix + "NUnit 2.0 Error: " + ex.ToString());
                 return null;
             }
         }
 
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
-            XPathDocument originalXPathDocument = new XPathDocument (resultFile);
+            XPathDocument originalXPathDocument = new XPathDocument(resultFile);
             XslTransform summaryXslTransform = new XslTransform();
             XmlTextReader transformReader = GetTransformReader(test);
             summaryXslTransform.Load(transformReader);
-            
-            summaryXslTransform.Transform(originalXPathDocument,null,writer);
+            summaryXslTransform.Transform(originalXPathDocument, null, writer);
         }
-        
         
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
             if(test.TransformFile == null) {
                 Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
                 ResourceManager resourceManager = new ResourceManager("NUnit.Framework.Transform", assembly);
-                string xmlData = (string)resourceManager.GetObject("Summary.xslt",  CultureInfo.InvariantCulture);
+                string xmlData = (string)resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
                 transformReader = new XmlTextReader(new StringReader(xmlData));
-            }
-            else {
+            } else {
                 FileInfo xsltInfo = new FileInfo(test.TransformFile);
-                if(!xsltInfo.Exists) {
+                if (!xsltInfo.Exists) {
                     throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Transform file: {0} does not exist", xsltInfo.FullName));
                 }
-
                 transformReader = new XmlTextReader(xsltInfo.FullName);
             }
             
             return transformReader;
         }
         
-        private class LogWriter : TextWriter {
-            
-            public override Encoding Encoding { get { return Encoding.UTF8; } }
+        #endregion Private Instance Methods
 
+        /// <summary>
+        /// Implements a <see cref="TextWriter" /> for writing information to 
+        /// the Nant logging infrastructure.
+        /// </summary>
+        private class LogWriter : TextWriter {
+            #region Public Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="LogWriter" /> class 
+            /// with the specified prefix and format provider.
+            /// </summary>
+            /// <param name="logPrefix">The prefix for written messages.</param>
+            /// <param name="formatProvider">An <see cref="IFormatProvider" /> object that controls formatting.</param>
             public LogWriter(string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
                 _logPrefix = logPrefix;
             }
 
+            #endregion Public Instance Constructors
+
+            #region Override implementation of TextWriter
+
+            /// <summary>
+            /// Gets the <see cref="Encoding" /> in which the output is written.
+            /// </summary>
+            /// <value>
+            /// The <see cref="LogWriter" /> always writes output in <see cref="Encoding.UTF8" />
+            /// encoding.
+            /// </value>
+            public override Encoding Encoding {
+                get { return Encoding.UTF8; }
+            }
+
+            /// <summary>
+            /// Writes a character array to the text stream, while adding a 
+            /// prefix if its the first output on the current line.
+            /// </summary>
+            /// <param name="chars">The character array to write to the text stream.</param>
+            public override void Write(char[] chars) {
+                CheckWritePrefix();
+                Log.Write(new String(chars, 0, chars.Length -1));
+            }
+
+            /// <summary>
+            /// Writes a string followed by a line terminator to the text stream.
+            /// </summary>
+            /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
+            public override void WriteLine(string value) {
+                CheckWritePrefix();
+                Log.WriteLine(value);
+                _needPrefix = true;
+            }
+
+            /// <summary>
+            /// Writes out a formatted string with prefix and a new line, using the same 
+            /// semantics as <see cref="string.Format" />.
+            /// </summary>
+            /// <param name="line">The formatting string.</param>
+            /// <param name="args">The object array to write into format string.</param>
+            public override void WriteLine(string line, params object[] args) {
+                CheckWritePrefix();
+                Log.WriteLine(line, args);
+                _needPrefix = true;
+            }   
+
+            #endregion Override implementation of TextWriter
+
+            #region Private Instance Methods
+
+            /// <summary>
+            /// Writes a prefix to the text stream if its the first output on
+            /// the current line.
+            /// </summary>
             private void CheckWritePrefix() {
                 if (_needPrefix) {
                     Log.Write(_logPrefix);
                     _needPrefix = false;
                 }
             }
-            
-            public override void Write(char[] chars) {
-                CheckWritePrefix();
-                Log.Write(new String(chars, 0, chars.Length -1));
-            }
-            
-            public override void WriteLine(string line) {
-                CheckWritePrefix();
-                Log.WriteLine(line);
-                _needPrefix = true;
-            }
-            
-            public override void WriteLine(string line, params object[] args) {
-                CheckWritePrefix();
-                Log.WriteLine(line, args);
-                _needPrefix = true;
-            }                
+
+            #endregion Private Instance Methods
+
+            #region Private Instance Fields
 
             private bool _needPrefix = true;
             private string _logPrefix;
+
+            #endregion Private Instance Fields
         }
     }
 }
