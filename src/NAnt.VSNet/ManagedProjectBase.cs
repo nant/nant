@@ -361,42 +361,7 @@ namespace NAnt.VSNet {
                     }
                 }
 
-                ProcessStartInfo psi = null;
-
-                switch (Type) {
-                    case ProjectType.CSharp:
-                        psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
-
-                        // Visual C#.NET uses the <project dir>\obj\<configuration> 
-                        // as working directory, so we should do the same to make 
-                        // sure relative paths are resolved correctly 
-                        // (eg. AssemblyKeyFile attribute)
-
-                        // ensure configuration-level object directory exists
-                        if (!cs.ObjectDir.Exists) {
-                            cs.ObjectDir.Create();
-                            cs.ObjectDir.Refresh();
-                        }
-
-                        psi.WorkingDirectory = cs.ObjectDir.FullName;
-                        break;
-                    case ProjectType.VB:
-                        psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
-
-                        // Visual Basic.NET uses the directory from which VS.NET 
-                        // was launched as working directory, the closest match
-                        // and best behaviour for us is to use the <solution dir>
-                        // as working directory and fallback to the <project dir>
-                        // if the project was explicitly specified
-                        
-                        if (SolutionTask.SolutionFile != null) {
-                            psi.WorkingDirectory = SolutionTask.SolutionFile.DirectoryName;
-                        } else {
-                            psi.WorkingDirectory = ProjectDirectory.FullName;
-                        }
-                        break;
-                }
-
+                ProcessStartInfo psi = GetProcessStartInfo(cs, tempResponseFile);
                 psi.UseShellExecute = false;
                 psi.RedirectStandardOutput = true;
 
@@ -575,6 +540,18 @@ namespace NAnt.VSNet {
         #endregion Override implementation of ProjectBase
 
         #region Protected Instance Methods
+
+        /// <summary>
+        /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
+        /// for this project.
+        /// </summary>
+        /// <param name="config">The configuration to build.</param>
+        /// <param name="responseFile">The response file for the compiler.</param>
+        /// <returns>
+        /// A <see cref="ProcessStartInfo" /> for launching the compiler for 
+        /// this project.
+        /// </returns>
+        protected abstract ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile);
 
         protected virtual void WriteCompilerOptions(StreamWriter sw, ConfigurationSettings config) {
             // write project level options (eg. /target)

@@ -19,6 +19,7 @@
 
 using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -53,6 +54,45 @@ namespace NAnt.VSNet {
         /// </value>
         public override ProjectType Type {
             get { return ProjectType.CSharp; }
+        }
+
+        /// <summary>
+        /// Prepares the project for being built.
+        /// </summary>
+        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <remarks>
+        /// Ensures the configuration-level object directory exists and ensures 
+        /// that none of the output files are marked read-only.
+        /// </remarks>
+        protected override void Prepare(ConfigurationBase config) {
+            // Visual C#.NET uses the <project dir>\obj\<configuration> 
+            // as working directory, so we should do the same to make 
+            // sure relative paths are resolved correctly 
+            // (eg. AssemblyKeyFile attribute)
+
+            // ensure configuration-level object directory exists
+            if (!config.ObjectDir.Exists) {
+                config.ObjectDir.Create();
+                config.ObjectDir.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
+        /// for this project.
+        /// </summary>
+        /// <param name="config">The configuration to build.</param>
+        /// <param name="responseFile">The response file for the compiler.</param>
+        /// <returns>
+        /// A <see cref="ProcessStartInfo" /> for launching the compiler for 
+        /// this project.
+        /// </returns>
+        protected override ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile) {
+            ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(SolutionTask.
+                Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), 
+                "/noconfig @\"" + responseFile + "\"");
+            psi.WorkingDirectory = config.ObjectDir.FullName;
+            return psi;
         }
 
         #endregion Override implementation of ProjectBase

@@ -19,6 +19,7 @@
 
 using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -81,6 +82,38 @@ namespace NAnt.VSNet {
         }
 
         #endregion Override implementation of ProjectBase
+
+        #region Override implemenation of ManagedProjectBase
+
+        /// <summary>
+        /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
+        /// for this project.
+        /// </summary>
+        /// <param name="config">The configuration to build.</param>
+        /// <param name="responseFile">The response file for the compiler.</param>
+        /// <returns>
+        /// A <see cref="ProcessStartInfo" /> for launching the compiler for 
+        /// this project.
+        /// </returns>
+        protected override ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile) {
+            ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(SolutionTask.
+                Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), 
+                "@\"" + responseFile + "\"");
+
+            // Visual Basic.NET uses the directory from which VS.NET 
+            // was launched as working directory, the closest match
+            // and best behaviour for us is to use the <solution dir>
+            // as working directory and fallback to the <project dir>
+            // if the project was explicitly specified
+            if (SolutionTask.SolutionFile != null) {
+                psi.WorkingDirectory = SolutionTask.SolutionFile.DirectoryName;
+            } else {
+                psi.WorkingDirectory = ProjectDirectory.FullName;
+            }
+            return psi;
+        }
+
+        #endregion Override implemenation of ManagedProjectBase
 
         #region Public Static Methods
 
