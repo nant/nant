@@ -38,16 +38,20 @@ namespace NAnt.Core.Tasks {
     ///   <para>This can be used in conjuntion with the command-line option to do XSD Schema validation on the build file.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Creates an NAnt.xsd file in the current project directory</para>
-    ///   <code><![CDATA[<NAntSchema name="NAnt.xsd"/>]]></code>
+    ///   <para>Creates a <c>NAnt.xsd</c> file in the current project directory.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <nantschema output="NAnt.xsd" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("nantschema")]
     public class NAntSchemaTask : Task {
         #region Private Instance Fields
 
-        string  _file               = null;
-        string  _forType            = null;
-        string  _targetNamespace    = null;
+        private string _file = null;
+        private string _forType = null;
+        private string _targetNamespace = null;
 
         #endregion Private Instance Fields
 
@@ -62,19 +66,19 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("output", Required=true)]
         public virtual string FileName {
             get { return _file; }
-            set { _file = value; }
+            set { _file = SetStringValue(value); }
         }
 
         [TaskAttribute("target-ns", Required=false)]
         public virtual string TargetNamespace{
             get { return _targetNamespace; }
-            set { _targetNamespace = value; }
+            set { _targetNamespace = SetStringValue(value); }
         }
 
         [TaskAttribute("class", Required=false)]
         public virtual string ForType {
             get { return _forType; }
-            set { _forType = value; }
+            set { _forType = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
