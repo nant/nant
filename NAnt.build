@@ -113,6 +113,7 @@
 			<arg value="-buildfile:NAnt.build" />
 			<arg value="${project.config}" />
 			<arg value="self-test" />
+			<arg value="-D:project.version=${project.version}" />
 		</exec>
 	</target>
 
@@ -145,6 +146,7 @@
 			<arg value="-buildfile:NAnt.build" />
 			<arg value="${project.config}" />
 			<arg value="self-userdoc" />
+			<arg value="-D:project.version=${project.version}" />
 		</exec>
 	</target>
 
@@ -174,6 +176,7 @@
 			<arg value="-buildfile:NAnt.build" />
 			<arg value="${project.config}" />
 			<arg value="self-sdkdoc" />
+			<arg value="-D:project.version=${project.version}" />
 		</exec>
 		<!-- delete everything but the .chm -->
 		<delete>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project name="nant" default="nightly">
+    
+    <script language="C#">
+        <code>
+			<![CDATA[
+			public static void ScriptMain(Project project) {
+				project.Properties.AddReadOnly("project.version", DateTime.Now.ToString("yyyyMMdd"));
+			}
+			]]>
+		</code>
+    </script>
+    
+    <include buildfile="nant.build"/>
+    <target name="nightly" depends="package" description="Perform a 'nightly' package">
+	<scp file="${project.zip-path}" server="shell1.sf.net" path="~/builds"/>
+    </target>
+    
+</project>
