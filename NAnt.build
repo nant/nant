@@ -420,6 +420,18 @@
                 <replacetokens>
                     <token key="PRODUCT_VERSION" value="${project.version}" />
                 </replacetokens>
+                <!-- when NOT building a release package, add prelimary notice -->
+                <replacestring
+                    from="&lt;!-- @PRELIMINARY_NOTICE@ -->"
+                    to="&lt;p class=&quot;topicstatus&quot;>[This is preliminary documentation and subject to change.]&lt;/p>"
+                    unless="${project.release.type='release'}" 
+                />
+                <!-- when building a release package, remove the placeholder -->
+                <replacestring
+                    from="&lt;!-- @PRELIMINARY_NOTICE@ -->"
+                    to=""
+                    if="${project.release.type='release'}" 
+                />
             </filterchain>
         </copy>
         <!-- determine name of package zip file -->
