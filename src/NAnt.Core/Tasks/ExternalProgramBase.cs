@@ -30,6 +30,7 @@ using System.Threading;
 using System.Xml;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
@@ -39,7 +40,7 @@ namespace SourceForge.NAnt.Tasks {
         #region Private Instance Fields
 
         private Hashtable _htThreadStream = new Hashtable();
-        private ProgramArgumentCollection _arguments = new ProgramArgumentCollection();
+        private ArgumentCollection _arguments = new ArgumentCollection();
 
         #endregion Private Instance Fields
 
@@ -119,7 +120,7 @@ namespace SourceForge.NAnt.Tasks {
         /// The command-line arguments for the external program.
         /// </summary>
         [BuildElementArray("arg")]
-        public virtual ProgramArgumentCollection Arguments {
+        public virtual ArgumentCollection Arguments {
             get { return _arguments; }
         }
 
@@ -223,7 +224,7 @@ namespace SourceForge.NAnt.Tasks {
                 // append any nested <arg> arguments to the command line
                 StringBuilder arguments = new StringBuilder(ProgramArguments);
 
-                foreach(ProgramArgument arg in Arguments) {
+                foreach(Argument arg in Arguments) {
                     if (arg.IfDefined && !arg.UnlessDefined) {
                         if (arg.Value != null || arg.File != null) {
                             string argValue = arg.File == null ? arg.Value : arg.File;
@@ -344,324 +345,5 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         #endregion Private Instance Methods
-    }
-
-    /// <summary>
-    /// Represents a command-line argument.
-    /// </summary>
-    public class ProgramArgument : Element {
-        #region Private Instance Fields
-
-        private string _value = null;
-        private string _file = null;
-        private bool _ifDefined = true;
-        private bool _unlessDefined = false;
-
-        #endregion Private Instance Fields
-
-        #region Public Instance Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramArgument" /> class.
-        /// </summary>
-        public ProgramArgument() {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramArgument" /> class
-        /// with the specified value.
-        /// </summary>
-        public ProgramArgument(string value) {
-            _value = value;
-        }
-
-        #endregion Public Instance Constructors
-
-        #region Public Instance Properties
-
-        /// <summary>
-        /// Value of this argument.
-        /// </summary>
-        [TaskAttribute("value")]
-        public string Value {
-            get { return _value; }
-            set { _value = value; }
-        }
-
-        /// <summary>
-        /// File of this argument.
-        /// </summary>
-        [TaskAttribute("file")]
-        public string File {
-            get { return _file; }
-            set { _file = Project.GetFullPath(value); }
-        }
-
-        /// <summary>
-        /// Indicates if the argument should be passed to the external program. 
-        /// If true then the argument will be passed; otherwise skipped. 
-        /// Default is "true".
-        /// </summary>
-        [TaskAttribute("if")]
-        [BooleanValidator()]
-        public bool IfDefined {
-            get { return _ifDefined; }
-            set { _ifDefined = value; }
-        }
-
-        /// <summary>
-        /// Indicates if the argument should not be passed to the external program. 
-        /// If false then the argument will be passed; otherwise skipped. 
-        /// Default is "false".
-        /// </summary>
-        [TaskAttribute("unless")]
-        [BooleanValidator()]
-        public bool UnlessDefined {
-            get { return _unlessDefined; }
-            set { _unlessDefined = value; }
-        }
-
-        #endregion Public Instance Properties
-    }
-
-    /// <summary>
-    /// Contains a strongly typed collection of <see cref="ProgramArgument"/> objects.
-    /// </summary>
-    [Serializable]
-    public class ProgramArgumentCollection : CollectionBase {
-        #region Public Instance Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramArgumentCollection"/> class.
-        /// </summary>
-        public ProgramArgumentCollection() {
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramArgumentCollection"/> class
-        /// with the specified <see cref="ProgramArgumentCollection"/> instance.
-        /// </summary>
-        public ProgramArgumentCollection(ProgramArgumentCollection value) {
-            AddRange(value);
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramArgumentCollection"/> class
-        /// with the specified array of <see cref="ProgramArgument"/> instances.
-        /// </summary>
-        public ProgramArgumentCollection(ProgramArgument[] value) {
-            AddRange(value);
-        }
-
-        #endregion Public Instance Constructors
-        
-        #region Public Instance Properties
-
-        /// <summary>
-        /// Gets or sets the element at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to get or set.</param>
-        [System.Runtime.CompilerServices.IndexerName("Item")]
-        public ProgramArgument this[int index] {
-            get {return ((ProgramArgument)(base.List[index]));}
-            set {base.List[index] = value;}
-        }
-
-        /// <summary>
-        /// Gets the <see cref="ProgramArgument"/> with the specified value.
-        /// </summary>
-        /// <param name="value">The value of the <see cref="ProgramArgument"/> to get.</param>
-        [System.Runtime.CompilerServices.IndexerName("Item")]
-        public ProgramArgument this[string value] {
-            get {
-                if (value != null) {
-                    // Try to locate instance using Value
-                    foreach (ProgramArgument ProgramArgument in base.List) {
-                        if (value.Equals(ProgramArgument.Value)) {
-                            return ProgramArgument;
-                        }
-                    }
-                }
-                return null;
-            }
-        }
-
-        #endregion Public Instance Properties
-
-        #region Public Instance Methods
-        
-        /// <summary>
-        /// Adds a <see cref="ProgramArgument"/> to the end of the collection.
-        /// </summary>
-        /// <param name="item">The <see cref="ProgramArgument"/> to be added to the end of the collection.</param> 
-        /// <returns>The position into which the new element was inserted.</returns>
-        public int Add(ProgramArgument item) {
-            return base.List.Add(item);
-        }
-
-        /// <summary>
-        /// Adds the elements of a <see cref="ProgramArgument"/> array to the end of the collection.
-        /// </summary>
-        /// <param name="items">The array of <see cref="ProgramArgument"/> elements to be added to the end of the collection.</param> 
-        public void AddRange(ProgramArgument[] items) {
-            for (int i = 0; (i < items.Length); i = (i + 1)) {
-                Add(items[i]);
-            }
-        }
-
-        /// <summary>
-        /// Adds the elements of a <see cref="ProgramArgumentCollection"/> to the end of the collection.
-        /// </summary>
-        /// <param name="items">The <see cref="ProgramArgumentCollection"/> to be added to the end of the collection.</param> 
-        public void AddRange(ProgramArgumentCollection items) {
-            for (int i = 0; (i < items.Count); i = (i + 1)) {
-                Add(items[i]);
-            }
-        }
-        
-        /// <summary>
-        /// Determines whether a <see cref="ProgramArgument"/> is in the collection.
-        /// </summary>
-        /// <param name="item">The <see cref="ProgramArgument"/> to locate in the collection.</param> 
-        /// <returns>
-        /// <c>true</c> if <paramref name="item"/> is found in the collection;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public bool Contains(ProgramArgument item) {
-            return base.List.Contains(item);
-        }
-
-        /// <summary>
-        /// Determines whether a <see cref="ProgramArgument"/> with the specified
-        /// value is in the collection.
-        /// </summary>
-        /// <param name="value">The argument value to locate in the collection.</param> 
-        /// <returns>
-        /// <c>true</c> if a <see cref="ProgramArgument" /> with value 
-        /// <paramref name="value"/> is found in the collection; otherwise, 
-        /// <c>false</c>.
-        /// </returns>
-        public bool Contains(string value) {
-            return this[value] != null;
-        }
-        
-        /// <summary>
-        /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
-        /// </summary>
-        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
-        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        public void CopyTo(ProgramArgument[] array, int index) {
-            base.List.CopyTo(array, index);
-        }
-        
-        /// <summary>
-        /// Retrieves the index of a specified <see cref="ProgramArgument"/> object in the collection.
-        /// </summary>
-        /// <param name="item">The <see cref="ProgramArgument"/> object for which the index is returned.</param> 
-        /// <returns>
-        /// The index of the specified <see cref="ProgramArgument"/>. If the <see cref="ProgramArgument"/> is not currently a member of the collection, it returns -1.
-        /// </returns>
-        public int IndexOf(ProgramArgument item) {
-            return base.List.IndexOf(item);
-        }
-        
-        /// <summary>
-        /// Inserts a <see cref="ProgramArgument"/> into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="item">The <see cref="ProgramArgument"/> to insert.</param>
-        public void Insert(int index, ProgramArgument item) {
-            base.List.Insert(index, item);
-        }
-        
-        /// <summary>
-        /// Returns an enumerator that can iterate through the collection.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="ProgramArgumentEnumerator"/> for the entire collection.
-        /// </returns>
-        public new ProgramArgumentEnumerator GetEnumerator() {
-            return new ProgramArgumentEnumerator(this);
-        }
-        
-        /// <summary>
-        /// Removes a member from the collection.
-        /// </summary>
-        /// <param name="item">The <see cref="ProgramArgument"/> to remove from the collection.</param>
-        public void Remove(ProgramArgument item) {
-            base.List.Remove(item);
-        }
-        
-        #endregion Public Instance Methods
-    }
-
-    /// <summary>
-    /// Enumerates the <see cref="ProgramArgument"/> elements of a <see cref="ProgramArgumentCollection"/>.
-    /// </summary>
-    public class ProgramArgumentEnumerator : IEnumerator {
-        #region Internal Instance Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProgramArgumentEnumerator"/> class
-        /// with the specified <see cref="ProgramArgumentCollection"/>.
-        /// </summary>
-        /// <param name="arguments">The collection that should be enumerated.</param>
-        internal ProgramArgumentEnumerator(ProgramArgumentCollection arguments) {
-            IEnumerable temp = (IEnumerable) (arguments);
-            _baseEnumerator = temp.GetEnumerator();
-        }
-
-        #endregion Internal Instance Constructors
-
-        #region Implementation of IEnumerator
-            
-        /// <summary>
-        /// Gets the current element in the collection.
-        /// </summary>
-        /// <returns>
-        /// The current element in the collection.
-        /// </returns>
-        public ProgramArgument Current {
-            get { return (ProgramArgument) _baseEnumerator.Current; }
-        }
-
-        object IEnumerator.Current {
-            get { return _baseEnumerator.Current; }
-        }
-
-        /// <summary>
-        /// Advances the enumerator to the next element of the collection.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the enumerator was successfully advanced to the next element; 
-        /// <c>false</c> if the enumerator has passed the end of the collection.
-        /// </returns>
-        public bool MoveNext() {
-            return _baseEnumerator.MoveNext();
-        }
-
-        bool IEnumerator.MoveNext() {
-            return _baseEnumerator.MoveNext();
-        }
-            
-        /// <summary>
-        /// Sets the enumerator to its initial position, which is before the 
-        /// first element in the collection.
-        /// </summary>
-        public void Reset() {
-            _baseEnumerator.Reset();
-        }
-            
-        void IEnumerator.Reset() {
-            _baseEnumerator.Reset();
-        }
-
-        #endregion Implementation of IEnumerator
-
-        #region Private Instance Fields
-    
-        private IEnumerator _baseEnumerator;
-
-        #endregion Private Instance Fields
     }
 }

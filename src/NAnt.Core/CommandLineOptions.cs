@@ -21,6 +21,8 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 
+using SourceForge.NAnt.Util;
+
 namespace SourceForge.NAnt {
     /// <summary>
     /// Represents the set of command-line options supported by NAnt.

@@ -21,6 +21,7 @@ using System;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
@@ -41,7 +42,7 @@ namespace SourceForge.NAnt.Tasks {
         int _timeout = Int32.MaxValue;
         string _outputFile = null;
         bool _outputAppend = false;
-        OptionElementCollection _environment = new OptionElementCollection();
+        OptionCollection _environment = new OptionCollection();
 
         #endregion Private Instance Fields
 
@@ -69,7 +70,7 @@ namespace SourceForge.NAnt.Tasks {
         /// Environment variables to pass to the program.
         /// </summary>
         [BuildElementCollection("environment")]
-        public OptionElementCollection Environment {
+        public OptionCollection Environment {
             get { return _environment; }
         }
 
@@ -176,7 +177,7 @@ namespace SourceForge.NAnt.Tasks {
                 process.StartInfo.WorkingDirectory = WorkingDirectory;
             }
 
-            foreach (OptionElement option in Environment) {
+            foreach (Option option in Environment) {
                 if (option.Value == null) {
                     process.StartInfo.EnvironmentVariables[option.OptionName] = "";
                 } else {

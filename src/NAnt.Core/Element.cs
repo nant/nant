@@ -35,7 +35,7 @@ namespace SourceForge.NAnt {
     /// applied to members in derived classes.
     /// </para>
     /// </remarks>
-    public class Element {
+    public abstract class Element {
         #region Private Instance Fields
 
         private Location _location = Location.UnknownLocation;
@@ -46,17 +46,13 @@ namespace SourceForge.NAnt {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion Private Static Fields
 
-        #region Public Instance Constructors
+        #region Protected Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Element" /> class.
         /// </summary>
-        public Element(){
+        protected Element(){
         }
-
-        #endregion Public Instance Constructors
-
-        #region Protected Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Element" /> class

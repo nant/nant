@@ -15,73 +15,38 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// Tomas Restrepo (tomasr@mvps.org)
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Collections;
 
-using SourceForge.NAnt.Attributes;
-
-namespace SourceForge.NAnt {
+namespace SourceForge.NAnt.Types {
     /// <summary>
-    /// Represents an option.
+    /// Contains a strongly typed collection of <see cref="Argument"/> objects.
     /// </summary>
-    [ElementName("option")]
-    public class OptionElement : Element {
-        #region Private Instance Fields
-
-        private string _name = null;
-        private string _value = null;
-
-        #endregion Private Instance Fields
-
-        #region Public Instance Properties
-
-        /// <summary>
-        /// Name of this property
-        /// </summary>
-        [TaskAttribute("name", Required=true)]
-        public string OptionName {
-            get { return _name; }
-            set { _name = value; }
-        }
-
-        /// <summary>
-        /// Value of this property. Default is null;
-        /// </summary>
-        [TaskAttribute("value")]
-        public string Value {
-            get { return _value; }
-            set { _value = value; }
-        }
-
-        #endregion Public Instance Properties
-    }
-
     [Serializable()]
-    public class OptionElementCollection : CollectionBase {
+    public class OptionCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OptionElementCollection"/> class.
+        /// Initializes a new instance of the <see cref="OptionCollection"/> class.
         /// </summary>
-        public OptionElementCollection() {
+        public OptionCollection() {
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="OptionElementCollection"/> class
-        /// with the specified <see cref="OptionElementCollection"/> instance.
+        /// Initializes a new instance of the <see cref="OptionCollection"/> class
+        /// with the specified <see cref="OptionCollection"/> instance.
         /// </summary>
-        public OptionElementCollection(OptionElementCollection value) {
+        public OptionCollection(OptionCollection value) {
             AddRange(value);
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="OptionElementCollection"/> class
-        /// with the specified array of <see cref="OptionElement"/> instances.
+        /// Initializes a new instance of the <see cref="OptionCollection"/> class
+        /// with the specified array of <see cref="Option"/> instances.
         /// </summary>
-        public OptionElementCollection(OptionElement[] value) {
+        public OptionCollection(Option[] value) {
             AddRange(value);
         }
 
@@ -94,23 +59,23 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="index">The zero-based index of the element to get or set.</param>
         [System.Runtime.CompilerServices.IndexerName("Item")]
-        public OptionElement this[int index] {
-            get {return ((OptionElement)(base.List[index]));}
+        public Option this[int index] {
+            get {return ((Option)(base.List[index]));}
             set {base.List[index] = value;}
         }
 
         /// <summary>
-        /// Gets the <see cref="OptionElement"/> with the specified name.
+        /// Gets the <see cref="Option"/> with the specified name.
         /// </summary>
         /// <param name="name">The name of the option that should be located in the collection.</param> 
         [System.Runtime.CompilerServices.IndexerName("Item")]
-        public OptionElement this[string name] {
+        public Option this[string name] {
             get {
                 if (name != null) {
                     // Try to locate instance using OptionName
-                    foreach (OptionElement OptionElement in base.List) {
-                        if (name.Equals(OptionElement.OptionName)) {
-                            return OptionElement;
+                    foreach (Option Option in base.List) {
+                        if (name.Equals(Option.OptionName)) {
+                            return Option;
                         }
                     }
                 }
@@ -123,53 +88,53 @@ namespace SourceForge.NAnt {
         #region Public Instance Methods
         
         /// <summary>
-        /// Adds a <see cref="OptionElement"/> to the end of the collection.
+        /// Adds a <see cref="Option"/> to the end of the collection.
         /// </summary>
-        /// <param name="item">The <see cref="OptionElement"/> to be added to the end of the collection.</param> 
+        /// <param name="item">The <see cref="Option"/> to be added to the end of the collection.</param> 
         /// <returns>The position into which the new element was inserted.</returns>
-        public int Add(OptionElement item) {
+        public int Add(Option item) {
             return base.List.Add(item);
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="OptionElement"/> array to the end of the collection.
+        /// Adds the elements of a <see cref="Option"/> array to the end of the collection.
         /// </summary>
-        /// <param name="items">The array of <see cref="OptionElement"/> elements to be added to the end of the collection.</param> 
-        public void AddRange(OptionElement[] items) {
+        /// <param name="items">The array of <see cref="Option"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(Option[] items) {
             for (int i = 0; (i < items.Length); i = (i + 1)) {
                 Add(items[i]);
             }
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="OptionElementCollection"/> to the end of the collection.
+        /// Adds the elements of a <see cref="OptionCollection"/> to the end of the collection.
         /// </summary>
-        /// <param name="items">The <see cref="OptionElementCollection"/> to be added to the end of the collection.</param> 
-        public void AddRange(OptionElementCollection items) {
+        /// <param name="items">The <see cref="OptionCollection"/> to be added to the end of the collection.</param> 
+        public void AddRange(OptionCollection items) {
             for (int i = 0; (i < items.Count); i = (i + 1)) {
                 Add(items[i]);
             }
         }
         
         /// <summary>
-        /// Determines whether a <see cref="OptionElement"/> is in the collection.
+        /// Determines whether a <see cref="Option"/> is in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="OptionElement"/> to locate in the collection.</param> 
+        /// <param name="item">The <see cref="Option"/> to locate in the collection.</param> 
         /// <returns>
         /// <c>true</c> if <paramref name="item"/> is found in the collection;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public bool Contains(OptionElement item) {
+        public bool Contains(Option item) {
             return base.List.Contains(item);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="OptionElement"/> for the specified 
+        /// Determines whether a <see cref="Option"/> for the specified 
         /// task is in the collection.
         /// </summary>
-        /// <param name="taskName">The name of task for which the <see cref="OptionElement" /> should be located in the collection.</param> 
+        /// <param name="taskName">The name of task for which the <see cref="Option" /> should be located in the collection.</param> 
         /// <returns>
-        /// <c>true</c> if a <see cref="OptionElement" /> for the specified task
+        /// <c>true</c> if a <see cref="Option" /> for the specified task
         ///is found in the collection; otherwise, <c>false</c>.
         /// </returns>
         public bool Contains(string taskName) {
@@ -181,27 +146,27 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
         /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        public void CopyTo(OptionElement[] array, int index) {
+        public void CopyTo(Option[] array, int index) {
             base.List.CopyTo(array, index);
         }
         
         /// <summary>
-        /// Retrieves the index of a specified <see cref="OptionElement"/> object in the collection.
+        /// Retrieves the index of a specified <see cref="Option"/> object in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="OptionElement"/> object for which the index is returned.</param> 
+        /// <param name="item">The <see cref="Option"/> object for which the index is returned.</param> 
         /// <returns>
-        /// The index of the specified <see cref="OptionElement"/>. If the <see cref="OptionElement"/> is not currently a member of the collection, it returns -1.
+        /// The index of the specified <see cref="Option"/>. If the <see cref="Option"/> is not currently a member of the collection, it returns -1.
         /// </returns>
-        public int IndexOf(OptionElement item) {
+        public int IndexOf(Option item) {
             return base.List.IndexOf(item);
         }
         
         /// <summary>
-        /// Inserts a <see cref="OptionElement"/> into the collection at the specified index.
+        /// Inserts a <see cref="Option"/> into the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="item">The <see cref="OptionElement"/> to insert.</param>
-        public void Insert(int index, OptionElement item) {
+        /// <param name="item">The <see cref="Option"/> to insert.</param>
+        public void Insert(int index, Option item) {
             base.List.Insert(index, item);
         }
         
@@ -209,17 +174,17 @@ namespace SourceForge.NAnt {
         /// Returns an enumerator that can iterate through the collection.
         /// </summary>
         /// <returns>
-        /// A <see cref="OptionElementEnumerator"/> for the entire collection.
+        /// A <see cref="OptionEnumerator"/> for the entire collection.
         /// </returns>
-        public new OptionElementEnumerator GetEnumerator() {
-            return new OptionElementEnumerator(this);
+        public new OptionEnumerator GetEnumerator() {
+            return new OptionEnumerator(this);
         }
         
         /// <summary>
         /// Removes a member from the collection.
         /// </summary>
-        /// <param name="item">The <see cref="OptionElement"/> to remove from the collection.</param>
-        public void Remove(OptionElement item) {
+        /// <param name="item">The <see cref="Option"/> to remove from the collection.</param>
+        public void Remove(Option item) {
             base.List.Remove(item);
         }
         
@@ -227,17 +192,17 @@ namespace SourceForge.NAnt {
     }
 
     /// <summary>
-    /// Enumerates the <see cref="OptionElement"/> elements of a <see cref="OptionElementCollection"/>.
+    /// Enumerates the <see cref="Option"/> elements of a <see cref="OptionCollection"/>.
     /// </summary>
-    public class OptionElementEnumerator : IEnumerator {
+    public class OptionEnumerator : IEnumerator {
         #region Internal Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OptionElementEnumerator"/> class
-        /// with the specified <see cref="OptionElementCollection"/>.
+        /// Initializes a new instance of the <see cref="OptionEnumerator"/> class
+        /// with the specified <see cref="OptionCollection"/>.
         /// </summary>
         /// <param name="arguments">The collection that should be enumerated.</param>
-        internal OptionElementEnumerator(OptionElementCollection arguments) {
+        internal OptionEnumerator(OptionCollection arguments) {
             IEnumerable temp = (IEnumerable) (arguments);
             _baseEnumerator = temp.GetEnumerator();
         }
@@ -252,8 +217,8 @@ namespace SourceForge.NAnt {
         /// <returns>
         /// The current element in the collection.
         /// </returns>
-        public OptionElement Current {
-            get { return (OptionElement) _baseEnumerator.Current; }
+        public Option Current {
+            get { return (Option) _baseEnumerator.Current; }
         }
 
         object IEnumerator.Current {

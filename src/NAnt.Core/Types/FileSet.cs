@@ -27,7 +27,6 @@ using System.Globalization;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {
-
     /// <summary>
     /// The FileSet element.
     /// </summary>

@@ -89,37 +89,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CommandLineArgument.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommandLineArgumentAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommandLineArgumentCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommandLineArgumentException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommandLineArgumentTypes.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "CommandLineOptions.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommandLineParser.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -139,7 +109,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "DefaultCommandLineArgumentAttribute.cs"
+                    RelPath = "Util\DefaultCommandLineArgumentAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -155,16 +125,6 @@
                 />
                 <File
                     RelPath = "Element.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "FileList.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "FileSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -190,11 +150,6 @@
                 />
                 <File
                     RelPath = "Log.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "OptionSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -454,6 +409,76 @@
                 />
                 <File
                     RelPath = "Tasks\TStampTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\Argument.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\ArgumentCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\FileList.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\FileSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\Formatter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\FormatterCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\Option.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\OptionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\CommandLineArgument.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\CommandLineArgumentAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\CommandLineArgumentCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\CommandLineArgumentException.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\CommandLineArgumentTypes.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\CommandLineParser.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

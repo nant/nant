@@ -24,7 +24,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Security.Permissions;
 
-namespace SourceForge.NAnt {
+namespace SourceForge.NAnt.Util {
     /// <summary>
     /// Represents a valid command-line argument.
     /// </summary>

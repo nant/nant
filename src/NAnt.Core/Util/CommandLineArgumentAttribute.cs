@@ -19,7 +19,7 @@
 
 using System;
 
-namespace SourceForge.NAnt {
+namespace SourceForge.NAnt.Util {
     /// <summary>
     /// Allows control of command line parsing.
     /// </summary>

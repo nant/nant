@@ -29,6 +29,8 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 
+using SourceForge.NAnt.Util;
+
 namespace SourceForge.NAnt {
     /// <summary>
     /// Main entry point to NAnt that is called by the ConsoleStub.

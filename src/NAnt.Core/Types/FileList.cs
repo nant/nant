@@ -26,7 +26,7 @@ using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt {
+namespace SourceForge.NAnt.Types {
     /// <summary>
     /// Summary description for FileList.
     /// </summary>

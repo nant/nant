@@ -20,7 +20,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace SourceForge.NAnt {
+namespace SourceForge.NAnt.Util {
     /// <summary>
     /// The exception that is thrown when one of the command-line arguments provided 
     /// is not valid.
