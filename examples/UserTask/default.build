@@ -1,39 +1,28 @@
 <?xml version="1.0"?>
 
 <project name="NAnt" default="test">
-	
-	<!-- compile the test task and add it then use it -->
-	<!-- this currently will only work in the global section of the build file -->
-	<csc target="library" output="UserTasks.dll">
-		<sources>
-			<includes name="UserTask.cs"/>
-		</sources>
-		<references basedir="${nant.location}">
-			<includes name="NAnt.Core.dll"/>
-		</references>
-	</csc>
+    <!-- Compile the test task and add it then use it. -->
+    <target name="build">
+        <csc target="library" output="UserTasks.dll">
+            <sources>
+                <includes name="UserTask.cs"/>
+            </sources>
+            <references basedir="${nant.location}">
+                <includes name="NAnt.Core.dll"/>
+            </references>
+        </csc>
+    </target>
 
-	<!-- 
-		The test task is referenced in the newly created UserTask.dll but can 
-		only be referenced in a target.
+    <target name="test" depends="build">
+        <!-- Dynamically load the tasks in the Task assembly. -->
+        <loadtasks assembly="UserTasks.dll" />
 
-		This should change in the future but its probally not that common to 
-		build your task AND	use it in the SAME build file.
-	-->
-	
-	<target name="test">
-		<!-- call our new task, converts the message attribute to all caps and displays it -->
-		<copy todir="${nant.location}" file="UserTasks.dll"/>
-		<nant target="UserTask"/>
-	</target>
-	
-	<target name="UserTask">
-		<usertask message="This string should be all caps"/>
-	</target>
+        <!-- Call our new task, converts the message attribute to all caps and displays it. -->
+        <usertask message="This string should be all caps"/>
+    </target>
 
-	<target name="clean">
-		<echo message="Cannot clean because we are refering to UserTask.dll"/>
-		<echo message="Just delete the UserTask.dll in this folder"/>
-		<echo message="This will change once we can have taskdef tasks nested in targets"/>
-	</target>
+    <target name="clean">
+        <!-- Delete the build output. -->
+        <delete file="UserTasks.dll" />
+    </target>
 </project>

@@ -1,8 +1,8 @@
-imports System
+Imports System
 
-public class MainApp
-	shared sub Main()
-		Console.WriteLine("Hello World using VB.NET")
-			return
-		end sub
-end class
+Public Class MainApp
+    Shared Sub Main()
+        Console.WriteLine("Hello World using VB.NET")
+        Return
+    End Sub
+End Class

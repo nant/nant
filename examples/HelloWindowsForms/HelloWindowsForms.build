@@ -3,8 +3,8 @@
 <!--
     This build file is intended to show off some of NAnt's capabilities in 
     building Visual Basic.NET programs.  The .vbproj file is also located 
-    in the directory so you can campare the Visual Studio's project file 
-    with this one.
+    in the directory so you can compare Visual Studio's project file with 
+    this one.
 -->
 
 <project name="HelloWindowsForms" default="run">
@@ -44,7 +44,7 @@
                 <includes asis="true" name="System.Windows.Forms.dll"/>
                 <includes asis="true" name="System.XML.dll"/>
             </references>
-			<arg value="/main:HelloWindowsForms.MainForm"/>
+            <arg value="/main:HelloWindowsForms.MainForm"/>
         </vbc>
     </target>
 

@@ -1,7 +1,7 @@
-using SourceForge.NAnt;
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.SampleTask {
+namespace NAnt.SampleTask {
 
     [TaskName("usertask")]
     public class TestTask : Task {
@@ -15,7 +15,7 @@ namespace SourceForge.NAnt.SampleTask {
         }
 
         protected override void ExecuteTask() {
-            Log.WriteLine(LogPrefix + _message.ToUpper());
+            Log(Level.Info, LogPrefix + _message.ToUpper());
         }
     }
 }
