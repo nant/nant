@@ -23,6 +23,8 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 
+using NAnt.Core.Util;
+
 using NAnt.VisualCpp.Tasks;
 using NAnt.VisualCpp.Util;
 
@@ -49,22 +51,40 @@ namespace NAnt.VSNet {
         public void AddString(string propName, string argName) {
             AddString(ArgGroup.Unassigned, propName, argName);
         }
+        public void AddString(string propName, string argName, bool ignoreEmptyValue) {
+            AddString(ArgGroup.Unassigned, propName, argName, ignoreEmptyValue);
+        }
         public void AddString(ArgGroup group, string propName, string argName) {
             _htArgs [propName] = new VcStringArgument(group, argName);
+        }
+        public void AddString(ArgGroup group, string propName, string argName, bool ignoreEmptyValue) {
+            _htArgs [propName] = new VcStringArgument(group, argName, ignoreEmptyValue);
         }
 
         public void AddLinkerString(string propName, string argName) {
             AddLinkerString(ArgGroup.Unassigned, propName, argName);
         }
+        public void AddLinkerString(string propName, string argName, bool ignoreEmptyValue) {
+            AddLinkerString(ArgGroup.Unassigned, propName, argName, ignoreEmptyValue);
+        }
         public void AddLinkerString(ArgGroup group, string propName, string argName) {
             _htArgs [propName] = new LinkerStringArgument(group, argName);
+        }
+        public void AddLinkerString(ArgGroup group, string propName, string argName, bool ignoreEmptyValue) {
+            _htArgs [propName] = new LinkerStringArgument(group, argName, ignoreEmptyValue);
         }
 
         public void AddQuotedLinkerString(string propName, string argName) {
             AddQuotedLinkerString(ArgGroup.Unassigned, propName, argName);
         }
+        public void AddQuotedLinkerString(string propName, string argName, bool ignoreEmptyValue) {
+            AddQuotedLinkerString(ArgGroup.Unassigned, propName, argName, ignoreEmptyValue);
+        }
         public void AddQuotedLinkerString(ArgGroup group, string propName, string argName) {
             _htArgs [propName] = new QuotedLinkerStringArgument(group, argName);
+        }
+        public void AddQuotedLinkerString(ArgGroup group, string propName, string argName, bool ignoreEmptyValue) {
+            _htArgs [propName] = new QuotedLinkerStringArgument(group, argName, ignoreEmptyValue);
         }
 
         public void AddBool(string propName, string argName) {
@@ -371,14 +391,14 @@ namespace NAnt.VSNet {
 
             // General
             map.AddEnum("LinkIncremental", null, null, "/INCREMENTAL:NO", "/INCREMENTAL");
-            map.AddLinkerString("Version", "/VERSION:");
+            map.AddLinkerString("Version", "/VERSION:", true);
 
             // Input
             map.AddBool("IgnoreAllDefaultLibraries", "/NODEFAULTLIB");
-            map.AddQuotedLinkerString("ModuleDefinitionFile", "/DEF:");
+            map.AddQuotedLinkerString("ModuleDefinitionFile", "/DEF:", true);
 
             // Debugging
-            map.AddQuotedLinkerString("StripPrivateSymbols", "/PDBSTRIPPED:");
+            map.AddQuotedLinkerString("StripPrivateSymbols", "/PDBSTRIPPED:", true);
             map.AddBool("MapExports", "/MAPINFO:EXPORTS");
             map.AddBool("MapLines", "/MAPINFO:LINES");
             map.AddEnum("AssemblyDebug", null, null, "/ASSEMBLYDEBUG", "/ASSEMBLYDEBUG:DISABLE");
@@ -394,23 +414,23 @@ namespace NAnt.VSNet {
             map.AddEnum("OptimizeReferences", "/OPT:", null, "NOREF", "REF");
             map.AddEnum("EnableCOMDATFolding", "/OPT:", null, "NOICF", "ICF");
             map.AddEnum("OptimizeForWindows98", "/OPT:", null, "NOWIN98", "WIN98");
-            map.AddQuotedLinkerString("FunctionOrder", "/ORDER:");
+            map.AddQuotedLinkerString("FunctionOrder", "/ORDER:", true);
 
             // Embedded IDL
             map.AddBool("IgnoreEmbeddedIDL", "/IGNOREIDL");
-            map.AddQuotedLinkerString("MergedIDLBaseFileName", "/IDLOUT:");
-            map.AddQuotedLinkerString("TypeLibraryFile", "/TLBOUT:");
+            map.AddQuotedLinkerString("MergedIDLBaseFileName", "/IDLOUT:", true);
+            map.AddQuotedLinkerString("TypeLibraryFile", "/TLBOUT:", true);
             map.AddLinkerString("TypeLibraryResourceID", "/TLBID:");
             
             // Advanced
-            map.AddQuotedLinkerString("EntryPointSymbol", "/ENTRY:");
+            map.AddQuotedLinkerString("EntryPointSymbol", "/ENTRY:", true);
             map.AddBool("ResourceOnlyDLL", "/NOENTRY");
             map.AddBool("SetChecksum", "/RELEASE");
-            map.AddQuotedLinkerString("BaseAddress", "/BASE:");
+            map.AddQuotedLinkerString("BaseAddress", "/BASE:", true);
             map.AddEnum("FixedBaseAddress", null, null, "/FIXED:NO", "/FIXED");
             map.AddBool("TurnOffAssemblyGeneration", "/NOASSEMBLY");
             map.AddBool("SupportUnloadOfDelayLoadedDLL", "/DELAY:UNLOAD");
-            map.AddQuotedLinkerString("MergeSections", "/MERGE:");
+            map.AddQuotedLinkerString("MergeSections", "/MERGE:", true);
             map.AddEnum("TargetMachine", null, null, "/MACHINE:X86");
 
             return map;
@@ -478,46 +498,106 @@ namespace NAnt.VSNet {
         }
 
         private class VcStringArgument: VcArgument {
-            internal VcStringArgument(ArgGroup group, string name): base(group, name) {
+            #region Private Instance Fields
+
+            private bool _ignoreEmptyValue;
+
+            #endregion Private Instance Fields
+
+            #region Internal Instance Constructors
+
+            internal VcStringArgument(ArgGroup group, string name): this(group, name, false) {
             }
 
+            internal VcStringArgument(ArgGroup group, string name, bool ignoreEmptyValue): base(group, name) {
+                _ignoreEmptyValue = ignoreEmptyValue;
+            }
+
+            #endregion Internal Instance Constructors
+
+            #region Protected Instance Properties
+
+            protected bool IgnoreEmptyValue {
+                get { return _ignoreEmptyValue; }
+            }
+
+            #endregion Protected Instance Properties
+
+            #region Override implementation of VcArgument
+
             internal override string MapValue(string propValue) {
+                if (IgnoreEmptyValue && StringUtils.IsNullOrEmpty(propValue)) {
+                    return null;
+                }
+
                 return FormatOption(propValue);
             }
+
+            #endregion Override implementation of VcArgument
         }
 
         /// <summary>
         /// Represents a command-line arguments of which the trailing backslashes
         /// in the value should be duplicated.
         /// </summary>
-        private class LinkerStringArgument: VcArgument {
-            internal LinkerStringArgument(ArgGroup group, string name): base(group, name) {
+        private class LinkerStringArgument: VcStringArgument {
+            #region Internal Instance Constructors
+
+            internal LinkerStringArgument(ArgGroup group, string name): this(group, name, false) {
             }
 
+            internal LinkerStringArgument(ArgGroup group, string name, bool ignoreEmptyValue): base(group, name, ignoreEmptyValue) {
+            }
+
+            #endregion Internal Instance Constructors
+
+            #region Override implementation of VcArgument
+
             internal override string MapValue(string value) {
+                if (IgnoreEmptyValue && StringUtils.IsNullOrEmpty(value)) {
+                    return null;
+                }
+
                 if (Name == null) {
                     return ArgumentUtils.DuplicateTrailingBackSlash(value);
                 }
 
                 return Name + ArgumentUtils.DuplicateTrailingBackSlash(value);
             }
+
+            #endregion Override implementation of VcArgument
         }
 
         /// <summary>
         /// Represents a command-line argument of which the value should be
         /// quoted, and of which trailing backslahes should be duplicated.
         /// </summary>
-        private class QuotedLinkerStringArgument: VcArgument {
-            internal QuotedLinkerStringArgument(ArgGroup group, string name): base(group, name) {
+        private class QuotedLinkerStringArgument: VcStringArgument {
+            #region Internal Instance Constructors
+
+            internal QuotedLinkerStringArgument(ArgGroup group, string name): this(group, name, false) {
             }
 
+            internal QuotedLinkerStringArgument(ArgGroup group, string name, bool ignoreEmptyValue): base(group, name, ignoreEmptyValue) {
+            }
+
+            #endregion Internal Instance Constructors
+
+            #region Override implementation of VcArgument
+
             internal override string MapValue(string value) {
+                if (IgnoreEmptyValue && StringUtils.IsNullOrEmpty(value)) {
+                    return null;
+                }
+
                 if (Name == null) {
                     return LinkTask.QuoteArgumentValue(value);
                 }
 
                 return Name + LinkTask.QuoteArgumentValue(value);
             }
+
+            #endregion Override implementation of VcArgument
         }
 
         private class VcBoolArgument: VcArgument {
