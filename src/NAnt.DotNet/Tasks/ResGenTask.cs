@@ -56,7 +56,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>Name of the resource file to output.</summary>
         [TaskAttribute("output", Required=false)]
-        public string Output { get { return _output; } set {_output = value;} }
+        public string Output { get { return (_output == null) ? String.Empty : _output; } set {_output = value;} }
 
         /// <summary>The target type ( usually resources).</summary>
         [TaskAttribute("target", Required=false)]
@@ -64,7 +64,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>The directory to which outputs will be stored.</summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDirectory { get { return _toDir; } set {_toDir = value;} }
+        public string ToDirectory { get { return (_toDir == null) ? BaseDirectory : _toDir; } set {_toDir = value;} }
        
         /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
         [FileSet("resources")]
@@ -105,35 +105,27 @@ namespace SourceForge.NAnt.Tasks {
             _arguments += s;
         }
         
+        // Process a single file or file group
         protected override void ExecuteTask() {
             _arguments = "";
             if (Resources.FileNames.Count > 0) {
                 foreach ( string filename in Resources.FileNames ) {
-                    string outputFile = Path.ChangeExtension( filename, TargetExt );
+                    string outputFile = getOutputFile(filename);
+
                     if (NeedsCompiling (filename, outputFile)) {
                         if (_arguments.Length == 0) {
                             AppendArgument ("/compile");
                         }
-                        AppendArgument (String.Format(CultureInfo.InvariantCulture, " \"{0},{1}\"", filename, outputFile));
+                        AppendArgument (String.Format(" \"{0},{1}\"", filename, outputFile));
                     }
                 }
-                            
             } else {
                 // Single file situation
                 if (Input == null)
                     throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
-                    
+
                 string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
-                string outputFile;
-                               
-                if (Output != null) {
-                    if (ToDirectory == null)
-                        ToDirectory = BaseDirectory;
-                        
-                    outputFile = Path.GetFullPath(
-                        Path.Combine (ToDirectory, Output));
-                } else
-                    outputFile = Path.ChangeExtension (inputFile, TargetExt );
+                string outputFile = getOutputFile(inputFile);
 
                 if (NeedsCompiling (inputFile, outputFile)) {
                     AppendArgument (String.Format ("\"{0}\" \"{1}\"", inputFile, outputFile));
@@ -144,6 +136,14 @@ namespace SourceForge.NAnt.Tasks {
                 // call base class to do the work
                 base.ExecuteTask();
             }
+        }
+        
+        // Determine the full path and extension for the output file
+        private string getOutputFile(string filename) {
+            FileInfo fileInfo = new FileInfo(filename);
+            string outputFile = Path.Combine (ToDirectory, Output) + fileInfo.Name;
+            outputFile = Path.ChangeExtension( outputFile, TargetExt );
+            return outputFile;
         }
         
         /// <summary>
