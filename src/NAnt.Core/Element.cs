@@ -177,6 +177,29 @@ namespace NAnt.Core {
             set { _location = value; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the element is performing additional
+        /// processing using the <see cref="XmlNode" /> that was used to 
+        /// initialize the element.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Elements that need to perform additional processing of the 
+        /// <see cref="XmlNode" /> that was used to initialize the element, should
+        /// override this property and return <see langword="true" />.
+        /// </para>
+        /// <para>
+        /// When <see langword="true" />, no build errors will be reported for
+        /// unknown nested build elements.
+        /// </para>
+        /// </remarks>
+        protected virtual bool CustomXmlProcessing {
+            get { return false; }
+        }
+
         #endregion Protected Instance Properties
 
         #region Public Instance Methods
@@ -467,6 +490,11 @@ namespace NAnt.Core {
                 // create collection of node names
                 _unprocessedChildNodes = new StringCollection();
                 foreach (XmlNode childNode in elementNode) {
+                    // skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                    if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
+                        continue;
+                    }
+
                     // skip existing names as we only need unique names.
                     if (_unprocessedChildNodes.Contains(childNode.Name)) {
                         continue;
@@ -535,18 +563,10 @@ namespace NAnt.Core {
             #region Public Instance Methods
 
             public void Initialize() {
-                // This is a bit of a monster function but if you look at it 
-                // carefully this is what it does:
-                // * Looking for task attributes to initialize.
-                // * For each BuildAttribute try to find the XML attribute that corresponds to it.
-                // * Next process all the nested elements, same idea, look at what is supposed to
-                //   be there from the attributes on the class/properties and then get
-                //   the values from the XML node to set the instance properties.
-                //* Removed the inheritance walking as it isn't necessary for extraction of public properties
-
                 Type currentType = Element.GetType();
             
-                PropertyInfo[] propertyInfoArray = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                PropertyInfo[] propertyInfoArray = currentType.GetProperties(
+                    BindingFlags.Public | BindingFlags.Instance);
 
                 // loop through all the properties in the derived class.
                 foreach (PropertyInfo propertyInfo in propertyInfoArray) {
@@ -565,25 +585,23 @@ namespace NAnt.Core {
             
                 // skip checking for anything in target
                 if(!(currentType.Equals(typeof(Target)) || currentType.IsSubclassOf(typeof(Target)))) {
-                    #region Check Tracking Collections for Attribute and Element use
-
-                    //find all the unused attributes
-                    foreach (string attr in UnprocessedAttributes) {
-                        string msg = string.Format(CultureInfo.InvariantCulture, 
-                            "{2}:Did not use {0} of <{1} ... />?", attr, 
-                            currentType.Name, Location);
-                        logger.Warn(msg);
-                    }
-                    
-                    //find all the unused elements
-                    foreach (string element in UnprocessedChildNodes) {
-                        string msg = string.Format(CultureInfo.InvariantCulture, 
-                            "Did not use <{0} ... /> under <{1} />?", element, 
-                            currentType.Name);
-                        logger.Warn(msg);
+                    // check if there are unused attributes
+                    if (UnprocessedAttributes.Count > 0) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Unexpected attribute \"{0}\" on element <{1}>.", 
+                            UnprocessedAttributes[0], Element.XmlNode.Name),
+                            Location);
                     }
 
-                    #endregion Check Tracking Collections for Attribute and Element use
+                    if (!Element.CustomXmlProcessing) {
+                        // check if there are unused nested build elements
+                        if (UnprocessedChildNodes.Count > 0) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "The <{0}> type does not support the nested build"
+                                + " element \"{1}\".", Element.Name, UnprocessedChildNodes[0]), 
+                                Location);
+                        }
+                    }
                 }
             }
 
@@ -658,7 +676,7 @@ namespace NAnt.Core {
                         // remove processed attribute name
                         UnprocessedAttributes.Remove(attributeNode.Name);
 
-                        // if we don't process the xml then skip on..
+                        // if we don't process the xml then skip on
                         if (!buildAttribute.ProcessXml) {
                             logger.Debug(string.Format(
                                 CultureInfo.InvariantCulture,
@@ -688,7 +706,8 @@ namespace NAnt.Core {
                                 Location, buildAttribute.Name, Name, 
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
-                                Element.Log(Level.Error, obsoleteMessage);
+                                throw new BuildException(obsoleteMessage, 
+                                    Location);
                             } else {
                                 Element.Log(Level.Warning, obsoleteMessage);
                             }
@@ -835,7 +854,7 @@ namespace NAnt.Core {
                         
                         if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Element Required! There must be a least one '{0}' element for <{1} ...//>.", 
+                                "There must be a least one '{0}' element for <{1} ...//>.", 
                                 buildElementCollectionAttribute.Name, Name), 
                                 Location);
                         }
@@ -851,7 +870,8 @@ namespace NAnt.Core {
                                     Location, buildElementCollectionAttribute.Name, Name, 
                                     obsoleteAttribute.Message);
                                 if (obsoleteAttribute.IsError) {
-                                    Element.Log(Level.Error, obsoleteMessage);
+                                    throw new BuildException(obsoleteMessage,
+                                        Location);
                                 } else {
                                     Element.Log(Level.Warning, obsoleteMessage);
                                 }
@@ -875,7 +895,7 @@ namespace NAnt.Core {
                             // check if its required
                             if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "Element Required! There must be a least one '{0}' element for <{1} ... />.", 
+                                    "There must be a least one '{0}' element for <{1} ... />.", 
                                     elementName, buildElementCollectionAttribute.Name), 
                                     Location);
                             }
@@ -902,7 +922,8 @@ namespace NAnt.Core {
                                     Location, buildElementArrayAttribute.Name, Name, 
                                     obsoleteAttribute.Message);
                                 if (obsoleteAttribute.IsError) {
-                                    Element.Log(Level.Error, obsoleteMessage);
+                                    throw new BuildException(obsoleteMessage,
+                                        Location);
                                 } else {
                                     Element.Log(Level.Warning, obsoleteMessage);
                                 }
@@ -1063,10 +1084,9 @@ namespace NAnt.Core {
                     // were specified in the build file, as NAnt will only process
                     // the first element it encounters
                     if (ElementXml.SelectNodes("nant:" + buildElementAttribute.Name, NamespaceManager).Count > 1) {
-                        Element.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
-                            "<{0} ... /> does not support multiple '{1}' child elements." +
-                            " Only the first element will be processed.", Name,
-                            buildElementAttribute.Name));
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "<{0} ... /> does not support multiple '{1}' child elements.",
+                            Name, buildElementAttribute.Name), Location);
                     }
                 }
 
@@ -1096,12 +1116,12 @@ namespace NAnt.Core {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "{0} reference '{1}' not defined.", dataType.Name, dataType.RefID), 
                             dataType.Location);
-                    }                    
+                    }
                     if (!elementType.IsAssignableFrom(dataType.GetType())) {
                         // see if we have a valid copy constructor
                         ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});                      
                         if (constructor != null){
-                            dataType = (DataTypeBase)constructor.Invoke(new object[] {dataType});                                              
+                            dataType = (DataTypeBase) constructor.Invoke(new object[] {dataType});
                         } else {
                             ElementNameAttribute dataTypeAttr = (ElementNameAttribute) 
                                 Attribute.GetCustomAttribute(dataType.GetType(), typeof(ElementNameAttribute));
@@ -1162,9 +1182,10 @@ namespace NAnt.Core {
                     childElement = (Element) propInf.GetValue(Element, null);
                     if (childElement == null) {
                         if (setter == null) {
-                            string msg = string.Format(CultureInfo.InvariantCulture, "Property {0} cannot return null (if there is no set method) for class {1}", propInf.Name, this.GetType().FullName);
-                            logger.Error(msg);
-                            throw new BuildException(msg, Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Property {0} cannot return null (if there is"
+                                + " no set method) for class {1}", propInf.Name, 
+                                this.GetType().FullName), Location);
                         } else {
                             // fake the getter as null so we process the rest like there is no getter
                             getter = null;
