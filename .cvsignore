@@ -1,4 +1,4 @@
-build
+build*
 nant
 *.dat
 *.sln
