@@ -339,7 +339,9 @@ namespace NAnt.Core {
             get { return _defaultTargetName; }
         }
 
-        /// <summary>When true tasks should output more build log messages.</summary>
+        /// <summary>
+        /// When <c>true</c> tasks should output more build log messages.
+        /// </summary>
         public bool Verbose {
             get { return Level.Verbose >= Threshold; }
         }

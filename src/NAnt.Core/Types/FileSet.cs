@@ -86,8 +86,9 @@ namespace NAnt.Core.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// When set to true, causes the fileset element to throw a ValidationException 
-        /// when no files match the includes and excludes criteria. Default is "false".
+        /// When set to <c>true</c>, causes the fileset element to throw a 
+        /// ValidationException when no files match the includes and excludes 
+        /// criteria. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("failonempty")]
         [BooleanValidator()]
@@ -97,7 +98,8 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
-        /// Indicates whether default excludes should be used or not. Default is "true".
+        /// Indicates whether default excludes should be used or not. 
+        /// Default is <c>true</c>.
         /// </summary>
         [TaskAttribute("defaultexcludes")]
         [BooleanValidator()]
@@ -341,8 +343,8 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// If true then the pattern will be included; otherwise skipped. 
-            /// Default is "true".
+            /// If <c>true</c> then the pattern will be included; otherwise skipped. 
+            /// Default is <c>true</c>.
             /// </summary>
             [TaskAttribute("if")]
             [BooleanValidator()]
@@ -352,8 +354,8 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// Opposite of if. If false then the pattern will be included; 
-            /// otherwise skipped. Default is "false".
+            /// Opposite of if. If <c>false</c> then the pattern will be included; 
+            /// otherwise skipped. Default is <c>false</c>.
             /// </summary>
             [TaskAttribute("unless")]
             [BooleanValidator()]
@@ -376,8 +378,8 @@ namespace NAnt.Core.Types {
             #region Public Instance Properties
 
             /// <summary>
-            /// If true then the file name will be added to the fileset without 
-            /// pattern matching or checking if the file exists.
+            /// If <c>true</c> then the file name will be added to the fileset 
+            /// without pattern matching or checking if the file exists.
             /// </summary>
             [TaskAttribute("asis")]
             [BooleanValidator()]
@@ -387,7 +389,7 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// If true then the file will be searched for on the path.
+            /// If <c>true</c> then the file will be searched for on the path.
             /// </summary>
             [TaskAttribute("frompath")]
             [BooleanValidator()]

@@ -73,7 +73,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// If true then the task will be executed; otherwise skipped. 
+        /// If <c>true</c> then the task will be executed; otherwise skipped. 
         /// Default is <c>true</c>.
         /// </summary>
         [TaskAttribute("if")]
@@ -84,8 +84,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Opposite of if. If false then the task will be executed; otherwise 
-        /// skipped. Default is <c>false</c>.
+        /// Opposite of if. If <c>false</c> then the task will be executed; 
+        /// otherwise skipped. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]

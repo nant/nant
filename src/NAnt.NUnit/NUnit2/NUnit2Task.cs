@@ -39,23 +39,37 @@ using NAnt.NUnit.Types;
 using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Tasks {
-    /// <summary>Runs tests using the NUnit V2.0 framework.</summary>
+    /// <summary>
+    /// Runs tests using the NUnit V2.0 framework.
+    /// </summary>
     /// <remarks>
-    ///   <para>See the <a href="http://nunit.sf.net">NUnit home page</a> for more information.</para>
-    ///   <para>The <c>haltonfailure</c> or <c>haltonerror</c> are only used to stop more than one test suite to stop running.  If any test suite fails a build error will be thrown.  Use <c>failonerror="false"</c> to ignore test errors and continue build.</para>
+    ///   <para>
+    ///   See the <a href="http://nunit.sf.net">NUnit home page</a> for more 
+    ///   information.
+    ///   </para>
+    ///   <para>
+    ///   The <c>haltonfailure</c> or <c>haltonerror</c> properties are only 
+    ///   used to stop more than one test suite to stop running.  If any test 
+    ///   suite fails, a build error will be thrown.  Set <c>failonerror</c> 
+    ///   to <c>false</c> to ignore test errors and continue the build.
+    ///   </para>
     /// </remarks>
     /// <example>
-    ///   <para>Run tests in the <c>MyProject.Tests.dll</c> assembly.</para>
+    ///   <para>
+    ///   Run tests in the <c>MyProject.Tests.dll</c> assembly.
+    ///   </para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <nunit2>
-    ///     <test assemblyname="MyProject.Tests.dll"/>
+    ///     <test assemblyname="MyProject.Tests.dll" />
     /// </nunit2>
-    /// ]]>
+    ///     ]]>
     ///   </code>
-    ///   <para>Run all tests in files listed in the <c>tests.txt</c> file.</para>
+    ///   <para>
+    ///   Run all tests in files listed in the <c>tests.txt</c> file.
+    ///   </para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <nunit2>
     ///     <test>
     ///         <assemblies>
@@ -63,7 +77,7 @@ namespace NAnt.NUnit2.Tasks {
     ///         </assemblies>
     ///     </test>
     /// </nunit2>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("nunit2")]
@@ -80,7 +94,7 @@ namespace NAnt.NUnit2.Tasks {
         #region Public Instance Properties
        
         /// <summary>
-        /// Stop the build process if a test fails.
+        /// Stop the build process if a test fails. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
@@ -90,7 +104,7 @@ namespace NAnt.NUnit2.Tasks {
         }
 
         /// <summary>
-        /// Build fails on error.
+        /// Build fails on error. Default is <c>true</c>.
         /// </summary>
         [TaskAttribute("haltonerror")]
         [BooleanValidator()]
@@ -140,8 +154,9 @@ namespace NAnt.NUnit2.Tasks {
                 TestResult[] results = RunRemoteTest(test, listener);
 
                 // no tests results. An error might have occurred
-                if (results == null || results.Length == 0)
+                if (results == null || results.Length == 0) {
                     continue;
+                }
 
                 StringCollection assemblies = test.TestAssemblies;
                 for (int i = 0; i < results.Length; i++) {
