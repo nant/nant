@@ -14,7 +14,13 @@
 
 	<h1><span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
 
-	<h3>0.7.749.5625 January 19, 2002</h3>
+	<h3>0.8.x In Progress</h3>
+	<ul>
+		<li>If more than one build file matches the criteria, e.g. two files ending in .build than nant will report an error.</li>
+		<li>-find option added, causes nant to search up the directory tree looking for the buildfile.  Use in conjunction with -buildfile:foo.* to find the first foo.* file up the directory tree.</li>
+	</ul>
+
+	<h3>0.7.749 January 19, 2002</h3>
 	<ul>
 		<li>Extra SourceSafe task added to src\Extras folder - thanks to Jason Reimer</li>
 		<li>DocNet task added, try 'nant doc' to build NAnt's documentation</li>

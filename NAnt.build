@@ -104,6 +104,7 @@
 		<!-- compile NAnt.exe -->
         <csc target="exe" output="${build.dir}\${project.FormalName}.exe" debug="${debug}" doc="${build.dir}\${project.FormalName}.xml">
             <sources basedir="${src.dir}\${project.FormalName}">
+                <includes name="AssemblyInfo.cs"/>
                 <includes name="NAnt.cs"/>
             </sources>
             <references>
