@@ -21,6 +21,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -94,6 +95,9 @@ namespace NAnt.Core {
                     project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
                 }
 
+                // load extension asseemblies
+                LoadExtensionAssemblies(cmdlineOptions.ExtensionAssemblies);
+
                 PropertyDictionary buildOptionProps = new PropertyDictionary(project);
 
                 // add build logger and build listeners to project
@@ -127,17 +131,17 @@ namespace NAnt.Core {
                 project.Properties.AddReadOnly(Project.NAntPropertyVersion,  ass.GetName().Version.ToString());
                 project.Properties.AddReadOnly(Project.NAntPropertyLocation, Path.GetDirectoryName(ass.Location));
 
-                if (cmdlineOptions.DefaultFramework != null) {
-                    FrameworkInfo frameworkInfo = project.Frameworks[cmdlineOptions.DefaultFramework];
+                if (cmdlineOptions.TargetFramework != null) {
+                    FrameworkInfo frameworkInfo = project.Frameworks[cmdlineOptions.TargetFramework];
 
                     if (frameworkInfo != null) {
                         project.TargetFramework = frameworkInfo; 
                     } else {
-                        logger.Fatal("Invalid framework name specified: '" + cmdlineOptions.DefaultFramework + "'");
+                        logger.Fatal("Invalid framework name specified: '" + cmdlineOptions.TargetFramework + "'");
                         Console.WriteLine(string.Format(
                             CultureInfo.InvariantCulture, 
                             "Invalid framework '{0}' specified.", 
-                            cmdlineOptions.DefaultFramework));
+                            cmdlineOptions.TargetFramework));
                         Console.Error.WriteLine();
 
                         if (project.Frameworks.Count == 0) {
@@ -167,7 +171,7 @@ namespace NAnt.Core {
             } catch (CommandLineArgumentException ex) {
                 // Log exception to internal log
                 logger.Warn("Invalid command line specified.", ex);
-                // Write logo banner to conole if parser was created successfully
+                // Write logo banner to console if parser was created successfully
                 if (commandLineParser != null) {
                     Console.WriteLine(commandLineParser.LogoBanner);
                 }
@@ -333,6 +337,16 @@ namespace NAnt.Core {
             return buildFileName;
         }
 
+        private static void LoadExtensionAssemblies(StringCollection extensionAssemblies) {
+            foreach (string extensionAssembly in extensionAssemblies) {
+                try {
+                    Assembly assembly = Assembly.LoadFrom(Path.Combine(
+                        Directory.GetCurrentDirectory(), extensionAssembly));
+                    TypeFactory.ScanAssembly(assembly);
+                } catch {}
+            }
+        }
+
         /// <summary>
         /// Dynamically constructs an <see cref="IBuildLogger" /> instance of 
         /// the class specified.
@@ -343,13 +357,18 @@ namespace NAnt.Core {
         /// is defined.
         /// </para>
         /// </remarks>
-        /// <param name="className">The fully qualified name of the logger that should be instantiated.</param>
-        /// <exception cref="ArgumentException"><paramref name="className" /> does not implement <see cref="IBuildLogger" />.</exception>
+        /// <param name="typeName">The fully qualified name of the logger that should be instantiated.</param>
+        /// <exception cref="TypeLoadException">Type <paramref name="typeName" /> could not be loaded.</exception>
+        /// <exception cref="ArgumentException"><paramref name="typeName" /> does not implement <see cref="IBuildLogger" />.</exception>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static IBuildLogger CreateLogger(string className) {
-            Assembly assembly = Assembly.GetAssembly(typeof(IBuildLogger));
+        public static IBuildLogger CreateLogger(string typeName) {
+            Type loggerType = ReflectionUtils.GetTypeFromString(typeName, false);
+            if (loggerType == null) {
+                throw new TypeLoadException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not load type {0}.", typeName));
+            }
 
-            object buildLogger = Activator.CreateInstance(assembly.GetType(className, true));
+            object buildLogger = Activator.CreateInstance(loggerType);
 
             if (!typeof(IBuildLogger).IsAssignableFrom(buildLogger.GetType())) {
                 throw new ArgumentException(
@@ -370,13 +389,18 @@ namespace NAnt.Core {
         /// is defined.
         /// </para>
         /// </remarks>
-        /// <param name="className">The fully qualified name of the listener that should be instantiated.</param>
-        /// <exception cref="ArgumentException"><paramref name="className" /> does not implement <see cref="IBuildListener" />.</exception>
+        /// <param name="typeName">The fully qualified name of the listener that should be instantiated.</param>
+        /// <exception cref="TypeLoadException">Type <paramref name="typeName" /> could not be loaded.</exception>
+        /// <exception cref="ArgumentException"><paramref name="typeName" /> does not implement <see cref="IBuildListener" />.</exception>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static IBuildListener CreateListener(string className) {
-            Assembly assembly = Assembly.GetAssembly(typeof(IBuildListener));
+        public static IBuildListener CreateListener(string typeName) {
+            Type listenerType = ReflectionUtils.GetTypeFromString(typeName, false);
+            if (listenerType == null) {
+                throw new TypeLoadException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not load type {0}.", typeName));
+            }
 
-            object buildListener = Activator.CreateInstance(assembly.GetType(className, true));
+            object buildListener = Activator.CreateInstance(listenerType);
 
             if (!typeof(IBuildListener).IsAssignableFrom(buildListener.GetType())) {
                 throw new ArgumentException(
