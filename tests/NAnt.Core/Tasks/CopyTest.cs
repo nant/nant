@@ -327,5 +327,62 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Dir should have been created:" + GetPath(tempDir1, "source", "test"), Directory.Exists(GetPath(tempDir1, "source", "test")));
             Assertion.Assert("Dir should not have been created:" + GetPath(tempDir1, "destination", "source","test"), !Directory.Exists(GetPath(tempDir1, "destination", "source", "test")));
         }
+
+        /// <summary>
+        /// The <c>todir</c> and <c>tofile</c> attribute of the <c>&lt;copy&gt;</c>
+        /// task should not be combined.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_ToFile_ToDir() {
+            const string xmlProjectTemplate = @"
+            <project>
+                <copy todir='test' tofile='test.file'>
+                    <fileset>
+                        <includes name='*.txt' />
+                    </fileset>
+                </copy>
+            </project>";
+
+            RunBuild(xmlProjectTemplate);
+        }
+
+        /// <summary>
+        /// The <c>tofile</c> attribute of the <c>&lt;copy&gt;</c> task cannot
+        /// be combined with a <c>&lt;fileset&gt;</c> element.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_ToFile_FileSet() {
+            const string xmlProjectTemplate = @"
+            <project>
+                <copy tofile='test.file'>
+                    <fileset>
+                        <includes name='*.txt' />
+                    </fileset>
+                </copy>
+            </project>";
+
+            RunBuild(xmlProjectTemplate);
+        }
+
+        /// <summary>
+        /// The <c>file</c> attribute of the <c>&lt;copy&gt;</c> task cannot
+        /// be combined with a <c>&lt;fileset&gt;</c> element.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_File_FileSet() {
+            const string xmlProjectTemplate = @"
+            <project>
+                <copy file='test.file' todir='test'>
+                    <fileset>
+                        <includes name='*.txt' />
+                    </fileset>
+                </copy>
+            </project>";
+
+            RunBuild(xmlProjectTemplate);
+        }
     }
 }
