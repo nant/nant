@@ -180,7 +180,8 @@
             </table>
         </div>
         <h3>Global Properties</h3>
-        <p>Properties that should be accessible to all build files on a system can be defined in the <code>&lt;properties&gt;</code> node of the NAnt configuration file (<code>NAnt.exe.config</code>):</p>
+        <p>Properties that should be accessible to all build files on a system can be defined in the <code>&lt;properties&gt;</code> node of the NAnt configuration file (<code>NAnt.exe.config</code>).</p>
+        <p>By changing the value of the property in the NAnt configuration file, the updated value will be accessible to all build files on the system:</p>
         <pre class="code">
     &lt;?xml version="1.0"?&gt;
     &lt;configuration&gt;
@@ -205,7 +206,6 @@
         <pre>
     [echo] Company: Foo Ltd.
         </pre>
-        <p>By changing the value of the property in the NAnt configuration file, the updated value will be accessible to all build files on the system.</p>
         <h3>Example</h3>
         <p>The following build file demonstrates the use of property expansion:</p>
         <pre class="code">
