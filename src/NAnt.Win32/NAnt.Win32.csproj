@@ -56,6 +56,11 @@
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
+                <Reference
+                    Name = "NAnt.DotNet"
+                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
             </References>
         </Build>
         <Files>
