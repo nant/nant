@@ -75,6 +75,7 @@
                 <includes name="nunit.framework.dll" />
                 <includes name="NUnitCore.dll" />
                 <includes name="ICSharpCode.SharpZipLib.dll" />
+                <includes name="ICSharpCode.SharpCvsLib.dll" />
                 <includes name="${log4netdll}"/>
             </fileset>
         </copy>

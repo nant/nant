@@ -1,3 +1,4 @@
 NAnt.DotNet
 NAnt.Zip
 NAnt.NUnit
+NAnt.SourceControl

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project name="NAnt.SourceControl" default="test">
+    <!--
+        Required properties:
+            * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
+            * build.debug   - (true|false) debug build?
+    -->
+    <target name="build">
+        <!-- build test assembly -->
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" 
+            output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+            <sources>
+                <includes name="**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="../../src/CommonAssemblyInfo.cs" />
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll" />
+                <includes name="NAnt.Core.Tests.dll" />
+                <includes name="nunit.framework.dll" />
+            </references>
+        </csc>
+    </target>
+    <target name="test" depends="build">
+         <nunit2>
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+         </nunit2>
+    </target>
+</project>
