@@ -22,6 +22,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.NUnit.Types {
     /// <summary>
@@ -67,7 +68,7 @@ namespace NAnt.NUnit.Types {
         /// </summary> 
         [TaskAttribute("extension", Required=false)]
         public string Extension {
-            get { return _data.Extension != null ? _data.Extension : string.Empty; }
+            get { return StringUtils.ConvertNullToEmpty(_data.Extension); }
             set { _data.Extension = value; }
         }
         
@@ -80,6 +81,18 @@ namespace NAnt.NUnit.Types {
         public bool UseFile {
             get { return _data.UseFile; }
             set { _data.UseFile = value; }
+        }
+
+        /// <summary>
+        /// Specifies the directory where the output file should be written to,
+        /// if <see cref="UseFile" /> is <see langword="true" />.  If not 
+        /// specified, the output file will be written to the directory where
+        /// the test module is located.
+        /// </summary> 
+        [TaskAttribute("outputdir", Required=false)]
+        public string OutputDirectory {
+            get { return (_data.OutputDirectory != null) ? Project.GetFullPath(_data.OutputDirectory) : null; }
+            set { _data.OutputDirectory = value; }
         }
 
         /// <summary>

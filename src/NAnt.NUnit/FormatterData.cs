@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ using System;
 
 using NUnit.Framework;
 
+using NAnt.Core.Util;
+
 namespace NAnt.NUnit.Types {
     /// <summary>
     /// Carries data specified through the formatter element.
@@ -29,9 +31,10 @@ namespace NAnt.NUnit.Types {
     public class FormatterData {
         #region Private Instance Fields
 
-        private string _extension = null;
-        private bool _usefile = false;
+        private string _extension;
+        private bool _usefile;
         private FormatterType _formatterType = FormatterType.Plain;
+        private string _outputDirectory;
 
         #endregion Private Instance Fields
 
@@ -66,6 +69,18 @@ namespace NAnt.NUnit.Types {
         public string Extension {
             get { return _extension; }
             set { _extension = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the directory where the output file should be written 
+        /// to, if <see cref="UseFile" /> is <see langword="true" />.
+        /// </summary> 
+        /// <value>
+        /// The directory where the output file should be written to.
+        /// </value>
+        public string OutputDirectory {
+            get { return _outputDirectory; }
+            set { _outputDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
