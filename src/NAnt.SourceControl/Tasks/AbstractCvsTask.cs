@@ -197,7 +197,13 @@ namespace NAnt.SourceControl.Tasks {
                 if (UseSharpCvsLib) {
                     _exeNameTemp = _sharpcvslibExeName;
                 } else {
-                    _exeNameTemp = DeriveVcsFromEnvironment().FullName;
+                    FileInfo vcsFile = DeriveVcsFromEnvironment();
+                    if (vcsFile == null) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "'{0}' could not be found on the system.", VcsExeName), 
+                            Location);
+                    }
+                    _exeNameTemp = vcsFile.FullName;
                 }
                 Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
                 Logger.Debug("_exeNameTemp: " + _exeNameTemp);
