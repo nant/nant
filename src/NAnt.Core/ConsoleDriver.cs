@@ -171,6 +171,8 @@ namespace SourceForge.NAnt {
                             break;
                         case CommandLineOption.OPTION_VERBOSE:
                             verbose = true;
+                            if(project != null)
+                                project.Verbose=true;
                             break;
                     }
                 }
