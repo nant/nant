@@ -142,16 +142,6 @@ namespace NAnt.DotNet.Tasks {
             _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", 
                 NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
-            // check for valid documenters (any other validation can be done by NDoc itself at project load time)
-            foreach (XmlNode node in _docNodes) {
-                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
-                    continue;
-                }
-                
-                string documenterName = node.Attributes["name"].Value;
-                IDocumenter documenter = CheckAndGetDocumenter(null, documenterName);
-            }
         }
 
         /// <summary>
@@ -189,6 +179,39 @@ namespace NAnt.DotNet.Tasks {
             if (Assemblies.FileNames.Count == 0) {
                 string msg = "There must be at least one included assembly.";
                 throw new BuildException(msg, Location);
+            }
+
+            // create NDoc Project
+            NDoc.Core.Project project = null;
+
+            try {
+                project = new NDoc.Core.Project();
+            } catch (Exception ex) {
+                throw new BuildException("Could not create NDoc Project.", Location, ex);
+            }
+
+            // set-up probe path, meaning list of directories where NDoc searches
+            // for documenters
+            // by default, NDoc scans the startup path of the app, so we do not 
+            // need to add this explicitly
+            string privateBinPath = AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
+            if (privateBinPath != null) {
+                // have NDoc also probe for documenters in the privatebinpath
+                foreach (string relativePath in privateBinPath.Split(';')) {
+                    project.AppendProbePath(Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory, relativePath));
+                }
+            }
+
+            // check for valid documenters (any other validation can be done by NDoc itself at project load time)
+            foreach (XmlNode node in _docNodes) {
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
+                    continue;
+                }
+                
+                string documenterName = node.Attributes["name"].Value;
+                IDocumenter documenter = CheckAndGetDocumenter(project, documenterName);
             }
 
             // write documenter project settings to temp file
@@ -242,15 +265,8 @@ namespace NAnt.DotNet.Tasks {
             writer.WriteEndElement();
             writer.Close();
 
+            // read NDoc project file
             Log(Level.Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
-
-            // create Project object
-            NDoc.Core.Project project = null;
-            try {
-                project = new NDoc.Core.Project();
-            } catch (Exception ex) {
-                throw new BuildException("Could not create NDoc Project.", Location, ex);
-            }
             project.Read(projectFileName);
 
             foreach (XmlNode node in _docNodes) {
@@ -299,12 +315,13 @@ namespace NAnt.DotNet.Tasks {
             Log(Level.Verbose, LogPrefix + e.Progress + "% complete");
         }
 
-        /// <summary>        /// Returns the documenter for the given project.        /// </summary>        /// <exception cref="BuildException">Documenter <paramref name="documenterName" /> is not found.</exception>        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
+        /// <summary>        /// Returns the documenter for the given project.        /// </summary>        /// <exception cref="BuildException">Documenter <paramref name="documenterName" /> is not found.</exception>        /// <exception cref="ArgumentNullException"><paramref name="project" /> is <see langword="null" />.</exception>        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
             IDocumenter documenter = null;
 
             if (project == null) {
-                project = new NDoc.Core.Project();
+                throw new ArgumentNullException("project");
             }
+
             StringCollection documenters = new StringCollection();
             foreach (IDocumenter d in project.Documenters) {
                 documenters.Add(d.Name);
@@ -316,7 +333,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            //throw an exception if the documenter could not be found.
+            // throw an exception if the documenter could not be found.
             if (documenter == null) {
                 if (documenters.Count == 0) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
