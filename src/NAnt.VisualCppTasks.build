@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="nant" default="test">
+<project name="NAnt.VisualCppTasks" default="test">
     <!--
         Required properties:
             * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
@@ -7,10 +7,11 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VisualCppTasks.dll"
-            doc="${build.dir}/bin/NAnt.VisualCppTasks.xml">
+        <csc target="library" warnaserror="true" debug="${build.debug}"
+        	output="${build.dir}/bin/${nant.project.name}.dll"
+            doc="${build.dir}/bin/${nant.project.name}.xml">
             <sources>
-                <includes name="NAnt.VisualCppTasks/**/*.cs" />
+                <includes name="${nant.project.name}/**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>
@@ -18,6 +19,26 @@
                 <includes name="NAnt.Core.dll" />
             </references>
         </csc>
+        <!-- build test assembly -->
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" 
+        	output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+            <sources>
+                <includes name="${nant.project.name}.Tests/**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
+                <excludes name="**/AllTests.cs" />
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll" />
+                <includes name="NAnt.Core.Tests.dll" />
+                <includes name="${nant.project.name}.dll" />
+                <includes name="nunit.framework.dll" />
+            </references>
+        </csc>
     </target>
-    <target name="test" depends="build"></target>
+    <target name="test" depends="build">
+         <nunit2>
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+         </nunit2>
+    </target>
 </project>

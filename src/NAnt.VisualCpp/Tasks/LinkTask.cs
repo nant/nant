@@ -122,52 +122,75 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         #endregion Override implementation of ExternalProgramBase
+         
+        /// <summary>
+        /// Determines if the output needs linking.
+        /// </summary>
+        protected virtual bool NeedsLinking() {
+            // return true as soon as we know we need to compile
 
+            FileInfo outputFileInfo = new FileInfo(Path.Combine(BaseDirectory, Output));
+            if (!outputFileInfo.Exists) {
+                return true;
+            }
+
+            //Sources Updated?
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, outputFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "{0} is out of date, relinking.", fileName);
+                return true;
+            }
+
+            return false;
+        }
         #region Override implementation of Task
 
         /// <summary>
         /// Links the sources.
         /// </summary>
         protected override void ExecuteTask() {
-            if (Sources.BaseDirectory == null) {
-                Sources.BaseDirectory = BaseDirectory;
-            }
-
-            Log(Level.Info, LogPrefix + "Linking {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
-
-            // Create temp response file to hold compiler options
-            _responseFileName = Path.GetTempFileName();
-            StreamWriter writer = new StreamWriter(_responseFileName);
-
-            try {
-                // specify the output file
-                writer.WriteLine("/OUT:\"{0}\"", Path.Combine(BaseDirectory, Output));
-
-                // write user provided options
-                if (_options != null) {
-                    writer.WriteLine(_options);
-                }
-
-                // write each of the filenames
-                foreach (string filename in Sources.FileNames) {
-                    writer.WriteLine("\"{0}\"", filename);
-                }
-
-                // write each of the libdirs
-                foreach (string libdir in LibDirs.DirectoryNames) {
-                    writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
-                }
-
-                writer.Close();
-
-                // call base class to do the actual work
-                base.ExecuteTask();
-            } finally {
-                // make sure we delete response file even if an exception is thrown
-                writer.Close(); // make sure stream is closed or file cannot be deleted
-                File.Delete(_responseFileName);
-                _responseFileName = null;
-            }
+            if (NeedsLinking()) {
+               if (Sources.BaseDirectory == null) {
+                   Sources.BaseDirectory = BaseDirectory;
+               }
+  
+               Log(Level.Info, LogPrefix + "Linking {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
+  
+               // Create temp response file to hold compiler options
+               _responseFileName = Path.GetTempFileName();
+               StreamWriter writer = new StreamWriter(_responseFileName);
+  
+               try {
+                   // specify the output file
+                   writer.WriteLine("/OUT:\"{0}\"", Path.Combine(BaseDirectory, Output));
+  
+                   // write user provided options
+                   if (_options != null) {
+                       writer.WriteLine(_options);
+                   }
+  
+                   // write each of the filenames
+                   foreach (string filename in Sources.FileNames) {
+                       writer.WriteLine("\"{0}\"", filename);
+                   }
+  
+                   // write each of the libdirs
+                   foreach (string libdir in LibDirs.DirectoryNames) {
+                       writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
+                   }
+  
+                   writer.Close();
+  
+                   // call base class to do the actual work
+                   base.ExecuteTask();
+               } finally {
+                   // make sure we delete response file even if an exception is thrown
+                   writer.Close(); // make sure stream is closed or file cannot be deleted
+                   File.Delete(_responseFileName);
+                   _responseFileName = null;
+               }
+           }
+            
         }
 
         #endregion Override implementation of Task

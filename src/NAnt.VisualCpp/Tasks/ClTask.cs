@@ -19,6 +19,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian@maclean.ms)
 // Eric V. Smith (ericsmith@windsor.com)
+// Anthony LoveFrancisco (ants@fu.org)
 //
 // TODO: review interface for future compatibility/customizations issues
 
@@ -132,61 +133,130 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         #endregion Override implementation of ExternalProgramBase
+        private bool IsPchfileUpToDate() {
+            // if no pch file, then then it is theoretically up to date
+            if (_pchfile == null) {
+                return true;
+            }
 
+            // if pch file declared, but doesn't exist, it must be stale
+            FileInfo pchFileInfo = new FileInfo(Path.Combine(Path.Combine(BaseDirectory, OutputDir), PchFile));
+            if (!pchFileInfo.Exists) {
+                Log(Level.Verbose, LogPrefix + "{0} does not exist, recompiling.", pchFileInfo.Name);
+                return false;
+            }
+
+/*
+            // if sources fresher than pch file,
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix  + "{0} is newer than pch file, recompiling.", fileName);
+                return false;
+            }
++*/
+            return true;
+        }
+
+        private bool IsObjUpToDate(string srcFileName) {
+            // if obj file doesn't exist, it must be stale
+            string objFileName = Path.ChangeExtension(Path.Combine(Path.Combine(BaseDirectory, OutputDir), Path.GetFileName(srcFileName)), ".obj");
+            FileInfo objFileInfo = new FileInfo(objFileName);
+            if (!objFileInfo.Exists) {
+                Log(Level.Verbose, LogPrefix  + "{0} does not exist, recompiling.", objFileName);
+                return false;
+            }
+
+            // if obj file is older the source file, it is stale
+            FileInfo srcFileInfo = new FileInfo(srcFileName);
+            if (srcFileInfo.LastWriteTime > objFileInfo.LastWriteTime) {
+                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", objFileName);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool AreObjsUpToDate() {
+            foreach(string filename in Sources.FileNames) {
+                if (!IsObjUpToDate(filename)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool AreSourcesUpToDate() {
+            //$ TODO:   Add code here that parses the C/CPP files to determine
+            //          file dependencies.
+            //$ TODO:   To prevent perpetual reparsing, need to figure out
+            //          a place to cache the results of the dependency checks
+            //          and do test to validate the cache.
+            return true;
+        }
+
+         /// <summary>
+         /// Determines if the sources need compiling.
+         /// </summary>
+        protected virtual bool NeedsCompiling() {
+            return !(IsPchfileUpToDate() && AreObjsUpToDate() && AreSourcesUpToDate());
+        }
         #region Override implementation of Task
 
         /// <summary>
         /// Compiles the sources.
         /// </summary>
         protected override void ExecuteTask() {
-            if (Sources.BaseDirectory == null) {
-                Sources.BaseDirectory = BaseDirectory;
-            }
-
-            Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, OutputDir));
-
-            // Create temp response file to hold compiler options
-            _responseFileName = Path.GetTempFileName();
-            StreamWriter writer = new StreamWriter(_responseFileName);
-
-            try {
-                // write basic switches
-                writer.WriteLine("/c"); // compile only
-
-                // write user provided options
-                if (_options != null) {
-                    writer.WriteLine(_options);
+            if (NeedsCompiling()) {
+                if (Sources.BaseDirectory == null) {
+                    Sources.BaseDirectory = BaseDirectory;
                 }
-
-                // write user provided include directories
-                foreach (string include in Includes.DirectoryNames) {
-                    writer.WriteLine("/I \"{0}\"", include);
-                }
-
-                // specify output directories.  not that these need to end in a slash, but not a backslash.  not sure if AltDirectorySeparatorChar is the right way to get this behavior.
-                writer.WriteLine("/Fd\"{0}{1}\"", Path.Combine(BaseDirectory, OutputDir), Path.AltDirectorySeparatorChar);
-                writer.WriteLine("/Fo\"{0}{1}\"", Path.Combine(BaseDirectory, OutputDir), Path.AltDirectorySeparatorChar);
-
-                // specify pch file, if user gave one
-                if (_pchfile != null) {
-                    writer.WriteLine("/Fp\"{0}\"", Path.Combine(Path.Combine(BaseDirectory, OutputDir), PchFile));
-                }
-
-                // write each of the filenames
-                foreach (string filename in Sources.FileNames) {
-                    writer.WriteLine("\"{0}\"", filename);
-                }
-
-                writer.Close();
-
-                // call base class to do the actual work
-                base.ExecuteTask();
-            } finally {
-                // make sure we delete response file even if an exception is thrown
-                writer.Close(); // make sure stream is closed or file cannot be deleted
-                File.Delete(_responseFileName);
-                _responseFileName = null;
-            }
+ 
+                Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, OutputDir));
+ 
+                // Create temp response file to hold compiler options
+                _responseFileName = Path.GetTempFileName();
+                StreamWriter writer = new StreamWriter(_responseFileName);
+ 
+                try {
+                    // write basic switches
+                    writer.WriteLine("/c"); // compile only
+ 
+                    // write user provided options
+                    if (_options != null) {
+                        writer.WriteLine(_options);
+                    }
+ 
+                    // write user provided include directories
+                    foreach (string include in Includes.DirectoryNames) {
+                        writer.WriteLine("/I \"{0}\"", include);
+                    }
+ 
+                    // specify output directories.  not that these need to end in a slash, but not a backslash.  not sure if AltDirectorySeparatorChar is the right way to get this behavior.
+                    writer.WriteLine("/Fd\"{0}{1}\"", Path.Combine(BaseDirectory, OutputDir), Path.AltDirectorySeparatorChar);
+                    writer.WriteLine("/Fo\"{0}{1}\"", Path.Combine(BaseDirectory, OutputDir), Path.AltDirectorySeparatorChar);
+ 
+                    // specify pch file, if user gave one
+                    if (_pchfile != null) {
+                        writer.WriteLine("/Fp\"{0}\"", Path.Combine(Path.Combine(BaseDirectory, OutputDir), PchFile));
+                    }
+ 
+                    // write each of the filenames
+                    foreach (string filename in Sources.FileNames) {
+                        writer.WriteLine("\"{0}\"", filename);
+                    }
+ 
+                    writer.Close();
+ 
+                    // call base class to do the actual work
+                    base.ExecuteTask();
+                } finally {
+                    // make sure we delete response file even if an exception is thrown
+                    writer.Close(); // make sure stream is closed or file cannot be deleted
+                    File.Delete(_responseFileName);
+                    _responseFileName = null;
+               }
+           }
         }
 
         #endregion Override implementation of Task
