@@ -41,7 +41,14 @@ namespace NAnt.Core.Tasks {
 
         private Hashtable _htThreadStream = new Hashtable();
         private ArgumentCollection _arguments = new ArgumentCollection();
+#if (mono)
+        // TO-DO : remove this when issue has been fixed in Mono
+        // Mono does not (always) wait for process to exit when large timeout is
+        // specified (bug #45302)
+        private int _timeout = 100000;
+#else
         private int _timeout = Int32.MaxValue;
+#endif
 
         #endregion Private Instance Fields
 
