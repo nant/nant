@@ -121,7 +121,7 @@
                     <b>Note:</b>
                 </xsl:otherwise>
             </xsl:choose>
-            <xsl:text></xsl:text>
+            <xsl:text> </xsl:text>
             <xsl:apply-templates mode="slashdoc" />
         </p>
     </xsl:template>
@@ -244,7 +244,7 @@
                         <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
                         <code>
                             <xsl:value-of select="$taskName" />
-                        </code><xsl:text> </xsl:text>task
+                        </code><xsl:text> task</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
                         <code>
@@ -269,7 +269,7 @@
                 </xsl:element>
                 <!-- if this is a task add suffix task-->
                 <xsl:if test="boolean(NAntUtil:GetTaskName($cref))">
-                    <xsl:text> </xsl:text>task
+                    <xsl:text> task</xsl:text>
                 </xsl:if>
             </xsl:otherwise>
         </xsl:choose>
