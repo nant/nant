@@ -92,7 +92,7 @@
                 <Reference
                     Name = "NDoc.Core"
                     AssemblyName = "NDoc.Core"
-                    HintPath = "..\..\lib\net\1.0\NDoc.Core.dll"
+                    HintPath = "..\..\bin\lib\net\1.0\NDoc.Core.dll"
                 />
                 <Reference
                     Name = "NAnt.Core"
