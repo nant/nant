@@ -80,12 +80,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "FormatterCollection.cs"
+                    RelPath = "FormatterData.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "FormatterData.cs"
+                    RelPath = "FormatterDataCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

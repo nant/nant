@@ -22,31 +22,31 @@ using System.Collections;
 
 namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
     /// <summary>
-    /// Contains a strongly typed collection of <see cref="FormatterElement"/> objects.
+    /// Contains a strongly typed collection of <see cref="FormatterData"/> objects.
     /// </summary>
     [Serializable]
-    public class FormatterElementCollection : CollectionBase {
+    public class FormatterDataCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatterElementCollection"/> class.
+        /// Initializes a new instance of the <see cref="FormatterDataCollection"/> class.
         /// </summary>
-        public FormatterElementCollection() {
+        public FormatterDataCollection() {
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatterElementCollection"/> class
-        /// with the specified <see cref="FormatterElementCollection"/> instance.
+        /// Initializes a new instance of the <see cref="FormatterDataCollection"/> class
+        /// with the specified <see cref="FormatterDataCollection"/> instance.
         /// </summary>
-        public FormatterElementCollection(FormatterElementCollection value) {
+        public FormatterDataCollection(FormatterDataCollection value) {
             AddRange(value);
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatterElementCollection"/> class
-        /// with the specified array of <see cref="FormatterElement"/> instances.
+        /// Initializes a new instance of the <see cref="FormatterDataCollection"/> class
+        /// with the specified array of <see cref="FormatterData"/> instances.
         /// </summary>
-        public FormatterElementCollection(FormatterElement[] value) {
+        public FormatterDataCollection(FormatterData[] value) {
             AddRange(value);
         }
 
@@ -59,8 +59,8 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         /// </summary>
         /// <param name="index">The zero-based index of the element to get or set.</param>
         [System.Runtime.CompilerServices.IndexerName("Item")]
-        public FormatterElement this[int index] {
-            get {return ((FormatterElement)(base.List[index]));}
+        public FormatterData this[int index] {
+            get {return ((FormatterData)(base.List[index]));}
             set {base.List[index] = value;}
         }
 
@@ -69,43 +69,43 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         #region Public Instance Methods
         
         /// <summary>
-        /// Adds a <see cref="FormatterElement"/> to the end of the collection.
+        /// Adds a <see cref="FormatterData"/> to the end of the collection.
         /// </summary>
-        /// <param name="item">The <see cref="FormatterElement"/> to be added to the end of the collection.</param> 
+        /// <param name="item">The <see cref="FormatterData"/> to be added to the end of the collection.</param> 
         /// <returns>The position into which the new element was inserted.</returns>
-        public int Add(FormatterElement item) {
+        public int Add(FormatterData item) {
             return base.List.Add(item);
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="FormatterElement"/> array to the end of the collection.
+        /// Adds the elements of a <see cref="FormatterData"/> array to the end of the collection.
         /// </summary>
-        /// <param name="items">The array of <see cref="FormatterElement"/> elements to be added to the end of the collection.</param> 
-        public void AddRange(FormatterElement[] items) {
+        /// <param name="items">The array of <see cref="FormatterData"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(FormatterData[] items) {
             for (int i = 0; (i < items.Length); i = (i + 1)) {
                 Add(items[i]);
             }
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="FormatterElementCollection"/> to the end of the collection.
+        /// Adds the elements of a <see cref="FormatterDataCollection"/> to the end of the collection.
         /// </summary>
-        /// <param name="items">The <see cref="FormatterElementCollection"/> to be added to the end of the collection.</param> 
-        public void AddRange(FormatterElementCollection items) {
+        /// <param name="items">The <see cref="FormatterDataCollection"/> to be added to the end of the collection.</param> 
+        public void AddRange(FormatterDataCollection items) {
             for (int i = 0; (i < items.Count); i = (i + 1)) {
                 Add(items[i]);
             }
         }
         
         /// <summary>
-        /// Determines whether a <see cref="FormatterElement"/> is in the collection.
+        /// Determines whether a <see cref="FormatterData"/> is in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="FormatterElement"/> to locate in the collection.</param> 
+        /// <param name="item">The <see cref="FormatterData"/> to locate in the collection.</param> 
         /// <returns>
         /// <c>true</c> if <paramref name="item"/> is found in the collection;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public bool Contains(FormatterElement item) {
+        public bool Contains(FormatterData item) {
             return base.List.Contains(item);
         }
         
@@ -114,27 +114,27 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         /// </summary>
         /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
         /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        public void CopyTo(FormatterElement[] array, int index) {
+        public void CopyTo(FormatterData[] array, int index) {
             base.List.CopyTo(array, index);
         }
         
         /// <summary>
-        /// Retrieves the index of a specified <see cref="FormatterElement"/> object in the collection.
+        /// Retrieves the index of a specified <see cref="FormatterData"/> object in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="FormatterElement"/> object for which the index is returned.</param> 
+        /// <param name="item">The <see cref="FormatterData"/> object for which the index is returned.</param> 
         /// <returns>
-        /// The index of the specified <see cref="FormatterElement"/>. If the <see cref="FormatterElement"/> is not currently a member of the collection, it returns -1.
+        /// The index of the specified <see cref="FormatterData"/>. If the <see cref="FormatterData"/> is not currently a member of the collection, it returns -1.
         /// </returns>
-        public int IndexOf(FormatterElement item) {
+        public int IndexOf(FormatterData item) {
             return base.List.IndexOf(item);
         }
         
         /// <summary>
-        /// Inserts a <see cref="FormatterElement"/> into the collection at the specified index.
+        /// Inserts a <see cref="FormatterData"/> into the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="item">The <see cref="FormatterElement"/> to insert.</param>
-        public void Insert(int index, FormatterElement item) {
+        /// <param name="item">The <see cref="FormatterData"/> to insert.</param>
+        public void Insert(int index, FormatterData item) {
             base.List.Insert(index, item);
         }
         
@@ -142,17 +142,17 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         /// Returns an enumerator that can iterate through the collection.
         /// </summary>
         /// <returns>
-        /// A <see cref="FormatterElementEnumerator"/> for the entire collection.
+        /// A <see cref="FormatterDataEnumerator"/> for the entire collection.
         /// </returns>
-        public new FormatterElementEnumerator GetEnumerator() {
-            return new FormatterElementEnumerator(this);
+        public new FormatterDataEnumerator GetEnumerator() {
+            return new FormatterDataEnumerator(this);
         }
         
         /// <summary>
         /// Removes a member from the collection.
         /// </summary>
-        /// <param name="item">The <see cref="FormatterElement"/> to remove from the collection.</param>
-        public void Remove(FormatterElement item) {
+        /// <param name="item">The <see cref="FormatterData"/> to remove from the collection.</param>
+        public void Remove(FormatterData item) {
             base.List.Remove(item);
         }
         
@@ -160,17 +160,17 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
     }
 
     /// <summary>
-    /// Enumerates the <see cref="FormatterElement"/> elements of a <see cref="FormatterElementCollection"/>.
+    /// Enumerates the <see cref="FormatterData"/> elements of a <see cref="FormatterDataCollection"/>.
     /// </summary>
-    public class FormatterElementEnumerator : IEnumerator {
+    public class FormatterDataEnumerator : IEnumerator {
         #region Internal Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatterElementEnumerator"/> class
-        /// with the specified <see cref="FormatterElementCollection"/>.
+        /// Initializes a new instance of the <see cref="FormatterDataEnumerator"/> class
+        /// with the specified <see cref="FormatterDataCollection"/>.
         /// </summary>
         /// <param name="arguments">The collection that should be enumerated.</param>
-        internal FormatterElementEnumerator(FormatterElementCollection arguments) {
+        internal FormatterDataEnumerator(FormatterDataCollection arguments) {
             IEnumerable temp = (IEnumerable) (arguments);
             _baseEnumerator = temp.GetEnumerator();
         }
@@ -185,8 +185,8 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
         /// <returns>
         /// The current element in the collection.
         /// </returns>
-        public FormatterElement Current {
-            get { return (FormatterElement) _baseEnumerator.Current; }
+        public FormatterData Current {
+            get { return (FormatterData) _baseEnumerator.Current; }
         }
 
         object IEnumerator.Current {
