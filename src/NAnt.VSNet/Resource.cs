@@ -74,7 +74,7 @@ namespace NAnt.VSNet.Tasks {
                 case ".cs":
                     return GetDependentResourceNameCSharp( strDependentFile );
                 case ".vb":
-                    throw new ArgumentException( "Can't parse VB files yet" );
+                    return GetDependentResourceNameVB( strDependentFile );
                 default:
                     throw new ArgumentException( "Unknown file extension" );
             }
@@ -121,6 +121,51 @@ namespace NAnt.VSNet.Tasks {
 
             string strClassName = String.Join( ".", ( string[] )al.ToArray( typeof( string ) ) );
             string strResourceFilename = strClassName + ".resources";
+
+            return strResourceFilename;
+        }
+
+        private string GetDependentResourceNameVB( string strDependentFile ) {
+            Regex re = new Regex( @"
+                (?>^\s*?(?!End)\s*Namespace\s*(?<ns>.*)\s*?$)
+                    |
+                (?>^(?>\s*)(?!End)([\w\s](?=(?!$)))*Class\s*(?<class>.*?)\s*?$)
+                    |
+                ^\s*End\s*(?:(Class|Namespace))\s*?$
+            ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.Compiled );
+
+            Match m;
+            using ( StreamReader sr = new StreamReader( strDependentFile ) ) {
+                m = re.Match( sr.ReadToEnd() );
+            }
+
+            Stack st = new Stack();
+
+            while ( m.Success ) {            
+                string strValue = m.Value.Trim();
+		if ( strValue.StartsWith( "End " ) ) {
+                    if ( st.Count > 0 )
+                        st.Pop();
+                }                
+		else if ( strValue.StartsWith( "Namespace" ) ) {
+                    st.Push( m.Result( "${ns}" ).Trim() );
+                }
+                else if ( strValue.IndexOf( "Class" ) >= 0 ) {
+                    st.Push( m.Result( "${class}" ).Trim() );
+                    break;
+                }
+                
+                m = m.NextMatch();
+            }
+        
+            Stack stReverse = new Stack();
+            while ( st.Count > 0 )
+                stReverse.Push( st.Pop() );
+
+            ArrayList al = new ArrayList( stReverse.ToArray() );
+
+            string strClassName = String.Join( ".", ( string[] )al.ToArray( typeof( string ) ) );
+            string strResourceFilename = _ps.RootNamespace + "." + strClassName + ".resources";
 
             return strResourceFilename;
         }
