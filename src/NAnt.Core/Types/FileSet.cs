@@ -789,34 +789,34 @@ namespace NAnt.Core.Types {
             #region Public Instance Properties
 
             /// <summary>
-            /// The pattern or file name to include.
+            /// The pattern or file name to exclude.
             /// </summary>
             [TaskAttribute("name", Required=true)]
             [StringValidator(AllowEmpty=false)]
-            public string Pattern {
+            public virtual string Pattern {
                 get { return _pattern; }
-                set { _pattern= value; }
+                set { _pattern = value; }
             }
 
             /// <summary>
-            /// If <see langword="true" /> then the pattern will be included; 
+            /// If <see langword="true" /> then the pattern will be excluded; 
             /// otherwise, skipped. The default is <see langword="true" />.
             /// </summary>
             [TaskAttribute("if")]
             [BooleanValidator()]
-            public bool IfDefined {
+            public virtual bool IfDefined {
                 get { return _ifDefined; }
                 set { _ifDefined = value; }
             }
 
             /// <summary>
             /// Opposite of <see cref="IfDefined" />. If <see langword="false" /> 
-            /// then the pattern will be included; otherwise, skipped. The default 
+            /// then the pattern will be excluded; otherwise, skipped. The default 
             /// is <see langword="false" />.
             /// </summary>
             [TaskAttribute("unless")]
             [BooleanValidator()]
-            public bool UnlessDefined {
+            public virtual bool UnlessDefined {
                 get { return _unlessDefined; }
                 set { _unlessDefined = value; }
             }
@@ -858,6 +858,43 @@ namespace NAnt.Core.Types {
             }
 
             #endregion Public Instance Properties
+
+            #region Override implementation of Exclude
+
+            /// <summary>
+            /// The pattern or file name to include.
+            /// </summary>
+            [TaskAttribute("name", Required=true)]
+            [StringValidator(AllowEmpty=false)]
+            public override string Pattern {
+                get { return base.Pattern; }
+                set { base.Pattern = value; }
+            }
+
+            /// <summary>
+            /// If <see langword="true" /> then the pattern will be included; 
+            /// otherwise, skipped. The default is <see langword="true" />.
+            /// </summary>
+            [TaskAttribute("if")]
+            [BooleanValidator()]
+            public override bool IfDefined {
+                get { return base.IfDefined; }
+                set { base.IfDefined = value; }
+            }
+
+            /// <summary>
+            /// Opposite of <see cref="IfDefined" />. If <see langword="false" /> 
+            /// then the pattern will be included; otherwise, skipped. The default 
+            /// is <see langword="false" />.
+            /// </summary>
+            [TaskAttribute("unless")]
+            [BooleanValidator()]
+            public override bool UnlessDefined {
+                get { return base.UnlessDefined; }
+                set { base.UnlessDefined = value; }
+            }
+
+            #endregion Override implementation of Exclude
         }
 
         public class ExcludesFile : Element {
