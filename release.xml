@@ -141,7 +141,7 @@
         
     </target>    
 
-    <target name="prepare-rpm" description="Prepare the binaries for packaging.">
+    <target name="prepare-rpm" depends="setup-rpm" description="Prepare the binaries for packaging.">
         <copy todir="${rpm.working}/tmp/NAnt-src">
             <fileset basedir="${build.dir}">
                 <include name="bin/**"/>
@@ -150,8 +150,8 @@
             </fileset>
         </copy>    
 
-        <exec program="bash" verbose="true">
-            <arg value="-c"/>
+        <exec program="bash">
+            <arg value="-c -o onecmd"/>
             <arg value="'tar -cvzf ${cygwin.rpm.working}/tmp/NAnt-tar/NAnt.tar.gz -C${cygwin.rpm.working}/tmp/NAnt-src bin'"/>
         </exec>
         
@@ -159,12 +159,18 @@
         <copy file="${build.dir}/NAnt.spec" tofile="${rpm.base}/SPECS/NAnt.spec" overwrite="true"/>
     </target>
     
-    <target name="binary-rpm" depends="setup-rpm, prepare-rpm" description="Build the binary rpm for NAnt.">
+    <target name="binary-rpm" description="Build the binary rpm for NAnt.">
+        <property name="commandline" value="rpmbuild -ba --buildroot=${cygwin.rpm.working} ${cygwin.rpm.base}/SPECS/NAnt.spec"/>
+        <echo file="${rpm.base}/build.bat">bash -c '${commandline}'</echo>
+
         <exec program="bash">
-            <arg value="--debug -c"/>
-            <arg value="&quot;rpmbuild -ba --buildroot=${cygwin.rpm.working} ${cygwin.rpm.base}/SPECS/NAnt.spec&quot;"/>
+            <arg value="-c -o onecmd '${commandline}'"/>
         </exec>
-        
-        <copy file="${rpm.base}/RPMS/i386/NAnt-*" tofile="NAnt-0.85-1.rpm"/>
+
+        <copy todir="${build.dir}">
+            <fileset basedir="${rpm.base}/RPMS">
+                <include name="**/*.rpm"/>
+            </fileset>   
+        </copy>
     </target>
 </project>
