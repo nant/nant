@@ -32,8 +32,8 @@
     
     <fileset id="tas.win32.tests" basedir="tests">
         <include name="NAnt.Win32/NAnt.Win32.build" />
+        <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" />        
         <include name="NAnt.VSNet/NAnt.VSNet.build" />
-        <!-- <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" /> -->
     </fileset>
     
     <fileset id="tas.core" basedir="src">
