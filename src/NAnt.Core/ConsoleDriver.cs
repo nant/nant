@@ -19,17 +19,17 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Xml;
-using System.Text;
-using System.Xml.Xsl;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Globalization;
-
 namespace SourceForge.NAnt {
+
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Xml;
+    using System.Text;
+    using System.Xml.Xsl;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using System.Globalization;
    
     /// <summary>
     /// ConsoleDriver is used as the main entry point to NAnt. It is called by the ConsoleStub.
@@ -113,15 +113,13 @@ namespace SourceForge.NAnt {
         /// <returns>The exit code.</returns>
         public static int Main(string[] args) {
             StreamWriter logFileStream = null;
+            bool verbose = false;
 
             try {
                 Project project = null;
-
-
                 bool showHelp = false;
                 bool showProjectHelp = false;
                 bool findInParent = false;
-                bool verbose = false;
                 System.Collections.Specialized.StringCollection targets = new System.Collections.Specialized.StringCollection();
                 PropertyDictionary buildOptionProps = new PropertyDictionary();
 
@@ -252,12 +250,19 @@ namespace SourceForge.NAnt {
                     }
                     }
                 return 0;
-
             } catch (ApplicationException e) {
-                Console.WriteLine(e.ToString());
+                if (verbose) {
+                    Console.WriteLine(e.ToString());
+                } else {
+                    if (e.InnerException != null && e.InnerException.Message != null) {
+                        Console.WriteLine(e.Message + "\n\t" + e.InnerException.Message);
+                    } else {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+                Console.WriteLine();
                 Console.WriteLine("Try 'nant -help' for more information");
                 return 1;
-
             } catch (Exception e) {
                 // all other exceptions should have been caught
                 Console.WriteLine("INTERNAL ERROR");
@@ -270,8 +275,8 @@ namespace SourceForge.NAnt {
                     logFileStream.Close();
                 }
             }
-
         }
+
         /// <summary>
         /// Prints help to Console. The <code>buildDoc</code> is loaded and transformed with 'ProjectHelp.xslt'
         /// </summary>
