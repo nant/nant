@@ -19,71 +19,75 @@
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.IO;
-using System.Text;
-using System.Xml;
-using System.Xml.XPath;
-using System.Xml.Xsl;
-using System.Globalization;
-
-using NDoc.Core;
-
 namespace Sourceforge.NAnt.Documenter {
 
-    /// <summary>NDoc Documenter for building custom NAnt User documentation.</summary>
+    using System;
+    using System.IO;
+    using System.Text;
+    using System.Xml;
+    using System.Xml.Xsl;
+    using System.Globalization;
+
+    using NDoc.Core;
+
+    /// <summary>
+    /// NDoc Documenter for building custom NAnt User documentation.
+    /// </summary>
     public class NAntTaskDocumenter : BaseDocumenter {
+        #region Private Instance Fields
 
         XslTransform _xsltTaskIndex;
         XslTransform _xsltTaskDoc;
         XmlDocument _xmlDocumentation;
         string _resourceDirectory;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NAntTaskDocumenter" /> class.
+        /// </summary>
         public NAntTaskDocumenter() : base("NAntTask") {
             Clear();
         }
 
-        private void MakeTransforms() {
-            OnDocBuildingProgress(0);
+        #endregion Public Instance Constructors
 
-            _xsltTaskIndex = new XslTransform();
-            _xsltTaskDoc = new XslTransform();
+        #region Public Instance Properties
 
-            OnDocBuildingProgress(50);
-            MakeTransform(_xsltTaskIndex, "task-index.xslt");
-
-            OnDocBuildingProgress(100);
-            MakeTransform(_xsltTaskDoc, "task-doc.xslt");
-        }
-
-
-        private void MakeTransform(XslTransform transform, string fileName) {
-            try {
-                transform.Load(_resourceDirectory + "xslt/" + fileName);
-            } catch (Exception e) {
-                String msg = String.Format(CultureInfo.InvariantCulture, "Error compiling the '{0}' stylesheet:\n{1}", fileName, e.Message);
-                throw new DocumenterException(msg, e);
-            }
-        }
-
-        // IDocumenter Implementation
-        public override string MainOutputFile { 
-            get { return ""; } 
-        }
-
-        /// <summary>See IDocumenter.</summary>
-        /// 
-        public override void Clear() {
-            Config = new NAntTaskDocumenterConfig();
-        }
-
+        /// <summary>
+        /// Gets the documenter's output directory.
+        /// </summary>
+        /// <value>The documenter's output directory.</value>
         public string OutputDirectory { 
             get {
                 return ((NAntTaskDocumenterConfig) Config).OutputDirectory;
             } 
         }
 
-        /// <summary>See IDocumenter.</summary>
+        #endregion Public Instance Properties
+
+        #region Override implementation of IDocumenter
+
+        /// <summary>
+        /// Gets the documenter's main output file.
+        /// </summary>
+        /// <value>The documenter's main output file</value>
+        public override string MainOutputFile { 
+            get { return ""; } 
+        }
+
+        /// <summary>
+        /// Resets the documenter to a clean state.
+        /// </summary>
+        public override void Clear() {
+            Config = new NAntTaskDocumenterConfig();
+        }
+
+        /// <summary>
+        /// Builds the documentation.
+        /// </summary>
         public override void Build(Project project) {
             OnDocBuildingStep(0, "Initializing...");
 
@@ -131,6 +135,33 @@ namespace Sourceforge.NAnt.Documenter {
             }
         }
 
+        #endregion Override implementation of IDocumenter
+
+        #region Private Instance Methods
+
+        private void MakeTransforms() {
+            OnDocBuildingProgress(0);
+
+            _xsltTaskIndex = new XslTransform();
+            _xsltTaskDoc = new XslTransform();
+
+            OnDocBuildingProgress(50);
+            MakeTransform(_xsltTaskIndex, "task-index.xslt");
+
+            OnDocBuildingProgress(100);
+            MakeTransform(_xsltTaskDoc, "task-doc.xslt");
+        }
+
+
+        private void MakeTransform(XslTransform transform, string fileName) {
+            try {
+                transform.Load(_resourceDirectory + "xslt/" + fileName);
+            } catch (Exception e) {
+                String msg = String.Format(CultureInfo.InvariantCulture, "Error compiling the '{0}' stylesheet:\n{1}", fileName, e.Message);
+                throw new DocumenterException(msg, e);
+            }
+        }
+
         private void TransformAndWriteResult(XslTransform transform, string filename) {
             XsltArgumentList arguments = new XsltArgumentList();
             TransformAndWriteResult(transform, arguments, filename);
@@ -142,5 +173,7 @@ namespace Sourceforge.NAnt.Documenter {
                 transform.Transform(_xmlDocumentation, arguments, writer);
             }
         }
+
+        #endregion Private Instance Methods
     }
 }

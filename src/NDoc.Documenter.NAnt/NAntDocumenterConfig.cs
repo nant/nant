@@ -19,37 +19,40 @@
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.Xml;
-using System.ComponentModel;
-using System.Drawing.Design;
-using System.Windows.Forms.Design;
-using System.Globalization;
-
-using NDoc.Core;
-
 namespace Sourceforge.NAnt.Documenter {
 
-    /// <summary>NAntDocumenterConfig Config class for NAntDocumenter.</summary>
+    using System;
+    using System.Xml;
+    using System.ComponentModel;
+    using System.Globalization;
+
+    using NDoc.Core;
+
+    /// <summary>
+    /// NDoc configuration class for <see cref="NAntTaskDocumenter" />.
+    /// </summary>
     public class NAntTaskDocumenterConfig : BaseDocumenterConfig {
+        #region Private Instance Fields
+
         string _outputDirectory = @"doc/help/tasks";
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
         
-        /// <summary>Initializes a new instance of the NAntDocumenterConfig class.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NAntTaskDocumenterConfig" /> class.
+        /// </summary>
         public NAntTaskDocumenterConfig() : base("NAntTask") {
             // set reasonable ndoc defaults so we don't have to do this in the build file
-
             CopyrightText = String.Format(CultureInfo.InvariantCulture, "Copyright (C) 2001-{0} Gerry Shaw", DateTime.Now.Year);
             CopyrightHref = "http://nant.sourceforge.net/";
-
-            // These are used in the next versions of ndoc
-            //DocumentAttributes = true; // This must be true so we can find classes marked as nant tasks
-            //DocumentedAttributes = "";
-
             ShowMissingParams = false;
             ShowMissingRemarks = false;
             ShowMissingReturns = false;
             ShowMissingSummaries = false;
             ShowMissingValues = false;
+            DocumentAttributes = true; 
             DocumentEmptyNamespaces = true;
             DocumentInternals = false;
             DocumentPrivates = false;
@@ -57,8 +60,13 @@ namespace Sourceforge.NAnt.Documenter {
             IncludeAssemblyVersion = false;
             SkipNamespacesWithoutSummaries = false;
         }
-        
-        /// <summary>Gets or sets the OutputFile property.</summary>
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>Gets or sets the output directory.</summary>
+        /// <value>The output directory.</value>
         [
             Category("Output"),
             Description("The path to the Output Directory where the generated doc will be placed."),
@@ -66,7 +74,6 @@ namespace Sourceforge.NAnt.Documenter {
          Editor(typeof(FileNameEditor), typeof(UITypeEditor))
 #endif
         ]
-        /// <summary>Gets or sets the OutputDirectory property.</summary>
         public string OutputDirectory {
             get { return _outputDirectory; }
             set  { 
@@ -74,5 +81,7 @@ namespace Sourceforge.NAnt.Documenter {
                 SetDirty();
             }
         }
+
+        #endregion Public Instance Properties
     }
 }
