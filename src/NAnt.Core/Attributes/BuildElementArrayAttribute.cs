@@ -21,12 +21,25 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be treated as a XML arrayList for the 
-    /// task.
+    /// Indicates that property should be treated as a XML arrayList
     /// </summary>
     /// <remarks>
+    /// <para>
     /// Should only be applied to properties exposing strongly typed arrays or 
     /// strongly typed collections.
+    /// </para>
+    /// <para>
+    /// The XML format is like this:
+    /// <code>
+    ///     <![CDATA[
+    /// <task>
+    ///     <elementName .../>
+    ///     <elementName .../>
+    ///     <elementName .../>
+    ///     <elementName .../>
+    /// </task>]]>
+    /// </code>
+    /// </para>
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public class BuildElementArrayAttribute : BuildElementAttribute {

@@ -61,7 +61,8 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The property to set to the specified registry key value.
+        ///     <para>The property to set to the specified registry key value.</para>
+        ///     <para>If this attribute is used then a single value will be read.</para>
         /// </summary>
         [TaskAttribute("property")]
         public virtual string PropertyName {
@@ -70,8 +71,12 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The prefix to use for the specified registry key values.
+        ///     <para>The prefix to use for the specified registry key values.</para>
+        ///     <para>If this attribute is used then all registry values will be read and stored as properties with this prefix.</para>
         /// </summary>
+        /// <example>
+        ///     <para>Registry values a, b, c will be turned into prefixa, prefixb, prefixc named properties</para>
+        /// </example>
         [TaskAttribute("prefix")]
         public virtual string PropertyPrefix {
             get { return _propPrefix; }
@@ -81,6 +86,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The registry key to read (without a leading slash).
         /// </summary>
+        /// <example>
+        /// SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot
+        /// </example>
         [TaskAttribute("key", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public virtual string RegistryKey {

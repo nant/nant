@@ -52,7 +52,7 @@
                             <th>Type</th>
                             <th>Summary</th>
                         </tr>
-                        <xsl:apply-templates select="//class[attribute/@name='NAnt.Core.Attributes.ElementNameAttribute']">
+                        <xsl:apply-templates select="//class[descendant::base/@id='T:NAnt.Core.DataTypeBase']">
                             <xsl:sort select="attribute/property[@name='Name']/@value" />
                         </xsl:apply-templates>
                     </table>

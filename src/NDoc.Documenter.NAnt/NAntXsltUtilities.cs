@@ -16,8 +16,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gert Driesen (gert.driesen@ardatis.com)
+// Scott Hernandez ScottHernandez_At_hOtmail.d.o.t.com
 
 using System.Collections.Specialized;
+using System.Xml;
+using System.Xml.XPath;
+
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
@@ -30,12 +36,8 @@ namespace NDoc.Documenter.NAnt {
         /// Initializes a new instance of the <see cref="NAntXsltUtilities" />
         /// class.
         /// </summary>
-        public NAntXsltUtilities(StringDictionary fileNames, StringDictionary elementNames, StringDictionary namespaceNames, StringDictionary assemblyNames, StringDictionary taskNames, SdkDocVersion linkToSdkDocVersion) {
-            _fileNames = fileNames;
-            _elementNames = elementNames;
-            _namespaceNames = namespaceNames;
-            _assemblyNames = assemblyNames;
-            _taskNames = taskNames;
+        public NAntXsltUtilities(XmlDocument doc, SdkDocVersion linkToSdkDocVersion) {
+            _doc = doc;
             _linkToSdkDocVersion = linkToSdkDocVersion;
 
             switch (linkToSdkDocVersion) {
@@ -80,6 +82,22 @@ namespace NDoc.Documenter.NAnt {
         #region Public Instance Methods
 
         /// <summary>
+        /// Searches the document for a 
+        /// </summary>
+        /// <param name="type">Type.FullName of class to return</param>
+        /// <returns></returns>
+        public XPathNodeIterator GetClassNode(string id){
+            if(!id.StartsWith("T:")){
+                id = "T:" + id;
+            }
+            XmlNode typeNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
+            if(typeNode == null) {
+                return null;
+            }
+            return typeNode.CreateNavigator().Select(".");
+        }
+
+        /// <summary>
         /// Returns an href for a cref.
         /// </summary>
         /// <param name="cref">The cref for which the href will be looked up.</param>
@@ -91,14 +109,20 @@ namespace NDoc.Documenter.NAnt {
             if ((cref.Length < 2) || (cref[1] != ':')) {
                 return string.Empty;
             }
+            
+            //get the underlying type of the array
             if(cref.EndsWith("[]")){
                 cref=cref.Replace("[]","");
             }
 
+            //check if the ref is for a system namespaced element or now
             if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
-                string fileName = _fileNames[cref];
+                //not a system one.
+                  
+                string fileName = GetFileNameForType(cref);
                 if (fileName == null && cref.StartsWith("F:")) {
-                    fileName = _fileNames["E:" + cref.Substring(2)];
+                    throw new System.ArgumentException("We Don't Do This!" + cref, "cref");
+                    //fileName = _fileNames["E:" + cref.Substring(2)];
                 }
 
                 if (fileName == null) {
@@ -121,7 +145,7 @@ namespace NDoc.Documenter.NAnt {
                     case "P:":  // Property
                     case "M:":  // Method
                     case "E:":  // Event
-                        return GetFilenameForSystemMember(cref);
+                        throw new System.ArgumentException("We Don't Do Events!", "cref");
                     default:
                         return string.Empty;
                 }
@@ -142,7 +166,7 @@ namespace NDoc.Documenter.NAnt {
 
             if (cref[1] == ':') {
                 if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
-                    string name = _elementNames[cref];
+                    string name = GetElementNameForType(cref);
                     if (name != null) {
                         return name;
                     }
@@ -161,29 +185,6 @@ namespace NDoc.Documenter.NAnt {
             return cref.Substring(cref.LastIndexOf(".") + 1);
         }
 
-        /// <summary>
-        /// Returns the assembly name for a given cref.
-        /// </summary>
-        /// <param name="cref">The cref for which the assembly name will be looked up.</param>
-        /// <returns>
-        /// The assembly name for the specified cref.
-        /// </returns>
-        public string GetAssemblyName(string cref) {
-            string assemblyName = _assemblyNames[cref];
-            return assemblyName != null ? assemblyName : string.Empty;
-        }
-
-        /// <summary>
-        /// Returns the namespace name for a given cref.
-        /// </summary>
-        /// <param name="cref">The cref for which the namespace name will be looked up.</param>
-        /// <returns>
-        /// The namespace name for the specified cref.
-        /// </returns>
-        public string GetNamespaceName(string cref) {
-            string namespaceName = _namespaceNames[cref];
-            return namespaceName != null ? namespaceName : string.Empty;
-        }
 
         /// <summary>
         /// Returns the NAnt task name for a given cref.
@@ -193,13 +194,73 @@ namespace NDoc.Documenter.NAnt {
         /// The NAnt task name for the specified cref.
         /// </returns>
         public string GetTaskName(string cref) {
-            string taskName = _taskNames[cref];
-            return taskName != null ? taskName : string.Empty;
+            return GetTaskNameForType(GetTypeByID(cref));
         }
 
+        public XmlNode GetTypeByID(string id){
+              
+            // if it is a property, field, method or such, remove the last element name, and search for the parent type.
+            // ie. P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined becomes T:NAnt.Core.Types.FileSet.ExcludesElement
+            switch (id.Substring(0, 2)) {
+                case "T:":  // Type: class, interface, struct, enum, delegate
+                    break;
+                case "F:":  // Field
+                case "P:":  // Property
+                case "M:":  // Method
+                case "E:": {  // Event
+                    //should convert P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined to T:NAnt.Core.Types.FileSet.ExcludesElement
+                    id = "T:" + id.Substring(2,id.LastIndexOf(".") - 2);
+                    break;
+                }
+            }
+
+            if(id[1] == ':' && !id.StartsWith("T:")){
+                throw new System.ArgumentException("Cannot lookup type: " + id, "id");
+            }
+
+            if(!id.StartsWith("T:")){
+                id = "T:" + id;
+            }
+            
+            XmlNode classNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
+            if(classNode == null) {
+                //System.Console.WriteLine("Could not find: {0}", id);
+            }
+            return classNode;
+        }
         #endregion Public Instance Methods
 
         #region Private Instance Methods
+        private string GetElementNameForType(string id) {
+            return GetElementNameForType(GetTypeByID(id));
+        }
+
+        private string GetElementNameForType(XmlNode typeNode) {
+            if(typeNode == null) return string.Empty;
+
+            // if type is task use name set using TaskNameAttribute
+            string taskName = GetTaskNameForType(typeNode);
+            if (taskName != null) {
+                return "<" + taskName + ">";
+            }
+
+        
+            // make sure the type has a ElementNameAttribute assigned to it
+            XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementNameAttribute != null && 
+                (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']")!= null)) {
+                return elementNameAttribute.Value;
+            }
+
+            // null
+            //Console.WriteLine("no element name for: " + typeNode.Attributes["id"].Value);
+            return null;
+        }
+
+        private string GetFileNameForType(string type) {
+            return GetFileNameForType(GetTypeByID(type));
+        }
+
 
         private string GetFilenameForSystemMember(string cref) {
             string crefName;
@@ -221,14 +282,10 @@ namespace NDoc.Documenter.NAnt {
 
         #region Private Instance Fields
 
-        private StringDictionary _fileNames;
-        private StringDictionary _elementNames;
-        private StringDictionary _namespaceNames;
-        private StringDictionary _assemblyNames;
-        private StringDictionary _taskNames;
         private SdkDocVersion _linkToSdkDocVersion;
         private string _sdkDocBaseUrl; 
         private string _sdkDocExt; 
+        private XmlDocument _doc;
 
         #endregion Private Instance Fields
 
@@ -242,5 +299,106 @@ namespace NDoc.Documenter.NAnt {
         private const string SystemPrefix = "System.";
 
         #endregion Private Static Fields
+
+        #region Internal Static Methods
+
+        /// <summary>
+        /// Gets the TaskNameAttrbute name for the "class" XmlNode
+        /// </summary>
+        /// <param name="propertyNode">The XmlNode to look for a name.</param>
+        /// <returns>The <see cref="TaskNameAttribute.Name"/> if the attribute exists for the node.</returns>
+        /// <remarks>
+        /// The class is also checked to make sure it is derived from <see cref="Task"/>
+        /// </remarks>
+        internal static string GetTaskNameForType(XmlNode typeNode) {
+            if(typeNode == null) return string.Empty;
+
+            // make sure the type actually derives from NAnt.Core.Task
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Task).FullName + "']") != null) {
+                // make sure the type has a TaskNameAttribute assigned to it
+                XmlAttribute taskNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(TaskNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (taskNameAttribute != null) {
+                    return taskNameAttribute.Value;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the BuildElementAttrbute name for the "class/property" XmlNode
+        /// </summary>
+        /// <param name="propertyNode">The XmlNode to look for a name.</param>
+        /// <returns>The BuildElementAttrbute.Name if the attribute exists for the node.</returns>
+        internal static string GetElementNameForProperty(XmlNode propertyNode) {
+            // check whether property is a task attribute
+            XmlAttribute taskAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(TaskAttributeAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (taskAttributeNode != null) {
+                return taskAttributeNode.Value;
+            }
+
+            // check whether property is a element array
+            XmlAttribute elementArrayNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementArrayAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementArrayNode != null) {
+                return elementArrayNode.Value;
+            }
+
+            // check whether property is a element collection
+            XmlAttribute elementCollectionNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementCollectionAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementCollectionNode != null) {
+                return elementCollectionNode.Value;
+            }
+
+            // check whether property is a FileSet
+            XmlAttribute fileSetNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FileSetAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (fileSetNode != null) {
+                return fileSetNode.Value;
+            }
+
+            // check whether property is an xml element
+            XmlAttribute buildElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (buildElementNode != null) {
+                return buildElementNode.Value;
+            }
+
+            // check whether property is a Framework configurable attribute
+            XmlAttribute frameworkConfigAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FrameworkConfigurableAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (frameworkConfigAttributeNode != null) {
+                return frameworkConfigAttributeNode.Value;
+            }
+
+            return null;
+        }
+
+        
+        /// <summary>
+        /// Returns the filename to use for the given class XmlNode
+        /// </summary>
+        /// <param name="typeNode">The "Class" element to find the filename for.</param>
+        /// <returns>
+        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
+        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
+        /// </returns>
+        internal static string GetFileNameForType(XmlNode typeNode) {
+            // if type is task use name set using TaskNameAttribute
+            string taskName = GetTaskNameForType(typeNode);
+            if (taskName != null) {
+                return "tasks\\" + taskName + ".html";
+            }
+
+            // check if type derives from NAnt.Core.DataTypeBase
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
+                // make sure the type has a ElementName assigned to it
+                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (elementNameAttribute != null) {
+                    return "types\\" + elementNameAttribute.Value + ".html";
+                }
+            }
+
+
+            return "elements\\" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
+        }
+                
+        #endregion
     }
 }

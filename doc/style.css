@@ -76,6 +76,13 @@ div.table {
     font-size: 80%;
 }
 
+div.nested-element
+{
+	left: 20px;
+	position: relative;
+	background-color: #f1f1f1;
+}
+
 .table table {
     font-size: 100%;
     border-collapse: collapse;
@@ -131,4 +138,13 @@ span.code {
     background-color: inherit;
     color: #0000AA;
     font-size: 100%;
+}
+
+tr.required {
+	
+}
+td.required
+{
+	font-weight: bolder;
+	color: red;
 }

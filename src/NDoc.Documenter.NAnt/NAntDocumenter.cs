@@ -45,11 +45,6 @@ namespace NDoc.Documenter.NAnt {
         private XslTransform _xsltTypeDoc;        
         private XmlDocument _xmlDocumentation;
         private string _resourceDirectory;
-        private StringDictionary _fileNames = new StringDictionary();
-        private StringDictionary _elementNames = new StringDictionary();
-        private StringDictionary _namespaceNames = new StringDictionary();
-        private StringDictionary _assemblyNames = new StringDictionary();
-        private StringDictionary _taskNames = new StringDictionary();
         private StringDictionary _writtenFiles = new StringDictionary();
 
         #endregion Private Instance Fields
@@ -155,15 +150,13 @@ namespace NDoc.Documenter.NAnt {
             // build the file mapping
             buildStepProgress += 15;
             OnDocBuildingStep(buildStepProgress, "Building mapping...");
-            MakeFilenames(_xmlDocumentation);
+            //MakeFilenames(_xmlDocumentation);
 
             // create arguments for nant index page transform
             XsltArgumentList indexArguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities indexUtilities = new NAntXsltUtilities(_fileNames, 
-                _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
-                LinkToSdkDocVersion);
+            NAntXsltUtilities indexUtilities = new NAntXsltUtilities(_xmlDocumentation, LinkToSdkDocVersion);
 
             // add extension object to Xslt arguments
             indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
@@ -175,7 +168,7 @@ namespace NDoc.Documenter.NAnt {
             TransformAndWriteResult(_xsltTaskIndex, indexArguments, "tasks.html");
 
             buildStepProgress += 10;
-            OnDocBuildingStep(buildStepProgress, "Creating Task Index Page...");
+            OnDocBuildingStep(buildStepProgress, "Creating Type Index Page...");
 
             // transform nant type index page transform
             TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types.html");
@@ -191,9 +184,9 @@ namespace NDoc.Documenter.NAnt {
             }
             
             buildStepProgress += 10;
-            OnDocBuildingStep(buildStepProgress, "Generating DataType Documents...");
+            OnDocBuildingStep(buildStepProgress, "Generating Type Documents...");
             // generate a page for each marked type
-            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("//class[attribute/@name = 'NAnt.Core.Attributes.ElementNameAttribute']");
+            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("//class[descendant::base/@id='T:" + typeof(DataTypeBase).FullName + "']");
             foreach (XmlNode typeNode in typeAttrNodes) {
                 //OnDocBuildingStep(buildStepProgress++, "Doc'n DataType:" + typeNode.Attributes["id"].Value);
                 DocumentType(typeNode, ElementDocType.DataTypeElement);
@@ -221,7 +214,7 @@ namespace NDoc.Documenter.NAnt {
             }
             
             string classID = typeNode.Attributes["id"].Value;
-            string filename = GetFileNameForType(typeNode);
+            string filename = NAntXsltUtilities.GetFileNameForType(typeNode);
             if (_writtenFiles.ContainsValue(classID)) {
                 return;
             } else {
@@ -254,9 +247,7 @@ namespace NDoc.Documenter.NAnt {
             arguments.AddParam("refType", string.Empty, refTypeString);
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, 
-                _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
-                LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = new NAntXsltUtilities(_xmlDocumentation, LinkToSdkDocVersion);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -273,19 +264,30 @@ namespace NDoc.Documenter.NAnt {
             // Just look for properties with attributes to narrow down the foreach loop. 
             // (This is a restriction of NAnt.Core.Attributes.BuildElementAttribute)
             foreach (XmlNode propNode in typeNode.SelectNodes("property[attribute]")) {
-                //Console.Write("Working on Property: " + propNode.Attributes["name"].Value + " (");
-                string eleName = GetElementNameForProperty(propNode);
-                //Console.WriteLine( eleName + "=" + propNode.Attributes["type"].Value + ")");
+                //get the xml element
+                string eleName = NAntXsltUtilities.GetElementNameForProperty(propNode);
                 if (eleName != null) {
-                    //try to get attribute info if it is an array.
+                    // try to get attribute info if it is an array/collection.
+                    // strip the array brakets "[]" to get the type
                     string elementType = "T:" + propNode.Attributes["type"].Value.Replace("[]","");
+
+                    //select the item type in the collection
+                    XmlNode childNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']/method[@name='Add']/parameter/@type");
+                    
+                    // if it contains a ElementType attribute then it is an array or collection
+                    // if it is a collection, then we care about the child type.
                     XmlNode childType = propNode.SelectSingleNode("attribute/property[@ElementType]");
                     if (childType != null) {
-                        elementType = childType.Attributes["value"].Value.Replace("+",".");
-                        Console.WriteLine("Documenting Child Type " + elementType);
+                        //this will get me the collection type
+                        elementType = childType.Attributes["value"].Value.Replace("+","."); //ndocs is inconsistent about how classes are named.
+                        if(childNode != null){
+                            elementType = "T:" + childNode.Value;
+                            Console.WriteLine("Documenting Child Type " + childNode.Value);
+                        }
                     }
 
-                    ElementDocType type = _elementNames[elementType] == null ? ElementDocType.DataTypeElement : ElementDocType.Element;
+                    //ElementDocType type = _elementNames[elementType] == null ? ElementDocType.DataTypeElement : ElementDocType.Element;
+                    ElementDocType type = ElementDocType.Element;
                     XmlNode elementNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
                     if (elementNode == null) {
                         //Console.WriteLine(elementType + " not found in document");
@@ -331,7 +333,8 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList arguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames, LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = new NAntXsltUtilities(_xmlDocumentation, LinkToSdkDocVersion);
+
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
             TransformAndWriteResult(transform, arguments, filename);
@@ -343,161 +346,8 @@ namespace NDoc.Documenter.NAnt {
                 transform.Transform(_xmlDocumentation, arguments, writer);
             }
         }
-
-        private void MakeFilenames(XmlNode documentation) {
-            XmlNodeList namespaces = documentation.SelectNodes("/ndoc/assembly/module/namespace");
-            foreach (XmlElement namespaceNode in namespaces) {
-                string assemblyName = namespaceNode.SelectSingleNode("../../@name").Value;
-                string namespaceName = namespaceNode.Attributes["name"].Value;
-                string namespaceId = "N:" + namespaceName;
-                _elementNames[namespaceId] = namespaceName;
-
-                XmlNodeList types = namespaceNode.SelectNodes("*[@id]");
-                foreach (XmlElement typeNode in types) {
-                    string typeId = typeNode.Attributes["id"].Value;
-                    _fileNames[typeId] = GetFileNameForType(typeNode);
-                    //Console.WriteLine(typeId + " mapped to file " + _fileNames[typeId]);
-                    _elementNames[typeId] = GetElementNameForType(typeNode);
-                    _namespaceNames[typeId] = namespaceName;
-                    _assemblyNames[typeId] = assemblyName;
-                    _taskNames[typeId] = GetTaskNameForType(typeNode);
-
-                    XmlNodeList members = typeNode.SelectNodes("*[@id]");
-                    foreach (XmlElement memberNode in members) {
-                        string id = memberNode.Attributes["id"].Value;
-                        switch (memberNode.Name) {
-                            case "constructor":
-//                                fileNames[id] = GetFilenameForConstructor(memberNode);
-                                _elementNames[id] = _elementNames[typeId];
-                                break;
-                            case "field":
-                                if (typeNode.Name == "enumeration") {
-//                                    fileNames[id] = GetFilenameForType(typeNode);
-                                } else {
-//                                    fileNames[id] = GetFilenameForField(memberNode);
-                                }
-                                _elementNames[id] = memberNode.Attributes["name"].Value;
-                                break;
-                            case "property":
-//                                fileNames[id] = GetFilenameForProperty(memberNode);
-                                _elementNames[id] = GetElementNameForProperty(memberNode);
-                                break;
-                            case "method":
-//                                fileNames[id] = GetFilenameForMethod(memberNode);
-                                _elementNames[id] = memberNode.Attributes["name"].Value;
-                                break;
-                            case "operator":
-//                                fileNames[id] = GetFilenameForOperator(memberNode);
-                                _elementNames[id] = memberNode.Attributes["name"].Value;
-                                break;
-                            case "event":
-//                                fileNames[id] = GetFilenameForEvent(memberNode);
-                                _elementNames[id] = memberNode.Attributes["name"].Value;
-                                break;
-                        }
-
-                        _namespaceNames[id] = namespaceName;
-                        _assemblyNames[id] = assemblyName;
-                    }
-                }
-            }
-        }
-
-        private string GetTaskNameForType(XmlNode typeNode) {
-            // make sure the type actually derives from NAnt.Core.Task
-            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Task).FullName + "']") != null) {
-                // make sure the type has a TaskNameAttribute assigned to it
-                XmlAttribute taskNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(TaskNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-                if (taskNameAttribute != null) {
-                    return taskNameAttribute.Value;
-                }
-            }
-
-            return null;
-        }
-
-        private string GetElementNameForType(XmlNode typeNode) {
-            // if type is task use name set using TaskNameAttribute
-            string taskName = GetTaskNameForType(typeNode);
-            if (taskName != null) {
-                return "<" + taskName + ">";
-            }
-
-        
-            // make sure the type has a ElementNameAttribute assigned to it
-            XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (elementNameAttribute != null) {
-                return elementNameAttribute.Value;
-            }
-
-            // null
-            //Console.WriteLine("no element name for: " + typeNode.Attributes["id"].Value);
-            return null;
-        }
-
-        private string GetElementNameForProperty(XmlNode propertyNode) {
-            // check whether property is a task attribute
-            XmlAttribute taskAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(TaskAttributeAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (taskAttributeNode != null) {
-                return taskAttributeNode.Value;
-            }
-
-            // check whether property is a element array
-            XmlAttribute elementArrayNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementArrayAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (elementArrayNode != null) {
-                return elementArrayNode.Value;
-            }
-
-            // check whether property is a element collection
-            XmlAttribute elementCollectionNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementCollectionAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (elementCollectionNode != null) {
-                return elementCollectionNode.Value;
-            }
-
-            // check whether property is a FileSet
-            XmlAttribute fileSetNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FileSetAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (fileSetNode != null) {
-                return fileSetNode.Value;
-            }
-
-            // check whether property is an xml element
-            XmlAttribute buildElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (buildElementNode != null) {
-                return buildElementNode.Value;
-            }
-
-            // check whether property is a Framework configurable attribute
-            XmlAttribute frameworkConfigAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FrameworkConfigurableAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (frameworkConfigAttributeNode != null) {
-                return frameworkConfigAttributeNode.Value;
-            }
-
-            return null;
-        }
-
-        private string GetFileNameForType(XmlNode typeNode) {
-            // if type is task use name set using TaskNameAttribute
-            string taskName = GetTaskNameForType(typeNode);
-            if (taskName != null) {
-                return "tasks\\" + taskName + ".html";
-            }
-
-            // check if type derives from NAnt.Core.DataTypeBase
-            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
-                // make sure the type has a ElementName assigned to it
-                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-                if (elementNameAttribute != null) {
-                    return "types\\" + elementNameAttribute.Value + ".html";
-                }
-            }
-
-
-            return "elements\\" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
-        }
-
-        #endregion Private Instance Methods
+        #endregion
     }
-
     /// <summary>
     /// Specifies a version of the .NET Framework documentation.
     /// </summary>

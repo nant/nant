@@ -25,8 +25,25 @@ namespace NAnt.Core.Attributes {
     /// collection of build elements.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// Should only be applied to properties exposing strongly typed arrays or 
     /// strongly typed collections.
+    /// </para>
+    /// <para>
+    /// The XML format is like this:
+    /// <code>
+    ///     <![CDATA[
+    /// <task>
+    ///     <collectionName>
+    ///         <elementName .../>
+    ///         <elementName .../>
+    ///         <elementName .../>
+    ///         <elementName .../>
+    ///     </collectionName>
+    /// </task>
+    ///     ]]>
+    /// </code>
+    /// </para>
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class BuildElementCollectionAttribute : BuildElementArrayAttribute{

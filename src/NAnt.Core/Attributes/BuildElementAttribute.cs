@@ -21,9 +21,26 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that property should be treated as a XML file set for the 
-    /// task.
+    /// Indicates that the property should be treated as an XML element and further processing should be done.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Should only be applied to properties exposing strongly typed arrays or 
+    /// strongly typed collections.
+    /// </para>
+    /// <para>
+    /// The XML format is like this:
+    /// <code>
+    ///     <![CDATA[
+    /// <task>
+    ///     <elementName ...>
+    ///         <morestuff />
+    ///     </elementName>
+    /// </task>
+    ///     ]]>
+    /// </code>
+    /// </para>
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public class BuildElementAttribute : Attribute {
         #region Protected Instance Constructors
