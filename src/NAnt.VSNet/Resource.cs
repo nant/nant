@@ -224,7 +224,7 @@ namespace NAnt.VSNet {
             // set task properties
             lt.Input = _resourceSourceFile;
             lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFileName + ".licenses");
-            lt.Target = outputFileName;
+            lt.Target = Path.GetFileName(outputFileName);
 
             foreach (Reference reference in Project.References) {
                 lt.Assemblies.Includes.Add(reference.Filename);
