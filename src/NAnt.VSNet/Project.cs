@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,383 +16,395 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.IO;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Reflection;
-using System.Resources;
-using System.CodeDom.Compiler;
-using System.ComponentModel;
-using System.ComponentModel.Design;
+using System.Globalization;
+using System.IO;
 using System.Xml;
-using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
+using NAnt.VSNet.Tasks;
 
-namespace NAnt.VSNet.Tasks {
-    /// <summary>
-    /// Summary description for Project.
-    /// </summary>
+namespace NAnt.VSNet {
     public class Project {
-        private const string COMMAND_FILE = "compile-commands.txt";
+        #region Public Instance Constructors
 
-        public Project(Task nanttask, TempFileCollection tfc) {
+        public Project(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) {
             _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htAssemblies = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _nanttask = nanttask;
+            _solutionTask = solutionTask;
             _tfc = tfc;
+            _outputDir = outputDir;
         }
 
-        private static bool IsURL( string strFilename ) {
-            XmlDocument doc = new XmlDocument();
-            if ( strFilename.StartsWith( Uri.UriSchemeFile ) || strFilename.StartsWith( Uri.UriSchemeHttp ) || strFilename.StartsWith( Uri.UriSchemeHttps ) ) {
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        public string Name {
+            get { return _projectSettings.Name; }
+        }
+
+        public string GUID {
+            get { return _projectSettings.GUID; }
+        }
+
+        public string[] Configurations {
+            get { return (string[]) new ArrayList(_htConfigurations.Keys).ToArray(typeof(string)); }
+        }
+
+        public Reference[] References {
+            get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
+        }
+
+        public Resource[] Resources {
+            get { return (Resource[]) new ArrayList(_htResources.Values).ToArray(typeof(Resource)); }
+        }
+
+        public ProjectSettings ProjectSettings {
+            get { return _projectSettings; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Public Static Methods
+
+        public static bool IsEnterpriseTemplateProject(string fileName) {
+            XmlDocument doc = LoadXmlDocument(fileName);
+            return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
+        }
+
+        public static string LoadGUID(string fileName, TempFileCollection tfc) {
+            XmlDocument doc = LoadXmlDocument(fileName);
+
+            ProjectSettings ps = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), tfc);
+            return ps.GUID;
+        }
+
+        #endregion Public Static Methods
+
+        #region Private Static Methods
+
+        private static bool IsURL(string fileName) {
+            if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
                 return true;
             }
 
             return false;
         }
 
-        private static XmlDocument LoadXmlDocument( string strFilename ) {
+        private static XmlDocument LoadXmlDocument(string fileName) {
             XmlDocument doc = new XmlDocument();
-            if ( !IsURL( strFilename ) ) {
-                doc.Load( strFilename );
-            }
-            else {
-                Uri uri = new Uri( strFilename );
-                if ( uri.Scheme == Uri.UriSchemeFile ) {
-                    doc.Load( uri.LocalPath );
-                }
-                else {
-                    doc.LoadXml( WebDavClient.GetFileContentsStatic( strFilename ) );
+            if (!IsURL(fileName)) {
+                doc.Load(fileName);
+            } else {
+                Uri uri = new Uri(fileName);
+                if (uri.Scheme == Uri.UriSchemeFile) {
+                    doc.Load(uri.LocalPath);
+                } else {
+                    doc.LoadXml(WebDavClient.GetFileContentsStatic(fileName));
                 }
             }
 
             return doc;
         }
 
-        public static bool IsEnterpriseTemplateProject( string strFilename ) {
-            XmlDocument doc = LoadXmlDocument( strFilename );
-            return ( doc.DocumentElement.Name.ToString() == "EFPROJECT" );
-        }
+        #endregion Private Static Methods
 
-        public static string LoadGUID( string strFilename, TempFileCollection tfc ) {
-            XmlDocument doc = LoadXmlDocument( strFilename );
+        #region Public Instance Methods
 
-            ProjectSettings ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ), tfc );
-            return ps.GUID;
-        }
+        public void Load(Solution sln, string fileName) {
+            XmlDocument doc = LoadXmlDocument(fileName);
 
-        public void Load( Solution sln, string strFilename ) {
-            XmlDocument doc = LoadXmlDocument( strFilename );
+            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), _tfc);
 
-            _ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ), _tfc );
+            _isWebProject = IsURL(fileName);
+            _webProjectBaseUrl = String.Empty;
+            string webCacheDirectory = String.Empty;
 
-            _bWebProject = IsURL( strFilename );
-            _strWebProjectBaseUrl = String.Empty;
-            string strWebCacheDirectory = String.Empty;
+            if (!_isWebProject) {
+                _projectDirectory = new FileInfo(fileName).DirectoryName;
+            } else {
+                string projectDirectory = fileName.Replace(":", "_");
+                projectDirectory = projectDirectory.Replace("/", "_");
+                projectDirectory = projectDirectory.Replace("\\", "_");
+                projectDirectory = Path.Combine(_projectSettings.TemporaryFiles.BasePath, projectDirectory);
+                Directory.CreateDirectory(projectDirectory);
 
-            if ( !_bWebProject ) {
-                _strProjectDirectory = new FileInfo( strFilename ).DirectoryName;
-            }
-            else {
-                string strProjectDirectory = strFilename.Replace( ":", "_" );
-                Console.WriteLine( strProjectDirectory );
-                strProjectDirectory = strProjectDirectory.Replace( "/", "_" );
-                Console.WriteLine( strProjectDirectory );
-                strProjectDirectory = strProjectDirectory.Replace( "\\", "_" );
-                Console.WriteLine( strProjectDirectory );
-                strProjectDirectory = Path.Combine( _ps.TemporaryFiles.BasePath, strProjectDirectory );
-                Console.WriteLine( strProjectDirectory );
-                Directory.CreateDirectory( strProjectDirectory );
-
-                strWebCacheDirectory = strProjectDirectory;
-                _strWebProjectBaseUrl = strFilename.Substring( 0, strFilename.LastIndexOf( "/" ) );
-
-                _strProjectDirectory = Path.GetDirectoryName( sln.Filename );
+                webCacheDirectory = projectDirectory;
+                _webProjectBaseUrl = fileName.Substring(0, fileName.LastIndexOf("/"));
+                _projectDirectory = Path.GetDirectoryName(sln.FileName);
             }
 
-            _ps.ProjectRootDirectory = _strProjectDirectory;
+            _projectSettings.RootDirectory = _projectDirectory;
 
             XmlNodeList nlConfigurations, nlReferences, nlFiles, nlImports;
 
-            nlConfigurations = doc.SelectNodes( "//Config" );
-            foreach ( XmlElement elemConfig in nlConfigurations ) {
-                ConfigurationSettings cs = new ConfigurationSettings( _ps, elemConfig );
-                _htConfigurations[ elemConfig.Attributes[ "Name" ].Value ] = cs;
+            nlConfigurations = doc.SelectNodes("//Config");
+            foreach (XmlElement elemConfig in nlConfigurations) {
+                ConfigurationSettings cs = new ConfigurationSettings(_projectSettings, elemConfig, _solutionTask, _outputDir);
+                _htConfigurations[elemConfig.Attributes["Name"].Value] = cs;
             }
 
-            nlReferences = doc.SelectNodes( "//References/Reference" );
-            foreach ( XmlElement elemReference in nlReferences ) {
-                Reference reference = new Reference( sln, _ps, elemReference, _nanttask );
-                _htReferences[ elemReference.Attributes[ "Name" ].Value ] = reference;
+            nlReferences = doc.SelectNodes("//References/Reference");
+            foreach (XmlElement elemReference in nlReferences) {
+                Reference reference = new Reference(sln, _projectSettings, elemReference, _solutionTask, _outputDir);
+                _htReferences[elemReference.Attributes["Name"].Value] = reference;
             }
 
-            if ( _ps.Type == ProjectType.VBNet ) {
-                nlImports = doc.SelectNodes( "//Imports/Import" );
-                foreach ( XmlElement elemReference in nlImports ) {
-                    _strImports += elemReference.Attributes[ "Namespace" ].Value.ToString() + ",";
+            if (_projectSettings.Type == ProjectType.VBNet) {
+                nlImports = doc.SelectNodes("//Imports/Import");
+                foreach (XmlElement elemReference in nlImports) {
+                    _imports += elemReference.Attributes["Namespace"].Value.ToString(CultureInfo.InvariantCulture) + ",";
                 }
-                if ( _strImports.Length > 0 ) {
-                    _strImports = "/Imports:" + _strImports;
+                if (_imports.Length > 0) {
+                    _imports = "/Imports:" + _imports;
                 }
             }
 
-            nlFiles = doc.SelectNodes( "//Files/Include/File" );
-            foreach ( XmlElement elemFile in nlFiles ) {
-                string strBuildAction = elemFile.Attributes[ "BuildAction" ].Value;
+            nlFiles = doc.SelectNodes("//Files/Include/File");
+            foreach (XmlElement elemFile in nlFiles) {
+                string buildAction = elemFile.Attributes["BuildAction"].Value;
 
-                if ( _bWebProject ) {
-                    WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
-                    string strOutputFile = Path.Combine( strWebCacheDirectory, elemFile.Attributes[ "RelPath" ].Value );
-                    wdc.DownloadFile( strOutputFile, elemFile.Attributes[ "RelPath" ].Value );
+                if (_isWebProject) {
+                    WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
+                    string outputFile = Path.Combine(webCacheDirectory, elemFile.Attributes["RelPath"].Value);
+                    wdc.DownloadFile(outputFile, elemFile.Attributes["RelPath"].Value);
 
-                    FileInfo fi = new FileInfo( strOutputFile );
-                    if ( strBuildAction == "Compile" ) {
-                        _htFiles[ fi.FullName ] = null;
+                    FileInfo fi = new FileInfo(outputFile);
+                    if (buildAction == "Compile") {
+                        _htFiles[fi.FullName] = null;
+                    } else if (buildAction == "EmbeddedResource") {
+                        Resource r = new Resource(this, fi.FullName, elemFile.Attributes["RelPath"].Value, fi.DirectoryName + @"\" + elemFile.Attributes["DependentUpon"].Value, _solutionTask);
+                        _htResources[r.InputFile] = r;
                     }
-                    else if ( strBuildAction == "EmbeddedResource" ) {
-                        Resource r = new Resource( this, fi.FullName, elemFile.Attributes[ "RelPath" ].Value, fi.DirectoryName + @"\" + elemFile.Attributes[ "DependentUpon" ].Value, _nanttask );
+                } else {
+                    if (buildAction == "Compile") {
+                        _htFiles[elemFile.Attributes["RelPath"].Value] = null;
+                    } else if (buildAction == "EmbeddedResource") {
+                        string resourceFilename = Path.Combine(_projectSettings.RootDirectory, elemFile.GetAttribute("RelPath"));
+                        string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(new FileInfo(resourceFilename).DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
+                        Resource r = new Resource(this, resourceFilename, elemFile.Attributes["RelPath"].Value, dependentOn, _solutionTask);
                         _htResources[ r.InputFile ] = r;
                     }
                 }
-                else {
-                    if ( strBuildAction == "Compile" ) {
-                        _htFiles[ elemFile.Attributes[ "RelPath" ].Value ] = null;
-                    }
-                    else if ( strBuildAction == "EmbeddedResource" ) {
-                        string strResourceFilename = Path.Combine( _ps.ProjectRootDirectory, elemFile.GetAttribute( "RelPath" ) );
-                        string strDependentOn = ( elemFile.Attributes[ "DependentUpon" ] != null ) ? Path.Combine( new FileInfo( strResourceFilename ).DirectoryName, elemFile.Attributes[ "DependentUpon" ].Value ) : null;
-                        Resource r = new Resource( this, strResourceFilename, elemFile.Attributes[ "RelPath" ].Value, strDependentOn, _nanttask );
-                        _htResources[ r.InputFile ] = r;
-                    }
-                }
             }
         }
 
-        public string Name {
-            get { return _ps.Name; }
-        }
-
-        public string[] Configurations {
-            get { return ( String[] )new ArrayList( _htConfigurations.Keys ).ToArray( typeof( string ) ); }
-        }
-
-        public ConfigurationSettings GetConfigurationSettings( string strConfiguration ) {
-            return ( ConfigurationSettings )_htConfigurations[ strConfiguration ];
-        }
-
-        public Reference[] References {
-            get { return ( Reference[] )new ArrayList( _htReferences.Values ).ToArray( typeof( Reference ) ); }
-        }
-
-        public Resource[] Resources {
-            get { return ( Resource[] )new ArrayList( _htResources.Values ).ToArray( typeof( Resource ) ); }
-        }
-
-        public ProjectSettings ProjectSettings {
-            get { return _ps; }
-        }
-
-        private bool CheckUpToDate( ConfigurationSettings cs ) {
-            DateTime dtOutputTimeStamp;
-            if ( File.Exists( cs.FullOutputFile ) )
-                dtOutputTimeStamp = File.GetLastWriteTime( cs.FullOutputFile );
-            else
-                return false;
-
-            // Check all of the input files
-            foreach ( string strFile in _htFiles.Keys )
-                if ( dtOutputTimeStamp < File.GetLastWriteTime( Path.Combine( _strProjectDirectory, strFile ) ) )
-                    return false;
-
-            // Check all of the input references
-            foreach ( Reference reference in _htReferences.Values ) {
-                reference.ConfigurationSettings = cs;
-                if ( dtOutputTimeStamp < reference.Timestamp )
-                    return false;
-            }
-
-            return true;
-        }
-
-        public bool Compile(string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
+        public bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
             bool bSuccess = true;
 
-            ConfigurationSettings cs = ( ConfigurationSettings )_htConfigurations[ strConfiguration ];
-            if ( cs == null ) {
-                Console.WriteLine( "Configuration {0} does not exist, skipping.", strConfiguration );
+            ConfigurationSettings cs = (ConfigurationSettings) _htConfigurations[configuration];
+            if (cs == null) {
+                Log(Level.Info, _solutionTask.LogPrefix + "Configuration {0} does not exist, skipping.", configuration);
                 return true;
             }
 
-            Log(Level.Info, _nanttask.LogPrefix + "Building {0} [{1}]...", Name, strConfiguration);
-            Directory.CreateDirectory( cs.OutputPath );
+            Log(Level.Info, _solutionTask.LogPrefix + "Building {0} [{1}]...", Name, configuration);
+            Directory.CreateDirectory(cs.OutputPath);
 
-            string strTempFile = _tfc.BasePath + "\\" + COMMAND_FILE;
+            string strTempFile = Path.Combine(_tfc.BasePath, Project.CommandFile);
 
-            using ( StreamWriter sw = File.CreateText( strTempFile ) ) {
-                if ( CheckUpToDate( cs ) ) {    
-                    Log(Level.Verbose, _nanttask.LogPrefix + "Project is up-to-date" );
+            using (StreamWriter sw = File.CreateText(strTempFile)) {
+                if (CheckUpToDate(cs)) {
+                    Log(Level.Verbose, _solutionTask.LogPrefix + "Project is up-to-date");
                     return true;
                 }
 
-                foreach ( string strSetting in alCSCArguments )
-                    sw.WriteLine( strSetting );
+                foreach (string setting in alCSCArguments) {
+                    sw.WriteLine(setting);
+                }
 
-                foreach ( string strSetting in ProjectSettings.Settings )
-                    sw.WriteLine( strSetting );
+                foreach (string setting in ProjectSettings.Settings) {
+                    sw.WriteLine(setting);
+                }
 
-                foreach ( string strSetting in cs.Settings )
-                    sw.WriteLine( strSetting );
+                foreach (string setting in cs.Settings) {
+                    sw.WriteLine(setting);
+                }
 
-                if ( _ps.Type == ProjectType.VBNet )
-                    sw.WriteLine( _strImports );
+                if (_projectSettings.Type == ProjectType.VBNet) {
+                    sw.WriteLine(_imports);
+                }
 
-                Log(Level.Verbose, _nanttask.LogPrefix + "Copying references:" );
-                foreach ( Reference reference in _htReferences.Values ) {
-                    Log(Level.Verbose, _nanttask.LogPrefix + " - " + reference.Name );
+                Log(Level.Verbose, _solutionTask.LogPrefix + "Copying references:");
+                foreach (Reference reference in _htReferences.Values) {
+                    Log(Level.Verbose, _solutionTask.LogPrefix + " - " + reference.Name);
 
-                    if ( reference.CopyLocal ) {
-                        if ( reference.IsCreated ) {
-                            string strProgram, strCommandLine;
-                            reference.GetCreationCommand( cs, out strProgram, out strCommandLine );
+                    if (reference.CopyLocal) {
+                        if (reference.IsCreated) {
+                            string program, commandLine;
+                            reference.GetCreationCommand(cs, out program, out commandLine);
 
-                            Log(Level.Verbose, _nanttask.LogPrefix + strProgram + " " + strCommandLine);
-                            ProcessStartInfo psiRef = new ProcessStartInfo( strProgram, strCommandLine );
+                            Log(Level.Verbose, _solutionTask.LogPrefix + program + " " + commandLine);
+                            ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
                             psiRef.UseShellExecute = false;
                             psiRef.WorkingDirectory = cs.OutputPath;
                             try {
                                 Process pRef = Process.Start( psiRef );
                                 pRef.WaitForExit();
+                            } catch (Win32Exception ex) {
+                                throw new BuildException(string.Format("Unable to start process '{0}' with commandline '{1}'.", program, commandLine), ex);
                             }
-                            catch ( Win32Exception e ) {
-                                throw new BuildException(String.Format("Unable to start process with commandline: {0} {1}", strProgram, strCommandLine), e);
-                            }
-                        }
-                        else {
-                            string[] strFromFilenames = reference.GetReferenceFiles( cs );
+                        } else {
+                            StringCollection fromFilenames = reference.GetReferenceFiles(cs);
 
                             CopyTask ct = new CopyTask();
-                            foreach ( string strFile in strFromFilenames )
-                                ct.CopyFileSet.Includes.Add( strFile );
-                            ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory( cs );
+                            foreach (string file in fromFilenames) {
+                                ct.CopyFileSet.Includes.Add(file);
+                            }
+                            ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
                             ct.ToDirectory = cs.OutputPath;
-                            ct.Project = _nanttask.Project;
-                            ct.Verbose = _nanttask.Verbose;
+                            ct.Project = _solutionTask.Project;
+                            ct.Verbose = _solutionTask.Verbose;
 
-                            _nanttask.Project.Indent();
+                            _solutionTask.Project.Indent();
                             ct.Execute();
-                            _nanttask.Project.Unindent();
+                            _solutionTask.Project.Unindent();
                         }
                     }
-                    sw.WriteLine( reference.Setting );
+                    sw.WriteLine(reference.Setting);
                 }
 
-                Log(Level.Verbose, _nanttask.LogPrefix + "Compiling resources:" );
-                foreach ( Resource resource in _htResources.Values ) {
-                    Log(Level.Info, _nanttask.LogPrefix + " - {0}", resource.InputFile, Level.Verbose);
-                    resource.Compile( cs, bShowCommands );
-                    sw.WriteLine( resource.Setting );
+                Log(Level.Verbose, _solutionTask.LogPrefix + "Compiling resources:");
+                foreach (Resource resource in _htResources.Values) {
+                    Log(Level.Verbose, _solutionTask.LogPrefix + " - {0}", resource.InputFile);
+                    resource.Compile(cs, bShowCommands);
+                    sw.WriteLine(resource.Setting);
                 }
 
                 // Add the compiled files
-                foreach ( string strFile in _htFiles.Keys )
-                    sw.WriteLine( @"""" + strFile + @"""");
-            }
-
-            if ( bShowCommands ) {
-                using ( StreamReader sr = new StreamReader( strTempFile ) ) {
-                    Console.WriteLine( "Commands:" );
-                    Console.WriteLine( sr.ReadToEnd() );
+                foreach (string file in _htFiles.Keys) {
+                    sw.WriteLine(@"""" + file + @"""");
                 }
             }
 
-            Log(Level.Verbose, _nanttask.LogPrefix + "Starting compiler...");
-            ProcessStartInfo psi = null;
-            if ( _ps.Type == ProjectType.CSharp ) {
-                psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe" ), "@" + strTempFile );
+            if (bShowCommands) {
+                using (StreamReader sr = new StreamReader(strTempFile)) {
+                    Console.WriteLine("Commands:");
+                    Console.WriteLine(sr.ReadToEnd());
+                }
             }
 
-            if ( _ps.Type == ProjectType.VBNet ) {
-                psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe" ), "@" + strTempFile );
+            Log(Level.Verbose, _solutionTask.LogPrefix + "Starting compiler...");
+            ProcessStartInfo psi = null;
+            if (_projectSettings.Type == ProjectType.CSharp) {
+                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe"), "@" + strTempFile);
+            }
+
+            if (_projectSettings.Type == ProjectType.VBNet) {
+                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe"), "@" + strTempFile);
             }
 
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
-            psi.WorkingDirectory = _strProjectDirectory;
+            psi.WorkingDirectory = _projectDirectory;
 
-            Process p = Process.Start( psi );
+            Process p = Process.Start(psi);
 
-            if ( strLogFile != null ) {
-                using ( StreamWriter sw = new StreamWriter( strLogFile, true ) ) {
-                    sw.WriteLine( "Configuration: {0}", strConfiguration );
-                    sw.WriteLine( "" );
-                    while ( true ) {
-                        string strLogContents = p.StandardOutput.ReadLine();
-                        if ( strLogContents == null )
+            if (strLogFile != null) {
+                using (StreamWriter sw = new StreamWriter(strLogFile, true)) {
+                    sw.WriteLine("Configuration: {0}", configuration);
+                    sw.WriteLine("");
+                    while (true) {
+                        string logContents = p.StandardOutput.ReadLine();
+                        if (logContents == null) {
                             break;
-                        sw.WriteLine( strLogContents );
+                        }
+                        sw.WriteLine(logContents);
                     }
                 }
-            }
-            else {
-                _nanttask.Project.Indent();
-                while ( true ) {                        
-                    string strLogContents = p.StandardOutput.ReadLine();
-                    if ( strLogContents == null )
-                        break;                    
-                    Log(Level.Info, "      [compile] " + strLogContents);
+            } else {
+                _solutionTask.Project.Indent();
+                while (true) {
+                    string logContents = p.StandardOutput.ReadLine();
+                    if (logContents == null) {
+                        break;
+                    }
+                    Log(Level.Info, "      [compile] " + logContents);
                 }
-                _nanttask.Project.Unindent();
+                _solutionTask.Project.Unindent();
             }
 
             p.WaitForExit();
 
-            int nExitCode = p.ExitCode;
-            Log(Level.Verbose, _nanttask.LogPrefix + "{0}! (exit code = {1})", ( nExitCode == 0 ) ? "Success" : "Failure", nExitCode );
+            int exitCode = p.ExitCode;
+            Log(Level.Verbose, _solutionTask.LogPrefix + "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
 
-            if ( nExitCode > 0 )
+            if (exitCode > 0) {
                 bSuccess = false;
-            else {
-                if ( _bWebProject ) {
-                    Log(Level.Info, _nanttask.LogPrefix + "Uploading output files");
-                    WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
+            } else {
+                if (_isWebProject) {
+                    Log(Level.Info, _solutionTask.LogPrefix + "Uploading output files");
+                    WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                     //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
-                    wdc.UploadFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
+                    wdc.UploadFile(cs.FullOutputFile, cs.RelativeOutputPath + "/" + _projectSettings.OutputFile);
                 }
 
                 // Copy any extra files over
-                foreach ( string strExtraOutputFile in cs.ExtraOutputFiles ) {
-                    FileInfo fi = new FileInfo( strExtraOutputFile );
-                    if ( _bWebProject ) {
-                        WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
-                        wdc.UploadFile( strExtraOutputFile, cs.RelOutputPath + "/" + fi.Name );
-                    }
-                    else {
-                        string strOutFile = cs.OutputPath + @"\" + fi.Name;
+                foreach (string extraOutputFile in cs.ExtraOutputFiles) {
+                    FileInfo fi = new FileInfo(extraOutputFile);
+                    if (_isWebProject) {
+                        WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
+                        wdc.UploadFile(extraOutputFile, cs.RelativeOutputPath + "/" + fi.Name);
+                    } else {
+                        string outFile = cs.OutputPath + @"\" + fi.Name;
 
-                        if ( File.Exists( strOutFile ) ) {
-                            File.SetAttributes( strOutFile, FileAttributes.Normal );
-                            File.Delete( strOutFile );
+                        if (File.Exists(outFile)) {
+                            File.SetAttributes(outFile, FileAttributes.Normal);
+                            File.Delete(outFile);
                         }
 
-                        File.Copy( fi.FullName, strOutFile );
+                        File.Copy(fi.FullName, outFile);
                     }
                 }
             }
 
-            if ( !bSuccess )
-                Console.WriteLine( "Build failed." );
+            if (!bSuccess ) {
+                Log(Level.Error, _solutionTask.LogPrefix + "Build failed.");
+            }
 
             return bSuccess;
         }
 
-        public string GUID {
-            get { return _ps.GUID; }
+        public ConfigurationSettings GetConfigurationSettings(string configuration) {
+            return (ConfigurationSettings) _htConfigurations[configuration];
+        }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private bool CheckUpToDate(ConfigurationSettings cs) {
+            DateTime dtOutputTimeStamp;
+            if (File.Exists(cs.FullOutputFile)) {
+                dtOutputTimeStamp = File.GetLastWriteTime(cs.FullOutputFile);
+            } else {
+                return false;
+            }
+
+            // Check all of the input files
+            foreach (string file in _htFiles.Keys)
+                if (dtOutputTimeStamp < File.GetLastWriteTime(Path.Combine(_projectDirectory, file))) {
+                    return false;
+                }
+
+            // Check all of the input references
+            foreach (Reference reference in _htReferences.Values) {
+                reference.ConfigurationSettings = cs;
+                if (dtOutputTimeStamp < reference.Timestamp) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -404,8 +416,8 @@ namespace NAnt.VSNet.Tasks {
         /// The actual logging is delegated to the task.
         /// </remarks>
         private void Log(Level messageLevel, string message) {
-            if (_nanttask != null) {
-                _nanttask.Log(messageLevel, message);
+            if (_solutionTask != null) {
+                _solutionTask.Log(messageLevel, message);
             }
         }
 
@@ -419,23 +431,35 @@ namespace NAnt.VSNet.Tasks {
         /// The actual logging is delegated to the task.
         /// </remarks>
         private void Log(Level messageLevel, string message, params object[] args) {
-            if (_nanttask != null) {
-                _nanttask.Log(messageLevel, message, args);
+            if (_solutionTask != null) {
+                _solutionTask.Log(messageLevel, message, args);
             }
         }
 
-        private Hashtable    _htConfigurations;
-        private Hashtable    _htReferences;
-        private Hashtable    _htFiles;
-        private Hashtable    _htResources;
-        private Hashtable    _htAssemblies;
-        private string         _strImports;
-        private Task _nanttask;
-        private bool        _bWebProject;
+        #endregion Private Instance Methods
 
-        private string                 _strProjectDirectory;
-        private string                 _strWebProjectBaseUrl;
-        private ProjectSettings        _ps;
-        private TempFileCollection     _tfc;
+        #region Private Instance Fields
+
+        private Hashtable _htConfigurations;
+        private Hashtable _htReferences;
+        private Hashtable _htFiles;
+        private Hashtable _htResources;
+        private Hashtable _htAssemblies;
+        private string _imports;
+        private SolutionTask _solutionTask;
+        private bool _isWebProject;
+        private string _projectDirectory;
+        private string _webProjectBaseUrl;
+        private ProjectSettings _projectSettings;
+        private TempFileCollection _tfc;
+        private string _outputDir;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private const string CommandFile = "compile-commands.txt";
+
+        #endregion Private Static Fields
     }
 }

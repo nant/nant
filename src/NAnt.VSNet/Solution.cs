@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,22 +16,24 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.CodeDom.Compiler;
 
 using NAnt.Core;
+using NAnt.Core.Types;
+using NAnt.VSNet.Tasks;
+using NAnt.VSNet.Types;
 
-namespace NAnt.VSNet.Tasks {
-    /// <summary>
-    /// Summary description for Solution.
-    /// </summary>
+namespace NAnt.VSNet {
     public class Solution {
-        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, TempFileCollection tfc, Task nanttask ) {
-            _strFilename = strSolutionFilename;
+        #region Public Instance Constructors
+
+        public Solution(string solutionFileName, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMappings, FileSet excludesProjects, string outputDir) {
+            _fileName = solutionFileName;
             _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -39,78 +41,69 @@ namespace NAnt.VSNet.Tasks {
             _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _tfc = tfc;
-            _nanttask = nanttask;
+            _solutionTask = solutionTask;
+            _outputDir = outputDir;
+            _excludesProjects = excludesProjects;
+            _webMaps = webMappings;
 
-            string strFileContents;
+            string fileContents;
 
-            using ( StreamReader sr = new StreamReader( strSolutionFilename ) ) {
-                strFileContents = sr.ReadToEnd();
+            using (StreamReader sr = new StreamReader(solutionFileName)) {
+                fileContents = sr.ReadToEnd();
             }
 
-            Regex re = new Regex( @"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""" );
-            MatchCollection mc = re.Matches( strFileContents );
-            FileInfo fiSolution = new FileInfo( strSolutionFilename );
+            Regex re = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""");
+            MatchCollection mc = re.Matches(fileContents);
+            FileInfo fiSolution = new FileInfo(solutionFileName);
 
-            foreach ( Match m in mc ) {
-                string strPackage = m.Groups[ "package" ].Value;
-                string strName = m.Groups[ "name" ].Value;
-                string strProject = m.Groups[ "project" ].Value;
-                string strGUID = m.Groups[ "guid" ].Value;
+            foreach (Match m in mc) {
+                string project = m.Groups["project"].Value;
+                string guid = m.Groups["guid"].Value;
+                string fullPath;
 
-                string strFullPath;
                 try {
-                    Uri uri = new Uri( strProject );
-                    if ( uri.Scheme == Uri.UriSchemeFile )
-                        strFullPath = Path.Combine( fiSolution.DirectoryName, uri.LocalPath );
-                    else
-                        strFullPath = strProject;
-                }
-                catch ( UriFormatException ) {
-                    strFullPath = Path.Combine( fiSolution.DirectoryName, strProject );
+                    // translate URLs to physical paths if using a webmap
+                    WebMap map = _webMaps[project];
+                    if (map != null && map.IfDefined && !map.UnlessDefined) {
+                        project = map.Path;
+                    }
+
+                    Uri uri = new Uri(project);
+                    if (uri.Scheme == Uri.UriSchemeFile) {
+                        fullPath = Path.Combine(fiSolution.DirectoryName, uri.LocalPath);
+                    } else {
+                        fullPath = project;
+                    }
+                } catch (UriFormatException) {
+                    fullPath = Path.Combine(fiSolution.DirectoryName, project);
                 }
                 
-                if ( Project.IsEnterpriseTemplateProject( strFullPath ) )
-                    RecursiveLoadTemplateProject( strFullPath );
-                else
-                    _htProjectFiles[ strGUID ] = strFullPath;
+                if (Project.IsEnterpriseTemplateProject(fullPath)) {
+                    RecursiveLoadTemplateProject(fullPath);
+                } else {
+                    _htProjectFiles[guid] = fullPath;
+                }
             }
 
-            Regex reDependencies = new Regex( @"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\}).\d+\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline );
-            mc = reDependencies.Matches( strFileContents );
+            Regex reDependencies = new Regex(@"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\}).\d+\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline);
+            mc = reDependencies.Matches(fileContents);
 
-            foreach ( Match m in mc ) {
-                string strGUID = m.Groups[ "guid" ].Value;
-                string strDependency = m.Groups[ "dep" ].Value;
-
-                AddProjectDependency( strGUID, strDependency );
+            foreach (Match m in mc) {
+                string guid = m.Groups["guid"].Value;
+                string dependency = m.Groups["dep"].Value;
+                AddProjectDependency(guid, dependency);
             }
 
             //Console.WriteLine( "Loading project GUIDs..." );
-            LoadProjectGUIDs( alAdditionalProjects, false );
-            LoadProjectGUIDs( alReferenceProjects, true );
+            LoadProjectGUIDs(additionalProjects, false);
+            LoadProjectGUIDs(referenceProjects, true);
             //Console.WriteLine( "Loading projects..." );
             LoadProjects();
             //Console.WriteLine( "Gathering additional dependencies..." );
             GetDependenciesFromProjects();
         }
 
-        public void RecursiveLoadTemplateProject( string strFilename ) {
-            XmlDocument doc = new XmlDocument();
-            doc.Load( strFilename );
-
-            foreach ( XmlNode node in doc.SelectNodes( "//Reference" ) ) {
-                string strSubProjectFilename = node.SelectSingleNode( "FILE" ).InnerText;
-                string strGUID = node.SelectSingleNode( "GUIDPROJECTID" ).InnerText;
-
-                string strFullPath = Path.Combine( Path.GetDirectoryName( strFilename ), strSubProjectFilename );
-                if ( Project.IsEnterpriseTemplateProject( strFullPath ) )
-                    RecursiveLoadTemplateProject( strFullPath );
-                else
-                    _htProjectFiles[ strGUID ] = strFullPath;
-            }
-        }
-
-        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, TempFileCollection tfc, Task nanttask ) {
+        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, string outputDir) {
             _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -118,187 +111,243 @@ namespace NAnt.VSNet.Tasks {
             _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _tfc = tfc;
-            _nanttask = nanttask;
+            _solutionTask = solutionTask;
+            _excludesProjects = excludesProjects;
+            _webMaps = webMaps;
 
             //Console.WriteLine( "Loading project GUIDs..." );
-            LoadProjectGUIDs( alProjects, false );
-            LoadProjectGUIDs( alReferenceProjects, true );
+            LoadProjectGUIDs(projects, false);
+            LoadProjectGUIDs(referenceProjects, true);
             //Console.WriteLine( "Loading projects..." );
             LoadProjects();
             //Console.WriteLine( "Gathering additional dependencies..." );
             GetDependenciesFromProjects();
         }
 
-        private void LoadProjectGUIDs( ArrayList alProjects, bool bIsReferenceProject ) {
-            foreach ( string strProjectFilename in alProjects ) {
-                //Console.WriteLine( "{0} -> {1}", strProjectFilename, Project.LoadGUID( strProjectFilename, _tfc ) );
-                string strGUID = Project.LoadGUID( strProjectFilename, _tfc );
-                _htProjectFiles[ strGUID ] = strProjectFilename;
-                if ( bIsReferenceProject )
-                    _htReferenceProjects[ strGUID ] = null;
-            }
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        public string FileName {
+            get { return _fileName; }
         }
 
-        private void AddProjectDependency( string strProjectGUID, string strDependencyGUID ) {
-            //Console.WriteLine( "{0}->{1}", strProjectGUID, strDependencyGUID );
-            if ( !_htProjectDependencies.Contains( strProjectGUID ) )
-                _htProjectDependencies[ strProjectGUID ] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+        #endregion Public Instance Properties
 
-            ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] )[ strDependencyGUID ] = null;
-        }
+        #region Public Instance Methods
 
-        private void RemoveProjectDependency( string strProjectGUID, string strDependencyGUID ) {
-            if ( !_htProjectDependencies.Contains( strProjectGUID ) )
-                return;
+        public void RecursiveLoadTemplateProject(string fileName) {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(fileName);
 
-            ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] ).Remove( strDependencyGUID );
-        }
+            foreach (XmlNode node in doc.SelectNodes("//Reference")) {
+                string subProjectFilename = node.SelectSingleNode("FILE").InnerText;
+                string guid = node.SelectSingleNode("GUIDPROJECTID").InnerText;
 
-        private bool HasProjectDependency( string strProjectGUID, string strDependencyGUID ) {
-            if ( !_htProjectDependencies.Contains( strProjectGUID ) )
-                return false;
-
-            return ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] ).Contains( strDependencyGUID );
-        }
-
-        private string[] GetProjectDependencies( string strProjectGUID ) {
-            if ( !_htProjectDependencies.Contains( strProjectGUID ) )
-                return new string[ 0 ];
-
-            return ( string[] )new ArrayList( ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] ).Keys ).ToArray( typeof( string ) );
-        }
-
-        private void LoadProjects() {
-            foreach ( DictionaryEntry de in _htProjectFiles ) {
-                Project p = new Project( _nanttask, _tfc );
-                //Console.WriteLine( "  {0}", de.Value );
-                p.Load( this, ( string )de.Value );
-                _htProjects[ de.Key ] = p;
-            }
-        }
-
-        private void GetDependenciesFromProjects() {
-            // First get all of the output files
-            foreach ( DictionaryEntry de in _htProjects ) {
-                string strGUID = ( string )de.Key;
-                Project p = ( Project )de.Value;
-
-                foreach ( string strConfiguration in p.Configurations ) {
-                    //Console.WriteLine( "{0} [{1}] -> {2}", p.Name, strConfiguration, p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() );
-                    _htOutputFiles[ p.GetConfigurationSettings( strConfiguration ).FullOutputFile ] = strGUID;
-                }
-            }
-
-            // Then build the dependency list
-            foreach ( DictionaryEntry de in _htProjects ) {
-                string strGUID = ( string )de.Key;
-                Project p = ( Project )de.Value;
-
-                foreach ( Reference r in p.References ) {
-                    if ( r.IsProjectReference )
-                        AddProjectDependency( strGUID, r.ProjectReferenceGUID );
-                    else if ( _htOutputFiles.Contains( r.Filename ) )
-                        AddProjectDependency( strGUID, ( string )_htOutputFiles[ r.Filename ] );
+                string fullPath = Path.Combine(Path.GetDirectoryName(fileName), subProjectFilename);
+                if (Project.IsEnterpriseTemplateProject(fullPath)) {
+                    RecursiveLoadTemplateProject(fullPath);
+                } else {
+                    _htProjectFiles[guid] = fullPath;
                 }
             }
         }
 
-        public string GetProjectFileFromGUID( string strProjectGUID ) {
-            return ( string )_htProjectFiles[ strProjectGUID ];
+        public string GetProjectFileFromGUID(string projectGUID) {
+            return (string) _htProjectFiles[projectGUID];
         }
 
-        public Project GetProjectFromGUID( string strProjectGUID ) {
-            return ( Project )_htProjects[ strProjectGUID ];
+        public Project GetProjectFromGUID(string projectGUID) {
+            return (Project) _htProjects[projectGUID];
         }
 
-        public bool Compile( string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
-            Hashtable htDeps = ( Hashtable )_htProjectDependencies.Clone();
+        public bool Compile(string configuration, ArrayList compilerArguments, string logFile, bool verbose, bool showCommands) {
+            Hashtable htDeps = (Hashtable) _htProjectDependencies.Clone();
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
-            bool bSuccess = true;
-            while ( true ) {
-                bool bCompiledThisRound = false;
+            bool success = true;
+            while (true) {
+                bool compiledThisRound = false;
 
-                foreach ( Project p in _htProjects.Values ) {
-                    if ( htProjectsDone.Contains( p.GUID ) )
+                foreach (Project p in _htProjects.Values) {
+                    if (htProjectsDone.Contains(p.GUID)) {
                         continue;
+                    }
 
                     //Console.WriteLine( "{0} {1}: {2} dep(s)", p.Name, p.GUID, GetProjectDependencies( p.GUID ).Length );
                     //foreach ( string strDep in GetProjectDependencies( p.GUID ) )
                     //    Console.WriteLine( "  " + ( ( Project )_htProjects[ strDep ] ).Name );
-                    if ( GetProjectDependencies( p.GUID ).Length == 0 ) {
-                        bool bFailed = htFailedProjects.Contains( p.GUID );
+                    if (GetProjectDependencies(p.GUID).Length == 0) {
+                        bool failed = htFailedProjects.Contains(p.GUID);
 
-                        if ( !bFailed ) {
+                        if (!failed) {
                             // Fixup references
                             //Console.WriteLine( "Fixing up references..." );
-                            foreach ( Reference r in p.References ) {
+                            foreach (Reference r in p.References) {
                                 //Console.WriteLine( "Original: {0}", r.Filename );
-                                if ( r.IsProjectReference ) {
-                                    Project pRef = GetProjectFromGUID(r.ProjectReferenceGUID);
-                                    if ( pRef == null )
-                                        throw new Exception( "Unable to locate referenced project while loading " + p.Name );
-                                    if ( pRef.GetConfigurationSettings( strConfiguration ) == null )
-                                        throw new Exception( "Unable to find appropriate configuration " + strConfiguration + " for project reference " + p.Name);
-                                    if ( pRef != null )
-                                        r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile;
-                                } 
-                                else if ( _htOutputFiles.Contains( r.Filename ) ) {
-                                    Project pRef = ( Project )_htProjects[ ( string )_htOutputFiles[ r.Filename ] ];
-                                    if ( pRef != null && pRef.GetConfigurationSettings( strConfiguration ) != null )
-                                        r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile;
+                                if (r.IsProjectReference) {
+                                    Project pRef = GetProjectFromGUID(r.Project.GUID);
+                                    if (pRef == null)
+                                        throw new Exception("Unable to locate referenced project while loading " + p.Name + ".");
+                                    if (pRef.GetConfigurationSettings(configuration) == null)
+                                        throw new Exception("Unable to find appropriate configuration " + configuration + " for project reference " + p.Name + ".");
+                                    if (pRef != null)
+                                        r.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
+                                } else if (_htOutputFiles.Contains(r.Filename)) {
+                                    Project pRef = (Project) _htProjects[(string) _htOutputFiles[r.Filename]];
+                                    if (pRef != null && pRef.GetConfigurationSettings(configuration) != null) {
+                                        r.Filename = pRef.GetConfigurationSettings(configuration).FullOutputFile;
+                                    }
                                 }
                                 
                                 //Console.WriteLine( "   Now: {0}", r.Filename );
                             }
                         }
 
-                        if ( !_htReferenceProjects.Contains( p.GUID ) && ( bFailed || !p.Compile( strConfiguration, alCSCArguments, strLogFile, bVerbose, bShowCommands ) ) ) {
-                            if ( !bFailed ) {
+                        if (!_htReferenceProjects.Contains(p.GUID) && (failed || !p.Compile(configuration, compilerArguments, logFile, verbose, showCommands))) {
+                            if (!failed) {
                                 Console.WriteLine( "*** Project {0} failed!", p.Name );
                                 Console.WriteLine( "*** Continuing build with non-dependent projects:" );
                             }
 
-                            bSuccess = false;
-                            htFailedProjects[ p.GUID ] = null;
+                            success = false;
+                            htFailedProjects[p.GUID] = null;
 
                             // Mark the projects referencing this one as failed
-                            foreach ( Project pFailed in _htProjects.Values )
-                                if ( HasProjectDependency( pFailed.GUID, p.GUID ) )
-                                    htFailedProjects[ pFailed.GUID ] = null;
+                            foreach (Project pFailed in _htProjects.Values) {
+                                if (HasProjectDependency(pFailed.GUID, p.GUID)) {
+                                    htFailedProjects[pFailed.GUID] = null;
+                                }
+                            }
                         }
 
-                        bCompiledThisRound = true;
+                        compiledThisRound = true;
 
                         // Remove all references to this project
-                        foreach ( Project pRemove in _htProjects.Values )
-                            RemoveProjectDependency( pRemove.GUID, p.GUID );
-                        htProjectsDone[ p.GUID ] = null;
+                        foreach (Project pRemove in _htProjects.Values) {
+                            RemoveProjectDependency(pRemove.GUID, p.GUID);
+                        }
+                        htProjectsDone[p.GUID] = null;
                     }
                 }
 
-                if ( _htProjects.Count == htProjectsDone.Count )
+                if (_htProjects.Count == htProjectsDone.Count) {
                     break;
-                if ( !bCompiledThisRound )
-                    throw new Exception( "Circular dependency detected" );
+                }
+                if (!compiledThisRound) {
+                    throw new Exception("Circular dependency detected");
+                }
             }
 
-            return bSuccess;
+            return success;
         }
 
-        public string Filename {
-            get { return _strFilename; }
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private void LoadProjectGUIDs(ArrayList projects, bool isReferenceProject) {
+            foreach (string projectFileName in projects) {
+                //Console.WriteLine( "{0} -> {1}", strProjectFilename, Project.LoadGUID( strProjectFilename, _tfc ) );
+                string projectGUID = Project.LoadGUID(projectFileName, _tfc);
+                _htProjectFiles[projectGUID] = projectFileName;
+                if (isReferenceProject) {
+                    _htReferenceProjects[projectGUID] = null;
+                }
+            }
         }
 
-        private string    _strFilename;
+        private void AddProjectDependency(string projectGUID, string dependencyGUID) {
+            //Console.WriteLine( "{0}->{1}", strProjectGUID, strDependencyGUID );
+            if (!_htProjectDependencies.Contains(projectGUID)) {
+                _htProjectDependencies[projectGUID] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            }
+
+            ((Hashtable) _htProjectDependencies[projectGUID])[dependencyGUID] = null;
+        }
+
+        private void RemoveProjectDependency(string projectGUID, string dependencyGUID) {
+            if (!_htProjectDependencies.Contains(projectGUID)) {
+                return;
+            }
+
+            ((Hashtable) _htProjectDependencies[projectGUID]).Remove(dependencyGUID);
+        }
+
+        private bool HasProjectDependency(string projectGUID, string dependencyGUID) {
+            if (!_htProjectDependencies.Contains(projectGUID)) {
+                return false;
+            }
+
+            return ((Hashtable) _htProjectDependencies[projectGUID]).Contains(dependencyGUID);
+        }
+
+        private string[] GetProjectDependencies(string projectGUID) {
+            if (!_htProjectDependencies.Contains(projectGUID)) {
+                return new string[0];
+            }
+
+            return (string[]) new ArrayList(((Hashtable) _htProjectDependencies[projectGUID]).Keys).ToArray(typeof(string));
+        }
+
+        private void LoadProjects() {
+            FileSet excludes = _solutionTask.ExcludeProjects;
+            foreach (DictionaryEntry de in _htProjectFiles) {
+                if (!excludes.FileNames.Contains((string)de.Value)) {
+                    Project p = new Project(_solutionTask, _tfc, _outputDir);
+                    p.Load(this, (string) de.Value);
+                    _htProjects[de.Key] = p;
+                } else {
+                    _solutionTask.Log(Level.Verbose, _solutionTask.LogPrefix + "Excluding project {0}.", (string)de.Value);
+                }
+            }
+        }
+
+        private void GetDependenciesFromProjects() {
+            // First get all of the output files
+            foreach (DictionaryEntry de in _htProjects) {
+                string strGUID = (string) de.Key;
+                Project p = (Project) de.Value;
+
+                foreach (string strConfiguration in p.Configurations) {
+                    //Console.WriteLine( "{0} [{1}] -> {2}", p.Name, strConfiguration, p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() );
+                    _htOutputFiles[p.GetConfigurationSettings(strConfiguration).FullOutputFile] = strGUID;
+                }
+            }
+
+            // build the dependency list
+            foreach (DictionaryEntry de in _htProjects) {
+                string projectGUID = (string) de.Key;
+                Project project = (Project) de.Value;
+
+                foreach (Reference reference in project.References) {
+                    if (reference.IsProjectReference) {
+                        AddProjectDependency(projectGUID, reference.Project.GUID);
+                    } else if (_htOutputFiles.Contains(reference.Filename)) {
+                        AddProjectDependency(projectGUID, (string) _htOutputFiles[reference.Filename]);
+                    }
+                }
+            }
+        }
+
+        #endregion Private Instance Methods
+
+        #region Private Instance Fields
+
+        private string _fileName;
         private Hashtable _htProjectFiles;
         private Hashtable _htProjects;
         private Hashtable _htProjectDirectories;
         private Hashtable _htProjectDependencies;
         private Hashtable _htOutputFiles;
         private Hashtable _htReferenceProjects;
-        private Task _nanttask;
+        private SolutionTask _solutionTask;
+        private WebMapCollection _webMaps;
+        private FileSet _excludesProjects;
+        private string _outputDir;
         private TempFileCollection _tfc;
+
+        #endregion Private Instance Fields
     }
 }
