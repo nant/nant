@@ -42,14 +42,16 @@ foreach (string filename in GetIncludedFiles()) {
 }
 */
 
-using System;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Collections;
-
 namespace SourceForge.NAnt {
-    /// <summary>Used for searching file system based on given include/exclude rules.</summary>
+
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Collections;
+
+    /// <summary>Used for searching filesystem based on given include/exclude rules.</summary>
     /// <example>
     ///     <para>Simple client code for testing the class.</para>
     ///     <code>
@@ -58,20 +60,20 @@ namespace SourceForge.NAnt {
     ///
     ///             Console.Write("Scan Basedirectory : ");
     ///             string s = Console.ReadLine();
-    ///             if (s == "") break;
+    ///             if (s.Length == 0) break;
     ///             scanner.BaseDirectory = s;
     ///
     ///             while(true) {
     ///                 Console.Write("Include pattern : ");
     ///                 s = Console.ReadLine();
-    ///                 if (s == "") break;
+    ///                 if (s.Length == 0) break;
     ///                 scanner.Includes.Add(s);
     ///             }
     ///
     ///             while(true) {
     ///                 Console.Write("Exclude pattern : ");
     ///                 s = Console.ReadLine();
-    ///                 if (s == "") break;
+    ///                 if (s.Length == 0) break;
     ///                 scanner.Excludes.Add(s);
     ///             }
     ///
@@ -92,7 +94,7 @@ namespace SourceForge.NAnt {
     ///     </change>
     /// </history>
     public class DirectoryScanner {
-        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #region Private Instance Fields
 
         // Set to current directory in Scan if user doesn't specify something first.
         // Keeping it null, lets the user detect if it's been set or not.
@@ -114,6 +116,16 @@ namespace SourceForge.NAnt {
         DirScannerStringCollection _searchDirectories = null;
         DirScannerStringCollection _pathsAlreadySearched = null;
         ArrayList	 _searchDirIsRecursive = null;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        #endregion Private Static Fields
+
+        #region Public Instance Properties
 
         public DirScannerStringCollection Includes {
             get { return _includes; }
@@ -146,10 +158,13 @@ namespace SourceForge.NAnt {
             }
         }
 
+        #endregion Public Instance Properties
 
+        #region Public Instance Methods
 
         /// <summary>
-        ///     Use Includes and Excludes search criteria (relative to Basedirectory or absolute) to search for filesystem objects
+        /// Uses <see cref="Includes" /> and <see cref="Excludes" /> search criteria (relative to 
+        /// <see cref="BaseDirectory" /> or absolute), to search for filesystem objects.
         /// </summary>
         /// <history>
         ///     <change date="20020220" author="Ari Hännikäinen">Totally changed the scanning strategy</change>
@@ -170,17 +185,20 @@ namespace SourceForge.NAnt {
 
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
-            convertPatterns(_includes, _includePatterns, true);
-            convertPatterns(_excludes, _excludePatterns, false);
+            ConvertPatterns(_includes, _includePatterns, true);
+            ConvertPatterns(_excludes, _excludePatterns, false);
             
             for (int index = 0; index < _searchDirectories.Count; index++) {
-                ScanDirectory(_searchDirectories[index], (bool)_searchDirIsRecursive[index]);
+                ScanDirectory(_searchDirectories[index], (bool) _searchDirIsRecursive[index]);
             }
         }
 
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
 
         /// <summary>
-        ///     Parses given NAnt search patterns for search directories and corresponding regex patterns
+        /// Parses specified NAnt search patterns for search directories and corresponding regex patterns.
         /// </summary>
         /// <param name="nantPatterns">In. NAnt patterns. Absolute or relative paths.</param>
         /// <param name="regexPatterns">Out. Regex patterns. Absolute canonical paths.</param>
@@ -188,12 +206,12 @@ namespace SourceForge.NAnt {
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>
-        public void convertPatterns(DirScannerStringCollection nantPatterns, DirScannerStringCollection regexPatterns, bool addSearchDirectories) {
+        private void ConvertPatterns(DirScannerStringCollection nantPatterns, DirScannerStringCollection regexPatterns, bool addSearchDirectories) {
             string searchDirectory;
             string regexPattern;
             bool isRecursive;
             foreach (string nantPattern in nantPatterns) {
-                parseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out isRecursive, out regexPattern);
+                ParseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out isRecursive, out regexPattern);
                 if (!regexPatterns.Contains(regexPattern))
                     regexPatterns.Add(regexPattern);
                 if (!addSearchDirectories)
@@ -213,8 +231,6 @@ namespace SourceForge.NAnt {
             }
         }
 
-
-        
         /// <summary>
         ///     Given a NAnt search pattern returns a search directory and an regex search pattern.
         /// </summary>
@@ -231,7 +247,7 @@ namespace SourceForge.NAnt {
         ///     "/foo/bar/fudge/nugget".  (pattern = "fudge/nugget" would still be treated as relative to basedir)
         ///     </change>
         /// </history>
-        public void parseSearchDirectoryAndPattern(string originalNAntPattern, out string searchDirectory, out bool recursive, out string regexPattern) {
+        private void ParseSearchDirectoryAndPattern(string originalNAntPattern, out string searchDirectory, out bool recursive, out string regexPattern) {
             string s = originalNAntPattern;
             s = s.Replace('\\', Path.DirectorySeparatorChar);
             s = s.Replace('/', Path.DirectorySeparatorChar);
@@ -273,7 +289,7 @@ namespace SourceForge.NAnt {
                 searchDirectory = new DirectoryInfo(s).FullName;
             }
             else {
-                //We also (correctly) get to this branch of code when s == ""
+                //We also (correctly) get to this branch of code when s.Length == 0
                 searchDirectory = new DirectoryInfo(Path.Combine(BaseDirectory, s)).FullName;
             }
             
@@ -284,11 +300,9 @@ namespace SourceForge.NAnt {
             if (!IsCaseSensitiveFileSystem(searchDirectory)) {
                 regexPattern = "(?i)" + regexPattern;
             }
-            
-            
         }
 
-        bool IsCaseSensitiveFileSystem(string path) {
+        private bool IsCaseSensitiveFileSystem(string path) {
             //Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
             return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetDirectoryName(path) + Path.DirectorySeparatorChar))); 
         }
@@ -301,7 +315,7 @@ namespace SourceForge.NAnt {
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Checking if the directory has already been scanned</change>
         /// </history>
-        void ScanDirectory(string path, bool recursive) {
+        private void ScanDirectory(string path, bool recursive) {
             // scan each directory only once
             if (_pathsAlreadySearched.Contains(path)) {
                 return;
@@ -347,12 +361,7 @@ namespace SourceForge.NAnt {
             }
         }
 
-
-        bool IsPathIncluded(string path) {
-            return IsPathIncluded(path, false);
-        }
-
-        bool IsPathIncluded(string path, bool caseSensitive) {
+        private bool IsPathIncluded(string path, bool caseSensitive) {
             bool included = false;
             
             RegexOptions regexOptions = RegexOptions.None;
@@ -383,17 +392,20 @@ namespace SourceForge.NAnt {
             return included;
         }
 
+        #endregion Private Instance Methods
+
+        #region Private Static Methods
+
         /// <summary>
-        ///     Converts NAnt search pattern to a regular expression pattern
+        /// Converts search pattern to a regular expression pattern.
         /// </summary>
-        /// <param name="baseDir">Base directory for the search</param>
-        /// <param name="nantPattern">Search pattern relative to the search directory</param>
-        /// <returns>Regular expresssion (absolute path) for searching matching file/directory names</returns>
+        /// <param name="baseDir">Base directory for the search.</param>
+        /// <param name="nantPattern">Search pattern relative to the search directory.</param>
+        /// <returns>Regular expresssion (absolute path) for searching matching file/directory names.</returns>
         /// <history>
         ///     <change date="20020220" author="Ari Hännikäinen">Added parameter baseDir, using  it instead of class member variable</change>
         /// </history>
-        static string ToRegexPattern(string baseDir, string nantPattern) {
-
+        private static string ToRegexPattern(string baseDir, string nantPattern) {
             StringBuilder pattern = new StringBuilder(nantPattern);
 
             // NAnt patterns can use either / \ as a directory seperator.
@@ -424,7 +436,7 @@ namespace SourceForge.NAnt {
             pattern.Replace("+", @"\+");
 
             // Special case directory seperator string under Windows.
-            string seperator = Path.DirectorySeparatorChar.ToString();
+            string seperator = Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture);
             if (seperator == @"\") {
                 seperator = @"\\";
             }
@@ -449,8 +461,13 @@ namespace SourceForge.NAnt {
 
             return pattern.ToString();
         }
+
+        #endregion Private Static Methods
     }
-    public class DirScannerStringCollection : System.Collections.Specialized.StringCollection{
+
+    public class DirScannerStringCollection : System.Collections.Specialized.StringCollection {
+        #region Override implementation of Object
+
         /// <summary>
         /// Creates a string representing a list of the strings in the collection.
         /// </summary>
@@ -464,5 +481,7 @@ namespace SourceForge.NAnt {
             }
             return sb.ToString();
         }
+
+        #endregion Override implementation of Object
     }
 }
