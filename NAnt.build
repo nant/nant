@@ -32,7 +32,7 @@
     
     <fileset id="tas.win32.tests" basedir="tests">
         <include name="NAnt.Win32/NAnt.Win32.build" />
-        <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" />        
+        <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" />
         <include name="NAnt.VSNet/NAnt.VSNet.build" />
     </fileset>
     
@@ -118,13 +118,12 @@
                 <include name="**/*" />
             </fileset>
         </copy>
-        <!-- work around mono bug #57602-->
+        <!-- workaround for mono bug #57602-->
         <copy todir="${build.dir}/bin"
               flatten="true"
               if="${framework::get-family(framework::get-target-framework())='mono'}">
             <fileset>
                 <include name="${lib.framework.dir}/log4net.dll" />
-                <include name="${lib.framework.dir}/NDoc.Core.dll"/>
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
