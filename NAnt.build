@@ -242,6 +242,8 @@
                     <include name="NAnt.Core.dll" />
                     <include name="*Tasks.dll" />
                     <include name="NAnt.NUnit.dll" />
+                    <!-- never document NAntContrib as part of NAnt -->
+                    <exclude name="NAnt.Contrib.Tasks.dll" />
                 </assemblies>
                 <documenters>
                     <documenter name="NAnt">
