@@ -203,6 +203,7 @@ namespace NAnt.Core.Types {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         #endregion Private Static Fields
 
         #region Public Instance Constructors
@@ -425,6 +426,22 @@ namespace NAnt.Core.Types {
 
         #endregion Public Instance Properties
 
+        #region Implementation of ICloneable
+
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="FileSet" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="FileSet" />.
+        /// </returns>
+        public virtual object Clone() {
+            FileSet clone = new FileSet();
+            CopyTo(clone);
+            return clone;
+        }
+
+        #endregion Implementation of ICloneable
+
         #region Override implementation of Element
 
         protected override void InitializeElement(XmlNode elementNode) {
@@ -489,7 +506,30 @@ namespace NAnt.Core.Types {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, "The fileset specified is empty after scanning '{0}' for: {1}", _scanner.BaseDirectory, _scanner.Includes.ToString()), Location);
             }
         }
+
         #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Copies all instance data of the <see cref="FileSet" /> to a given
+        /// <see cref="FileSet" />.
+        /// </summary>
+        protected void CopyTo(FileSet clone) {
+            base.CopyTo(clone);
+
+            clone._asis = Clone(_asis);
+            if (_baseDirectory != null) {
+                clone._baseDirectory = new DirectoryInfo(_baseDirectory.FullName);
+            }
+            clone._defaultExcludes = _defaultExcludes;
+            clone._failOnEmpty = _failOnEmpty;
+            clone._hasScanned = _hasScanned;
+            clone._pathFiles = _pathFiles.Clone();
+            clone._scanner = (DirectoryScanner) _scanner.Clone();
+        }
+
+        #endregion Protected Instance Methods
 
         #region Public Static Methods
 
@@ -538,6 +578,26 @@ namespace NAnt.Core.Types {
         }
         
         #endregion Public Static Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Creates a shallow copy of the specified <see cref="StringCollection" />.
+        /// </summary>
+        /// <param name="stringCollection">The <see cref="StringCollection" /> that should be copied.</param>
+        /// <returns>
+        /// A shallow copy of the specified <see cref="StringCollection" />.
+        /// </returns>
+        private static StringCollection Clone(StringCollection stringCollection) {
+            string[] strings = new string[stringCollection.Count];
+            stringCollection.CopyTo(strings, 0);
+            StringCollection clone = new StringCollection();
+            clone.AddRange(strings);
+            return clone;
+        }
+
+        #endregion Private Static Methods
+
 
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.

@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean ( ian_maclean@another.com )
 
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -29,9 +30,9 @@ using NAnt.Core.Util;
 namespace NAnt.DotNet.Types {
     /// <summary>
     /// Specialized <see cref="FileSet" /> class for managing resource files. 
-    /// </summary>     
+    /// </summary>
     [ElementName("resourcefileset")]
-    public class ResourceFileSet : FileSet {
+    public sealed class ResourceFileSet : FileSet, ICloneable {
         #region Public Instance Constructors
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace NAnt.DotNet.Types {
         /// the specified <see cref="FileSet" />.
         /// </summary>
         /// <param name="source">The <see cref="FileSet" /> that should be used to create a new instance of the <see cref="ResourceFileSet" /> class.</param>
-        public ResourceFileSet(FileSet source) : base(source) {           
+        public ResourceFileSet(FileSet source) : base(source) {
         }
 
         #endregion Public Instance Constructors
@@ -53,13 +54,13 @@ namespace NAnt.DotNet.Types {
         #region Public Instance Properties
         
         /// <summary>
-        /// Indicates the prefix to prepend to the actual resource.  
+        /// Indicates the prefix to prepend to the actual resource. 
         /// This is usually the default namspace of the assembly.
         /// </summary>
         [TaskAttribute("prefix")]
         public string Prefix {
             get { return _prefix; }
-            set { _prefix = StringUtils.ConvertEmptyToNull(value); } 
+            set { _prefix = StringUtils.ConvertEmptyToNull(value); }
         }
             
         /// <summary>
@@ -70,7 +71,7 @@ namespace NAnt.DotNet.Types {
         [BooleanValidator()]
         [TaskAttribute("dynamicprefix")]
         public bool DynamicPrefix { 
-            get { return _dynamicprefix; } 
+            get { return _dynamicprefix; }
             set { _dynamicprefix = value; }
         }
  
@@ -87,8 +88,8 @@ namespace NAnt.DotNet.Types {
                 foreach (string file in FileNames){
                     if (Path.GetExtension(file) == ".resx" ) {
                         retFileSet.Includes.Add(file);
-                    }                
-                }   
+                    }
+                }
                 retFileSet.Scan();
                 return retFileSet;
             }
@@ -104,19 +105,37 @@ namespace NAnt.DotNet.Types {
         public FileSet NonResxFiles {
             get {
                 FileSet retFileSet = new FileSet(this);
-                retFileSet.Includes.Clear();          
+                retFileSet.Includes.Clear();
                 foreach (string file in FileNames) {
                     if (Path.GetExtension(file) != ".resx" ) {
                         retFileSet.Includes.Add(file);
-                    }                
-                }   
+                    }
+                }
                 retFileSet.Scan();
                 return retFileSet;
             }
         }
 
         #endregion Public Instance Properties
-        
+
+        #region Implementation of ICloneable
+
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="ResourceFileSet" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="ResourceFileSet" />.
+        /// </returns>
+        public override object Clone() {
+            ResourceFileSet clone = new ResourceFileSet();
+            base.CopyTo(clone);
+            clone._dynamicprefix = _dynamicprefix;
+            clone._prefix = _prefix;
+            return clone;
+        }
+
+        #endregion Implementation of ICloneable
+
         #region Public Instance Methods
 
         /// <summary>
@@ -154,7 +173,7 @@ namespace NAnt.DotNet.Types {
             }
             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
             prefix.Append(actualFileName);
-                                             
+
             int firstindex = Path.GetFileName(fileName).IndexOf(actualFileName, 0 );
             
             StringBuilder result = new StringBuilder(Path.GetFileName(fileName));
