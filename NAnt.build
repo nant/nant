@@ -374,8 +374,9 @@
                 <excludes name="**/obj/**" />
             </fileset>
         </copy>
+        <!-- ensure lib directory exists -->
+        <mkdir dir="${build.dir}/lib" />        
         <!-- copy third-party libraries -->
-        <mkdir dir="${build.dir}/lib" />
         <copy todir="${build.dir}/lib">
             <fileset basedir="lib">
                 <includes name="**/NDoc.Core.dll" />
@@ -390,8 +391,11 @@
                 <includes name="**/log4net.xml" />
             </fileset>
         </copy>
-        <!-- create zip file -->
+        <!-- determine name of package zip file -->
         <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
+        <!-- remove package zip file if it already exists -->
+        <delete file="${project.zip-path}" if="${file::exists(project.zip-path)}" />
+        <!-- create package zip file -->
         <zip zipfile="${project.zip-path}">
             <fileset basedir="${build.dir}">
                 <includes name="**/*" />
