@@ -218,56 +218,23 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// <para>
-        /// The cvs root variable has the following components.  The examples used is for the
-        ///     NAnt cvsroot.
-        ///     
-        ///     protocol:       ext
-        ///     username:       [username]
-        ///     servername:     cvs.sourceforge.net
-        ///     server path:    /cvsroot/nant
+        /// The cvs root variable has the following components uses the following format:
+        ///     <para>
+        ///         <code>[protocol]:[username]@[servername]:[server path]</code>
+        ///         <br />
+        ///         <ul>
+        ///             <li>protocol:       ext, pserver, ssh (sharpcvslib); if you are not using sharpcvslib consult your cvs documentation.</li>
+        ///             <li>username:       [username]</li>
+        ///             <li>servername:     cvs.sourceforge.net</li>
+        ///             <li>server path:    /cvsroot/nant</li>
+        ///         </ul>
+        ///     </para>
         /// </para>
-        /// <para>
-        /// Currently supported protocols include:
-        /// </para>
-        /// <list type="table">
-        ///     <item>
-        ///         <term>ext</term>
-        ///         <description>
-        ///         Used for securely checking out sources from a cvs repository.  
-        ///         This checkout method uses a local ssh binary to communicate 
-        ///         with the repository.  If you would like to secure password 
-        ///         information then this method can be used along with public/private 
-        ///         key pairs to authenticate against a remote server.
-        ///         Please see: http://sourceforge.net/docman/display_doc.php?docid=761&amp;group_id=1
-        ///         for information on how to do this for http://sourceforge.net.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term>ssh</term>
-        ///         <description>
-        ///         Similar to the ext method.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term>pserver</term>
-        ///         <description>
-        ///         The pserver authentication method is used to checkout sources 
-        ///         without encryption.  Passwords are stored as plain text and 
-        ///         all files are transported unencrypted.
-        ///         </description>
-        ///     </item>
-        /// </list>
         /// </summary>
         /// <example>
         ///   <para>NAnt anonymous cvsroot:</para>
         ///   <code>
         ///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant
-        ///   </code>
-        /// </example>
-        /// <example>
-        ///   <para>Sharpcvslib anonymous cvsroot:</para>
-        ///   <code>
-        ///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib
         ///   </code>
         /// </example>
         [TaskAttribute("cvsroot", Required=true)]
