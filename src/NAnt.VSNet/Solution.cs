@@ -107,16 +107,19 @@ namespace NAnt.VSNet {
                 Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[a-zA-Z]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
                 MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(fileContents);
 
-                if (projectBuildMatches.Count > 0) {
-                    Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                // initialize hashtable that will hold the project build configurations
+                Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
+                if (projectBuildMatches.Count > 0) {
                     foreach (Match projectBuildMatch in projectBuildMatches) {
                         string configuration = projectBuildMatch.Groups["configuration"].Value;
                         projectBuildConfiguration[configuration] = null;
                     }
-
-                    _htProjectBuildConfigurations[guid] = projectBuildConfiguration;
                 }
+
+                // add project build configuration, this signals that project was 
+                // loaded in context of solution file
+                _htProjectBuildConfigurations[guid] = projectBuildConfiguration;
             }
 
             LoadProjectGuids(additionalProjects, false);
@@ -427,7 +430,7 @@ namespace NAnt.VSNet {
                 }
             } else {
                 // project was loaded from solution file, so only add build
-                // configuration that were listed in project configuration
+                // configurations that were listed in project configuration
                 // section
                 Hashtable projectBuildConfigurations = (Hashtable) _htProjectBuildConfigurations[project.Guid];
                 foreach (string configuration in projectBuildConfigurations.Keys) {
