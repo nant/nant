@@ -63,7 +63,7 @@ namespace Tests.NAnt.Core {
             // create the build file in the temp folder
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
 
-            Project p = new Project(_buildFileName, Level.Info, 0);
+            Project p = new Project(_buildFileName, Level.Error, 0);
 
             Assertion.AssertNotNull("Property ('nant.version') not defined.", p.Properties["nant.version"]);
             Assertion.AssertNotNull("Property ('nant.location') not defined.", p.Properties["nant.location"]);
@@ -81,7 +81,7 @@ namespace Tests.NAnt.Core {
         public void Test_Initialization_DOMBuildFile() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info, 0);
+            Project p = new Project(doc, Level.Error, 0);
 
             Assertion.AssertNotNull("Property not defined.", p.Properties["nant.version"]);
 
