@@ -243,7 +243,13 @@ namespace NAnt.VisualCpp.Tasks {
  
                     // specify pch file, if user gave one
                     if (_pchfile != null) {
-                        writer.WriteLine("/Fp\"{0}\"", Path.Combine(Path.Combine(BaseDirectory, OutputDir), PchFile));
+                        string pchPath;
+                        if (Path.GetDirectoryName(PchFile) != "")
+                            pchPath = BaseDirectory;
+                        else
+                            pchPath = Path.Combine(BaseDirectory, OutputDir);
+
+                        writer.WriteLine("/Fp\"{0}\"", Path.Combine(pchPath, PchFile));
                     }
  
                     // write each of the filenames
