@@ -442,7 +442,7 @@ namespace NDoc.Documenter.NAnt {
 
         private void TransformAndWriteResult(XslTransform transform, XsltArgumentList arguments, string filename) {
             string path = Path.Combine(OutputDirectory, filename);
-            using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII)) {
+            using (StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8)) {
                 transform.Transform(_xmlDocumentation, arguments, writer);
             }
         }
