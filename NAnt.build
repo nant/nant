@@ -1,42 +1,36 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
-    <echo message="Using '${nant.settings.currentframework}' framework on '${nant.platform.name}' platform."/>
-
+    <echo message="Using '${nant.settings.currentframework}' framework on '${nant.platform.name}' platform." />
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" overwrite="false" />
-
     <!-- default configuration -->
-    <property name="project.config" value="debug" /> <!-- debug|release -->
+    <property name="project.config" value="debug" />
+    <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
     <property name="build.defines" value="" />
-
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
-    
     <!-- Win32TaskAssemblies (tas.win32) -->
     <!-- These will be used in this order -->
     <property name="tas.win32" value="NAnt.Win32,NAnt.VisualCpp,NAnt.VSNet" />
     <property name="tas.win32.tests" value="${tas.win32}" />
-    
     <!-- CoreTaskAssemblies (tas.core) -->
     <!-- These will be used in this order -->
     <property name="tas.core" value="NAnt.DotNet,NAnt.Zip,NAnt.NUnit,NAnt.SourceControl" />
-    <property name="tas.core.tests" value="NAnt.DotNet,NAnt.Zip" /> <!-- exclude the nunit and sourcecontrol assemblies -->
-    
+    <property name="tas.core.tests" value="NAnt.DotNet,NAnt.Zip" />
+    <!-- exclude the nunit and sourcecontrol assemblies -->
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
         <property name="build.dir" value="${nant.project.basedir}/build/${nant.settings.currentframework}.${nant.platform.name}/${project.name}-${project.version}-${project.config}" />
     </target>
-
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
         <property name="build.debug" value="false" />
         <property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}" />
     </target>
-
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
         <call target="${project.config}" />
@@ -53,7 +47,6 @@
         <echo message="Build Directory is ${build.dir}" />
         <!-- prepare build directory -->
         <mkdir dir="${build.dir}/bin" />
-
         <!-- copy framework-neutral libraries -->
         <copy todir="${build.dir}/bin">
             <fileset basedir="lib">
@@ -62,44 +55,35 @@
                 <includes name="ICSharpCode.SharpCvsLib.dll" />
             </fileset>
         </copy>
-
         <!-- copy framework-specific libraries -->
         <copy todir="${build.dir}/bin">
             <fileset basedir="${lib.dir}">
                 <includes name="NDoc.Core.dll" />
                 <includes name="NDoc.Documenter.*.dll" />
                 <includes name="nunit.framework.dll" />
-                <includes name="log4net.dll"/>
+                <includes name="log4net.dll" />
             </fileset>
         </copy>
-
         <!-- build NAnt.Core assembly -->
         <nant buildfile="src/NAnt.Core/NAnt.Core.build" target="build" />
-
         <!-- build NAnt.Console assembly -->
         <nant buildfile="src/NAnt.Console/NAnt.Console.build" target="build" />
-
         <!-- build task assemblies -->
         <foreach item="String" delim="," property="filename" in="${tas.core}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" />
         </foreach>
-
         <!-- build win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
         </foreach>
-
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
- 
         <!-- build NAnt.Console.Tests assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
-
         <!-- build tests for task assemblies -->
         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
         </foreach>
-
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" if="${nant.platform.win32}" />
@@ -118,38 +102,31 @@
     </target>
     <target name="self-test" depends="init">
         <copy file="${nant.location}NAnt.exe.config" tofile="${nant.location}nant.tests.config" />
-        
         <!-- make sure the config file is writable -->
         <attrib file="${nant.location}nant.tests.config" readonly="false" />
-        
         <!-- ensure the tests target the current framework -->
         <xmlpoke file="${nant.location}nant.tests.config"
                  xpath="//configuration/nant/frameworks/platform[@name='${nant.platform.name}']/@default"
                  value="${nant.settings.currentframework}"/>
-
         <!-- output the config file that will be used to run the tests -->
-        <echo message="testing with config '${nant.location}nant.tests.config'"/>
-
+        <echo message="testing with config '${nant.location}nant.tests.config'" />
         <!-- test NAnt.Console assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="test" />
-
         <!-- test NAnt.Core assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="test" />
-
         <!-- test task assemblies -->
-         <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
+        <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" />
         </foreach>
-
         <!-- test win32 specific task assemblies -->
         <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${nant.platform.win32}" />
         </foreach>
     </target>
-
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618"
+            debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
             <sources failonempty="true">
                 <includes name="src/NDoc.Documenter.NAnt/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -160,10 +137,9 @@
                 <includes name="${build.dir}/bin/NDoc.Core.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
-                <includes name="**/*" />
+                <includes name="**/*.xslt" />
             </resources>
         </csc>
-
         <echo message="Creating task and type documentation from ${build.dir}/bin" />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-indent:1" />
@@ -174,19 +150,23 @@
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
     </target>
-    
     <target name="self-userdoc" depends="init">
         <!-- use ndoc and NAnt.Documenter to build user doc if they need it -->
-        <ifnot uptodatefile="${build.dir}/doc/help/*.html">
-            <comparefiles basedir="${build.dir}/bin">
+        <uptodate property="help.uptodate">
+            <targetfiles>
+                <includes name="${build.dir}/doc/help/*.html" />
+            </targetfiles>
+            <sourcefiles basedir="${build.dir}/bin">
                 <!-- make sure the tasks/types are not new -->
                 <includes name="NAnt.Core.dll" />
                 <includes name="*Tasks.dll" />
                 <includes name="NAnt.NUnit.dll" />
                 <!-- make sure the documenter is not new -->
-                <includes name="NDoc.Documenter.*.dll"/>
-            </comparefiles>
-            <!--
+                <includes name="NDoc.Documenter.*.dll" />
+            </sourcefiles>
+        </uptodate>
+        <if test="${not(help.uptodate)}">
+            <!-- don't build this for now. Just for testing.
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -213,24 +193,23 @@
                         <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
                         <property name="DocumentAttributes" value="True" />
                         <property name="IncludeAssemblyVersion" value="True" />
+                        <property name="ShowMissingParams" value="True" />
+                        <property name="ShowMissingReturns" value="True" />
+                        <property name="ShowMissingValues" value="True" />
                     </documenter>
                 </documenters>
             </ndoc>
-        </ifnot>
-
+        </if>
         <!-- copy doc files from source-->
         <copy todir="${build.dir}" failonerror="false">
             <fileset>
                 <includes name="doc/**" />
-                
-                <excludes name="**/obj/**"/>
-                <excludes name="**/bin/**"/>
+                <excludes name="**/obj/**" />
+                <excludes name="**/bin/**" />
             </fileset>
         </copy>
-      
         <echo message="User documentation: file://${build.dir}/doc/index.html" />
     </target>
-
     <target name="sdkdoc" depends="build" description="Builds SDK documentation">
         <echo message="Creating SDK Documentation for ${build.dir}/bin/${nant.console.name}.exe" />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
@@ -241,7 +220,6 @@
             <arg value="-D:project.version=${project.version}" />
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
-
         <!-- delete everything but the .chm -->
         <delete>
             <fileset basedir="${build.dir}/doc/sdk">
@@ -250,15 +228,21 @@
             </fileset>
         </delete>
     </target>
-
     <target name="self-sdkdoc" depends="init">
         <!-- use ndoc to build sdk doc if they are not uptodate-->
-        <ifnot uptodatefile="${build.dir}/doc/sdk/*.chm">
-            <comparefiles basedir="${build.dir}/bin">
+        <uptodate property="sdk.uptodate">
+            <targetfiles>
+                <includes name="${build.dir}/doc/sdk/*.chm" />
+            </targetfiles>
+            <sourcefiles basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="*Tasks.dll" />
                 <includes name="NAnt.NUnit.dll" />
-            </comparefiles>
+                <!-- make sure the documenter is not new -->
+                <includes name="NDoc.Documenter.*.dll" />
+            </sourcefiles>
+        </uptodate>
+        <if test="${not(sdk.uptodate)}">
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -294,7 +278,7 @@
                     </documenter>
                 </documenters>
             </ndoc>
-        </ifnot>
+        </if>
     </target>
     
     <target name="schema" depends="init">
@@ -328,10 +312,8 @@
             <arg value="-D:project.version=${project.version}" />
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
-
         <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
-
         <!-- remove non-release files -->
         <delete>
             <fileset basedir="${build.dir}/bin">
@@ -340,7 +322,6 @@
                 <includes name="*.Tests.*" />
             </fileset>
         </delete>
-
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
@@ -350,7 +331,6 @@
                 <includes name="examples/**" />
                 <includes name="schema/**" />
                 <includes name="*" />
-
                 <!-- exclude nighlty build file -->
                 <excludes name="nightly.xml" />
                 <!-- exclude release build file -->
@@ -362,7 +342,6 @@
                 <excludes name="**/obj/**" />
             </fileset>
         </copy>
-
         <!-- copy third-party libraries -->
         <mkdir dir="${build.dir}/lib" />
         <copy todir="${build.dir}/lib">
@@ -375,37 +354,32 @@
                 <includes name="**/NUnitCore.dll" />
                 <includes name="**/ICSharpCode.SharpZipLib.dll" />
                 <includes name="**/ICSharpCode.SharpCvsLib.dll" />
-                <includes name="**/log4net.dll"/>
-                <includes name="**/log4net.xml"/>
+                <includes name="**/log4net.dll" />
+                <includes name="**/log4net.xml" />
             </fileset>
         </copy>
-
         <!-- create zip file -->
         <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
         <zip zipfile="${project.zip-path}">
             <fileset basedir="${build.dir}">
                 <includes name="**/*" />
-
-                <excludes name="**/cache/**"/>
-                <excludes name="**/_*/**"/>
+                <excludes name="**/cache/**" />
+                <excludes name="**/_*/**" />
             </fileset>
         </zip>
         <echo message="Created a '${project.config}' package at file://${project.zip-path}" />
     </target>
-
     <!-- Copies files to the bin folder. -->
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
         <delete if="false">
             <fileset basedir="bin">
                 <includes name="NAnt*" />
-
                 <excludes name="${nant.console.name}.exe" />
             </fileset>
         </delete>
         <copy todir="bin" overwrite="true">
             <fileset basedir="${build.dir}/bin/">
                 <includes name="NAnt*" />
-
                 <excludes name="*Test*" />
                 <excludes name="${nant.console.name}.xml" />
                 <excludes name="${nant.console.name}.exe" />
@@ -428,28 +402,28 @@
         <property name="current.runtime.${current.runtime.config}-${current.runtime.version}" value="true" />
     </target>
     <target name="set-runtime-configuration">
-        <ifnot propertyexists="current.runtime.config">
-            <ifnot propertyexists="nant.settings.currentframework">
+        <if test="${not(nant::property-exists('current.runtime.config'))}">
+            <if test="${not(nant::property-exists('nant.settings.currentframework'))}">
                 <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
-            </ifnot>
-            <ifnot targetexists="set-${nant.settings.currentframework}-runtime-configuration">
+            </if>
+            <if test="${not(nant::target-exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
                 <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NAnt." />
-            </ifnot>
-            <call target="set-${nant.settings.currentframework}-runtime-configuration"/>
-        </ifnot>
-        <ifnot propertyexists="current.runtime.version">
-            <ifnot propertyexists="nant.settings.currentframework">
-                <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
-            </ifnot>
-            <ifnot targetexists="set-${nant.settings.currentframework}-runtime-configuration">
-                <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NDoc." />
-            </ifnot>
+            </if>
             <call target="set-${nant.settings.currentframework}-runtime-configuration" />
-        </ifnot>
-        <ifnot targetexists="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration">
+        </if>
+        <if test="${not(nant::property-exists('current.runtime.version'))}">
+            <if test="${not(nant::property-exists('nant.settings.currentframework'))}">
+                <fail message="No runtime configuration was specified and the default NAnt runtime is not available." />
+            </if>
+            <if test="${not(nant::target-exists('set-'+nant.settings.currentframework+'-runtime-configuration'))}">
+                <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NDoc." />
+            </if>
+            <call target="set-${nant.settings.currentframework}-runtime-configuration" />
+        </if>
+        <if test="${not(nant::target-exists('set-'+current.runtime.config+'-'+current.runtime.version+'-runtime-configuration'))}">
             <fail message="The ${current.runtime.config}-${current.runtime.version} runtime is not supported by NDoc." />
-        </ifnot>
-        <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration"/>
+        </if>
+        <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration" />
     </target>
     <target name="set-net-1.0-runtime-configuration">
         <property name="current.runtime.config" value="net" />
@@ -459,7 +433,7 @@
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
-        <call target="set-runtime-configuration-flags"/>
+        <call target="set-runtime-configuration-flags" />
     </target>
     <target name="set-net-1.1-runtime-configuration">
         <property name="current.runtime.config" value="net" />
@@ -467,7 +441,7 @@
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.1" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_1" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />        
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <call target="set-runtime-configuration-flags" />
     </target>
@@ -477,7 +451,7 @@
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.2" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_2" />
         <property name="link.sdkdoc.version" value="MsdnOnline" />
-        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />        
+        <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <call target="set-runtime-configuration-flags" />
     </target>

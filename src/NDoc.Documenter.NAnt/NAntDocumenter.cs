@@ -42,7 +42,9 @@ namespace NDoc.Documenter.NAnt {
 
         private XslTransform _xsltTaskIndex;
         private XslTransform _xsltTypeIndex;
+        private XslTransform _xsltFunctionIndex;
         private XslTransform _xsltTypeDoc;        
+        private XslTransform _xsltFunctionDoc;
         private XmlDocument _xmlDocumentation;
         private string _resourceDirectory;
         private StringDictionary _writtenFiles = new StringDictionary();
@@ -126,6 +128,7 @@ namespace NDoc.Documenter.NAnt {
             // create the html output directory.
             try {
                 Directory.CreateDirectory(OutputDirectory);
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "functions"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
@@ -173,6 +176,10 @@ namespace NDoc.Documenter.NAnt {
             // transform nant type index page transform
             TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types/index.html");
 
+            OnDocBuildingStep(buildStepProgress, "Creating Function Index Page...");
+            // transform nant function index page transform
+            TransformAndWriteResult(_xsltFunctionIndex, indexArguments, "functions/index.html");
+
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
 
@@ -182,7 +189,15 @@ namespace NDoc.Documenter.NAnt {
                 //OnDocBuildingStep(buildStepProgress++, "Doc'n Task:" + taskNode.Attributes["id"].Value);
                 DocumentType(taskNode, ElementDocType.Task);
             }
+
+            OnDocBuildingStep(buildStepProgress, "Generating Function Documents...");
             
+            // generate a page for each function - TODO - change the XPath expression to select more functions
+            XmlNodeList functionNodes = _xmlDocumentation.SelectNodes("//method[attribute/@name = 'NAnt.Core.Attributes.FunctionAttribute']");
+            foreach (XmlElement function in functionNodes) {
+                DocumentFunction(function);
+            }
+
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Generating Type Documents...");
             // generate a page for each marked type
@@ -310,21 +325,56 @@ namespace NDoc.Documenter.NAnt {
             // create the page
             TransformAndWriteResult(_xsltTypeDoc, arguments, filename);
         }
+        private void DocumentFunction(XmlElement functionElement) {
+            if (functionElement == null) {
+                throw new ArgumentNullException("functionElement");
+            }
+
+            // do not document methods that are deprecated and have the IsError 
+            // property of ObsoleteAttribute set to "true"
+            XmlNode obsoleteErrorNode = functionElement.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
+            if (obsoleteErrorNode != null) {
+                if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
+                    return;
+                }
+            }
+            string methodID = functionElement.GetAttribute("id");
+            string filename = NAntXsltUtilities.GetFileNameForFunction(functionElement);
+
+            XsltArgumentList arguments = new XsltArgumentList();
+
+            arguments.AddParam("method-id", string.Empty, methodID);
+            arguments.AddParam("refType", string.Empty, "Function");
+            arguments.AddParam("functionName", string.Empty, functionElement.GetAttribute("name"));
+
+            // add extension object for NAnt utilities
+            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
+
+            // add extension object to Xslt arguments
+            arguments.AddExtensionObject("urn:NAntUtil", utilities);
+
+            // create the page
+            TransformAndWriteResult(_xsltFunctionDoc, arguments, filename);
+        }
         private void MakeTransforms() {
             OnDocBuildingProgress(0);
 
             _xsltTaskIndex = new XslTransform();
             _xsltTypeIndex = new XslTransform();
+            _xsltFunctionIndex = new XslTransform();
             _xsltTypeDoc = new XslTransform();
+            _xsltFunctionDoc = new XslTransform();
 
-            OnDocBuildingProgress(25);
             MakeTransform(_xsltTaskIndex, "task-index.xslt");
-            
-            OnDocBuildingProgress(75);
+            OnDocBuildingProgress(20);
             MakeTransform(_xsltTypeIndex, "type-index.xslt");
-
-            OnDocBuildingProgress(100);
+            OnDocBuildingProgress(40);
+            MakeTransform(_xsltFunctionIndex, "function-index.xslt");
+            OnDocBuildingProgress(60);
             MakeTransform(_xsltTypeDoc, "type-doc.xslt");
+            OnDocBuildingProgress(80);
+            MakeTransform(_xsltFunctionDoc, "function-doc.xslt");
+            OnDocBuildingProgress(100);
         }
 
 

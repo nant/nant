@@ -58,8 +58,6 @@ namespace NAnt.Core {
             Level projectThreshold = Level.Info;
 
             try {
-                PropertyDictionary buildOptionProps = new PropertyDictionary();
-
                 CommandLineOptions cmdlineOptions = new CommandLineOptions();
                 commandLineParser = new CommandLineParser(typeof(CommandLineOptions));
                 commandLineParser.Parse(args, cmdlineOptions);
@@ -96,6 +94,8 @@ namespace NAnt.Core {
                     project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
                 }
 
+                PropertyDictionary buildOptionProps = new PropertyDictionary(project);
+
                 // add build logger and build listeners to project
                 ConsoleDriver.AddBuildListeners(cmdlineOptions, project);
 
@@ -119,6 +119,10 @@ namespace NAnt.Core {
                 foreach (System.Collections.DictionaryEntry de in buildOptionProps) {
                     project.Properties.AddReadOnly((string) de.Key, (string) de.Value);
                 }
+
+                // HACK: this allows the user to disable EE until it's stable 
+                PropertyDictionary.DisableExpressionEvaluator = cmdlineOptions.DisableExpressionEvaluator;
+                // END OF HACK
 
                 //add these here and in the project .ctor
                 Assembly ass = Assembly.GetExecutingAssembly();

@@ -132,8 +132,8 @@ namespace NAnt.Core {
         private StringCollection _buildTargets = new StringCollection();
         private TargetCollection _targets = new TargetCollection();
         private LocationMap _locationMap = new LocationMap();
-        private PropertyDictionary _properties = new PropertyDictionary();
-        private PropertyDictionary _frameworkNeutralProperties = new PropertyDictionary();
+        private PropertyDictionary _properties = null;
+        private PropertyDictionary _frameworkNeutralProperties = null;
 
         // info about frameworks
         private FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
@@ -1037,6 +1037,9 @@ namespace NAnt.Core {
         /// <param name="indentLevel">The project indentation level.</param>
         protected void CtorHelper(XmlDocument doc, Level threshold, int indentLevel) {
             string newBaseDir = null;
+
+            _properties = new PropertyDictionary(this);
+            _frameworkNeutralProperties = new PropertyDictionary(this);
 
             TypeFactory.AddProject(this);
 

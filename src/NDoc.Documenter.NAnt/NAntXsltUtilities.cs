@@ -455,7 +455,30 @@ namespace NDoc.Documenter.NAnt {
 
             return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
-       
+                
+        /// <summary>
+        /// Returns the filename to use for the given function XmlElement
+        /// </summary>
+        /// <param name="typeNode">The "method" element to find the filename for.</param>
+        /// <returns>
+        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
+        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
+        /// </returns>
+        internal static string GetFileNameForFunction(XmlElement functionElement) {
+            string name = "";
+            XmlNode n = functionElement.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value");
+            if (n != null && n.InnerText != "") {
+                name += n.InnerText + ".";
+            }
+            n = functionElement.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value");
+            if (n != null && n.InnerText != "") {
+                name += n.InnerText;
+            } else {
+                name += functionElement.GetAttribute("name");
+            }
+            return "functions/" + name + ".html";
+        }
+        
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, SdkDocVersion linkToSdkDocVersion){
             //just in case... but we should never see this happen.
             lock(typeof(NAntXsltUtilities)) {

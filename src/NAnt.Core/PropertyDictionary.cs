@@ -29,8 +29,19 @@ using System.Text.RegularExpressions;
 namespace NAnt.Core {
     [Serializable()]
     public class PropertyDictionary : DictionaryBase {
-        #region Public Instance Properties
+        #region public Constructors
+        
+        public PropertyDictionary() {
+        }
 
+        public PropertyDictionary(Project project){
+            _project = project;
+        }
+
+        #endregion public Constructors
+
+        #region Public Instance Properties
+        
         /// <summary>
         /// Indexer property. 
         /// </summary>
@@ -45,6 +56,7 @@ namespace NAnt.Core {
                 }
             }
             set {
+                ValidatePropertyName(name, Location.UnknownLocation);
                 if (!IsReadOnlyProperty(name)) {
                     Dictionary[name] = value;
                 } 
@@ -71,6 +83,7 @@ namespace NAnt.Core {
         /// </remarks>
         public virtual void AddReadOnly(string name, string value) {
             if (!IsReadOnlyProperty(name)) {
+                ValidatePropertyName(name, Location.UnknownLocation);
                 _readOnlyProperties.Add(name);
                 Dictionary.Add(name, value);
             }
@@ -83,6 +96,7 @@ namespace NAnt.Core {
         /// <param name="name">The name of the property to mark as dynamic.</param>
         public virtual void MarkDynamic(string name) {
             if (!IsDynamicProperty(name)) {
+                ValidatePropertyName(name, Location.UnknownLocation);
                 _dynamicProperties.Add(name);
             }
         }
@@ -94,6 +108,7 @@ namespace NAnt.Core {
         /// <param name="value">The value to assign to the property.</param>
         public virtual void Add(string name, string value) {
             if (!IsReadOnlyProperty(name)) {
+                ValidatePropertyName(name, Location.UnknownLocation);
                 Dictionary.Add(name, value);
             }
         }
@@ -108,6 +123,7 @@ namespace NAnt.Core {
         /// </remarks>
         public virtual void SetValue(string name, string value) {
             if (!IsReadOnlyProperty(name)) {
+                ValidatePropertyName(name, Location.UnknownLocation);
                 Dictionary[name] = value;
             } 
         }
@@ -155,6 +171,7 @@ namespace NAnt.Core {
                 }
 
                 // add property to dictionary
+                ValidatePropertyName(propertyName, Location.UnknownLocation);
                 Dictionary[propertyName] = entry.Value;
 
                 // if property is readonly, add to collection of readonly properties
@@ -202,9 +219,43 @@ namespace NAnt.Core {
             _readOnlyProperties.Clear();
         }
 
+        protected override void OnInsert(Object key, Object value)  {
+            string propertyName = key as string;
+            if (propertyName == null)
+                throw new ArgumentException("Property name must be a string.", "key");
+
+            if (value != null) {
+                if (!(value is string))
+                    throw new ArgumentException("Property value must be a string, was " + value.GetType(), "value");
+            } else {
+                // TODO: verify this
+                // throw new ArgumentException("Property value '" + propertyName + "' must not be null", "value");
+                return;
+            }
+
+            ValidatePropertyName(propertyName, Location.UnknownLocation);
+        }
         #endregion Override implementation of DictionaryBase
 
         #region Private Instance Methods
+
+        public static void ValidatePropertyName(string propertyName, Location location) {
+            const string propertyNamePattern = "^[_A-Za-z0-9][_A-Za-z0-9\\-.]*$";
+
+            // validate property name
+            //
+            if (!Regex.IsMatch(propertyName, propertyNamePattern)) {
+                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
+            }
+            if (propertyName.EndsWith("-") || propertyName.EndsWith(".")) {
+                // this additional rule helps simplify the regex pattern
+                throw new BuildException("Property name '" + propertyName + "' is invalid", location);
+            }
+        }
+
+        internal string GetPropertyValue(string propertyName) {
+                return (string)Dictionary[propertyName];
+        }
 
         /// <summary>
         /// Expands a <see cref="string" /> from known properties.
@@ -214,7 +265,11 @@ namespace NAnt.Core {
         /// <param name="state">A mapping from properties to states. The states in question are "VISITING" and "VISITED". Must not be <see langword="null" />.</param>
         /// <param name="visiting">A stack of properties which are currently being visited. Must not be <see langword="null" />.</param>
         /// <returns>The expanded and replaced string.</returns>
-        private string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {
+        internal string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {
+            if (!DisableExpressionEvaluator) {
+                return EvaluateEmbeddedExpressions(input, location, state, visiting);
+            }
+            
             string output = input;
             if (input != null) {
                 const string pattern = @"\$\{([^\}]*)\}";
@@ -241,12 +296,11 @@ namespace NAnt.Core {
                             if (IsDynamicProperty(propertyName)) {
                                 propertyValue = ExpandProperties(propertyValue, location, state, visiting);
                             }
-
-                            output = output.Replace(token, propertyValue);
                         } else {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 "Property '{0}' has not been set.", propertyName), location);
                         }
+                        output = output.Replace(token, propertyValue);
 
                         visiting.Pop();
                         state[propertyName] = PropertyDictionary.Visited;
@@ -254,6 +308,61 @@ namespace NAnt.Core {
                 }
             }
             return output;
+        }
+
+        private string EvaluateEmbeddedExpressions(string input, Location location, Hashtable state, Stack visiting) {
+            if (input == null) {
+                return null;
+            }
+
+            if (input.IndexOf('$') < 0) {
+                return input;
+            }
+
+            try {
+                StringBuilder output = new StringBuilder(input.Length);
+
+                ExpressionTokenizer tokenizer = new ExpressionTokenizer();
+                ExpressionEvaluator eval = new ExpressionEvaluator(_project, this, location, state, visiting);
+
+                tokenizer.IgnoreWhitespace = false;
+                tokenizer.SingleCharacterMode = true;
+                tokenizer.InitTokenizer(input);
+
+                while (tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
+                    if (tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Dollar) {
+                        tokenizer.GetNextToken();
+                        if (tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LeftCurlyBrace) {
+                            tokenizer.IgnoreWhitespace = true;
+                            tokenizer.SingleCharacterMode = false;
+                            tokenizer.GetNextToken();
+
+                            string val = Convert.ToString(eval.Evaluate(tokenizer), CultureInfo.InvariantCulture);
+                            output.Append(val);
+                            tokenizer.IgnoreWhitespace = false;
+
+                            if (tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightCurlyBrace) {
+                                throw new BuildException("'}' expected");
+                            }
+                            tokenizer.SingleCharacterMode = true;
+                            tokenizer.GetNextToken();
+                        } else {
+                            output.Append('$');
+                            if (tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
+                                output.Append(tokenizer.TokenText);
+                                tokenizer.GetNextToken();
+                            }
+                        }
+                    } else {
+                        output.Append(tokenizer.TokenText);
+                        tokenizer.GetNextToken();
+                    }
+                }
+                return output.ToString();
+            } catch (ExpressionParseException ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Error evaluating '{0}'", input), location, ex);
+            }
         }
 
         #endregion Private Instance Methods
@@ -270,7 +379,7 @@ namespace NAnt.Core {
         /// A <see cref="BuildException" /> detailing the specified circular 
         /// dependency.
         /// </returns>
-        private static BuildException CreateCircularException(string end, Stack stack) {
+        internal static BuildException CreateCircularException(string end, Stack stack) {
             StringBuilder sb = new StringBuilder("Circular property reference: ");
             sb.Append(end);
 
@@ -300,21 +409,29 @@ namespace NAnt.Core {
         /// </summary>
         private StringCollection _dynamicProperties = new StringCollection();
 
+        Project _project = null;
+
         #endregion Private Instance Fields
 
         #region Private Static Fields
 
         /// <summary>
+        /// A global flag to disable expression evaluator. Useful to revert to pre-EE 
+        /// NAnt behaviour.
+        /// </summary>
+        internal static bool DisableExpressionEvaluator = false;
+
+        /// <summary>
         /// Constant for the "visiting" state, used when traversing a DFS of 
         /// property references.
         /// </summary>
-        private const string Visiting = "VISITING";
+        internal const string Visiting = "VISITING";
 
         /// <summary>
         /// Constant for the "visited" state, used when travesing a DFS of 
         /// property references.
         /// </summary>
-        private const string Visited = "VISITED";
+        internal const string Visited = "VISITED";
 
         #endregion Private Static Fields
     }

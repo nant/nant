@@ -30,13 +30,13 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoWarn = "0618;1591"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
-                    WarningLevel = "1"
+                    WarningLevel = "4"
+                    NoWarn = "0618;1591"
                 />
                 <Config
                     Name = "Debug Main NAnt BuildFile"
@@ -49,13 +49,13 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoWarn = "0618;1591"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
                     WarningLevel = "4"
+                    NoWarn = "0618;1591"
                 />
             </Settings>
             <References>
@@ -146,12 +146,37 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ExpressionEvalBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ExpressionEvaluator.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ExpressionParseException.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ExpressionTokenizer.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "FrameworkInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "FrameworkInfoDictionary.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "FunctionSetBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -270,6 +295,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Attributes\FunctionAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Attributes\FunctionSetAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Attributes\ElementNameAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -311,6 +346,51 @@
                 />
                 <File
                     RelPath = "Attributes\ValidatorAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\ConversionFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\DateTimeFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\DebugFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\DirectoryFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\FileFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\MathFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\NAntFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\PathFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\StringFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -455,6 +535,11 @@
                 />
                 <File
                     RelPath = "Tasks\TStampTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\UpToDateTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

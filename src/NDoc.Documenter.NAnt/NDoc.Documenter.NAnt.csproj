@@ -127,6 +127,14 @@
                     BuildAction = "Content"
                 />
                 <File
+                    RelPath = "Resources\function-doc.xslt"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Resources\function-index.xslt"
+                    BuildAction = "Content"
+                />
+                <File
                     RelPath = "Resources\nant-attributes.xslt"
                     BuildAction = "Content"
                 />

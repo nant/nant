@@ -39,7 +39,7 @@ namespace NAnt.Core {
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);        private static TaskBuilderCollection _taskBuilders = new TaskBuilderCollection();
         private static DataTypeBaseBuilderCollection _dataTypeBuilders = new DataTypeBaseBuilderCollection();
-        
+        private static Hashtable _methodInfoCollection = new Hashtable();
         private static ArrayList _projects = new ArrayList();
 
         #endregion Private Static Fields
@@ -58,6 +58,9 @@ namespace NAnt.Core {
             // TO-DO combine these two AddTasks and AddDataTypes
             AddDataTypes(Assembly.GetExecutingAssembly());
             AddDataTypes(Assembly.GetCallingAssembly());
+
+            AddFunctionSets(Assembly.GetExecutingAssembly());
+            AddFunctionSets(Assembly.GetCallingAssembly());
 
             string nantBinDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
             ScanDir(nantBinDir);
@@ -83,18 +86,18 @@ namespace NAnt.Core {
             DirectoryScanner scanner = new DirectoryScanner();
             scanner.BaseDirectory = path;
             scanner.Includes.Add("*Tasks.dll");
-            
+
             //needed for testing
             scanner.Includes.Add("*Tests.dll");
             scanner.Includes.Add("*Test.dll");
 
-            logger.Info(string.Format(CultureInfo.InvariantCulture,"Adding Tasks (from AppDomain='{0}'):", AppDomain.CurrentDomain.FriendlyName));
             foreach (string assemblyFile in scanner.FileNames) {
                 logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                    "Scanning assembly '{0}' for tasks and types.", assemblyFile));
-                
+                    "Scanning assembly '{0}' for tasks, types and functions.", assemblyFile));
+
                 AddTasks(Assembly.LoadFrom(assemblyFile));
                 AddDataTypes(Assembly.LoadFrom(assemblyFile));
+                AddFunctionSets(Assembly.LoadFrom(assemblyFile));
             }
         }
 
@@ -124,11 +127,79 @@ namespace NAnt.Core {
         public static TaskBuilderCollection TaskBuilders {
             get { return _taskBuilders; }
         }
-        
-         public static DataTypeBaseBuilderCollection DataTypeBuilders {
+
+        public static DataTypeBaseBuilderCollection DataTypeBuilders {
             get { return _dataTypeBuilders; }
         }
 
+        /// <summary>
+        /// Scans the given assembly for any classes derived from 
+        /// <see cref="FunctionSetBase" /> and scans them for custom functions.
+        /// </summary>
+        /// <param name="taskAssembly">The <see cref="Assembly" /> containing the new custom functions to be loaded.</param>
+        /// <returns>
+        /// The number of functions found in the assembly.
+        /// </returns>
+        public static int AddFunctionSets(Assembly taskAssembly) {
+            int functionSetCount = 0;
+
+            try {
+                foreach (Type type in taskAssembly.GetTypes()) {
+                    FunctionSetAttribute functionSetAttribute = (FunctionSetAttribute) 
+                        Attribute.GetCustomAttribute(type, typeof(FunctionSetAttribute));
+                    if (functionSetAttribute != null) {
+                        bool acceptType = (type == typeof(ExpressionEvaluator));
+                        
+                        if (type.IsSubclassOf(typeof(FunctionSetBase)) && !type.IsAbstract) {
+                            acceptType = true;
+                        }
+
+                        if (acceptType) {
+                            string prefix = functionSetAttribute.Prefix;
+                            if (prefix != null && prefix != String.Empty) {
+                                prefix += "::";
+                            } else {
+                                continue;
+                            }
+
+                            //
+                            // add instance methods
+                            // 
+                            foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                                FunctionAttribute functionAttribute = (FunctionAttribute)
+                                    Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
+                                if (functionAttribute != null) {
+                                    // look at scoping each class by namespace prefix
+                                    if (! _methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
+                                        _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
+                                    }
+                                }
+                            }
+
+                            //
+                            // add static methods
+                            // 
+                            foreach ( MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Static )) {
+                                FunctionAttribute functionAttribute = (FunctionAttribute)
+                                    Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
+                                if (functionAttribute != null) {
+                                    // look at scoping each class by prefix
+                                    if (! _methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
+                                        _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
+                                    }
+                                }
+                            }
+                            functionSetCount++;
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error loading functions from '{0}' ({1}).", taskAssembly.FullName, 
+                    taskAssembly.Location), ex);
+            }
+            return functionSetCount;
+        }
         /// <summary>
         /// Scans the given assembly for any classes derived from 
         /// <see cref="Task" /> and adds a new builder for them.
@@ -185,7 +256,7 @@ namespace NAnt.Core {
 
             return taskCount;
         }
-        
+
         public static int AddDataTypes(Assembly taskAssembly) {
             int typeCount = 0;
 
@@ -226,6 +297,15 @@ namespace NAnt.Core {
             }
 
             return typeCount;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
+        public static MethodInfo LookupFunction(string methodName){
+            return (MethodInfo)_methodInfoCollection[methodName];
         }
 
         /// <summary> 
@@ -274,7 +354,7 @@ namespace NAnt.Core {
 
             return task;
         }
-        
+
         public static DataTypeBase CreateDataType(XmlNode elementNode, Project proj) {
             if (elementNode == null) {
                 throw new ArgumentNullException("elementNode");

@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
+// Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
 using System.Globalization;
@@ -139,6 +140,7 @@ namespace NAnt.Core.Tasks {
         private string _propNameTrue = null;
         private string _propNameExists = null;
         private string _targetName = null;
+        private string _test = null;
         private FileSet _compareFiles = null;
         private FileSet _uptodateFiles = null;
 
@@ -150,10 +152,15 @@ namespace NAnt.Core.Tasks {
         /// The file to compare if uptodate.
         /// </summary>
         [TaskAttribute("uptodatefile")]
+        [System.Obsolete("Use <uptodate /> instead.", false)]
         public string UpToDateFile {
-            set { 
+            set {
                 if (_uptodateFiles == null) {
-                    _uptodateFiles = new FileSet();                    _uptodateFiles.Parent = this;                    _uptodateFiles.Project = this.Project;                    //_uptodateFiles.FailOnEmpty = true;                }
+                    _uptodateFiles = new FileSet();
+                    _uptodateFiles.Parent = this;
+                    _uptodateFiles.Project = this.Project;
+                    //_uptodateFiles.FailOnEmpty = true;
+                }
                 _uptodateFiles.Includes.Add(value); 
             }
         }
@@ -162,10 +169,15 @@ namespace NAnt.Core.Tasks {
         /// The file to check against for the uptodate file.
         /// </summary>
         [TaskAttribute("comparefile")]
+        [System.Obsolete("Use <uptodate /> instead.", false)]
         public string CompareFile {
             set { 
                 if (_compareFiles == null) {
-                    _compareFiles = new FileSet();                    _compareFiles.Parent = this;                    _compareFiles.Project = this.Project;                    //_compareFiles.FailOnEmpty=true;                }
+                    _compareFiles = new FileSet();
+                    _compareFiles.Parent = this;
+                    _compareFiles.Project = this.Project;
+                    //_compareFiles.FailOnEmpty=true;
+                }
                 _compareFiles.Includes.Add(value); 
             }
         }
@@ -175,16 +187,18 @@ namespace NAnt.Core.Tasks {
         /// the <see cref="UpToDateFile" />(s) check.
         /// </summary>
         [BuildElement("comparefiles")]
+        [System.Obsolete("Use <uptodate /> instead.", false)]
         public FileSet CompareFiles {
             get { return _compareFiles; }
             set { _compareFiles = value; }
         } 
-        
+
         /// <summary>
         /// The <see cref="FileSet" /> that contains the uptodate files for 
         /// the <see cref="CompareFile" />(s) check.
         /// </summary>
         [BuildElement("uptodatefiles")]
+        [System.Obsolete("Use <uptodate /> instead.", false)]
         public FileSet UpToDateFiles {
             get { return _uptodateFiles; }
             set { _uptodateFiles = value; }
@@ -194,6 +208,7 @@ namespace NAnt.Core.Tasks {
         /// Used to test whether a property is true.
         /// </summary>
         [TaskAttribute("propertytrue")]
+        [System.Obsolete("Use <if test=\"${propertyname}\"> instead.", false)]
         public string PropertyNameTrue {
             get { return _propNameTrue; }
             set { _propNameTrue = StringUtils.ConvertEmptyToNull(value); }
@@ -203,6 +218,7 @@ namespace NAnt.Core.Tasks {
         /// Used to test whether a property exists.
         /// </summary>
         [TaskAttribute("propertyexists")]
+        [System.Obsolete("Use <if test=\"${nant::property-exists('propertyname')}\"> instead.", false)]
         public string PropertyNameExists {
             get { return _propNameExists;}
             set { _propNameExists = StringUtils.ConvertEmptyToNull(value); }
@@ -211,10 +227,20 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Used to test whether a target exists.
         /// </summary>
-       [TaskAttribute("targetexists")]
+        [TaskAttribute("targetexists")]
+        [System.Obsolete("Use <if test=\"${nant::target-exists('targetname')}\"> instead.", false)]
         public string TargetNameExists {
             get { return _targetName; }
             set { _targetName = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Used to test arbitrary boolean expression
+        /// </summary>
+        [TaskAttribute("test")]
+        public string Test {
+            get { return _test; }
+            set { _test = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -224,6 +250,12 @@ namespace NAnt.Core.Tasks {
         protected virtual bool ConditionsTrue {
             get {
                 bool ret = true;
+
+                if (Test != null) {
+                    bool booleanValue = Convert.ToBoolean(Test);    // this should be a string "True" or "False"
+                    if (!booleanValue)
+                        return false;
+                }
 
                 // check if target exists
                 if (TargetNameExists != null) {
@@ -291,8 +323,14 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {            base.InitializeTask (taskNode);
-            //check that we have something to do.            if((UpToDateFiles == null || CompareFiles == null) && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {                throw new BuildException(LogPrefix + " at least one if condition" +                    " must be set (propertytrue, targetexists, etc...):", Location);            }        }
+        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+            base.InitializeTask (taskNode);
+            //check that we have something to do.
+            if((UpToDateFiles == null || CompareFiles == null) && Test == null && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {
+                throw new BuildException(LogPrefix + " at least one if condition" +
+                        " must be set (test, propertytrue, targetexists, etc...):", Location);
+            }
+        }
 
         #endregion Override implementation of Task
     }
@@ -338,28 +376,4 @@ namespace NAnt.Core.Tasks {
 
         #endregion Override implementation of IfTask
     }
-
-    /*
-    /// <summary>
-    /// Just like if, but makes sense inside an if task.
-    /// </summary>
-    /// <remarks>The contents of the and/or tasks are executed before the conditionals are checked.</remarks>
-    [TaskName("and")]
-    public class AndTask : IfTask{
-        protected override void ExecuteTask() {
-            //do nothing
-        }
-
-        protected override bool ConditionsTrue {
-            get {
-                base.ExecuteTask();
-                return base.ConditionsTrue;
-            }
-        }
-    }
-
-    [TaskName("or")]
-    public class OrTask : AndTask{
-    }
-    */
 }
