@@ -57,6 +57,8 @@
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
                 <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />
                 <include name="${lib.framework.dir}/nunit.framework.dll" />
+                <include name="${lib.framework.dir}/nunit.core.dll" />
+                <include name="${lib.framework.dir}/nunit.util.dll" />
             </references>
         </csc>
     </target>
