@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
-    <echo message="Using '${nant.settings.defaultframework}' Framework"/>
+    <echo message="Using '${nant.settings.currentframework}' Framework"/>
     
     <!-- global project settings -->
     <property name="project.name" value="nant" />
