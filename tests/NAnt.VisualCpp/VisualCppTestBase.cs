@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
 
 using NAnt.Core;
 using NAnt.Core.Functions;
@@ -163,7 +164,7 @@ namespace Tests.NAnt.VisualCpp {
             foreach (string compiler in compilers) {
                 // get major version of compiler
                 int majorVersion = VersionFunctions.GetMajor(
-                    FileFunctions.GetFileVersion(compiler));
+                    FileVersionInfo.GetVersionInfo(compiler).FileVersion);
                 // the MS compiler supports Managed Extensions starting from 
                 // version 13
                 if (majorVersion < 13) {
