@@ -28,6 +28,42 @@
                 </td>
             </tr>
         </table>
+        <h3>0.84-rc 2 (December 18, 2003)</h3>
+        <h4>General&nbsp;changes</h4>
+        <ul>
+            <li>
+                Specifying multiple targets on the command line will no longer cause all dependencies
+                of these targets to be executed again.
+            </li>
+            <li>
+                <code>NAnt.Core.XmlLogger</code> will now correctly handle null-characters in the
+                build output.
+            </li>
+            <li>
+                Fixed issue with resources specified using the <code>&lt;resources&gt;</code> element of the compiler tasks.
+            </li>
+        </ul>
+        <h4>Task changes</h4>
+        <h5>&lt;solution&gt;</h5>
+        <ul>
+            <li>
+                Fixed issues with web-projects.
+            </li>
+        </ul>
+        <h5>&lt;xmlpeek&gt;</h5>
+        <ul>
+            <li>
+                <code>filename</code> attribute was renamed to <code>file</code> to improve consistency
+                with other tasks.
+            </li>
+        </ul>
+        <h5>&lt;xmlpoke&gt;</h5>
+        <ul>
+            <li>
+                <code>filename</code> attribute was renamed to <code>file</code> to improve consistency
+                with other tasks.
+            </li>
+        </ul>
         <h3>0.84-rc 1 (December 6, 2003)</h3>
         <h4>Breaking changes</h4>
         <p>Some existing build scripts may stop working now or in the next release due to the
