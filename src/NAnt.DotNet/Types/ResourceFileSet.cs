@@ -75,10 +75,10 @@ namespace NAnt.DotNet.Types {
         /// </value>
         public FileSet ResxFiles {
             get {
-				ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
+                ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
                 retFileSet.Includes.Clear();
                 retFileSet.Excludes.Clear();
-				retFileSet.AsIs.Clear();
+                retFileSet.AsIs.Clear();
                 retFileSet.FailOnEmpty = false;
                 foreach (string file in FileNames) {
                     if (Path.GetExtension(file).ToLower(CultureInfo.InvariantCulture) == ".resx" ) {
@@ -99,12 +99,12 @@ namespace NAnt.DotNet.Types {
         /// </value>
         public FileSet NonResxFiles {
             get {
-				ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
-				retFileSet.Includes.Clear();
-				retFileSet.Excludes.Clear();
-				retFileSet.AsIs.Clear();
+                ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
+                retFileSet.Includes.Clear();
+                retFileSet.Excludes.Clear();
+                retFileSet.AsIs.Clear();
                 retFileSet.FailOnEmpty = false;
-				foreach (string file in FileNames) {
+                foreach (string file in FileNames) {
                     if (Path.GetExtension(file).ToLower(CultureInfo.InvariantCulture) != ".resx" ) {
                         retFileSet.Includes.Add(file);
                     }
