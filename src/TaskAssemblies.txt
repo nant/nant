@@ -1,0 +1,2 @@
+NAnt.DotNetTasks
+NAnt.ZipTasks
