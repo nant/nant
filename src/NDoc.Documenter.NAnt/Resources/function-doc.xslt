@@ -56,7 +56,7 @@
         <xsl:variable name="name"><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
-            <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <link rel="stylesheet" type="text/css" href="../../style.css" />
             <title><xsl:value-of select="$name" /> Function</title>
         </head>
@@ -117,14 +117,16 @@
                                     </xsl:call-template>
                                 </td>
                                 <xsl:variable name="paramname" select="@name" />
-                                <td><xsl:apply-templates select="../documentation/param[@name=$paramname]" mode="slashdoc" /></td>
+                                <td><xsl:apply-templates select="../documentation/param[@name=$paramname]/node()" mode="slashdoc" /></td>
                             </tr>
                         </xsl:for-each>
                     </table>
                 </div>
             </xsl:if>
-            <h3>Return Value</h3>
-            <xsl:apply-templates select="documentation/returns" mode="slashdoc" />
+            <xsl:if test="count(documentation/returns) != 0">
+                <h3>Return Value</h3>
+                <xsl:apply-templates select="documentation/returns/node()" mode="slashdoc" />
+            </xsl:if>
             <xsl:if test="count(documentation/remarks) != 0">
                 <h3>Remarks</h3>
                 <xsl:apply-templates select="documentation/remarks" mode="slashdoc" />
