@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,41 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-
-	/// <summary>Prints information about running tests in simple plain text.</summary>
-	public class PlainTextFormatter : IResultFormatter	{
-
-		TextWriter _writer = null;
+    /// <summary>
+    /// Prints information about running tests in plain text.
+    /// </summary>
+    public class PlainTextFormatter : IResultFormatter {
+        #region Public Instance Constructors
 
         public PlainTextFormatter() {
         }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
 
         public TextWriter Writer {
             get { return _writer; }
             set { _writer = value; }
         }
 
-        //-------------------------------------------------------------
-		// IResultFormatter interface methods
-		//-------------------------------------------------------------
+        #endregion Public Instance Properties
+
+        #region Implementation of IResultFormatter
 
         /// <summary>Sets the Writer the formatter is supposed to write its results to.</summary>
         public void SetOutput(TextWriter writer) {
             Writer = writer;
         }
 
-		/// <summary>Called when the whole test suite has started.</summary>
+        /// <summary>Called when the whole test suite has started.</summary>
         public void StartTestSuite(NUnitTestData suite) {
         }
 
@@ -65,10 +68,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             Writer.Close();
         }
 
-        //-------------------------------------------------------------
-		// ITestListener interface methods
-		//-------------------------------------------------------------
-		
+        #endregion Implementation of IResultFormatter
+
+        #region Implementation of ITestListener
+
         public void AddError(ITest test, Exception e) {
             Writer.WriteLine("ERROR: " + test.ToString());
             Writer.WriteLine(FormatError(e.StackTrace, e.Message));
@@ -86,6 +89,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
 
         public void EndTest(ITest test) {
         }
+
+        #endregion Implementation of ITestListener
+
+        #region Private Static Methods
 
         /// <summary>Convert a stack trace line into something that can be clicked on in an IDE output window.</summary>
         /// <param name="trace">The StackTrace string, see <see cref="Exception.StackTrace"/>.</param>
@@ -106,6 +113,14 @@ namespace SourceForge.NAnt.Tasks.NUnit {
                 }
             }
             return line;
-        }    
+        }
+
+        #endregion Private Static Methods
+
+        #region Private Instance Fields
+
+        TextWriter _writer = null;
+
+        #endregion Private Instance Fields
     }
 }

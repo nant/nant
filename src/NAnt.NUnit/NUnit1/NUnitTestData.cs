@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,25 +26,10 @@ using SourceForge.NAnt.Tasks.NUnit.Formatters;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
     /// <summary>
-    /// Carries data specified through the test element
+    /// Carries data specified through the test element.
     /// </summary>
     [Serializable]
     public class NUnitTestData {
-        #region Private Instance Fields
-
-        string _todir = null;
-        string _outfile = null;
-        string _class = null;
-        string _assembly = null;
-        bool _fork = false;
-        bool _haltonerror = false;
-        bool _haltonfailure = false;
-        ITest _suite = null;
-        FormatterDataCollection _formatters = new FormatterDataCollection();
-        string _appConfigFile = null;
-
-        #endregion Private Instance Fields
-
         #region Public Instance Properties
 
         public ITest Suite {
@@ -97,5 +82,20 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        string _todir = null;
+        string _outfile = null;
+        string _class = null;
+        string _assembly = null;
+        bool _fork = false;
+        bool _haltonerror = false;
+        bool _haltonfailure = false;
+        ITest _suite = null;
+        FormatterDataCollection _formatters = new FormatterDataCollection();
+        string _appConfigFile = null;
+
+        #endregion Private Instance Fields
     }
 }

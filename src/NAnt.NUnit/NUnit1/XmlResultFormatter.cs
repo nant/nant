@@ -26,77 +26,70 @@ using NUnit.Framework;
 using System.Xml;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
+    /// <summary>
+    /// Prints detailed information about running tests in XML format.
+    /// </summary>
+    public class XmlResultFormatter : IResultFormatter {
+        #region Public Instance Constructors
 
-    /// <summary>Prints detailed information in XML format about running tests.</summary>
-    public class XmlResultFormatter : IResultFormatter	{
-			   	 
-        const string ElementTestSuites = "testsuites";
-        const string ElementTestSuite = "testsuite";
-        const string ElementTestCase = "testcase";
-        const string ElementError = "error";
-        const string ElementFailure = "failure";		  
-	    
-        const string AttributePackage = "package";
-        const string AttributeName = "name";
-        const string AttributeTime = "time";
-        const string AttributeErrors = "errors";
-        const string AttributeFailures = "failures";
-        const string AttributeTests = "tests";
-        const string AttributeType = "type";
-        const string AttributeMessage = "message";
-        const string AttributeClassname = "classname";
-	    	    	    	    
-        TextWriter _writer;
-	    
-        // Document builder members
-        XmlDocument _document;	   
-        XmlElement _suiteElement;
-        XmlElement _currentTest;
-	    
-        DateTime _testStartTime;
-	
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XmlResultFormatter" />
+        /// class.
+        /// </summary>
         public XmlResultFormatter() {
             _document = new XmlDocument();
         }
-	    
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
         public TextWriter Writer {
             get { return _writer; }
             set { _writer = value; }
         }
-        
-        //-------------------------------------------------------------
-        // IResultFormatter interface methods
-        //-------------------------------------------------------------
 
-        /// <summary>Sets the Writer the formatter is supposed to write its results to.</summary>
+        #endregion Public Instance Properties
+
+        #region Implemenation of IResultFormatter
+
+        /// <summary>
+        /// Sets the <see cref="TextWriter" /> the formatter is supposed to 
+        /// write its results to.
+        /// </summary>
         public void SetOutput(TextWriter writer) {
             Writer = writer;
         }
 
-        /// <summary>Called when the whole test suite has started.</summary>
+        /// <summary>
+        /// Called when the whole test suite has started.
+        /// </summary>
         public void StartTestSuite(NUnitTestData suite) {
-            XmlDeclaration decl = _document.CreateXmlDeclaration("1.0", null, null);            
+            XmlDeclaration decl = _document.CreateXmlDeclaration("1.0", null, null);
             _document.AppendChild(decl);
             _suiteElement = _document.CreateElement(ElementTestSuite);
             //
             // if this is a testsuite, use it's name
             //
             string suiteName = suite.Suite.ToString();
-            if ( suiteName == null || suiteName == string.Empty )
+            if (suiteName == null || suiteName.Length == 0) {
                 suiteName = "test"; 
+            }
             _suiteElement.SetAttribute(AttributeName, suiteName );
         }
 
-        /// <summary>Called when the whole test suite has ended.</summary>
+        /// <summary>
+        /// Called when the whole test suite has ended.
+        /// </summary>
         public void EndTestSuite(TestResultExtra result) {
-            _suiteElement.SetAttribute(AttributeTests , result.RunCount.ToString());
+            _suiteElement.SetAttribute(AttributeTests , result.RunCount.ToString(NumberFormatInfo.InvariantInfo));
             double time = result.RunTime;
             time /= 1000D; 
             _suiteElement.SetAttribute(AttributeTime, time.ToString("#####0.000", NumberFormatInfo.InvariantInfo));
             _document.AppendChild(_suiteElement);
 
-            _suiteElement.SetAttribute(AttributeErrors , result.ErrorCount.ToString()); 
-            _suiteElement.SetAttribute(AttributeFailures , result.FailureCount.ToString());
+            _suiteElement.SetAttribute(AttributeErrors , result.ErrorCount.ToString(NumberFormatInfo.InvariantInfo)); 
+            _suiteElement.SetAttribute(AttributeFailures , result.FailureCount.ToString(NumberFormatInfo.InvariantInfo));
             
             // Send all output to here
             _document.Save(Writer);
@@ -104,10 +97,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             Writer.Close();
         }
 
-        //-------------------------------------------------------------
-        // ITestListener interface methods
-        //-------------------------------------------------------------
-		
+        #endregion Implemenation of IResultFormatter
+
+        #region Implemenation of ITestListener
+
         public void AddError(ITest test, Exception t) {
             FormatError(ElementError, test, t);
         }
@@ -134,6 +127,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             _currentTest.SetAttribute(AttributeTime, time.ToString("#####0.000", NumberFormatInfo.InvariantInfo));
         }
 
+        #endregion Implemenation of ITestListener
+
+        #region Private Instance Methods
+
         private void FormatError(string type, ITest test, Exception t) {
             if (test != null) {
                 EndTest(test);
@@ -153,9 +150,42 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             nested.SetAttribute(AttributeType, t.GetType().FullName);
 
             string trace = t.StackTrace;
-                    
             XmlText traceElement = _document.CreateTextNode(t.StackTrace);
             nested.AppendChild(traceElement);
         }
-    }			
+
+        #endregion Private Instance Methods
+
+        #region Private Instance Fields
+
+        TextWriter _writer;
+
+        XmlDocument _document;
+        XmlElement _suiteElement;
+        XmlElement _currentTest;
+
+        DateTime _testStartTime;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        const string ElementTestSuites = "testsuites";
+        const string ElementTestSuite = "testsuite";
+        const string ElementTestCase = "testcase";
+        const string ElementError = "error";
+        const string ElementFailure = "failure";		  
+
+        const string AttributePackage = "package";
+        const string AttributeName = "name";
+        const string AttributeTime = "time";
+        const string AttributeErrors = "errors";
+        const string AttributeFailures = "failures";
+        const string AttributeTests = "tests";
+        const string AttributeType = "type";
+        const string AttributeMessage = "message";
+        const string AttributeClassname = "classname";
+
+        #endregion Private Static Fields
+    }
 }

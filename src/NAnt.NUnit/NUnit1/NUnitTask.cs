@@ -20,12 +20,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
-using System.IO;
-using System.Reflection;
 using System.Runtime.Remoting;
-using System.Xml;
-
-using NUnit.Framework;
 
 using SourceForge.NAnt.Attributes;
 using SourceForge.NAnt.Tasks.NUnit.Formatters;
@@ -168,7 +163,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             domSetup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
             domSetup.ConfigurationFile = Project.GetFullPath(test.AppConfigFile);
             domSetup.ApplicationName = "NAnt Remote Domain";
-            AppDomain newDomain =  AppDomain.CreateDomain(domSetup.ApplicationName, null, domSetup);
+            AppDomain newDomain =  AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
 
             // instantiate subclassed test runner in new domain
             Type runnerType = typeof(RemoteNUnitTestRunner);
@@ -181,7 +176,6 @@ namespace SourceForge.NAnt.Tasks.NUnit {
                 );
             RemoteNUnitTestRunner runner = (RemoteNUnitTestRunner)(oh.Unwrap());
             Log.WriteLine(LogPrefix + "Running {0} ", test.Class);
-
 
             runner.Run(LogPrefix, Verbose);
             return runner.ResultCode;

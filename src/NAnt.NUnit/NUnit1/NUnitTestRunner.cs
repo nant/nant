@@ -19,9 +19,8 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Remoting;
 using System.Xml;
 
 using NUnit.Framework;
@@ -37,20 +36,7 @@ namespace SourceForge.NAnt.Tasks.NUnit {
     }
 
     public class NUnitTestRunner : BaseTestRunner {
-        IResultFormatterCollection _formatters = new IResultFormatterCollection();
-        NUnitTestData           _nunittest = null;
-        ITest               _suite = null;
-        TestResultExtra     _result = null;
-        RunnerResult        _resultCode = RunnerResult.Success;
-
-        /// <summary>
-        /// Gets the collection of the registered formatters.
-        /// </summary>
-        public IResultFormatterCollection Formatters {
-            get { return _formatters; }
-        }
-
-        public RunnerResult ResultCode        { get { return _resultCode; } }
+        #region Public Instance Constructors
 
         public NUnitTestRunner(NUnitTestData testData) {
             _nunittest = testData;
@@ -59,168 +45,37 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             testData.Suite = _suite;
         }
 
-        /// <summary>Returns the test suite from a given class.</summary>
-        /// <remarks>
-        /// The assemblyQualifiedName parameter needs to be in form:
-        /// "full.qualified.class.name,Assembly"
-        /// </remarks>
-        ITest GetSuite(string assemblyQualifiedName) {
-            // Don't worry about catching exceptions in this method.  The
-            // NUnitTask will catch them and throw a BuildException back to
-            // NAnt with the correct location in the build file. [gs]
+        #endregion Public Instance Constructors
 
-            StandardLoader loader = new StandardLoader();
-            ITest test = loader.LoadTest(assemblyQualifiedName);
-            return test;
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets the collection of registered formatters.
+        /// </summary>
+        /// <value>Collection of registered formatters.</value>
+        public IResultFormatterCollection Formatters {
+            get { return _formatters; }
         }
 
         /// <summary>
-        /// Determines if the unit test needs running.
+        /// Gets the result of the test.
         /// </summary>
-        /// <returns><c>true</c> if unit test needs running, otherwise returns <c>false</c>.</returns>
-        /// <remarks>
-        ///   <para>Determines if the test needs running by looking at the data stamp of the test assembly and the test results log.</para>
-        /// </remarks>
-        public bool NeedsRunning() {
-            // assume we need to run unless proven otherwise
-            bool needsRunning = true;
-
-            string assemblyFileName = _nunittest.Assembly;
-            string logFileName = _nunittest.OutFile + ".xml";
-
-            if (File.Exists(logFileName) && File.Exists(assemblyFileName)) {
-                DateTime assemblyDateStamp = File.GetLastWriteTime(assemblyFileName);
-                DateTime logDataStamp = File.GetLastWriteTime(logFileName);
-
-                // simple check of datestamps normally works
-                if (logDataStamp > assemblyDateStamp) {
-                    // date stamps are ok
-                    // look inside results to see if there were failures or errors
-                    try {
-                        XmlDocument doc = new XmlDocument();
-                        doc.Load(logFileName);
-
-                        // check for errors or failures
-                        // <testsuite name="Tests" tests="3" time="0.050" errors="0" failures="1">
-                        int errors   = Convert.ToInt32(doc.DocumentElement.Attributes["errors"].Value);
-                        int failuers = Convert.ToInt32(doc.DocumentElement.Attributes["failures"].Value);
-                        if (errors == 0 && failuers == 0) {
-                            // no previous errors or failures and the assembly date stamp is older
-                            // than the log so it should be safe to skip running the tests this time.
-                            needsRunning = false;
-                        }
-                    } catch (Exception) {
-                        // some sort of error parsing xml, so just run the tests again
-                    }
-                }
-            }
-            return needsRunning;
+        /// <value>The result of the test.</value>
+        public RunnerResult ResultCode {
+            get { return _resultCode; }
         }
 
-        /// <summary>Runs a Suite extracted from a TestCase subclass.</summary>
-        public void Run(string logPrefix, bool verbose) {
+        #endregion Public Instance Properties
 
-            CreateFormatters(_nunittest, logPrefix, verbose);
+        #region Override implementation of BaseTestRunner
 
-            _result = new TestResultExtra();
-
-            _result.AddListener(this);
-            long startTime = System.DateTime.Now.Ticks;
-
-            FireStartTestSuite();
-
-            // Fire start events
-            _suite.Run(_result);
-
-            // finished test
-            long endTime = System.DateTime.Now.Ticks;
-            long runTime = (endTime-startTime) / 10000;
-
-            _result.RunTime = runTime;
-
-            // Handle completion
-            FireEndTestSuite();
-
-            if (_result.WasSuccessful == false) {
-                if (_result.ErrorCount != 0) {
-                    _resultCode = RunnerResult.Errors;
-                }
-                else if (_result.FailureCount !=0) {
-                    _resultCode = RunnerResult.Failures;
-                }
-            }
-           
+        protected override void RunFailed(string message) {
         }
 
+        #endregion Override implementation of BaseTestRunner
 
-        /// <summary>
-        /// Creates the formatters to be used when running
-        /// this test.
-        /// </summary>
-        protected void CreateFormatters(NUnitTestData testData, string logPrefix, bool verbose) {
-            // Now add the specified formatters
-            foreach (FormatterData formatterData in testData.Formatters) {
-                // determine file
-                FileInfo outFile = getOutput(formatterData, testData);
-                IResultFormatter formatter = CreateFormatter(formatterData.Type, outFile);
-                Formatters.Add(formatter);
-            }
-            // Add default formatter
-            // The Log formatter is special in that it always writes to the
-            // Log class rather than the TextWriter set in SetOutput().
-            // HACK!
-            LogFormatter logFormatter = new LogFormatter(logPrefix, verbose);
-            Formatters.Add(logFormatter);
+        #region Override implementation of IListener
 
-        }
-
-        /// <summary>Return the file or null if does not use a file.</summary>
-        protected FileInfo getOutput(FormatterData formatterData, NUnitTestData test){
-            if ( formatterData.UseFile ) {
-                string filename = test.OutFile + formatterData.Extension;
-                string absFilename = Path.Combine(test.ToDir, filename);
-                return new FileInfo(absFilename);
-            }
-            return null;
-        }
-
-        protected IResultFormatter CreateFormatter(FormatterType type, FileInfo outfile) {
-            //Create new element based on ...
-            IResultFormatter retFormatter = null;
-            switch (type) {
-                case FormatterType.Plain:
-                    retFormatter = (IResultFormatter) new PlainTextFormatter();
-                    break;
-                case FormatterType.Xml:
-                    retFormatter = (IResultFormatter) new XmlResultFormatter();
-                    break;
-                case FormatterType.Custom:
-                    // Create based on class name
-                    break;
-                default:
-                    //retFormatter = Custom;
-                    break;
-            }
-    
-            if (outfile == null) {
-                retFormatter.SetOutput(new LogWriter());
-            }
-            else {
-                retFormatter.SetOutput( new StreamWriter( outfile.Create()));
-            }
-            return retFormatter;
-        }
-
-           
-        //---------------------------------------------------------
-        // BaseTestRunner overrides
-        //---------------------------------------------------------
-       protected override void RunFailed(string message) {
-       }
-
-        //---------------------------------------------------------
-        // IListener overrides
-        //---------------------------------------------------------
         public override void AddError(ITest test, Exception t) {
             foreach (IResultFormatter formatter in Formatters) {
                 formatter.AddError(test, t);
@@ -253,21 +108,192 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             }
         }
 
-        //---------------------------------------------------------
-        // Formatter notification methods
-        //---------------------------------------------------------
+        #endregion Override implementation of IListener
 
-        void FireStartTestSuite() {
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Determines if the unit test needs running.
+        /// </summary>
+        /// <returns><c>true</c> if unit test needs running, otherwise returns <c>false</c>.</returns>
+        /// <remarks>
+        ///   <para>Determines if the test needs running by looking at the data stamp of the test assembly and the test results log.</para>
+        /// </remarks>
+        public bool NeedsRunning() {
+            // assume we need to run unless proven otherwise
+            bool needsRunning = true;
+
+            string assemblyFileName = _nunittest.Assembly;
+            string logFileName = _nunittest.OutFile + ".xml";
+
+            if (File.Exists(logFileName) && File.Exists(assemblyFileName)) {
+                DateTime assemblyDateStamp = File.GetLastWriteTime(assemblyFileName);
+                DateTime logDataStamp = File.GetLastWriteTime(logFileName);
+
+                // simple check of datestamps normally works
+                if (logDataStamp > assemblyDateStamp) {
+                    // date stamps are ok
+                    // look inside results to see if there were failures or errors
+                    try {
+                        XmlDocument doc = new XmlDocument();
+                        doc.Load(logFileName);
+
+                        // check for errors or failures
+                        // <testsuite name="Tests" tests="3" time="0.050" errors="0" failures="1">
+                        int errors   = Convert.ToInt32(doc.DocumentElement.Attributes["errors"].Value, NumberFormatInfo.InvariantInfo);
+                        int failuers = Convert.ToInt32(doc.DocumentElement.Attributes["failures"].Value, NumberFormatInfo.InvariantInfo);
+                        if (errors == 0 && failuers == 0) {
+                            // no previous errors or failures and the assembly date stamp is older
+                            // than the log so it should be safe to skip running the tests this time.
+                            needsRunning = false;
+                        }
+                    } catch {
+                        // some sort of error parsing xml, so just run the tests again
+                    }
+                }
+            }
+            return needsRunning;
+        }
+
+        /// <summary>
+        /// Runs a Suite extracted from a TestCase subclass.
+        /// </summary>
+        public void Run(string logPrefix, bool verbose) {
+            CreateFormatters(_nunittest, logPrefix, verbose);
+
+            _result = new TestResultExtra();
+
+            _result.AddListener(this);
+            long startTime = System.DateTime.Now.Ticks;
+
+            // Handle start
+            OnStartTestSuite();
+
+            _suite.Run(_result);
+
+            // finished test
+            long endTime = System.DateTime.Now.Ticks;
+            long runTime = (endTime-startTime) / 10000;
+
+            _result.RunTime = runTime;
+
+            // Handle completion
+            OnEndTestSuite();
+
+            if (_result.WasSuccessful == false) {
+                if (_result.ErrorCount != 0) {
+                    _resultCode = RunnerResult.Errors;
+                } else if (_result.FailureCount !=0) {
+                    _resultCode = RunnerResult.Failures;
+                }
+            }
+           
+        }
+
+        #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Creates the formatters to be used when running this test.
+        /// </summary>
+        protected void CreateFormatters(NUnitTestData testData, string logPrefix, bool verbose) {
+            // Now add the specified formatters
+            foreach (FormatterData formatterData in testData.Formatters) {
+                // determine file
+                FileInfo outFile = GetOutput(formatterData, testData);
+                IResultFormatter formatter = CreateFormatter(formatterData.Type, outFile);
+                Formatters.Add(formatter);
+            }
+            // Add default formatter
+            // The Log formatter is special in that it always writes to the
+            // Log class rather than the TextWriter set in SetOutput().
+            // HACK!
+            LogFormatter logFormatter = new LogFormatter(logPrefix, verbose);
+            Formatters.Add(logFormatter);
+        }
+
+        /// <summary>
+        /// Returns the output file or null if does not use a file.
+        /// </summary>
+        protected FileInfo GetOutput(FormatterData formatterData, NUnitTestData test) {
+            if (formatterData.UseFile) {
+                string filename = test.OutFile + formatterData.Extension;
+                string absFilename = Path.Combine(test.ToDir, filename);
+                return new FileInfo(absFilename);
+            }
+            return null;
+        }
+
+        protected IResultFormatter CreateFormatter(FormatterType type, FileInfo outfile) {
+            IResultFormatter retFormatter = null;
+
+            switch (type) {
+                case FormatterType.Plain:
+                    retFormatter = (IResultFormatter) new PlainTextFormatter();
+                    break;
+                case FormatterType.Xml:
+                    retFormatter = (IResultFormatter) new XmlResultFormatter();
+                    break;
+                case FormatterType.Custom:
+                    // Create based on class name
+                    break;
+                default:
+                    //retFormatter = Custom;
+                    break;
+            }
+
+            if (outfile == null) {
+                retFormatter.SetOutput(new LogWriter());
+            } else {
+                retFormatter.SetOutput( new StreamWriter( outfile.Create()));
+            }
+            return retFormatter;
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Returns the test suite from a given class.
+        /// </summary>
+        /// <remarks>
+        /// The assemblyQualifiedName parameter needs to be in form:
+        /// "full.qualified.class.name,Assembly"
+        /// </remarks>
+        private ITest GetSuite(string assemblyQualifiedName) {
+            // Don't worry about catching exceptions in this method.  The
+            // NUnitTask will catch them and throw a BuildException back to
+            // NAnt with the correct location in the build file. [gs]
+
+            StandardLoader loader = new StandardLoader();
+            ITest test = loader.LoadTest(assemblyQualifiedName);
+            return test;
+        }
+
+        private void OnStartTestSuite() {
             foreach (IResultFormatter formatter in Formatters) {
                 formatter.StartTestSuite(_nunittest);
             }
         }
 
-        void FireEndTestSuite() {
+        private void OnEndTestSuite() {
             foreach (IResultFormatter formatter in Formatters) {
                 formatter.EndTestSuite(_result);
             }
         }
+
+        #endregion Private Instance Methods
+
+        #region Private Instance Fields
+
+        IResultFormatterCollection _formatters = new IResultFormatterCollection();
+        NUnitTestData _nunittest = null;
+        ITest _suite = null;
+        TestResultExtra _result = null;
+        RunnerResult _resultCode = RunnerResult.Success;
+
+        #endregion Private Instance Fields
     }
 }
-

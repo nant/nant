@@ -54,5 +54,5 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         private NUnitTestRunner _runner;
 
         #endregion Private Instance Fields
-    }    
+    }
 }
