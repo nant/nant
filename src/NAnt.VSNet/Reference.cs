@@ -41,13 +41,14 @@ namespace NAnt.VSNet {
     public class Reference {
         #region Public Instance Constructors
 
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, SolutionTask solutionTask, DirectoryInfo outputDir) {
+        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, ReferenceGACCache gacCache, SolutionTask solutionTask, DirectoryInfo outputDir) {
             _projectSettings = ps;
             _solutionTask = solutionTask;
             _referenceTimeStamp = DateTime.MinValue;
             _isSystem = false;
             _name = (string) elemReference.Attributes["Name"].Value;
             _isCreated = false;
+            _gacCache = gacCache;
 
             if (elemReference.Attributes["Project"] != null) {
                 if (solution == null) {
@@ -63,7 +64,7 @@ namespace NAnt.VSNet {
                     temporaryFiles = ps.TemporaryFiles;
                 }
 
-                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, outputDir, projectFile);
+                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, outputDir, projectFile);
 
                 // we don't know what the timestamp of the project is going to be, 
                 // because we don't know what configuration we will be building
@@ -89,7 +90,7 @@ namespace NAnt.VSNet {
                     temporaryFiles = ps.TemporaryFiles;
                 }
 
-                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, outputDir, projectFile);
+                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, outputDir, projectFile);
 
                 if (project is Project) {
                     ((Project) project).Load(solution, projectFile);
@@ -261,7 +262,7 @@ namespace NAnt.VSNet {
             return _baseDirectory;
         }
 
-        public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings) {
+        public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings, AppDomain temporaryDomain) {
             StringCollection referencedFiles = new StringCollection();
 
             // check if we're dealing with a project reference
@@ -286,50 +287,44 @@ namespace NAnt.VSNet {
                 _referenceFile = fi.FullName;
             }
 
-            string[] referencedModules = GetAllReferencedModules(_referenceFile);
+            string[] referencedModules = GetAllReferencedModules(temporaryDomain, _referenceFile);
 
-            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+            ReferencesResolver referencesResolver =
+                ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                typeof(ReferencesResolver).FullName).Unwrap());
 
-            try {
-                ReferencesResolver referencesResolver =
-                    ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                    typeof(ReferencesResolver).FullName).Unwrap());
-
-                // get a list of the references in the output directory
-                foreach (string referenceFile in referencedModules) {
-                    // skip module if module is not the assembly referenced by 
-                    // the project and is installed in GAC
-                    if (string.Compare(referenceFile, _referenceFile, true, CultureInfo.InvariantCulture) != 0) {
-                        // skip referenced module if the assembly referenced by
-                        // the project is a system reference or the module itself
-                        // is installed in the GAC
-                        if (IsSystem || referencesResolver.IsAssemblyInGac(referenceFile)) {
-                            continue;
-                        }
-                    }
-
-                    // now for each reference, get the related files (.xml, .pdf, etc...)
-                    string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
-
-                    foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
-                        // ignore files that do not have same base filename as reference file
-                        // eg. when reference file is MS.Runtime.dll, we do not want files 
-                        //     named MS.Runtime.Interop.dll
-                        if (string.Compare(Path.GetFileNameWithoutExtension(relatedFile), Path.GetFileNameWithoutExtension(referenceFile), true, CultureInfo.InvariantCulture) != 0) {
-                            continue;
-                        }
-
-                        // ignore any other the garbage files created
-                        string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
-                        if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
-                            continue;
-                        }
-
-                        referencedFiles.Add(new FileInfo(relatedFile).Name);
+            // get a list of the references in the output directory
+            foreach (string referenceFile in referencedModules) {
+                // skip module if module is not the assembly referenced by 
+                // the project and is installed in GAC
+                if (string.Compare(referenceFile, _referenceFile, true, CultureInfo.InvariantCulture) != 0) {
+                    // skip referenced module if the assembly referenced by
+                    // the project is a system reference or the module itself
+                    // is installed in the GAC
+                    if (IsSystem || referencesResolver.IsAssemblyInGac(referenceFile)) {
+                        continue;
                     }
                 }
-            } finally {
-                AppDomain.Unload(temporaryDomain);
+
+                // now for each reference, get the related files (.xml, .pdf, etc...)
+                string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
+
+                foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
+                    // ignore files that do not have same base filename as reference file
+                    // eg. when reference file is MS.Runtime.dll, we do not want files 
+                    //     named MS.Runtime.Interop.dll
+                    if (string.Compare(Path.GetFileNameWithoutExtension(relatedFile), Path.GetFileNameWithoutExtension(referenceFile), true, CultureInfo.InvariantCulture) != 0) {
+                        continue;
+                    }
+
+                    // ignore any other the garbage files created
+                    string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
+                    if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
+                        continue;
+                    }
+
+                    referencedFiles.Add(new FileInfo(relatedFile).Name);
+                }
             }
 
             return referencedFiles;
@@ -339,10 +334,9 @@ namespace NAnt.VSNet {
 
         #region Private Instance Methods
 
-        private string[] GetAllReferencedModules(string module) {
+        private string[] GetAllReferencedModules(AppDomain temporaryDomain, string module) {
             string fullPathToModule = Path.GetFullPath(module);
             string moduleDirectory = Path.GetDirectoryName(fullPathToModule);
-            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
 
             Hashtable allReferences = new Hashtable();
             Hashtable unresolvedReferences = new Hashtable();
@@ -368,7 +362,6 @@ namespace NAnt.VSNet {
 
                 }
             } finally {
-                AppDomain.Unload(temporaryDomain);
             }
 
             string[] result = new string[allReferences.Keys.Count];
@@ -752,17 +745,7 @@ namespace NAnt.VSNet {
         /// <see cref="AppDomain" />.
         /// </remarks>
         private bool IsAssemblyInGac(string assemblyFile) {
-            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
-
-            try {
-                ReferencesResolver referencesResolver =
-                    ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                    typeof(ReferencesResolver).FullName).Unwrap());
-
-                return referencesResolver.IsAssemblyInGac(assemblyFile);
-            } finally {
-                AppDomain.Unload(temporaryDomain);
-            }
+            return _gacCache.IsAssemblyInGac(assemblyFile);
         }
 
         /// <summary>
@@ -816,6 +799,7 @@ namespace NAnt.VSNet {
         private ConfigurationSettings _configurationSettings;
         private ProjectBase _project;
         private SolutionTask _solutionTask;
+        private ReferenceGACCache _gacCache;
 
         #endregion Private Instance Fields
     }

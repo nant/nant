@@ -116,11 +116,7 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
-                <File
-                    RelPath = "NAnt.VSNet.build"
-                    BuildAction = "None"
-                />
-                <File
+                <File                    RelPath = "NAnt.VSNet.build"                    BuildAction = "None"                />                <File
                     RelPath = "Project.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -142,6 +138,11 @@
                 />
                 <File
                     RelPath = "Reference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ReferenceGacCache.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -464,45 +464,47 @@ namespace NAnt.VSNet {
             // _htProjectFiles contains project GUIDs read from the sln file as 
             // keys and the corresponding full path to the project file as the 
             // value
-            foreach (DictionaryEntry de in _htProjectFiles) {
-                string projectPath = (string) de.Value;
+            using (ReferenceGACCache gacCache = new ReferenceGACCache()) {
+                foreach (DictionaryEntry de in _htProjectFiles) {
+                    string projectPath = (string) de.Value;
 
-                // determine whether project is on case-sensitive filesystem,
-                bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
+                    // determine whether project is on case-sensitive filesystem,
+                    bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
 
-                // check whether project should be excluded from build
-                foreach (string excludedProjectFile in excludes.FileNames) {
-                    if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
-                        Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
-                            projectPath);
-                        // do not load project
-                        return;
+                    // check whether project should be excluded from build
+                    foreach (string excludedProjectFile in excludes.FileNames) {
+                        if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
+                            Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
+                                projectPath);
+                            // do not load project
+                            return;
+                        }
                     }
+
+                    Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
+                    ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, _outputDir, projectPath);
+                    if (p.Guid == null || p.Guid == string.Empty) {
+                        p.Guid = FindGuidFromPath(projectPath);
+                    }
+
+                    // If the project GUID from the sln file doesn't match the project GUID
+                    // from the project file we will run into problems. Alert the user to fix this
+                    // as it is basically a corruption probably caused by user manipulation of the sln
+                    // included projects. I.e. copy and paste issue.
+                    if (!p.Guid.Equals(de.Key.ToString())) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "GUID corruption detected for project '{0}'. GUID values" 
+                            + " in project file and solution file do not match ('{1}'" 
+                            + " and '{2}'). Please correct this manually.", p.Name, 
+                            p.Guid, de.Key.ToString()), Location.UnknownLocation);
+                    }
+
+                    // set project build configuration
+                    SetProjectBuildConfiguration(p);
+
+                    // add project to hashtable
+                    _htProjects[de.Key] = p;
                 }
-
-                Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
-                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, _outputDir, projectPath);
-                if (p.Guid == null || p.Guid == string.Empty) {
-                    p.Guid = FindGuidFromPath(projectPath);
-                }
-
-                // If the project GUID from the sln file doesn't match the project GUID
-                // from the project file we will run into problems. Alert the user to fix this
-                // as it is basically a corruption probably caused by user manipulation of the sln
-                // included projects. I.e. copy and paste issue.
-                if (!p.Guid.Equals(de.Key.ToString())) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "GUID corruption detected for project '{0}'. GUID values" 
-                        + " in project file and solution file do not match ('{1}'" 
-                        + " and '{2}'). Please correct this manually.", p.Name, 
-                        p.Guid, de.Key.ToString()), Location.UnknownLocation);
-                }
-
-                // set project build configuration
-                SetProjectBuildConfiguration(p);
-
-                // add project to hashtable
-                _htProjects[de.Key] = p;
             }
         }
 

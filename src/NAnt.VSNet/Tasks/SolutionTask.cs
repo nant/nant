@@ -418,21 +418,26 @@ namespace NAnt.VSNet.Tasks {
         }
 
         private FileSet FindDefaultAssemblyFolders() {
-            FileSet fsFolders = new FileSet();
+            // Have we cached the default assembly folders?
+            if (_defaultAssemblyFolders == null)
+            {
+                FileSet fsFolders = new FileSet();
 
-            try {
-                foreach (string assemblyFolderRootKey in AssemblyFolderRootKeys) {
-                    ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(assemblyFolderRootKey), fsFolders);
-                    ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(assemblyFolderRootKey), fsFolders);
+                try {
+                    foreach (string assemblyFolderRootKey in AssemblyFolderRootKeys) {
+                        ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(assemblyFolderRootKey), fsFolders);
+                        ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(assemblyFolderRootKey), fsFolders);
+                    }
+                } catch (NotImplementedException) {
+                    // ignore this exception, as Mono currently has no implementation 
+                    // for registry related classes
+
+                    // TO-DO : make sure we remove this in the future if possible
                 }
-            } catch (NotImplementedException) {
-                // ignore this exception, as Mono currently has no implementation 
-                // for registry related classes
-
-                // TO-DO : make sure we remove this in the future if possible
+                _defaultAssemblyFolders = fsFolders;
             }
 
-            return fsFolders;
+            return _defaultAssemblyFolders;
         }
 
         #endregion Private Instance Methods
@@ -446,6 +451,7 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _referenceProjects;
         private FileSet _excludeProjects;
         private FileSet _assemblyFolders;
+        private FileSet _defaultAssemblyFolders;
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;

@@ -41,11 +41,12 @@ namespace NAnt.VSNet {
     public class Project : ProjectBase {
         #region Public Instance Constructors
 
-        public Project(SolutionTask solutionTask, TempFileCollection tfc, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
+        public Project(SolutionTask solutionTask, TempFileCollection tfc, ReferenceGACCache gacCache, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htAssemblies = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _gacCache = gacCache;
         }
 
         #endregion Public Instance Constructors
@@ -176,7 +177,7 @@ namespace NAnt.VSNet {
 
             nlReferences = doc.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
-                Reference reference = new Reference(sln, _projectSettings, elemReference, SolutionTask, OutputDir);
+                Reference reference = new Reference(sln, _projectSettings, elemReference, _gacCache, SolutionTask, OutputDir);
                 _htReferences[elemReference.Attributes["Name"].Value] = reference;
             }
 
@@ -229,7 +230,7 @@ namespace NAnt.VSNet {
 
         protected override bool Build(ConfigurationBase configurationSettings) {
             bool bSuccess = true;
- 			bool haveCultureSpecificResources = false;
+             bool haveCultureSpecificResources = false;
             string tempFile = null;
 
             try {
@@ -267,77 +268,84 @@ namespace NAnt.VSNet {
                     }
 
                     Log(Level.Verbose, LogPrefix + "Copying references:");
-                    foreach (Reference reference in _htReferences.Values) {
-                        Log(Level.Verbose, LogPrefix + " - " + reference.Name);
+                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
 
-                        if (reference.CopyLocal) {
-                            if (reference.IsCreated) {
-                                string program, commandLine;
-                                reference.GetCreationCommand(cs, out program, out commandLine);
+                    try {
+                        foreach (Reference reference in _htReferences.Values) {
+                            Log(Level.Verbose, LogPrefix + " - " + reference.Name);
 
-                                // Append the correct SDK directory to the program
-                                program = Path.Combine(SolutionTask.Project.TargetFramework.SdkDirectory.FullName, program);
-                                Log(Level.Verbose, LogPrefix + program + " " + commandLine);
+                            if (reference.CopyLocal) {
+                                if (reference.IsCreated) {
+                                    string program, commandLine;
+                                    reference.GetCreationCommand(cs, out program, out commandLine);
 
-                                ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
-                                psiRef.UseShellExecute = false;
-                                psiRef.WorkingDirectory = cs.OutputDir.FullName;
+                                    // Append the correct SDK directory to the program
+                                    program = Path.Combine(SolutionTask.Project.TargetFramework.SdkDirectory.FullName, program);
+                                    Log(Level.Verbose, LogPrefix + program + " " + commandLine);
 
-                                try {
-                                    Process pRef = Process.Start(psiRef);
-                                    pRef.WaitForExit();
-                                } catch (Win32Exception ex) {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "Unable to start process '{0}' with commandline '{1}'.", 
-                                        program, commandLine), Location.UnknownLocation, ex);
-                                }
-                            } else {
-                                StringCollection fromFilenames = reference.GetReferenceFiles(cs);
+                                    ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
+                                    psiRef.UseShellExecute = false;
+                                    psiRef.WorkingDirectory = cs.OutputDir.FullName;
 
-                                // create instance of Copy task
-                                CopyTask ct = new CopyTask();
+                                    try {
+                                        Process pRef = Process.Start(psiRef);
+                                        pRef.WaitForExit();
+                                    } catch (Win32Exception ex) {
+                                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                            "Unable to start process '{0}' with commandline '{1}'.", 
+                                            program, commandLine), Location.UnknownLocation, ex);
+                                    }
+                                } else {
+                                    StringCollection fromFilenames = reference.GetReferenceFiles(cs, temporaryDomain);
 
-                                // inherit project from solution task
-                                ct.Project = SolutionTask.Project;
+                                    // create instance of Copy task
+                                    CopyTask ct = new CopyTask();
 
-                                // inherit parent from solution task
-                                ct.Parent = SolutionTask.Parent;
+                                    // inherit project from solution task
+                                    ct.Project = SolutionTask.Project;
 
-                                // inherit verbose setting from solution task
-                                ct.Verbose = SolutionTask.Verbose;
+                                    // inherit parent from solution task
+                                    ct.Parent = SolutionTask.Parent;
 
-                                // make sure framework specific information is set
-                                ct.InitializeTaskConfiguration();
+                                    // inherit verbose setting from solution task
+                                    ct.Verbose = SolutionTask.Verbose;
 
-                                // set parent of child elements
-                                ct.CopyFileSet.Parent = ct;
+                                    // make sure framework specific information is set
+                                    ct.InitializeTaskConfiguration();
 
-                                // inherit project from solution task for child elements
-                                ct.CopyFileSet.Project = SolutionTask.Project;
+                                    // set parent of child elements
+                                    ct.CopyFileSet.Parent = ct;
 
-                                // set base directory of fileset
-                                ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
+                                    // inherit project from solution task for child elements
+                                    ct.CopyFileSet.Project = SolutionTask.Project;
 
-                                // add files to copy
-                                foreach (string file in fromFilenames) {
-                                    ct.CopyFileSet.Includes.Add(file);
-                                }
+                                    // set base directory of fileset
+                                    ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
 
-                                // set destination directory
-                                ct.ToDirectory = cs.OutputDir;
+                                    // add files to copy
+                                    foreach (string file in fromFilenames) {
+                                        ct.CopyFileSet.Includes.Add(file);
+                                    }
 
-                                // increment indentation level
-                                ct.Project.Indent();
-                                try {
-                                    // execute task
-                                    ct.Execute();
-                                } finally {
-                                    // restore indentation level
-                                    ct.Project.Unindent();
+                                    // set destination directory
+                                    ct.ToDirectory = cs.OutputDir;
+
+                                    // increment indentation level
+                                    ct.Project.Indent();
+                                    try {
+                                        // execute task
+                                        ct.Execute();
+                                    } finally {
+                                        // restore indentation level
+                                        ct.Project.Unindent();
+                                    }
                                 }
                             }
+                            sw.WriteLine(reference.Setting);
                         }
-                        sw.WriteLine(reference.Setting);
+                    }
+                    finally {
+                        AppDomain.Unload(temporaryDomain);
                     }
 
                     if (_htResources.Count > 0) {
@@ -854,6 +862,7 @@ namespace NAnt.VSNet {
         private string _projectDirectory;
         private string _webProjectBaseUrl;
         private ProjectSettings _projectSettings;
+        private ReferenceGACCache _gacCache;
 
         #endregion Private Instance Fields
 

@@ -39,13 +39,14 @@ namespace NAnt.VSNet {
     public class VcProject: ProjectBase {
         #region Public Instance Constructors
         
-        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
+        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, ReferenceGACCache gacCache, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _clArgMap = VcArgumentMap.CreateCLArgumentMap();
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
             _objFiles = new ArrayList();
+            _gacCache = gacCache;
         }
 
         #endregion Public Instance Constructors
@@ -163,7 +164,7 @@ namespace NAnt.VSNet {
 
             XmlNodeList referenceNodes = elem.SelectNodes("//References/ProjectReference");
             foreach (XmlElement referenceElem in referenceNodes) {
-                Reference reference = new Reference(sln, null, referenceElem, SolutionTask, OutputDir);
+                Reference reference = new Reference(sln, null, referenceElem, _gacCache, SolutionTask, OutputDir);
                 _htReferences[referenceElem.Attributes["Name"].Value] = reference;
             }
 
@@ -493,6 +494,7 @@ namespace NAnt.VSNet {
         private ArrayList _objFiles;
         private VcArgumentMap _clArgMap;
         private VcArgumentMap _linkerArgMap;
+        private ReferenceGACCache _gacCache;
 
         #endregion Private Instance Fields
 
