@@ -26,6 +26,7 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
@@ -1248,6 +1249,8 @@ namespace NAnt.Core {
 
                 if (attributeType.IsEnum) {
                     attributeSetter = new EnumAttributeSetter();
+                } else if (attributeType == typeof(Encoding)) {
+                    attributeSetter = new EncodingAttributeSetter();
                 } else if (attributeType == typeof(FileInfo)) {
                     attributeSetter = new FileAttributeSetter();
                 } else if (attributeType == typeof(DirectoryInfo)) {
@@ -1340,6 +1343,39 @@ namespace NAnt.Core {
                         // strip last ,
                         message = message.Substring(0, message.Length - 2);
                         throw new BuildException(message, parent.Location);
+                    }
+                }
+            }
+
+            private class EncodingAttributeSetter : IAttributeSetter {
+                public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                    string encodingName = StringUtils.ConvertEmptyToNull(value);
+                    if (encodingName == null) {
+                        return;
+                    }
+
+                    Encoding encoding = null;
+
+                    try {
+                        encoding = System.Text.Encoding.GetEncoding(
+                            encodingName);
+                    } catch (ArgumentException) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "\"{0}\" is not a valid encoding.",
+                            encodingName), parent.Location);
+                    } catch (NotSupportedException) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "\"{0}\" encoding is not supported on the current platform.",
+                            encodingName), parent.Location);
+                    }
+
+                    try {
+                        property.SetValue(parent, encoding, BindingFlags.Public | 
+                            BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                    } catch (Exception ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                            value, attributeNode.Name, parent.Name), parent.Location, ex);
                     }
                 }
             }
