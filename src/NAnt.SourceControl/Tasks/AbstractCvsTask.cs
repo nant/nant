@@ -231,16 +231,16 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// <para>
-        /// The cvs root variable has the following components uses the following format:
-        ///     <para>
-        ///         <code>[protocol]:[username]@[servername]:[server path]</code>
-        ///         <ul>
-        ///             <li>protocol:       ext, pserver, ssh (sharpcvslib); if you are not using sharpcvslib consult your cvs documentation.</li>
-        ///             <li>username:       [username]</li>
-        ///             <li>servername:     cvs.sourceforge.net</li>
-        ///             <li>server path:    /cvsroot/nant</li>
-        ///         </ul>
-        ///     </para>
+        /// The cvs root variable has the following components:
+        /// </para>
+        /// <para>
+        ///     <code>[protocol]:[username]@[servername]:[server path]</code>
+        ///     <ul>
+        ///         <li>protocol:       ext, pserver, ssh (sharpcvslib); if you are not using sharpcvslib consult your cvs documentation.</li>
+        ///         <li>username:       [username]</li>
+        ///         <li>servername:     cvs.sourceforge.net</li>
+        ///         <li>server path:    /cvsroot/nant</li>
+        ///     </ul>
         /// </para>
         /// </summary>
         /// <example>
