@@ -29,9 +29,9 @@ namespace SourceForge.NAnt.Tasks.NUnit2
 	{                  
 		private string _assemblyName = null;               
 		private string _testname = null;
-		private bool _fork = false;
 		private bool _haltOnFailure = true;
 		private string _transformFile;
+      string _appConfigFile = null;
 
 		/// <summary>Name of the assembly to search for tests.</summary>
 		[TaskAttribute("assemblyname", Required=true)]
@@ -41,11 +41,6 @@ namespace SourceForge.NAnt.Tasks.NUnit2
 		[TaskAttribute("testname")]
 		public string TestName { get { return _testname; } set {_testname = value;} }
         
-		/// <summary>Run tests in their own AppDomain.</summary>
-		[TaskAttribute("fork")]
-		[BooleanValidator()]
-		public bool Fork { get { return _fork; } set { _fork = value; } }
-        
 		/// <summary>Build fails on failure</summary>
 		[TaskAttribute("haltonfailure")]
 		[BooleanValidator()]
@@ -54,6 +49,11 @@ namespace SourceForge.NAnt.Tasks.NUnit2
         /// <summary>XSLT transform file to use when using the Xml formatter</summary>
 		[TaskAttribute("transformfile")]
 		public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
-	}
-    
+
+		[TaskAttribute("appconfig")]
+      public string AppConfigFile {
+         get { return _appConfigFile; }
+         set { _appConfigFile = value; }
+      }
+   }
 }

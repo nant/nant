@@ -91,11 +91,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 		protected override void ExecuteTask() {
 			foreach (NUnit2Test test in tests) {
 				EventListener listener = new NullListener();
-	    		TestResult result = null;
-	    		if (test.Fork) {
-	    			result = runRemoteTest(test, listener);
-	    		} else
-	    			result = runTest(test, listener);
+	    		TestResult result = RunRemoteTest(test, listener);
 	    			
 				string xmlResultFile = test.AssemblyName + "-results.xml";	    			
 							
@@ -132,48 +128,15 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 	    	}
 	    }
 	    
-	    private TestResult runRemoteTest(NUnit2Test test, EventListener listener) {
-	    	LogWriter writer = new LogWriter();
-			TestDomain domain = new TestDomain(writer, writer);
-			Test loadedTest = null;
-			try {
-				if (test.TestName != null)
-					loadedTest = domain.Load(test.TestName, test.AssemblyName);
-				else
-					loadedTest = domain.Load(test.AssemblyName);
-			} catch (ApplicationException ax) {
-				throw new BuildException(String.Format("AssemblyName {0} is not a valid assembly", test.AssemblyName), ax);
-			}
-			if (loadedTest == null)
-				throw new BuildException(String.Format("AssemblyName {0} is not a valid assembly", test.AssemblyName));
-			string currentDirectory = Directory.GetCurrentDirectory();
-			TestResult result = null;
-			try {
-				Directory.SetCurrentDirectory(new FileInfo(test.AssemblyName).DirectoryName);
-				result = domain.Run(listener);
-			} catch (ApplicationException ax) {
-				throw new BuildException(String.Format("AssemblyName {0} is not a valid assembly", test.AssemblyName), ax);
-			} finally {
-				Directory.SetCurrentDirectory(currentDirectory);
-			}
-	    	return result;
-	    }
-	    
-	    private TestResult runTest(NUnit2Test test, EventListener listener) {
-	    	TestSuiteBuilder builder = new TestSuiteBuilder();
-	    	TestSuite suite;
-	    	if (test.TestName != null)
-	    		suite = builder.Build(test.TestName, test.AssemblyName);
-	    	else
-	    		suite = builder.Build(test.AssemblyName);
-	    	if (suite == null)
-	    		throw new BuildException(String.Format("AssemblyName {0} is not a valid assembly", test.AssemblyName));
-	    		
-			TestResult result = suite.Run(listener);
-			
-			return result;
-	    }
-	    
+	    private TestResult RunRemoteTest(NUnit2Test test, EventListener listener) {
+          LogWriter writer = new LogWriter();
+          NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
+          if ( test.TestName != null ) {
+             return domain.RunTest(test.TestName, test.AssemblyName, test.AppConfigFile, listener);
+          } else {
+            return domain.Run(test.AssemblyName, test.AppConfigFile, listener);
+          }
+       }
 	    
 		private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test)
 		{
