@@ -8,15 +8,18 @@
     -->
     <target name="build">
         <!-- build test assembly -->
-         <available type="File" resource="{nant.settings.currentframework.sdkdirectory}/vjc.exe" property="vjc.present" />
+        <property name="vjc.location" value="${nant.settings.currentframework.sdkdirectory}/vjc.exe}"  />
+        <property name="jsc.location" value="${nant.settings.currentframework.sdkdirectory}/jsc.exe}"  />
+        
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
             <sources>
                 <include name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <include name="../../src/CommonAssemblyInfo.cs" />
                 
-                <!-- exclude these tests if no j# compiler present -->
-                <exclude name="Tasks/VjcTaskTest.cs" unless="${vjc.present}" />
+                <!-- exclude these tests if no j# or jsc compilers present -->
+                <exclude name="Tasks/VjcTaskTest.cs" unless="${file::exists(vjc.location)}" />
+                <exclude name="Tasks/JscTaskTest.cs" unless="${file::exists(jsc.location)}" />
             </sources>
             <references>
                 <!-- temporary workaround for Mono Runtime bug #57602 -->
