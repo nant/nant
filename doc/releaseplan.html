@@ -10,7 +10,7 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
-                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" />To 
+                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" />To
                     Do
                 </td>
             </tr>
@@ -22,7 +22,7 @@
                         <span class="N">N</span><span class="Ant">Ant</span>
                         Release Plan</h1>
                     <p>
-                        The following is a rough guide to what features are being worked on and when 
+                        The following is a rough guide to what features are being worked on and when
                         they will be worked on in the future.
                     </p>
                 </td>
@@ -71,8 +71,8 @@
                 <tr>
                     <td>
                         <p>
-                            Add assembly references support to <code>&lt;resgen&gt;</code> task. For all 
-                            but .NET 2.0, we need to implement this by copying the resgen tool, and all 
+                            Add assembly references support to <code>&lt;resgen&gt;</code> task. For all
+                            but .NET 2.0, we need to implement this by copying the resgen tool, and all
                             referenced assemblies to a temp directory, and launch resgen from there.
                         </p>
                     </td>
@@ -197,7 +197,7 @@
                 <tr>
                     <td>
                         <p>
-                            Support configuration to enable targeting specific versions of the .NET 
+                            Support configuration to enable targeting specific versions of the .NET
                             Framework and additions like the .NET Compact Framework.
                         </p>
                     </td>
@@ -229,7 +229,7 @@
                 <tr>
                     <td>
                         <p>
-                            Rename FileSet xml elements: includes =&gt; include, excludes = &gt; exclude, 
+                            Rename FileSet xml elements: includes =&gt; include, excludes = &gt; exclude,
                             name = &gt; pattern.
                         </p>
                     </td>
@@ -265,7 +265,7 @@
                     </td>
                     <td>
                         <a href="http://sourceforge.net/users/drakmar/">Clayton</a></td>
-                    <td>90%</td>
+                    <td>done</td>
                 </tr>
                 <tr>
                     <td>
@@ -281,7 +281,7 @@
                 <tr>
                     <td>
                         <p>
-                            Make sure the examples included in the distribution build. Currently some 
+                            Make sure the examples included in the distribution build. Currently some
                             examples fail.
                         </p>
                     </td>
@@ -304,7 +304,7 @@
                 <tr>
                     <td>
                         <p>
-                            Add <code>flatten</code> attribute to <code>&lt;zip&gt;</code> task with 
+                            Add <code>flatten</code> attribute to <code>&lt;zip&gt;</code> task with
                             similar behaviour as the <code>flatten</code> attribute of the <code>&lt;copy&gt;</code>
                             and <code>&lt;move&gt;</code> tasks.
                         </p>
@@ -327,7 +327,7 @@
                     <td>
                         <p>
                             Move <code>&lt;aximp&gt;</code> task from <a href="http://NAntContrib.sourceforge.net">
-                                NAntContrib</a> to the <code>NAnt.Win32Tasks</code> assembly, so we can use 
+                                NAntContrib</a> to the <code>NAnt.Win32Tasks</code> assembly, so we can use
                             it in the <code>&lt;solution&gt;</code> task.
                         </p>
                     </td>
@@ -340,7 +340,7 @@
                     <td>
                         <p>
                             Add support for registering an assembly for <a href="http://www.codeproject.com/dotnet/nettocom.asp">
-                                COM interop</a> to the <code>&lt;solution&gt;</code> task. We could 
+                                COM interop</a> to the <code>&lt;solution&gt;</code> task. We could
                             delegate this to NAntContrib's <code>&lt;regasm&gt;</code> task.
                         </p>
                     </td>
@@ -363,8 +363,8 @@
                 <tr>
                     <td>
                         <p>
-                            Modify <code>CompilerBase</code> and <code>AssemblyLinkerTask</code> to pass 
-                            localized resources to <code>al.exe</code> using the response file instead of 
+                            Modify <code>CompilerBase</code> and <code>AssemblyLinkerTask</code> to pass
+                            localized resources to <code>al.exe</code> using the response file instead of
                             passing arguments directly on the commandline.
                         </p>
                     </td>
@@ -449,7 +449,7 @@
                     <td>
                         <p>
                             Add support for <a href="http://www.mail-archive.com/nant-developers%40lists.sourceforge.net/msg02785.html">
-                                expression evaluator</a> in all places where it makes sense. Support 
+                                expression evaluator</a> in all places where it makes sense. Support
                             embedded expressions in strings.
                         </p>
                     </td>
