@@ -161,8 +161,14 @@ namespace NAnt.DotNet.Tasks {
                         if (StringUtils.IsNullOrEmpty(_arguments)) {
                             AppendArgument ("/compile");
                         }
+
+                        // ensure output directory exists
+                        if (!outputFile.Directory.Exists) {
+                            outputFile.Directory.Create();
+                        }
+
                         AppendArgument(string.Format(CultureInfo.InvariantCulture, 
-                            " \"{0},{1}\"", filename, outputFile));
+                            " \"{0},{1}\"", filename, outputFile.FullName));
                     }
                 }
             } else {
@@ -174,6 +180,11 @@ namespace NAnt.DotNet.Tasks {
                 FileInfo outputFile = GetOutputFile(InputFile, null);
 
                 if (NeedsCompiling(InputFile, outputFile)) {
+                    // ensure output directory exists
+                    if (!outputFile.Directory.Exists) {
+                        outputFile.Directory.Create();
+                    }
+
                     AppendArgument(string.Format(CultureInfo.InvariantCulture, 
                         "\"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
                 }
