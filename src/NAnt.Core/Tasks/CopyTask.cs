@@ -43,9 +43,19 @@ namespace NAnt.Core.Tasks {
     ///   explicitly overwrite files with the <see cref="Overwrite" /> attribute.
     ///   </para>
     ///   <para>
-    ///   A <see cref="FileSet" /> can be used to select files to copy. To use 
-    ///   a <see cref="FileSet" />, the <see cref="ToDirectory" /> attribute 
-    ///   must be set.
+    ///   When a <see cref="FileSet" /> is used to select files to copy, the 
+    ///   <see cref="ToDirectory" /> attribute must be set. Files that are 
+    ///   located under the base directory of the <see cref="FileSet" /> will
+    ///   be copied to a directory under the destination directory matching the
+    ///   path relative to the the base directory of the <see cref="FileSet" />,
+    ///   unless the <see cref="Flatten" /> attribute is set to
+    ///   <see langword="true" />.
+    ///   </para>
+    ///   <para>
+    ///   Files that are not located under the the base directory of the
+    ///   <see cref="FileSet" /> will be copied directty under to the destination 
+    ///   directory, regardless of the value of the <see cref="Flatten" />
+    ///   attribute.
     ///   </para>
     ///   <h4>Encoding</h4>
     ///   <para>
