@@ -127,14 +127,14 @@ namespace NAnt.Core.Tasks {
             // add listeners of current project to new project
             project.AttachBuildListeners(Project.BuildListeners);
 
-            // have the new project inherit the default framework from the current project
-            if (Project.DefaultFramework != null && project.FrameworkInfoDictionary.Contains(Project.DefaultFramework.Name)) {
-                project.DefaultFramework = project.FrameworkInfoDictionary[Project.DefaultFramework.Name];
+            // have the new project inherit the runtime framework from the current project
+            if (Project.RuntimeFramework != null && project.FrameworkInfoDictionary.Contains(Project.RuntimeFramework.Name)) {
+                project.RuntimeFramework = project.FrameworkInfoDictionary[Project.RuntimeFramework.Name];
             }
 
             // have the new project inherit the current framework from the current project 
-            if (Project.CurrentFramework != null && project.FrameworkInfoDictionary.Contains(Project.CurrentFramework.Name)) {
-                project.CurrentFramework = project.FrameworkInfoDictionary[Project.CurrentFramework.Name];
+            if (Project.TargetFramework != null && project.FrameworkInfoDictionary.Contains(Project.TargetFramework.Name)) {
+                project.TargetFramework = project.FrameworkInfoDictionary[Project.TargetFramework.Name];
             }
 
             // have the new project inherit properties from the current project

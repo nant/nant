@@ -270,20 +270,23 @@ namespace NAnt.Core {
                 if (frameworkAttribute != null) {
                     // locate XML configuration node for current attribute
                     attributeNode = GetAttributeConfigurationNode(
-                        Project.CurrentFramework, frameworkAttribute.Name);
+                        Project.TargetFramework, frameworkAttribute.Name);
 
                     if (attributeNode != null) {
                         // get the configured value
                         attributeValue = attributeNode.InnerText;
 
-                        if (frameworkAttribute.ExpandProperties && Project.CurrentFramework != null) {
+                        if (frameworkAttribute.ExpandProperties && Project.TargetFramework != null) {
                             // expand attribute properites
                             try {
-                                attributeValue = Project.CurrentFramework.Properties.ExpandProperties(attributeValue, Location);
+                                attributeValue = Project.TargetFramework.Properties.ExpandProperties(attributeValue, Location);
                             } catch (Exception ex) {
                                 // throw BuildException if required
                                 if (frameworkAttribute.Required) {
-                                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name), Location, ex);
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "'{0}' is a required framework configuration setting for the" 
+                                        + " '{1}' build element that should be set in the NAnt configuration" 
+                                        + " file.", frameworkAttribute.Name, this.Name), Location, ex);
                                 }
 
                                 // set value to null
@@ -293,7 +296,10 @@ namespace NAnt.Core {
                     } else {
                         // check if its required
                         if (frameworkAttribute.Required) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "'{0}' is a required framework configuration setting for the '{1}'" 
+                                + " build element that should be set in the NAnt configuration file.", 
+                                frameworkAttribute.Name, this.Name), Location);
                         }
                     }
 

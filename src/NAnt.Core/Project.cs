@@ -137,8 +137,8 @@ namespace NAnt.Core {
 
         // info about frameworks
         private FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
-        private FrameworkInfo _defaultFramework;
-        private FrameworkInfo _currentFramework;
+        private FrameworkInfo _runtimeFramework;
+        private FrameworkInfo _targetFramework;
 
         [NonSerialized()]
         private XmlDocument _doc = null; // set in ctorHelper
@@ -343,15 +343,11 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// This is the framework we will normally use unless the 
-        /// <see cref="CurrentFramework" /> has been set.
+        /// This is the framework in which NAnt is currently running.
         /// </summary>
-        public FrameworkInfo DefaultFramework {
-            get { return _defaultFramework; }
-            set {
-                _defaultFramework = value;
-                UpdateDefaultFrameworkProperties();
-            }
+        public FrameworkInfo RuntimeFramework {
+            get { return _runtimeFramework; }
+            set { _runtimeFramework = value; }
         }
 
         /// <summary>
@@ -364,11 +360,11 @@ namespace NAnt.Core {
         /// We will use compiler tools and system assemblies for this framework 
         /// in framework-related tasks.
         /// </remarks>
-        public FrameworkInfo CurrentFramework {
-            get { return _currentFramework; }
-            set {
-                _currentFramework = value;
-                UpdateCurrentFrameworkProperties();
+        public FrameworkInfo TargetFramework {
+            get { return _targetFramework; }
+            set { 
+                _targetFramework = value;
+                UpdateTargetFrameworkProperties();
             }
         }
 
@@ -1268,46 +1264,23 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Updates dependent properties when the <see cref="DefaultFramework" /> 
+        /// Updates dependent properties when the <see cref="TargetFramework" /> 
         /// is set.
         /// </summary>
-        private void UpdateDefaultFrameworkProperties() {
-            Properties["nant.settings.defaultframework"] = DefaultFramework.Name;
-            Properties["nant.settings.defaultframework.version"] = DefaultFramework.Version;
-            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;
-            Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName;
-            if (DefaultFramework.SdkDirectory != null) {
-                Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName;
-            } else {
-                Properties["nant.settings.defaultframework.sdkdirectory"] = null;
-            }
-
-            Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName;
-            if (DefaultFramework.RuntimeEngine != null) {
-                Properties["nant.settings.defaultframework.runtimeengine"] = DefaultFramework.RuntimeEngine.Name;
-            } else {
-                Properties["nant.settings.defaultframework.runtimeengine"] = null;
-            }
-        }
-
-        /// <summary>
-        /// Updates dependent properties when the <see cref="CurrentFramework" /> 
-        /// is set.
-        /// </summary>
-        private void UpdateCurrentFrameworkProperties() {
-            Properties["nant.settings.currentframework"] = CurrentFramework.Name;
-            Properties["nant.settings.currentframework.version"] = CurrentFramework.Version;
-            Properties["nant.settings.currentframework.description"] = CurrentFramework.Description;
-            Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName;
-            if (CurrentFramework.SdkDirectory != null) {
-                Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName;
+        private void UpdateTargetFrameworkProperties() {
+            Properties["nant.settings.currentframework"] = TargetFramework.Name;
+            Properties["nant.settings.currentframework.version"] = TargetFramework.Version;
+            Properties["nant.settings.currentframework.description"] = TargetFramework.Description;
+            Properties["nant.settings.currentframework.frameworkdirectory"] = TargetFramework.FrameworkDirectory.FullName;
+            if (TargetFramework.SdkDirectory != null) {
+                Properties["nant.settings.currentframework.sdkdirectory"] = TargetFramework.SdkDirectory.FullName;
             } else {
                 Properties["nant.settings.currentframework.sdkdirectory"] = null;
             }
 
-            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName;
-            if (CurrentFramework.RuntimeEngine != null) {
-                Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name;
+            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = TargetFramework.FrameworkAssemblyDirectory.FullName;
+            if (TargetFramework.RuntimeEngine != null) {
+                Properties["nant.settings.currentframework.runtimeengine"] = TargetFramework.RuntimeEngine.Name;
             } else {
                 Properties["nant.settings.currentframework.runtimeengine"] = null;
             }

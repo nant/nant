@@ -293,8 +293,8 @@ namespace NAnt.Core.Tasks {
         /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
         protected virtual void PrepareProcess(Process process){
             // create process (redirect standard output to temp buffer)
-            if (Project.CurrentFramework != null && UseRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
-                process.StartInfo.FileName = Project.CurrentFramework.RuntimeEngine.FullName;
+            if (Project.TargetFramework != null && UseRuntimeEngine && Project.TargetFramework.RuntimeEngine != null) {
+                process.StartInfo.FileName = Project.TargetFramework.RuntimeEngine.FullName;
                 process.StartInfo.Arguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\" {1}", ProgramFileName, CommandLine);
             } else {
                 process.StartInfo.FileName = ProgramFileName;
@@ -309,8 +309,8 @@ namespace NAnt.Core.Tasks {
             // set framework-specific environment variables if executing the 
             // external process using the runtime engine of the currently
             // active framework
-            if (Project.CurrentFramework != null && UseRuntimeEngine) {
-                foreach (EnvironmentVariable environmentVariable in Project.CurrentFramework.EnvironmentVariables) {
+            if (Project.TargetFramework != null && UseRuntimeEngine) {
+                foreach (EnvironmentVariable environmentVariable in Project.TargetFramework.EnvironmentVariables) {
                     if (environmentVariable.IfDefined && !environmentVariable.UnlessDefined) {
                         if (environmentVariable.Value == null) {
                             process.StartInfo.EnvironmentVariables[environmentVariable.VariableName] = "";
@@ -427,34 +427,33 @@ namespace NAnt.Core.Tasks {
                 // ensure we have a valid framework set.
                 if ((programLocationAttribute.LocationType == LocationType.FrameworkDir || 
                     programLocationAttribute.LocationType == LocationType.FrameworkSdkDir) &&
-                    (Project.CurrentFramework == null)){
-                        throw new BuildException(
-                            string.Format(CultureInfo.InvariantCulture, "The {0}" 
-                            + " task cannot be executed, as it relies on an" 
+                    (Project.TargetFramework == null)) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "The '{0}' task cannot be executed, as it relies on an" 
                             + " active framework." + Environment.NewLine, Name));
                 }
 
                 switch (programLocationAttribute.LocationType) {
                     case LocationType.FrameworkDir:
-                        if (Project.CurrentFramework.FrameworkDirectory != null) {
-                            string frameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                        if (Project.TargetFramework.FrameworkDirectory != null) {
+                            string frameworkDir = Project.TargetFramework.FrameworkDirectory.FullName;
                             fullPath = Path.Combine(frameworkDir, ExeName + ".exe");
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
-                                 "The framework directory for the {0} framework is not available or not configured.", 
-                                 Project.CurrentFramework.Name));
+                                 "The framework directory for the '{0}' framework is not available or not configured.", 
+                                 Project.TargetFramework.Name));
                         }
                         break;
                     case LocationType.FrameworkSdkDir:
-                        if (Project.CurrentFramework.SdkDirectory != null) {
-                            string sdkDirectory = Project.CurrentFramework.SdkDirectory.FullName;
+                        if (Project.TargetFramework.SdkDirectory != null) {
+                            string sdkDirectory = Project.TargetFramework.SdkDirectory.FullName;
                             fullPath = Path.Combine(sdkDirectory, ExeName + ".exe");
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
-                                "The SDK for the {0} framework is not available or not configured.", 
-                                Project.CurrentFramework.Name));
+                                "The SDK for the '{0}' framework is not available or not configured.", 
+                                Project.TargetFramework.Name));
                         }
                         break;
                 }

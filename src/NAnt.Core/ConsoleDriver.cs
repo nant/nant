@@ -135,7 +135,7 @@ namespace NAnt.Core {
                     FrameworkInfo frameworkInfo = project.FrameworkInfoDictionary[cmdlineOptions.DefaultFramework];
 
                     if (frameworkInfo != null) {
-                        project.CurrentFramework = project.DefaultFramework = frameworkInfo; 
+                        project.TargetFramework = frameworkInfo; 
                     } else {
                         logger.Fatal("Invalid framework name specified: '" + cmdlineOptions.DefaultFramework + "'");
                         Console.WriteLine(string.Format(

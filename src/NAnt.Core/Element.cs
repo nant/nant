@@ -181,7 +181,7 @@ namespace NAnt.Core {
                 logger.Warn("Location of Element node could be located.", ex);
             }
 
-            InitializeXml(elementNode, Project.Properties, Project.CurrentFramework);
+            InitializeXml(elementNode, Project.Properties, Project.TargetFramework);
 
             // allow inherited classes a chance to do some custom initialization.
             InitializeElement(elementNode);

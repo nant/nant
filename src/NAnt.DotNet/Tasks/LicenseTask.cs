@@ -148,10 +148,10 @@ namespace NAnt.DotNet.Tasks {
             }
 
             // fix references to system assemblies
-            if (Project.CurrentFramework != null) {
+            if (Project.TargetFramework != null) {
                 foreach (string pattern in Assemblies.Includes) {
                     if (Path.GetFileName(pattern) == pattern) {
-                        string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
                         string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
                         string fullPath = Path.Combine(frameworkDir, pattern);
 
@@ -230,10 +230,10 @@ namespace NAnt.DotNet.Tasks {
                         bool loadAssembly = true;
 
                         // check if there's a valid current framework
-                        if (licenseTask.Project.CurrentFramework != null) {
+                        if (licenseTask.Project.TargetFramework != null) {
                             // get framework assembly directory
                             DirectoryInfo frameworkAssemblyDir = licenseTask.Project.
-                                CurrentFramework.FrameworkAssemblyDirectory;
+                                TargetFramework.FrameworkAssemblyDirectory;
 
                             // get path to reference assembly
                             DirectoryInfo referenceAssemblyDir = new DirectoryInfo(

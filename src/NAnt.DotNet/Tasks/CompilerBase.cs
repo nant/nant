@@ -758,8 +758,8 @@ namespace NAnt.DotNet.Tasks {
                         }
                     }
 
-                    if (Project.CurrentFramework != null) {
-                        string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                    if (Project.TargetFramework != null) {
+                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
                         string fullPath = Path.Combine(frameworkDir, pattern);
 
                         // check whether an assembly matching the pattern
