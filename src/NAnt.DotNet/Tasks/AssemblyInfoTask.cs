@@ -157,9 +157,10 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// The namespaces to import.
         /// </value>
-        [BuildElementCollection("imports", "import")]
+        [BuildElement("imports")]
         public NamespaceImportCollection Imports {
             get { return _imports; }
+            set { _imports = value; }
         }
 
         /// <summary>
