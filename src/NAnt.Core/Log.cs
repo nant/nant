@@ -458,20 +458,20 @@ namespace NAnt.Core {
             if (error == null) {
                 OutputMessage(Level.Info, string.Empty, indentationLevel);
                 if (report.Errors == 0 && report.Warnings == 0) {
-                    OutputMessage(Level.Info, "Build succeeded", indentationLevel);
+                    OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
                 } else {
                     OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
-                        "Build succeeded - {0} non-fatal error(s), {1} warning(s)", 
+                        "BUILD SUCCEEDED - {0} non-fatal error(s), {1} warning(s)", 
                         report.Errors, report.Warnings), indentationLevel);
                 }
                 OutputMessage(Level.Info, string.Empty, indentationLevel);
             } else {
                 OutputMessage(Level.Error, string.Empty, indentationLevel);
                 if (report.Errors == 0 && report.Warnings == 0) {
-                    OutputMessage(Level.Error, "Build failed", indentationLevel);
+                    OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
                 } else {
                     OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
-                        "Build failed - {0} non-fatal error(s), {1} warning(s)", 
+                        "BUILD FAILED - {0} non-fatal error(s), {1} warning(s)", 
                         report.Errors, report.Warnings), indentationLevel);
                 }
                 OutputMessage(Level.Error, string.Empty, indentationLevel);
