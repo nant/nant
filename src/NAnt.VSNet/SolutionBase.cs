@@ -400,7 +400,7 @@ namespace NAnt.VSNet {
                 foreach (string configuration in p.Configurations) {
                     string projectOutputFile = p.GetOutputPath(configuration);
                     if (projectOutputFile != null) {
-                        _htOutputFiles[p.GetOutputPath(configuration)] = projectGuid;
+                        _htOutputFiles[projectOutputFile] = projectGuid;
                     }
                 }
             }
