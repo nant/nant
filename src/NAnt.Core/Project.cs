@@ -440,7 +440,12 @@ namespace NAnt.Core {
         /// </remarks>
         public FrameworkInfo TargetFramework {
             get { return _targetFramework; }
-            set { 
+            set {
+                // output message in build log if target framework is changed
+                if (_targetFramework != null && _targetFramework != value) {
+                    Log(Level.Info, "Target framework changed to \"{0}\".", TargetFramework != null 
+                        ? TargetFramework.Description : "None");
+                }
                 _targetFramework = value;
                 UpdateTargetFrameworkProperties();
             }
@@ -909,7 +914,12 @@ namespace NAnt.Core {
             try {
                 OnBuildStarted(this, new BuildEventArgs(this));
 
+                // output build file that we're running
                 Log(Level.Info, "Buildfile: {0}", BuildFileUri);
+
+                // output current target framework in build log
+                Log(Level.Info, "Target framework: {0}", TargetFramework != null 
+                    ? TargetFramework.Description : "None");
 
                 // write verbose project information after Initialize to make 
                 // sure properties are correctly initialized
