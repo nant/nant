@@ -26,6 +26,7 @@ using System.Globalization;
 
 using NUnit.Framework;
 
+using NAnt.Core;
 using NAnt.Core.Tasks;
 
 using Tests.NAnt.Core.Util;
@@ -78,15 +79,25 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
-        [ExpectedException(typeof(TestBuildException))]
         public void Test_MoveNoOverwrite() {
             string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo-dest.xml"));
 
             // ensure source file is more recent than destination file
             File.SetLastWriteTime(_tempFileSrc, DateTime.Now.AddDays(1));
-
+            try {
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
+                // on non-windows platforms overwriting a file is permitted without a warning or exception
+                if ( PlatformHelper.IsWin32 ) {
+                    Assertion.Fail("Build should have failed with File Overwrite exception.");
+                }
+            } 
+            catch (TestBuildException) {
+                // just catch the exception
+            }
+            catch (Exception){
+                Assertion.Fail("Unexpected Exception.");
+            }     
         }
     }
 }

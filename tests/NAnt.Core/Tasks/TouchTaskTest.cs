@@ -68,7 +68,7 @@ namespace Tests.NAnt.Core.Tasks {
 
             DateTime newTouchDate = DateTime.Parse("01/01/1980");
             string fileName = _fileList[0];
-            RunBuild(FormatBuildFile("file='" + fileName + "' datetime='" + newTouchDate.ToString() + "'"));
+            RunBuild(FormatBuildFile("file='" + fileName + "' datetime='" + newTouchDate.ToString(CultureInfo.InvariantCulture) + "'"));
 
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
@@ -85,10 +85,10 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void Test_File_Millis() {
-            // <touch file='myfile' millis='100000'/>
+            // <touch file='myfile' millis='1000000000'/>
 
             string fileName = _fileList[0];
-            int milliSeconds = 100000;
+            int milliSeconds = 1000000000;
             RunBuild(FormatBuildFile("file='" + fileName + "' millis='" + milliSeconds.ToString() + "'"));
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
@@ -157,7 +157,7 @@ namespace Tests.NAnt.Core.Tasks {
             // </touch>
 
             DateTime newTouchDate = DateTime.Parse("01/01/1980");          
-            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
+            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString(CultureInfo.InvariantCulture) + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
                 FileInfo file = new FileInfo(_fileList[i]);
@@ -173,10 +173,10 @@ namespace Tests.NAnt.Core.Tasks {
             //   <fileset dir="src_dir"/>
             //</touch>
 
-            int milliSeconds = 100000;
+            int milliSeconds = 1000000000;
             DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
           
-            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
+            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString(CultureInfo.InvariantCulture) + "'","<fileset basedir='" + TempDirName + "'><include name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
 
