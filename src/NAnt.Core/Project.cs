@@ -915,6 +915,20 @@ namespace NAnt.Core {
                 return BaseDirectory;
             }
 
+            // check whether path is a file URI
+            try {
+                Uri uri = new Uri(path);
+                if (uri.IsFile) {
+                    path = uri.LocalPath;
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Invalid path '{0}'. The '{1}' scheme is not supported for paths.", 
+                        path, uri.Scheme), Location.UnknownLocation);
+                }
+            } catch {
+                // ignore exception and treat path as normal path
+            }
+
             if (!Path.IsPathRooted(path)) {
                 path = Path.GetFullPath(Path.Combine(BaseDirectory, path));
             }

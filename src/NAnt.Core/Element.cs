@@ -1159,21 +1159,9 @@ namespace NAnt.Core {
                         try {
                             propertyValue = new FileInfo(parent.Project.GetFullPath(value));
                         } catch (Exception ex) {
-                            // check whether value is a file URI
-                            try {
-                                Uri uri = new Uri(path);
-                                if (uri.IsFile) {
-                                    propertyValue = new FileInfo(uri.LocalPath);
-                                } else {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                        "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
-                                        value, attributeNode.Name, parent.Name), parent.Location, ex);
-                                }
-                            } catch {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                    "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
-                                    value, attributeNode.Name, parent.Name), parent.Location, ex);
-                            }
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                value, attributeNode.Name, parent.Name), parent.Location, ex);
                         }
 
                         try {
