@@ -118,7 +118,7 @@ namespace NAnt.VSNet {
             }
 
             // process VB.NET specific project settings
-            if (type == ProjectType.VBNet) {
+            if (_type == ProjectType.VBNet) {
                 if (elemSettings.Attributes["OptionExplicit"] != null) {
                     if (elemSettings.Attributes ["OptionExplicit"].Value == "Off") {
                         _settings.Add("/optionexplicit-");
