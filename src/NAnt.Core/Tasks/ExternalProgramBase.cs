@@ -44,14 +44,21 @@ namespace NAnt.Core.Tasks {
         private ArgumentCollection _arguments = new ArgumentCollection();
         private bool _useRuntimeEngine = false;
         private string _exeName = null;
-#if (MONO)
-        // TO-DO : remove this when issue has been fixed in Mono
-        // Mono does not (always) wait for process to exit when large timeout is
-        // specified (bug #45302)
-        private int _timeout = 100000;
-#else
-        private int _timeout = Int32.MaxValue;
-#endif
+        
+        private int _timeout = _defaultTimeout;
+        private static int _defaultTimeout;
+        
+        static ExternalProgramBase() {
+            if (PlatformHelper.IsMono) {
+                // TO-DO : remove this when issue has been fixed in Mono
+                // Mono does not (always) wait for process to exit when large timeout is
+                // specified (bug #45302)
+                _defaultTimeout = 100000;
+            } else {
+                _defaultTimeout = Int32.MaxValue;
+            }
+            _defaultTimeout = _defaultTimeout;
+        }
 
         #endregion Private Instance Fields
 

@@ -181,44 +181,12 @@ namespace NAnt.Core {
         public static bool IsVolumeCaseSensitive(Uri uri) {
             ValidateURI(uri);
 
-            bool isCaseSensitive = true;
-            PlatformID platformID = System.Environment.OSVersion.Platform;
-            
-            if ((platformID == PlatformID.Win32NT) ||
-                (platformID == PlatformID.Win32Windows) ) {
-
-                //We're on some version of Windows, so the PInvoke is OK. Unless we're on mono in which case assume false
-#if (!MONO)
-                // Declare Receiving Variables
-                StringBuilder VolLabel = new StringBuilder(256);    // Label
-                UInt32 VolFlags = new UInt32();
-                StringBuilder FSName = new StringBuilder(256);  // File System Name
-                UInt32 SerNum = 0;
-                UInt32 MaxCompLen = 0;
-
-                // Attempt to retreive the information
-                long Ret = GetVolumeInformation(uri.LocalPath, VolLabel, (UInt32)VolLabel.Capacity, ref SerNum, ref MaxCompLen, ref VolFlags, FSName, (UInt32) FSName.Capacity);
-
-                isCaseSensitive = (((VolumeFlags) VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
-#endif
-            }
-            else if ((int) platformID == 128) {
-                // Mono uses Platform id = 128 for Unix
-                isCaseSensitive = true;
-
-                //TODO - figure out what Rotor uses for non-Windows platforms
-            }
-            return isCaseSensitive;
+            return PlatformHelper.IsVolumeCaseSensitive(uri.LocalPath);
         }
 
         #endregion Public Static Methods
 
         #region Private Static Methods
-
-#if (!MONO)
-        [DllImport("kernel32.dll")]
-        private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
-#endif
 
         private static void ValidateURI(Uri uri) {
             // Make sure we were passed something

@@ -92,12 +92,20 @@ namespace NAnt.Core {
             scanner.Includes.Add("*Test.dll");
 
             foreach (string assemblyFile in scanner.FileNames) {
-                logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                    "Scanning assembly '{0}' for tasks, types and functions.", assemblyFile));
+                try {
+                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                                "Scanning assembly '{0}' for tasks, types and functions.", assemblyFile));
 
-                AddTasks(Assembly.LoadFrom(assemblyFile));
-                AddDataTypes(Assembly.LoadFrom(assemblyFile));
-                AddFunctionSets(Assembly.LoadFrom(assemblyFile));
+                    Assembly asm = Assembly.LoadFrom(assemblyFile);
+
+                    AddTasks(asm);
+                    AddDataTypes(asm);
+                    AddFunctionSets(asm);
+                }
+                catch (Exception ex) {
+                    logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                                "Cannot load '{0}' for tasks, types and functions.", assemblyFile), ex);
+                }
             }
         }
 
