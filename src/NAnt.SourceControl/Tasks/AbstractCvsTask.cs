@@ -378,6 +378,21 @@ namespace NAnt.SourceControl.Tasks {
             set {SetGlobalOption("readwrite", "-w", value);}
         }
 
+        /// <summary>
+        /// Compression level to use for all net traffic.  This should be a value from 1-9.
+        /// <br />
+        /// <br />
+        /// <bold>NOTE: This is not available on sharpcvslib.</bold>
+        /// </summary>
+        [TaskAttribute("compressionlevel")]
+        public int CompressionLevel {
+            get {
+                Option option = (Option)GlobalOptions["compressionlevel"];
+                return null == option ? DefaultCompressionLevel : Convert.ToInt32(option.Value);
+            }
+            set {SetGlobalOption("readwrite", String.Format("-z{0}", value), true);}
+        }
+
         #endregion Public Instance Properties
 
         #region Override Task Implementation
