@@ -46,7 +46,7 @@ namespace Tests.NAnt.Core.Tasks {
             } else {
                 result = RunBuild(FormatBuildFile("program='echo'", "<arg value='Hello, World!'/>"));
             }
-            Assertion.Assert("Could not find expected text from external program, <arg> element is not working correctly.", result.IndexOf("Hello, World!") != -1);
+            Assert.IsTrue(result.IndexOf("Hello, World!") != -1, "Could not find expected text from external program, <arg> element is not working correctly.");
         }
 
         /// <summary>Regression test for bug #461732 - ExternalProgramBase.ExecuteTask() hanging</summary>

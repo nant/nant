@@ -99,55 +99,55 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\""));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);
+            Assert.IsTrue(result.IndexOf("TestTask executed") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_Verbose() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" verbose='true'"));
-            Assertion.Assert("Verbose message should have been displayed." + Environment.NewLine + result, result.IndexOf("Verbose message") != -1);
+            Assert.IsTrue(result.IndexOf("Verbose message") != -1, "Verbose message should have been displayed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_FailOnError() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" fail=\"true\" failonerror=\"false\""));
-            Assertion.Assert("Task should have failed." + Environment.NewLine + result, result.IndexOf("TestTask failed") != -1);
+            Assert.IsTrue(result.IndexOf("TestTask failed") != -1, "Task should have failed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_NoFailOnError() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" fail=\"false\" failonerror=\"false\""));
-            Assertion.Assert("Task should not have failed." + Environment.NewLine + result, result.IndexOf("TestTask failed") == -1);
+            Assert.IsTrue(result.IndexOf("TestTask failed") == -1, "Task should not have failed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_If_True() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" if=\"true\""));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);
+            Assert.IsTrue(result.IndexOf("TestTask executed") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_If_False() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" if=\"false\""));
-            Assertion.Assert("Task should not have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") == -1);
+            Assert.IsTrue(result.IndexOf("TestTask executed") == -1, "Task should not have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_Unless_False() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" unless=\"false\""));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);
+            Assert.IsTrue(result.IndexOf("TestTask executed") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_Unless_True() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" unless=\"true\""));
-            Assertion.Assert("Task should not have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") == -1);
+            Assert.IsTrue(result.IndexOf("TestTask executed") == -1, "Task should not have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_Mixture() {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" verbose=\"true\" if=\"true\" unless=\"false\""));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("TestTask executed") != -1);
+            Assert.IsTrue(result.IndexOf("TestTask executed") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
@@ -164,16 +164,11 @@ namespace Tests.NAnt.Core {
             string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"\""));
         }
 
-/*
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_UnknownAttribute() {
-            try {
-                string result = RunBuild(FormatBuildFile("FaIL='false'"));
-                Assert("Task should have caused build error." + Environment.NewLine + result, result.IndexOf("BUILD ERROR") != -1);
-            } catch (BuildException e) {
-                Assert("Task should have caused build error from unknown attribute." + Environment.NewLine + e.Message, e.Message.IndexOf("Unknown attribute 'FaIl'") != -1);
-            }
+            string result = RunBuild(FormatBuildFile("FaIL='false'"));
         }
-*/
 
         #endregion Public Instance Methods
 

@@ -34,33 +34,25 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(_format, " milliseconds='20'"));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sleep]") != -1);
+            Assert.IsTrue(result.IndexOf("[sleep]") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_NoDurationSpecified() {
             string result = RunBuild(String.Format(_format, ""));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sleep]") != -1);
+            Assert.IsTrue(result.IndexOf("[sleep]") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_NegativeDurationFails() {
-            try {
-                RunBuild(String.Format(_format, " milliseconds='-1'"));
-                Assertion.Fail("A BuildException must be thrown for negative durations.");
-            } catch (TestBuildException) {
-                // This is expected.
-            }
+            RunBuild(String.Format(_format, " milliseconds='-1'"));
         }
 
         [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_NegativePartialDurationFails() {
-            try {
-                RunBuild(String.Format(_format, " seconds='1' milliseconds='-1'"));
-                Assertion.Fail("A BuildException must be thrown for negative partial durations.");
-            } catch (TestBuildException) {
-                // This is expected.
-            }
+            RunBuild(String.Format(_format, " seconds='1' milliseconds='-1'"));
         }
     }
 }

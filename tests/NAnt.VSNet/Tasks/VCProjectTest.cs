@@ -123,7 +123,8 @@ namespace Tests.NAnt.VSNet.Tasks {
         public void Test_NMakeProject() {
             if (CanCompileAndLink) {
                 string result = RunBuild(_test_build);
-                Assertion.Assert("File not created.", File.Exists(Path.Combine(_objDir, _touchedFileName)));
+                Assert.IsTrue(File.Exists(Path.Combine(_objDir, _touchedFileName)),
+                    "File not created.");
             }
         }
     }
@@ -262,7 +263,8 @@ namespace Tests.NAnt.VSNet.Tasks {
         public void Test_HelloWorldCompile_ExcludeFile() {
             if (CanCompileAndLink) {
                 string result = RunBuild(_test_build);
-                Assertion.Assert("dll file not created.", File.Exists(Path.Combine(_objDir, "HelloWorld.dll")));
+                Assert.IsTrue(File.Exists(Path.Combine(_objDir, "HelloWorld.dll")),
+                    "dll file not created.");
             }
         }
     }

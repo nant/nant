@@ -58,23 +58,23 @@ namespace Tests.NAnt.Core.Util {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t[foo] " + baseMessage;
-            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t\0[foo] " + baseMessage;
-            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t\0[foo] \0" + baseMessage + '\0';
-            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t\t[foo] " + baseMessage;
-            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
 
             string timestamp = "Thursday, August 01, 2002 12:52:54 AM";
             formattedMessage = String.Format(CultureInfo.InvariantCulture, "\t\t\t[tstamp] {0}", timestamp);
-            Assertion.AssertEquals(timestamp, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(timestamp, _log.StripFormatting(formattedMessage));
         }
 
         [Test]
@@ -82,37 +82,37 @@ namespace Tests.NAnt.Core.Util {
             string baseMessage = "this is a typical message." + Environment.NewLine + "Multiline message that is.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
         }
 
         [Test]
         public void Test_IsJustWhiteSpace() {
             string message = "";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assert.IsTrue(_log.IsJustWhiteSpace(message), "check failed for: {0}", message);
 
             message = " ";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assert.IsTrue(_log.IsJustWhiteSpace(message), "check failed for: {0}", message);
 
             message = "\0";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assert.IsTrue(_log.IsJustWhiteSpace(message), "check failed for: {0}", message);
 
             message = "        ";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assert.IsTrue(_log.IsJustWhiteSpace(message), "check failed for: {0}", message);
 
             message = "\t\t\t\t";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assert.IsTrue(_log.IsJustWhiteSpace(message), "check failed for: {0}", message);
 
             message = "hello";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assert.IsFalse(_log.IsJustWhiteSpace(message), "check should not have failed for: {0}", message);
 
             message = "hello    ";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assert.IsFalse(_log.IsJustWhiteSpace(message), "check should not have failed for: {0}", message);
 
             message = "        hello";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assert.IsFalse(_log.IsJustWhiteSpace(message), "check should not have failed for: {0}", message);
 
             message = "\t\t\thello";
-            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assert.IsFalse(_log.IsJustWhiteSpace(message), "check should not have failed for: {0}", message);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Tests.NAnt.Core.Util {
             _log.MessageLogged(this, args);
 
             string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -148,7 +148,7 @@ namespace Tests.NAnt.Core.Util {
             _log.MessageLogged(this, args);
 
             string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
 
             string unformattedMessage = "message:";
             _log = CreateXmlLogger();
@@ -156,21 +156,21 @@ namespace Tests.NAnt.Core.Util {
             args.Message = unformattedMessage;
             _log.MessageLogged(this, args);
             expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", unformattedMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
 
             unformattedMessage = "message with no tag in front.";
             _log = CreateXmlLogger();
             args.Message = unformattedMessage;
             _log.MessageLogged(this, args);
             expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", unformattedMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
 
             unformattedMessage = "BUILD SUCCESSFUL";
             _log = CreateXmlLogger();
             args.Message = unformattedMessage;
             _log.MessageLogged(this, args);
             expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", unformattedMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -188,7 +188,7 @@ namespace Tests.NAnt.Core.Util {
             _log.MessageLogged(this, args);
 
             string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace Tests.NAnt.Core.Util {
             _log.MessageLogged(this, args);
 
             string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -240,7 +240,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -257,7 +257,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]        
@@ -274,7 +274,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -305,7 +305,7 @@ namespace Tests.NAnt.Core.Util {
 
             _log.BuildStarted(this, args);
             _log.BuildFinished(this, args);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -318,7 +318,7 @@ namespace Tests.NAnt.Core.Util {
 
             _log.TargetStarted(this, args);
             _log.TargetFinished(this, args);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         [Test]
@@ -330,7 +330,7 @@ namespace Tests.NAnt.Core.Util {
 
             _log.TaskStarted(this, args);
             _log.TaskFinished(this, args);
-            Assertion.AssertEquals(expected, _log.ToString());
+            Assert.AreEqual(expected, _log.ToString());
         }
 
         private XmlLogger CreateXmlLogger() {

@@ -36,7 +36,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='I Love ${foo}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Property value not set." + Environment.NewLine + result, result.IndexOf("I Love you") != -1);
+            Assert.IsTrue(result.IndexOf("I Love you") != -1, "Property value not set." + Environment.NewLine + result);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='I Love ${foo}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Property value not re-set." + Environment.NewLine + result, result.IndexOf("I Love me") != -1);
+            Assert.IsTrue(result.IndexOf("I Love me") != -1, "Property value not re-set." + Environment.NewLine + result);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='I Love ${foo}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Property value should not have been overwritten." + Environment.NewLine + result, result.IndexOf("I Love me") == -1);
+            Assert.IsTrue(result.IndexOf("I Love me") == -1, "Property value should not have been overwritten." + Environment.NewLine + result);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='I Love ${foo}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Property value should have been overwritten." + Environment.NewLine + result, result.IndexOf("I Love me") != -1);
+            Assert.IsTrue(result.IndexOf("I Love me") != -1, "Property value should have been overwritten." + Environment.NewLine + result);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='${foo2}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Value of dynamic property should have reflected change in referenced property." + Environment.NewLine + result, result.IndexOf("I Love you") != -1);
+            Assert.IsTrue(result.IndexOf("I Love you") != -1, "Value of dynamic property should have reflected change in referenced property." + Environment.NewLine + result);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='${foo2}' />
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Static property should be upgraded to dynamic property." + Environment.NewLine + result, result.IndexOf("I Love you") != -1);
+            Assert.IsTrue(result.IndexOf("I Love you") != -1, "Static property should be upgraded to dynamic property." + Environment.NewLine + result);
         }
 
         [Test]
@@ -165,7 +165,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='${foo2}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Value of read-only dynamic property should have reflected change in referenced property." + Environment.NewLine + result, result.IndexOf("I Love you") != -1);
+            Assert.IsTrue(result.IndexOf("I Love you") != -1, "Value of read-only dynamic property should have reflected change in referenced property." + Environment.NewLine + result);
         }
     }
 }

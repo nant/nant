@@ -99,78 +99,78 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_Delete() {
             string result;
 
-            Assertion.Assert("File should have been created:" + tempFile1, File.Exists(tempFile1));
-            Assertion.Assert("File should have been created:" + tempFile2, File.Exists(tempFile2));
-            Assertion.Assert("File should have been created:" + tempFile3, File.Exists(tempFile3));
-            Assertion.Assert("File should have been created:" + tempFile4, File.Exists(tempFile4));
-            Assertion.Assert("File should have been created:" + tempFile5, File.Exists(tempFile5));
-            Assertion.Assert("File should have been created:" + tempFile6, File.Exists(tempFile6));
-            Assertion.Assert("File should have been created:" + tempFile7, File.Exists(tempFile7));
+            Assert.IsTrue(File.Exists(tempFile1), "File should have been created:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should have been created:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should have been created:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should have been created:" + tempFile5);
+            Assert.IsTrue(File.Exists(tempFile6), "File should have been created:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should have been created:" + tempFile7);
 
-            Assertion.Assert("Dir should have been created:" + tempDir1, Directory.Exists(tempDir1));
-            Assertion.Assert("Dir should have been created:" + tempDir2, Directory.Exists(tempDir2));
-            Assertion.Assert("Dir should have been created:" + tempDir3, Directory.Exists(tempDir3));
-            Assertion.Assert("Dir should have been created:" + tempDir4, Directory.Exists(tempDir4));
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should have been created:" + tempDir4);
 
             result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile6 ));
             
-            Assertion.Assert("File should not have been deleted:" + tempFile1, File.Exists(tempFile1));
-            Assertion.Assert("File should not have been deleted:" + tempFile2, File.Exists(tempFile2));
-            Assertion.Assert("File should not have been deleted:" + tempFile3, File.Exists(tempFile3));
-            Assertion.Assert("File should not have been deleted:" + tempFile4, File.Exists(tempFile4));
-            Assertion.Assert("File should not have been deleted:" + tempFile5, File.Exists(tempFile5));
-            Assertion.Assert("File should have been deleted:" + tempFile6, !File.Exists(tempFile6));
-            Assertion.Assert("File should not have been deleted:" + tempFile7, File.Exists(tempFile7));
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsTrue(File.Exists(tempFile3), "File should not have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
 
-            Assertion.Assert("Dir should not have been deleted:" + tempDir1, Directory.Exists(tempDir1));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir2, Directory.Exists(tempDir2));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir3, Directory.Exists(tempDir3));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir4, Directory.Exists(tempDir4));
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
             result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "dir", tempDir2 ));
 
-            Assertion.Assert("File should not have been deleted:" + tempFile1, File.Exists(tempFile1));
-            Assertion.Assert("File should not have been deleted:" + tempFile2, File.Exists(tempFile2));
-            Assertion.Assert("File should have been deleted:" + tempFile3, !File.Exists(tempFile3));
-            Assertion.Assert("File should not have been deleted:" + tempFile4, File.Exists(tempFile4));
-            Assertion.Assert("File should not have been deleted:" + tempFile5, File.Exists(tempFile5));
-            Assertion.Assert("File should have been deleted:" + tempFile6, !File.Exists(tempFile6));
-            Assertion.Assert("File should not have been deleted:" + tempFile7, File.Exists(tempFile7));
+            Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
 
-            Assertion.Assert("Dir should not have been deleted:" + tempDir1, Directory.Exists(tempDir1));
-            Assertion.Assert("Dir should have been deleted:" + tempDir2, !Directory.Exists(tempDir2));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir3, Directory.Exists(tempDir3));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir4, Directory.Exists(tempDir4));
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
             result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile1 ));
 
-            Assertion.Assert("File should have been deleted:" + tempFile1, !File.Exists(tempFile1));
-            Assertion.Assert("File should not have been deleted:" + tempFile2, File.Exists(tempFile2));
-            Assertion.Assert("File should have been deleted:" + tempFile3, !File.Exists(tempFile3));
-            Assertion.Assert("File should not have been deleted:" + tempFile4, File.Exists(tempFile4));
-            Assertion.Assert("File should not have been deleted:" + tempFile5, File.Exists(tempFile5));
-            Assertion.Assert("File should have been deleted:" + tempFile6, !File.Exists(tempFile6));
-            Assertion.Assert("File should not have been deleted:" + tempFile7, File.Exists(tempFile7));
+            Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsTrue(File.Exists(tempFile4), "File should not have been deleted:" + tempFile4);
+            Assert.IsTrue(File.Exists(tempFile5), "File should not have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
 
-            Assertion.Assert("Dir should not have been deleted:" + tempDir1, Directory.Exists(tempDir1));
-            Assertion.Assert("Dir should have been deleted:" + tempDir2, !Directory.Exists(tempDir2));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir3, Directory.Exists(tempDir3));
-            Assertion.Assert("Dir should not have been deleted:" + tempDir4, Directory.Exists(tempDir4));
+            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
             result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1 ));
 
-            Assertion.Assert("File should have been deleted:" + tempFile1, !File.Exists(tempFile1));
-            Assertion.Assert("File should have been deleted:" + tempFile2, !File.Exists(tempFile2));
-            Assertion.Assert("File should have been deleted:" + tempFile3, !File.Exists(tempFile3));
-            Assertion.Assert("File should have been deleted:" + tempFile4, !File.Exists(tempFile4));
-            Assertion.Assert("File should have been deleted:" + tempFile5, !File.Exists(tempFile5));
-            Assertion.Assert("File should have been deleted:" + tempFile6, !File.Exists(tempFile6));
-            Assertion.Assert("File should have been deleted:" + tempFile7, !File.Exists(tempFile7));
+            Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
+            Assert.IsFalse(File.Exists(tempFile2), "File should have been deleted:" + tempFile2);
+            Assert.IsFalse(File.Exists(tempFile3), "File should have been deleted:" + tempFile3);
+            Assert.IsFalse(File.Exists(tempFile4), "File should have been deleted:" + tempFile4);
+            Assert.IsFalse(File.Exists(tempFile5), "File should have been deleted:" + tempFile5);
+            Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
+            Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
 
-            Assertion.Assert("Dir should have been deleted:" + tempDir1, !Directory.Exists(tempDir1));
-            Assertion.Assert("Dir should have been deleted:" + tempDir2, !Directory.Exists(tempDir2));
-            Assertion.Assert("Dir should have been deleted:" + tempDir3, !Directory.Exists(tempDir3));
-            Assertion.Assert("Dir should have been deleted:" + tempDir4, !Directory.Exists(tempDir4));
+            Assert.IsFalse(Directory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
+            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
         }
     }
 }

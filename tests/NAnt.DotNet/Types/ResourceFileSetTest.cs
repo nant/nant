@@ -37,15 +37,15 @@ namespace Tests.NAnt.DotNet.Types {
             ResourceFileSet fileset = new ResourceFileSet();
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj");
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
+            Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
 
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
+            Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
 
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
+            Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
         }
 
         [Test]
@@ -54,15 +54,18 @@ namespace Tests.NAnt.DotNet.Types {
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj");
             fileset.Prefix = @"Root.MyProj.Howdy";
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
+            Assert.AreEqual(fileset.Prefix + ".file.txt", actualName, 
+                "Incorrect manifest resource name.");
         
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
+            Assert.AreEqual(fileset.Prefix + ".file.txt", actualName, 
+                "Incorrect manifest resource name.");
 
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
+            Assert.AreEqual(fileset.Prefix + ".file.txt", actualName,
+                "Incorrect manifest resource name.");
         }
 
         [Test]
@@ -72,15 +75,18 @@ namespace Tests.NAnt.DotNet.Types {
             fileset.Prefix = @"Root.MyProj.Howdy";
             fileset.DynamicPrefix = true;
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".mydir.file.txt", actualName);
+            Assert.AreEqual(fileset.Prefix + ".mydir.file.txt", actualName,
+                "Incorrect manifest resource name.");
         
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".mydir.file.txt", actualName);
+            Assert.AreEqual(fileset.Prefix + ".mydir.file.txt", actualName,
+                "Incorrect manifest resource name.");
 
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", fileset.Prefix + ".file.txt", actualName);
+            Assert.AreEqual(fileset.Prefix + ".file.txt", actualName,
+                "Incorrect manifest resource name.");
         }
 
         [Test]
@@ -90,15 +96,15 @@ namespace Tests.NAnt.DotNet.Types {
             fileset.Prefix = "";
             fileset.DynamicPrefix = true;
             string actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", "mydir.file.txt", actualName);
+            Assert.AreEqual("mydir.file.txt", actualName, "Incorrect manifest resource name.");
         
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\mydir\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", "mydir.file.txt", actualName);
+            Assert.AreEqual("mydir.file.txt", actualName, "Incorrect manifest resource name.");
 
             fileset.BaseDirectory = new DirectoryInfo(@"c:\code\myproj\");
             actualName = fileset.GetManifestResourceName(@"c:\code\myproj\file.txt");
-            Assertion.AssertEquals("Incorrect manifest resource name.", "file.txt", actualName);
+            Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
         }
     }
 }

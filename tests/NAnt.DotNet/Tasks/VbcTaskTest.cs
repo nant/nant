@@ -76,9 +76,9 @@ namespace Tests.NAnt.DotNet.Tasks {
         [Test]
         public void Test_DebugBuild() {
             string result = RunBuild(FormatBuildFile("debug='true'"));
-            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");
             // Comment this for now as its hard to know which framework was used to compile and it was mono there will be no pdb file.
-            //Assertion.Assert(_sourceFileName + ".pdb does not exists, program did compile with debug switch.", File.Exists(_sourceFileName + ".pdb"));
+            //Assert.IsTrue(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does not exists, program did compile with debug switch.");
         }
 
         /// <summary>
@@ -87,8 +87,8 @@ namespace Tests.NAnt.DotNet.Tasks {
         [Test]
         public void Test_ReleaseBuild() {   
             string result = RunBuild(FormatBuildFile("debug='false'"));
-            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
-            Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");
+            Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does exists, program did compiled with debug switch.");
         }
 
         #endregion Public Instance Methods
@@ -107,20 +107,18 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// Unit tests for FileParser
         /// </summary>
         [TestFixture]
-            public class TestResourceLinkage 
-        {
+            public class TestResourceLinkage {
             /// <summary>
             /// Uses a representative sampling of classname inputs to verify that the classname line can be found
             /// </summary>
             [Test]
-            public void TestFindClassname() 
-            {
+            public void TestFindClassname() {
                 // Positive test cases - classname should be found
-                VerifyFindClassname( "Public Abstract Class CompilerBase\r\n{} \r\n}", "CompilerBase" );
-                VerifyFindClassname( "Public Abstract Class Conference \r\n{}", "Conference" );              
+                VerifyFindClassname("Public Abstract Class CompilerBase\r\n{} \r\n}", "CompilerBase");
+                VerifyFindClassname("Public Abstract Class Conference \r\n{}", "Conference");
         
                 // Negative test cases - no classname should be found
-                VerifyFindClassname( "' this is some Class here\r\n", "" );           
+                VerifyFindClassname("' this is some Class here\r\n", "");
             }
                 
             /// <summary>
@@ -131,9 +129,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 StringReader reader = new StringReader( input );
                 CompilerBase.ResourceLinkage linkage = vbTask.PerformSearchForResourceLinkage( reader );
                 
-                Assertion.AssertNotNull("no resourcelinkage found for " + input, linkage);
-                string message = string.Format( "Failed to find expected class name {0}. Found {1} instead.", linkage.ClassName, expectedClassname ); 
-                Assertion.Assert( message, (expectedClassname == linkage.ClassName ) );
+                Assert.IsNotNull(linkage, "no resourcelinkage found for " + input);
+                Assert.AreEqual(expectedClassname, linkage.ClassName);
             }
         }
     }

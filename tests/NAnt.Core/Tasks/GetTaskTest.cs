@@ -55,7 +55,7 @@ namespace Tests.NAnt.Core.Tasks {
             if (File.Exists(destination)) {
                 File.Delete(destination);
             }
-            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
 
             getTask.Source = source;
             getTask.Destination = destination;
@@ -98,7 +98,7 @@ namespace Tests.NAnt.Core.Tasks {
                 if (File.Exists(destination)) {
                     File.Delete(destination);
                 }
-                Assertion.Assert(destination + " exists, but shouldn't", !File.Exists(destination));
+                Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't");
 
                 getTask.Source = source;
                 getTask.Destination = destination;
@@ -107,7 +107,7 @@ namespace Tests.NAnt.Core.Tasks {
                 getTask.Verbose = true;;
                 getTask.Execute();
 
-                Assertion.Assert(destination + " doesn't exist, but should", File.Exists(destination));
+                Assert.IsTrue(File.Exists(destination), destination + " doesn't exist, but should");
             }
 
             // check for file exists using TimeStampEqual
@@ -116,7 +116,7 @@ namespace Tests.NAnt.Core.Tasks {
                 getTask.Project = CreateEmptyProject();
                 getTask.HttpProxy = _proxy;
 
-                Assertion.Assert(destination + " does not exist, but should", File.Exists(destination));
+                Assert.IsTrue(File.Exists(destination), destination + " does not exist, but should");
 
                 DateTime fileDateTime = File.GetLastWriteTime(destination);
 
@@ -127,7 +127,8 @@ namespace Tests.NAnt.Core.Tasks {
                 getTask.Verbose = true;;
                 getTask.Execute();
 
-                Assertion.Assert(destination + " lastModified times are different", fileDateTime.Equals(File.GetLastWriteTime(destination)));
+                Assert.IsTrue(fileDateTime.Equals(File.GetLastWriteTime(destination)),
+                    destination + " lastModified times are different");
             }
 
             // Test_FileExists_UseTimeStamp
@@ -136,7 +137,7 @@ namespace Tests.NAnt.Core.Tasks {
                 getTask.Project = CreateEmptyProject();
                 getTask.HttpProxy = _proxy;
 
-                Assertion.Assert(destination + " doesn't exist", File.Exists(destination));
+                Assert.IsTrue(File.Exists(destination), destination + " doesn't exist");
                 File.SetLastWriteTime(destination, DateTime.Parse("01/01/2000 00:00"));
                 DateTime fileDateTime = File.GetLastWriteTime(destination);
 
@@ -147,7 +148,8 @@ namespace Tests.NAnt.Core.Tasks {
                 getTask.Verbose = true;;
                 getTask.Execute();
 
-                Assertion.Assert(destination + " was not fetched", !fileDateTime.Equals(File.GetLastWriteTime(destination)));
+                Assert.IsFalse(fileDateTime.Equals(File.GetLastWriteTime(destination)),
+                    destination + " was not fetched");
             }
 
             // cleanup 
@@ -227,7 +229,7 @@ namespace Tests.NAnt.Core.Tasks {
                 File.Delete(destination);
             }
 
-            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
 
             getTask.Source = source;
             getTask.Destination = destination;
@@ -236,13 +238,13 @@ namespace Tests.NAnt.Core.Tasks {
             getTask.Verbose = true;;
             getTask.Execute();
 
-            Assertion.Assert(destination + " should exist, but doesn't.", File.Exists(destination));
+            Assert.IsTrue(File.Exists(destination), destination + " should exist, but doesn't.");
 
             // cleanup 
             if (File.Exists(destination)) {
                 File.Delete(destination);
             }
-            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
         }
 
         /// <summary>
@@ -256,39 +258,39 @@ namespace Tests.NAnt.Core.Tasks {
 
             string proxy = _proxy;
             getTask.HttpProxy = proxy;
-            Assertion.Assert("Proxy accessor bug", getTask.HttpProxy == proxy);
+            Assert.IsTrue(getTask.HttpProxy == proxy, "Proxy accessor bug");
 
             string source = "http://nant.sourceforge.net/arrow.gif";
             getTask.Source = source;
-            Assertion.Assert("Source accessor bug", getTask.Source == source);
+            Assert.IsTrue(getTask.Source == source, "Source accessor bug");
 
             string destination = Path.GetTempFileName();
             getTask.Destination = destination;
-            Assertion.Assert("Destination accessor bug", getTask.Destination == destination);
+            Assert.IsTrue(getTask.Destination == destination, "Destination accessor bug");
 
             bool ignoreErrors = true;
             getTask.IgnoreErrors = ignoreErrors;
-            Assertion.Assert("ignoreErrors=true accessor bug", getTask.IgnoreErrors == ignoreErrors);
+            Assert.IsTrue(getTask.IgnoreErrors == ignoreErrors, "ignoreErrors=true accessor bug");
 
             ignoreErrors = false;
             getTask.IgnoreErrors = ignoreErrors;
-            Assertion.Assert("ignoreErrors=false accessor bug", getTask.IgnoreErrors == ignoreErrors);
+            Assert.IsTrue(getTask.IgnoreErrors == ignoreErrors, "ignoreErrors=false accessor bug");
 
             bool useTimeStamp = true;
             getTask.UseTimeStamp = useTimeStamp;
-            Assertion.Assert("useTimeStamp=true accessor bug", getTask.UseTimeStamp == useTimeStamp);
+            Assert.IsTrue(getTask.UseTimeStamp == useTimeStamp, "useTimeStamp=true accessor bug");
 
             useTimeStamp = false;
             getTask.UseTimeStamp = useTimeStamp;
-            Assertion.Assert("useTimeStamp=false accessor bug", getTask.UseTimeStamp == useTimeStamp);
+            Assert.IsTrue(getTask.UseTimeStamp == useTimeStamp, "useTimeStamp=false accessor bug");
 
             bool verbose = true;
             getTask.Verbose = verbose;
-            Assertion.Assert("Verbose=true accessor bug", getTask.Verbose == verbose);
+            Assert.IsTrue(getTask.Verbose == verbose, "Verbose=true accessor bug");
 
             verbose = false;
             getTask.Verbose = verbose;
-            Assertion.Assert("Verbose=false accessor bug", getTask.Verbose == verbose);
+            Assert.IsTrue(getTask.Verbose == verbose, "Verbose=false accessor bug");
         }
     }
 }

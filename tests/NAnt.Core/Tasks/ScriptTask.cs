@@ -46,7 +46,7 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
 
             string result = RunBuild(_xml);
-            Assertion.Assert("VB script should have updated prop." + Environment.NewLine + result, result.IndexOf("CSFoo=1") != -1);
+            Assert.IsTrue(result.IndexOf("CSFoo=1") != -1, "VB script should have updated prop." + Environment.NewLine + result);
         }
 
         [Test]
@@ -67,8 +67,8 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
 
             string result = RunBuild(_xml);
-            Assertion.Assert("CSharp script should written something." + Environment.NewLine + result, result.IndexOf("Hello") != -1);
-            Assertion.Assert("CSharp script should have updated prop." + Environment.NewLine + result, result.IndexOf("script.me") != -1);
+            Assert.IsTrue(result.IndexOf("Hello") != -1, "CSharp script should written something." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("script.me") != -1, "CSharp script should have updated prop." + Environment.NewLine + result);
         }
         
         [Test]
@@ -87,12 +87,13 @@ namespace Tests.NAnt.Core.Tasks {
                 </script>
                 <echo message='${script::test-func()}'/>
             </project>";
-            //_xml = string.Format(_xml, "test-func", "some result !!!!!!!!" );
             string result = RunBuild(_xml);
-            Assertion.Assert("Function script should have defined a new custom function." + Environment.NewLine + result, TypeFactory.LookupFunction("script::test-func") != null );
-            Assertion.Assert("Function script should written something." + Environment.NewLine + result, result.IndexOf("some result") != -1);
-            
+            Assert.IsNotNull(TypeFactory.LookupFunction("script::test-func"),
+                "Function script should have defined a new custom function." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("some result") != -1,
+                "Function script should written something." + Environment.NewLine + result);
         }
+
         [Test]
         public void Test_2ScriptsInOneProject() {
             string _xml = @"

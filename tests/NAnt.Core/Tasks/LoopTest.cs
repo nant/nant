@@ -39,12 +39,11 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("Count:1") != -1);
-            Assertion.Assert(result.IndexOf("Count:2") != -1);
-            Assertion.Assert(result.IndexOf("Count:3") != -1);
-            Assertion.Assert(result.IndexOf("Count:4") != -1);
-            Assertion.Assert(result.IndexOf("Count:5") != -1);
+            Assert.IsTrue(result.IndexOf("Count:1") != -1);
+            Assert.IsTrue(result.IndexOf("Count:2") != -1);
+            Assert.IsTrue(result.IndexOf("Count:3") != -1);
+            Assert.IsTrue(result.IndexOf("Count:4") != -1);
+            Assert.IsTrue(result.IndexOf("Count:5") != -1);
         }
 
         [Test]
@@ -56,7 +55,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert(result.IndexOf("test.build") != -1);
+            Assert.IsTrue(result.IndexOf("test.build") != -1);
         }
         
         [Test]
@@ -75,7 +74,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert(result.IndexOf("test.build") != -1);
+            Assert.IsTrue(result.IndexOf("test.build") != -1);
         }
 
         [Test]
@@ -89,9 +88,8 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("foo") != -1);
-            Assertion.Assert(result.IndexOf("bar") != -1);
+            Assert.IsTrue(result.IndexOf("foo") != -1);
+            Assert.IsTrue(result.IndexOf("bar") != -1);
         }
 
         [Test]
@@ -112,10 +110,9 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert(result.IndexOf("foo") != -1);
-            Assertion.Assert(result.IndexOf("bar") != -1);
+            Assert.IsTrue(result.IndexOf("foo") != -1);
+            Assert.IsTrue(result.IndexOf("bar") != -1);
         }
-
 
         [Test]
         public void Test_Loop_Lines() {
@@ -135,11 +132,10 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>", strTempFile );
                 string result = RunBuild(_xml);
-                //Log.WriteLine(result);
-                Assertion.Assert(result.IndexOf("|x=y|") != -1);
-                Assertion.Assert(result.IndexOf("|x2=y2|") != -1);
-                Assertion.Assert(result.IndexOf("|x3=y3|") != -1);
-                Assertion.Assert(result.IndexOf("|x4=y4|") != -1);
+                Assert.IsTrue(result.IndexOf("|x=y|") != -1);
+                Assert.IsTrue(result.IndexOf("|x2=y2|") != -1);
+                Assert.IsTrue(result.IndexOf("|x3=y3|") != -1);
+                Assert.IsTrue(result.IndexOf("|x4=y4|") != -1);
             }
         }
 
@@ -161,11 +157,10 @@ namespace Tests.NAnt.Core.Tasks {
                         </foreach>
                     </project>", strTempFile );
                 string result = RunBuild(_xml);
-                //Log.WriteLine(result);
-                Assertion.Assert(result.IndexOf("|x,y |") != -1);
-                Assertion.Assert(result.IndexOf("|x2,y2  |") != -1);
-                Assertion.Assert(result.IndexOf("|x3  ,y3 |") != -1);
-                Assertion.Assert(result.IndexOf("|x4,  y4 |") != -1);
+                Assert.IsTrue(result.IndexOf("|x,y |") != -1);
+                Assert.IsTrue(result.IndexOf("|x2,y2  |") != -1);
+                Assert.IsTrue(result.IndexOf("|x3  ,y3 |") != -1);
+                Assert.IsTrue(result.IndexOf("|x4,  y4 |") != -1);
             }
         }
     }

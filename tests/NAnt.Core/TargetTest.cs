@@ -68,9 +68,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "false", "true", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 0);
-            Assertion.Assert("Target3 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 0);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target1"), "Target1 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target2"), "Target2 should not have executed." + Environment.NewLine + result);
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target3"), "Target3 should not have executed." + Environment.NewLine + result);
         }
 
         [Test]
@@ -81,9 +81,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "true", "true", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
-            Assertion.Assert("Target3 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 0);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target1"), "Target1 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target2"), "Target2 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target3"), "Target3 should not have executed." + Environment.NewLine + result);
         }
 
         [Test]
@@ -94,9 +94,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "false", "false", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 0);
-            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target1"), "Target1 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target2"), "Target2 should not have executed." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target3"), "Target3 should have executed once." + Environment.NewLine + result);
         }
 
         [Test]
@@ -107,9 +107,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "true", "false", "Target2"), listener);
 
-            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
-            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target1"), "Target1 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target2"), "Target2 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target3"), "Target3 should have executed once." + Environment.NewLine + result);
         }
 
         [Test]
@@ -120,9 +120,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "true", "false", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
-            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target1"), "Target1 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target2"), "Target2 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target3"), "Target3 should have executed once." + Environment.NewLine + result);
         }
 
         [Test]
@@ -140,8 +140,8 @@ namespace Tests.NAnt.Core {
 
             string result = ExecuteProject(project);
 
-            Assertion.Assert("WildTarget should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("WildTarget") == 1);
-            Assertion.Assert("Target should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target") == 0);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("WildTarget"), "WildTarget should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target"), "Target should not have executed." + Environment.NewLine + result);
         }
 
         [Test]
@@ -161,9 +161,9 @@ namespace Tests.NAnt.Core {
 
             string result = ExecuteProject(project);
 
-            Assertion.Assert("'Init' target should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Init") == 1);
-            Assertion.Assert("'Release' target should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Release") == 1);
-            Assertion.Assert("'Build' target should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Build") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Init"), "'Init' target should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Release"), "'Release' target should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Build"), "'Build' target should have executed once." + Environment.NewLine + result);
         }
 
         [Test]

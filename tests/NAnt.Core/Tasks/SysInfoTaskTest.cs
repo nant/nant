@@ -41,15 +41,14 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, ""));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sysinfo]") != -1);
+            Assert.IsTrue(result.IndexOf("[sysinfo]") != -1, "Task should have executed." + Environment.NewLine + result);
         }
 
         [Test]
         public void Test_Verbose() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "verbose='true'"));
-            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sysinfo]") != -1);
+            Assert.IsTrue(result.IndexOf("[sysinfo]") != -1, "Task should have executed." + Environment.NewLine + result);
         }
-
 
         [Test]
         public void Test_DuplicateTasks() {
@@ -64,12 +63,10 @@ namespace Tests.NAnt.Core.Tasks {
 
            try {
               string result = RunBuild(xml);
-
            } catch(BuildException e) {
-              Assertion.Fail("Duplicate sysinfo tasks should've worked" + Environment.NewLine + e.ToString());
+              Assert.Fail("Duplicate sysinfo tasks should've worked" + Environment.NewLine + e.ToString());
            }
         }
-    
 
         [Test]
         public void Test_PropertiesNotReadOnly() {
@@ -86,8 +83,7 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(xml);
             string expression = @"test.clr.version = 44.32.23";
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("SysInfo property should've been modified!" + Environment.NewLine + result, match.Success);
+            Assert.IsTrue(match.Success, "SysInfo property should've been modified!" + Environment.NewLine + result);
         }
- 
     }
 }

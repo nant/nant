@@ -73,14 +73,14 @@ namespace Tests.NAnt.Core.Tasks {
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert("File not touched", newTouchDate.Equals(lastTouchDate));
+            Assert.IsTrue(newTouchDate.Equals(lastTouchDate), "File not touched");
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert("Wrong file was touched", !newTouchDate.Equals(lastTouchDate));
+            Assert.IsFalse(newTouchDate.Equals(lastTouchDate), "Wrong file was touched");
         }
 
         [Test]
@@ -94,14 +94,14 @@ namespace Tests.NAnt.Core.Tasks {
             DateTime lastTouchDate = file.LastWriteTime;
             DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
 
-            Assertion.Assert("Wrong touch date", newTouchDate.Equals(lastTouchDate));
+            Assert.IsTrue(newTouchDate.Equals(lastTouchDate), "Wrong touch date");
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert("Wrong file touched", !newTouchDate.Equals(lastTouchDate));
+            Assert.IsFalse(newTouchDate.Equals(lastTouchDate), "Wrong file touched");
         }
 
         [Test]
@@ -119,14 +119,14 @@ namespace Tests.NAnt.Core.Tasks {
             DateTime lastTouchDate = file.LastWriteTime;
 
             // Can only ensure that Now() is greater or equal to the file date
-            Assertion.Assert("Touch date incorrect", lastTouchDate.CompareTo(newTouchDate) >= 0);
+            Assert.IsTrue(lastTouchDate.CompareTo(newTouchDate) >= 0, "Touch date incorrect");
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert("Wrong file touched", !newTouchDate.Equals(lastTouchDate));
+            Assert.IsFalse(newTouchDate.Equals(lastTouchDate), "Wrong file touched");
         }
 
         [Test]
@@ -141,14 +141,13 @@ namespace Tests.NAnt.Core.Tasks {
             File.Delete(fileName);
 
             RunBuild(FormatBuildFile("file='" + fileName + "'"));
-            Assertion.Assert("File doesn't exist!", File.Exists(fileName));
+            Assert.IsTrue(File.Exists(fileName), "File doesn't exist!");
             File.Delete(fileName);
 
             RunBuild(FormatBuildFile("file='" + fileName + "'"));
-            Assertion.Assert("File doesn't exist!", File.Exists(fileName));
+            Assert.IsTrue(File.Exists(fileName), "File doesn't exist!");
             File.Delete(fileName);
         }
-
 
         [Test]
         public void Test_FileSet_DateTime() {
@@ -163,7 +162,7 @@ namespace Tests.NAnt.Core.Tasks {
                 FileInfo file = new FileInfo(_fileList[i]);
                 DateTime lastTouchDate = file.LastWriteTime;
 
-                Assertion.Assert("Touch: fileset, datetime, " + _fileList[i], newTouchDate.Equals(lastTouchDate));
+                Assert.IsTrue(newTouchDate.Equals(lastTouchDate), "Touch: fileset, datetime, " + _fileList[i]);
             }
         }
 
@@ -183,9 +182,8 @@ namespace Tests.NAnt.Core.Tasks {
                 FileInfo file = new FileInfo(_fileList[i]);
                 DateTime lastTouchDate = file.LastWriteTime;
 
-                Assertion.Assert("Touch: fileset, millis, " + _fileList[i], newTouchDate.Equals(lastTouchDate));
+                Assert.IsTrue(newTouchDate.Equals(lastTouchDate), "Touch: fileset, millis, " + _fileList[i]);
             }
-
         }
 
         [Test]
@@ -201,7 +199,7 @@ namespace Tests.NAnt.Core.Tasks {
                 FileInfo file = new FileInfo(_fileList[i]);
                 DateTime lastTouchDate = file.LastWriteTime;
 
-                Assertion.Assert("Touch: fileset ONLY, " + _fileList[i], lastTouchDate.CompareTo(newTouchDate) >= 0);
+                Assert.IsTrue(lastTouchDate.CompareTo(newTouchDate) >= 0, "Touch: fileset ONLY, " + _fileList[i]);
             }
         }
 

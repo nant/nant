@@ -40,29 +40,29 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_Constructor_FileName() {
             Location l = new Location(_tempFileName);
-            Assertion.AssertNotNull(l);
-            Assertion.AssertEquals(0, l.LineNumber);
-            Assertion.AssertEquals(0, l.ColumnNumber);
-            Assertion.AssertEquals(_tempFileName, l.FileName);
+            Assert.IsNotNull(l);
+            Assert.AreEqual(0, l.LineNumber);
+            Assert.AreEqual(0, l.ColumnNumber);
+            Assert.AreEqual(_tempFileName, l.FileName);
         }
 
         [Test]
         public void Test_Constructor_FileNameLineColumn() {
             Location l = new Location(_tempFileName, 2, 5);
-            Assertion.AssertNotNull(l);
-            Assertion.AssertEquals(2, l.LineNumber);
-            Assertion.AssertEquals(5, l.ColumnNumber);
-            Assertion.AssertEquals(_tempFileName, l.FileName);
+            Assert.IsNotNull(l);
+            Assert.AreEqual(2, l.LineNumber);
+            Assert.AreEqual(5, l.ColumnNumber);
+            Assert.AreEqual(_tempFileName, l.FileName);
         }
 
         [Test]
         public void Test_Constructor_UriFileName() {
             Uri uri = new Uri("file://" + _tempFileName);
             Location l = new Location(uri.ToString(), 3, 6);
-            Assertion.AssertNotNull(l);
-            Assertion.AssertEquals(3, l.LineNumber);
-            Assertion.AssertEquals(6, l.ColumnNumber);
-            Assertion.AssertEquals(_tempFileName, l.FileName);
+            Assert.IsNotNull(l);
+            Assert.AreEqual(3, l.LineNumber);
+            Assert.AreEqual(6, l.ColumnNumber);
+            Assert.AreEqual(_tempFileName, l.FileName);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace Tests.NAnt.Core {
             Location location = new Location(_tempFileName, 2, 5);
             string expected = _tempFileName + "(2,5):";
             string actual = location.ToString();
-            Assertion.AssertEquals(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         #endregion Public Instance Methods
@@ -85,7 +85,7 @@ namespace Tests.NAnt.Core {
         [TearDown]
         protected void TearDown() {
             File.Delete(_tempFileName);
-            Assertion.Assert(_tempFileName + " exists.", !File.Exists(_tempFileName));
+            Assert.IsFalse(File.Exists(_tempFileName), _tempFileName + " exists.");
         }
 
         #endregion Protected Instance Methods

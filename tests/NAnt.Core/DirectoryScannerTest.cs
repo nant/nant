@@ -346,10 +346,10 @@ namespace Tests.NAnt.Core {
             // Make sure only the included file names were picked up in the scan
             // and none of the excluded.
             foreach (string fileName in includedFileNames) {
-                Assertion.Assert(fileName + " not included.", _scanner.FileNames.IndexOf(fileName) != -1);
+                Assert.IsTrue(_scanner.FileNames.IndexOf(fileName) != -1, fileName + " not included.");
             }
             foreach (string fileName in excludedFileNames) {
-                Assertion.Assert(fileName + " included.", _scanner.FileNames.IndexOf(fileName) == -1);
+                Assert.IsTrue(_scanner.FileNames.IndexOf(fileName) == -1, fileName + " included.");
             }
         }
 

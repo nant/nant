@@ -37,12 +37,10 @@ namespace Tests.NAnt.Win32.Tasks {
                         <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows\CurrentVersion\ProductId'/>
                         <echo message='productID=${windows.id};'/>
                     </project>";
-            try {
-                string result = RunBuild(_xml);
-                Assertion.Assert("Fail message missing:" + Environment.NewLine + result, result.IndexOf("productID=;") == -1);
-            } catch (TestBuildException be) {
-                Assertion.Fail(Environment.NewLine + be.ToString());
-            }
+
+            string result = RunBuild(_xml);
+            Assert.IsTrue(result.IndexOf("productID=;") == -1,
+                "Fail message missing:" + Environment.NewLine + result);
         }
         /// <summary>
         /// Makes sure invalid path throws and exception
@@ -55,16 +53,11 @@ namespace Tests.NAnt.Win32.Tasks {
                     </project>";
             try {
                 string result = RunBuild(_xml);
-                System.Console.WriteLine(result);
-                Assertion.Fail("Invalid key did not generate an exception");
-            }
-            catch (TestBuildException be) {
+                Assert.Fail("Invalid key did not generate an exception:" + result);
+            } catch (TestBuildException be) {
                 //no op, good.
                 if(be.InnerException.ToString().IndexOf("missing") != -1)
-                    Assertion.Fail("Wrong type of exception; does not contain word 'missing'!" + Environment.NewLine + be.ToString());
-            }
-            catch {
-                Assertion.Fail("Other exception!");
+                    Assert.Fail("Wrong type of exception; does not contain word 'missing'!" + Environment.NewLine + be.ToString());
             }
         }
     }

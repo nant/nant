@@ -36,9 +36,10 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             try {
                 string result = RunBuild(_xml);
-                Assertion.Fail("Project should have failed:" + result);
+                Assert.Fail("Project should have failed:" + result);
             } catch (TestBuildException be) {
-                Assertion.Assert("Project did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+                Assert.IsTrue(be.InnerException.ToString().IndexOf("Death Sucks!") != -1,
+                    "Project did not fail from Test!");
             }
         }
 
@@ -51,9 +52,10 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             try {
                 string result = RunBuild(_xml);            
-                Assertion.Fail("Project should have failed:" + result);
+                Assert.Fail("Project should have failed:" + result);
             } catch (TestBuildException be) {
-                Assertion.Assert("Macro should have expanded!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+                Assert.IsTrue(be.InnerException.ToString().IndexOf("Death Sucks!") != -1,
+                    "Macro should have expanded!");
             }
         }
 
@@ -65,10 +67,11 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             try {
                 string result = RunBuild(_xml);            
-                Assertion.Fail("Project should have failed:" + result);
+                Assert.Fail("Project should have failed:" + result);
             }
             catch (TestBuildException be) {
-                Assertion.Assert("Project did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+                Assert.IsTrue(be.InnerException.ToString().IndexOf("Death Sucks!") != -1,
+                    "Project did not fail from Test!");
             }
         }
 
@@ -81,10 +84,11 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             try {
                 string result = RunBuild(_xml);            
-                Assertion.Fail("Project should have failed:" + result);
+                Assert.Fail("Project should have failed:" + result);
             }
             catch (TestBuildException be) {
-                Assertion.Assert("Macro should have expanded!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+                Assert.IsTrue(be.InnerException.ToString().IndexOf("Death Sucks!") != -1,
+                    "Macro should have expanded!");
             }
         }
 

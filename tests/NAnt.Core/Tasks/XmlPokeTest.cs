@@ -93,12 +93,12 @@ namespace Tests.NAnt.Core.Tasks {
                 "${configuration.server}"));
 
             // ensure original value was not retained
-            Assertion.Assert("Value of node was not updated, orignal value is still in xml file.", 
-                buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1,
+                "Value of node was not updated, orignal value is still in xml file.");
 
             // ensure new value was set
-            Assertion.Assert("Value of node was not updated correctly, new value does not match.", 
-                buildLog.IndexOf("configuration.server=productionhost.somecompany.com!") != -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=productionhost.somecompany.com!") != -1,
+                "Value of node was not updated correctly, new value does not match.");
         }
 
         [Test]
@@ -122,12 +122,12 @@ namespace Tests.NAnt.Core.Tasks {
                 "${configuration.server}"));
 
             // ensure original value was not retained
-            Assertion.Assert("Value of node was not updated, orignal value is still in xml file.", 
-                buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1,
+                "Value of node was not updated, orignal value is still in xml file.");
 
             // ensure new value was set
-            Assertion.Assert("Value of node was not updated correctly, new value does not match.", 
-                buildLog.IndexOf("configuration.server=productionhost.somecompany.com!") != -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=productionhost.somecompany.com!") != -1,
+                "Value of node was not updated correctly, new value does not match.");
         }
 
         [Test]
@@ -151,12 +151,12 @@ namespace Tests.NAnt.Core.Tasks {
                 "${configuration.server}"));
 
             // ensure original value was not retained
-            Assertion.Assert("Value of node was not updated, orignal value is still in xml file.", 
-                buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1,
+                "Value of node was not updated, orignal value is still in xml file.");
 
             // ensure new value was set
-            Assertion.Assert("Value of node was not updated correctly, new value does not match.", 
-                buildLog.IndexOf("configuration.server=!") != -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=!") != -1,
+                "Value of node was not updated correctly, new value does not match.");
         }
 
         /// <summary>
@@ -205,12 +205,12 @@ namespace Tests.NAnt.Core.Tasks {
                     _projectXml, xmlPokeTaskAttributes, xmlPeekTaskAttributes,
                     "${configuration.server}"));
                 // have the test fail
-                Assertion.Fail("Build should have failed.");
+                Assert.Fail("Build should have failed.");
             } catch (TestBuildException ex) {
                 // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                Assert.IsTrue((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
                 // assert that an XmlException was the cause of the BuildException
-                Assertion.Assert((ex.InnerException.InnerException != null && ex.InnerException.InnerException.GetType() == typeof(XmlException)));
+                Assert.IsTrue((ex.InnerException.InnerException != null && ex.InnerException.InnerException.GetType() == typeof(XmlException)));
             }
         }
 

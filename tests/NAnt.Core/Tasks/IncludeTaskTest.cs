@@ -58,8 +58,8 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(_format));
-            Assertion.Assert("Global task should have executed." + Environment.NewLine + result, result.IndexOf("Task executed") != -1);
-            Assertion.Assert("Target should have executed." + Environment.NewLine + result, result.IndexOf("Target executed") != -1);
+            Assert.IsTrue(result.IndexOf("Task executed") != -1, "Global task should have executed." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("Target executed") != -1, "Target should have executed." + Environment.NewLine + result);
         }
 
         [Test]
@@ -73,9 +73,10 @@ namespace Tests.NAnt.Core.Tasks {
 
             try {
                 RunBuild(formatNestedTask);
-                Assertion.Fail("Task appears in target element but BuildException not thrown.");
+                Assert.Fail("Task appears in target element but BuildException not thrown.");
             } catch (TestBuildException e) {
-                Assertion.Assert("Build exception should have been because of a nested task." + Environment.NewLine + e.ToString(), e.InnerException.Message.IndexOf("Task not allowed in targets.") != -1);
+                Assert.IsTrue(e.InnerException.Message.IndexOf("Task not allowed in targets.") != -1,
+                    "Build exception should have been because of a nested task." + Environment.NewLine + e.ToString());
             }
         }
 
@@ -88,9 +89,10 @@ namespace Tests.NAnt.Core.Tasks {
 
             try {
                 RunBuild(FormatBuildFile(_format));
-                Assertion.Fail("Task appears in target element but BuildException not thrown.");
+                Assert.Fail("Task appears in target element but BuildException not thrown.");
             } catch (TestBuildException e) {
-                Assertion.Assert("Build exception should have been because of a recursive include." + Environment.NewLine + e.ToString(), e.InnerException.Message.IndexOf("Recursive includes are not allowed.") != -1);
+                Assert.IsTrue(e.InnerException.Message.IndexOf("Recursive includes are not allowed.") != -1,
+                    "Build exception should have been because of a recursive include." + Environment.NewLine + e.ToString());
             }
         }
 

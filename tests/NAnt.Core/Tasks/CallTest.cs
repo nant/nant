@@ -52,7 +52,7 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(_xml, listener);
 
             // check whether 'one' target has been executed once
-            Assertion.Assert("'one' target was not called." + Environment.NewLine + result, listener.GetTargetExecutionCount("one") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("one"), "'one' target was not called." + Environment.NewLine + result);
         }
 
         [Test]
@@ -76,10 +76,10 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(_xml, listener);
 
             // check whether 'one' target has been executed once
-            Assertion.Assert("'one' target was not called." + Environment.NewLine + result, listener.GetTargetExecutionCount("one") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("one"), "'one' target was not called." + Environment.NewLine + result);
 
             // check whether 'two' target has been executed once
-            Assertion.Assert("'two' target was not called." + Environment.NewLine + result, listener.GetTargetExecutionCount("two") == 1);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("two"), "'two' target was not called." + Environment.NewLine + result);
         }
 
         [Test]

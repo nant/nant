@@ -48,15 +48,14 @@ namespace Tests.NAnt.Console {
                 bool errors = false;
                 try {
                     //check filename only, should be resolvable via currentdirectory
-                    Assertion.Assert("Using filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + filename}));
+                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {"-buildfile:" + filename}), "Using filepath failed");
                     //check absolute
-                    Assertion.Assert("Using absolute filepath failed", 0 == ConsoleDriver.Main(new string[] {@"-buildfile:" + build1FileName}));
+                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {@"-buildfile:" + build1FileName}), "Using absolute filepath failed");
                     //check relative path, should be resolvable via currentdirectory
-                    Assertion.Assert("Using relative filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:.\\" + filename}));
+                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {"-buildfile:.\\" + filename}), "Using relative filepath failed");
                     //check relative path, should be resolvable via currentdirectory
-                    Assertion.Assert("Using relative filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:..\\foo\\" + filename}));
-                }
-                catch (Exception e) {
+                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {"-buildfile:..\\foo\\" + filename}), "Using relative filepath failed");
+                } catch (Exception e) {
                     e.ToString();
                     errors = true;
                     throw;
@@ -69,42 +68,12 @@ namespace Tests.NAnt.Console {
             }
             Environment.CurrentDirectory = oldCurrDir;
         }
- /*
-         [Test]
-        public void Test_BuildFileDoubleOption() {
-            string filename1 = "file1.ha";
-            string filename2 = "file2.ha";
-            string build1FileName = TempFile.CreateWithContents("<project/>", Path.Combine(TempDirName, filename1));
-            string build2FileName = TempFile.CreateWithContents("<project/>", Path.Combine(TempDirName, filename2));
 
-            using (ConsoleCapture c = new ConsoleCapture()) {
-                bool errors = false;
-                try {
-
-                    //check that error message is not generated always.
-                    Assertion.Assert("Using filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName}));
-
-                    //check absolute
-                    Assertion.Assert("Using absolute filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName +" -buildfile:" + build2FileName}));
-                }
-                catch (Exception e) {
-                    e.ToString();
-                    errors = true;
-                    throw;
-                }
-                finally {
-                    string results = c.Close();
-                    if(errors)
-                        Console.Write(results);
-                }
-            }
-        }
- */
         [Test]
         public void Test_GetBuildFileName() {
             try {
                 ConsoleDriver.GetBuildFileName(null, null, false);
-                Assertion.Fail("Exception not thrown.");
+                Assert.Fail("Exception not thrown.");
             } catch {
             }
 
@@ -114,21 +83,21 @@ namespace Tests.NAnt.Console {
 
             try {
                 ConsoleDriver.GetBuildFileName(baseDirectory, null, false);
-                Assertion.Fail("ApplicationException not thrown.");
+                Assert.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
 
             TempFile.Create(build1FileName);
 
-            Assertion.AssertEquals(build1FileName, ConsoleDriver.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false));
+            Assert.AreEqual(build1FileName, ConsoleDriver.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false));
 
             // create a second build file in same directory
             TempFile.Create(build2FileName);
-            Assertion.AssertEquals(Path.GetDirectoryName(build1FileName), Path.GetDirectoryName(build2FileName));
+            Assert.AreEqual(Path.GetDirectoryName(build1FileName), Path.GetDirectoryName(build2FileName));
 
             try {
                 ConsoleDriver.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false);
-                Assertion.Fail("ApplicationException not thrown.");
+                Assert.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
         }
@@ -143,7 +112,7 @@ namespace Tests.NAnt.Console {
             TempFile.Create(buildFileName);
 
             // find the build file from the sub directory
-            Assertion.AssertEquals(buildFileName, ConsoleDriver.GetBuildFileName(subDirectory, null, true));
+            Assert.AreEqual(buildFileName, ConsoleDriver.GetBuildFileName(subDirectory, null, true));
 
             // create a second build file
             string secondBuildFileName = Path.Combine(baseDirectory, "file2.build");
@@ -153,7 +122,7 @@ namespace Tests.NAnt.Console {
             // expect an exception - multiple *.build files found
             try {               
                 ConsoleDriver.GetBuildFileName(subDirectory, null, true);
-                Assertion.Fail("ApplicationException not thrown.");
+                Assert.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
 
@@ -161,7 +130,7 @@ namespace Tests.NAnt.Console {
             // expect an exception - build file not found
             try {
                 ConsoleDriver.GetBuildFileName(subDirectory, "foobar.xml", true);
-                Assertion.Fail("ApplicationException not thrown.");
+                Assert.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
 
@@ -169,12 +138,12 @@ namespace Tests.NAnt.Console {
             try {
                 // buildFileName has a full path while GetBuildFileName will only accept a filename/pattern or null.
                 ConsoleDriver.GetBuildFileName(subDirectory, buildFileName, true);
-                Assertion.Fail("Exception not thrown.");
+                Assert.Fail("Exception not thrown.");
             } catch {
             }
 
             // try to find specific build file in sub directory (expect success)
-            Assertion.AssertEquals(buildFileName, ConsoleDriver.GetBuildFileName(subDirectory, Path.GetFileName(buildFileName), true));
+            Assert.AreEqual(buildFileName, ConsoleDriver.GetBuildFileName(subDirectory, Path.GetFileName(buildFileName), true));
         }
         
         [Test]
@@ -194,7 +163,7 @@ namespace Tests.NAnt.Console {
                 + ".*\n" + @"Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Help text does not appear to be valid.", match.Success);
+            Assert.IsTrue(match.Success, "Help text does not appear to be valid.");
             int infoMajor = Int32.Parse(match.Groups["infoMajor"].Value);
             int infoMinor = Int32.Parse(match.Groups["infoMinor"].Value);
             int buildMajor = Int32.Parse(match.Groups["buildMajor"].Value);
@@ -202,13 +171,13 @@ namespace Tests.NAnt.Console {
             int buildBuild = Int32.Parse(match.Groups["buildBuild"].Value);
             int buildRevision = Int32.Parse(match.Groups["buildRevision"].Value);
             int year  = Int32.Parse(match.Groups["year"].Value);
-            Assertion.Assert("Version numbers must be positive.", infoMajor >= 0);
-            Assertion.Assert("Version numbers must be positive.", infoMinor >= 0);
-            Assertion.Assert("Version numbers must be positive.", buildMajor >= 0);
-            Assertion.Assert("Version numbers must be positive.", buildMinor >= 0);
-            Assertion.Assert("Version numbers must be positive.", buildBuild >= 0);
-            Assertion.Assert("Version numbers must be positive.", buildRevision >= 0);
-            Assertion.Assert("Copyright year should be equal or less than current year.", year <= DateTime.Now.Year);
+            Assert.IsTrue(infoMajor >= 0, "Version numbers must be positive.");
+            Assert.IsTrue(infoMinor >= 0, "Version numbers must be positive.");
+            Assert.IsTrue(buildMajor >= 0, "Version numbers must be positive.");
+            Assert.IsTrue(buildMinor >= 0, "Version numbers must be positive.");
+            Assert.IsTrue(buildBuild >= 0, "Version numbers must be positive.");
+            Assert.IsTrue(buildRevision >= 0, "Version numbers must be positive.");
+            Assert.IsTrue(year <= DateTime.Now.Year, "Copyright year should be equal or less than current year.");
         }
 
         [Test]
@@ -225,7 +194,7 @@ namespace Tests.NAnt.Console {
             string expression = @"Unknown argument '-asdf'";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+            Assert.IsTrue(match.Success, "Argument did not cause an error: " + result);
         }
 
         [Test]
@@ -242,7 +211,7 @@ namespace Tests.NAnt.Console {
             string expression = @"Duplicate command-line argument '-buildfile'.";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+            Assert.IsTrue(match.Success, "Argument did not cause an error: " + result);
         }
 
         [Test]
@@ -259,7 +228,7 @@ namespace Tests.NAnt.Console {
             string expression = @"Invalid value 'test' for command-line argument '-debug'.";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+            Assert.IsTrue(match.Success, "Argument did not cause an error: " + result);
         }
 
         [Test]
@@ -276,7 +245,7 @@ namespace Tests.NAnt.Console {
             string expression = @"Duplicate value 'test' for command-line argument '-listener'.";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+            Assert.IsTrue(match.Success, "Argument did not cause an error: " + result);
         }
 
         [Test]
@@ -293,7 +262,7 @@ namespace Tests.NAnt.Console {
             string expression = @"Expected name\/value pair \(<name>=<value>\).";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+            Assert.IsTrue(match.Success, "Argument did not cause an error: " + result);
         }
 
         [Test]
@@ -310,7 +279,7 @@ namespace Tests.NAnt.Console {
             string expression = @"Duplicate property named 'test' for command-line argument 'D'.";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+            Assert.IsTrue(match.Success, "Argument did not cause an error: " + result);
         }
 
         [Test]
@@ -325,7 +294,7 @@ namespace Tests.NAnt.Console {
 
             // write build file to temp file
             string buildFileName = CreateTempFile("buildfile.xml", buildFileContents);
-            Assertion.Assert(buildFileName + " does not exists.", File.Exists(buildFileName));
+            Assert.IsTrue(File.Exists(buildFileName), buildFileName + " does not exist.");
 
             string[] args = {
                 "-D:project.name=MyCompany.MyProject",
@@ -341,11 +310,11 @@ namespace Tests.NAnt.Console {
             // regular expression to look for expected output
             string expression = @"project.name = MyCompany.MyProject";
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Property 'project.name' appears to have been overridden by <property> task." + Environment.NewLine + result, match.Success);
+            Assert.IsTrue(match.Success, "Property 'project.name' appears to have been overridden by <property> task." + Environment.NewLine + result);
 
             // delete the build file
             File.Delete(buildFileName);
-            Assertion.Assert(buildFileName + " exists.", !File.Exists(buildFileName));
+            Assert.IsFalse(File.Exists(buildFileName), buildFileName + " exists.");
         }
 
         [Test]
@@ -375,7 +344,7 @@ namespace Tests.NAnt.Console {
 
             // write build file to temp file
             string buildFileName = CreateTempFile("buildfile.xml", buildFileContents);
-            Assertion.Assert(buildFileName + " does not exists.", File.Exists(buildFileName));
+            Assert.IsTrue(File.Exists(buildFileName), buildFileName + " does not exist.");
 
             string[] args = {
                 "-projecthelp",
@@ -411,18 +380,18 @@ namespace Tests.NAnt.Console {
 
             Match match = Regex.Match(result, expression);
             if (match.Success) {
-                Assertion.AssertEquals("build", match.Groups["default"].Value);
-                Assertion.AssertEquals("build", match.Groups["main1"].Value);
-                Assertion.AssertEquals("clean", match.Groups["main2"].Value);
-                Assertion.AssertEquals("test", match.Groups["main3"].Value);
-                Assertion.AssertEquals("init", match.Groups["subtarget1"].Value);
+                Assert.AreEqual("build", match.Groups["default"].Value);
+                Assert.AreEqual("build", match.Groups["main1"].Value);
+                Assert.AreEqual("clean", match.Groups["main2"].Value);
+                Assert.AreEqual("test", match.Groups["main3"].Value);
+                Assert.AreEqual("init", match.Groups["subtarget1"].Value);
             } else {
-                Assertion.Fail("Project help text does not appear to be valid, see results for details:" + Environment.NewLine + result);
+                Assert.Fail("Project help text does not appear to be valid, see results for details:" + Environment.NewLine + result);
             }
 
             // delete the build file
             File.Delete(buildFileName);
-            Assertion.Assert(buildFileName + " exists.", !File.Exists(buildFileName));
+            Assert.IsFalse(File.Exists(buildFileName), buildFileName + " exists.");
         }
 
         [Test]
@@ -435,28 +404,28 @@ namespace Tests.NAnt.Console {
             IBuildLogger logger;
 
             logger = ConsoleDriver.CreateLogger(xmlLogger);
-            Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
+            Assert.AreEqual(typeof(XmlLogger), logger.GetType());
 
             logger = ConsoleDriver.CreateLogger(defaultLogger);
-            Assertion.AssertEquals(typeof(DefaultLogger), logger.GetType());
+            Assert.AreEqual(typeof(DefaultLogger), logger.GetType());
 
             try {
                 logger = ConsoleDriver.CreateLogger(badLogger);
-                Assertion.Fail("Test_CreateLogger did not throw an exception.");
+                Assert.Fail("Test_CreateLogger did not throw an exception.");
             } catch (Exception e) {
-                Assertion.AssertEquals(typeof(TypeLoadException), e.GetType());
+                Assert.AreEqual(typeof(TypeLoadException), e.GetType());
             }
 
             try {
                 logger = ConsoleDriver.CreateLogger(notLogger);
-                Assertion.Fail("Test_CreateLogger did not throw an exception.");
+                Assert.Fail("Test_CreateLogger did not throw an exception.");
             } catch (Exception e) {
                 // on .NET 2.0 or higher, instantiating an abstract class with
                 // cause a MissingMethodException to be thrown
                 if (Environment.Version.Major >= 2) {
-                    Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());
+                    Assert.AreEqual(typeof(MissingMethodException), e.GetType());
                 } else {
-                    Assertion.AssertEquals(typeof(MemberAccessException), e.GetType());
+                    Assert.AreEqual(typeof(MemberAccessException), e.GetType());
                 }
             }
         }
@@ -473,7 +442,7 @@ namespace Tests.NAnt.Console {
 
             try {
                 logger = ConsoleDriver.CreateLogger(xmlLogger);
-                Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
+                Assert.AreEqual(typeof(XmlLogger), logger.GetType());
 
                 logger = ConsoleDriver.CreateLogger(consoleLogger);
                 logger.OutputWriter = instanceFileStream;

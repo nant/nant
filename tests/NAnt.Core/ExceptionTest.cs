@@ -100,72 +100,72 @@ namespace Tests.NAnt.Core {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
-            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            Assert.IsNotNull(ci, t.Name + description + " is a required constructor.");
             // fail if constructor is private
-            Assertion.Assert(t.Name + description + " is private, must be public.", !ci.IsPrivate);
+            Assert.IsFalse(ci.IsPrivate, t.Name + description + " is private, must be public.");
             // fail if constructor is protected
-            Assertion.Assert(t.Name + description + " is internal, must be public.", !ci.IsFamily);
+            Assert.IsFalse(ci.IsFamily, t.Name + description + " is internal, must be public.");
             // fail if constructor is internal
-            Assertion.Assert(t.Name + description + " is internal, must be public.", !ci.IsAssembly);
+            Assert.IsFalse(ci.IsAssembly, t.Name + description + " is internal, must be public.");
             // fail if constructor is protected internal
-            Assertion.Assert(t.Name + description + " is protected internal, must be public.", !ci.IsFamilyOrAssembly);
+            Assert.IsFalse(ci.IsFamilyOrAssembly, t.Name + description + " is protected internal, must be public.");
             // sanity check to make sure the constructor is public
-            Assertion.Assert(t.Name + description + " is not public, must be public.", ci.IsPublic);
+            Assert.IsTrue(ci.IsPublic, t.Name + description + " is not public, must be public.");
         }
 
         private void CheckProtectedConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
-            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            Assert.IsNotNull(ci, t.Name + description + " is a required constructor.");
             // fail if constructor is public
-            Assertion.Assert(t.Name + description + " is public, must be protected.", !ci.IsPublic);
+            Assert.IsFalse(ci.IsPublic, t.Name + description + " is public, must be protected.");
             // fail if constructor is private
-            Assertion.Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
+            Assert.IsFalse(ci.IsPrivate, t.Name + description + " is private, must be public or protected.");
             // fail if constructor is internal
-            Assertion.Assert(t.Name + description + " is internal, must be protected.", !ci.IsAssembly);
+            Assert.IsFalse(ci.IsAssembly, t.Name + description + " is internal, must be protected.");
             // fail if constructor is protected internal
-            Assertion.Assert(t.Name + description + " is protected internal, must be protected.", !ci.IsFamilyOrAssembly);
+            Assert.IsFalse(ci.IsFamilyOrAssembly, t.Name + description + " is protected internal, must be protected.");
             // sanity check to make sure the constructor is protected
-            Assertion.Assert(t.Name + description + " is not protected, must be protected.", ci.IsFamily);
+            Assert.IsTrue(ci.IsFamily, t.Name + description + " is not protected, must be protected.");
         }
 
         private void CheckPublicOrProtectedConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
-            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            Assert.IsNotNull(ci, t.Name + description + " is a required constructor.");
             // fail if constructor is private
-            Assertion.Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
+            Assert.IsFalse(ci.IsPrivate, t.Name + description + " is private, must be public or protected.");
             // fail if constructor is internal
-            Assertion.Assert(t.Name + description + " is internal, must be public or protected.", !ci.IsAssembly);
+            Assert.IsFalse(ci.IsAssembly, t.Name + description + " is internal, must be public or protected.");
             // fail if constructor is protected internal
-            Assertion.Assert(t.Name + description + " is protected internal, must be public or protected.", !ci.IsFamilyOrAssembly );
+            Assert.IsFalse(ci.IsFamilyOrAssembly, t.Name + description + " is protected internal, must be public or protected.");
             // sainty check to make sure the constructor is protected or public
-            Assertion.Assert(t.Name + description + " is not public or protected, must be public or protected.", ci.IsPublic || ci.IsFamily);
+            Assert.IsTrue(ci.IsPublic || ci.IsFamily, t.Name + description + " is not public or protected, must be public or protected.");
         }
 
         private void CheckPrivateConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
-            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            Assert.IsNotNull(ci, t.Name + description + " is a required constructor.");
             // fail if constructor is public
-            Assertion.Assert(t.Name + description + " is public, must be private.", !ci.IsPublic);
+            Assert.IsFalse(ci.IsPublic, t.Name + description + " is public, must be private.");
             // fail if constructor is protected
-            Assertion.Assert(t.Name + description + " is protected, must be private.", !ci.IsFamily);
+            Assert.IsFalse(ci.IsFamily, t.Name + description + " is protected, must be private.");
             // fail if constructor is internal
-            Assertion.Assert(t.Name + description + " is internal, must be private.", !ci.IsAssembly);
+            Assert.IsFalse(ci.IsAssembly, t.Name + description + " is internal, must be private.");
             // fail if constructor is protected internal
-            Assertion.Assert(t.Name + description + " is protected internal, must be private.", !ci.IsFamilyOrAssembly );
+            Assert.IsFalse(ci.IsFamilyOrAssembly, t.Name + description + " is protected internal, must be private.");
             // sainty check to make sure the constructor is private
-            Assertion.Assert(t.Name + description + " is not private, must be private.", ci.IsPrivate);
+            Assert.IsTrue(ci.IsPrivate, t.Name + description + " is not private, must be private.");
         }
 
         private void CheckException(Assembly assembly, Type t) {
             // check to see that the exception is correctly named, with "Exception" at the end
             bool validName = t.Name.EndsWith("Exception");
-            Assertion.Assert(t.Name + " class name must end with Exception.", t.Name.EndsWith("Exception"));
+            Assert.IsTrue(t.Name.EndsWith("Exception"), t.Name + " class name must end with Exception.");
 
             // Does the exception have the 3 standard constructors?
 
@@ -195,13 +195,13 @@ namespace Tests.NAnt.Core {
             }
 
             // check to see if the type is market as serializable
-            Assertion.Assert(t.Name + " is not serializable, missing [Serializable]?", t.IsSerializable);
+            Assert.IsTrue(t.IsSerializable, t.Name + " is not serializable, missing [Serializable]?");
 
             // check to see if there are any public fields. These should be properties instead...
             FieldInfo[] publicFields = t.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
             if (publicFields.Length != 0) {
                 foreach (FieldInfo fieldInfo in publicFields) {
-                    Assertion.Fail(t.Name + "." + fieldInfo.Name + " is a public field, should be exposed through property instead.");
+                    Assert.Fail(t.Name + "." + fieldInfo.Name + " is a public field, should be exposed through property instead.");
                 }
             }
 
@@ -210,7 +210,7 @@ namespace Tests.NAnt.Core {
             FieldInfo[] fields = t.GetFields(BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             if (fields.Length != 0) {
                 if (t.GetMethod("GetObjectData", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) == null) {
-                    Assertion.Fail(t.Name + " does not implement GetObjectData but has private fields.");
+                    Assert.Fail(t.Name + " does not implement GetObjectData but has private fields.");
                 }
 
                 // Make sure Message is overridden if there are private fields.
@@ -218,7 +218,7 @@ namespace Tests.NAnt.Core {
                 // drieseng : commented out this test, as it does not always 
                 // make sense.  Not all private fields should somehow be exposed 
                 // as part of the message of the exception.
-                //Assertion.Assert(t.Name + " does not override the Message property.", t.GetProperty("Message", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) != null);
+                //Assert.IsTrue(t.GetProperty("Message", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) != null, t.Name + " does not override the Message property.");
             }
         }
 

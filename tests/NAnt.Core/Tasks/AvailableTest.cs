@@ -70,8 +70,8 @@ namespace Tests.NAnt.Core.Tasks {
                 xml, AvailableTask.ResourceType.File.ToString(CultureInfo.InvariantCulture), 
                 _tempFile, "${file.exists}"));
             
-            Assertion.Assert("File resource should have existed:" + result, 
-                result.ToLower().IndexOf("file.exists=true") != -1);
+            Assert.IsTrue(result.ToLower().IndexOf("file.exists=true") != -1,
+                "File resource should have existed:" + result);
         }
 
         [Test]
@@ -86,8 +86,8 @@ namespace Tests.NAnt.Core.Tasks {
                 xml, AvailableTask.ResourceType.File.ToString(CultureInfo.InvariantCulture), 
                 _notExistingTempFile, "${file.exists}"));
             
-            Assertion.Assert("File resource not should have existed:" + result, 
-                result.ToLower().IndexOf("file.exists=false") != -1);
+            Assert.IsTrue(result.ToLower().IndexOf("file.exists=false") != -1,
+                "File resource not should have existed:" + result);
         }
 
         [Test]
@@ -106,7 +106,6 @@ namespace Tests.NAnt.Core.Tasks {
             } else {
                 // throw the exception to keep the test happy
                 throw new TestBuildException();                 
-            
             }
         }
 
@@ -122,8 +121,8 @@ namespace Tests.NAnt.Core.Tasks {
                 xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), 
                 _tempDir, "${dir.exists}"));
             
-            Assertion.Assert("Directtory resource should have existed:" + result, 
-                result.ToLower().IndexOf("dir.exists=true") != -1);
+            Assert.IsTrue(result.ToLower().IndexOf("dir.exists=true") != -1,
+                "Directory resource should have existed:" + result);
         }
 
         [Test]
@@ -138,8 +137,8 @@ namespace Tests.NAnt.Core.Tasks {
                 xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), 
                 _notExistingTempDir, "${dir.exists}"));
             
-            Assertion.Assert("Directory resource not should have existed:" + result, 
-                result.ToLower().IndexOf("dir.exists=false") != -1);
+            Assert.IsTrue(result.ToLower().IndexOf("dir.exists=false") != -1,
+                "Directory resource not should have existed:" + result);
         }
 
         [Test]

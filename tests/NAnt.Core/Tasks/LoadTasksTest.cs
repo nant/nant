@@ -41,11 +41,6 @@ namespace Tests.NAnt.Core.Tasks {
         }
         
         [Test]
-        public void Test_FoundTask() {
-        
-        }
-        
-        [Test]
         public void Test_AssemblyNotExists() {
             string _xml = @"
                     <project name='foo'>
@@ -53,17 +48,17 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             try {                
                 string result = RunBuild(_xml);
-                Assertion.Fail("Invalid assembly path did not generate an exception");
-            }
-            catch(TestBuildException be) { 
+                Assert.Fail("Invalid assembly path did not generate an exception");
+            } catch (TestBuildException be) { 
                 if( be.InnerException.Message.IndexOf("'does not exist") != -1) {
-                    Assertion.Fail("Wrong type of exception; does not contain words 'does not exist'! " + Environment.NewLine + be.ToString()); 
+                    Assert.Fail("Wrong type of exception; does not contain words 'does not exist'! " + Environment.NewLine + be.ToString()); 
                 }
-            }
-            catch {
-                Assertion.Fail("Incorrect exception type !");
+            } catch {
+                Assert.Fail("Incorrect exception type !");
             }
         }
+
+        [Test]
         public void Test_IncorrectArgs() {
             string _xml = @"
             <project name='foo'>
@@ -71,14 +66,12 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
             try {                
                 string result = RunBuild(_xml);
-                Assertion.Fail("Invalid attribute combination did not generate an exception");
-            }
-            catch(TestBuildException e) {
-                if(!(e.InnerException is BuildException))
-                    Assertion.Fail("Incorrect exception type !");
-            }
-            catch {
-                Assertion.Fail("Incorrect exception type !");
+                Assert.Fail("Invalid attribute combination did not generate an exception");
+            } catch (TestBuildException e) {
+                if (!(e.InnerException is BuildException))
+                    Assert.Fail("Incorrect exception type !");
+            } catch {
+                Assert.Fail("Incorrect exception type !");
             }
         }
    }

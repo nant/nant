@@ -42,8 +42,7 @@ namespace Tests.NAnt.Core.Tasks {
             string tempDir = Path.Combine(TempDirName, "goo");
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, tempDir));
             
-            Assertion.Assert("Dir should have been created:" + result, Directory.Exists(tempDir));
-            
+            Assert.IsTrue(Directory.Exists(tempDir), "Dir should have been created:" + result);
         }
     }
 }

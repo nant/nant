@@ -24,21 +24,19 @@ using System.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
-
     [TestFixture]
     public class TempFileTest {
-
         [Test]
         public void Test_Create() {
             string fileName = TempFile.Create();
-            Assertion.Assert(fileName + " does not exists.", File.Exists(fileName));
+            Assert.IsTrue(File.Exists(fileName), fileName + " does not exists.");
 
             try {
                 TimeSpan diff = DateTime.Now - File.GetCreationTime(fileName);
-                Assertion.Assert("Creation time should be less than 10 seconds ago.", diff.TotalSeconds < 10.0);
+                Assert.IsTrue(diff.TotalSeconds < 10.0, "Creation time should be less than 10 seconds ago.");
             } finally {
                 File.Delete(fileName);
-                Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
+                Assert.IsFalse(File.Exists(fileName), fileName + " exists.");
             }
         }
 
@@ -46,7 +44,7 @@ namespace Tests.NAnt.Core.Util {
         public void Test_Create_NullArgument() {
             try {
                 TempFile.Create(null);
-                Assertion.Fail("Exception not thrown.");
+                Assert.Fail("Exception not thrown.");
             } catch {
             }
         }
@@ -58,11 +56,11 @@ namespace Tests.NAnt.Core.Util {
 
             try {
                 string actual = TempFile.Read(fileName);
-                Assertion.AssertEquals(expected, actual);
+                Assert.AreEqual(expected, actual);
             } finally {
                 // delete the temp file
                 File.Delete(fileName);
-                Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
+                Assert.IsFalse(File.Exists(fileName), fileName + " exists.");
             }
         }
     }

@@ -66,8 +66,8 @@ namespace Tests.NAnt.Core.Tasks {
                 _xmlProjectTemplate, _tempFileSrc, Path.Combine(_tempDirDest, "foo.xml"),
                 "false"));
             
-            Assertion.Assert("File should have been removed (during move):" + result, !File.Exists(_tempFileSrc));
-            Assertion.Assert("File should have been added (during move):" + result, File.Exists(Path.Combine(_tempDirDest, "foo.xml")));
+            Assert.IsFalse(File.Exists(_tempFileSrc), "File should have been removed (during move):" + result);
+            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "File should have been added (during move):" + result);
         }
 
         [Test]
@@ -88,15 +88,13 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
                 // on non-windows platforms overwriting a file is permitted without a warning or exception
-                if ( PlatformHelper.IsWin32 ) {
-                    Assertion.Fail("Build should have failed with File Overwrite exception.");
+                if (PlatformHelper.IsWin32) {
+                    Assert.Fail("Build should have failed with File Overwrite exception.");
                 }
-            } 
-            catch (TestBuildException) {
+            } catch (TestBuildException) {
                 // just catch the exception
-            }
-            catch (Exception){
-                Assertion.Fail("Unexpected Exception.");
+            } catch (Exception) {
+                Assert.Fail("Unexpected Exception.");
             }     
         }
     }

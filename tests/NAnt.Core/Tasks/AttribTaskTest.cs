@@ -54,21 +54,21 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Normal() {
             File.SetAttributes(_tempFileName, FileAttributes.Archive|FileAttributes.Hidden|FileAttributes.ReadOnly|FileAttributes.System);
-            Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0, _tempFileName + " should have Archive file attribute.");
             if (! PlatformHelper.IsUnix ) {
-                Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
-                Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);            
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0, _tempFileName + " should have Hidden file attribute.");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) != 0, _tempFileName + " should have System file attribute.");
             }
-            Assertion.Assert(_tempFileName + " should have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0);           
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0, _tempFileName + " should have ReadOnly file attribute.");
                 
             RunBuild(FormatBuildFile("normal='true'"));
             if (! PlatformHelper.IsUnix ) {
-                Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
-                Assertion.Assert(_tempFileName + " should have Normal file attribute.", (File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0);
-                Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
-                Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0, _tempFileName + " should not have Archive file attribute.");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0, _tempFileName + " should have Normal file attribute.");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0, _tempFileName + " should not have Hidden file attribute.");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) == 0, _tempFileName + " should not have System file attribute.");
             }           
-            Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);                       
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0, _tempFileName + " should not have ReadOnly file attribute.");
         }
 
         /// <summary>
@@ -83,11 +83,10 @@ namespace Tests.NAnt.Core.Tasks {
                     // execute build with invalid file path
                     RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-}", "", ""));
                     // have the test fail         
-                    Assertion.Fail("Build should have failed.");                
+                    Assert.Fail("Build should have failed.");                
                 } catch (TestBuildException ex) {
-                    Assertion.Assert( "hit the catch block", true);
                     // assert that a BuildException was the cause of the TestBuildException
-                    Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                    Assert.IsTrue((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
                 }
             }
         }
@@ -95,34 +94,34 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Archive() {
             if (! PlatformHelper.IsUnix ) {
-                Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0, _tempFileName + " should not have Archive file attribute.");
                 RunBuild(FormatBuildFile("archive='true'"));
-                Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0, _tempFileName + " should have Archive file attribute.");
             }
         }
         
         [Test]
         public void Test_Hidden() {
             if (! PlatformHelper.IsUnix ) {
-                Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0, _tempFileName + " should not have Hidden file attribute.");
                 RunBuild(FormatBuildFile("hidden='true'"));
-                Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0, _tempFileName + " should have Hidden file attribute.");
             }
         }
 
         [Test]
         public void Test_ReadOnly() {
-            Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0, _tempFileName + " should not have ReadOnly file attribute.");
             RunBuild(FormatBuildFile("readonly='true'"));
-            Assertion.Assert(_tempFileName + " should have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0);
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0, _tempFileName + " should have ReadOnly file attribute.");
         }
 
         [Test]
         public void Test_System() {
             if (! PlatformHelper.IsUnix ) {
-                Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) == 0, _tempFileName + " should not have System file attribute.");
                 RunBuild(FormatBuildFile("system='true'"));
-                Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) != 0, _tempFileName + " should have System file attribute.");
             }
         }
         
@@ -136,15 +135,15 @@ namespace Tests.NAnt.Core.Tasks {
             // pick any of the just created files for testing
             string testFileName = Path.Combine(TempDirName, "myfile8.txt");
 
-            Assertion.Assert(testFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(testFileName) & FileAttributes.ReadOnly) == 0);
+            Assert.IsTrue((File.GetAttributes(testFileName) & FileAttributes.ReadOnly) == 0, testFileName + " should not have ReadOnly file attribute.");
             string result = RunBuild(FormatBuildFile("verbose='true' readonly='true'", "<fileset basedir='" + TempDirName + "'><include name='**/*.txt'/></fileset>"));
-            Assertion.Assert(testFileName + " should have ReadOnly file attribute.", (File.GetAttributes(testFileName) & FileAttributes.ReadOnly) != 0);
+            Assert.IsTrue((File.GetAttributes(testFileName) & FileAttributes.ReadOnly) != 0, testFileName + " should have ReadOnly file attribute.");
 
             // check for valid output
-            Assertion.Assert("Build output should include names of all files changed." + Environment.NewLine + result, result.IndexOf("myfile8.txt") != 0);
-            Assertion.Assert("Build output should include count of all files changed." + Environment.NewLine + result, result.IndexOf("11 files") != 0);
-            Assertion.Assert("Build output should include file attributes set." + Environment.NewLine + result, result.IndexOf("ReadOnly") != 0);
-            Assertion.Assert("Build output should name specified in file attribute." + Environment.NewLine + result, result.IndexOf("myfile.txt") != 0);
+            Assert.IsTrue(result.IndexOf("myfile8.txt") != 0, "Build output should include names of all files changed." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("11 files") != 0, "Build output should include count of all files changed." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("ReadOnly") != 0, "Build output should include file attributes set." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("myfile.txt") != 0, "Build output should name specified in file attribute." + Environment.NewLine + result);
         }
 
         private string FormatBuildFile(string attributes) {

@@ -81,7 +81,8 @@ namespace Tests.NAnt.Core.Tasks {
                 taskAttributes, "${configuration.server}"));
 
             // ensure the correct node was read
-            Assertion.Assert("Invalid node was retrieved.", buildLog.IndexOf("configuration.server=testhost.somecompany.com") != -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=testhost.somecompany.com") != -1,
+                "Invalid node was retrieved.");
         }
 
         [Test]
@@ -98,7 +99,8 @@ namespace Tests.NAnt.Core.Tasks {
                 taskAttributes, "${configuration.server}"));
 
             // ensure the correct node was read
-            Assertion.Assert("Invalid node was retrieved.", buildLog.IndexOf("configuration.server=testhost.somecompany.com") != -1);
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=testhost.somecompany.com") != -1,
+                "Invalid node was retrieved.");
         }
 
         /// <summary>
@@ -120,10 +122,10 @@ namespace Tests.NAnt.Core.Tasks {
                 RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
                     taskAttributes, "${configuration.server}"));
                 // have the test fail
-                Assertion.Fail("Build should have failed.");
+                Assert.Fail("Build should have failed.");
             } catch (TestBuildException ex) {
                 // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                Assert.IsTrue((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
             }
         }
 
@@ -146,10 +148,10 @@ namespace Tests.NAnt.Core.Tasks {
                 RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
                     taskAttributes, "${configuration.server}"));
                 // have the test fail
-                Assertion.Fail("Build should have failed.");
+                Assert.Fail("Build should have failed.");
             } catch (TestBuildException ex) {
                 // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                Assert.IsTrue((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
             }
         }
 
@@ -168,12 +170,12 @@ namespace Tests.NAnt.Core.Tasks {
                 RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
                     taskAttributes, "${configuration.server}"));
                 // have the test fail
-                Assertion.Fail("Build should have failed.");
+                Assert.Fail("Build should have failed.");
             } catch (TestBuildException ex) {
                 // assert that a BuildException was the cause of the TestBuildException
-                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+                Assert.IsTrue((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
                 // assert that an XmlException was the cause of the BuildException
-                Assertion.Assert((ex.InnerException.InnerException != null && ex.InnerException.InnerException.GetType() == typeof(XmlException)));
+                Assert.IsTrue((ex.InnerException.InnerException != null && ex.InnerException.InnerException.GetType() == typeof(XmlException)));
             }
         }
 

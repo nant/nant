@@ -42,7 +42,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='Go Away!'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Echo message missing:" + result, result.IndexOf("Go Away!") != -1);
+            Assert.IsTrue(result.IndexOf("Go Away!") != -1, "Echo message missing:" + result);
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='${prop} Away!'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Macro should have expanded:" + result, result.IndexOf("Go Away!") != -1);
+            Assert.IsTrue(result.IndexOf("Go Away!") != -1, "Macro should have expanded:" + result);
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='Go Away!' level='Debug' />
                     </project>";
             string result = RunBuild(_xml, Level.Info);
-            Assertion.Assert("Debug echo should not be output when Project level is Info.", result.IndexOf("Go Away!") == -1);
+            Assert.IsTrue(result.IndexOf("Go Away!") == -1, "Debug echo should not be output when Project level is Info.");
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo level='Warning'>Go Away!</echo>
                     </project>";
             string result = RunBuild(_xml, Level.Info);
-            Assertion.Assert("Warning echo should be output when Project level is Info.", result.IndexOf("Go Away!") != -1);
+            Assert.IsTrue(result.IndexOf("Go Away!") != -1, "Warning echo should be output when Project level is Info.");
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo level='Warning'>${prop} Away!</echo>
                     </project>";
             string result = RunBuild(_xml, Level.Info);
-            Assertion.Assert("Macro should have expanded:" + result, result.IndexOf("Go Away!") != -1);
+            Assert.IsTrue(result.IndexOf("Go Away!") != -1, "Macro should have expanded:" + result);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo level='Warning'>Go Away!</echo>
                     </project>";
             string result = RunBuild(_xml, Level.Error);
-            Assertion.Assert("Warning echo should not be output when Project level is Error.", result.IndexOf("Go Away!") == -1);
+            Assert.IsTrue(result.IndexOf("Go Away!") == -1, "Warning echo should not be output when Project level is Error.");
         }
 
         [Test]

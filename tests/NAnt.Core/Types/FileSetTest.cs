@@ -66,7 +66,7 @@ reefer.maddness",
             _fileSet.AsIs.Add("bar");
             AssertMatch("foo", false);
             AssertMatch("bar", false);
-            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
+            Assert.AreEqual(2, _fileSet.FileNames.Count);
         }
 
         [Test]
@@ -76,7 +76,7 @@ reefer.maddness",
             _fileSet.AsIs.Add("bar");
             AssertMatch("foo", false);
             AssertMatch("bar", false);
-            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
+            Assert.AreEqual(2, _fileSet.FileNames.Count);
         }
 
         [Test]
@@ -88,9 +88,9 @@ reefer.maddness",
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
             // Expect 6 - not including directory
-            Assertion.AssertEquals(6, _fileSet.FileNames.Count);
+            Assert.AreEqual(6, _fileSet.FileNames.Count);
             // Two directories, including one empty one
-            Assertion.AssertEquals(2, _fileSet.DirectoryNames.Count);
+            Assert.AreEqual(2, _fileSet.DirectoryNames.Count);
         }
 
         [Test]
@@ -102,9 +102,9 @@ reefer.maddness",
             AssertMatch("world.peace");
             AssertMatch("world.war");
             // Expect 4 - not including directory
-            Assertion.AssertEquals(4, _fileSet.FileNames.Count);
+            Assert.AreEqual(4, _fileSet.FileNames.Count);
             // Two directories, including one empty one
-            Assertion.AssertEquals(2, _fileSet.DirectoryNames.Count);
+            Assert.AreEqual(2, _fileSet.DirectoryNames.Count);
         }
 
         [Test]
@@ -112,7 +112,7 @@ reefer.maddness",
             _fileSet.Includes.Add("world.*");
             AssertMatch("world.peace");
             AssertMatch("world.war");
-            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
+            Assert.AreEqual(2, _fileSet.FileNames.Count);
         }
 
         [Test]
@@ -120,20 +120,20 @@ reefer.maddness",
             _fileSet.Includes.Add("*.?addness");
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
-            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
+            Assert.AreEqual(2, _fileSet.FileNames.Count);
         }
 
         [Test]
         public void Test_Includes_Sub1() {
             _fileSet.Includes.Add("sub?/sub*");
             AssertMatch("sub1" + Path.DirectorySeparatorChar + "sub.one");
-            Assertion.AssertEquals(1, _fileSet.FileNames.Count);
+            Assert.AreEqual(1, _fileSet.FileNames.Count);
         }
 
         [Test]
         public void Test_Includes_Sub2() {
             _fileSet.Includes.Add("sub2/**/*");
-            Assertion.AssertEquals(0, _fileSet.FileNames.Count);
+            Assert.AreEqual(0, _fileSet.FileNames.Count);
         }
 
         [Test]
@@ -144,7 +144,7 @@ reefer.maddness",
             elem.Project = CreateFilebasedProject("<project/>" );
             elem.Initialize(doc.DocumentElement);
             _fileSet.IncludesFiles = new FileSet.IncludesFile[] { elem };
-            Assertion.AssertEquals(3, _fileSet.FileNames.Count);
+            Assert.AreEqual(3, _fileSet.FileNames.Count);
         }
 
         [Test]
@@ -155,7 +155,7 @@ reefer.maddness",
             elem.Project = CreateFilebasedProject("<project/>" );
             elem.Initialize(doc.DocumentElement);
             _fileSet.IncludesFiles = new FileSet.IncludesFile[] { elem };
-            Assertion.AssertEquals(3, _fileSet.FileNames.Count);
+            Assert.AreEqual(3, _fileSet.FileNames.Count);
         }
 
         [Test]
@@ -177,12 +177,10 @@ reefer.maddness",
 
             FileInfo newestfile = fs.MostRecentLastWriteTimeFile;
 
-            Assertion.Assert(string.Format("Most Recent File should be '{0}', but was '{1}'", f1.Name, newestfile.Name), f1.FullName == newestfile.FullName);
-
+            Assert.IsTrue(f1.FullName == newestfile.FullName, "Most Recent File should be '{0}', but was '{1}'", f1.Name, newestfile.Name);
         }
 
-        void AssertMatch(string fileName) 
-        {
+        void AssertMatch(string fileName) {
             AssertMatch(fileName, true);
         }
 
@@ -190,7 +188,8 @@ reefer.maddness",
             if (prefixBaseDir && !Path.IsPathRooted(fileName)) {
                 fileName = Path.Combine(_fileSet.BaseDirectory.FullName, fileName);
             }
-            Assertion.Assert(fileName + " should have been in file set.", _fileSet.FileNames.IndexOf(fileName) != -1);
+            Assert.IsTrue(_fileSet.FileNames.IndexOf(fileName) != -1,
+                fileName + " should have been in file set.");
         }
     }
 }

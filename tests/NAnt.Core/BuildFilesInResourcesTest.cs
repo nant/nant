@@ -61,7 +61,7 @@ namespace Tests.NAnt.Core {
                             success = !success;
                         }
 
-                        Assertion.Assert(resName + " " + stuff, success);
+                        Assert.IsTrue(success, resName + " " + stuff);
                     }
                 }
             }

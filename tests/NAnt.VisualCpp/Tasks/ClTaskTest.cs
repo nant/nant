@@ -66,7 +66,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
             }
 
             string result = RunBuild(_test_build);
-            Assertion.Assert("Object file not created.", File.Exists(Path.Combine(_objDir, "HelloWorld.obj")));
+            Assert.IsTrue(File.Exists(Path.Combine(_objDir, "HelloWorld.obj")),
+                "Object file not created.");
         }
     }
 
@@ -127,11 +128,9 @@ namespace Tests.NAnt.VisualCpp.Tasks
             foreach (string objPathName in _objPathName) {
                 try {
                     File.Delete(objPathName);
-                }
-                catch (Exception) {
-                }
-                finally { 
-                    Assertion.Assert(String.Format("Object file \"{0}\" exists.", objPathName), !File.Exists(objPathName));
+                } catch (Exception) {
+                } finally { 
+                    Assert.IsFalse(File.Exists(objPathName), "Object file \"{0}\" exists.", objPathName);
                 }
             }
         }
@@ -146,7 +145,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             CleanAllObjs();
             string result = RunBuild(_test_build);
             for (int i = 0; i < _sourceCount; ++i) {
-                Assertion.Assert(String.Format("Object file \"{0}\" not created.", _objPathName[i]), File.Exists(_objPathName[i]));
+                Assert.IsTrue(File.Exists(_objPathName[i]), "Object file \"{0}\" not created.", _objPathName[i]);
             }
         }
 
@@ -162,7 +161,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             CleanAllObjs();
             result = RunBuild(_test_build);
             result = RunBuild(_test_build);
-            Assertion.Assert("Shouldn't have compiled anything the second time around", result.IndexOf("[cl]") == -1);
+            Assert.IsTrue(result.IndexOf("[cl]") == -1, "Shouldn't have compiled anything the second time around");
         }
 
         /// <summary>Test to make sure compiling happens when source files change.</summary>
@@ -179,9 +178,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
                 string result = RunBuild(_test_build);
                 FileInfo sourceFileInfo = new FileInfo(_sourcePathName[i]);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
-                Assertion.Assert(String.Format("{0} must be newer than {1}.", _objPathName[i], _sourcePathName[i]),
-                                    objFileInfo.LastWriteTime >= sourceFileInfo.LastWriteTime);
-                
+                Assert.IsTrue(objFileInfo.LastWriteTime >= sourceFileInfo.LastWriteTime,
+                    "{0} must be newer than {1}.", _objPathName[i], _sourcePathName[i]);
             }
         }
     }

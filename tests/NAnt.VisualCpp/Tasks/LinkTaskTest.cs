@@ -75,8 +75,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
             }
 
             string result = RunBuild(_test_build);
-            Assertion.Assert("Object file not created.", File.Exists(Path.Combine(_objDir, "HelloWorld.obj")));
-            Assertion.Assert("Binary file not created.", File.Exists(Path.Combine(_binDir, "HelloWorld.exe")));
+            Assert.IsTrue(File.Exists(Path.Combine(_objDir, "HelloWorld.obj")),
+                "Object file not created.");
+            Assert.IsTrue(File.Exists(Path.Combine(_binDir, "HelloWorld.exe")),
+                "Binary file not created.");
         }
     }
 
@@ -147,11 +149,9 @@ namespace Tests.NAnt.VisualCpp.Tasks
             foreach (string objPathName in _objPathName) {
                 try {
                     File.Delete(objPathName);
-                }
-                catch (Exception) {
-                }
-                finally {
-                    Assertion.Assert(String.Format("Object file \"{0}\" exists.", objPathName), !File.Exists(objPathName));
+                } catch (Exception) {
+                } finally {
+                    Assert.IsFalse(File.Exists(objPathName), "Object file \"{0}\" exists.", objPathName);
                 }
             }
         }
@@ -159,11 +159,9 @@ namespace Tests.NAnt.VisualCpp.Tasks
         void CleanAllBins() {
             try {
                 File.Delete(_binPathName);
-            }
-            catch (Exception) {
-            }
-            finally {
-                Assertion.Assert(String.Format("Binary file \"{0}\" exists.", _binPathName), !File.Exists(_binPathName));
+            } catch (Exception) {
+            } finally {
+                Assert.IsFalse(File.Exists(_binPathName), "Binary file \"{0}\" exists.", _binPathName);
             }
         }
 
@@ -177,7 +175,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             CleanAllObjs();
             CleanAllBins();
             string result = RunBuild(_test_build);
-            Assertion.Assert(String.Format("Binary file \"{0}\" not created.", _binPathName), File.Exists(_binPathName));
+            Assert.IsTrue(File.Exists(_binPathName), "Binary file \"{0}\" not created.", _binPathName);
         }
 
         /// <summary>Test to make sure not to compile when everything is up to date.</summary>
@@ -193,7 +191,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             CleanAllBins();
             result = RunBuild(_test_build);
             result = RunBuild(_test_build);
-            Assertion.Assert("Shouldn't have linked anything the second time around", result.IndexOf("[link]") == -1);
+            Assert.IsTrue(result.IndexOf("[link]") == -1, "Shouldn't have linked anything the second time around");
         }
 
         /// <summary>Test to make sure compiling happens when source files change.</summary>
@@ -209,9 +207,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
                 string result = RunBuild(_test_build);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
                 FileInfo binFileInfo = new FileInfo(_binPathName);
-                Assertion.Assert(String.Format("{0} must be newer than {1}.", _binPathName, _objPathName[i]),
-                                    binFileInfo.LastWriteTime >= objFileInfo.LastWriteTime);
-                
+                Assert.IsTrue(binFileInfo.LastWriteTime >= objFileInfo.LastWriteTime,
+                    "{0} must be newer than {1}.", _binPathName, _objPathName[i]);
             }
         }
     }

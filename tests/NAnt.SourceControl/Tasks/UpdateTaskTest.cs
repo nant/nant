@@ -154,8 +154,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             }
 
             // Make sure the file does not exist before we start the test.
-            Assertion.Assert("The check file should not be there.", 
-                !File.Exists(checkFilePath));
+            Assert.IsFalse(File.Exists(checkFilePath), "The check file should not be there.");
 
             // Run the update to bring the file back down.
             object[] args = {TestUseSharpCvsLib.ToString(), TestModule, TestCvsRoot, checkoutPath, string.Empty, 
@@ -164,8 +163,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 Level.Debug);
 
             // Check that the file is back.
-            Assertion.Assert("File does not exist, update probably did not work.", 
-                File.Exists (checkFilePath));
+            Assert.IsTrue(File.Exists(checkFilePath),
+                "File does not exist, update probably did not work.");
         }
 
         public void TestUpdateClean () {
@@ -201,14 +200,14 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 Level.Debug);
 
             // Check that the file is back.
-            Assertion.Assert("File does not exist, update probably did not work.", 
-                File.Exists (checkFilePath));
+            Assert.IsTrue(File.Exists(checkFilePath), 
+                "File does not exist, update probably did not work.");
 
             StreamReader replacedReader = new StreamReader(File.Open(checkFilePath, FileMode.Open));
             string checkContentsReplaced = replacedReader.ReadToEnd();
             replacedReader.Close();
             replacedReader = null;
-            Assertion.AssertEquals(checkContents, checkContentsReplaced);
+            Assert.AreEqual(checkContents, checkContentsReplaced);
         }
 
         #endregion Public Instance Methods

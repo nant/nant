@@ -23,18 +23,15 @@ using System.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
-
     [TestFixture]
     public class TempDirTest {
-
-
         [Test]
         public void Test_CreateAndDestroy() {
             string path = TempDir.Create("foobar");
-            Assertion.Assert(path + " does not exists.", Directory.Exists(path));
-            Assertion.Assert(path + " does not end with 'foobar'.", path.EndsWith("foobar"));
+            Assert.IsTrue(Directory.Exists(path), path + " does not exists.");
+            Assert.IsTrue(path.EndsWith("foobar"), path + " does not end with 'foobar'.");
             TempDir.Delete(path);
-            Assertion.Assert(path + " exists.", !Directory.Exists(path));
+            Assert.IsFalse(Directory.Exists(path), path + " exists.");
         }
     }
 }

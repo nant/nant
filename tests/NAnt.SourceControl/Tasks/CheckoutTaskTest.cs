@@ -131,8 +131,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             string result = 
                 RunBuild(FormatBuildFile(_projectXML, args), Level.Debug);
-            Assertion.Assert("File does not exist, checkout probably did not work.", 
-                File.Exists(checkFilePath));
+            Assert.IsTrue(File.Exists(checkFilePath), "File does not exist, checkout probably did not work.");
         }
 
         /// <summary>
@@ -146,10 +145,9 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkoutPath = Path.Combine(destination, "2003_08_16");
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
-            string result = 
-                RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
-            Assertion.Assert(String.Format("File {0} does not exist.", checkFilePath), 
-                File.Exists(checkFilePath));
+            string result = RunBuild(FormatBuildFile(_checkoutByDateProjectXML, 
+                args), Level.Debug);
+            Assert.IsTrue(File.Exists(checkFilePath), "File \"{0}\" does not exist.", checkFilePath);
         }
 
         /// <summary>
@@ -163,14 +161,12 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkoutPath = Path.Combine(destination, TestModule);
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
-            string result = 
-                RunBuild(FormatBuildFile(_testReadonly, args), Level.Debug);
-            Assertion.Assert(String.Format("File {0} does not exist.", checkFilePath), 
-                File.Exists(checkFilePath));
+            string result = RunBuild(FormatBuildFile(_testReadonly, args), 
+                Level.Debug);
+            Assert.IsTrue(File.Exists(checkFilePath), "File \"{0}\" does not exist.", checkFilePath);
 
             FileAttributes attributes = File.GetAttributes(checkFilePath);
-            
-            Assertion.Assert(attributes.CompareTo(FileAttributes.ReadOnly) > 0);
+            Assert.IsTrue(attributes.CompareTo(FileAttributes.ReadOnly) > 0);
         }
 
         #endregion Public Instance Methods
@@ -196,7 +192,6 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             string result = 
                 RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
-
         }
 
         #endregion Private Instance Methods

@@ -87,9 +87,10 @@ namespace Tests.NAnt.DotNet.Tasks {
         [Test]
         public void Test_DebugBuild() {
             string result = RunBuild(FormatBuildFile("debug='true'"));
-            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"),
+                _sourceFileName + ".exe does not exists, program did compile.");
             // Comment this for now as its hard to know which framework was used to compile and it was mono there will be no pdb file.
-            //Assertion.Assert(_sourceFileName + ".pdb does not exists, program did compile with debug switch.", File.Exists(_sourceFileName + ".pdb"));
+            //Assert.IsTrue(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does not exists, program did compile with debug switch.");
         }
 
         /// <summary>
@@ -98,8 +99,10 @@ namespace Tests.NAnt.DotNet.Tasks {
         [Test]
         public void Test_ReleaseBuild() {
             string result = RunBuild(FormatBuildFile("debug='false'"));
-            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
-            Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), 
+                _sourceFileName + ".exe does not exists, program did compile.");
+            Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"),
+                _sourceFileName + ".pdb does exists, program did compiled with debug switch.");
         }
 
         [Test]
@@ -133,7 +136,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceFile.resources", 
+            Assert.AreEqual("ResourceFile.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -142,7 +145,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceFile.en-US.resources", 
+            Assert.AreEqual("ResourceFile.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -151,7 +154,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("SubDir" + "." + "ResourceFile.resources", 
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -160,7 +163,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("SubDir" + "." + "ResourceFile.en-US.resources", 
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -169,7 +172,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("SubDir" + "." + "ResourceFile.en-US.dunno.en-US.resources", 
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.dunno.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
         }
 
@@ -192,7 +195,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -201,7 +204,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -210,7 +213,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "SubDir" + "." 
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
                 + "ResourceFile.resources", cscTask.GetManifestResourceName(
                 resources, resourceFile));
 
@@ -220,7 +223,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "SubDir" + "." 
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
                 + "ResourceFile.en-US.resources", cscTask.GetManifestResourceName(
                 resources, resourceFile));
 
@@ -230,7 +233,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "SubDir" + "." 
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
                 + "ResourceFile.en-US.dunno.en-US.resources", cscTask.GetManifestResourceName(
                 resources, resourceFile));
         }
@@ -254,7 +257,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -262,7 +265,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -271,7 +274,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -280,7 +283,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -289,7 +292,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.en-US.dunno.en-US.resources", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.dunno.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
         }
 
@@ -314,7 +317,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
                 resources.BaseDirectory.FullName, "ResourceFile." + cscTask.Extension));
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceTest.HelloWorld.resources", 
+            Assert.AreEqual("ResourceTest.HelloWorld.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -326,7 +329,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
                 resources.BaseDirectory.FullName, "ResourceFile.cs"));
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceTest.HelloWorld.en-US.resources", 
+            Assert.AreEqual("ResourceTest.HelloWorld.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -339,7 +342,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
                 + "ResourceFile." + cscTask.Extension));
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceTest.HelloWorld.resources", 
+            Assert.AreEqual("ResourceTest.HelloWorld.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -352,7 +355,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
                 + "ResourceFile." + cscTask.Extension));
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceTest.HelloWorld.en-US.resources", 
+            Assert.AreEqual("ResourceTest.HelloWorld.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -365,7 +368,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                 resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
                 + "ResourceFile.en-US.dunno." + cscTask.Extension));
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceTest.HelloWorld.en-US.resources", 
+            Assert.AreEqual("ResourceTest.HelloWorld.en-US.resources", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
         }
 
@@ -387,7 +390,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceFile.txt", 
+            Assert.AreEqual("ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -396,7 +399,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("ResourceFile.txt", 
+            Assert.AreEqual("ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -405,7 +408,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("SubDir" + "." + "ResourceFile.txt", 
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -414,7 +417,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("SubDir" + "." + "ResourceFile.txt", 
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -423,7 +426,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals("SubDir" + "." + "ResourceFile.en-US.dunno.txt", 
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.dunno.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
         }
 
@@ -446,7 +449,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -455,7 +458,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -464,7 +467,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -473,7 +476,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -482,7 +485,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "SubDir" + "." 
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
                 + "ResourceFile.en-US.dunno.txt", cscTask.GetManifestResourceName(
                 resources, resourceFile));
         }
@@ -506,7 +509,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -515,7 +518,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -524,7 +527,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
 
             // initialize resource file
@@ -533,7 +536,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             // create resource file
             CreateTempFile(resourceFile);
             // assert manifest resource name
-            Assertion.AssertEquals(resources.Prefix + "." + "ResourceFile.txt", 
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
                 cscTask.GetManifestResourceName(resources, resourceFile));
         }
 
@@ -588,9 +591,8 @@ namespace Tests.NAnt.DotNet.Tasks {
                 StringReader reader = new StringReader(input);
                 CompilerBase.ResourceLinkage linkage = cscTask.PerformSearchForResourceLinkage( reader );
             
-                Assertion.AssertNotNull("no resourcelinkage found for " + input, linkage);
-                string message = string.Format( "Failed to find expected class name {0}. Found {1} instead.", expectedClassname , linkage.ClassName ); 
-                Assertion.Assert( message, (expectedClassname == linkage.ClassName ) );
+                Assert.IsNotNull(linkage, "no resourcelinkage found for " + input);
+                Assert.AreEqual(expectedClassname, linkage.ClassName);
             }
         }
     }

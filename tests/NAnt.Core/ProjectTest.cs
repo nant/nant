@@ -65,16 +65,16 @@ namespace Tests.NAnt.Core {
 
             Project p = new Project(_buildFileName, Level.Error, 0);
 
-            Assertion.AssertNotNull("Property ('nant.version') not defined.", p.Properties["nant.version"]);
-            Assertion.AssertNotNull("Property ('nant.location') not defined.", p.Properties["nant.location"]);
+            Assert.IsNotNull(p.Properties["nant.version"], "Property ('nant.version') not defined.");
+            Assert.IsNotNull(p.Properties["nant.location"], "Property ('nant.location') not defined.");
 
-            Assertion.AssertEquals(new Uri(_buildFileName), p.Properties["nant.project.buildfile"]);
-            Assertion.AssertEquals(TempDirName, p.Properties["nant.project.basedir"]);
-            Assertion.AssertEquals("test", p.Properties["nant.project.default"]);
+            Assert.AreEqual(new Uri(_buildFileName), p.Properties["nant.project.buildfile"]);
+            Assert.AreEqual(TempDirName, p.Properties["nant.project.basedir"]);
+            Assert.AreEqual("test", p.Properties["nant.project.default"]);
 
             CheckCommon(p);
 
-            Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
+            Assert.AreEqual("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
         }
 
         [Test]
@@ -83,16 +83,15 @@ namespace Tests.NAnt.Core {
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Error, 0);
 
-            Assertion.AssertNotNull("Property not defined.", p.Properties["nant.version"]);
-
-            Assertion.AssertNull("location of buildfile should not exist!", p.Properties["nant.project.buildfile"]);
-            Assertion.AssertNotNull("nant.project.basedir should not be null", p.Properties["nant.project.basedir"]);
-            Assertion.AssertEquals(TempDirName, p.Properties["nant.project.basedir"]);
-            Assertion.AssertEquals("test", p.Properties["nant.project.default"]);
+            Assert.IsNotNull(p.Properties["nant.version"], "Property not defined.");
+            Assert.IsNull(p.Properties["nant.project.buildfile"], "location of buildfile should not exist!");
+            Assert.IsNotNull(p.Properties["nant.project.basedir"], "nant.project.basedir should not be null");
+            Assert.AreEqual(TempDirName, p.Properties["nant.project.basedir"]);
+            Assert.AreEqual("test", p.Properties["nant.project.default"]);
 
             CheckCommon(p);
 
-            Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
+            Assert.AreEqual("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
         }
 
         [Test]
@@ -106,7 +105,7 @@ namespace Tests.NAnt.Core {
             p.BuildStarted += new BuildEventHandler(b.BuildStarted);
             p.OnBuildStarted(this, new BuildEventArgs(p));
 
-            Assertion.Assert(b._buildStarted);
+            Assert.IsTrue(b._buildStarted);
         }
 
         [Test]
@@ -121,7 +120,7 @@ namespace Tests.NAnt.Core {
             p.OnBuildStarted(this, new BuildEventArgs(p));
             p.OnBuildFinished(this, new BuildEventArgs(p));
 
-            Assertion.Assert(b._buildFinished);
+            Assert.IsTrue(b._buildFinished);
         }
 
         [Test]
@@ -135,7 +134,7 @@ namespace Tests.NAnt.Core {
             p.TargetStarted += new BuildEventHandler(b.TargetStarted);
             p.OnTargetStarted(this, new BuildEventArgs(p));
 
-            Assertion.Assert(b._targetStarted);
+            Assert.IsTrue(b._targetStarted);
         }
 
         [Test]
@@ -149,7 +148,7 @@ namespace Tests.NAnt.Core {
             p.TargetFinished += new BuildEventHandler(b.TargetFinished);
             p.OnTargetFinished(this, new BuildEventArgs(p));
 
-            Assertion.Assert(b._targetFinished);
+            Assert.IsTrue(b._targetFinished);
         }
 
         [Test]
@@ -163,7 +162,7 @@ namespace Tests.NAnt.Core {
             p.TaskStarted += new BuildEventHandler(b.TaskStarted);
             p.OnTaskStarted(this, new BuildEventArgs(p));
 
-            Assertion.Assert(b._taskStarted);
+            Assert.IsTrue(b._taskStarted);
         }
 
         [Test]
@@ -177,7 +176,7 @@ namespace Tests.NAnt.Core {
             p.TaskFinished += new BuildEventHandler(b.TaskFinished);
             p.OnTaskFinished(this, new BuildEventArgs(p));
 
-            Assertion.Assert(b._taskFinished);
+            Assert.IsTrue(b._taskFinished);
         }
 
         #endregion Public Instance Methods
@@ -195,28 +194,28 @@ namespace Tests.NAnt.Core {
         #region Private Instance Methods
         
         private void CheckCommon(Project p) {
-            Assertion.AssertEquals("ProjectTest", p.Properties["nant.project.name"]);
+            Assert.AreEqual("ProjectTest", p.Properties["nant.project.name"]);
 
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.al"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.attrib"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.call"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.copy"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.delete"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.echo"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.exec"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.fail"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.include"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.mkdir"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.move"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.nant"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.nunit"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.nunit2"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.property"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.sleep"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.style"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.sysinfo"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.touch"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.tstamp"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.al"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.attrib"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.call"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.copy"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.delete"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.echo"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.exec"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.fail"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.include"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.mkdir"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.move"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.nant"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.nunit"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.nunit2"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.property"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.sleep"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.style"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.sysinfo"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.touch"]);
+            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.tstamp"]);
         }
 
         private string FormatBuildFile(string globalTasks, string targetTasks) {

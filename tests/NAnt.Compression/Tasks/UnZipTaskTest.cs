@@ -48,7 +48,8 @@ namespace Tests.NAnt.Zip.Tasks {
             CreateTempDir("doc");
             CreateTempFile("doc\\temp1.file","hello");
             string result = RunBuild(_projectXML);
-            Assertion.Assert("UnZip dir not created.", Directory.Exists(Path.Combine(TempDirName,"doc")));
+            Assert.IsTrue(Directory.Exists(Path.Combine(TempDirName,"doc")),
+                "UnZip dir not created.");
             TempDir.Delete("doc");
         }
     }

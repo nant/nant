@@ -48,7 +48,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
-            Assertion.Assert(result, result.IndexOf("is same/newer than") != -1);
+            Assert.IsTrue(result.IndexOf("is same/newer than") != -1, result);
         }
         
         [Test]
@@ -60,7 +60,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
-            Assertion.Assert(result, result.IndexOf("is not same/newer than") == -1);
+            Assert.IsTrue(result.IndexOf("is not same/newer than") == -1, result);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
-            Assertion.Assert(result, result.IndexOf("is same/newer than") != -1);
+            Assert.IsTrue(result.IndexOf("is same/newer than") != -1, result);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
-            Assertion.Assert(result, result.IndexOf("is not same/newer than") == -1);
+            Assert.IsTrue(result.IndexOf("is not same/newer than") == -1, result);
         }
 
         [Test]
@@ -111,9 +111,8 @@ namespace Tests.NAnt.Core.Tasks {
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, (new FileInfo(_newFile)).Directory.FullName + "\\*", _oldFile));
-            Assertion.Assert(result, result.IndexOf("is not same/newer than") == -1);
+            Assert.IsTrue(result.IndexOf("is not same/newer than") == -1, result);
         }
-
 
         [Test]
         public void Test_IF_PropExists_Positive() {
@@ -125,8 +124,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result, result.IndexOf("line=hi") != -1);
+            Assert.IsTrue(result.IndexOf("line=hi") != -1, result);
         }
 
         [Test]
@@ -138,8 +136,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result, result.IndexOf("line=") == -1);
+            Assert.IsTrue(result.IndexOf("line=") == -1, result);
         }
 
         [Test]
@@ -152,8 +149,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result, result.IndexOf("Hello") != -1);
+            Assert.IsTrue(result.IndexOf("Hello") != -1, result);
         }
 
         [Test]
@@ -166,8 +162,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result, result.IndexOf("Hello") == -1);
+            Assert.IsTrue(result.IndexOf("Hello") == -1, result);
         }
         
         [Test]
@@ -182,8 +177,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result, result.IndexOf("called") != -1);
+            Assert.IsTrue(result.IndexOf("called") != -1, result);
         }
 
         [Test]
@@ -195,8 +189,7 @@ namespace Tests.NAnt.Core.Tasks {
                         </if>
                     </project>";
             string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result, result.IndexOf("failed") == -1);
+            Assert.IsTrue(result.IndexOf("failed") == -1, result);
         }
    }
 }

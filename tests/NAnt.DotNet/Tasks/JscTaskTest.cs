@@ -68,8 +68,8 @@ namespace Tests.NAnt.DotNet.Tasks {
         [Test]
         public void Test_DebugBuild() {
             string result = RunBuild(FormatBuildFile("debug='true'"));
-            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
-            Assertion.Assert(_sourceFileName + ".pdb does not exists, program did compile with debug switch.", File.Exists(_sourceFileName + ".pdb"));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");
+            Assert.IsTrue(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does not exists, program did compile with debug switch.");
         }
 
         /// <summary>
@@ -78,8 +78,8 @@ namespace Tests.NAnt.DotNet.Tasks {
         [Test]
         public void Test_ReleaseBuild() {
             string result = RunBuild(FormatBuildFile("debug='false'"));
-            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
-            Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");
+            Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does exists, program did compiled with debug switch.");
         }
 
         #endregion Public Instance Methods

@@ -39,11 +39,11 @@ namespace Tests.NAnt.Core.Attributes {
         /// </summary>
         [Test]
         public void Test_ValidDates() {
-            Assertion.Assert(IsValid("August 2, 1975"));
-            Assertion.Assert(IsValid("2004/01/01"));
-            Assertion.Assert(IsValid("1901/01/01"));
-            Assertion.Assert(IsValid("May 1, 2004"));
-            Assertion.Assert(IsValid("January 15, 2999"));
+            Assert.IsTrue(IsValid("August 2, 1975"));
+            Assert.IsTrue(IsValid("2004/01/01"));
+            Assert.IsTrue(IsValid("1901/01/01"));
+            Assert.IsTrue(IsValid("May 1, 2004"));
+            Assert.IsTrue(IsValid("January 15, 2999"));
         }
 
         /// <summary>
@@ -51,11 +51,11 @@ namespace Tests.NAnt.Core.Attributes {
         /// </summary>
         [Test]
         public void Test_InvalidDates() {
-            Assertion.Assert(!IsValid("August is an awesome month."));
-            Assertion.Assert(!IsValid("August 2nd is cool."));
-            Assertion.Assert(!IsValid("1234567890"));
-            Assertion.Assert(!IsValid("More invalid dates."));
-            Assertion.Assert(!IsValid("@!#$%$^^"));
+            Assert.IsFalse(IsValid("August is an awesome month."));
+            Assert.IsFalse(IsValid("August 2nd is cool."));
+            Assert.IsFalse(IsValid("1234567890"));
+            Assert.IsFalse(IsValid("More invalid dates."));
+            Assert.IsFalse(IsValid("@!#$%$^^"));
         }
 
         private bool IsValid (object date) {

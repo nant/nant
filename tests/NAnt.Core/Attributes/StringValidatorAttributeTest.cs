@@ -39,14 +39,14 @@ namespace Tests.NAnt.Core.Attributes {
         /// </summary>
         [Test]
         public void Test_ValidStrings() {
-            Assertion.Assert(IsValid("August 2, 1975"));
-            Assertion.Assert(IsValid("blah"));
-            Assertion.Assert(IsValid("n", false));
-            Assertion.Assert(IsValid("http://nant.sourceforge.net", 
+            Assert.IsTrue(IsValid("August 2, 1975"));
+            Assert.IsTrue(IsValid("blah"));
+            Assert.IsTrue(IsValid("n", false));
+            Assert.IsTrue(IsValid("http://nant.sourceforge.net", 
                 @"(?<Protocol>\w+):\/\/(?<Domain>[\w.]+\/?)\S*"));
 
             // validate name of file
-            Assertion.Assert(IsValid("name_of_file",
+            Assert.IsTrue(IsValid("name_of_file",
                 @"^[A-Za-z0-9][A-Za-z0-9._\-]*$"));
         }
 
@@ -55,10 +55,10 @@ namespace Tests.NAnt.Core.Attributes {
         /// </summary>
         [Test]
         public void Test_InvalidStrings() {
-            Assertion.Assert(!IsValid("the/path/to/a/file",
+            Assert.IsFalse(IsValid("the/path/to/a/file",
                 @"^[A-Za-z0-9][A-Za-z0-9._\-]*$"));
-            Assertion.Assert(!IsValid("", false));
-            Assertion.Assert(!IsValid("blah blah",
+            Assert.IsFalse(IsValid("", false));
+            Assert.IsFalse(IsValid("blah blah",
                 @"(?<Protocol>\w+):\/\/(?<Domain>[\w.]+\/?)\S*"));
         }
 
