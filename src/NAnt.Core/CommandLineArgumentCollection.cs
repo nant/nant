@@ -183,68 +183,75 @@ namespace SourceForge.NAnt {
         }
         
         #endregion Public Instance Methods
+    }
+
+    /// <summary>
+    /// Enumerates the <see cref="CommandLineArgument"/> elements of a <see cref="CommandLineArgumentCollection"/>.
+    /// </summary>
+    public class CommandLineArgumentEnumerator : IEnumerator {
+        #region Internal Instance Constructors
 
         /// <summary>
-        /// Enumerates the <see cref="CommandLineArgument"/> elements of a <see cref="CommandLineArgumentCollection"/>.
+        /// Initializes a new instance of the <see cref="CommandLineArgumentEnumerator"/> class
+        /// with the specified <see cref="CommandLineArgumentCollection"/>.
         /// </summary>
-        public class CommandLineArgumentEnumerator : IEnumerator {
-            
-            /// <summary>
-            /// Initializes a new instance of the <see cref="CommandLineArgumentEnumerator"/> class
-            /// with the specified <see cref="CommandLineArgumentCollection"/>.
-            /// </summary>
-            /// <param name="mappings">The collection that should be enumerated.</param>
-            internal CommandLineArgumentEnumerator(CommandLineArgumentCollection mappings) {
-                temp = ((IEnumerable)(mappings));
-                baseEnumerator = temp.GetEnumerator();
-            }
-            
-            /// <summary>
-            /// Gets the current element in the collection.
-            /// </summary>
-            /// <returns>
-            /// The current element in the collection.
-            /// </returns>
-            public CommandLineArgument Current {
-                get {
-                    return ((CommandLineArgument)(baseEnumerator.Current));
-                }
-            }
-
-            object IEnumerator.Current {
-                get {
-                    return baseEnumerator.Current;
-                }
-            }
-
-            /// <summary>
-            /// Advances the enumerator to the next element of the collection.
-            /// </summary>
-            /// <returns>
-            /// <c>true</c> if the enumerator was successfully advanced to the next element; 
-            /// <c>false</c> if the enumerator has passed the end of the collection.
-            /// </returns>
-            public bool MoveNext() {
-                return baseEnumerator.MoveNext();
-            }
-
-            bool IEnumerator.MoveNext() {
-                return baseEnumerator.MoveNext();
-            }
-            
-            /// <summary>
-            /// Sets the enumerator to its initial position, which is before the first element in the collection.
-            /// </summary>
-            public void Reset() {
-                baseEnumerator.Reset();
-            }
-            
-            void IEnumerator.Reset() {
-                baseEnumerator.Reset();
-            }
-            
-            private IEnumerator baseEnumerator;
-            private IEnumerable temp;
+        /// <param name="arguments">The collection that should be enumerated.</param>
+        internal CommandLineArgumentEnumerator(CommandLineArgumentCollection arguments) {
+            IEnumerable temp = (IEnumerable) (arguments);
+            _baseEnumerator = temp.GetEnumerator();
         }
+
+        #endregion Internal Instance Constructors
+
+        #region Implementation of IEnumerator
+            
+        /// <summary>
+        /// Gets the current element in the collection.
+        /// </summary>
+        /// <returns>
+        /// The current element in the collection.
+        /// </returns>
+        public CommandLineArgument Current {
+            get { return (CommandLineArgument) _baseEnumerator.Current; }
+        }
+
+        object IEnumerator.Current {
+            get { return _baseEnumerator.Current; }
+        }
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the enumerator was successfully advanced to the next element; 
+        /// <c>false</c> if the enumerator has passed the end of the collection.
+        /// </returns>
+        public bool MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+
+        bool IEnumerator.MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+            
+        /// <summary>
+        /// Sets the enumerator to its initial position, which is before the 
+        /// first element in the collection.
+        /// </summary>
+        public void Reset() {
+            _baseEnumerator.Reset();
+        }
+            
+        void IEnumerator.Reset() {
+            _baseEnumerator.Reset();
+        }
+
+        #endregion Implementation of IEnumerator
+
+        #region Private Instance Fields
+    
+        private IEnumerator _baseEnumerator;
+
+        #endregion Private Instance Fields
     }
 }
