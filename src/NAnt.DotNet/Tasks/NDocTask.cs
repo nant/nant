@@ -91,43 +91,54 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("ndoc")]
     public class NDocTask : Task {
+        #region Private Instance Fields
 
-        XmlNodeList _docNodes;      
+        XmlNodeList _docNodes;
         FileSet _assemblies = new FileSet();
         FileSet _summaries = new FileSet();
 
-        /// <summary>The set of assemblies to document.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The set of assemblies to document.
+        /// </summary>
         [FileSet("assemblies")]
-        public FileSet Assemblies { 
-            get { return _assemblies; } 
+        public FileSet Assemblies {
+            get { return _assemblies; }
         }
 
-        /// <summary>The set of namespace summary files.</summary>
+        /// <summary>
+        /// The set of namespace summary files.
+        /// </summary>
         [FileSet("summaries")]
-        public FileSet Summaries { 
-            get { return _summaries; } 
+        public FileSet Summaries {
+            get { return _summaries; }
         }
 
-        /// <summary>Updates the progress bar representing a building step.</summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnDocBuildingStep(object sender, ProgressArgs e) {
-            Log.WriteLine(LogPrefix + e.Status);
-        }
+        #endregion Public Instance Properties
 
-        /// <summary>Initialize taks and verify parameters.</summary>
-        /// <param name="taskNode">Node that contains the XML fragment used to define this task instance.</param>
+        #region Override implementation of Task
+
+        /// <summary>
+        /// Initializes the taks and verifies the parameters.
+        /// </summary>
+        /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             // Expand and store the xml node
             _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", Project.NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
             // check for valid documenters (any other validation can be done by NDoc itself at project load time)
-            foreach( XmlNode node in _docNodes) {
+            foreach (XmlNode node in _docNodes) {
                 string documenterName = node.Attributes["name"].Value;
             }
         }
 
+        /// <summary>
+        /// Generates an NDoc project and builds the documentation.
+        /// </summary>
         protected override void ExecuteTask() {
             // Make sure there is at least one included assembly.  This can't
             // be done in the InitializeTask() method because the files might
@@ -168,8 +179,8 @@ namespace SourceForge.NAnt.Tasks {
                     sb.Append(sr.ReadToEnd());
                     sr.Close();
                 } catch (IOException e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}\n{1}", summaryPath, e.Message);
-                    throw new BuildException(msg, Location);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}.", summaryPath);
+                    throw new BuildException(msg, Location, e);
                 }
             }
             writer.WriteRaw(sb.ToString());
@@ -195,49 +206,83 @@ namespace SourceForge.NAnt.Tasks {
             }
             project.Read(projectFileName);
 
-            foreach( XmlNode node in _docNodes) {
+            foreach (XmlNode node in _docNodes) {
                 string documenterName = node.Attributes["name"].Value;
-                IDocumenter documenter = GetDocumenter( project, documenterName);
-                if (documenter == null ) {
-                    throw new BuildException("Error loading documenter : " + documenterName, Location);
+                IDocumenter documenter = GetDocumenter(project, documenterName);
+                if (documenter == null) {
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Error loading documenter {0}.", documenterName);
+                    throw new BuildException(msg, Location);
                 }
+
                 // hook up events for feedback during the build
                 documenter.DocBuildingStep += new DocBuildingEventHandler(OnDocBuildingStep);
+                documenter.DocBuildingProgress += new DocBuildingEventHandler(OnDocBuildingProgress);
 
                 // build documentation
                 try {
                     documenter.Build(project);
                 } catch (Exception e) {
-                    Log.WriteLine(LogPrefix + "Error building documentation.");
                     throw new BuildException(LogPrefix + "Error building documentation.", Location, e);
                 }
             }
         }
 
-        /// <summary>Returns the documenter instance to use for this task.</summary>
-        IDocumenter GetDocumenter(NDoc.Core.Project project, string documenterName ) {
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Represents the method that will be called to update the overall 
+        /// percent complete value and the current step name.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
+        private void OnDocBuildingStep(object sender, ProgressArgs e) {
+            Log.WriteLine(LogPrefix + e.Status);
+        }
+
+        /// <summary>
+        /// Represents the method that will be called to update the current
+        /// step's precent complete value.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
+        private void OnDocBuildingProgress(object sender, ProgressArgs e) {
+            Log.WriteLineIf(Verbose, LogPrefix + e.Progress + "% complete");
+        }
+
+        /// <summary>
+        /// Returns the documenter instance to use for this task.
+        /// </summary>
+        private IDocumenter GetDocumenter(NDoc.Core.Project project, string documenterName) {
+            IDocumenter documenter = null;
+
             if (project == null) {
                 project = new NDoc.Core.Project();
             }
-            IDocumenter documenter = null;
             foreach (IDocumenter d in project.Documenters) {
                 // ignore case when comparing documenter names
                 if (String.Compare(d.Name, documenterName, true, CultureInfo.InvariantCulture) == 0) {
-                    documenter = (IDocumenter)d;
+                    documenter = (IDocumenter) d;
                     break;
                 }
             }
             return documenter;
         }
 
-        /// <summary>Perform macro expansion for the given XmlNodeList.</summary>
-        void ExpandPropertiesInNodes(XmlNodeList nodes) {
-            foreach(XmlNode node in nodes ) {
+        /// <summary>
+        /// Performs macro expansion for the given nodes.
+        /// </summary>
+        /// <param name="nodes"><see cref="XmlNodeList" /> for which expansion should be performed.</param>
+        private void ExpandPropertiesInNodes(XmlNodeList nodes) {
+            foreach (XmlNode node in nodes) {
                 ExpandPropertiesInNodes(node.ChildNodes);
-                foreach( XmlAttribute attr in node.Attributes ) {
+                foreach (XmlAttribute attr in node.Attributes) {
                     attr.Value = Project.ExpandProperties(attr.Value, Location);
                 }
             }
         }
+
+        #endregion Private Instance Methods
     }
 }
