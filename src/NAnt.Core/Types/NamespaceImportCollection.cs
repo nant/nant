@@ -20,50 +20,198 @@
 using System;
 using System.Collections;
 
+using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
+    public abstract class DataTypeCollectionBase : DataTypeBase, ICollection {
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeCollectionBase" />
+        /// class.
+        /// </summary>
+        protected DataTypeCollectionBase() {
+            _list = new ArrayList();
+        }
+
+        #endregion Protected Instance Constructors
+
+        #region ICollection Members
+
+        /// <summary>
+        /// Gets a value indicating whether access to the collection is 
+        /// synchronized (thread-safe).
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        bool ICollection.IsSynchronized {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Gets the number of items in the collection.
+        /// </summary>
+        /// <value>
+        /// The number of items in the collection.
+        /// </value>
+        public int Count {
+            get { return List.Count; }
+        }
+
+        /// <summary>
+        /// Copies the items of the collection to an <see cref="Array" />,
+        /// starting at a particular index.
+        /// </summary>
+        /// <param name="array">The one-dimensional <see cref="Array" /> that is the destination of the items copied from the collection. The <see cref="Array" /> must have zero-based indexing.</param>
+        /// <param name="index">The zero-based index in <paramref name="array" /> at which copying begins.</param>
+        public void CopyTo(Array array, int index) {
+            List.CopyTo(array, index);
+        }
+
+        /// <summary>
+        /// Gets an object that can be used to synchronize access to the 
+        /// collection.
+        /// </summary>
+        /// <value>
+        /// An object that can be used to synchronize access to the collection.
+        /// </value>
+        object ICollection.SyncRoot {
+            get { return this; }
+        }
+
+        #endregion
+
+        #region IEnumerable Members
+
+        /// <summary>
+        /// Returns an enumerator that can iterate through a collection.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerator" /> that can be used to iterate through 
+        /// the collection.
+        /// </returns>
+        IEnumerator IEnumerable.GetEnumerator() {
+            return List.GetEnumerator();
+        }
+
+        #endregion
+
+        #region Implementation of IList
+
+        /// <summary>
+        /// Gets a value indicating whether the collection has a fixed size.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        public bool IsFixedSize {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the collection has a fixed size.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        public bool IsReadOnly {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Removes an item at a specific index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item to remove.</param>
+        public void RemoveAt(int index) {
+            RangeCheck(index);
+            List.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// Removes all items from the collection.
+        /// </summary>
+        public void Clear() {
+            List.Clear();
+        }
+
+        #endregion Implementation of IList
+
+        #region Protected Instance Properties
+
+        protected ArrayList List {
+            get { return _list; }
+        }
+
+        protected abstract Type ItemType {
+            get;
+        }
+
+        #endregion Protected Instance Properties
+
+        #region Private Instance Methods
+
+        protected void ValidateType(object value) {
+            if (value == null) {
+                throw new Exception();
+                //throw ADP.ParameterNull("value", this, this.ItemType);
+            }
+
+            if (!this.ItemType.IsInstanceOfType(value)) {
+                throw new Exception();
+                //throw ADP.InvalidParameterType(this, this.ItemType, value);
+            }
+        }
+
+        protected void RangeCheck(int index) {
+            if (index < 0 || Count <= index) {
+                throw new Exception();
+                //throw ADP.ParametersMappingIndex(index, this);
+            }
+        }
+
+        #endregion Private Instance Methods
+
+        #region Private Instance Fields
+
+        private ArrayList _list;
+
+        #endregion Private Instance Fields
+    }
+
     /// <summary>
-    /// Contains a collection of <see cref="NamespaceImport" /> elements.
+    /// Contains a collection of <see cref="NamespaceImport" /> items.
     /// </summary>
     [Serializable()]
-    public class NamespaceImportCollection : CollectionBase {
-        #region Public Instance Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NamespaceImportCollection"/> class.
-        /// </summary>
-        public NamespaceImportCollection() {
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NamespaceImportCollection"/> class
-        /// with the specified <see cref="NamespaceImportCollection"/> instance.
-        /// </summary>
-        public NamespaceImportCollection(NamespaceImportCollection value) {
-            AddRange(value);
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NamespaceImportCollection"/> class
-        /// with the specified array of <see cref="NamespaceImport"/> instances.
-        /// </summary>
-        public NamespaceImportCollection(NamespaceImport[] value) {
-            AddRange(value);
-        }
-
-        #endregion Public Instance Constructors
-
+    [ElementName("namespaceimports")]
+    public class NamespaceImportCollection : DataTypeCollectionBase, IList {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the element at the specified index.
+        /// Returns an enumerator that can iterate through the collection.
         /// </summary>
-        /// <param name="index">The zero-based index of the element to get or set.</param>
+        /// <returns>
+        /// A <see cref="NamespaceImportEnumerator"/> for the entire collection.
+        /// </returns>
+        public NamespaceImportEnumerator GetEnumerator() {
+            return new NamespaceImportEnumerator(this);
+        }
+
+        /// <summary>
+        /// Gets or sets the item at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item to get or set.</param>
         [System.Runtime.CompilerServices.IndexerName("Item")]
         public NamespaceImport this[int index] {
-            get { return (NamespaceImport) base.List[index]; }
-            set { base.List[index] = value; }
+            get { 
+                RangeCheck(index);
+                return (NamespaceImport) List[index];
+            }
+            set {
+                this.RangeCheck(index);
+                List[index] = value;
+            }
         }
 
         /// <summary>
@@ -115,30 +263,97 @@ namespace NAnt.Core.Types {
 
         #endregion Override implementation of Object
 
+        #region Override implementation of DataTypeCollectionBase
 
-        #region Public Instance Methods
-        
-        /// <summary>
-        /// Adds a <see cref="NamespaceImport"/> to the end of the collection.
-        /// </summary>
-        /// <param name="item">The <see cref="NamespaceImport"/> to be added to the end of the collection.</param> 
-        /// <returns>The position into which the new element was inserted.</returns>
-        public int Add(NamespaceImport item) {
-            return base.List.Add(item);
+        protected override Type ItemType {
+            get { return typeof(NamespaceImport); }
         }
 
+        #endregion Override implementation of DataTypeCollectionBase
+
+        #region IList Members
+
         /// <summary>
-        /// Adds the elements of a <see cref="NamespaceImport"/> array to the end of the collection.
+        /// Gets or sets the item at the specified index.
         /// </summary>
-        /// <param name="items">The array of <see cref="NamespaceImport"/> elements to be added to the end of the collection.</param> 
-        public void AddRange(NamespaceImport[] items) {
-            for (int i = 0; (i < items.Length); i = (i + 1)) {
-                Add(items[i]);
+        /// <param name="index">The zero-based index of the item to get or set.</param>
+        object IList.this[int index] {
+            get { return this[index]; }
+            set { 
+                ValidateType(value);
+                this[index] = (NamespaceImport) value;
             }
         }
 
         /// <summary>
-        /// Adds the elements of a <see cref="NamespaceImportCollection"/> to the end of the collection.
+        /// Inserts a <see cref="NamespaceImport" /> into the collection at the
+        /// specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="value">The <see cref="NamespaceImport"/> to insert.</param>
+        void IList.Insert(int index, object value) {
+            ValidateType(value);
+            Insert(index, (NamespaceImport) value);
+        }
+
+        /// <summary>
+        /// Removes the specified <see cref="NamespaceImport"/> from the
+        /// collection.
+        /// </summary>
+        /// <param name="value">The <see cref="NamespaceImport"/> to remove from the collection.</param>
+        void IList.Remove(object value) {
+            ValidateType(value);
+            Remove((NamespaceImport) value);
+        }
+
+        /// <summary>
+        /// Determines whether a <see cref="NamespaceImport"/> is in the collection.
+        /// </summary>
+        /// <param name="value">The <see cref="NamespaceImport"/> to locate in the collection.</param> 
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="value" /> is found in the 
+        /// collection; otherwise, <see langword="false" />.
+        /// </returns>
+        bool IList.Contains(object value) {
+            ValidateType(value);        
+            return List.Contains((NamespaceImport) value);
+        }
+
+        /// <summary>
+        /// Gets the location of a <see cref="NamespaceImport"/> in the collection.
+        /// </summary>
+        /// <param name="value">The <see cref="NamespaceImport"/> object to locate.</param> 
+        /// <returns>
+        /// The zero-based location of the <see cref="NamespaceImport" /> in the
+        /// collection.
+        /// </returns>
+        /// <remarks>
+        /// If the <see cref="NamespaceImport"/> is not currently a member of 
+        /// the collection, -1 is returned.
+        /// </remarks>
+        int IList.IndexOf(object value) {
+            ValidateType(value);        
+            return IndexOf((NamespaceImport) value);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="NamespaceImport"/> to the end of the collection.
+        /// </summary>
+        /// <param name="value">The <see cref="NamespaceImport"/> to be added to the end of the collection.</param> 
+        /// <returns>
+        /// The position into which the new item was inserted.
+        /// </returns>
+        int IList.Add(object value) {
+            ValidateType(value);        
+            return Add((NamespaceImport) value);
+        }
+
+        #endregion
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Adds the items of a <see cref="NamespaceImportCollection"/> to the end of the collection.
         /// </summary>
         /// <param name="items">The <see cref="NamespaceImportCollection"/> to be added to the end of the collection.</param> 
         public void AddRange(NamespaceImportCollection items) {
@@ -146,85 +361,71 @@ namespace NAnt.Core.Types {
                 Add(items[i]);
             }
         }
-        
+
         /// <summary>
-        /// Determines whether a <see cref="NamespaceImport"/> is in the collection.
+        /// Adds a <see cref="NamespaceImport"/> to the end of the collection.
         /// </summary>
-        /// <param name="item">The <see cref="NamespaceImport"/> to locate in the collection.</param> 
+        /// <param name="value">The <see cref="NamespaceImport"/> to be added to the end of the collection.</param> 
         /// <returns>
-        /// <see langword="true" /> if <paramref name="item"/> is found in the 
-        /// collection; otherwise, <see langword="false" />.
+        /// The position into which the new item was inserted.
         /// </returns>
-        public bool Contains(NamespaceImport item) {
-            return base.List.Contains(item);
+        [BuildElement("import")]
+        public int Add(NamespaceImport value) {
+            return List.Add(value);
         }
 
         /// <summary>
-        /// Determines whether a <see cref="NamespaceImport"/> with the specified
-        /// value is in the collection.
-        /// </summary>
-        /// <param name="value">The argument value to locate in the collection.</param> 
-        /// <returns>
-        /// <see langword="true" /> if a <see cref="NamespaceImport" /> with 
-        /// value <paramref name="value"/> is found in the collection; otherwise, 
-        /// <see langword="false" />.
-        /// </returns>
-        public bool Contains(string value) {
-            return this[value] != null;
-        }
-        
-        /// <summary>
-        /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
-        /// </summary>
-        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
-        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
-        public void CopyTo(NamespaceImport[] array, int index) {
-            base.List.CopyTo(array, index);
-        }
-        
-        /// <summary>
-        /// Retrieves the index of a specified <see cref="NamespaceImport"/> object in the collection.
-        /// </summary>
-        /// <param name="item">The <see cref="NamespaceImport"/> object for which the index is returned.</param> 
-        /// <returns>
-        /// The index of the specified <see cref="NamespaceImport"/>. If the <see cref="NamespaceImport"/> is not currently a member of the collection, it returns -1.
-        /// </returns>
-        public int IndexOf(NamespaceImport item) {
-            return base.List.IndexOf(item);
-        }
-        
-        /// <summary>
-        /// Inserts a <see cref="NamespaceImport"/> into the collection at the specified index.
+        /// Inserts a <see cref="NamespaceImport" /> into the collection at the
+        /// specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="item">The <see cref="NamespaceImport"/> to insert.</param>
-        public void Insert(int index, NamespaceImport item) {
-            base.List.Insert(index, item);
+        /// <param name="value">The <see cref="NamespaceImport"/> to insert.</param>
+        public void Insert(int index, NamespaceImport value) {
+            List.Insert(index, value);
         }
-        
+
         /// <summary>
-        /// Returns an enumerator that can iterate through the collection.
+        /// Removes the specified <see cref="NamespaceImport"/> from the
+        /// collection.
         /// </summary>
+        /// <param name="value">The <see cref="NamespaceImport"/> to remove from the collection.</param>
+        public void Remove(NamespaceImport value) {
+            List.Remove(value);
+        }
+
+        /// <summary>
+        /// Determines whether a <see cref="NamespaceImport"/> is in the collection.
+        /// </summary>
+        /// <param name="value">The <see cref="NamespaceImport"/> to locate in the collection.</param> 
         /// <returns>
-        /// A <see cref="NamespaceImportEnumerator"/> for the entire collection.
+        /// <see langword="true" /> if <paramref name="value" /> is found in the 
+        /// collection; otherwise, <see langword="false" />.
         /// </returns>
-        public new NamespaceImportEnumerator GetEnumerator() {
-            return new NamespaceImportEnumerator(this);
+        public bool Contains(NamespaceImport value) {
+            return List.Contains(value);
         }
-        
+
         /// <summary>
-        /// Removes a member from the collection.
+        /// Gets the location of a <see cref="NamespaceImport"/> in the collection.
         /// </summary>
-        /// <param name="item">The <see cref="NamespaceImport"/> to remove from the collection.</param>
-        public void Remove(NamespaceImport item) {
-            base.List.Remove(item);
+        /// <param name="value">The <see cref="NamespaceImport"/> object to locate.</param> 
+        /// <returns>
+        /// The zero-based location of the <see cref="NamespaceImport" /> in the
+        /// collection.
+        /// </returns>
+        /// <remarks>
+        /// If the <see cref="NamespaceImport"/> is not currently a member of 
+        /// the collection, -1 is returned.
+        /// </remarks>
+        public int IndexOf(NamespaceImport value) {
+            return List.IndexOf(value);
         }
-        
+
         #endregion Public Instance Methods
     }
 
     /// <summary>
-    /// Enumerates the <see cref="NamespaceImport"/> elements of a <see cref="NamespaceImportCollection"/>.
+    /// Enumerates the <see cref="NamespaceImport"/> items of a <see cref="NamespaceImportCollection"/>.
     /// </summary>
     public class NamespaceImportEnumerator : IEnumerator {
         #region Internal Instance Constructors
@@ -244,25 +445,31 @@ namespace NAnt.Core.Types {
         #region Implementation of IEnumerator
             
         /// <summary>
-        /// Gets the current element in the collection.
+        /// Gets the current item in the collection.
         /// </summary>
         /// <returns>
-        /// The current element in the collection.
+        /// The current item in the collection.
         /// </returns>
         public NamespaceImport Current {
             get { return (NamespaceImport) _baseEnumerator.Current; }
         }
 
+        /// <summary>
+        /// Gets the current item in the collection.
+        /// </summary>
+        /// <returns>
+        /// The current item in the collection.
+        /// </returns>
         object IEnumerator.Current {
             get { return _baseEnumerator.Current; }
         }
 
         /// <summary>
-        /// Advances the enumerator to the next element of the collection.
+        /// Advances the enumerator to the next item of the collection.
         /// </summary>
         /// <returns>
         /// <see langword="true" /> if the enumerator was successfully advanced 
-        /// to the next element; <see langword="false" /> if the enumerator has 
+        /// to the next item; <see langword="false" /> if the enumerator has 
         /// passed the end of the collection.
         /// </returns>
         public bool MoveNext() {
@@ -275,7 +482,7 @@ namespace NAnt.Core.Types {
             
         /// <summary>
         /// Sets the enumerator to its initial position, which is before the 
-        /// first element in the collection.
+        /// first item in the collection.
         /// </summary>
         public void Reset() {
             _baseEnumerator.Reset();
