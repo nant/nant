@@ -122,6 +122,7 @@
             <arg value="${project.config}" />
             <arg value="self-test" />
             <arg value="-D:project.version=${project.version}" />
+            <arg value="-k:${nant.settings.currentframework}" />
         </exec>
     </target>
 
@@ -167,6 +168,7 @@
             <arg value="${project.config}" />
             <arg value="self-userdoc" />
             <arg value="-D:project.version=${project.version}" />
+            <arg value="-k:${nant.settings.currentframework}" />
         </exec>
     </target>
 
@@ -198,6 +200,7 @@
             <arg value="${project.config}" />
             <arg value="self-sdkdoc" />
             <arg value="-D:project.version=${project.version}" />
+            <arg value="-k:${nant.settings.currentframework}" />
         </exec>
         <!-- delete everything but the .chm -->
         <delete>
@@ -257,6 +260,7 @@
             <arg value="${project.config}" />
             <arg value="schema" />
             <arg value="-D:project.version=${project.version}" />
+            <arg value="-k:${nant.settings.currentframework}" />
         </exec>
 
         <!-- move config file -->
