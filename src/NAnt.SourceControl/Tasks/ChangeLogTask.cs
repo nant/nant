@@ -33,12 +33,11 @@ using ICSharpCode.SharpCvsLib.Util;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
-    /// Produces an xml report that represents the cvs changes from the given start day,
-    /// to the given end date.  Optionally the report can be styled and output as html if 
-    /// an xsl file is specified.
+    /// Produces an XML report that represents the cvs changes from the given 
+    /// start day, to a given end date.
     /// </summary>
     /// <example>
-    ///   <para>Checkout NAnt.</para>
+    ///   <para>Report changes in NAnt from 1st of June 2004 until 25th of July 2004.</para>
     ///   <code>
     ///     <![CDATA[
     /// <cvs-changelog
