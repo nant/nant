@@ -81,6 +81,11 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected const string CVS_EXE = "cvs.exe";
 		/// <summary>
+		/// The temporary name of the sharpcvslib binary file, to avoid 
+		///		conflicts in the path variable.
+		/// </summary>
+		protected const string SHARP_CVS_EXE = "scvs.exe";
+		/// <summary>
 		/// Environment variable that holds the executable name that is used for
 		///		ssh communication.
 		/// </summary>
@@ -119,7 +124,7 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected AbstractCvsTask () : base() {
 			this._sharpcvslibExeName = 
-				Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
+				Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, SHARP_CVS_EXE);
 		}
 
         #endregion Protected Instance Constructors
@@ -133,6 +138,7 @@ namespace NAnt.SourceControl.Tasks {
 			get {return CVS_RSH;}
 		}
 		#endregion
+
         #region Public Instance Properties
 
 		/// <summary>

@@ -52,6 +52,15 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 tag='{4}' />
             </project>";
 
+/*		private readonly string _useSharpCvsLibProjectXML = @"<?xml version='1.0'?>
+            <project>
+				<property name='sourcecontrol.usesharpcvslib' value='{0}'/>
+                <cvs-checkout   module='{1}' 
+                                cvsroot='{2}'
+                                destination='{3}'
+                                password='{4}' />
+            </project>";
+*/
         #endregion Private Instance Fields
 
         #region Override implementation of BuildTestBase

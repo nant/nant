@@ -37,6 +37,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private string destination;
 
+		private const bool USESHARPCVSLIB = false;
+
         private readonly string MODULE = "sharpcvslib-test-repository";
         private readonly string CHECK_FILE = "test-file.txt";
 
@@ -45,23 +47,61 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private readonly string _checkoutXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-checkout   module='{0}' 
-                                cvsroot='{1}'
-                                destination='{2}'
-                                password='{3}'
-                                tag='{4}' />
+				<property name='sourcecontrol.usesharpcvslib' value='{0}'/>
+                <cvs-checkout   module='{1}' 
+                                cvsroot='{2}'
+                                destination='{3}'
+                                password='{4}'
+                                tag='{5}' />
             </project>";
 
         /// <summary>
         /// Project to update the working directory.
         /// </summary>
-        private readonly string _projectXML = @"<?xml version='1.0'?>
+        private readonly string _updateXML = @"<?xml version='1.0'?>
             <project>
+				<property name='sourcecontrol.usesharpcvslib' value='{0}'/>
+                <cvs-update   module='{1}' 
+                                cvsroot='{2}'
+                                destination='{3}'
+                                password='{4}'
+                                tag='{5}' />
+            </project>";
+
+		/// <summary>
+		/// Filesets are not currently implemented in sharpcvslib so we default
+		///		to using the command line client for this test.
+		///		
+		///	CDH: 2004/03/25
+		/// </summary>
+/*		private readonly string _updateFilesetsXML = @"<?xml version='1.0'?>
+            <project>
+				<property name='sourcecontrol.usesharpcvslib' value='false'/>
                 <cvs-update   module='{0}' 
                                 cvsroot='{1}'
                                 destination='{2}'
-                                password='{3}'
-                                tag='{4}' />
+                                password='{3}'>
+					<fileset>
+						<includes name='**//**.build'/>
+					</fileset>
+				</cvs-update>
+            </project>";
+*/
+		private readonly string _updateOptionsXML = @"<?xml version='1.0'?>
+            <project>
+				<property name='sourcecontrol.usesharpcvslib' value='{0}'/>
+                <cvs-update   module='{1}' 
+                                cvsroot='{2}'
+                                destination='{3}'
+                                password='{4}'
+								builddirs='{5}'
+								pruneempty='{6}'
+								overwritelocal='{7}'
+								recursive='{8}'>
+					<fileset>
+						<includes name='{9}'/>
+					</fileset>
+				</cvs-update>
             </project>";
 
         #endregion Private Instance Fields
@@ -76,10 +116,12 @@ namespace Tests.NAnt.SourceControl.Tasks {
             base.SetUp ();
             this.destination = this.TempDirName;
 
-            object[] args = { 
+            object[] args = {USESHARPCVSLIB.ToString(),
                  MODULE, CVSROOT, this.destination, string.Empty, string.Empty};
+			string checkoutBuild = FormatBuildFile(_checkoutXML, args);
+			System.Console.WriteLine(checkoutBuild);
             string result = 
-                this.RunBuild(FormatBuildFile(_checkoutXML, args), Level.Debug);
+                this.RunBuild(checkoutBuild, Level.Debug);
         }
 
         /// <summary>
@@ -113,15 +155,58 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 !File.Exists(checkFilePath));
 
             // Run the update to bring the file back down.
-            object[] args = {MODULE, CVSROOT, this.destination, string.Empty, 
+            object[] args = {USESHARPCVSLIB.ToString(), MODULE, CVSROOT, checkoutPath, string.Empty, 
                                 string.Empty};
-            string result = this.RunBuild(FormatBuildFile(_projectXML, args), 
+            string result = this.RunBuild(FormatBuildFile(_updateXML, args), 
                 Level.Debug);
 
             // Check that the file is back.
             Assertion.Assert("File does not exist, update probably did not work.", 
                 File.Exists (checkFilePath));
         }
+
+		public void TestUpdateClean () {
+			string checkoutPath = Path.Combine(this.destination, this.MODULE);
+			string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+
+			string checkContents;
+
+			StreamReader reader = new StreamReader(File.Open(checkFilePath, FileMode.Open));
+			checkContents = reader.ReadToEnd();
+			reader.Close();
+			reader = null;
+
+			// Update the file with data
+			FileStream writer = File.Open(checkFilePath, FileMode.Append, FileAccess.Write);
+			string updateMsg = "UpdateTaskTest - overwrite local changes test.";
+			byte[] updateMsgBytes = System.Text.Encoding.ASCII.GetBytes(updateMsg);
+			writer.Write(updateMsgBytes, 0, updateMsgBytes.Length);
+			writer.Close();
+			writer = null;
+
+			// Run the update to bring the file back down.
+			bool buildDirs = false;
+			bool pruneEmpty = false;
+			bool overwriteLocal = true;
+			bool recursive = false;
+			object[] args = {USESHARPCVSLIB.ToString(), MODULE, CVSROOT, checkoutPath, string.Empty, 
+								buildDirs, pruneEmpty, overwriteLocal, recursive, 
+								checkFilePath};
+			string formattedBuildFile = FormatBuildFile(this._updateOptionsXML, args);
+			System.Console.WriteLine(formattedBuildFile);
+			string result = this.RunBuild(formattedBuildFile, 
+				Level.Debug);
+
+			// Check that the file is back.
+			Assertion.Assert("File does not exist, update probably did not work.", 
+				File.Exists (checkFilePath));			
+
+			StreamReader replacedReader = new StreamReader(File.Open(checkFilePath, FileMode.Open));
+			string checkContentsReplaced = replacedReader.ReadToEnd();
+			replacedReader.Close();
+			replacedReader = null;
+			Assertion.AssertEquals(checkContents, checkContentsReplaced);
+		}
 
         #endregion Public Instance Methods
 
