@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="NAnt" default="build" basedir=".">
+<project name="NAnt" default="test" basedir=".">
     <tstamp/>
     <property name="debug" value="true"/>
     <property name="project.name" value="nant"/>
@@ -117,11 +117,11 @@
 			<sources basedir="${src.dir}\${project.FormalName}.Tests">
 				<includes name="*.cs"/>
 
-				<!-- this test is broken as of December 19, 2001 -->
-                <excludes name="TouchTest.cs"/>
+				<!-- this test is broken as of December 19, 2001 
+                <excludes name="TouchTest.cs"/>-->
 
-				<!-- these tests should be run only under extreme testing conditions due to the nature of them -->
-                <excludes name="GetTest.cs"/>
+				<!-- these tests should be run only under extreme testing conditions due to the nature of them 
+                <excludes name="GetTest.cs"/>-->
 				<excludes name="MailTest.cs"/>
 			</sources>
 			<references>
@@ -129,11 +129,14 @@
 				<includes name="${build.dir}/${project.FormalName}.Core.dll"/>
 			</references>
 		</csc>
-		<!--
-			Perform unit tests.  If a unit test fails, the build fails.
-			The base directory is set to the Test directory so that tests can easily
-			load external data files wihtout having to worry about complicated paths.
-		-->
+    </target>
+
+	<!--
+		Perform unit tests.  If a unit test fails, the build fails.
+		The base directory is set to the Test directory so that tests can easily
+		load external data files wihtout having to worry about complicated paths.
+	-->
+    <target name="test" depends="build">
 		<nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltOnError="true" haltOnFailure="true">
             <formatter type="xml"/>
             <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" outfile="${build.dir}\TestResult" />
