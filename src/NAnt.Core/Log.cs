@@ -372,6 +372,7 @@ namespace NAnt.Core {
         /// This event is fired before any targets have started.
         /// </remarks>
         public virtual void BuildStarted(object sender, BuildEventArgs e) {
+            _buildTimes.Push(DateTime.Now);
         }
 
         /// <summary>
@@ -391,11 +392,9 @@ namespace NAnt.Core {
             }
 
             if (error == null) {
-                OutputMessage(Level.Info, "", indentationLevel);
                 OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
                 OutputMessage(Level.Info, "", indentationLevel);
             } else {
-                OutputMessage(Level.Error, "", indentationLevel);
                 OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
                 OutputMessage(Level.Error, "", indentationLevel);
 
@@ -419,6 +418,13 @@ namespace NAnt.Core {
                 }
 
                 OutputMessage(Level.Info, "", indentationLevel);
+            }
+
+            // output total build time
+            if (_buildTimes.Count > 0) {
+                TimeSpan buildTime = DateTime.Now - (DateTime) _buildTimes.Pop();
+                OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture, 
+                    "Total time: {0} seconds.\n", (int) buildTime.TotalSeconds), indentationLevel);
             }
 
             // make sure all messages are written to the underlying storage
@@ -554,6 +560,12 @@ namespace NAnt.Core {
         private TextWriter _outputWriter = null;
 
         #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private Stack _buildTimes = new Stack();            
+
+        #endregion Private Static Fields
     }
 
     /// <summary>
@@ -705,13 +717,6 @@ namespace NAnt.Core {
         /// <param name="subject">The subject line of the e-mail message.</param>
         /// <param name="message">The body of the e-mail message.</param>
         private void SendMail(string mailhost, string from, string toList, string subject, string message) {
-
-            Console.WriteLine("mailhost:" + mailhost);
-            Console.WriteLine("from:" + from);
-            Console.WriteLine("to:" + toList);
-            Console.WriteLine("subject:" + subject);
-            Console.WriteLine("message:" + message);
-
             SmtpMail.SmtpServer = mailhost;
             SmtpMail.Send(from, toList, subject, message);
         }
