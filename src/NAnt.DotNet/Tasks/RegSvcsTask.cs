@@ -125,7 +125,6 @@ namespace NAnt.DotNet.Tasks {
         private bool _noreconfig = false;
         private bool _componentsOnly = false;
         private string _partitionName = null;
-        private bool _quiet = true;
 
         #endregion Private Instance Fields
 
@@ -229,16 +228,6 @@ namespace NAnt.DotNet.Tasks {
             set { _partitionName = SetStringValue(value); }
         }
 
-        /// <summary>
-        /// Specifies whether non-error output should be suppressed.  Default
-        /// is <c>true</c>.
-        /// </summary>
-        [TaskAttribute("quiet")]
-        public bool Quiet {
-            get { return _quiet; }
-            set { _quiet = value; }
-        }
-
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
@@ -250,7 +239,13 @@ namespace NAnt.DotNet.Tasks {
         /// The command-line arguments for the external program.
         /// </value>
         public override string ProgramArguments {
-            get { return _argumentBuilder.ToString(); }
+            get {
+                if (_argumentBuilder != null) {
+                    return _argumentBuilder.ToString();
+                } else {
+                    return null;
+                }
+            }
         }
 
         /// <summary>
@@ -275,7 +270,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             if (TypeLibrary != null) {
-                _argumentBuilder.AppendFormat("\"/tlb:{0}\" ", TypeLibrary);
+                _argumentBuilder.AppendFormat("/tlb:\"{0}\" ", TypeLibrary);
             }
 
             if (ExistingTypeLibrary) {
@@ -291,7 +286,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             if (ApplicationName != null) {
-                _argumentBuilder.AppendFormat("\"/appname:{0}\" ", ApplicationName);
+                _argumentBuilder.AppendFormat("/appname:\"{0}\" ", ApplicationName);
             }
 
             if (ExistingApplication) {
@@ -299,10 +294,10 @@ namespace NAnt.DotNet.Tasks {
             }
 
             if (PartitionName != null) {
-                _argumentBuilder.AppendFormat("\"/parname:{0}\" ", PartitionName);
+                _argumentBuilder.AppendFormat("/parname:\"{0}\" ", PartitionName);
             }
 
-            if (Quiet) {
+            if (!Verbose) {
                 _argumentBuilder.Append("/quiet ");
             }
 

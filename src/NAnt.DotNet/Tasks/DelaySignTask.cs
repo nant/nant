@@ -55,12 +55,11 @@ namespace NAnt.DotNet.Tasks {
     public class DelaySignTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private FileSet _targets        = new FileSet();
-        private string  _keyFilename    = null;
-        private string  _keyContainer   = null;
-        private string  _arguments      = null;
-        private bool    _quiet          = true;
-        private string _exeName         = "sn"; 
+        private FileSet _targets = new FileSet();
+        private string _keyFilename = null;
+        private string _keyContainer = null;
+        private StringBuilder _argumentBuilder = null;
+        private string _exeName = "sn"; 
         
         #endregion Private Instance Fields
 
@@ -85,22 +84,12 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Specifies the filesystem path to the signing key
+        /// Specifies the key container.
         /// </summary>
         [TaskAttribute("keycontainer")]
         public string KeyContainer {
             get { return _keyContainer; }
             set { _keyContainer = SetStringValue(value); }
-        }
-
-        /// <summary>
-        /// Specifies whether non-error output should be suppressed. Default
-        /// is <c>true</c>.
-        /// </summary>
-        [TaskAttribute("quiet")]
-        public bool Quiet {
-            get { return _quiet; }
-            set { _quiet = value; }
         }
 
         #endregion Public Instance Properties
@@ -114,7 +103,13 @@ namespace NAnt.DotNet.Tasks {
         /// The command line arguments for the external program.
         /// </value>
         public override string ProgramArguments { 
-            get { return _arguments; }
+            get {
+                if (_argumentBuilder != null) {
+                    return _argumentBuilder.ToString();
+                } else {
+                    return null;
+                }
+            }
         }
 
         /// <summary>
@@ -141,22 +136,21 @@ namespace NAnt.DotNet.Tasks {
             foreach (string filename in Targets.FileNames) {
                 // Try to guess the buffer length
                 // Add 12 for "-R", maybe 'c' and "-q", and spaces/ quotes.
-                StringBuilder arguments = new StringBuilder (9 + filename.Length + keyname.Length);
+                _argumentBuilder = new StringBuilder(9 + filename.Length + keyname.Length);
 
-                if (Quiet) {
-                    arguments.Append("-q ");
+                if (!Verbose) {
+                    _argumentBuilder.Append("-q ");
                 }
 
                 // indicate that we want to resign a previously signed or delay-signed assembly
-                arguments.Append("-R");
+                _argumentBuilder.Append("-R");
 
                 if (containerAvail) {
-                    arguments.Append('c');
+                    _argumentBuilder.Append('c');
                 }
 
-                arguments.Append(" \"").Append(filename).Append("\" \"");
-                arguments.Append(keyname).Append('\"');
-                _arguments = arguments.ToString();
+                _argumentBuilder.Append(" \"").Append(filename).Append("\" \"");
+                _argumentBuilder.Append(keyname).Append('\"');
 
                 // call base class to do perform the actual call
                 base.ExecuteTask();
