@@ -34,7 +34,19 @@ namespace NAnt.Core.Attributes {
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildElementCollectionAttribute" /> with the 
-        /// specified name.
+        /// specified name and child element name.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="childName">The name of the child elements in the collection</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
+        public BuildElementCollectionAttribute(string collectionName, string childName) : base(collectionName) {
+            _elementName = childName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildElementCollectionAttribute" /> with the 
+        /// specified name, child element name and collection type.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="childName">The name of the child elements in the collection</param>
@@ -52,8 +64,12 @@ namespace NAnt.Core.Attributes {
         /// <summary>
         /// The name of the child element within the collection		
         /// </summary>
-        /// <value> The name to check for in the xml of the elements in the collection</value>
-        /// <remarks>This can be used for validation and schema generation.</remarks>
+        /// <value>
+        /// The name to check for in the XML of the elements in the collection.
+        /// </value>
+        /// <remarks>
+        /// This can be used for validation and schema generation.
+        /// </remarks>
         public string ChildElementName {
             get { return _elementName; }
         }
