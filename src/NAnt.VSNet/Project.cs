@@ -52,6 +52,18 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
+        public Resource[] Resources {
+            get { return (Resource[]) new ArrayList(_htResources.Values).ToArray(typeof(Resource)); }
+        }
+
+        public ProjectSettings ProjectSettings {
+            get { return _projectSettings; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ProjectBase
+
         /// <summary>
         /// Gets the name of the VS.NET project.
         /// </summary>
@@ -89,6 +101,13 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets the directory containing the VS.NET project.
+        /// </summary>
+        public override DirectoryInfo ProjectDirectory {
+            get { return _projectDirectory; }
+        }
+
+        /// <summary>
         /// Gets or sets the unique identifier of the VS.NET project.
         /// </summary>
         public override string Guid {
@@ -100,67 +119,29 @@ namespace NAnt.VSNet {
             get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
         }
 
-        public Resource[] Resources {
-            get { return (Resource[]) new ArrayList(_htResources.Values).ToArray(typeof(Resource)); }
-        }
-
-        public ProjectSettings ProjectSettings {
-            get { return _projectSettings; }
-        }
-
-        #endregion Public Instance Properties
-
-        #region Public Static Methods
-
-        public static bool IsEnterpriseTemplateProject(string fileName) {
-            try {
-                XmlDocument doc = LoadXmlDocument(fileName);
-                return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
-            } catch (XmlException) {
-                // when the project isn't a valid XML document, it definitely
-                // isn't an enterprise template project
-                return false;
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Error checking whether '{0}' is an enterprise template project.",
-                    fileName), Location.UnknownLocation, ex);
-            }
-        }
-
-        public static string LoadGuid(string fileName) {
-            try {
-                XmlDocument doc = LoadXmlDocument(fileName);
-                return ProjectSettings.GetProjectGuid(doc.DocumentElement);
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Error loading GUID of project '{0}'.", fileName), 
-                    Location.UnknownLocation, ex);
-            }
-        }
-
-        #endregion Public Static Methods
-
-        #region Public Instance Methods
-
         public override void Load(Solution sln, string projectPath) {
             XmlDocument doc = LoadXmlDocument(projectPath);
 
             _projectPath = projectPath;
             if (!_isWebProject) {
-                _projectDirectory = new FileInfo(projectPath).DirectoryName;
+                _projectDirectory = new FileInfo(projectPath).Directory;
             } else {
-                _projectDirectory = projectPath.Replace(":", "_");
-                _projectDirectory = _projectDirectory.Replace("/", "_");
-                _projectDirectory = _projectDirectory.Replace("\\", "_");
-                _projectDirectory = Path.Combine(TempFiles.BasePath, _projectDirectory);
+                string projectDirectory = projectPath.Replace(":", "_");
+                projectDirectory = projectDirectory.Replace("/", "_");
+                projectDirectory = projectDirectory.Replace("\\", "_");
+                _projectDirectory = new DirectoryInfo(Path.Combine(
+                    TemporaryFiles.BasePath, projectDirectory));
 
                 // ensure project directory exists
-                Directory.CreateDirectory(_projectDirectory);
+                if (!_projectDirectory.Exists) {
+                    _projectDirectory.Create();
+                    _projectDirectory.Refresh();
+                }
 
                 _webProjectBaseUrl = projectPath.Substring(0, projectPath.LastIndexOf("/"));
             }
 
-            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), new DirectoryInfo(_projectDirectory), TempFiles);
+            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), this);
 
             _isWebProject = ProjectFactory.IsUrl(projectPath);
             _webProjectBaseUrl = string.Empty;
@@ -169,13 +150,13 @@ namespace NAnt.VSNet {
 
             nlConfigurations = doc.SelectNodes("//Config");
             foreach (XmlElement elemConfig in nlConfigurations) {
-                ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, SolutionTask, OutputDir);
+                ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, OutputDir);
                 ProjectConfigurations[elemConfig.Attributes["Name"].Value] = cs;
             }
 
             nlReferences = doc.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
-                Reference reference = new Reference(sln, _projectSettings, elemReference, GacCache, ReferencesResolver, SolutionTask, OutputDir);
+                Reference reference = new Reference(sln, _projectSettings, elemReference, GacCache, ReferencesResolver, this, OutputDir);
                 _htReferences[elemReference.Attributes["Name"].Value] = reference;
             }
 
@@ -195,11 +176,11 @@ namespace NAnt.VSNet {
                 string sourceFile;
 
                 if (!StringUtils.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
-                    sourceFile = Path.GetFullPath(Path.Combine(_projectDirectory, 
-                        elemFile.GetAttribute("Link")));
+                    sourceFile = Path.GetFullPath(Path.Combine(
+                        ProjectDirectory.FullName, elemFile.GetAttribute("Link")));
                 } else {
-                    sourceFile = Path.GetFullPath(Path.Combine(_projectDirectory, 
-                        elemFile.GetAttribute("RelPath")));
+                    sourceFile = Path.GetFullPath(Path.Combine(
+                        ProjectDirectory.FullName, elemFile.GetAttribute("RelPath")));
                 }
 
                 if (_isWebProject) {
@@ -258,10 +239,13 @@ namespace NAnt.VSNet {
                     bSuccess = PreBuild(cs);
                 }
 
-                // ensure the temp dir exists
-                Directory.CreateDirectory(TempFiles.BasePath);
+                // ensure temp directory exists
+                if (!Directory.Exists(TemporaryFiles.BasePath)) {
+                    Directory.CreateDirectory(TemporaryFiles.BasePath);
+                }
 
-                string tempResponseFile = Path.Combine(TempFiles.BasePath, Project.CommandFile);
+                string tempResponseFile = Path.Combine(TemporaryFiles.BasePath, 
+                    Project.CommandFile);
 
                 using (StreamWriter sw = File.CreateText(tempResponseFile)) {
                     if (CheckUpToDate(cs)) {
@@ -468,7 +452,7 @@ namespace NAnt.VSNet {
                         if (SolutionTask.SolutionFile != null) {
                             psi.WorkingDirectory = SolutionTask.SolutionFile.DirectoryName;
                         } else {
-                            psi.WorkingDirectory = _projectDirectory;
+                            psi.WorkingDirectory = ProjectDirectory.FullName;
                         }
                         break;
                 }
@@ -479,21 +463,14 @@ namespace NAnt.VSNet {
                 // start compiler
                 Process p = Process.Start(psi);
 
-                // increment indentation level
-                SolutionTask.Project.Indent();
-                try {
-                    while (true) {
-                        // read line
-                        string line = p.StandardOutput.ReadLine();
-                        if (line == null) {
-                            break;
-                        }
-                        // display line
-                        Log(Level.Info, line);
+                while (true) {
+                    // read line
+                    string line = p.StandardOutput.ReadLine();
+                    if (line == null) {
+                        break;
                     }
-                } finally {
-                    // restore indentation level
-                    SolutionTask.Project.Unindent();
+                    // display line
+                    Log(Level.Info, line);
                 }
 
                 p.WaitForExit();
@@ -657,7 +634,37 @@ namespace NAnt.VSNet {
             }
         }
 
-        #endregion Public Instance Methods
+        #endregion Override implementation of ProjectBase
+
+        #region Public Static Methods
+
+        public static bool IsEnterpriseTemplateProject(string fileName) {
+            try {
+                XmlDocument doc = LoadXmlDocument(fileName);
+                return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
+            } catch (XmlException) {
+                // when the project isn't a valid XML document, it definitely
+                // isn't an enterprise template project
+                return false;
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error checking whether '{0}' is an enterprise template project.",
+                    fileName), Location.UnknownLocation, ex);
+            }
+        }
+
+        public static string LoadGuid(string fileName) {
+            try {
+                XmlDocument doc = LoadXmlDocument(fileName);
+                return ProjectSettings.GetProjectGuid(doc.DocumentElement);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading GUID of project '{0}'.", fileName), 
+                    Location.UnknownLocation, ex);
+            }
+        }
+
+        #endregion Public Static Methods
 
         #region Private Instance Methods
 
@@ -672,7 +679,7 @@ namespace NAnt.VSNet {
                 using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat"))) {
                     sw.WriteLine("@echo off");
                     // replace any VS macros in the command line with real values
-                    buildCommandLine = ReplaceMacros(ProjectSettings, cs, buildCommandLine);
+                    buildCommandLine = cs.ExpandMacros(buildCommandLine);
                     // handle linebreak charaters
                     buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
                     sw.WriteLine(buildCommandLine);
@@ -700,7 +707,7 @@ namespace NAnt.VSNet {
                 using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat"))) {
                     sw.WriteLine("@echo off");
                     // replace any VS macros in the command line with real values
-                    buildCommandLine = ReplaceMacros(ProjectSettings, cs, buildCommandLine);
+                    buildCommandLine = cs.ExpandMacros(buildCommandLine);
                     // handle linebreak charaters
                     buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
                     sw.WriteLine(buildCommandLine);
@@ -789,131 +796,6 @@ namespace NAnt.VSNet {
             return (exitCode == 0) ? true : false;
         }
 
-        private string ReplaceMacros(ProjectSettings ps, ConfigurationSettings cs, string commands) {
-            // Replace all $(...} patterns with their expanded real values. Those are the
-            // "macros" in the pre/post event builder in VS. This is potentionally a source
-            // for user errors as expanded paths containing spaces needs to be enclosed in
-            // quotation marks. Opted to follow VS behaviour where paths with spaces are left
-            // to the user as a drill.
-            string commandsExpanded, macro;
-            int startPosition, stopPosition = 0;
-
-            // Find the beginning of the first macro
-            startPosition = commands.IndexOf("$(", stopPosition);
-            commandsExpanded = commands;
-            if (startPosition > -1) { // There is at least one macro to replace
-                string targetPath = cs.OutputPath;
-                string solutionPath = null;
-
-                // The solution tag allows the specification of a bunch of projects with no
-                // reference to a solution file. $(Solution... macros will not work then.
-                if (SolutionTask.SolutionFile != null) {
-                    solutionPath = SolutionTask.SolutionFile.FullName;
-                }
-                // As long there are new macros...
-                while (startPosition > -1) {
-                    stopPosition = commands.IndexOf(")", startPosition + 2);
-                    macro = commands.Substring(startPosition, stopPosition - startPosition + 1);
-                    // perform case-insensitive expansion of macros 
-                    switch (macro.ToLower(CultureInfo.InvariantCulture)) {
-                        case "$(outdir)": // E.g. bin\Debug\
-                            commandsExpanded = commandsExpanded.Replace(macro, cs.RelativeOutputDir);
-                            break;
-                        case "$(configurationname)": // E.g. Debug
-                            commandsExpanded = commandsExpanded.Replace(macro, cs.Name);
-                            break;
-                        case "$(projectname)": // E.g. WindowsApplication1
-                            commandsExpanded = commandsExpanded.Replace(macro, Name);
-                            break;
-                        case "$(projectpath)": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\WindowsApplications1.csproj
-                            commandsExpanded = commandsExpanded.Replace(macro, ProjectPath);
-                            break;
-                        case "$(projectfilename)": // E.g. WindowsApplication1.csproj
-                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(ProjectPath));
-                            break;
-                        case "$(projectext)": // .csproj
-                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(ProjectPath));
-                            break;
-                        case "$(projectdir)": // ProjectPath without ProjectFileName at the end
-                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetDirectoryName(ProjectPath) + Path.DirectorySeparatorChar);
-                            break;
-                        case "$(targetname)": // E.g. WindowsApplication1
-                            commandsExpanded = commandsExpanded.Replace(macro, ps.AssemblyName);
-                            break;
-                        case "$(targetpath)": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\bin\Debug\WindowsApplications1.exe
-                            commandsExpanded = commandsExpanded.Replace(macro, cs.OutputPath);
-                            break;
-                        case "$(targetext)": // E.g. .exe
-                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(cs.OutputPath));
-                            break;
-                        case "$(targetfilename)": // E.g. WindowsApplications1.exe
-                            commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(cs.OutputPath));
-                            break;
-                        case "$(targetdir)": // Absolute path to OutDir
-                            commandsExpanded = commandsExpanded.Replace(macro, cs.OutputDir.FullName
-                                + (cs.OutputDir.FullName.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) 
-                                    ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)));
-                            break;
-                        case "$(solutionfilename)": // E.g. WindowsApplication1.sln
-                            if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(solutionPath));
-                            } else {
-                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
-                            }
-                            break;
-                        case "$(solutionpath)": // Absolute path for SolutionFileName
-                            if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace(macro, solutionPath);
-                            } else {
-                               Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
-                            }
-                            break;
-                        case "$(solutiondir)": // SolutionPath without SolutionFileName appended
-                            if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetDirectoryName(solutionPath) + Path.DirectorySeparatorChar);
-                            } else {
-                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
-                            }
-                            break;
-                        case "$(solutionname)": // E.g. WindowsApplication1
-                            if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileNameWithoutExtension(solutionPath));
-                            } else {
-                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
-                            }
-                            break;
-                        case "$(solutionext)": // Is this ever anything but .sln?
-                            if (solutionPath != null) {
-                                commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(solutionPath));
-                            } else {
-                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
-                            }
-                            break;
-                        case "$(platformname)": // .NET, does this value ever change?
-                            commandsExpanded = commandsExpanded.Replace(macro, ".NET");
-                            break;
-                        // TO-DO
-                        // DevEnvDir is avaliable from the key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir"
-                        // But would require Microsoft.Win32 to be included. Don't want that for mono etc. ?
-                        /* case "$(devenvdir)": // VS installation directory with \Common7\IDE appended
-                           commandsExpanded = commandsExpanded.Replace(macro, "To be Implemented?");
-                           break; */
-                        default:
-                            // Signal errors for macros that do not exist
-                            Log(Level.Error, "Pre/post event macro {0} not implemented.", macro);
-                            break;
-                    }
-                    // Find the beginning of the next macro if any
-                    startPosition = commands.IndexOf("$(", stopPosition);
-                }
-                Log(Level.Debug, "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
-                return commandsExpanded;
-            } else { // No macro to replace
-                Log(Level.Debug, "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
-                return commandsExpanded;
-            }
-        }
-
         private bool CheckUpToDate(ConfigurationSettings cs) {
             DateTime dtOutputTimeStamp;
             if (File.Exists(cs.OutputPath)) {
@@ -974,7 +856,7 @@ namespace NAnt.VSNet {
         private string _imports;
         private bool _isWebProject;
         private string _projectPath;
-        private string _projectDirectory;
+        private DirectoryInfo _projectDirectory;
         private string _webProjectBaseUrl;
         private ProjectSettings _projectSettings;
 

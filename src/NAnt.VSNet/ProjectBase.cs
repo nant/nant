@@ -21,6 +21,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.CodeDom.Compiler;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 
@@ -39,11 +40,11 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
-        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) {
+        protected ProjectBase(SolutionTask solutionTask, TempFileCollection temporaryFiles, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) {
             _projectConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _buildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _solutionTask = solutionTask;
-            _tempFiles = tempFiles;
+            _temporaryFiles = temporaryFiles;
             _outputDir = outputDir;
             _gacCache = gacCache;
             _refResolver = refResolver;
@@ -64,6 +65,13 @@ namespace NAnt.VSNet {
         /// Gets the path of the VS.NET project.
         /// </summary>
         public abstract string ProjectPath {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the directory containing the VS.NET project.
+        /// </summary>
+        public abstract DirectoryInfo ProjectDirectory {
             get;
         }
         
@@ -115,17 +123,17 @@ namespace NAnt.VSNet {
             get;
         }
 
-        #endregion Public Instance Properties
-
-        #region Protected Instance Properties
-
-        protected SolutionTask SolutionTask {
+        public SolutionTask SolutionTask {
             get { return _solutionTask; }
         }
 
-        protected TempFileCollection TempFiles {
-            get { return _tempFiles; }
+        public TempFileCollection TemporaryFiles {
+            get { return _temporaryFiles; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
 
         protected DirectoryInfo OutputDir {
             get { return _outputDir; }
@@ -181,6 +189,37 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Methods
 
+        #region Protected Internal Instance Methods
+
+        /// <summary>
+        /// Expands the given macro.
+        /// </summary>
+        /// <param name="macro">The macro to expand.</param>
+        /// <returns>
+        /// The expanded macro or <see langword="null" /> if the macro is not
+        /// supported.
+        /// </returns>
+        protected internal virtual string ExpandMacro(string macro) {
+            // perform case-insensitive expansion of macros 
+            switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "projectname": // E.g. WindowsApplication1
+                    return Name;
+                case "projectpath": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\WindowsApplications1.csproj
+                    return ProjectPath;
+                case "projectfilename": // E.g. WindowsApplication1.csproj
+                    return Path.GetFileName(ProjectPath);
+                case "projectext": // .csproj
+                    return Path.GetExtension(ProjectPath);
+                case "projectdir": // ProjectPath without ProjectFileName at the end
+                    return Path.GetDirectoryName(ProjectPath) 
+                        + Path.DirectorySeparatorChar;
+                default:
+                    return null;
+            }
+        }
+
+        #endregion Protected Internal Instance Methods
+
         #region Protected Instance Methods
 
         protected abstract bool Build(ConfigurationBase configurationSettings);
@@ -231,7 +270,7 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private SolutionTask _solutionTask;
-        private TempFileCollection _tempFiles;
+        private TempFileCollection _temporaryFiles;
         private DirectoryInfo _outputDir;
         private Hashtable _projectConfigurations;
         private Hashtable _buildConfigurations;

@@ -27,6 +27,8 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
+using NAnt.Core;
+using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
@@ -63,7 +65,14 @@ namespace NAnt.VSNet {
         /// Gets the path of the Visual C++ project.
         /// </summary>
         public override string ProjectPath {
-            get { return Path.GetFullPath(_projectPath); }
+            get { return _projectPath; }
+        }
+
+        /// <summary>
+        /// Gets the directory containing the VS.NET project.
+        /// </summary>
+        public override DirectoryInfo ProjectDirectory {
+            get { return new DirectoryInfo(Path.GetDirectoryName(_projectPath)); }
         }
 
         /// <summary>
@@ -118,6 +127,12 @@ namespace NAnt.VSNet {
                 }
             }
 
+            string nmakeCommand = baseConfig.GetToolSetting("VCNMakeTool", "BuildCommandLine");
+            if (nmakeCommand != null) {
+                RunNMake(nmakeCommand);
+                return true;
+            }
+
             foreach (VcConfiguration config in buildConfigs.Keys) {
                 BuildCPPFiles((ArrayList) buildConfigs[config], baseConfig, config);
             }
@@ -135,28 +150,19 @@ namespace NAnt.VSNet {
             return true;
         }
 
-        public DirectoryInfo GetProjectDir(string configuration) {
-            VcConfiguration config = (VcConfiguration) ProjectConfigurations[configuration];
-            if (config == null) {
-                return null;
-            }
-
-            return config.ProjectDir;
-        }
-
         #endregion Override implementation of ProjectBase
 
         #region Public Instance Methods
 
         public override void Load(Solution sln, string projectPath) {
-            _projectDirectory = Path.GetFullPath(Path.GetDirectoryName(projectPath));
-            _projectPath = projectPath;
+            _projectPath = Path.GetFullPath(projectPath);
             
-            XmlDocument doc = LoadXmlDocument(projectPath);
+            XmlDocument doc = LoadXmlDocument(_projectPath);
 
             XmlElement elem = doc.DocumentElement;
             _name = elem.GetAttribute("Name");
             _guid = elem.GetAttribute("ProjectGUID");
+            _rootNamespace = elem.GetAttribute("RootNamespace");
 
             XmlNodeList configurationNodes = elem.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
@@ -165,10 +171,16 @@ namespace NAnt.VSNet {
                 _htPlatformConfigurations[config.FullName] = config;
             }
 
-            XmlNodeList referenceNodes = elem.SelectNodes("//References/ProjectReference");
-            foreach (XmlElement referenceElem in referenceNodes) {
-                Reference reference = new Reference(sln, null, referenceElem, GacCache, ReferencesResolver, SolutionTask, OutputDir);
+            XmlNodeList projectReferences = elem.SelectNodes("//References/ProjectReference");
+            foreach (XmlElement referenceElem in projectReferences) {
+                Reference reference = new Reference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
                 _htReferences[referenceElem.Attributes["Name"].Value] = reference;
+            }
+
+            XmlNodeList assemblyReferences = elem.SelectNodes("//References/AssemblyReference");
+            foreach (XmlElement referenceElem in assemblyReferences) {
+                Reference reference = new Reference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                _htReferences[reference.Filename] = reference;
             }
 
             XmlNodeList fileNodes = elem.SelectNodes("//File");
@@ -193,19 +205,72 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Methods
 
-        #region Public Static Methods
+        #region Protected Internal Instance Methods
 
-        public static string LoadGuid(string fileName) {
-            XmlDocument doc = LoadXmlDocument(fileName);
-            return doc.DocumentElement.GetAttribute("ProjectGUID");
+        /// <summary>
+        /// Expands the given macro.
+        /// </summary>
+        /// <param name="macro">The macro to expand.</param>
+        /// <returns>
+        /// The expanded macro or <see langword="null" /> if the macro is not
+        /// supported.
+        /// </returns>
+        protected internal override string ExpandMacro(string macro) {
+            // perform case-insensitive expansion of macros 
+            switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "inputdir":
+                    return Path.GetDirectoryName(ProjectPath)
+                        + Path.DirectorySeparatorChar;
+                case "inputname":
+                    return Path.GetFileNameWithoutExtension(ProjectPath);
+                case "inputpath":
+                    return ProjectPath;
+                case "inputfilename": // E.g. Inc.vcproj
+                    return Path.GetFileName(ProjectPath);
+                case "inputext": // E.g. .vcproj
+                    return Path.GetExtension(ProjectPath);
+                case "safeparentname":
+                    return Name;
+                case "safeinputname":
+                    return Path.GetFileNameWithoutExtension(ProjectPath);
+                default:
+                    return base.ExpandMacro(macro);
+            }
         }
 
-        #endregion Public Static Methods
+        #endregion Protected Internal Instance Methods
 
         #region Private Instance Methods
 
+        private void RunNMake(string nmakeCommand) {
+            // store current directory
+            string originalCurrentDirectory = Directory.GetCurrentDirectory();
+
+            try {
+                // change current directory to directory containing
+                // project file
+                Directory.SetCurrentDirectory(ProjectDirectory.FullName);
+
+                // execute command
+                ExecTask nmakeTask = new ExecTask();
+                nmakeTask.Project = SolutionTask.Project;
+                nmakeTask.Parent = SolutionTask;
+                nmakeTask.Verbose = SolutionTask.Verbose;
+                nmakeTask.CommandLineArguments = 
+                    "/c \"" + nmakeCommand + "\"";
+                nmakeTask.FileName = "cmd.exe";
+                ExecuteInProjectDirectory(nmakeTask);
+            } finally {
+                // restore original current directory
+                Directory.SetCurrentDirectory(originalCurrentDirectory);
+            }
+        }
+
         private void BuildCPPFiles(ArrayList fileNames, VcConfiguration baseConfig, VcConfiguration fileConfig) {
             const string compilerTool = "VCCLCompilerTool";
+
+            string intermediateDir = Path.Combine(ProjectDirectory.FullName, 
+                fileConfig.IntermediateDir);
 
             // create instance of Cl task
             ClTask clTask = new ClTask();
@@ -250,8 +315,7 @@ namespace NAnt.VSNet {
             clTask.ForcedUsingFiles.BaseDirectory = fileConfig.ProjectDir;
 
             // set task properties
-            clTask.OutputDir = new DirectoryInfo(Path.Combine(_projectDirectory, 
-                fileConfig.IntermediateDir));
+            clTask.OutputDir = new DirectoryInfo(intermediateDir);
             clTask.PchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
             clTask.CharacterSet = fileConfig.CharacterSet;
             
@@ -279,6 +343,11 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // add project and assembly references
+            foreach (Reference reference in References) {
+                clTask.ForcedUsingFiles.Includes.Add(reference.Filename);
+            }
+
             string asmOutput = fileConfig.GetToolSetting(compilerTool, "AssemblerOutput");
             string asmListingLocation = fileConfig.GetToolSetting(compilerTool, "AssemblerListingLocation");
             if (asmOutput != null && asmOutput != "0" && asmListingLocation != null) {
@@ -286,11 +355,10 @@ namespace NAnt.VSNet {
                 clTask.Arguments.Add(new Argument("/Fa\"" + asmListingLocation + "\""));
             }
 
-            string intermediateDir = Path.Combine(_projectDirectory, fileConfig.IntermediateDir);
-
             foreach (string fileName in fileNames) {
                 clTask.Sources.FileNames.Add(fileName);
-                _objFiles.Add(Path.Combine(intermediateDir, Path.GetFileNameWithoutExtension(fileName) + ".obj"));
+                _objFiles.Add(Path.Combine(intermediateDir, 
+                    Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
             string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
@@ -375,7 +443,8 @@ namespace NAnt.VSNet {
 
             // set task properties
             string outFile = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
-            libTask.OutputFile = new FileInfo(Path.Combine(_projectDirectory, outFile));
+            libTask.OutputFile = new FileInfo(Path.Combine(
+                ProjectDirectory.FullName, outFile));
 
             foreach (string objFile in _objFiles) {
                 libTask.Sources.FileNames.Add(objFile);
@@ -427,11 +496,11 @@ namespace NAnt.VSNet {
                 if (!StringUtils.IsNullOrEmpty(pdbFile)) {
                     pdbFile = Path.Combine(OutputDir.FullName, Path.GetFileName(pdbFile));
                 }
-            }
-            else {
-                linkTask.OutputFile = new FileInfo(Path.Combine(_projectDirectory, outFile));
+            } else {
+                linkTask.OutputFile = new FileInfo(Path.Combine(
+                    ProjectDirectory.FullName, outFile));
                 if (!StringUtils.IsNullOrEmpty(pdbFile)) {
-                    pdbFile = Path.Combine(_projectDirectory, pdbFile);
+                    pdbFile = Path.Combine(ProjectDirectory.FullName, pdbFile);
                 }
             }
 
@@ -496,23 +565,40 @@ namespace NAnt.VSNet {
 
         private void ExecuteInProjectDirectory(NAnt.Core.Task task) {
             string oldBaseDir = SolutionTask.Project.BaseDirectory;
-            SolutionTask.Project.BaseDirectory = _projectDirectory;
+            SolutionTask.Project.BaseDirectory = ProjectDirectory.FullName;
 
             try {
+                // increment indentation level
+                task.Project.Indent();
+
+                // execute task
                 task.Execute();
             } finally {
+                // restore original base directory
                 SolutionTask.Project.BaseDirectory = oldBaseDir;
+
+                // restore indentation level
+                task.Project.Unindent();
             }
         }
 
         #endregion Private Instance Methods
+
+        #region Public Static Methods
+
+        public static string LoadGuid(string fileName) {
+            XmlDocument doc = LoadXmlDocument(fileName);
+            return doc.DocumentElement.GetAttribute("ProjectGUID");
+        }
+
+        #endregion Public Static Methods
 
         #region Private Instance Fields
 
         private string _name;
         private string _projectPath;
         private string _guid;
-        private string _projectDirectory;
+        private string _rootNamespace;
         private Hashtable _htReferences;
         private Hashtable _htPlatformConfigurations;
         private Hashtable _htFiles;

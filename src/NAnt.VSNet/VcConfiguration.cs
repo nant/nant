@@ -24,9 +24,9 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 
+using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VisualCpp.Types;
@@ -42,43 +42,20 @@ namespace NAnt.VSNet {
         internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, DirectoryInfo outputDir) : this(elem, parentProject, parentSln, null, outputDir) {
         }
 
-        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, VcConfiguration parentConfig, DirectoryInfo outputDir) {
-            DirectoryInfo projectDir = new DirectoryInfo(Path.GetDirectoryName(
-                parentSln.GetProjectFileFromGuid(parentProject.Guid)));
-
+        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, VcConfiguration parentConfig, DirectoryInfo outputDir) : base(parentProject) {
             _parentConfig = parentConfig;
 
             // get name of configuration (also contains the targeted platform)
             _name = elem.GetAttribute("Name");
 
-            // initialize variables for usage in macros
-            _htMacros["ProjectName"] = parentProject.Name;
-            _htMacros["ConfigurationName"] = Name;
-            _htMacros["PlatformName"] = PlatformName;
-            if (parentSln.File != null) {
-                _htMacros["SolutionDir"] = parentSln.File.DirectoryName + Path.DirectorySeparatorChar;
-                _htMacros["SolutionPath"] = parentSln.File.FullName;
-                _htMacros["SolutionExt"] = parentSln.File.Extension;
-            }    
-            _htMacros["ProjectDir"] = projectDir.FullName + Path.DirectorySeparatorChar;
-
-            // determine output directory
-            if (outputDir == null) {
-                XmlAttribute outputDirAttribute = elem.Attributes["OutputDirectory"];
-                if (outputDirAttribute != null) {
-                    _outputDir = new DirectoryInfo(Path.Combine(projectDir.FullName, 
-                        ExpandMacros(outputDirAttribute.Value)));
-                } else if (_parentConfig != null) {
-                    _outputDir = _parentConfig.OutputDir;
-                } else {
-                    // TO-DO : throw BuildException, as there's no output directory defined
-                    // or do some configuration types no require this ?
-                }
-            } else {
-                _outputDir = outputDir;
+            // determine relative output directory (outdir)
+            XmlAttribute outputDirAttribute = elem.Attributes["OutputDirectory"];
+            if (outputDirAttribute != null) {
+                _relativeOutputDir = ExpandMacros(outputDirAttribute.Value);
             }
-            // make output directory available in macros
-            _htMacros["OutDir"] = OutputDir.FullName;
+
+            // set output directory (if specified)
+            _outputDir = outputDir;
 
             string managedExtentions = GetXmlAttributeValue(elem, "ManagedExtensions");
             if (managedExtentions != null) {
@@ -115,8 +92,14 @@ namespace NAnt.VSNet {
                 _intermediateDir = _parentConfig.IntermediateDir;
             }
 
-            // make intermediate directory available in macros
-            _htMacros["IntDir"] = _intermediateDir;
+            // get referencespath directory and expand macros 
+            XmlAttribute referencesPathAttribute = elem.Attributes["ReferencesPath"];
+            if (referencesPathAttribute != null) {
+                _referencesPath = StringUtils.ConvertEmptyToNull(
+                    ExpandMacros(referencesPathAttribute.Value));
+            } else if (_parentConfig != null) {
+                _referencesPath = _parentConfig.ReferencesPath;
+            }
 
             _htTools = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
@@ -134,11 +117,6 @@ namespace NAnt.VSNet {
                 _htTools[toolName] = htToolSettings;
             }
 
-            _targetPath = ExpandMacros(GetToolSetting("VCLinkerTool", "OutputFile"));
-            _htMacros ["TargetPath"] = _targetPath;
-            _htMacros ["TargetName"] = Path.GetFileNameWithoutExtension(Path.GetFileName(_targetPath));
-            _htMacros ["TargetExt"] = Path.GetExtension(_targetPath);
-
             // create the output path if it doesn't already exist
             OutputDir.Create();
         }
@@ -147,47 +125,46 @@ namespace NAnt.VSNet {
 
         #region Override implementation of ConfigurationBase
 
+        /// <summary>
+        /// Gets the output directory.
+        /// </summary>
         public override DirectoryInfo OutputDir {
-            get { return _outputDir; }
+            get { 
+                if (_outputDir == null) {
+                    if (_relativeOutputDir != null) {
+                        _outputDir = new DirectoryInfo(Path.Combine(ProjectDir.FullName, 
+                            _relativeOutputDir));
+                    } else if (_parentConfig != null) {
+                        _outputDir = _parentConfig.OutputDir;
+                    } else {
+                        throw new BuildException("The output directory could not be"
+                            + " determined.", Location.UnknownLocation);
+                    }
+                }
+
+                return _outputDir;
+            }
         }
 
+
+        /// <summary>
+        /// Gets the path for the output file.
+        /// </summary>
         public override string OutputPath {
             get { 
                 string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
                     return Path.Combine(OutputDir.FullName, linkOutput);
                 }
-            
-                return Path.Combine(OutputDir.FullName, GetToolSetting("VCLibrarianTool", "OutputFile"));
+
+                string librarianOutput = GetToolSetting("VCLibrarianTool", "OutputFile");
+                if (librarianOutput != null) {
+                    return Path.Combine(OutputDir.FullName, librarianOutput);
+                }
+
+                return OutputDir.Name;
             }
         }
-
-        #endregion Override implementation of ConfigurationBase
-
-        #region Public Instance Properties
-
-        public DirectoryInfo ProjectDir {
-            get { return new DirectoryInfo((string) _htMacros["ProjectDir"]); }
-        }
-
-        /// <summary>
-        /// Tells the compiler which character set to use.
-        /// </summary>
-        public CharacterSet CharacterSet {
-            get { return _characterSet; }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether Managed Extensions for C++ are 
-        /// enabled.
-        /// </summary>
-        public bool ManagedExtensions {
-            get { return _managedExtensions; }
-        }
-
-        #endregion Public Instance Properties
-
-        #region Internal Instance Properties
 
         /// <summary>
         /// Gets the name of the configuration.
@@ -195,7 +172,7 @@ namespace NAnt.VSNet {
         /// <value>
         /// The name of the configuration.
         /// </value>
-        internal string Name {
+        public override string Name {
             get {
                 int index = _name.IndexOf("|");
                 if (index >= 0) {
@@ -213,7 +190,7 @@ namespace NAnt.VSNet {
         /// <value>
         /// The platform targeted by the configuration.
         /// </value>
-        internal string PlatformName {
+        public override string PlatformName {
             get {
                 int index = _name.IndexOf("|");
                 if (index >= 0) {
@@ -227,6 +204,110 @@ namespace NAnt.VSNet {
                 }
             }
         }
+
+        /// <summary>
+        /// Get the path of the output directory relative to the project
+        /// directory.
+        /// </summary>
+        public override string RelativeOutputDir {
+            get {
+                if (_relativeOutputDir != null) {
+                    return _relativeOutputDir;
+                } else if (_parentConfig != null) {
+                    return _parentConfig.RelativeOutputDir;
+                }
+
+                throw new BuildException("The relative output directory could"
+                    + " not be determined.", Location.UnknownLocation);
+            }
+        }
+
+        /// <summary>
+        /// Expands the given macro.
+        /// </summary>
+        /// <param name="macro">The macro to expand.</param>
+        /// <returns>
+        /// The expanded macro.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The macro is not supported.</para>
+        ///   <para>-or-</para>
+        ///   <para>The macro is not implemented.</para>
+        ///   <para>-or-</para>
+        ///   <para>The macro cannot be expanded.</para>
+        /// </exception>
+        protected internal override string ExpandMacro(string macro) {
+            // perform case-insensitive expansion of macros 
+            switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "intdir":
+                    return IntermediateDir;
+                case "vcinstalldir":
+                    throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture,
+                        "\"{0}\" macro is not yet implemented.", macro));
+                case "vsinstalldir":
+                    throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture,
+                        "\"{0}\" macro is not yet implemented.", macro));
+                case "frameworkdir":
+                    return SolutionTask.Project.TargetFramework.FrameworkDirectory.
+                        Parent.FullName;
+                case "frameworkversion":
+                    return "v" + SolutionTask.Project.TargetFramework.ClrVersion;
+                case "frameworksdkdir":
+                    if (SolutionTask.Project.TargetFramework.SdkDirectory != null) {
+                        return SolutionTask.Project.TargetFramework.SdkDirectory.FullName;
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Macro \"{0}\" cannot be expanded: the SDK for {0}"
+                            + " is not installed.", SolutionTask.Project.TargetFramework.Description),
+                            Location.UnknownLocation);
+                    }
+                default:
+                    return base.ExpandMacro(macro);
+            }
+        }
+
+        #endregion Override implementation of ConfigurationBase
+
+        #region Public Instance Properties
+
+        public DirectoryInfo ProjectDir {
+            get { 
+                return new DirectoryInfo(Path.GetDirectoryName(
+                    Project.ProjectPath));
+            }
+        }
+
+        /// <summary>
+        /// Tells the compiler which character set to use.
+        /// </summary>
+        public CharacterSet CharacterSet {
+            get { return _characterSet; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether Managed Extensions for C++ are 
+        /// enabled.
+        /// </summary>
+        public bool ManagedExtensions {
+            get { return _managedExtensions; }
+        }
+
+        /// <summary>
+        /// Gets a comma-separated list of directories to scan for assembly
+        /// references.
+        /// </summary>
+        /// <value>
+        /// A comma-separated list of directories to scan for assembly
+        /// references, or <see langword="null" /> if no additional directories
+        /// should scanned.
+        /// </value>
+        public string ReferencesPath {
+            get { return _referencesPath; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Internal Instance Properties
 
         /// <summary>
         /// Gets the name of the configuration, including the platform it
@@ -260,14 +341,6 @@ namespace NAnt.VSNet {
         /// </value>
         internal bool ExcludeFromBuild {
             get { return _excludeFromBuild; }
-        }
-
-        /// <summary>
-        /// Gets the collection of macros that can be expanded in configuration
-        /// settings.
-        /// </summary>
-        internal Hashtable Macros {
-            get { return _htMacros; }
         }
 
         #endregion Internal Instance Properties
@@ -336,42 +409,21 @@ namespace NAnt.VSNet {
             return args;
         }
 
-        internal string ExpandMacros(string s) {
-            if (s == null) {
-                return s;
-            }
-
-            return _rxMacro.Replace(s, new MatchEvaluator(EvaluateMacro));
-        }
-
         #endregion Internal Instance Methods
-
-        #region Private Instance Methods
-
-        private string EvaluateMacro(Match m) {
-            string macroValue = (string) _htMacros[m.Groups[1].Value];
-            if (macroValue != null) {
-                return macroValue;
-            }
-            return m.Value;
-        }
-
-        #endregion Private Instance Methods
 
         #region Private Instance Fields
 
         private readonly string _name;
-        private VcConfiguration _parentConfig;
-        private Hashtable _htTools;
-        private readonly DirectoryInfo _outputDir;
+        private readonly VcConfiguration _parentConfig;
+        private readonly Hashtable _htTools;
+        private DirectoryInfo _outputDir;
+        private readonly string _relativeOutputDir;
         private readonly string _intermediateDir;
-        private readonly string _targetPath;
-        private Hashtable _htMacros = CollectionsUtil.CreateCaseInsensitiveHashtable();
-        private readonly Regex _rxMacro = new Regex(@"\$\((\w+)\)");
         private readonly bool _wholeProgramOptimization;
         private readonly bool _managedExtensions;
         private readonly bool _excludeFromBuild;
         private readonly CharacterSet _characterSet = CharacterSet.NotSet;
+        private readonly string _referencesPath;
 
         #endregion Private Instance Fields
     }

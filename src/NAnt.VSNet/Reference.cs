@@ -27,6 +27,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting.Lifetime;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 using Microsoft.Win32;
@@ -43,12 +44,37 @@ namespace NAnt.VSNet {
     public class Reference {
         #region Public Instance Constructors
 
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, ReferencesResolver refResolver, SolutionTask solutionTask, DirectoryInfo outputDir) {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Reference" /> class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///   <para><paramref name="elemReference" /> is <see langword="null" />.</para>
+        ///   <para>-or-</para>
+        ///   <para><paramref name="gacCache" /> is <see langword="null" />.</para>
+        ///   <para>-or-</para>
+        ///   <para><paramref name="refResolver" /> is <see langword="null" />.</para>
+        ///   <para>-or-</para>
+        ///   <para><paramref name="parent" /> is <see langword="null" />.</para>
+        /// </exception>
+        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, ReferencesResolver refResolver, ProjectBase parent, DirectoryInfo outputDir) {
+            if (elemReference == null) {
+                throw new ArgumentNullException("elemReference");
+            }
+            if (gacCache == null) {
+                throw new ArgumentNullException("gacCache");
+            }
+            if (refResolver == null) {
+                throw new ArgumentNullException("refResolver");
+            }
+            if (parent == null) {
+                throw new ArgumentNullException("parent");
+            }
+
             _projectSettings = ps;
-            _solutionTask = solutionTask;
+            _parent = parent;
             _referenceTimeStamp = DateTime.MinValue;
             _isSystem = false;
-            _name = (string) elemReference.Attributes["Name"].Value;
+            _name = (string) elemReference.GetAttribute("Name");
             _isCreated = false;
             _gacCache = gacCache;
             _refResolver = refResolver;
@@ -75,39 +101,7 @@ namespace NAnt.VSNet {
                     temporaryFiles = ps.TemporaryFiles;
                 }
 
-                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, _refResolver, outputDir, projectFile);
-
-                // we don't know what the timestamp of the project is going to be, 
-                // because we don't know what configuration we will be building
-                _referenceTimeStamp = DateTime.MinValue;
-
-                _project = project;
-                _copyLocal = _privateSpecified ? _isPrivate : true;
-                return;
-            }
-
-            // used by Visual C++ projects
-            if (elemReference.Attributes["ReferencedProjectIdentifier"] != null) {
-                if (solution == null) {
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
-                        "External reference '{0}' found, but no solution was specified.",
-                        _name));
-                }
-
-                string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("ReferencedProjectIdentifier"));
-
-                TempFileCollection temporaryFiles = solution.TemporaryFiles;
-                if (ps != null) {
-                    temporaryFiles = ps.TemporaryFiles;
-                }
-
-                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, _gacCache, _refResolver, outputDir, projectFile);
-
-                if (project is Project) {
-                    ((Project) project).Load(solution, projectFile);
-                } else if (project is VcProject) {
-                    ((VcProject) project).Load(solution, projectFile);
-                }
+                ProjectBase project = ProjectFactory.LoadProject(solution, parent.SolutionTask, temporaryFiles, _gacCache, _refResolver, outputDir, projectFile);
 
                 // we don't know what the timestamp of the project is going to be, 
                 // because we don't know what configuration we will be building
@@ -227,7 +221,7 @@ namespace NAnt.VSNet {
         }
 
         public SolutionTask SolutionTask {
-            get { return _solutionTask; }
+            get { return Parent.SolutionTask; }
         }
 
         #endregion Public Instance Properties
@@ -239,6 +233,17 @@ namespace NAnt.VSNet {
         }
 
         #endregion Protected Instance Properties
+
+        #region Private Instance Properties
+
+        /// <summary>
+        /// Gets the project in which the reference is defined.
+        /// </summary>
+        private ProjectBase Parent {
+            get { return _parent; }
+        }
+
+        #endregion Private Instance Properties
 
         #region Public Instance Methods
 
@@ -260,7 +265,7 @@ namespace NAnt.VSNet {
             if (_importTool == "tlbimp" || _importTool == "aximp") {
                 // check if wrapper assembly should be strongly signed
                 if (_projectSettings.AssemblyOriginatorKeyFile != null) {
-                    commandLine += @" /keyfile:""" + Path.Combine(_projectSettings.ProjectDirectory.FullName, 
+                    commandLine += @" /keyfile:""" + Path.Combine(Parent.ProjectDirectory.FullName, 
                         _projectSettings.AssemblyOriginatorKeyFile) + @"""";
                 }
             }
@@ -457,8 +462,27 @@ namespace NAnt.VSNet {
         /// </list>
         /// </remarks>
         private void ResolveAssemblyReference(XmlElement referenceElement) {
-            // determine assembly name
-            _referenceFile = referenceElement.Attributes["AssemblyName"].Value + ".dll";
+            // check if we're dealing with a Visual C++ assembly reference
+            if (referenceElement.Name == "AssemblyReference") {
+                _referenceFile = referenceElement.GetAttribute("RelativePath");
+
+                if (_referenceFile == null) {
+                    throw new BuildException("For Visual C++ projects only assembly"
+                        + " references using relative paths are supported.", 
+                        Location.UnknownLocation);
+                } else {
+                    // expand macro's in RelativePath
+                    _referenceFile = _rxMacro.Replace(_referenceFile, 
+                        new MatchEvaluator(EvaluateMacro));
+
+                    // TODO: support locating assemblies in VCConfiguration.ReferencesPath,
+                    // but for now just remove it from reference filename
+                    _referenceFile = _referenceFile.Replace("{ReferencesPath}\\", "");
+                }
+            } else {
+                // determine assembly name
+                _referenceFile = referenceElement.Attributes["AssemblyName"].Value + ".dll";
+            }
 
             // 1. The project directory
             // NOT SURE IF THIS IS CORRECT
@@ -476,15 +500,25 @@ namespace NAnt.VSNet {
                 return;
             }
 
-            // 5. The HintPath
-            if (ResolveFromHintPath(referenceElement)) {
-                return;
-            }
+            // 5. The HintPath / Relative Path
+            if (referenceElement.Name != "AssemblyReference") {
+                // for now we do not support relative paths assembly references
+                // in Visual C++ projects
 
-            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                "Reference to assembly '{0}' could not be resolved.",
-                referenceElement.Attributes["AssemblyName"].Value), 
-                Location.UnknownLocation);
+                if (ResolveFromRelativePath(referenceElement, referenceElement.GetAttribute("HintPath"))) {
+                    return;
+                }
+
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Reference to assembly '{0}' could not be resolved.",
+                    referenceElement.Attributes["AssemblyName"].Value), 
+                    Location.UnknownLocation);
+            } else {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Reference to assembly '{0}' could not be resolved.",
+                    referenceElement.Attributes["RelativePath"].Value), 
+                    Location.UnknownLocation);
+            }
         }
 
         /// <summary>
@@ -496,7 +530,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if <paramref name="fileName" /> was found
         /// in <paramref name="folderList" />.
         /// </returns>
-        private bool ResolveFromFolderList(StringCollection folderList, string fileName) {
+        protected bool ResolveFromFolderList(StringCollection folderList, string fileName) {
             foreach (string path in folderList) {
                 if (ResolveFromPath(Path.Combine(path, fileName))) {
                     return true;
@@ -514,7 +548,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if the assembly could be located in the
         /// framework assembly directory; otherwise, see langword="false" />.
         /// </returns>
-        private bool ResolveFromFramework() {
+        protected bool ResolveFromFramework() {
             DirectoryInfo frameworkAssemblyDirectory = new DirectoryInfo(
                 SolutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName);
             string systemAssembly = Path.Combine(frameworkAssemblyDirectory.FullName, _referenceFile);
@@ -531,18 +565,17 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Resolves an assembly reference in the directory pointed to by the 
-        /// <c>HintPath</c> attribute of reference element.
+        /// Resolves an assembly reference using a path relative to the project 
+        /// directory.
         /// </summary>
         /// <returns>
-        /// <see langword="true" /> if the assembly could be located in the
-        /// <c>HintPath</c> directory; otherwise, <see langword="false" />.
+        /// <see langword="true" /> if the assembly could be located using the
+        /// relative path; otherwise, <see langword="false" />.
         /// </returns>
-        private bool ResolveFromHintPath(XmlElement referenceElement) {
-            if (referenceElement.Attributes["HintPath"] != null) {
+        protected bool ResolveFromRelativePath(XmlElement referenceElement, string relativePath) {
+            if (!StringUtils.IsNullOrEmpty(relativePath)) {
                 string referencePath = Path.GetFullPath(Path.Combine(
-                    _projectSettings.ProjectDirectory.FullName, 
-                    referenceElement.Attributes["HintPath"].Value));
+                    Parent.ProjectDirectory.FullName, relativePath));
                 if (!ResolveFromPath(referencePath)) {
                     // allow a not-existing file to be a valid reference,
                     // as the reference might point to an output file of
@@ -757,6 +790,36 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Is called each time a regular expression match is found during a 
+        /// <see cref="Regex.Replace(string, MatchEvaluator)" /> operation.
+        /// </summary>
+        /// <param name="m">The <see cref="Match" /> resulting from a single regular expression match during a <see cref="Regex.Replace(string, MatchEvaluator)" />.</param>
+        /// <returns>
+        /// The expanded <see cref="Match" />.
+        /// </returns>
+        /// <exception cref="BuildException">The macro is not supported.</exception>
+        /// <exception cref="NotImplementedException">Expansion of a given macro is not yet implemented.</exception>
+        private string EvaluateMacro(Match m) {
+            string macro = m.Groups[1].Value;
+
+            // expand using solution level macro's
+            string expandedMacro = SolutionTask.ExpandMacro(macro);
+            if (expandedMacro != null) {
+                return expandedMacro;
+            }
+
+            // expand using project level macro's
+            expandedMacro = Parent.ExpandMacro(macro);
+            if (expandedMacro != null) {
+                return expandedMacro;
+            }
+
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Macro \"{0}\" is not supported in assembly references.", macro), 
+                Location.UnknownLocation);
+        }
+
+        /// <summary>
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
@@ -789,6 +852,7 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
+        private ProjectBase _parent;
         private string _name;
         private string _referenceFile;
         private string _runtimeCallableWrapper;
@@ -806,9 +870,9 @@ namespace NAnt.VSNet {
         private ProjectSettings _projectSettings;
         private ConfigurationSettings _configurationSettings;
         private ProjectBase _project;
-        private SolutionTask _solutionTask;
         private GacCache _gacCache;
         private ReferencesResolver _refResolver;
+        private readonly Regex _rxMacro = new Regex(@"\$\((\w+)\)");
 
         #endregion Private Instance Fields
     }

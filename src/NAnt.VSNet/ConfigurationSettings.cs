@@ -31,17 +31,15 @@ namespace NAnt.VSNet {
     public class ConfigurationSettings : ConfigurationBase {
         #region Public Instance Constructors
 
-        public ConfigurationSettings(Project project, XmlElement elemConfig, SolutionTask solutionTask, DirectoryInfo outputDir) {
-            _project = project;
+        public ConfigurationSettings(Project project, XmlElement elemConfig, DirectoryInfo outputDir) : base(project) {
             _settings = new ArrayList();
-            _solutionTask = solutionTask;
             if (outputDir == null) {
                 _relativeOutputDir = elemConfig.Attributes["OutputPath"].Value;
                 if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                     _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
                 _outputDir = new DirectoryInfo(Path.Combine(
-                    Project.ProjectSettings.ProjectDirectory.FullName, 
+                    project.ProjectDirectory.FullName, 
                     _relativeOutputDir));
             } else {
                 _relativeOutputDir = outputDir.FullName;
@@ -58,7 +56,7 @@ namespace NAnt.VSNet {
                     // combine project root directory with (relative) path for 
                     // documentation file
                     _docFilename = Path.GetFullPath(Path.Combine(
-                        Project.ProjectSettings.ProjectDirectory.FullName, 
+                        project.ProjectDirectory.FullName, 
                         elemConfig.GetAttribute("DocumentationFile")));
                 } else {
                     // combine output directory and filename of document file (do not use path information)
@@ -71,7 +69,7 @@ namespace NAnt.VSNet {
                 Directory.CreateDirectory(Path.GetDirectoryName(_docFilename));
             }
 
-            _solutionTask.Log(Level.Debug, "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
+            SolutionTask.Log(Level.Debug, "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
                 Project.Name, _relativeOutputDir, _outputDir.FullName, _docFilename);
 
             Hashtable htStringSettings = new Hashtable();
@@ -81,7 +79,7 @@ namespace NAnt.VSNet {
             htStringSettings["FileAlignment"] = "/filealign:{0}";
             htStringSettings["DefineConstants"] = "/define:{0}";
 
-            switch (Project.ProjectSettings.Type) {
+            switch (project.ProjectSettings.Type) {
                 case ProjectType.CSharp:
                     htStringSettings["WarningLevel"] = "/warn:{0}";
                     htStringSettings["NoWarn"] = "/nowarn:{0}";
@@ -137,8 +135,14 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
-        public Project Project {
-            get { return _project; }
+        /// <summary>
+        /// Gets the platform that the configuration targets.
+        /// </summary>
+        /// <value>
+        /// The platform targeted by the configuration.
+        /// </value>
+        public override string PlatformName {
+            get { return ".NET"; }
         }
 
         public string[] ExtraOutputFiles {
@@ -151,7 +155,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        public string RelativeOutputDir {
+        public override string RelativeOutputDir {
             get { return _relativeOutputDir; }
         }
 
@@ -177,20 +181,23 @@ namespace NAnt.VSNet {
         public DirectoryInfo ObjectDir {
             get { 
                 return new DirectoryInfo(Path.Combine(
-                    Path.Combine(Project.ProjectSettings.ProjectDirectory.FullName, "obj"),
+                    Path.Combine(Project.ProjectDirectory.FullName, "obj"),
                     Name));
             }
         }
 
         public override string OutputPath {
-            get { return Path.Combine(OutputDir.FullName, Project.ProjectSettings.OutputFileName); }
+            get { 
+                return Path.Combine(OutputDir.FullName, 
+                    ((Project) Project).ProjectSettings.OutputFileName);
+            }
         }
 
         public string[] Settings {
             get { return (string[]) _settings.ToArray(typeof(string)); }
         }
 
-        public string Name {
+        public override string Name {
             get { return _name; }
         }
 
@@ -198,13 +205,11 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private Project _project;
-        private ArrayList _settings;
-        private string _docFilename;
-        private string _relativeOutputDir;
-        private DirectoryInfo _outputDir;
-        private string _name;
-        private SolutionTask _solutionTask;
+        private readonly ArrayList _settings;
+        private readonly string _docFilename;
+        private readonly string _relativeOutputDir;
+        private readonly DirectoryInfo _outputDir;
+        private readonly string _name;
 
         #endregion Private Instance Fields
     }

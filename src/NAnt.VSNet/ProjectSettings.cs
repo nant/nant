@@ -30,14 +30,9 @@ namespace NAnt.VSNet {
     public class ProjectSettings {
         #region Public Instance Constructors
 
-        public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, DirectoryInfo projectDirectory, TempFileCollection tfc) {
+        public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, Project project) {
             _elemSettings = elemSettings;
-            _tfc = tfc;
-            _projectDirectory = projectDirectory;
-
-            // ensure the temp dir exists
-            Directory.CreateDirectory(_tfc.BasePath);
-
+            _project = project;
             _settings = new ArrayList();
 
             string extension = string.Empty;
@@ -113,7 +108,7 @@ namespace NAnt.VSNet {
                     elemSettings.Attributes["ApplicationIcon"].Value);
                 if (value != null) {
                     _applicationIcon = new FileInfo(Path.Combine(
-                        ProjectDirectory.FullName, value));
+                        Project.ProjectDirectory.FullName, value));
                 }
             }
 
@@ -156,25 +151,10 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Constructors
 
-        #region Finalizer
-
-        ~ProjectSettings() {
-            _tfc.Delete();
-        }
-
-        #endregion Finalizer
-
         #region Public Instance Properties
 
         public string[] Settings {
             get { return (string[]) _settings.ToArray(typeof(string)); }
-        }
-
-        /// <summary>
-        /// Gets the directory in which the project file is located.
-        /// </summary>
-        public DirectoryInfo ProjectDirectory {
-            get { return _projectDirectory; }
         }
 
         /// <summary>
@@ -205,7 +185,7 @@ namespace NAnt.VSNet {
         }
 
         public TempFileCollection TemporaryFiles {
-            get { return _tfc; }
+            get { return Project.TemporaryFiles; }
         }
 
         public string OutputFileName {
@@ -259,6 +239,14 @@ namespace NAnt.VSNet {
         
         #endregion Public Instance Properties
 
+        #region Private Instance Properties
+
+        private Project Project {
+            get { return _project; }
+        }
+
+        #endregion Private Instance Properties
+
         #region Public Static Methods
 
         /// <summary>
@@ -270,7 +258,8 @@ namespace NAnt.VSNet {
         /// The project GUID from specified <c>&lt;VisualStudioProject&gt;</c> node.
         /// </returns>
         public static string GetProjectGuid(XmlElement elemRoot) {
-            return elemRoot.FirstChild.Attributes["ProjectGuid"].Value.ToUpper(CultureInfo.InvariantCulture);
+            return elemRoot.FirstChild.Attributes["ProjectGuid"].Value.
+                ToUpper(CultureInfo.InvariantCulture);
         }
 
         #endregion Public Static Methods
@@ -278,7 +267,7 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public string GetTemporaryFilename(string fileName) {
-            return Path.Combine(_tfc.BasePath, fileName);
+            return Path.Combine(TemporaryFiles.BasePath, fileName);
         }
 
         #endregion Public Instance Methods
@@ -287,9 +276,9 @@ namespace NAnt.VSNet {
 
         private ArrayList _settings;
         private FileInfo _applicationIcon;
+        private Project _project;
         private string _assemblyName;
         private string _assemblyOriginatorKeyFile;
-        private DirectoryInfo _projectDirectory;
         private string _outputExtension;
         private string _rootNamespace;
         private string _guid;
@@ -297,7 +286,6 @@ namespace NAnt.VSNet {
         private string _preBuildEvent;
         private string _postBuildEvent;
         private XmlElement _elemSettings;
-        private TempFileCollection _tfc;
         private ProjectType _type;
 
         #endregion Private Instance Fields
