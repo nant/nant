@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="nant" default="test" xmlns="http://nant.sourceforge.net/schema/nant-current.xsd">
+<project name="nant" default="test" xmlns-no="http://nant.sourceforge.net/schema/nant-current.xsd">
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.2" />
