@@ -129,6 +129,8 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Hashtable cachedCaseSensitiveRegexes = new Hashtable();
+        private static Hashtable cachedCaseInsensitiveRegexes = new Hashtable();
 
         #endregion Private Static Fields
 
@@ -277,6 +279,21 @@ namespace NAnt.Core {
             _searchDirIsRecursive = new ArrayList();
             _scannedDirectories = new DirScannerStringCollection();
 
+#if DEBUG_REGEXES
+            Console.WriteLine("*********************************************************************");
+            Console.WriteLine("DirectoryScanner.Scan()");
+            Console.WriteLine("*********************************************************************");
+            Console.WriteLine(new System.Diagnostics.StackTrace().ToString());
+
+
+            Console.WriteLine("Includes:");
+            foreach (string strPattern in _includes)
+                Console.WriteLine(strPattern);
+            Console.WriteLine("Excludes:");
+            foreach (string strPattern in _excludes)
+                Console.WriteLine(strPattern);
+#endif
+
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
             ConvertPatterns(_includes, _includePatterns, _includeNames, true);
@@ -285,6 +302,10 @@ namespace NAnt.Core {
             for (int index = 0; index < _searchDirectories.Count; index++) {
                 ScanDirectory(_searchDirectories[index], (bool) _searchDirIsRecursive[index]);
             }
+            
+#if DEBUG_REGEXES
+            Console.WriteLine("*********************************************************************");
+#endif
         }
 
         #endregion Public Instance Methods
@@ -495,18 +516,32 @@ namespace NAnt.Core {
                 _directoryNames.Add(path);
             }
         }
+        
+        private bool TestRegex(string path, string pattern, bool caseSensitive) {
+            Hashtable regexCache = caseSensitive ? cachedCaseSensitiveRegexes : cachedCaseInsensitiveRegexes;
+            Regex r = (Regex)regexCache[pattern];
+            
+            if (r == null) {
+                RegexOptions regexOptions = RegexOptions.Compiled;
+                
+                if (!caseSensitive)
+                    regexOptions |= RegexOptions.IgnoreCase;
+                    
+                regexCache[pattern] = r = new Regex(pattern, regexOptions);
+            }
+            
+            return r.IsMatch(path);
+        }
 
         private bool IsPathIncluded(string path, bool caseSensitive) {
             bool included = false;
             
-            RegexOptions regexOptions = RegexOptions.None;
             CompareOptions compareOptions = CompareOptions.None;
             CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
             
-            if (!caseSensitive) {
-                regexOptions |= RegexOptions.IgnoreCase;
+            if (!caseSensitive)
                 compareOptions |= CompareOptions.IgnoreCase;
-            }
+            
 
             // check path against include names
             foreach (string name in _includeNames) {
@@ -519,8 +554,7 @@ namespace NAnt.Core {
             // check path against include regexes
             if (!included) {
                 foreach (string pattern in _includePatterns) {
-                    Match m = Regex.Match(path, pattern, regexOptions);
-                    if (m.Success) {
+                    if (TestRegex(path, pattern, caseSensitive)) {
                         included = true;
                         break;
                     }
@@ -540,8 +574,7 @@ namespace NAnt.Core {
             // check path against exclude regexes
             if (included) {
                 foreach (string pattern in _excludePatterns) {
-                    Match m = Regex.Match(path, pattern, regexOptions);
-                    if (m.Success) {
+                    if (TestRegex(path, pattern, caseSensitive)) {
                         included = false;
                         break;
                     }
