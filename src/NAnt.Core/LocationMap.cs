@@ -26,6 +26,8 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
 
+using NAnt.Core.Util;
+
 namespace NAnt.Core {
     /// <summary>
     /// Maps XML nodes to the text positions from their original source.
@@ -34,7 +36,7 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         // The LocationMap uses a hash table to map filenames to resolve specific maps.
-        Hashtable _fileMap = new Hashtable();
+        private Hashtable _fileMap = new Hashtable();
 
         #endregion Private Instance Fields
 
@@ -51,13 +53,16 @@ namespace NAnt.Core {
         #region Public Instance Methods
         
         /// <summary>
-        /// Helper method to determine if a file has been loaded by the current project. 
+        /// Determines if a file has been loaded by the current project. 
         /// </summary>
-        /// <param name="fileOrUri"></param>
-        /// <returns></returns>
-        public bool FileIsMapped( string fileOrUri ){
-            Uri uri = new Uri( fileOrUri );
-            return _fileMap.ContainsKey( uri.AbsoluteUri );
+        /// <param name="fileOrUri">The file to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified file has already been loaded
+        /// by the current project; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool FileIsMapped(string fileOrUri){
+            Uri uri = new Uri(fileOrUri);
+            return _fileMap.ContainsKey(uri.AbsoluteUri);
         }
 
         /// <summary>
@@ -72,11 +77,11 @@ namespace NAnt.Core {
             string fileName = doc.BaseURI;
             
             //check for non-backed documents
-            if (fileName.Length == 0) {
+            if (StringUtils.IsNullOrEmpty(fileName)) {
                 return;
             }
 
-            if (_fileMap.ContainsKey(fileName)) {
+            if (FileIsMapped(fileName)) {
                 // do not re-map the file a 2nd time               
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "XML document '{0}' has already been mapped.", fileName));
            }
@@ -120,7 +125,6 @@ namespace NAnt.Core {
 
                             // clear indexes for depth greater than ours
                             indexAtDepth.RemoveRange(level+1, indexAtDepth.Count - (level+1));
-
                         } else if (reader.Depth > previousDepth) {
                             // we are lower
                             parentXPath = previousXPath;
@@ -133,6 +137,7 @@ namespace NAnt.Core {
                         for (int index = indexAtDepth.Count; index < level+1; index++) {
                             indexAtDepth.Add(0);
                         }
+
                         // Set child index
                         if ((int) indexAtDepth[level] == 0) {
                             // first time thru
