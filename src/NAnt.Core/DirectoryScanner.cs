@@ -101,7 +101,7 @@ namespace NAnt.Core {
 
         // set to current directory in Scan if user doesn't specify something first.
         // keeping it null, lets the user detect if it's been set or not.
-        private DirectoryInfo _baseDirectory; 
+        private DirectoryInfo _baseDirectory;
 
         // holds the nant patterns (absolute or relative paths)
         private StringCollectionWithGoodToString  _includes = new StringCollectionWithGoodToString ();
@@ -516,7 +516,27 @@ namespace NAnt.Core {
     }
 
     [Serializable()]
-    public class StringCollectionWithGoodToString : StringCollection {
+    public class StringCollectionWithGoodToString : StringCollection, ICloneable {
+		#region Implementation of ICloneable
+
+		/// <summary>
+		/// Creates a shallow copy of the <see cref="StringCollectionWithGoodToString" />.
+		/// </summary>
+		/// <returns>
+		/// A shallow copy of the <see cref="StringCollectionWithGoodToString" />.
+		/// </returns>
+		public virtual object Clone() {
+			string[] strings = new string[Count];
+			CopyTo(strings, 0);
+			StringCollectionWithGoodToString clone = new StringCollectionWithGoodToString();
+			clone.AddRange(strings);
+			return clone;
+		}
+
+		#endregion Implementation of ICloneable
+
+		#region Override implemenation of Object
+
         /// <summary>
         /// Creates a string representing a list of the strings in the collection.
         /// </summary>
@@ -531,11 +551,31 @@ namespace NAnt.Core {
             }
             return sb.ToString();
         }
-        
+
+		#endregion Override implemenation of Object
     }
+
     [Serializable()]
-    public class DirScannerStringCollection : StringCollectionWithGoodToString  {
-        #region Override implementation of StringCollection        
+    public class DirScannerStringCollection : StringCollectionWithGoodToString {
+		#region Override implementation of ICloneable
+
+		/// <summary>
+		/// Creates a shallow copy of the <see cref="DirScannerStringCollection" />.
+		/// </summary>
+		/// <returns>
+		/// A shallow copy of the <see cref="DirScannerStringCollection" />.
+		/// </returns>
+		public override object Clone() {
+			string[] strings = new string[Count];
+			CopyTo(strings, 0);
+			DirScannerStringCollection clone = new DirScannerStringCollection();
+			clone.AddRange(strings);
+			return clone;
+		}
+
+		#endregion Override implementation of ICloneable
+
+        #region Override implementation of StringCollection
 
         /// <summary>
         /// Determines whether the specified string is in the 

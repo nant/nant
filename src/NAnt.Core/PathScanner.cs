@@ -36,13 +36,40 @@ namespace NAnt.Core {
     /// </para>
     /// </remarks>
     [Serializable()]
-    public class PathScanner {
+    public sealed class PathScanner : ICloneable {
         #region Private Instance Fields
 
         private StringCollection _unscannedNames = new StringCollection();
         private StringCollection _scannedNames = new StringCollection();
 
         #endregion Private Instance Fields
+
+		#region Implementation of ICloneable
+
+		/// <summary>
+		/// Creates a shallow copy of the <see cref="PathScanner" />.
+		/// </summary>
+		/// <returns>
+		/// A shallow copy of the <see cref="PathScanner" />.
+		/// </returns>
+		object ICloneable.Clone() {
+			return Clone();
+		}
+
+		/// <summary>
+		/// Creates a shallow copy of the <see cref="PathScanner" />.
+		/// </summary>
+		/// <returns>
+		/// A shallow copy of the <see cref="PathScanner" />.
+		/// </returns>
+		public PathScanner Clone() {
+			PathScanner clone = new PathScanner();
+			clone._scannedNames = Clone(_scannedNames);
+			clone._unscannedNames = Clone(_unscannedNames);
+			return clone;
+		}
+
+		#endregion Implementation of ICloneable
 
         #region Public Instance Methods
 
@@ -88,5 +115,24 @@ namespace NAnt.Core {
         }
 
         #endregion Public Instance Methods
+
+		#region Private Static Methods
+
+		/// <summary>
+		/// Creates a shallow copy of the specified <see cref="StringCollection" />.
+		/// </summary>
+		/// <param name="stringCollection">The <see cref="StringCollection" /> that should be copied.</param>
+		/// <returns>
+		/// A shallow copy of the specified <see cref="StringCollection" />.
+		/// </returns>
+		private static StringCollection Clone(StringCollection stringCollection) {
+			string[] strings = new string[stringCollection.Count];
+			stringCollection.CopyTo(strings, 0);
+			StringCollection clone = new StringCollection();
+			clone.AddRange(strings);
+			return clone;
+		}
+
+		#endregion Private Static Methods
     }
 }
