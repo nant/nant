@@ -129,14 +129,13 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("comparefile")]
         public string CompareFile { 
             set { 
-                if(_compareFiles != null) {
-                    _compareFiles.Includes.Add(value); 
-                }else {
+                if(_compareFiles == null) {
                     _compareFiles = new FileSet();
                     _compareFiles.Parent = this;
                     _compareFiles.Project = this.Project;
-                    _compareFiles.Includes.Add(value);
                 }
+                _compareFiles.Includes.Add(value); 
+
             }
         }
 
