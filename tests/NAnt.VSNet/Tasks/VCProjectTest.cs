@@ -29,8 +29,107 @@ using Tests.NAnt.Core.Util;
 using Tests.NAnt.VisualCpp;
 
 namespace Tests.NAnt.VSNet.Tasks {
+
+
     [TestFixture]
-    public class VCProjectTest : VisualCppTestBase {
+    public class VCProjectNMakeTest : VisualCppTestBase {
+
+        private string _objDir;
+        private string _sourceDir;
+        private string _sourcePathName;
+        private string _copy_bat;
+        private string _test_build;
+        private string _vcProject;
+        private string _vcProjectPathName;
+
+        private const string _touchedFileName = "TouchedFile.txt";
+        private const string _copyFileName = "Copy.bat";
+
+        [SetUp]
+        protected override void SetUp() {
+            base.SetUp();
+            _objDir = CreateTempDir("objs");
+            _sourceDir = CreateTempDir("src");
+            _copy_bat = "copy \"" + Path.Combine(_sourceDir,_copyFileName) 
+                + "\" \"" + Path.Combine(_objDir, _touchedFileName) + "\"";
+            _sourcePathName = CreateTempFile(Path.Combine(_sourceDir, _copyFileName), _copy_bat);
+            _vcProject = @"<?xml version='1.0' encoding='Windows-1252'?>
+                <VisualStudioProject
+                    ProjectType='Visual C++'
+                    Version='7.10'
+                    Name='NMake'
+                    ProjectGUID='{8A1ABDBF-6B54-4134-864B-6A1D144D1F33}'
+                    Keyword='Win32Proj'>
+                    <Platforms>
+                        <Platform Name='Win32'/>
+                    </Platforms>
+                    <Configurations>
+                        <Configuration
+                            Name='Debug|Win32'
+                            OutputDirectory='"+Path.GetFullPath(_objDir)+@"'
+                            IntermediateDirectory='"+Path.GetFullPath(_objDir)+@"'
+                            ConfigurationType='0'>
+                            <Tool
+                                Name='VCNMakeTool'
+                                BuildCommandLine='"+_sourcePathName+@"'
+                                ReBuildCommandLine='"+_sourcePathName+@"'
+                                CleanCommandLine='"+_sourcePathName+@"'/>
+                        </Configuration>
+                    </Configurations>
+                    <References>
+                    </References>
+                    <Files>
+                        <Filter
+                            Name='Source Files'
+                            Filter='cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx'
+                            UniqueIdentifier='{4FC737F1-C7A5-4376-A066-2A32D752A2FF}'>
+                            <File
+                                RelativePath='"+_sourcePathName+@"'>
+                            </File>
+                        </Filter>
+                        <Filter
+                            Name='Header Files'
+                            Filter='h;hpp;hxx;hm;inl;inc;xsd'
+                            UniqueIdentifier='{93995380-89BD-4b04-88EB-625FBE52EBFB}'>
+                        </Filter>
+                        <Filter
+                            Name='Resource Files'
+                            Filter='rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx'
+                            UniqueIdentifier='{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}'>
+                        </Filter>
+                    </Files>
+                    <Globals>
+                    </Globals>
+                </VisualStudioProject>";
+                
+            _vcProjectPathName = CreateTempFile(Path.Combine(_sourceDir, "NNake.vcproj"), _vcProject);
+            _vcProjectPathName = _vcProjectPathName.Replace("\\", "/");
+
+            _test_build = @"<?xml version='1.0'?>
+                <project default='build' basedir='"+Path.GetDirectoryName(_vcProjectPathName)+@"'>
+                    <target name='build'>
+                        <solution configuration='debug' verbose='true'>
+                            <projects basedir='"+Path.GetDirectoryName(_vcProjectPathName)+@"'>
+                                <include name='"+Path.GetFileName(_vcProjectPathName)+@"'/>
+                            </projects>
+                        </solution>
+                    </target>
+                </project>";
+        }
+        /// <summary>
+        /// Tests excluded files are actually ignored.
+        /// </summary>
+        [Test]
+        public void Test_NMakeProject() {
+            if (CanCompileAndLink) {
+                string result = RunBuild(_test_build);
+                Assertion.Assert("File not created.", File.Exists(Path.Combine(_objDir, _touchedFileName)));
+            }
+        }
+    }
+
+    [TestFixture]
+    public class VCProjectExcludeTest : VisualCppTestBase {
         private string _objDir;
         private string _sourceDir;
         private string _sourcePathName;
