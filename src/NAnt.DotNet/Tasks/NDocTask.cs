@@ -109,6 +109,7 @@ namespace NAnt.DotNet.Tasks {
         private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileSet _summaries = new FileSet();
         private RawXml _documenters;
+        private DirSet _referencePaths = new DirSet();
 
         #endregion Private Instance Fields
 
@@ -141,6 +142,16 @@ namespace NAnt.DotNet.Tasks {
             set { _documenters = value; }
         }
 
+        /// <summary>
+        /// Collection of additional directories to search for referenced 
+        /// assemblies.
+        /// </summary>
+        [BuildElement("referencepaths")]
+        public DirSet ReferencePaths {
+            get { return _referencePaths; }
+            set { _referencePaths = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -168,6 +179,9 @@ namespace NAnt.DotNet.Tasks {
             if (Summaries.BaseDirectory == null) {
                 Summaries.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
+            if (ReferencePaths.BaseDirectory == null) {
+                ReferencePaths.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
 
             // Make sure there is at least one included assembly.  This can't
             // be done in the InitializeTask() method because the files might
@@ -184,6 +198,13 @@ namespace NAnt.DotNet.Tasks {
                 project = new NDoc.Core.Project();
             } catch (Exception ex) {
                 throw new BuildException("Could not create NDoc Project.", Location, ex);
+            }
+
+            // add additional directories to search for referenced assemblies
+            if (ReferencePaths.DirectoryNames.Count > 0) {
+                foreach (string directory in ReferencePaths.DirectoryNames) {
+                    project.ReferencePaths.Add(new ReferencePath(directory));
+                }
             }
 
             // set-up probe path, meaning list of directories where NDoc searches

@@ -24,6 +24,7 @@ using System.Xml;
 using System.Xml.XPath;
 
 using NDoc.Core;
+using NDoc.Core.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;

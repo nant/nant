@@ -30,6 +30,7 @@ using System.Xml;
 using System.Xml.Xsl;
 
 using NDoc.Core;
+using NDoc.Core.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;

@@ -25,6 +25,7 @@ using System.Globalization;
 using System.Xml;
 
 using NDoc.Core;
+using NDoc.Core.Reflection;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
@@ -63,7 +64,6 @@ namespace NDoc.Documenter.NAnt {
             DocumentInternals = true;
             DocumentPrivates = true;
             DocumentProtected = true;
-            IncludeAssemblyVersion = false;
             SkipNamespacesWithoutSummaries = false;
         }
 
