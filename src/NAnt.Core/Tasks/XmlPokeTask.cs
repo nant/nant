@@ -104,7 +104,7 @@ namespace NAnt.Core.Tasks {
         /// The value that replaces the contents of the selected nodes.
         /// </summary>
         [TaskAttribute("value", Required=true)]
-        [StringValidator(AllowEmpty=false)]
+        [StringValidator(AllowEmpty=true)]
         public string Value {
             get { return _value; }
             set { _value = value; }
@@ -230,7 +230,7 @@ namespace NAnt.Core.Tasks {
                 value);
                 
             int index = 0;
-            foreach (XmlNode node in nodes)  {
+            foreach (XmlNode node in nodes) {
                 Log(Level.Verbose, LogPrefix + "Updating node '{0}'.", index);
                 node.InnerXml = value;
                 index ++;
