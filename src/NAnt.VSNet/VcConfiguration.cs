@@ -45,17 +45,30 @@ namespace NAnt.VSNet {
                 parentSln.GetProjectFileFromGuid(parentProject.Guid)));
 
             _parent = parent;
+
+            // get name of configuration (also contains the targeted platform)
             _name = elem.GetAttribute("Name");
 
+            // initialize variables for usage in macros
+            _htMacros = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htMacros["ProjectName"] = parentProject.Name;
+            _htMacros["ConfigurationName"] = Name;
+            _htMacros["PlatformName"] = PlatformName;
+            _htMacros["SolutionDir"] = parentSln.File.DirectoryName + Path.DirectorySeparatorChar;
+            _htMacros["SolutionPath"] = parentSln.File.FullName;
+            _htMacros["SolutionExt"] = parentSln.File.Extension;
+            _htMacros["ProjectDir"] = projectDir.FullName + Path.DirectorySeparatorChar;
+
+            // determine output directory
             if (outputDir == null) {
                 _outputDir = new DirectoryInfo(Path.Combine(projectDir.FullName, 
-                    elem.GetAttribute("OutputDirectory")));
+                    ExpandMacros(elem.GetAttribute("OutputDirectory"))));
             } else {
                 _outputDir = outputDir;
             }
+            // make output directory available in macros
+            _htMacros["OutDir"] = OutputDir.FullName;
 
-            _intermediateDir = elem.GetAttribute("IntermediateDirectory");
-            
             string managedExtentions = elem.GetAttribute("ManagedExtensions");
             if (managedExtentions != null) {
                 _managedExtensions = managedExtentions.Trim().ToUpper(CultureInfo.InvariantCulture) == "TRUE";
@@ -65,17 +78,10 @@ namespace NAnt.VSNet {
                 _wholeProgramOptimization = true;
             } 
 
-            _htMacros = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htMacros["OutDir"] = OutputDir.FullName;
+            // get intermediate directory and expand macros 
+            _intermediateDir = ExpandMacros(elem.GetAttribute("IntermediateDirectory"));
+            // make intermediate directory available in macros
             _htMacros["IntDir"] = _intermediateDir;
-            _htMacros["ConfigurationName"] = Name;
-            _htMacros["PlatformName"] = PlatformName;
-            _htMacros["SolutionDir"] = parentSln.File.DirectoryName;
-            _htMacros["SolutionPath"] = parentSln.File.FullName;
-            _htMacros["SolutionExt"] = parentSln.File.Extension;
-            _htMacros["ProjectDir"] = projectDir.FullName;
-  
-            _rxMacro = new Regex(@"\$\((\w+)\)");
 
             _htTools = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
@@ -111,7 +117,9 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Gets a value indicating whether Managed Extensions for C++ are 
         /// enabled.
-        /// </summary>        public bool ManagedExtensions {            get { return _managedExtensions; }        }        #endregion Public Instance Properties        #region Internal Instance Properties        internal string Name {            get {                int index = _name.IndexOf("|");                if (index >= 0) {                    return _name.Substring(0, index);
+        /// </summary>        public bool ManagedExtensions {            get { return _managedExtensions; }        }        #endregion Public Instance Properties        #region Internal Instance Properties        /// <summary>
+        /// Gets the name of the configuration.
+        /// </summary>        /// <value>        /// The name of the configuration.        /// </value>        internal string Name {            get {                int index = _name.IndexOf("|");                if (index >= 0) {                    return _name.Substring(0, index);
                 }
                 else {
                     return _name;
@@ -119,6 +127,12 @@ namespace NAnt.VSNet {
             }
         }
 
+        /// <summary>
+        /// Gets the platform that the configuration targets.
+        /// </summary>
+        /// <value>
+        /// The platform targeted by the configuration.
+        /// </value>
         internal string PlatformName {
             get {
                 int index = _name.IndexOf("|");
@@ -134,7 +148,9 @@ namespace NAnt.VSNet {
             }
         }
         internal string FullName {            get { return _name; }        }
-        internal string IntermediateDir {            get { return _intermediateDir; }        }
+        /// <summary>
+        /// Intermediate directory, specified relative to project directory.
+        /// </summary>        internal string IntermediateDir {            get { return _intermediateDir; }        }
         internal bool WholeProgramOptimization {            get { return _wholeProgramOptimization; }        }
         #endregion Internal Instance Properties
         #region Internal Instance Methods
@@ -152,8 +168,8 @@ namespace NAnt.VSNet {
 
         #endregion Private Instance Methods
         #region Private Instance Fields
-        private string _name;        private VcConfiguration _parent;        private Hashtable _htTools;        private DirectoryInfo _outputDir;        private string _intermediateDir;        private string _targetPath;        private Hashtable _htMacros;        private Regex _rxMacro;        private bool _wholeProgramOptimization = false;
-        private bool _managedExtensions = false;
+        private readonly string _name;        private VcConfiguration _parent;        private Hashtable _htTools;        private readonly DirectoryInfo _outputDir;        private readonly string _intermediateDir;        private readonly string _targetPath;        private Hashtable _htMacros;        private readonly Regex _rxMacro = new Regex(@"\$\((\w+)\)");        private readonly bool _wholeProgramOptimization = false;
+        private readonly bool _managedExtensions = false;
         #endregion Private Instance Fields
     }
 }
