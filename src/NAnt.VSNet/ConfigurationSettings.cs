@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Matthew Mastracci (matt@aclaro.com)
 
 using System;
 using System.Globalization;
@@ -26,7 +28,7 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-    public class ConfigurationSettings {
+    public class ConfigurationSettings : ConfigurationBase {
         #region Public Instance Constructors
 
         public ConfigurationSettings(ProjectSettings projectSettings, XmlElement elemConfig, SolutionTask solutionTask, string outputDir) {
@@ -37,13 +39,13 @@ namespace NAnt.VSNet {
                 if (!_relativeOutputPath.EndsWith(@"\")) {
                     _relativeOutputPath = _relativeOutputPath + @"\";
                 }
-                _outputPath = new DirectoryInfo(Path.Combine(projectSettings.RootDirectory, elemConfig.GetAttribute("OutputPath"))).FullName;
+                _outputPath = new DirectoryInfo(Path.Combine(projectSettings.RootDirectory, _relativeOutputPath)).FullName;
             } else {
                 _relativeOutputPath = outputDir;
                 if (!_relativeOutputPath.EndsWith(@"\")) {
                     _relativeOutputPath = _relativeOutputPath + @"\";
                 }
-                _outputPath = Path.GetFullPath(_relativeOutputPath);
+                _outputPath = Path.GetFullPath(outputDir);
             }
 
             _projectSettings = projectSettings;
@@ -106,7 +108,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            _settings.Add(string.Format(CultureInfo.InvariantCulture, "/out:\"{0}\"", FullOutputFile));
+            _settings.Add(string.Format(CultureInfo.InvariantCulture, "/out:\"{0}\"", OutputFile));
         }
 
         #endregion Public Instance Constructors
@@ -127,11 +129,11 @@ namespace NAnt.VSNet {
             get { return _relativeOutputPath; }
         }
 
-        public string OutputPath {
+        public override string OutputPath {
             get { return _outputPath; }
         }
 
-        public string FullOutputFile {
+        public override string OutputFile {
             get { return Path.Combine(OutputPath, _projectSettings.OutputFile); }
         }
 

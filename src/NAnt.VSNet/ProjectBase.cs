@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Dmitry Jemerov <yole@yole.ru>
 
 using System;
 using System.Collections;
@@ -27,6 +29,16 @@ namespace NAnt.VSNet {
     /// Base class for all project classes.
     /// </summary>
     public abstract class ProjectBase {
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectBase" /> class.
+        /// </summary>
+        protected ProjectBase() {
+        }
+
+        #endregion Protected Instance Constructors
+
         #region Public Instance Properties
 
         public abstract string Name {
@@ -53,6 +65,10 @@ namespace NAnt.VSNet {
         public abstract string GetOutputFile(string configuration);
 
         public abstract bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands);
+
+        public abstract void Load(Solution sln, string fileName);
+
+        public abstract ConfigurationBase GetConfiguration(string configuration);
 
         #endregion Public Instance Methods
 

@@ -16,14 +16,16 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Dmitry Jemerov <yole@yole.ru>
+// Scott Ford (sford@RJKTECH.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.IO;
 
 using NAnt.Core.Util;
 

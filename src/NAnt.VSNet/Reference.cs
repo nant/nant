@@ -14,8 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Matthew Mastracci (matt@aclaro.com)
+// Scott Ford (sford@RJKTECH.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -46,14 +51,14 @@ namespace NAnt.VSNet {
                         _name));
                 }
 
-                Project project = new Project(_solutionTask, ps.TemporaryFiles, outputDir);
                 string projectFile = solution.GetProjectFileFromGUID(elemReference.GetAttribute("Project"));
-                if (projectFile == null) {
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture, 
-                        "External reference '{0}' found, but project was not loaded.",
-                        _name));
+
+                TempFileCollection temporaryFiles = solution.TemporaryFiles;
+                if (ps != null) {
+                    temporaryFiles = ps.TemporaryFiles;
                 }
 
+                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, outputDir, projectFile);
                 project.Load(solution, projectFile);
 
                 // we don't know what the timestamp of the project is going to be, 
@@ -64,6 +69,45 @@ namespace NAnt.VSNet {
                 _copyLocal = _privateSpecified ? _isPrivate : true;
                 return;
             }
+
+            // TO-DO : check with Scott Ford (sford at RJKTECH.com) if this is
+            // really necessary
+            /*
+            if (elemReference.Attributes["ReferencedProjectIdentifier"] != null) {
+                if (solution == null) {
+                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
+                        "External reference '{0}' found, but no solution was specified.",
+                        _name));
+                }
+
+                string projectFile = solution.GetProjectFileFromGUID(elemReference.GetAttribute("ReferencedProjectIdentifier"));
+
+              
+
+                TempFileCollection temporaryFiles = solution.TemporaryFiles;
+                if (ps != null) {
+                    temporaryFiles = ps.TemporaryFiles;
+                }
+
+                ProjectBase project = ProjectFactory.LoadProject(solution, _solutionTask, temporaryFiles, outputDir, projectFile);
+
+                if (project is Project) {
+                    ((Project) project).Load(solution, projectFile);
+                } else if (project is VcProject) {
+                    ((VcProject) project).Load(solution, projectFile);
+                }
+
+
+
+              // we don't know what the timestamp of the project is going to be, 
+              // because we don't know what configuration we will be building
+              _referenceTimeStamp = DateTime.MinValue;
+
+              _project = project;
+              _copyLocal = _privateSpecified ? _isPrivate : true;
+              return;
+            }
+            */
 
             if (elemReference.Attributes["WrapperTool"] != null) {
                 _importTool = elemReference.Attributes["WrapperTool"].Value;
@@ -82,13 +126,29 @@ namespace NAnt.VSNet {
             } else {
                 _referenceFile = elemReference.Attributes["AssemblyName"].Value + ".dll";
 
-                DirectoryInfo diGAC = new DirectoryInfo(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName);
-                string gacFile = Path.Combine(diGAC.FullName, _referenceFile);
-                if (File.Exists(gacFile)) {
-                    // This file is in the GAC
-                    _baseDirectory = diGAC.FullName;
+                // TO-DO : implement the same search MS uses for VS.NET, which is :
+                // 1.)  The project directory.
+                // 2.)  The directories specified in the "ReferencePath" property, which is 
+                //      stored in the .USER file. (NOT SURE WE SHOULD DO THIS ONE)
+                // 3.)  The .NET Framework directory.
+                // 4.)  The directories specified under the following registry keys:
+                //          HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\AssemblyFolders
+                //          HKEY_CURRENT_USER\SOFTWARE\Microsoft\.NETFramework\AssemblyFolders
+                //          HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
+                //          HKEY_CURRENT_USER\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
+                //
+                //      Future versions of VS.NET will also check in :
+                //          HKCU\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
+                //          HKLM\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
+                // 5.)  The HintPath
+
+                DirectoryInfo frameworkDirectory = new DirectoryInfo(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName);
+                string systemAssembly = Path.Combine(frameworkDirectory.FullName, _referenceFile);
+                if (File.Exists(systemAssembly)) {
+                    // this file is a system assembly
+                    _baseDirectory = frameworkDirectory.FullName;
                     _copyLocal = _privateSpecified ? _isPrivate : false;
-                    _referenceFile = gacFile;
+                    _referenceFile = systemAssembly;
                     _isSystem = true;
                 } else {
                     FileInfo fiRef = new FileInfo(Path.Combine(ps.RootDirectory, elemReference.Attributes["HintPath"].Value));
@@ -143,7 +203,7 @@ namespace NAnt.VSNet {
             get { return _isSystem; }
         }
         
-        public Project Project {
+        public ProjectBase Project {
             get { return _project; }
         }
 
@@ -154,7 +214,7 @@ namespace NAnt.VSNet {
         public DateTime Timestamp {
             get { 
                 if (Project != null) {
-                    return GetTimestamp(Project.GetConfigurationSettings(ConfigurationSettings.Name).FullOutputFile);
+                    return GetTimestamp(Project.GetOutputFile(ConfigurationSettings.Name));
                 }
 
                 return _referenceTimeStamp; 
@@ -177,9 +237,8 @@ namespace NAnt.VSNet {
 
         public string GetBaseDirectory(ConfigurationSettings configurationSettings) {
             if (Project != null) {
-                return Project.GetConfigurationSettings(configurationSettings.Name).OutputPath;
+                return Project.GetConfiguration(configurationSettings.Name).OutputPath;
             }
-
             return _baseDirectory;
         }
 
@@ -187,7 +246,8 @@ namespace NAnt.VSNet {
             StringCollection referencedFiles = new StringCollection();
 
             if (Project != null) {
-                _referenceFile = Project.GetConfigurationSettings(configurationSettings.Name).FullOutputFile; 
+                _referenceFile = Project.GetConfiguration(
+                    configurationSettings.Name).OutputFile; 
             }
 
             FileInfo fi = new FileInfo(_referenceFile);
@@ -349,7 +409,7 @@ namespace NAnt.VSNet {
         private bool _isPrivate;
         private ProjectSettings _projectSettings;
         private ConfigurationSettings _configurationSettings;
-        private Project _project;
+        private ProjectBase _project;
         private SolutionTask _solutionTask;
 
         #endregion Private Instance Fields

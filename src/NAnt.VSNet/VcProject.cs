@@ -16,6 +16,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Dmitry Jemerov <yole@yole.ru>
+// Scott Ford (sford@RJKTECH.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.CodeDom.Compiler;
@@ -41,6 +43,7 @@ namespace NAnt.VSNet {
             _htConfigurations         = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles                  = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferences             = CollectionsUtil.CreateCaseInsensitiveHashtable();
             
             _solutionTask = solutionTask;
             _outputDir    = outputDir;
@@ -71,7 +74,7 @@ namespace NAnt.VSNet {
         }
 
         public override Reference[] References {
-            get { return new Reference[] {}; }
+            get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
         }
 
         public override bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
@@ -86,7 +89,16 @@ namespace NAnt.VSNet {
                 string fileName = (string) de.Key;
                 string ext = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
                 
-                VcConfiguration fileConfig = (VcConfiguration) de.Value;
+                VcConfiguration fileConfig = null;
+                if (de.Value != null) {
+                    if (de.Value is Hashtable) {
+                        Hashtable _htValue = (Hashtable) de.Value;
+                        fileConfig = (VcConfiguration) _htValue[configuration];
+                    } else {
+                        fileConfig = (VcConfiguration) de.Value;
+                    }
+                }
+
                 if (fileConfig == null) {
                     fileConfig = baseConfig;
                 }
@@ -127,19 +139,23 @@ namespace NAnt.VSNet {
                 return null;
             }
 
-            string linkOutput = config.GetToolSetting("VCLinkerTool", "OutputFile");
-            if (linkOutput != null) {
-                return linkOutput;
+            return config.OutputFile;
+        }
+
+        public string GetProjectDir(string configuration) {
+            VcConfiguration config = (VcConfiguration) _htConfigurations[configuration];
+            if (config == null) {
+                return null;
             }
-            
-            return config.GetToolSetting("VCLibrarianTool", "OutputFile");
+
+            return config.ProjectDir;
         }
 
         #endregion Override implementation of ProjectBase
 
         #region Public Instance Methods
 
-        public void Load(Solution sln, string fileName) {
+        public override void Load(Solution sln, string fileName) {
             _projectDirectory = Path.GetFullPath(Path.GetDirectoryName(fileName));
             
             XmlDocument doc = LoadXmlDocument(fileName);
@@ -150,9 +166,15 @@ namespace NAnt.VSNet {
 
             XmlNodeList configurationNodes = elem.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
-                VcConfiguration config = new VcConfiguration(configElem);
+                VcConfiguration config = new VcConfiguration(configElem, this, sln, _outputDir);
                 _htConfigurations [config.Name] = config;
                 _htPlatformConfigurations [config.FullName] = config;
+            }
+
+            XmlNodeList referenceNodes = elem.SelectNodes("//References/ProjectReference");
+            foreach (XmlElement referenceElem in referenceNodes) {
+                Reference reference = new Reference(sln, null, referenceElem, _solutionTask, _outputDir);
+                _htReferences[referenceElem.Attributes["Name"].Value] = reference;
             }
 
             XmlNodeList fileNodes = elem.SelectNodes("//File");
@@ -166,13 +188,17 @@ namespace NAnt.VSNet {
                     foreach (XmlElement fileConfigElem in fileConfigList) {
                         string fileConfigName = fileConfigElem.GetAttribute("Name");
                         VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations [fileConfigName];
-                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, baseConfig);
+                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, sln, baseConfig, _outputDir);
                         htFileConfigurations [fileConfig.Name] = fileConfig;
                    }
                 }
 
                 _htFiles [relPath] = htFileConfigurations;
             }
+        }
+
+        public override ConfigurationBase GetConfiguration(string configuration) {
+            return (VcConfiguration) _htConfigurations[configuration];
         }
 
         #endregion Public Instance Methods
@@ -207,23 +233,46 @@ namespace NAnt.VSNet {
             clTask.InitializeTaskConfiguration();
 
             // set parent of child elements
-            clTask.Includes.Parent = clTask;
+            clTask.IncludeDirs.Parent = clTask;
             clTask.Sources.Parent = clTask;
+            clTask.MetaDataIncludeDirs.Parent = clTask;
+            clTask.ForcedUsingFiles.Parent = clTask;
 
             // inherit project from solution task for child elements
-            clTask.Includes.Project = clTask.Project;
+            clTask.IncludeDirs.Project = clTask.Project;
             clTask.Sources.Project = clTask.Project;
+            clTask.MetaDataIncludeDirs.Project = clTask.Project;
+            clTask.ForcedUsingFiles.Project = clTask.Project;
+
+            // set base directories
+            clTask.IncludeDirs.BaseDirectory = fileConfig.ProjectDir;
+            clTask.Sources.BaseDirectory = fileConfig.ProjectDir;
+            clTask.MetaDataIncludeDirs.BaseDirectory = fileConfig.ProjectDir;
+            clTask.ForcedUsingFiles.BaseDirectory = fileConfig.ProjectDir;
 
             // set task properties
-            clTask.OutputDir = baseConfig.IntermediateDir;
+            clTask.OutputDir = Path.Combine(_projectDirectory, baseConfig.IntermediateDir);
             clTask.PchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
-
-            Directory.CreateDirectory(baseConfig.IntermediateDir);
+            Directory.CreateDirectory(clTask.OutputDir);
 
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
-            if (includeDirs != null) {
+            if (!StringUtils.IsNullOrEmpty(includeDirs)) {
                 foreach (string includeDir in includeDirs.Split(',')) {
-                    clTask.Includes.DirectoryNames.Add(includeDir);
+                    clTask.IncludeDirs.DirectoryNames.Add(includeDir);
+                }
+            }
+
+            string metadataDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalUsingDirectories");
+            if (!StringUtils.IsNullOrEmpty(metadataDirs)) {
+                foreach (string metadataDir in metadataDirs.Split(';')) {
+                    clTask.MetaDataIncludeDirs.DirectoryNames.Add(baseConfig.ExpandMacros(metadataDir));
+                }
+            }
+
+            string forcedUsingFiles = fileConfig.GetToolSetting(compilerTool, "ForcedUsingFiles");
+            if (!StringUtils.IsNullOrEmpty(forcedUsingFiles)) {
+                foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
+                    clTask.ForcedUsingFiles.Includes.Add(baseConfig.ExpandMacros(forcedUsingFile));
                 }
             }
 
@@ -242,12 +291,13 @@ namespace NAnt.VSNet {
             }
 
             string preprocessorDefs = baseConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
-            if (preprocessorDefs != null) {
+            if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     clTask.Arguments.Add(new Argument("/D"));
                     clTask.Arguments.Add(new Argument(def));
                 }
             }
+
             if (IsOutputDLL(baseConfig)) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_WINDLL"));
@@ -257,9 +307,14 @@ namespace NAnt.VSNet {
                 clTask.Arguments.Add(new Argument("/GL"));
             }
 
-            string[] args = baseConfig.GetToolArguments(compilerTool, _clArgMap);
+            string[] args = baseConfig.GetToolArguments(compilerTool, _clArgMap);   
             foreach (string arg in args) {
                 clTask.Arguments.Add(new Argument(arg));
+            }
+
+            if (baseConfig.ManagedExtensions) {
+                // enable Managed Extensions for C++
+                clTask.ManagedExtensions = true;
             }
 
             // execute the task
@@ -354,7 +409,7 @@ namespace NAnt.VSNet {
                 linkTask.Sources.FileNames.Add(objFile);
             }
 
-            string addDeps = baseConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
+            string addDeps = baseConfig.ExpandMacros(baseConfig.GetToolSetting(linkerTool, "AdditionalDependencies"));
             if (addDeps != null) {
                 foreach (string addDep in addDeps.Split(' ')) {
                     linkTask.Sources.FileNames.Add(addDep);
@@ -420,6 +475,7 @@ namespace NAnt.VSNet {
         private string _projectDirectory;
         private string _outputDir;
         private Hashtable _htConfigurations;
+        private Hashtable _htReferences;
         private Hashtable _htPlatformConfigurations;
         private Hashtable _htFiles;
         private SolutionTask _solutionTask;

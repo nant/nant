@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Matthew Mastracci (matt@aclaro.com)
 
 using System;
 using System.CodeDom.Compiler;
@@ -121,7 +123,7 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public void Load(Solution sln, string fileName) {
+        public override void Load(Solution sln, string fileName) {
             XmlDocument doc = LoadXmlDocument(fileName);
 
             _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), _tfc);
@@ -376,7 +378,7 @@ namespace NAnt.VSNet {
                     Log(Level.Verbose, LogPrefix + "Uploading output files...");
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                     //wdc.DeleteFile( cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _ps.OutputFile );
-                    wdc.UploadFile(cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _projectSettings.OutputFile);
+                    wdc.UploadFile(cs.OutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _projectSettings.OutputFile);
                 }
 
                 // Copy any extra files over
@@ -414,14 +416,14 @@ namespace NAnt.VSNet {
         }
 
         public override string GetOutputFile(string configuration) {
-            ConfigurationSettings settings = GetConfigurationSettings(configuration);
+            ConfigurationSettings settings = (ConfigurationSettings) GetConfiguration(configuration);
             if (settings == null) {
                 return null;
             }
-            return settings.FullOutputFile;
+            return settings.OutputFile;
         }
 
-        public ConfigurationSettings GetConfigurationSettings(string configuration) {
+        public override ConfigurationBase GetConfiguration(string configuration) {
             return (ConfigurationSettings) _htConfigurations[configuration];
         }
 
@@ -431,8 +433,8 @@ namespace NAnt.VSNet {
 
         private bool CheckUpToDate(ConfigurationSettings cs) {
             DateTime dtOutputTimeStamp;
-            if (File.Exists(cs.FullOutputFile)) {
-                dtOutputTimeStamp = File.GetLastWriteTime(cs.FullOutputFile);
+            if (File.Exists(cs.OutputFile)) {
+                dtOutputTimeStamp = File.GetLastWriteTime(cs.OutputFile);
             } else {
                 return false;
             }
