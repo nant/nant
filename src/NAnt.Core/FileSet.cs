@@ -301,18 +301,18 @@ namespace SourceForge.NAnt {
                 get { return files; }
             }
 
-            new public void Initialize(XmlNode elementNode)
+            protected override void InitializeElement(XmlNode elementNode)
             {
-                base.Initialize(elementNode);
                 StringCollection f=new StringCollection();
 
-                System.IO.Stream fil=File.OpenRead(Pattern);
-                if(fil==null) {
-                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' list could not be opened",Pattern));
-                }
-                System.IO.StreamReader rd=new System.IO.StreamReader(fil);
-                while(rd.Peek()>-1) {
-                    f.Add(rd.ReadLine());
+                using (System.IO.Stream fil=File.OpenRead(Pattern)) {
+                    if(fil==null) {
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' list could not be opened",Pattern));
+                    }
+                    System.IO.StreamReader rd = new System.IO.StreamReader(fil);
+                    while(rd.Peek()>-1) {
+                        f.Add(rd.ReadLine());
+                    }
                 }
 
                 files=new string[f.Count];
