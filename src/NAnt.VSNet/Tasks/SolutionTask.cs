@@ -146,6 +146,7 @@ namespace NAnt.VSNet.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    [Serializable()]
     [TaskName("solution")]
     public class SolutionTask : Task {
         #region Public Instance Constructors
