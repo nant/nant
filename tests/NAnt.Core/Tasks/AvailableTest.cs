@@ -80,6 +80,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_InvalidFile() {
             string _xml= @"
             <project>
@@ -87,9 +88,7 @@ namespace Tests.NAnt.Core.Tasks {
                 <echo message='file.exists={2}'/>
             </project>";
             
-            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), @"\\#(){/}.dddd", "${file.exists}"));
-            
-            Assertion.Assert("File resource not should have existed:" + result, result.ToLower().IndexOf("file.exists=false") != -1);
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), "###-?", "${file.exists}"));
         }
 
         [Test]
@@ -119,6 +118,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_InvalidDirectory() {
             string _xml= @"
             <project>
@@ -126,9 +126,7 @@ namespace Tests.NAnt.Core.Tasks {
                 <echo message='dir.exists={2}'/>
             </project>";
             
-            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), "#(){/}", "${dir.exists}"));
-            
-            Assertion.Assert("Directory resource not should have existed:" + result, result.ToLower().IndexOf("dir.exists=false") != -1);
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), "###-?", "${dir.exists}"));
         }
 
         [Test]
