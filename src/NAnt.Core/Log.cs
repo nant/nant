@@ -410,13 +410,13 @@ namespace NAnt.Core {
             }
 
             if (error == null) {
-                OutputMessage(Level.Info, "", indentationLevel);
+                OutputMessage(Level.Info, string.Empty, indentationLevel);
                 OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
-                OutputMessage(Level.Info, "", indentationLevel);
+                OutputMessage(Level.Info, string.Empty, indentationLevel);
             } else {
-                OutputMessage(Level.Error, "", indentationLevel);
+                OutputMessage(Level.Error, string.Empty, indentationLevel);
                 OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
-                OutputMessage(Level.Error, "", indentationLevel);
+                OutputMessage(Level.Error, string.Empty, indentationLevel);
 
                 if (error is BuildException) {
                     if (Threshold <= Level.Verbose) {
@@ -435,13 +435,13 @@ namespace NAnt.Core {
                     }
                 } else {
                     OutputMessage(Level.Error, "INTERNAL ERROR", indentationLevel);
-                    OutputMessage(Level.Error, "", indentationLevel);
+                    OutputMessage(Level.Error, string.Empty, indentationLevel);
                     OutputMessage(Level.Error, error.ToString(), indentationLevel);
-                    OutputMessage(Level.Error, "", indentationLevel);
+                    OutputMessage(Level.Error, string.Empty, indentationLevel);
                     OutputMessage(Level.Error, "Please send bug report to nant-developers@lists.sourceforge.net.", indentationLevel);
                 }
 
-                OutputMessage(Level.Info, "", indentationLevel);
+                OutputMessage(Level.Error, string.Empty, indentationLevel);
             }
 
             // output total build time
