@@ -243,7 +243,7 @@ namespace NAnt.DotNet.Tasks {
                             // currently active framework
                             if (referenceAssemblyDir.FullName == frameworkAssemblyDir.FullName) {
                                 // don't load any assemblies from currently 
-                                // activate framework, as this will eventually
+                                // active framework, as this will eventually
                                 // cause InvalidCastExceptions when 
                                 // LicenseManager.CreateWithContext is called
                                 loadAssembly = false;
@@ -251,8 +251,7 @@ namespace NAnt.DotNet.Tasks {
                         }
 
                         if (loadAssembly) {
-                            Assembly assembly = Assembly.LoadFrom(assemblyFileName, 
-                                AppDomain.CurrentDomain.Evidence);
+                            Assembly assembly = Assembly.LoadFrom(assemblyFileName);
 
                             if (assembly != null) {
                                 // output assembly filename to build log

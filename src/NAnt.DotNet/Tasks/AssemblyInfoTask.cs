@@ -489,7 +489,7 @@ namespace NAnt.DotNet.Tasks {
                     // load each assembly and try to get type from it
                     foreach (string assemblyFileName in assemblies) {
                         // load assembly from filesystem
-                        Assembly assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                        Assembly assembly = Assembly.LoadFrom(assemblyFileName);
                         // try to load type from assembly
                         type = assembly.GetType(typename, false, false);
                         if (type == null) {
