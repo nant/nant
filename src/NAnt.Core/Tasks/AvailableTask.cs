@@ -114,13 +114,14 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Executes the <see cref="Available" /> task.
+        /// Executes the task.
         /// </summary>
         /// <remarks>
         /// <para>
         /// Sets the property identified by <see cref="PropertyName" /> to 
         /// <c>true</c> when the resource exists and to <c>false</c> when the 
         /// resource doesn't exist.
+        /// </para>
         /// </remarks>
         /// <exception cref="BuildException">The availability of the resource could not be evaluated.</exception>
         protected override void ExecuteTask() {
