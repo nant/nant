@@ -148,7 +148,17 @@ namespace NAnt.Core.Tasks {
             // set environment variables
             IDictionary variables = Environment.GetEnvironmentVariables();
             foreach (string name in variables.Keys) {
-                Properties[Prefix + "env." + name] = (string)variables[name];
+                try {
+                    Properties[Prefix + "env." + name] = (string) variables[name];
+                } catch (Exception ex) {
+                    if (!FailOnError) {
+                        Log(Level.Warning, "Property could not be created for "
+                            + " environment variable '{0}' : {1}", name, 
+                            ex.Message);
+                    } else {
+                        throw;
+                    }
+                }
             }
 
             // display the properties
