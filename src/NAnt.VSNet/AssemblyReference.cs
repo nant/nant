@@ -39,13 +39,13 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
 
         public AssemblyReference(XmlElement definition, ReferencesResolver referencesResolver, ProjectBase parent, GacCache gacCache) : base(definition, referencesResolver, parent, gacCache) {
-            _assemblyFile = ResolveAssemblyReference();
-
             // determine name of reference
             XmlAttribute assemblyNameAttribute = XmlDefinition.Attributes["AssemblyName"];
             if (assemblyNameAttribute != null) {
                 _name = assemblyNameAttribute.Value;
             }
+
+            _assemblyFile = ResolveAssemblyReference();
         }
 
         #endregion Public Instance Constructors
