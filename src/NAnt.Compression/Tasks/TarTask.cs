@@ -207,7 +207,7 @@ namespace NAnt.Compression.Tasks {
                         entry.GroupName = fileset.GroupName;
                         entry.UserId = fileset.Uid;
                         entry.UserName = fileset.UserName;
-                        //entry.TarHeader.Mode = fileset.FileMode;
+                        entry.TarHeader.Mode = fileset.FileMode;
 
                         // write file to tar file
                         archive.WriteEntry(entry, true);
@@ -288,7 +288,7 @@ namespace NAnt.Compression.Tasks {
             entry.GroupName = fileset.GroupName;
             entry.UserId = fileset.Uid;
             entry.UserName = fileset.UserName;
-            //entry.TarHeader.Mode = fileset.DirMode;
+            entry.TarHeader.Mode = fileset.DirMode;
 
             // write directory to tar file
             archive.WriteEntry(entry, false);

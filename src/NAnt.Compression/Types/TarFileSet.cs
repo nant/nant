@@ -59,7 +59,7 @@ namespace NAnt.Compression.Types {
         /// in the standard Unix fashion. Only applies to plain files. The 
         /// default is <c>644</c>.
         /// </summary>
-        //[TaskAttribute("filemode")]
+        [TaskAttribute("filemode")]
         public int FileMode {
             get { return _fileMode; }
             set { _fileMode = _fileFlag | Convert.ToInt32(Convert.ToString(value), 8); }
@@ -70,7 +70,7 @@ namespace NAnt.Compression.Types {
         /// in the standard Unix fashion. Only applies to directories. The 
         /// default is <c>755</c>.
         /// </summary>
-        //[TaskAttribute("dirmode")]
+        [TaskAttribute("dirmode")]
         public int DirMode {
             get { return _dirMode; }
             set { _dirMode = _dirFlag | Convert.ToInt32(Convert.ToString(value), 8); }
@@ -79,7 +79,7 @@ namespace NAnt.Compression.Types {
         /// <summary>
         /// The username for the tar entry.
         /// </summary>
-        //[TaskAttribute("username")]
+        [TaskAttribute("username")]
         public string UserName {
             get { return _userName; }
             set { _userName = StringUtils.ConvertEmptyToNull(value); }
@@ -88,7 +88,7 @@ namespace NAnt.Compression.Types {
         /// <summary>
         /// The user identifier (UID) for the tar entry. 
         /// </summary>
-        //[TaskAttribute("uid")]
+        [TaskAttribute("uid")]
         public int Uid {
             get { return _uid; }
             set { _uid = value; }
@@ -97,7 +97,7 @@ namespace NAnt.Compression.Types {
         /// <summary>
         /// The groupname for the tar entry.
         /// </summary>
-        //[TaskAttribute("groupname")]
+        [TaskAttribute("groupname")]
         public string GroupName {
             get { return _groupName; }
             set { _groupName = StringUtils.ConvertEmptyToNull(value); }
@@ -106,7 +106,7 @@ namespace NAnt.Compression.Types {
         /// <summary>
         /// The group identifier (GID) for the tar entry.
         /// </summary>
-        //[TaskAttribute("gid")]
+        [TaskAttribute("gid")]
         public int Gid {
             get { return _gid; }
             set { _gid = value; }
