@@ -30,8 +30,9 @@ namespace SourceForge.NAnt.Tasks.NUnit2
         private string _assemblyName = null;               
         private string _testname = null;
         private bool _haltOnFailure = true;
+        private bool _haltOnError = true;
         private string _transformFile;
-      string _appConfigFile = null;
+        string _appConfigFile = null;
 
         /// <summary>Name of the assembly to search for tests.</summary>
         [TaskAttribute("assemblyname", Required=true)]

@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // Mike Two (2@thoughtworks.com or mike2@nunit.org)
-
+// Tomas Restrepo (tomasr@mvps.org)
 
 using System;
 using System.IO;
@@ -52,12 +52,18 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
     [TaskName("nunit2")]
     public class NUnit2Task : Task {
         private bool _haltOnFailure;
+        private bool _haltOnError = true;
         private ArrayList tests = new ArrayList();
         
         /// <summary>Stop the build process if a test fails.</summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
         public bool HaltOnFailure       { get { return _haltOnFailure; } set { _haltOnFailure = value; }}
+
+        /// <summary>Build fails on error</summary>
+        [TaskAttribute("haltonerror")]
+        [BooleanValidator()]
+        public bool HaltOnError { get { return _haltOnError; } set { _haltOnError = value; } }
         
         FormatterElementCollection _formatterElements = new FormatterElementCollection();
         
@@ -92,6 +98,8 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             foreach (NUnit2Test test in tests) {
                 EventListener listener = new NullListener();
                 TestResult result = RunRemoteTest(test, listener);
+                if ( result == null )
+                   continue;
                     
                 string xmlResultFile = test.AssemblyName + "-results.xml";                  
                             
@@ -129,7 +137,8 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         }
         
         private TestResult RunRemoteTest(NUnit2Test test, EventListener listener) {
-            try {
+            try
+            {
                LogWriter writer = new LogWriter();
                string assemblyName = Project.GetFullPath(test.AssemblyName);
                string appConfig = Project.GetFullPath(test.AppConfigFile);
@@ -141,7 +150,11 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                   return domain.Run(assemblyName, appConfig, listener);
                }
             } catch ( Exception e ) {
-               throw new BuildException("NUnit 2.0 Error: " + e.Message);
+               if ( HaltOnError )
+                  throw new BuildException("NUnit 2.0 Error: " + e.Message);
+               
+               Log.WriteLineIf(Verbose, LogPrefix + "NUnit 2.0 Error: " + e.Message);
+               return null;
             }
         }
         
