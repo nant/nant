@@ -30,7 +30,7 @@ namespace NDoc.Documenter.NAnt {
     /// <summary>
     /// NDoc configuration class for <see cref="NAntDocumenter" />.
     /// </summary>
-    public class NAntDocumenterConfig : BaseDocumenterConfig {
+    public class NAntDocumenterConfig : BaseReflectionDocumenterConfig {
         #region Private Instance Fields
 
         private string _outputDirectory = @"doc/help/tasks";

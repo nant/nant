@@ -38,7 +38,7 @@ namespace NDoc.Documenter.NAnt {
     /// <summary>
     /// NDoc Documenter for building custom NAnt User documentation.
     /// </summary>
-    public class NAntDocumenter : BaseDocumenter {
+    public class NAntDocumenter : BaseReflectionDocumenter {
         #region Private Instance Fields
 
         private XslTransform _xsltTaskIndex;
@@ -177,90 +177,83 @@ namespace NDoc.Documenter.NAnt {
             // load the stylesheets that will convert the master xml into html pages
             MakeTransforms();
 
-            string tempFile = Path.GetTempFileName();
-
-            // create FileStream for holding the master XML document that 
-            // contains all the documentation
-            FileStream fileStream = new FileStream(tempFile, FileMode.Create, 
-                FileAccess.ReadWrite, FileShare.Read);
-
-            // creater writer to which NDoc will write the master XML document to
-            XmlTextWriter xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
+            // will hold the file name containing the NDoc generated XML
+            string tempFile = null;
 
             try {
+                // determine temporary file name
+                tempFile = Path.GetTempFileName();
+
                 // create the master XML document
-                BuildXml(project, xmlWriter);
+                MakeXmlFile(project, tempFile);
 
-                // reset position of stream
-                fileStream.Position = 0;
-
-                // create a xml document that will get transformed by xslt
-                _xmlDocumentation = new XmlDocument();
-                _xmlDocumentation.Load(fileStream); 
-
-                // build the file mapping
-                buildStepProgress += 15;
-                OnDocBuildingStep(buildStepProgress, "Building mapping...");
-
-                // create arguments for nant index page transform
-                XsltArgumentList indexArguments = CreateXsltArgumentList();
-
-                // add extension object for NAnt utilities
-                NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(
-                    _xmlDocumentation, (NAntDocumenterConfig) Config);
-
-                // add extension object to Xslt arguments
-                indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
-
-                buildStepProgress += 15;
-                OnDocBuildingStep(buildStepProgress, "Creating Task Index Page...");
-
-                // transform nant task index page transform
-                TransformAndWriteResult(_xsltTaskIndex, indexArguments, "tasks/index.html");
-
-                buildStepProgress += 10;
-                OnDocBuildingStep(buildStepProgress, "Creating Type Index Page...");
-
-                // transform nant type index page transform
-                TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types/index.html");
-
-                buildStepProgress += 10;
-                OnDocBuildingStep(buildStepProgress, "Creating Filter Index Page...");
-
-                // transform nant type index page transform
-                TransformAndWriteResult(_xsltFilterIndex, indexArguments, "filters/index.html");
-
-                OnDocBuildingStep(buildStepProgress, "Creating Function Index Page...");
-                // transform nant function index page transform
-                TransformAndWriteResult(_xsltFunctionIndex, indexArguments, "functions/index.html");
-
-                buildStepProgress += 10;
-                OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
-
-                // generate a page for each marked task
-                XmlNodeList typeNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]");
-                foreach (XmlNode typeNode in typeNodes) {
-                    ElementDocType elementDocType = indexUtilities.GetElementDocType(typeNode);
-                    DocumentType(typeNode, elementDocType, indexUtilities);
+                // create a xml document that will be transformed using xslt
+                using (FileStream fs = new FileStream(tempFile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                    _xmlDocumentation = new XmlDocument();
+                    _xmlDocumentation.Load(fs);
                 }
-
-                OnDocBuildingStep(buildStepProgress, "Generating Function Documents...");
-                
-                // generate a page for each function - TODO - change the XPath expression to select more functions
-                XmlNodeList functionNodes = _xmlDocumentation.SelectNodes("//method[attribute/@name = 'NAnt.Core.Attributes.FunctionAttribute' and ancestor::class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]]");
-                foreach (XmlElement function in functionNodes) {
-                    DocumentFunction(function, indexUtilities);
-                }
-
-                OnDocBuildingStep(100, "Complete");
             } finally {
-                // close writer
-                xmlWriter.Close();
-                // close stream
-                fileStream.Close();
                 // ensure temporary file is removed
-                File.Delete(tempFile);
+                if (tempFile != null) {
+                    File.Delete(tempFile);
+                }
             }
+
+            // build the file mapping
+            buildStepProgress += 15;
+            OnDocBuildingStep(buildStepProgress, "Building mapping...");
+
+            // create arguments for nant index page transform
+            XsltArgumentList indexArguments = CreateXsltArgumentList();
+
+            // add extension object for NAnt utilities
+            NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(
+                _xmlDocumentation, (NAntDocumenterConfig) Config);
+
+            // add extension object to Xslt arguments
+            indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
+
+            buildStepProgress += 15;
+            OnDocBuildingStep(buildStepProgress, "Creating Task Index Page...");
+
+            // transform nant task index page transform
+            TransformAndWriteResult(_xsltTaskIndex, indexArguments, "tasks/index.html");
+
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Creating Type Index Page...");
+
+            // transform nant type index page transform
+            TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types/index.html");
+
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Creating Filter Index Page...");
+
+            // transform nant type index page transform
+            TransformAndWriteResult(_xsltFilterIndex, indexArguments, "filters/index.html");
+
+            OnDocBuildingStep(buildStepProgress, "Creating Function Index Page...");
+            // transform nant function index page transform
+            TransformAndWriteResult(_xsltFunctionIndex, indexArguments, "functions/index.html");
+
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
+
+            // generate a page for each marked task
+            XmlNodeList typeNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]");
+            foreach (XmlNode typeNode in typeNodes) {
+                ElementDocType elementDocType = indexUtilities.GetElementDocType(typeNode);
+                DocumentType(typeNode, elementDocType, indexUtilities);
+            }
+
+            OnDocBuildingStep(buildStepProgress, "Generating Function Documents...");
+            
+            // generate a page for each function - TODO - change the XPath expression to select more functions
+            XmlNodeList functionNodes = _xmlDocumentation.SelectNodes("//method[attribute/@name = 'NAnt.Core.Attributes.FunctionAttribute' and ancestor::class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]]");
+            foreach (XmlElement function in functionNodes) {
+                DocumentFunction(function, indexUtilities);
+            }
+
+            OnDocBuildingStep(100, "Complete");
         }
 
         #endregion Override implementation of IDocumenter
