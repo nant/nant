@@ -231,15 +231,21 @@ namespace NAnt.VSNet {
         /// </returns>
         protected string ResolveFromRelativePath(string relativePath) {
             if (!StringUtils.IsNullOrEmpty(relativePath)) {
+                // TODO: VS.NET seems to be able to handle a project dir / hint 
+                // path combination that is more than 260 characters long
+                //
+                // eg. ../Assemblies/..Assemblies/../......
+
                 string combinedPath = Path.Combine(Parent.ProjectDirectory.FullName, 
                     relativePath);
 
                 try {
                     return Path.GetFullPath(combinedPath);
                 } catch (PathTooLongException ex) {
-                    Log(Level.Verbose, "Error resolving reference to \"{0}\""
-                        + " using path \"{1}\" ({2}).", Name, combinedPath,
-                        ex.Message);
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Assembly \"{0}\", referenced by project \"{1}\", could not be"
+                        + " resolved using path \"{2}\".", Name, Parent.Name, combinedPath), 
+                        Location.UnknownLocation, ex);
                 }
             }
             return null;
