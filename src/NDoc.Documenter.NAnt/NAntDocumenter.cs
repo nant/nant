@@ -56,7 +56,7 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Initializes a new instance of the <see cref="NAntTaskDocumenter" /> class.
         /// </summary>
-        public NAntTaskDocumenter() : base("NAntTask") {
+        public NAntTaskDocumenter() : base("NAnt") {
             Clear();
         }
 

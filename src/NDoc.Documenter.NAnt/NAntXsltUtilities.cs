@@ -160,6 +160,17 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
+        /// Gets the name of the application for which docs are being generated.
+        /// </summary>
+        /// <returns>
+        /// The name of the application for which docs are being generated. The
+        /// default is <c>NAnt</c>.
+        /// </returns>
+        public string GetApplicationName() {
+            return Config.ApplicationName;
+        }
+
+        /// <summary>
         /// Searches the document for a 
         /// </summary>
         /// <param name="type">Type.FullName of class to return</param>
