@@ -149,6 +149,15 @@ namespace NAnt.Core {
             ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseAddSubtract();
 
+            // TODO: remove this after the 0.85 release
+            if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Punctuation &&
+                    _tokenizer.TokenText == "=") {
+                throw BuildParseError("The '=' operator is no longer"
+                    + " supported to check for equality. Use the '==' operator"
+                    + " instead.", _tokenizer.CurrentPosition);
+            }
+
+
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.EQ
              || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.NE
              || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LT
@@ -188,7 +197,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            "Operator '==' cannot be applied to arguments of type '{0}' and '{1}'.", 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.NE:
