@@ -65,12 +65,12 @@
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
-        <property name="build.dir" value="${nant.project.basedir}/build/${framework::get-target-framework()}.${platform::get-name()}/${project.name}-${project.version}-${project.config}" />
+        <property name="build.dir" value="${project::get-base-directory()}/build/${framework::get-target-framework()}.${platform::get-name()}/${project.name}-${project.version}-${project.config}" />
     </target>
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
         <property name="build.debug" value="false" />
-        <property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}" />
+        <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}-${project.version}" />
     </target>
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
@@ -398,7 +398,7 @@
             start="${start.date}"
             end="${end.date}"
             xmlfile="${build.dir}/${changes.name-without-extension}.xml"
-            destination="${nant.project.basedir}"
+            destination="${project::get-base-directory()}"
             module="nant"
             />
         <style
@@ -500,7 +500,7 @@
     </target>
 
     <target name="package-src" depends="package-common">
-        <!-- determine name of package zip file -->
+        <!-- determine name of source zip distribution -->
         <property name="project.zip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version}-src.zip" />
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.src}" if="${file::exists(project.zip-path.src)}" />
@@ -527,12 +527,39 @@
                 <include name="tests/**/*" />
             </fileset>
         </zip>
-        <echo message="Created a '${project.config}' source package at file://${project.zip-path.src}" />
+        <!-- determine name of source gzipped tar distribution -->
+        <property name="project.gzip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version}-src.tar.gz" />
+        <!-- remove package gzip file if it already exists -->
+        <delete file="${project.gzip-path.src}" if="${file::exists(project.gzip-path.src)}" />
+        <!-- create package gzip file -->
+        <tar destfile="${project.gzip-path.src}" compression="GZip">
+            <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
+                <include name="Makefile" />
+                <include name="NAnt.build" />
+                <include name="NAnt.sln" />
+                <include name="COPYING.txt" />
+                <include name="README.txt" />
+                
+                <include name="bin/NAnt.exe" />
+                <include name="bin/NAnt.exe.config" />
+                <include name="bin/NAnt.Core.dll" />
+                <include name="bin/NAnt.DotNetTasks.dll" />
+                <include name="bin/NAnt.Win32Tasks.dll" />
+                <include name="bin/NAnt.ZipTasks.dll" />
+                <include name="bin/log4net.dll" />
+                <include name="bin/lib/**/*" />
+                <include name="doc/**/*" />
+                <include name="examples/**/*" />
+                <include name="src/**/*" />
+                <include name="tests/**/*" />
+            </fileset>
+        </tar>
+        <echo message="Created '${project.config}' source packages at file://${project::get-base-directory()}/build/" />
     </target>
 
     <target name="package-bin" depends="package-common">
-        <!-- determine name of package zip file -->
-        <property name="project.zip-path.bin" value="${nant.project.basedir}/build/${project.name}-${project.version}-bin.zip" />
+        <!-- determine name of binary zip distribution -->
+        <property name="project.zip-path.bin" value="${project::get-base-directory()}/build/${project.name}-${project.version}-bin.zip" />
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.bin}" if="${file::exists(project.zip-path.bin)}" />
         <!-- create package zip file -->
@@ -546,7 +573,22 @@
                 <include name="schema/**/*" />
             </fileset>
         </zip>
-        <echo message="Created a '${project.config}' binary package at file://${project.zip-path.bin}" />
+        <!-- determine name of binary gzipped tar distribution -->
+        <property name="project.gzip-path.bin" value="${project::get-base-directory()}/build/${project.name}-${project.version}-bin.tar.gz" />
+        <!-- remove package gzip file if it already exists -->
+        <delete file="${project.gzip-path.bin}" if="${file::exists(project.gzip-path.bin)}" />
+        <!-- create package gzip file -->
+        <tar destfile="${project.gzip-path.bin}" compression="GZip">
+            <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
+                <include name="COPYING.txt" />
+                <include name="README.txt" />
+                <include name="bin/**/*" />
+                <include name="doc/**/*" />
+                <include name="examples/**/*" />
+                <include name="schema/**/*" />
+            </fileset>
+        </tar>
+        <echo message="Created '${project.config}' binary packages at file://${project.zip-path.bin}" />
     </target>
 
     <target name="package" depends="package-src, package-bin" description="Creates a binary and source distribution package." />
