@@ -7,7 +7,15 @@
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="contains($type, $namespace)">
-                <xsl:value-of select="substring-after($type, $namespace)" />
+                <xsl:variable name="enumnode" select="//descendant::enumeration[@id=concat('T:', $type)]" />
+                <xsl:choose>
+                    <xsl:when test="count($enumnode) = 1">
+                        <xsl:text>enum</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="substring-after($type, $namespace)" />
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="csharp-type">
