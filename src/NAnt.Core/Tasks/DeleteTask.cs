@@ -50,6 +50,8 @@ namespace NAnt.Core.Tasks {
     /// <delete file="myfile.txt" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Delete a directory and the contents within. If the directory does not 
     ///   exist, the task does nothing.
@@ -59,6 +61,8 @@ namespace NAnt.Core.Tasks {
     /// <delete dir="${build.dir}" failonerror="false" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Delete a set of files.  Note the lack of <see cref="FileName" /> 
     ///   attribute in the <c>&lt;delete&gt;</c> element.
@@ -118,9 +122,10 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            // limit task to deleting either a file or a directory or a file set
+            // limit task to deleting either a file, directory, or file set
             if (FileName != null && DirectoryName != null) {
-                throw new BuildException("Cannot specify both 'file' and 'dir' attribute in the same <delete> task.", Location);
+                throw new BuildException("Cannot specify both 'file' and 'dir'" 
+                    + " attribute in the same <delete> task.", Location);
             }
 
             // delete a single file
@@ -174,9 +179,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 foreach (string path in DeleteFileSet.DirectoryNames) {
-                    if (Directory.Exists(path)) {
-                        RecursiveDeleteDirectory(path);
-                    }
+                    RecursiveDeleteDirectory(path);
                 }
             }
         }
@@ -187,6 +190,11 @@ namespace NAnt.Core.Tasks {
 
         private void RecursiveDeleteDirectory(string path) {
             try {
+                // skip the directory if it doesn't exist
+                if (!Directory.Exists(path)) {
+                    return;
+                }
+
                 // first, recursively delete all directories in the directory
                 string[] dirs = Directory.GetDirectories(path);
                 foreach (string dir in dirs) {
@@ -201,7 +209,8 @@ namespace NAnt.Core.Tasks {
                         Log(Level.Verbose, LogPrefix + "Deleting file {0}.", file);
                         File.Delete(file);
                     } catch (Exception ex) {
-                        string msg = string.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", file);
+                        string msg = string.Format(CultureInfo.InvariantCulture, 
+                            "Cannot delete file {0}.", file);
                         if (FailOnError) {
                             throw new BuildException(msg, Location, ex);
                         }
@@ -216,7 +225,8 @@ namespace NAnt.Core.Tasks {
             } catch (BuildException ex) {
                 throw ex;
             } catch (Exception ex) {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}.", path);
+                string msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot delete directory {0}.", path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
@@ -239,7 +249,8 @@ namespace NAnt.Core.Tasks {
                     throw new FileNotFoundException();
                 }
             } catch (Exception ex) {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", path);
+                string msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot delete file {0}.", path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
