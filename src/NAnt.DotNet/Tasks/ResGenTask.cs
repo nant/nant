@@ -1,4 +1,4 @@
-// NAnt - A .NET build tool
+//// NAnt - A .NET build tool
 // Copyright (C) 2001-2003 Gerry Shaw
 //
 // This library is free software; you can redistribute it and/or
@@ -19,7 +19,10 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Klemen Zagar (klemen@zagar.ws)
 // Ian MacLean (ian_maclean@another.com)
+// Gert Driesen (drieseng@ardatis.com)
 
+using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
@@ -72,11 +75,17 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private string _arguments;
+        private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileInfo _inputFile; 
         private FileInfo _outputFile;
+        private string _programFileName;
         private ResourceFileSet _resources = new ResourceFileSet();
         private string _targetExt = "resources";
         private DirectoryInfo _toDir;
+        private DirectoryInfo _workingDirectory;
+
+        // framework configuration settings
+        private bool _supportsAssemblyReferences;
 
         #endregion Private Instance Fields
 
@@ -130,9 +139,47 @@ namespace NAnt.DotNet.Tasks {
             set { _resources = value; }
         }
 
+        /// <summary>
+        /// Reference metadata from the specified assembly files.
+        /// </summary>
+        [BuildElement("assemblies")]
+        public AssemblyFileSet Assemblies {
+            get { return _assemblies; }
+            set { _assemblies = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether assembly references are supported by the 
+        /// <c>resgen</c> tool for the current target framework. The default 
+        /// is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsassemblyreferences")]
+        public bool SupportsAssemblyReferences {
+            get { return _supportsAssemblyReferences; }
+            set { _supportsAssemblyReferences = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
+
+        /// <summary>
+        /// Gets the working directory for the application.
+        /// </summary>
+        /// <value>
+        /// The working directory for the application.
+        /// </value>
+        public override DirectoryInfo BaseDirectory {
+            get { 
+                if (_workingDirectory == null) {
+                    return base.BaseDirectory; 
+                }
+                return _workingDirectory;
+            }
+            set {
+                _workingDirectory = value;
+            }
+        }
 
         /// <summary>
         /// Gets the command line arguments for the external program.
@@ -142,6 +189,102 @@ namespace NAnt.DotNet.Tasks {
         /// </value>
         public override string ProgramArguments { 
             get { return _arguments; } 
+        }
+
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>
+        /// The filename of the external program.
+        /// </value>
+        /// <remarks>
+        /// Override in derived classes to explicitly set the location of the 
+        /// external tool.
+        /// </remarks>
+        public override string ProgramFileName { 
+            get { 
+                if (_programFileName == null) {
+                    _programFileName = base.ProgramFileName;
+                }
+                return _programFileName;
+            }
+        }
+
+        /// <summary>
+        /// Updates the <see cref="ProcessStartInfo" /> of the specified 
+        /// <see cref="Process"/>.
+        /// </summary>
+        /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
+        protected override void PrepareProcess(Process process) {
+            if (!SupportsAssemblyReferences) {
+                // create instance of Copy task
+                CopyTask ct = new CopyTask();
+
+                // inherit project from current task
+                ct.Project = Project;
+
+                // inherit namespace manager from current task
+                ct.NamespaceManager = NamespaceManager;
+
+                // parent is current task
+                ct.Parent = this;
+
+                // only output warning messages or higher
+                ct.Threshold = Level.Warning;
+
+                // make sure framework specific information is set
+                ct.InitializeTaskConfiguration();
+
+                // set parent of child elements
+                ct.CopyFileSet.Parent = ct;
+
+                // inherit project from solution task for child elements
+                ct.CopyFileSet.Project = ct.Project;
+
+                // inherit namespace manager from solution task
+                ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
+
+                // set base directory of fileset
+                ct.CopyFileSet.BaseDirectory = Assemblies.BaseDirectory;
+
+                // copy all files to base directory itself
+                ct.Flatten = true;
+
+                // copy referenced assemblies
+                foreach (string file in Assemblies.FileNames) {
+                    ct.CopyFileSet.Includes.Add(file);
+                }
+
+                // copy command line tool to working directory
+                ct.CopyFileSet.Includes.Add(base.ProgramFileName);
+
+                // set destination directory
+                ct.ToDirectory = BaseDirectory;
+
+                // increment indentation level
+                ct.Project.Indent();
+                try {
+                    // execute task
+                    ct.Execute();
+                } finally {
+                    // restore indentation level
+                    ct.Project.Unindent();
+                }
+
+                // change program to execute the tool in working directory as
+                // that will allow this tool to resolve assembly references
+                // using assemblies stored in the same directory
+                _programFileName = Path.Combine(BaseDirectory.FullName, 
+                    Path.GetFileName(base.ProgramFileName));
+            } else {
+                foreach (string assembly in Assemblies.FileNames) {
+                    AppendArgument(string.Format(CultureInfo.InvariantCulture,
+                        " /r:\"{0}\"", assembly));
+                }
+            }
+
+            // further delegate preparation to base class
+            base.PrepareProcess(process);
         }
 
         /// <summary>
@@ -186,13 +329,37 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     AppendArgument(string.Format(CultureInfo.InvariantCulture, 
-                        "\"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
+                        " \"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
                 }
             }
 
             if (!StringUtils.IsNullOrEmpty(_arguments)) {
-                // call base class to do the work
-                base.ExecuteTask();
+                // determine working directory
+                BaseDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), 
+                    Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture)));
+
+                try {
+                    // check if working directory exists
+                    if (!BaseDirectory.Exists) {
+                        // create working directory
+                        BaseDirectory.Create();
+                        // refresh filesystem info
+                        BaseDirectory.Refresh();
+                    }
+
+                    // call base class to do the work
+                    base.ExecuteTask();
+                } finally {
+                    if (BaseDirectory.Exists) {
+                        DeleteTask deleteTask = new DeleteTask();
+                        deleteTask.Project = Project;
+                        deleteTask.Parent = this;
+                        deleteTask.InitializeTaskConfiguration();
+                        deleteTask.Directory = BaseDirectory;
+                        deleteTask.Threshold = Level.None; // no output in build log
+                        deleteTask.Execute();
+                    }
+                }
             }
         }
 
@@ -244,7 +411,14 @@ namespace NAnt.DotNet.Tasks {
                 Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
-  
+
+            // check if reference assemblies were updated
+            fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, outputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                return true;
+            }
+
             // if we made it here then we don't have to recompile
             return false;
         }
