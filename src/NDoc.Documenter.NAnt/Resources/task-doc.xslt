@@ -42,7 +42,7 @@
             <head>
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-                <link rel="stylesheet" type="text/css" href="../../style.css" />
+                <link rel="stylesheet" type="text/css" href="../style.css" />
                 <title>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task</title>
             </head>
             <body>
@@ -50,11 +50,11 @@
                     <tr>
                         <td class="NavBar-Cell" width="100%">
                             <a href="../../index.html"><b>NAnt</b></a>
-                            <img alt="->" src="../../arrow.gif" />
+                            <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
-                            <img alt="->" src="../../arrow.gif" />
+                            <img alt="->" src="../images/arrow.gif" />
                             <a href="index.html">Task Reference</a>
-                            <img alt="->" src="../../arrow.gif" /><xsl:text> </xsl:text>
+                            <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                             &lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task
                         </td>
                     </tr>
