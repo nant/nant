@@ -546,7 +546,7 @@
             <property name="install.realprefix" value="${install.prefix}" />
         </if>
         <property name="install.copylocation" value="${path::combine(install.realprefix, 'NAnt')}"/>
-        <echo message="Installing NAnt to '${install.copylocation}'..." />
+        <echo message="Installing NAnt to '${install.copylocation}' ..." />
         
         <copy todir="${install.copylocation}" overwrite="true">
             <fileset basedir="${build.dir}">
@@ -568,7 +568,7 @@
         <property name="install.share" value="${path::combine(install.realprefix, 'share')}"/>
         <property name="install.copylocation" value="${path::combine (install.share, 'NAnt')}"/>
         <property name="prefix" value="${pkg-config::get-variable('mono', 'prefix')}"/>
-        <echo message="Installing NAnt to '${install.copylocation}'..." />
+        <echo message="Installing NAnt to '${install.copylocation}' ..." />
         
         <copy todir="${install.copylocation}" overwrite="true">
             <fileset basedir="${build.dir}">
@@ -579,7 +579,7 @@
                 <exclude name="bin/*.Tests.*" />
             </fileset>
         </copy>
-        <echo message="Installing NAnt wrapper script to '${install.bindir}'..." />
+        <echo message="Installing NAnt wrapper script to '${install.bindir}' ..." />
         <echo file="${path::combine(install.bindir, 'nant')}">
 #!/bin/sh
 
