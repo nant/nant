@@ -256,6 +256,8 @@ namespace NAnt.DotNet.Tasks {
             // if output file doesn't exist, the stream will always need to be
             // persisted to the filesystem.
             if (!Output.Exists) {
+                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, rebuilding.", 
+                    Output.FullName);
                 return true;
             }
 
@@ -278,6 +280,8 @@ namespace NAnt.DotNet.Tasks {
 
             //compare hash of generated source with of existing source
             if (Convert.ToBase64String(generatedAssemblyInfoHash) != Convert.ToBase64String(existingAssemblyInfoHash)) {
+                Log(Level.Verbose, LogPrefix + "Output file '{0}' is not up-to-date, rebuilding.", 
+                    Output.FullName);
                 return true;
             } else {
                 return false;

@@ -830,6 +830,8 @@ namespace NAnt.DotNet.Tasks {
             }
 
             if (!OutputFile.Exists) {
+                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, recompiling.", 
+                    OutputFile.FullName);
                 return true;
             }
 

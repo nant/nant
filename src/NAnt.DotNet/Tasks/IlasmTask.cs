@@ -548,16 +548,16 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
-            //
-            // check if output file already exists
-            //
+            // check if output file exists
             if (!OutputFile.Exists) {
+                Log(Level.Verbose, LogPrefix + 
+                    "Output file '{0}' does not exist, recompiling.", 
+                    OutputFile.FullName);
+
                 return true;
             }
 
-            //
             // check if sources have been updated
-            //
             string fileName = FileSet.FindMoreRecentLastWriteTime(
                 Sources.FileNames, OutputFile.LastWriteTime);
 
@@ -568,9 +568,7 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
-            //
             // check if unmanaged resources have been updated
-            //
             if (ResourceFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(
                     ResourceFile.FullName, OutputFile.LastWriteTime);
@@ -583,9 +581,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            //
             // check if strong name signature has been updated
-            //
             if (KeyFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(
                     KeyFile.FullName, OutputFile.LastWriteTime);
@@ -598,9 +594,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            //
             // compilation not needed
-            //
             return false;
         }
 

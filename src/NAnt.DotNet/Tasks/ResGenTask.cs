@@ -402,6 +402,8 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
             if (!outputFile.Exists) {
+                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, recompiling.",
+                    outputFile.FullName);
                 return true;
             }
 
