@@ -44,6 +44,20 @@ namespace Tests.NAnt.Core {
             set { _fail = value; }
         }
 
+        [TaskAttribute("required", Required=true)]
+        [StringValidatorAttribute(AllowEmpty=true)]
+        public string RequiredProperty {
+            get { return ""; }
+            set { }
+        }
+
+        [TaskAttribute("requirednotempty", Required=true)]
+        [StringValidatorAttribute(AllowEmpty=false)]
+        public string RequiredNotEmptyProperty {
+            get { return ""; }
+            set { }
+        }
+
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "TestTask executed");
             Log(Level.Verbose, LogPrefix + "Verbose message");
@@ -71,50 +85,70 @@ namespace Tests.NAnt.Core {
         
         [Test]
         public void Test_Simple() {
-            string result = RunBuild(FormatBuildFile(""));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
         [Test]
         public void Test_Verbose() {
-            string result = RunBuild(FormatBuildFile("verbose='true'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" verbose='true'"));
             Assertion.Assert("Verbose message should have been displayed.\n" + result, result.IndexOf("Verbose message") != -1);
         }
 
 		[Test]
         public void Test_FailOnError() {
-            string result = RunBuild(FormatBuildFile("fail='true' failonerror='false'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" fail=\"true\" failonerror=\"false\""));
             Assertion.Assert("Task should have failed.\n" + result, result.IndexOf("TestTask failed") != -1);
+        }
+
+        [Test]
+        public void Test_NoFailOnError() {
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" fail=\"false\" failonerror=\"false\""));
+            Assertion.Assert("Task should not have failed.\n" + result, result.IndexOf("TestTask failed") == -1);
         }
 
 		[Test]
         public void Test_If_True() {
-            string result = RunBuild(FormatBuildFile("if='true'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" if=\"true\""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
 		[Test]
         public void Test_If_False() {
-            string result = RunBuild(FormatBuildFile("if='false'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" if=\"false\""));
             Assertion.Assert("Task should not have executed.\n" + result, result.IndexOf("TestTask executed") == -1);
         }
 
 		[Test]
         public void Test_Unless_False() {
-            string result = RunBuild(FormatBuildFile("unless='false'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" unless=\"false\""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
 		[Test]
         public void Test_Unless_True() {
-            string result = RunBuild(FormatBuildFile("unless='true'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" unless=\"true\""));
             Assertion.Assert("Task should not have executed.\n" + result, result.IndexOf("TestTask executed") == -1);
         }
 
 		[Test]
         public void Test_Mixture() {
-            string result = RunBuild(FormatBuildFile("verbose='true' if='true' unless='false'"));
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"ok\" verbose=\"true\" if=\"true\" unless=\"false\""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_MissingRequiredAttribute() {
+            // required attribute named 'required' is missing
+            string result = RunBuild(FormatBuildFile("requirednotempty=\"ok\""));
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_EmptyRequiredAttribute() {
+            // requirednotempty attribute does not allow empty value
+            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"\""));
         }
 
 /*
@@ -128,7 +162,7 @@ namespace Tests.NAnt.Core {
         }
 */
         private string FormatBuildFile(string attributes) {
-            return String.Format(CultureInfo.InvariantCulture, _format, Assembly.GetExecutingAssembly().Location, attributes);
+            return string.Format(CultureInfo.InvariantCulture, _format, Assembly.GetExecutingAssembly().Location, attributes);
         }
     }
 }
