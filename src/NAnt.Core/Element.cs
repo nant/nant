@@ -272,17 +272,18 @@ namespace NAnt.Core {
 
                 XmlNode attributeNode = null;
                 string attributeValue = null;
+                XmlNode frameworkAttributeNode = null;
 
                 FrameworkConfigurableAttribute frameworkAttribute = (FrameworkConfigurableAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(FrameworkConfigurableAttribute));
 
                 if (frameworkAttribute != null) {
                     // locate XML configuration node for current attribute
-                    attributeNode = GetAttributeConfigurationNode(frameworkAttribute.Name);
+                    frameworkAttributeNode = GetAttributeConfigurationNode(frameworkAttribute.Name);
 
-                    if (attributeNode != null) {
+                    if (frameworkAttributeNode != null) {
                         // get the configured value
-                        attributeValue = attributeNode.InnerText;
+                        attributeValue = frameworkAttributeNode.InnerText;
 
                         if (frameworkAttribute.ExpandProperties && Project.CurrentFramework != null) {
                             try {
@@ -365,6 +366,13 @@ namespace NAnt.Core {
                 }
 
                 if (attributeValue != null) {
+                    // if attribute was not encountered in the build file, but
+                    // still has a value, then it was configured in the framework
+                    // section of the NAnt configuration file
+                    if (attributeNode == null) {
+                        attributeNode = frameworkAttributeNode;
+                    }
+
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
                         "Setting value: {2}.{0} = {1}", 
@@ -389,7 +397,6 @@ namespace NAnt.Core {
                                 validator.Validate(attributeValue);
                             }
                         } catch (ValidationException ve) {
-                            logger.Error("Validation Exception", ve);
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                                 "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
                                 attributeValue, attributeNode.Name, this.Name), Location, ve);
