@@ -89,6 +89,8 @@ namespace NAnt.Core.Tasks {
     /// <nant>
     ///     <buildfiles>
     ///         <include name="**/default.build" />
+    ///         <!-- avoid recursive execution of current build file -->
+    ///         <exclude name="${project::get-buildfile-path()}" />
     ///     </buildfiles>
     /// </nant>
     ///     ]]>
