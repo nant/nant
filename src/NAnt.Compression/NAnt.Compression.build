@@ -16,7 +16,7 @@
             </sources>
             <references>
                 <!-- temporary workaround for Mono Runtime bug #57602 -->
-                <include name="${lib.framework.dir}/log4net.dll" />
+                <include name="${build.dir}/bin/log4net.dll" />
                 <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${lib.dir}/ICSharpCode.SharpZipLib.dll" />
