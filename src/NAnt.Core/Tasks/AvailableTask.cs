@@ -79,6 +79,7 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     [TaskName("available")]
+    [Obsolete("Use functions instead.", false)]
     public class AvailableTask : Task {
         /// <summary>
         /// Defines the possible resource checks.
@@ -118,9 +119,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The type of resource which must be present - either <see cref="ResourceType.File" />, 
-        /// <see cref="ResourceType.Directory" />, <see cref="ResourceType.Framework" /> 
-        /// or <see cref="ResourceType.FrameworkSDK" />.
+        /// The type of resource which must be present.
         /// </summary>
         [TaskAttribute("type", Required=true)]
         public ResourceType Type { 
