@@ -532,15 +532,13 @@ namespace NAnt.Core {
                         Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute));
 
                     if (buildAttribute != null) {
-                        
                         //if we don't process the xml then skip on..
-                        if(!buildAttribute.ProcessXML) {
+                        if (!buildAttribute.ProcessXml) {
                             logger.Debug(string.Format(
                                 CultureInfo.InvariantCulture,
                                 "Skipping {0} <attribute> for {1}", 
                                 buildAttribute.Name, 
                                 propertyInfo.DeclaringType.FullName));
-                        
                             //skip this one.
                             continue;
                         }
@@ -550,7 +548,6 @@ namespace NAnt.Core {
                             "Found {0} <attribute> for {1}", 
                             buildAttribute.Name, 
                             propertyInfo.DeclaringType.FullName));
-                        
 
                         // locate attribute in build file
                         attributeNode = XmlNode.Attributes[buildAttribute.Name];
@@ -659,17 +656,14 @@ namespace NAnt.Core {
                                 "for <{1} ...//>.", buildElementArrayAttribute.Name, 
                                 Name), Location);
                         }
-                    
-                        
+
                         Type elementType = null;
                         if (buildElementArrayAttribute != null) {
-                            if(!buildElementArrayAttribute.ProcessXML) {
+                            if (!buildElementArrayAttribute.ProcessXml) {
                                 continue;
                             }
-                        } else {
-                            if(!buildElementCollectionAttribute.ProcessXML) {
-                                continue;
-                            }
+                        } else if (!buildElementCollectionAttribute.ProcessXml) {
+                            continue;
                         }
                         // determine type of child elements
                         if (buildElementArrayAttribute != null) {
@@ -908,7 +902,7 @@ namespace NAnt.Core {
                         Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
 
                     if (buildElementAttribute != null && buildElementArrayAttribute == null && buildElementCollectionAttribute == null) { // if we're not an array element either
-                        if(!buildElementAttribute.ProcessXML){
+                        if (!buildElementAttribute.ProcessXml){
                             continue;
                         }
                         // get value from XML node
@@ -1020,7 +1014,7 @@ namespace NAnt.Core {
                         logger.Error(msg);
                         throw new BuildException(msg, Location);
                     }
-                    dataType.RefID = xml.Attributes["refid"].Value;           
+                    dataType.RefID = xml.Attributes["refid"].Value;
                     // we have a datatype reference
                     childElement = InitDataTypeBase(dataType);
                     Type elemType = setter.GetParameters()[0].ParameterType;
