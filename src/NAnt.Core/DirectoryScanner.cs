@@ -585,7 +585,7 @@ namespace NAnt.Core {
 
         #endregion Override implementation of StringCollection
 
-        #region Private Instance Fields
+        #region Private Instance Methods
 
         /// <summary>
         /// Determines whether the filesystem on which the specified path is 
@@ -601,6 +601,6 @@ namespace NAnt.Core {
                 + Path.DirectorySeparatorChar); 
         }
 
-        #endregion Private Instance Fields
+        #endregion Private Instance Methods
     }
 }
