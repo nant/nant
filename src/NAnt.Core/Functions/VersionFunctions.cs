@@ -27,7 +27,7 @@ namespace NAnt.Core.Functions {
     public class VersionFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public VersionFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {
+        public VersionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors

@@ -33,10 +33,10 @@ using NAnt.Core.Types;
 namespace NAnt.Core.Functions {
     [FunctionSet("pkg-config", "Unix/Cygwin")]
     public class PkgConfigFunctions : FunctionSetBase {
-
         #region Public Instance Constructors
 
-        public PkgConfigFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {}
+        public PkgConfigFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
+        }
 
         #endregion Public Instance Constructors
 

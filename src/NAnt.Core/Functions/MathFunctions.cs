@@ -33,7 +33,7 @@ namespace NAnt.Core.Functions {
     public class MathFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public MathFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {
+        public MathFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors

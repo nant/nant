@@ -41,7 +41,7 @@ namespace NAnt.Core.Functions {
     public class NAntFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public NAntFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public NAntFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -93,7 +93,7 @@ namespace NAnt.Core.Functions {
     public class ProjectFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public ProjectFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public ProjectFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -170,7 +170,7 @@ namespace NAnt.Core.Functions {
     public class TargetFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public TargetFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public TargetFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -233,7 +233,7 @@ namespace NAnt.Core.Functions {
     public class TaskFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public TaskFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public TaskFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -280,7 +280,7 @@ namespace NAnt.Core.Functions {
     public class PropertyFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public PropertyFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public PropertyFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -343,7 +343,7 @@ namespace NAnt.Core.Functions {
     public class FrameworkFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public FrameworkFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public FrameworkFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -553,7 +553,7 @@ namespace NAnt.Core.Functions {
     public class PlatformFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public PlatformFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public PlatformFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -606,7 +606,7 @@ namespace NAnt.Core.Functions {
     public class EnvironmentFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public EnvironmentFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public EnvironmentFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors

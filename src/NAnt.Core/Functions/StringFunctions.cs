@@ -33,7 +33,7 @@ namespace NAnt.Core.Functions {
     public class StringFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public StringFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public StringFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors

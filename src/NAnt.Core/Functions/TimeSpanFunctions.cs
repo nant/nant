@@ -32,7 +32,7 @@ namespace NAnt.Core.Functions {
     public class TimeSpanFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public TimeSpanFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {
+        public TimeSpanFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors

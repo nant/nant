@@ -31,7 +31,7 @@ namespace NAnt.Core {
     public class ExpressionEvaluator : ExpressionEvalBase {
         #region Private Instance Fields
 
-        private PropertyDictionary _propDict;
+        private PropertyDictionary _properties;
         private Location _location;
         private Hashtable _state;
         private Stack _visiting;
@@ -41,9 +41,9 @@ namespace NAnt.Core {
 
         #region Public Instance Constructors
 
-        public ExpressionEvaluator(Project project, PropertyDictionary propDict, Location location, Hashtable state, Stack visiting) {            
+        public ExpressionEvaluator(Project project, PropertyDictionary properties, Location location, Hashtable state, Stack visiting) {
             _project = project;
-            _propDict = propDict;
+            _properties = properties;
             _location = location;
             _state = state;
             _visiting = visiting;
@@ -81,7 +81,7 @@ namespace NAnt.Core {
                 } else {
                     // create new instance.
                     ConstructorInfo constructor = methodInfo.DeclaringType.GetConstructor(new Type[] {typeof(Project), typeof(PropertyDictionary)});
-                    object o = constructor.Invoke(new object[] {_project, _propDict});
+                    object o = constructor.Invoke(new object[] {_project, _properties});
 
                     return methodInfo.Invoke(o, args);
                 }
@@ -108,7 +108,7 @@ namespace NAnt.Core {
         /// </returns>
         [Function("get-value")]
         public string GetPropertyValue(string propertyName) {
-            if (_propDict.IsDynamicProperty(propertyName)) {
+            if (_properties.IsDynamicProperty(propertyName)) {
                 string currentState = (string)_state[propertyName];
 
                 // check for circular references
@@ -120,7 +120,7 @@ namespace NAnt.Core {
                 _visiting.Push(propertyName);
                 _state[propertyName] = PropertyDictionary.Visiting;
 
-                string propertyValue = _propDict.GetPropertyValue(propertyName);
+                string propertyValue = _properties.GetPropertyValue(propertyName);
                 if (propertyValue == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Property '{0}' has not been set.", propertyName));
@@ -130,13 +130,14 @@ namespace NAnt.Core {
 
                 // TODO - get the proper location of the property declaration
                 
-                propertyValue = _propDict.ExpandProperties(propertyValue, propertyLocation, _state, _visiting);
+                propertyValue = _properties.ExpandProperties(propertyValue, 
+                    propertyLocation, _state, _visiting);
 
                 _visiting.Pop();
                 _state[propertyName] = PropertyDictionary.Visited;
                 return propertyValue;
             } else {
-                string propertyValue = _propDict.GetPropertyValue(propertyName);
+                string propertyValue = _properties.GetPropertyValue(propertyName);
                 if (propertyValue == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Property '{0}' has not been set.", propertyName));

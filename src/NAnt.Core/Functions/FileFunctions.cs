@@ -34,7 +34,7 @@ namespace NAnt.Core.Functions {
     public class FileFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public FileFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public FileFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors

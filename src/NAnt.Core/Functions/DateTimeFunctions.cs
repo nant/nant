@@ -33,7 +33,7 @@ namespace NAnt.Core.Functions {
     public class DateFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public DateFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {
+        public DateFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -184,7 +184,22 @@ namespace NAnt.Core.Functions {
         /// The number of days in <paramref name="month" /> for the specified 
         /// <paramref name="year" />.
         /// </returns>
+        [Function("get-days-in-month")]
         public static int GetDaysInMonth(int year, int month) {
+            return DateTime.DaysInMonth(year, month);
+        }
+
+        /// <summary>
+        /// Returns an indication whether the specified year is a leap year.
+        /// </summary>
+        /// <param name="year">A 4-digit year.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="year" /> is a leap year; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-leap-year")]
+        public static bool IsLeapYear(int year) {
+            return DateTime.IsLeapYear(year);
         }
 
         /*
