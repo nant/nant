@@ -178,7 +178,6 @@ namespace NDoc.Documenter.NAnt {
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "functions"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "enums"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "filters"));
             } catch (Exception ex) {
@@ -280,7 +279,7 @@ namespace NDoc.Documenter.NAnt {
                 throw new ArgumentNullException("typeNode");
             }
 
-            if (docType == ElementDocType.None || docType == ElementDocType.FunctionSet) {
+            if (docType == ElementDocType.None || docType == ElementDocType.FunctionSet || docType == ElementDocType.Element) {
                 // we don't need to document this type
                 return;
             }
@@ -357,12 +356,6 @@ namespace NDoc.Documenter.NAnt {
                         // select the item type in the collection
                         XmlAttribute elementTypeAttribute = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']/method[@name='Add']/parameter/@type") as XmlAttribute;
                         if (elementTypeAttribute != null) {
-                            // HACK : make sure the collection class is documented too
-                            XmlNode collectionNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
-                            if (collectionNode != null) {
-                                DocumentType(collectionNode, ElementDocType.Element, utilities);
-                            }
-
                             // get type of collection elements
                             elementType = "T:" + elementTypeAttribute.Value;
                         }

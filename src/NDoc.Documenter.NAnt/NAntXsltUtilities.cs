@@ -416,6 +416,22 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
+        /// Determines whether the given cref points to an <c>element</c>.
+        /// </summary>
+        /// <param name="cref">The cref to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the given cref points to an <c>element</c>;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// When the cref points to a <see cref="Task" /> or <see cref="DataTypeBase" />
+        /// this method returns <see langword="false" />.
+        /// </remarks>
+        public bool IsElement(string cref) {
+            return GetElementDocTypeByID(cref) == ElementDocType.Element;
+        }
+
+        /// <summary>
         /// Determines whether the given cref points to a <c>datatype</c>.
         /// </summary>
         /// <param name="cref">The cref to check.</param>
@@ -530,9 +546,14 @@ namespace NDoc.Documenter.NAnt {
         /// </summary>
         /// <param name="typeNode">The "Class" element to find the filename for.</param>
         /// <returns>
-        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
-        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
+        /// The relative path and filename where this type is stored in the
+        /// documentation.
         /// </returns>
+        /// <remarks>
+        /// For a type that is neither a task, enum, global type, filter or 
+        /// functionset, the returned filename will point to the SDK docs for
+        /// that type.
+        /// </remarks>
         internal string GetFileNameForType(XmlNode typeNode) {
             if (typeNode == null) {
                 return null;
@@ -575,7 +596,7 @@ namespace NDoc.Documenter.NAnt {
                 return partialURL;
             }
 
-            return "elements/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+            return "../sdk/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
         }
 
         #endregion Internal Instance Methods

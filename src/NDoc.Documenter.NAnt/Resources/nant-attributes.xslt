@@ -35,17 +35,27 @@
             <xsl:with-param name="elementTypeParam" select="../parameter[position()=1]/@type" />
         </xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute']" mode="NestedElements">
         <xsl:comment>Array</xsl:comment>
-        <xsl:call-template name="NestedElement">
+        <xsl:call-template name="NestedElementArray">
             <xsl:with-param name="elementTypeParam">
                 <xsl:choose>
                     <xsl:when test="property[@name='ElementType']/@value != 'null'">
                         <xsl:value-of select="property[@name='ElementType']/@value" />
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="../@type" />
+                        <xsl:variable name="elementType" select="translate(translate(concat('T:', ../@type), '[]', ''), '+', '.')" />
+                        <xsl:choose>
+                            <!-- check if we're dealing with array of elements -->
+                            <xsl:when test="NAntUtil:IsElement($elementType)">
+                                <xsl:value-of select="../@type" />
+                            </xsl:when>
+                            <!-- check if we're dealing with strongly typed collection -->
+                            <xsl:when test="count(NAntUtil:GetClassNode($elementType)/method[@name = 'Add' and @access = 'Public' and count(child::parameter) = 1]) > 0">
+                                <xsl:value-of select="NAntUtil:GetClassNode($elementType)/method[@name = 'Add' and @access = 'Public' and count(child::parameter) = 1]/child::parameter[position() = 1]/@type" />
+                            </xsl:when>
+                        </xsl:choose>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:with-param>
@@ -54,81 +64,175 @@
 
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute']" mode="NestedElements">
         <xsl:comment>Collection</xsl:comment>
-        <xsl:call-template name="NestedElement">
+        <xsl:call-template name="NestedElementCollection">
             <xsl:with-param name="elementTypeParam">
                 <xsl:choose>
                     <xsl:when test="property[@name='ElementType']/@value != 'null'">
                         <xsl:value-of select="property[@name='ElementType']/@value" />
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="../@type" />
+                        <xsl:variable name="elementType" select="translate(translate(concat('T:', ../@type), '[]', ''), '+', '.')" />
+                        <xsl:choose>
+                            <!-- check if we're dealing with array of elements -->
+                            <xsl:when test="NAntUtil:IsElement($elementType)">
+                                <xsl:value-of select="../@type" />
+                            </xsl:when>
+                            <!-- check if we're dealing with strongly typed collection -->
+                            <xsl:when test="count(NAntUtil:GetClassNode($elementType)/method[@name = 'Add' and @access = 'Public' and count(child::parameter) = 1]) > 0">
+                                <xsl:value-of select="NAntUtil:GetClassNode($elementType)/method[@name = 'Add' and @access = 'Public' and count(child::parameter) = 1]/child::parameter[position() = 1]/@type" />
+                            </xsl:when>
+                        </xsl:choose>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 
-    <xsl:template name="NestedElement">
+    <xsl:template name="NestedElementArray">
         <xsl:param name="elementTypeParam" select="'#'" />
+        
         <xsl:variable name="elementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')" />
-        <xsl:variable name="href" select="string(NAntUtil:GetHRef($elementType))" />
-        <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)" />
-        <xsl:variable name="childElementName">
+        <xsl:comment>NestedElementArray=<xsl:value-of select="$elementType" /></xsl:comment>
+        
+        <!-- only output link when element is global type -->
+        <h4>
+            <xsl:element name="a">
+                <xsl:attribute name="id">
+                    <xsl:value-of select="property[@name='Name']/@value" />
+                </xsl:attribute>
+            </xsl:element>
+            <!-- only output link when element is global type -->
             <xsl:choose>
-                <xsl:when test="property[@name='ChildElementName'] and not(property[@name='ChildElementName']/@value = 'null')"><xsl:value-of select="property[@name='ChildElementName']/@value" /></xsl:when>
-                <xsl:when test="property[@name='ChildElementName']">???</xsl:when>
-                <xsl:otherwise></xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-        <xsl:choose>
-            <!-- only output link when we have a href -->
-            <xsl:when test="$href = ''">
-                <h4>
-                    <xsl:element name="a">
-                        <xsl:attribute name="id">
-                            <xsl:value-of select="property[@name='Name']/@value" />
-                        </xsl:attribute>
-                    </xsl:element>
+                <xsl:when test="NAntUtil:IsDataType($elementType)">
+                    &lt;<a href="{NAntUtil:GetHRef($elementType)}"><xsl:value-of select="property[@name='Name']/@value" /></a>&gt;
+                </xsl:when>
+                <xsl:otherwise>
                     &lt;<xsl:value-of select="property[@name='Name']/@value" />&gt;
-                </h4>
-            </xsl:when>
-            <xsl:otherwise>
-                <h4>
-                    <xsl:element name="a">
-                        <xsl:attribute name="id">
-                            <xsl:value-of select="property[@name='Name']/@value" />
-                        </xsl:attribute>
-                    </xsl:element>
-                    &lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value" /></a>&gt;
-                </h4>
-            </xsl:otherwise>
-        </xsl:choose>
-        <xsl:if test="not($childElementName = '')">
-            <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value" /> ... /&gt;</h5>
-            <p />
-        </xsl:if>
+                </xsl:otherwise>
+            </xsl:choose>
+        </h4>
+
+        <div class="nested-element">
+            <!-- generates docs from summary xmldoc comments -->
+            <xsl:apply-templates select=".." mode="docstring" />
+
+            <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)" />
+            <xsl:if test="$typeNode and not(NAntUtil:IsDataType($elementType))">
+                <xsl:apply-templates select="$typeNode" />
+            </xsl:if>
+        </div>
+
+        <h4>
+            <xsl:element name="a">
+                <xsl:attribute name="id">
+                    <xsl:value-of select="property[@name='Name']/@value" />
+                </xsl:attribute>
+            </xsl:element>
+            <!-- only output link when element is global type -->
+            <xsl:choose>
+                <xsl:when test="NAntUtil:IsDataType($elementType)">
+                    &lt;/<a href="{NAntUtil:GetHRef($elementType)}"><xsl:value-of select="property[@name='Name']/@value" /></a>&gt;
+                </xsl:when>
+                <xsl:otherwise>
+                    &lt;/<xsl:value-of select="property[@name='Name']/@value" />&gt;
+                </xsl:otherwise>
+            </xsl:choose>
+        </h4>
+    </xsl:template>
+
+    <xsl:template name="NestedElementCollection">
+        <xsl:param name="elementTypeParam" select="'#'" />
+        <xsl:variable name="childElementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')" />
+
+        <xsl:variable name="childElementName">
+            <xsl:value-of select="property[@name='ChildElementName']/@value" />
+        </xsl:variable>
+
+        <h4>
+            <xsl:element name="a">
+                <xsl:attribute name="id">
+                    <xsl:value-of select="property[@name='Name']/@value" />
+                </xsl:attribute>
+            </xsl:element>
+            &lt;<xsl:value-of select="property[@name='Name']/@value" />&gt;
+        </h4>
         
         <div class="nested-element">
             <!-- generates docs from summary xmldoc comments -->
             <xsl:apply-templates select=".." mode="docstring" />
-            
-            <!--
-                Put nested element class docs inline, if not derived from DateTypeBase
+
+            <!-- put child element docs inline, if not derive from DataTypeBase -->
+            <xsl:variable name="childTypeNode" select="NAntUtil:GetClassNode($childElementType)" />
+            <xsl:choose>
+                <xsl:when test="$childTypeNode and not(NAntUtil:IsDataType($childElementType))">
+                    <h5>&lt;<xsl:value-of select="$childElementName" />&gt;</h5>
+                    <div class="nested-element">
+                        <xsl:apply-templates select="$childTypeNode" />
+                    </div>
+                    <h5>&lt;/<xsl:value-of select="$childElementName" />&gt;</h5>
+                </xsl:when>
+                <xsl:otherwise>
+                    <h5>&lt;<a href="{NAntUtil:GetHRef($childElementType)}"><xsl:value-of select="$childElementName" /></a>/&gt;</h5>
+                </xsl:otherwise>
+            </xsl:choose>
+        </div>
+       
+        <h4>&lt;/<xsl:value-of select="property[@name='Name']/@value" />&gt;</h4>
+    </xsl:template>
+
+    <xsl:template name="NestedElement">
+        <xsl:param name="elementTypeParam" select="'#'" />
+        <xsl:variable name="elementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')" />
+        
+        <!-- only output link when element is global type -->
+        <h4>
+            <xsl:element name="a">
+                <xsl:attribute name="id">
+                    <xsl:value-of select="property[@name='Name']/@value" />
+                </xsl:attribute>
+            </xsl:element>
+            <!-- only output link when element is global type -->
+            <xsl:choose>
+                <xsl:when test="NAntUtil:IsDataType($elementType)">
+                    &lt;<a href="{NAntUtil:GetHRef($elementType)}"><xsl:value-of select="property[@name='Name']/@value" /></a>&gt;
+                </xsl:when>
+                <xsl:otherwise>
+                    &lt;<xsl:value-of select="property[@name='Name']/@value" />&gt;
+                </xsl:otherwise>
+            </xsl:choose>
+        </h4>
+
+        <div class="nested-element">
+            <!-- generates docs from summary xmldoc comments -->
+            <xsl:apply-templates select=".." mode="docstring" />
+
+            <!-- 
+                put the nested element class docs inline if the element does 
+                not derive from DataTypeBase (meaning, is not a global type)
             -->
-            <xsl:variable name="DataTypeBase" select="$typeNode[./descendant::base/@type='NAnt.Core.DataTypeBase']" />
-            
-            <xsl:if test="$typeNode and not($DataTypeBase)"> 
+            <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)" />
+            <xsl:if test="$typeNode and not(NAntUtil:IsDataType($elementType))">
                 <xsl:apply-templates select="$typeNode" />
             </xsl:if>
             <p />
         </div>
-        
-        <xsl:if test="not($childElementName = '')">
-            <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value" /> ... /&gt;</h5>
-            <h5>...</h5>
-        </xsl:if>
-        
-        <h4>&lt;/<xsl:value-of select="property[@name='Name']/@value" />&gt;</h4>
+
+        <h4>
+            <xsl:element name="a">
+                <xsl:attribute name="id">
+                    <xsl:value-of select="property[@name='Name']/@value" />
+                </xsl:attribute>
+            </xsl:element>
+            <!-- only output link when element is global type -->
+            <xsl:choose>
+                <xsl:when test="NAntUtil:IsDataType($elementType)">
+                    &lt;/<a href="{NAntUtil:GetHRef($elementType)}"><xsl:value-of select="property[@name='Name']/@value" /></a>&gt;
+                </xsl:when>
+                <xsl:otherwise>
+                    &lt;/<xsl:value-of select="property[@name='Name']/@value" />&gt;
+                </xsl:otherwise>
+            </xsl:choose>
+        </h4>
     </xsl:template>
 
     <!-- match TaskAttribute property tag -->
