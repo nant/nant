@@ -18,6 +18,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 
 using NAnt.Core.Attributes;
@@ -254,15 +255,21 @@ namespace NAnt.Core.Tasks {
                         }
 
                         if (!StringUtils.IsNullOrEmpty(Source)) {
-                            if (!Directory.Exists(Project.GetFullPath(Source))) {
-                                throw new BuildException("Invalid Source: " + Source, Location);
+                            // resolve to full path
+                            Source = Project.GetFullPath(Source);
+                            // ensure directory exists
+                            if (!Directory.Exists(Source)) {
+                                throw new BuildException(string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "Source directory '{0}' does not exist.", 
+                                    Source), Location);
                             }
                         
                             if (_props.Length != 1) {
                                 throw new BuildException(@"Only one property is valid for item=""File""", Location);
                             }
                         
-                            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
+                            DirectoryInfo dirInfo = new DirectoryInfo(Source);
                             FileInfo[] files = dirInfo.GetFiles();
                         
                             foreach (FileInfo file in files) {
@@ -288,11 +295,17 @@ namespace NAnt.Core.Tasks {
                         }
 
                         if (!StringUtils.IsNullOrEmpty(Source)) {
-                            if (!Directory.Exists(Project.GetFullPath(Source))) {
-                                throw new BuildException("Invalid Source: " + Source, Location);
+                            // resolve to full path
+                            Source = Project.GetFullPath(Source);
+                            // ensure directory exists
+                            if (!Directory.Exists(Source)) {
+                                throw new BuildException(string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "Source directory '{0}' does not exist.", 
+                                    Source), Location);
                             }
 
-                            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Source));
+                            DirectoryInfo dirInfo = new DirectoryInfo(Source);
                             DirectoryInfo[] dirs = dirInfo.GetDirectories();
                             foreach (DirectoryInfo dir in dirs) {
                                 DoWork(dir.FullName);
@@ -317,8 +330,14 @@ namespace NAnt.Core.Tasks {
                         }
 
                         if (!StringUtils.IsNullOrEmpty(Source)) {
-                            if (!StringUtils.IsNullOrEmpty(Source) && !File.Exists(Project.GetFullPath(Source))) {
-                                throw new BuildException("Source '" + Source + "' does not exist.", Location);
+                            // resolve to full path
+                            Source = Project.GetFullPath(Source);
+                            // ensure file exists
+                            if (!File.Exists(Source)) {
+                                throw new BuildException(string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "Source file '{0}' does not exist.", 
+                                    Source), Location);
                             }
 
                             DoWorkOnFileLines(Source);
