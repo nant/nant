@@ -17,7 +17,6 @@
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
 using System.IO;
 
 using ICSharpCode.SharpZipLib.Zip;
@@ -26,7 +25,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// A task to extract file from a zip file.
+    /// Extracts files from a zip file.
     /// </summary>
     /// <remarks>
     ///   <para>Uses <a href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</a> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
@@ -50,24 +49,37 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>The zip file to use.</summary>
+        /// <summary>
+        /// The zip file to use.
+        /// </summary>
         [TaskAttribute("zipfile", Required=true)]
-        public string ZipFileName { get { return Project.GetFullPath(_zipfile); } set {_zipfile = value; } }
+        public string ZipFileName {
+            get { return Project.GetFullPath(_zipfile); }
+            set { _zipfile = value; }
+        }
 
-        /// <summary>The zip file to use.</summary>
+        /// <summary>
+        /// The zip file to use.
+        /// </summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDir { get { return Project.GetFullPath(_toDir ); } set {_toDir = value; } }
+        public string ToDir {
+            get { return Project.GetFullPath(_toDir ); }
+            set {_toDir = value; }
+        }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
-        
+
+        /// <summary>
+        /// Extracts the files from the zip file.
+        /// </summary>
         protected override void ExecuteTask() {
             ZipInputStream s = new ZipInputStream(File.OpenRead(ZipFileName));
-            Log.WriteLine(LogPrefix + "Unzipping {0} to {1} ({2} bytes)", _zipfile, _toDir, s.Length);
+            Log.WriteLine(LogPrefix + "Unzipping {0} to {1} ({2} bytes).", _zipfile, _toDir, s.Length);
             ZipEntry theEntry;
             while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName      = Path.GetFileName(theEntry.Name);
-                Log.WriteLineIf(Verbose, "Extracting {0} to {1}", theEntry.Name, _toDir);
+                Log.WriteLineIf(Verbose, "Extracting {0} to {1}.", theEntry.Name, _toDir);
                 // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(ToDir, directoryName));
                 if (fileName != null && fileName.Length != 0) {                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));                    FileStream streamWriter = fi.Create();                    int size = 2048;                    byte[] data = new byte[2048];
                     while (true) {                        size = s.Read(data, 0, data.Length);                        if (size > 0) {                            streamWriter.Write(data, 0, size);                        } else {                            break;                        }                    }

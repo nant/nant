@@ -29,7 +29,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// A task to create a zip file from a specified fileset.
+    /// Creates a zip file from a specified fileset.
     /// </summary>
     /// <remarks>
     ///   <para>Uses <a href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</a> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
@@ -61,15 +61,27 @@ namespace SourceForge.NAnt.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>The zip file to create.</summary>
+        /// <summary>
+        /// The zip file to create.
+        /// </summary>
         [TaskAttribute("zipfile", Required=true)]
-        public string ZipFileName { get { return Project.GetFullPath(_zipfile); } set {_zipfile = value; } }
+        public string ZipFileName {
+            get { return Project.GetFullPath(_zipfile); }
+            set {_zipfile = value; }
+        }
 
-        /// <summary>The comment for the file</summary>
+        /// <summary>
+        /// The comment for the file.
+        /// </summary>
         [TaskAttribute("comment", Required=false)]
-        public string Comment     { get { return _comment; } set {_comment = value; } }
+        public string Comment {
+            get { return _comment; }
+            set {_comment = value; }
+        }
 
-        /// <summary>An optional date/time stamp for the files.</summary>
+        /// <summary>
+        /// An optional date/time stamp for the files.
+        /// </summary>
         [TaskAttribute("stampdatetime", Required=false)]
         public string Stamp { 
             get { return _stampDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo); }
@@ -82,23 +94,34 @@ namespace SourceForge.NAnt.Tasks {
             } 
         }
         
-        /// <summary>Desired level of compression (default is 6).</summary>
+        /// <summary>
+        /// Desired level of compression (default is 6).
+        /// </summary>
         /// <value>0 - 9 (0 - STORE only, 1-9 DEFLATE (1-lowest, 9-highest))</value>
         [TaskAttribute("ziplevel", Required=false)]
-        public int    ZipLevel    { get { return _ziplevel; } set {_ziplevel = value; } }
+        public int ZipLevel {
+            get { return _ziplevel; }
+            set {_ziplevel = value; }
+        }
         
-        /// <summary>The set of files to be included in the archive.</summary>
+        /// <summary>
+        /// The set of files to be included in the archive.
+        /// </summary>
         [FileSet("fileset")]
-        public FileSet ZipFileSet { get { return _fileset; } }
+        public FileSet ZipFileSet {
+            get { return _fileset; }
+        }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
-                
-        protected override void ExecuteTask() {
 
+        /// <summary>
+        /// Creates the zip file.
+        /// </summary>
+        protected override void ExecuteTask() {
             int fileCount = ZipFileSet.FileNames.Count;
-            Log.WriteLine(LogPrefix + "Zipping {0} files to {1}", fileCount, ZipFileName);
+            Log.WriteLine(LogPrefix + "Zipping {0} files to {1}.", fileCount, ZipFileName);
 
             ZipOutputStream zOutstream = new ZipOutputStream(File.Create(ZipFileName));
             int zipLevel = ZipLevel;
@@ -136,7 +159,7 @@ namespace SourceForge.NAnt.Tasks {
                     }
 
                     if (Verbose) {
-                        Log.WriteLine(LogPrefix + "Adding {0}", entryName);
+                        Log.WriteLine(LogPrefix + "Adding {0}.", entryName);
                     }
                     
                     if (zipLevel == 0) {
