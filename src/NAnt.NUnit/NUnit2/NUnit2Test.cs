@@ -117,10 +117,10 @@ namespace NAnt.NUnit2.Types {
                     files.Add(AssemblyFile.FullName);
                 } else {
                     // fix references to system assemblies
-                    if (Project.CurrentFramework != null) {
+                    if (Project.TargetFramework != null) {
                         foreach (string pattern in Assemblies.Includes) {
                             if (Path.GetFileName(pattern) == pattern) {
-                                string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                                string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
                                 string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
                                 string fullPath = Path.Combine(frameworkDir, pattern);
 

@@ -142,7 +142,7 @@ namespace NAnt.VSNet {
                 //          HKLM\SOFTWARE\Microsoft\.NETFramework\AssemblyFoldersEx
                 // 5.)  The HintPath
 
-                DirectoryInfo frameworkAssemblyDirectory = new DirectoryInfo(_solutionTask.Project.CurrentFramework.FrameworkAssemblyDirectory.FullName);
+                DirectoryInfo frameworkAssemblyDirectory = new DirectoryInfo(_solutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName);
                 string systemAssembly = Path.Combine(frameworkAssemblyDirectory.FullName, _referenceFile);
                 if (File.Exists(systemAssembly)) {
                     // this file is a system assembly
