@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2003 Gerry Shaw
+// Copyright (C) 2001-2004 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,11 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Matthew Mastracci (mmastrac at users.sourceforge.net)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -30,6 +34,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet.Tasks {
@@ -157,6 +162,20 @@ namespace NAnt.VSNet.Tasks {
         }
 
         #endregion Public Instance Constructors
+
+        #region Static Constructor
+
+        /// <summary>
+        /// Initializes the static collection of root registry keys under which 
+        /// the <see cref="SolutionTask" /> should looks for assembly folders.
+        /// </summary>
+        static SolutionTask() {
+            _assemblyFolderRootKeys = new StringCollection();
+            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders");
+            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\7.0\AssemblyFolders");
+        }
+
+        #endregion Static Constructor
 
         #region Public Instance Properties
 
@@ -294,6 +313,18 @@ namespace NAnt.VSNet.Tasks {
 
         #endregion Public Instance Properties
 
+        #region Public Static Properties
+
+        /// <summary>
+        /// Gets the collection of root registry keys under which the 
+        /// <see cref="SolutionTask" /> should looks for assembly folders.
+        /// </summary>
+        public static StringCollection AssemblyFolderRootKeys {
+            get { return _assemblyFolderRootKeys; }
+        }
+
+        #endregion Public Static Properties
+
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
@@ -388,10 +419,10 @@ namespace NAnt.VSNet.Tasks {
             FileSet fsFolders = new FileSet();
 
             try {
-                ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(VS71AssemblyFolders), fsFolders);
-                ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(VS71AssemblyFolders), fsFolders);
-                ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(VS70AssemblyFolders), fsFolders);
-                ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(VS70AssemblyFolders), fsFolders);
+                foreach (string assemblyFolderRootKey in AssemblyFolderRootKeys) {
+                    ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(assemblyFolderRootKey), fsFolders);
+                    ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(assemblyFolderRootKey), fsFolders);
+                }
             } catch (NotImplementedException) {
                 // ignore this exception, as Mono currently has no implementation 
                 // for registry related classes
@@ -415,14 +446,13 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _assemblyFolders;
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
-        private bool _enableWebDav = false;
+        private bool _enableWebDav;
 
         #endregion Private Instance Fields
 
         #region Private Static Fields
 
-        private const string VS71AssemblyFolders = @"SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders";
-        private const string VS70AssemblyFolders = @"SOFTWARE\Microsoft\VisualStudio\7.0\AssemblyFolders";
+        private static readonly StringCollection _assemblyFolderRootKeys;
 
         #endregion Private Static Fields
     }
