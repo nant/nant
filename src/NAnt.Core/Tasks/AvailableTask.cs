@@ -145,7 +145,7 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         /// <summary>
-        /// Checks if the directory  specified in the <see cref="Resouce" /> property
+        /// Checks if the directory  specified in the <see cref="Resource" /> property
         /// is available on the filesystem.
         /// </summary>
         /// <returns><c>true</c> when the directory exists, <c>false</c> otherwise.</returns>
