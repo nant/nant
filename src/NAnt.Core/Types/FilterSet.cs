@@ -28,7 +28,9 @@ namespace NAnt.Core.Types {
     /// A set of filters to be applied to something.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// A filter set may have begintoken and endtokens defined.
+    /// </para>
     /// </remarks>
     [ElementName("filterset")]
     public class FilterSet : DataTypeBase {
