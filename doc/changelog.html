@@ -1,181 +1,376 @@
 <html>
-
-<head>
-	<meta http-equiv="Content-Language" content="en-ca">
-	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-	<link rel="stylesheet" type="text/css" href="style.css" />
-	<title>NAnt Change Log</title>
-</head>
-
-<body>
-	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
-		<tr><td class="NavBar-Cell" width="100%"><a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->"/> Change Log</td></tr>
-	</table>
-
-	<table align="right"/><tr><td><a href="index.html"><img border="0" alt="NAnt logo (link to home page)" src="logo.gif"/></a></td></tr></table>
-
-	<h1><span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
-	<h3>0.8.x In Progress</h3>
-	<ul>
-		<li>If more than one build file matches the criteria, e.g. two files ending in .build than nant will report an error.</li>
-		<li>-find option added, causes nant to search up the directory tree looking for the buildfile.  Use in conjunction with -buildfile:foo.* to find the first foo.* file up the directory tree.</li>
-		<li>-projecthelp option added, callable targets should now include a description attribute to describe briefly what they do.</li>
-		<li>CompilerBase tasks now check for changed resources and recompile if out of date.</li>
-		<li>Compiler tasks report what caused the rebuild when verbose is on, try 'nant -verbose'</li>
-		<li>Improved Log class</li>
-		<li>PlainText NUnit formatter, see nant's build file for example</li>
-		<li>nant.onsuccess and nant.onfailure properties can now name a target to get executed at the end of a build.</li>
-		<li>File sets now have an absolute element.  Items inside an absolute element will always be included in the file set.  This is useful for references that are in the system path.  See the HelloWindowsForms build file for an example.</li>
-		<li>-set option changed to -D to be more like Ant</li>
-		<li>unknown command line arguments cause program help to be displayed</li>
-		<li>FileSets now support absolute paths and parent directories</li>
-		<li>*Tasks.dll assemblies that are in the same folder as Nant are automatically loaded and scanned for tasks</li>
-		<li>user manual available</li>
-		<li>help for tasks is auto-generated</li>
-		<li>attrib task added</li>
-		<li>gac task added</li>
-		<li>added: failonerror, verbose, if and unless attributes to all tasks</li>
-		<li>sysinfo task added</li>
-		<li>DESIGN DECISION: all elements and attributes will be lowercase</li>
-		<li>major reworking of FileSet class (removed absolutes element, added asis attribute)</li>
-		<li>Tasks/Targets/FileSet includes/execludes now have if/unless attributes</li>
-		<li>SLiNgshoT - a Visual Studio.NET solution converter - was donated to the NAnt Extras by Jason Diamond.</li>
-	</ul>
-
-	<h3>0.7.749 January 19, 2002</h3>
-	<ul>
-		<li>Extra SourceSafe task added to src\Extras folder - thanks to Jason Reimer</li>
-		<li>DocNet task added, try 'nant doc' to build NAnt's documentation</li>
-		<li>NUnitCore.dll added to project</li>
-		<li>Fixed fileset basedir attributes, they now expand macros</li>
-		<li>ScriptTask and example added - thanks to Sergey Chaban</li>
-		<li>build file now extracts version number from AssemblyInfo.cs - thanks to Sergey Chaban</li>
-		<li>CompilerBase now adds quotations to all referenced files - thanks to Mike Krueger</li>
-		<li>BuildException is now serializable</li>
-		<li>ExternalProgramBase reports differentiates between Process exceptions and program return codes now</li>
-		<li>Unit tests are now run as part of the buid process</li>
-		<li>Touch task added - thanks to Jay Turpin</li>
-		<li>NUnit overhaul</li>
+	<head>
+		<title>NAnt Change Log</title>
+		<meta http-equiv="Content-Language" content="en-ca">
+		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+			<tr>
+				<td class="NavBar-Cell" width="100%"><a title="NAnt home page" href="index.html"><b>NAnt</b></a>
+					<img src="arrow.gif" alt="->"> Change Log</td>
+			</tr>
+		</table>
+		<table align="right">
+			<tr>
+				<td><a href="index.html"><img border="0" alt="NAnt logo (link to home page)" src="logo.gif"></a></td>
+			</tr>
+		</table>
+		<h1><span class="N">N</span><span class="Ant">Ant</span>
+			Change Log</h1>
+		<h3>0.8.x In Progress</h3>
 		<ul>
-			<li>camelCase'ed attributes, haltOnFailure, haltOnError</li>
-			<li>renamed printsummary to verbose</li>
-			<li>replaced SummaryResultFormatter with improved SummaryFormatter</li>
-			<li>added VerboseFormatter</li>
+			<li>
+				Changes to come.</li>
 		</ul>
-		<li>Get task added - thanks to Jay Turpin</li>
-		<li>Jay Turpin added as a developer</li>
-		<li>DocNet task renamed to NDoc</li>
-		<li>NDoc.Core.dll and NDoc.Documenter.Msdn.dll added to project</li>
-		<li>NAnt.exe split into NAnt.exe and NAnt.Core.dll</li>
-		<li>Al task added - thanks to Joe Jones</li>
-		<li>ResGen task added - thanks to Joe Jones</li>
-		<li>Zip task added - thanks to Mike Krüger</li>
-		<li>cl task added - thanks to Shawn Van Ness</li>
-		<li>.NET v1.0.3705 (RTM) support</li>
-	</ul>
-
-	<h3>0.6.0 September 18, 2001</h3>
-	<ul>
-		<li>report build file xml errors in a useful way</li>
-		<li>report error location when tasks are missing required attributes</li>
-		<li>copy task updated - thanks to Ian MacLean</li>
-		<li>**/*.cs type pattern matching now available in file sets via DirectoryScanner class</li>
-		<li>Ian MacLean added as a project developer</li>
-		<li>added all the environment variables to properites, ie, &lt;echo message="path=${nant.env.PATH}"/&gt;</li>
-		<li>move task updated - thanks to Ian MacLean</li>
-		<li>sleep task added - thanks to Ian MacLean</li>
-		<li>DirectoryScanner and FileSet's scan for files AND directories now</li>
-		<li>FileSet's cache scan results, use Scan() to rescan</li>
-		<li>FileSet's auto initialize to their containing Task, this helps clean up the code</li>
-		<li>copy task can now copy full directory trees</li>
-		<li>added verbose attribute to copy task, default off, message gives number of files processed</li>
-		<li>fixed bug with any ExternalBase tasks hanging - thanks to Sergey Chaban for reporting</li>
-		<li>include task added</li>
-		<li>call task added</li>
-		<li>-verbose command line option added</li>
-		<li>build file can now build complete distribution, try 'nant dist'</li>
-	</ul>
-
-	<h3>0.5.0 August 22, 2001</h3>
-	<ul>
-		<li>complete overhaul of the web site and doc folder (all html files)</li>
-		<li>made src a parent folder to be able to hold multiple assemblies in anticipation of the NAnt.Tests.dll assembly</li>
-		<li>licensed changed to GNU General Public License</li>
-		<li>source code placed under CVS</li>
-		<li>tasks can now have attributes in base classes, see CompilerBase as an example - thanks to Mike Krueger</li>
-		<li>coding conventions posted on SourceForge in the document manager</li>
-		<li>task manager in SourceForge is now being used to track currently active tasks</li>
-		<li>namespace changed to SourceForge.NAnt</li>
-		<li>added basic command line parsing</li>
-		<li>added version resource</li>
-		<li>support for multiple build targets (try 'nant clean test')</li>
-		<li>BuildException added to report text position in the build file where errors occur - thanks to Ian MacLean</li>
-		<li>style task (xslt processing) added - thanks to Serge</li>
-		<li>executable is now signed with the NAnt.key</li>
-		<li>converted all public/protected fields to properties</li>
-		<li>added support for user define properties</li>
-		<li>added -set option (try 'nant -set:debug=true clean build')</li>
-		<li>changed verions number to 0.5 to reflect the number of changes in the code base</li>
-	</ul>
-
-	<h3>0.1.5 July 22, 2001</h3>
-	<ul>
-		<li>only compiles program if source file last write time > output last write time</li>
-		<li>refactored compiler code into common CompilerBase class</li>
-		<li>refactored compiler and exec task into common ExternalProgramBase class</li>
-		<li>added &lt;arg value="/win32res:filename"/&gt; element to all external program tasks</li>
-		<li>added Int32ValidatorAttribute and BooleanValidatorAttribute classes to perform error checking on task attributes after macro expansion but before task execution.  Search for BooleanValidator or Int32Validator in Tasks for examples.</li>
-		<li>changed Task attribute names to TaskAttributeAttribute and FileSetAttribute</li>
-		<li>removed default value for task attributes (set with initial value)</li>
-		<li>changes to Project class on how to initialize a project and run it</li>
-		<li>right aligned task prefixes to clean up output</li>
-		<li>added or enhanced these tasks
-			<ul>
-				<li>vbc, jsc, csc</li>
-				<li>move</li>
-				<li>nant</li>
-				<li>taskdef</li>
-				<li>tstamp</li>
-				<li>exec (failonerror attribute)</li>
-			</ul>
-		</li>
-	</ul>
-
-	<h3>0.1.4 July 19, 2001</h3>
-	<ul>
-		<li>added or enhanced these tasks
-			<ul>
-				<li>echo</li>
-				<li>fail</li>
-				<li>property</li>
-				<li>copy (respects basedir)</li>
-				<li>delete (respects basedir)</li>
-				<li>mkdir (respects basedir)</li>
-				<li>exec</li>
-			</ul>
-		</li>
-	</ul>
-
-	<h3>0.1.3 July 18, 2001</h3>
-	<ul>
-		<li>dependices working via depends attribute on targets</li>
-		<li>changed name from NBuild to NAnt</li>
-		<li>using the name "Parameter" to refer to the xml attributes in tasks because it was conflicting badly with .NET Attributes</li>
-		<li>added FileSetParameterAttribute so that fileset parameters would autoinit</li>
-		<li>renamed TaskAttributeAttribute to StringParameterAttribute</li>
-		<li>broke into seperate source files (one per class)</li>
-		<li>changed default build file from Project.xml to the first file with a .build extension</li>
-	</ul>
-
-	<h3>0.1.2 July 16, 2001</h3>
-	<ul>
-		<li>basic functionality to have NAnt build itself (csc task)</li>
-	</ul>
-
-	<h3>0.1.1 July 5, 2001</h3>
-	<ul>
-		<li>initial test version</li>
-	</ul>
-</body>
-
+		<h3>0.7.9 June 11, 2002</h3>
+		<ul>
+			<LI>
+			If more than one build file matches the criteria, e.g. two files ending in 
+			.build than nant will report an error.
+			<LI>
+			-find option added, causes nant to search up the directory tree looking for the 
+			buildfile. Use in conjunction with -buildfile:foo.* to find the first foo.* 
+			file up the directory tree.
+			<LI>
+			-projecthelp option added, callable targets should now include a description 
+			attribute to describe briefly what they do.
+			<LI>
+			CompilerBase tasks now check for changed resources and recompile if out of 
+			date.
+			<LI>
+			Compiler tasks report what caused the rebuild when verbose is on, try 'nant 
+			-verbose'
+			<LI>
+			Improved Log class
+			<LI>
+			PlainText NUnit formatter, see nant's build file for example
+			<LI>
+			nant.onsuccess and nant.onfailure properties can now name a target to get 
+			executed at the end of a build.
+			<LI>
+			File sets now have an absolute element. Items inside an absolute element will 
+			always be included in the file set. This is useful for references that are in 
+			the system path. See the HelloWindowsForms build file for an example.
+			<LI>
+			-set option changed to -D to be more like Ant
+			<LI>
+			unknown command line arguments cause program help to be displayed
+			<LI>
+			FileSets now support absolute paths and parent directories
+			<LI>
+			*Tasks.dll assemblies that are in the same folder as Nant are automatically 
+			loaded and scanned for tasks
+			<LI>
+			user manual available
+			<LI>
+			help for tasks is auto-generated
+			<LI>
+			attrib task added
+			<LI>
+			gac task added and moved to NAntContrib Project
+			<LI>
+				sysinfo task added</LI>
+			<LI>
+				added: failonerror, verbose, if and unless attributes to all tasks
+			</LI>
+			<LI>
+			DESIGN DECISION: all elements and attributes will be lowercase
+			<LI>
+			major reworking of FileSet class (removed absolutes element, added asis 
+			attribute)
+			<LI>
+			Tasks/Targets/FileSet includes/execludes now have if/unless attributes
+			<LI>
+			SLiNgshoT - a Visual Studio.NET solution,&nbsp;and make, converter&nbsp;- was 
+			donated to the NAnt Extras by Jason Diamond.
+			<LI>
+				New Unit Tests added</LI>
+			<UL>
+				<LI>
+				CallTest.cs
+				<LI>
+				DeleteTest.cs
+				<LI>
+				EchoTest.cs
+				<LI>
+				FailTest.cs
+				<LI>
+				MkdirTest.cs
+				<LI>
+				MoveTest.cs
+				<LI>
+					PropertyTest.cs</LI></UL>
+			<LI>
+				New Properties added during project initilization</LI>
+			<UL>
+				<LI>
+				nant.location points to nant.exe directory
+				<LI>
+					nant.tasks.[TaskName].location points to [TaskName] host assembly</LI></UL>
+			<LI>
+			NAnt task now inherits properties to new project
+			<LI>
+				Tasks moved to NAntContrib Project</LI>
+			<UL>
+				<LI>
+				GacTask.cs
+				<LI>
+				RcTask.cs
+				<LI>
+				ResGenTask.cs
+				<LI>
+				TlbExpTask.cs
+				<LI>
+				TlbImpTask.cs
+				<LI>
+				TypedCollectionTask.cs
+				<LI>
+					Vb6Task.cs</LI></UL>
+			<LI>
+			NUnit XML format updated
+			<LI>
+				Many, many, many bugs fixed</LI>
+		</ul>
+		<h3>0.7.749 January 19, 2002</h3>
+		<ul>
+			<li>
+			Extra SourceSafe task added to src\Extras folder - thanks to Jason Reimer
+			<li>
+			DocNet task added, try 'nant doc' to build NAnt's documentation
+			<li>
+			NUnitCore.dll added to project
+			<li>
+			Fixed fileset basedir attributes, they now expand macros
+			<li>
+			ScriptTask and example added - thanks to Sergey Chaban
+			<li>
+			build file now extracts version number from AssemblyInfo.cs - thanks to Sergey 
+			Chaban
+			<li>
+			CompilerBase now adds quotations to all referenced files - thanks to Mike 
+			Krueger
+			<li>
+			BuildException is now serializable
+			<li>
+			ExternalProgramBase reports differentiates between Process exceptions and 
+			program return codes now
+			<li>
+			Unit tests are now run as part of the buid process
+			<li>
+			Touch task added - thanks to Jay Turpin
+			<li>
+				NUnit overhaul
+				<ul>
+					<li>
+					camelCase'ed attributes, haltOnFailure, haltOnError
+					<li>
+					renamed printsummary to verbose
+					<li>
+					replaced SummaryResultFormatter with improved SummaryFormatter
+					<li>
+						added VerboseFormatter</li>
+				</ul>
+			<li>
+			Get task added - thanks to Jay Turpin
+			<li>
+			Jay Turpin added as a developer
+			<li>
+			DocNet task renamed to NDoc
+			<li>
+			NDoc.Core.dll and NDoc.Documenter.Msdn.dll added to project
+			<li>
+			NAnt.exe split into NAnt.exe and NAnt.Core.dll
+			<li>
+			Al task added - thanks to Joe Jones
+			<li>
+			ResGen task added - thanks to Joe Jones
+			<li>
+			Zip task added - thanks to Mike Krüger
+			<li>
+			cl task added - thanks to Shawn Van Ness
+			<li>
+				.NET v1.0.3705 (RTM) support</li>
+		</ul>
+		<h3>0.6.0 September 18, 2001</h3>
+		<ul>
+			<li>
+			report build file xml errors in a useful way
+			<li>
+			report error location when tasks are missing required attributes
+			<li>
+			copy task updated - thanks to Ian MacLean
+			<li>
+			**/*.cs type pattern matching now available in file sets via DirectoryScanner 
+			class
+			<li>
+			Ian MacLean added as a project developer
+			<li>
+			added all the environment variables to properites, ie, 
+			&lt;echomessage="path=${nant.env.PATH}"/&gt;
+			<li>
+			move task updated - thanks to Ian MacLean
+			<li>
+			sleep task added - thanks to Ian MacLean
+			<li>
+			DirectoryScanner and FileSet's scan for files AND directories now
+			<li>
+			FileSet's cache scan results, use Scan() to rescan
+			<li>
+			FileSet's auto initialize to their containing Task, this helps clean up the 
+			code
+			<li>
+			copy task can now copy full directory trees
+			<li>
+			added verbose attribute to copy task, default off, message gives number of 
+			files processed
+			<li>
+			fixed bug with any ExternalBase tasks hanging - thanks to Sergey Chaban for 
+			reporting
+			<li>
+			include task added
+			<li>
+			call task added
+			<li>
+			-verbose command line option added
+			<li>
+				build file can now build complete distribution, try 'nant dist'</li>
+		</ul>
+		<h3>0.5.0 August 22, 2001</h3>
+		<ul>
+			<li>
+			complete overhaul of the web site and doc folder (all html files)
+			<li>
+			made src a parent folder to be able to hold multiple assemblies in anticipation 
+			of the NAnt.Tests.dll assembly
+			<li>
+			licensed changed to GNU General Public License
+			<li>
+			source code placed under CVS
+			<li>
+			tasks can now have attributes in base classes, see CompilerBase as an example - 
+			thanks to Mike Krueger
+			<li>
+			coding conventions posted on SourceForge in the document manager
+			<li>
+			task manager in SourceForge is now being used to track currently active tasks
+			<li>
+			namespace changed to SourceForge.NAnt
+			<li>
+			added basic command line parsing
+			<li>
+			added version resource
+			<li>
+			support for multiple build targets (try 'nant clean test')
+			<li>
+			BuildException added to report text position in the build file where errors 
+			occur - thanks to Ian MacLean
+			<li>
+			style task (xslt processing) added - thanks to Serge
+			<li>
+			executable is now signed with the NAnt.key
+			<li>
+			converted all public/protected fields to properties
+			<li>
+			added support for user define properties
+			<li>
+			added -set option (try 'nant -set:debug=true clean build')
+			<li>
+				changed verions number to 0.5 to reflect the number of changes in the code base</li>
+		</ul>
+		<h3>0.1.5 July 22, 2001</h3>
+		<ul>
+			<li>
+			only compiles program if source file last write time &gt; output last write 
+			time
+			<li>
+			refactored compiler code into common CompilerBase class
+			<li>
+			refactored compiler and exec task into common ExternalProgramBase class
+			<li>
+			added &lt;arg value="/win32res:filename"/&gt; element to all external program 
+			tasks
+			<li>
+			added Int32ValidatorAttribute and BooleanValidatorAttribute classes to perform 
+			error checking on task attributes after macro expansion but before task 
+			execution. Search for BooleanValidator or Int32Validator in Tasks for examples.
+			<li>
+			changed Task attribute names to TaskAttributeAttribute and FileSetAttribute
+			<li>
+			removed default value for task attributes (set with initial value)
+			<li>
+			changes to Project class on how to initialize a project and run it
+			<li>
+			right aligned task prefixes to clean up output
+			<li>
+				added or enhanced these tasks
+				<ul>
+					<li>
+					vbc, jsc, csc
+					<li>
+					move
+					<li>
+					nant
+					<li>
+					taskdef
+					<li>
+					tstamp
+					<li>
+						exec (failonerror attribute)</li>
+				</ul>
+			</li>
+		</ul>
+		<h3>0.1.4 July 19, 2001</h3>
+		<ul>
+			<li>
+				added or enhanced these tasks
+				<ul>
+					<li>
+					echo
+					<li>
+					fail
+					<li>
+					property
+					<li>
+					copy (respects basedir)
+					<li>
+					delete (respects basedir)
+					<li>
+					mkdir (respects basedir)
+					<li>
+						exec</li>
+				</ul>
+			</li>
+		</ul>
+		<h3>0.1.3 July 18, 2001</h3>
+		<ul>
+			<li>
+			dependices working via depends attribute on targets
+			<li>
+			changed name from NBuild to NAnt
+			<li>
+			using the name "Parameter" to refer to the xml attributes in tasks because it 
+			was conflicting badly with .NET Attributes
+			<li>
+			added FileSetParameterAttribute so that fileset parameters would autoinit
+			<li>
+			renamed TaskAttributeAttribute to StringParameterAttribute
+			<li>
+			broke into seperate source files (one per class)
+			<li>
+				changed default build file from Project.xml to the first file with a .build 
+				extension</li>
+		</ul>
+		<h3>0.1.2 July 16, 2001</h3>
+		<ul>
+			<li>
+				basic functionality to have NAnt build itself (csc task)</li>
+		</ul>
+		<h3>0.1.1 July 5, 2001</h3>
+		<ul>
+			<li>
+				initial test version</li>
+		</ul>
+	</body>
 </html>
