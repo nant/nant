@@ -1,5 +1,7 @@
-// NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// IlasmTask.cs
+//
+// Giuseppe Greco <giuseppe.greco@agamura.com>
+// Copyright (C) 2004 Agamura, Inc.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,7 +32,9 @@ namespace NAnt.DotNet.Tasks {
     /// Compiles ILASM programs.
     /// </summary>
     /// <example>
-    ///   <para>Compiles <c>helloworld.il</c> to <c>helloworld.exe</c>.</para>
+    ///   <para>
+    ///   Compiles <c>helloworld.il</c> to <c>helloworld.exe</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <ilasm target="exe" output="helloworld.exe" debug="true">
