@@ -59,7 +59,7 @@ namespace NAnt.Core.Tasks {
     ///     <code>
     ///         <![CDATA[
     /// <xmlpeek
-    ///     filename="App.config"
+    ///     file="App.config"
     ///     xpath="/configuration/appSettings/add[@key = 'server']/@value"
     ///     property="server" />
     ///         ]]>
@@ -79,10 +79,10 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
         
         /// <summary>
-        /// The file name of the file that contains the XML document
+        /// The name of the file that contains the XML document
         /// that is going to be peeked at.
         /// </summary>
-        [TaskAttribute("filename", Required=true)]
+        [TaskAttribute("file", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string FileName {
             get { return (_fileName != null) ? Project.GetFullPath(_fileName) : null; }

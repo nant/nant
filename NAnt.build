@@ -123,7 +123,7 @@
         <attrib file="${nant.location}nant.tests.config" readonly="false" />
         
         <!-- ensure the tests target the current framework -->
-        <xmlpoke filename="${nant.location}nant.tests.config"
+        <xmlpoke file="${nant.location}nant.tests.config"
                  xpath="//configuration/nant/frameworks/platform[@name='${nant.platform.name}']/@default"
                  value="${nant.settings.currentframework}"/>
 
