@@ -71,6 +71,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("asminfo")]
+    [Serializable()]
     public class AssemblyInfoTask : Task {
         #region Private Instance Fields
 
@@ -196,7 +197,7 @@ namespace NAnt.DotNet.Tasks {
                 
                 using (StreamWriter writer = new StreamWriter(generatedAsmInfoStream, Encoding.Default)) {
                     // create new instance of CodeProviderInfo for specified CodeLanguage
-                    CodeProvider codeProvider = new CodeProvider(Language);
+                    CodeProvider codeProvider = new CodeProvider(this, Language);
 
                     // only generate imports here for C#, for VB we create the 
                     // imports as part of the assembly attributes compile unit
@@ -312,6 +313,7 @@ namespace NAnt.DotNet.Tasks {
 
             private CodeLanguage _language;
             private readonly ICodeGenerator _generator;
+            private readonly AssemblyInfoTask _assemblyInfoTask;
 
             #endregion Private Instance Fields
 
@@ -321,8 +323,9 @@ namespace NAnt.DotNet.Tasks {
             /// Initializes a new instance of the <see cref="CodeProvider" />
             /// for the specified <see cref="CodeLanguage" />.
             /// </summary>
+            /// <param name="assemblyInfoTask">The <see cref="AssemblyInfoTask" /> for which an instance of the <see cref="CodeProvider" /> class should be initialized.</param>
             /// <param name="codeLanguage">The <see cref="CodeLanguage" /> for which an instance of the <see cref="CodeProvider" /> class should be initialized.</param>
-            public CodeProvider(CodeLanguage codeLanguage) {
+            public CodeProvider(AssemblyInfoTask assemblyInfoTask, CodeLanguage codeLanguage) {
                 CodeDomProvider provider = null;
 
                 switch (codeLanguage) {
@@ -340,6 +343,7 @@ namespace NAnt.DotNet.Tasks {
 
                 _generator = provider.CreateGenerator();
                 _language = codeLanguage;
+                _assemblyInfoTask = assemblyInfoTask;
             }
 
             #endregion Public Instance Constructors
@@ -441,7 +445,8 @@ namespace NAnt.DotNet.Tasks {
                     AppDomain.CurrentDomain.Evidence);
 
                 object typedValue = typedValueGatherer.GetTypedValue(
-                    assemblies, imports, attribute.TypeName, attribute.Value);
+                    _assemblyInfoTask, assemblies, imports, attribute.TypeName, 
+                    attribute.Value);
 
                 // unload newly created AppDomain
                 AppDomain.Unload(newDomain);
@@ -462,6 +467,7 @@ namespace NAnt.DotNet.Tasks {
             /// Retrieves the specified <see cref="Type" /> corresponding with the specified 
             /// type name from a list of assemblies.
             /// </summary>
+            /// <param name="assemblyInfoTask">The <see cref="AssemblyInfoTask" /> task in which context the <see cref="Type" /> should be resolved.</param>
             /// <param name="assemblies">The collection of assemblies that the type should tried to be instantiated from.</param>
             /// <param name="imports">The list of imports that can be used to resolve the typename to a full typename.</param>
             /// <param name="typename">The typename that should be used to determine the type to which the specified value should be converted.</param>
@@ -476,9 +482,9 @@ namespace NAnt.DotNet.Tasks {
             /// <para>-or-</para>
             /// <para>A <see cref="Type" /> identified by <paramref name="typename" /> could not be located or loaded.</para>
             /// </exception>
-            public object GetTypedValue(StringCollection assemblies, StringCollection imports, string typename, string value) {
+            public object GetTypedValue(AssemblyInfoTask assemblyInfoTask, StringCollection assemblies, StringCollection imports, string typename, string value) {
                 // create assembly resolver
-                AssemblyResolver assemblyResolver = new AssemblyResolver();
+                AssemblyResolver assemblyResolver = new AssemblyResolver(assemblyInfoTask);
 
                 // attach assembly resolver to the current domain
                 assemblyResolver.Attach();
