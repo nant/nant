@@ -17,8 +17,17 @@
 
 // Ian MaceLean (ian@maclean.ms)
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+// DO NOT mark NDoc.Documenter.NAnt CLS compliant
+// because NDoc is not CLS-compliant
+[assembly: CLSCompliant(false)]
+
+// Make NDoc.Documenter.NAnt as NOT visible to COM
+[assembly: ComVisible(false)]
 
 [assembly: AssemblyTitle("NAnt Documenter")]
 [assembly: AssemblyDescription("NDoc Documenter for NAnt")]
