@@ -59,8 +59,8 @@ namespace NAnt.NUnit2.Types {
         }
         
         /// <summary>
-        /// Name of a specific test to run. If not specified then all tests in 
-        /// the assembly are run.
+        /// Name of a specific testfixture to run. If not specified then all 
+        /// testfixtures are run.
         /// </summary>
         [TaskAttribute("testname")]
         public string TestName {
