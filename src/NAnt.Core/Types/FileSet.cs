@@ -381,15 +381,29 @@ namespace NAnt.Core.Types {
                 }
             }        }
         /// <summary>
-        /// The items to include in the fileset.
+        /// The files from which a list of patterns or files to include should 
+        /// be obtained.
         /// </summary>
         [BuildElementArray("includesList")]
         public IncludesListElement[] SetIncludesList {
             set {
-                foreach (IncludesListElement includeList in value){
+                foreach (IncludesListElement includeList in value) {
                     if (includeList.IfDefined && !includeList.UnlessDefined) {
-                        foreach (string s in includeList.Files) {
-                            AsIs.Add(s);
+                        if (includeList.AsIs) {
+                            foreach (string pattern in includeList.Patterns) {
+                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", pattern));
+                                AsIs.Add(pattern);
+                            }
+                        } else if (includeList.FromPath) {
+                            foreach (string pattern in includeList.Patterns) {
+                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including FromPath=", pattern));
+                                PathFiles.Add(pattern);
+                            }
+                        } else {
+                            foreach (string pattern in includeList.Patterns) {
+                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including Pattern=", pattern));
+                                Includes.Add(pattern);
+                            }
                         }
                     }
                 }
@@ -474,6 +488,48 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Override implementation of DataTypeBase
+
+        #region Override implementation of Object
+
+        public override string ToString() {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            if (!_hasScanned){
+                sb.AppendFormat("Base path: {0}", BaseDirectory);
+                sb.Append(Environment.NewLine);
+                
+                sb.Append("AsIs:");
+                sb.Append(Environment.NewLine);
+                sb.Append(AsIs.ToString());
+                sb.Append(Environment.NewLine);
+
+                sb.Append("Files:");
+                sb.Append(Environment.NewLine);
+                sb.Append(_scanner.ToString());
+                sb.Append(Environment.NewLine);
+
+                sb.Append("PathFiles:");
+                sb.Append(Environment.NewLine);
+                sb.Append(_pathFiles.ToString());
+                sb.Append(Environment.NewLine);
+            } else {
+                sb.Append("Files:");
+                sb.Append(Environment.NewLine);
+                foreach (string file in this.FileNames) {
+                    sb.Append(file);
+                    sb.Append(Environment.NewLine);
+                }
+                sb.Append("Dirs:");
+                sb.Append(Environment.NewLine);
+                foreach (string dir in this.DirectoryNames) {
+                    sb.Append(dir);
+                    sb.Append(Environment.NewLine);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion Override implementation of Object
 
         #region Public Instance Methods
 
@@ -652,8 +708,8 @@ namespace NAnt.Core.Types {
         public class IncludesElement : ExcludesElement {
             #region Private Instance Fields
 
-            private bool _asIs = false;
-            private bool _fromPath = false;
+            private bool _asIs;
+            private bool _fromPath;
 
             #endregion Private Instance Fields
 
@@ -685,17 +741,83 @@ namespace NAnt.Core.Types {
             #endregion Public Instance Properties
         }
         
-        public class IncludesListElement : ExcludesElement {
+        public class IncludesListElement : Element {
             #region Private Instance Fields
 
-            private StringCollection _files = new StringCollection();
+            private bool _asIs;
+            private bool _fromPath;
+            private bool _ifDefined = true;
+            private bool _unlessDefined;
+            private FileInfo _includeFile;
+            private StringCollection _patterns = new StringCollection();
 
             #endregion Private Instance Fields
 
             #region Public Instance Properties
 
-            public StringCollection Files {
-                get { return _files; }
+            /// <summary>
+            /// Gets the list of patterns in <see cref="IncludeFile" />.
+            /// </summary>
+            public StringCollection Patterns {
+                get { return _patterns; }
+            }
+
+            /// <summary>
+            /// If <see langword="true" /> then the patterns in the include file 
+            /// will be added to the <see cref="FileSet" /> without pattern 
+            /// matching or checking if the file exists.  The default is 
+            /// <see langword="false" />.
+            /// </summary>
+            [TaskAttribute("asis")]
+            [BooleanValidator()]
+            public bool AsIs {
+                get { return _asIs; }
+                set { _asIs = value; }
+            }
+
+            /// <summary>
+            /// If <see langword="true" /> then the patterns in the include file
+            /// will be searched for on the path. The default is <see langword="false" />.
+            /// </summary>
+            [TaskAttribute("frompath")]
+            [BooleanValidator()]
+            public bool FromPath {
+                get { return _fromPath; }
+                set { _fromPath = value; }
+            }
+
+            /// <summary>
+            /// If <see langword="true" /> then the patterns will be included; 
+            /// otherwise, skipped. The default is <see langword="true" />.
+            /// </summary>
+            [TaskAttribute("if")]
+            [BooleanValidator()]
+            public bool IfDefined {
+                get { return _ifDefined; }
+                set { _ifDefined = value; }
+            }
+
+            /// <summary>
+            /// Opposite of <see cref="IfDefined" />. If <see langword="false" /> 
+            /// then the patterns will be included; otherwise, skipped. The default 
+            /// is <see langword="false" />.
+            /// </summary>
+            [TaskAttribute("unless")]
+            [BooleanValidator()]
+            public bool UnlessDefined {
+                get { return _unlessDefined; }
+                set { _unlessDefined = value; }
+            }
+
+            /// <summary>
+            /// The name of a file; each line of this file is taken to be a 
+            /// pattern.
+            /// </summary>
+            [TaskAttribute("name", Required=true)]
+            [StringValidator(AllowEmpty=false)]
+            public FileInfo IncludeFile {
+                get { return _includeFile; }
+                set { _includeFile = value; }
             }
 
             #endregion Public Instance Properties
@@ -703,57 +825,21 @@ namespace NAnt.Core.Types {
             #region Override implementation of Element
 
             protected override void InitializeElement(XmlNode elementNode) {
-                using (Stream file = File.OpenRead(Pattern)) {
-                    if (file == null) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "'{0}' list could not be opened.", Pattern));
+                try {
+                    using (Stream file = File.OpenRead(IncludeFile.FullName)) {
+                        StreamReader rd = new StreamReader(file);
+                        while (rd.Peek() > -1) {
+                            _patterns.Add(rd.ReadLine());
+                        }
                     }
-                    StreamReader rd = new StreamReader(file);
-                    while (rd.Peek() > -1) {
-                        _files.Add(rd.ReadLine());
-                    }
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "'{0}' list could not be opened.", IncludeFile.FullName), 
+                        Location, ex);
                 }
             }
 
             #endregion Override implementation of Element
-        }
-    
-        public override string ToString() {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            if (!_hasScanned){
-                sb.AppendFormat("Base path: {0}", BaseDirectory);
-                sb.Append(Environment.NewLine);
-                
-                sb.Append("AsIs:");
-                sb.Append(Environment.NewLine);
-                sb.Append(AsIs.ToString());
-                sb.Append(Environment.NewLine);
-
-                sb.Append("Files:");
-                sb.Append(Environment.NewLine);
-                sb.Append(_scanner.ToString());
-                sb.Append(Environment.NewLine);
-
-                sb.Append("PathFiles:");
-                sb.Append(Environment.NewLine);
-                sb.Append(_pathFiles.ToString());
-                sb.Append(Environment.NewLine);
-            } else {
-                sb.Append("Files:");
-                sb.Append(Environment.NewLine);
-                foreach (string file in this.FileNames) {
-                    sb.Append(file);
-                    sb.Append(Environment.NewLine);
-                }
-                sb.Append("Dirs:");
-                sb.Append(Environment.NewLine);
-                foreach (string dir in this.DirectoryNames) {
-                    sb.Append(dir);
-                    sb.Append(Environment.NewLine);
-                }
-            }
-
-            return sb.ToString();
         }
     }
 }
