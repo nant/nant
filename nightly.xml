@@ -15,32 +15,46 @@
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
     <target name="nightly" depends="set-net-1.0-framework-configuration, package, deploy-sf, install" description="Perform a 'nightly' package, and installs NAnt." />
     <!-- deploy content to sourceforge -->
-    <target name="deploy-sf" depends="deploy-zip-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf, deploy-nightly-web-sf" />
+    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf, deploy-nightly-web-sf" />
     <!-- copy the zipped nighly build to sourceforge -->
-    <target name="deploy-zip-sf" depends="set-net-1.0-framework-configuration, package">
-        <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
-        <!-- determine filename of distribution package on sf.net -->
-        <property name="deploy.zip.file" value="${project.name}-${project.version}-${build.date}.zip" />
+    <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, package">
+        <!-- determine filename of source distribution package on sf.net -->
+        <property name="deploy.zip.src" value="${project.name}-${project.version}-${build.date}-src.zip" />
+        <!-- determine filename of binary distribution package on sf.net -->
+        <property name="deploy.zip.bin" value="${project.name}-${project.version}-${build.date}-bin.zip" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/nightly/builds" />
         </exec>
-        <!-- copy the build to sourceforge -->
-        <exec workingdir="${execpath}" program="scp">
-            <arg value="${execfilename}" />
-            <arg value="${serverpart}/nightly/builds/${deploy.zip.file}" />
+        <!-- copy the source distribution to sourceforge -->
+        <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
+            <arg value="${path::get-file-name(project.zip-path.src)}" />
+            <arg value="${serverpart}/nightly/builds/${deploy.zip.src}" />
+        </exec>
+        <!-- copy the binary distribution to sourceforge -->
+        <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
+            <arg value="${path::get-file-name(project.zip-path.bin)}" />
+            <arg value="${serverpart}/nightly/builds/${deploy.zip.bin}" />
         </exec>
         <echo message="Copied nightly build over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${deploy.zip.file}" />
+            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${deploy.zip.src}" />
+        </exec>
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${deploy.zip.bin}" />
         </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${deploy.zip.file}" />
+            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${deploy.zip.src}" />
+        </exec>
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${deploy.zip.bin}" />
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
