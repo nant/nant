@@ -672,7 +672,7 @@ namespace NAnt.VSNet {
             }
 
             foreach (string fileName in fileNames) {
-                clTask.Sources.FileNames.Add(fileName);
+                clTask.Sources.FileNames.Add(FileUtils.CombinePaths(ProjectDirectory.FullName, fileName));
                 _objFiles.Add(FileUtils.CombinePaths(intermediateDir, 
                     Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
