@@ -204,7 +204,7 @@ namespace NAnt.Core {
             // determine the framework family name
             string frameworkFamily = PlatformHelper.IsMono ? "mono" : "net";
             // determine the version of the current runtime framework
-            string frameworkVersion = Environment.Version.ToString(3);
+            string frameworkClrVersion = Environment.Version.ToString(3);
             // determine default targetframework
             string defaultTargetFramework = GetXmlAttributeValue(platformNode, "default");
 
@@ -225,6 +225,7 @@ namespace NAnt.Core {
                     string description = GetXmlAttributeValue(frameworkNode, "description");
                     string family = GetXmlAttributeValue(frameworkNode, "family");
                     string version = GetXmlAttributeValue(frameworkNode, "version");
+                    string clrVersion = GetXmlAttributeValue(frameworkNode, "clrversion");
                     string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
                     string frameworkDir = GetXmlAttributeValue(frameworkNode, "frameworkdirectory");
                     string frameworkAssemblyDir = GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory");
@@ -240,6 +241,7 @@ namespace NAnt.Core {
                     name = frameworkProperties.ExpandProperties(name, Location.UnknownLocation);
                     description = frameworkProperties.ExpandProperties(description, Location.UnknownLocation);
                     version = frameworkProperties.ExpandProperties(version, Location.UnknownLocation);
+                    clrVersion = frameworkProperties.ExpandProperties(clrVersion, Location.UnknownLocation);
                     frameworkDir = frameworkProperties.ExpandProperties(frameworkDir, Location.UnknownLocation);
                     frameworkAssemblyDir = frameworkProperties.ExpandProperties(frameworkAssemblyDir, Location.UnknownLocation);
 
@@ -252,7 +254,7 @@ namespace NAnt.Core {
                     }
 
                     // check if we're processing the current runtime framework
-                    if (family == frameworkFamily && version == frameworkVersion) {
+                    if (family == frameworkFamily && clrVersion == frameworkClrVersion) {
                         isRuntimeFramework = true;
                     }
 
@@ -262,6 +264,7 @@ namespace NAnt.Core {
                         family,
                         description, 
                         version, 
+                        clrVersion,
                         frameworkDir, 
                         sdkDir, 
                         frameworkAssemblyDir, 
@@ -319,7 +322,7 @@ namespace NAnt.Core {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "The NAnt configuration file does not contain a framework" 
                     + " definition for the current runtime framework (family '{0}'" 
-                    + ", version '{1}').", frameworkFamily, frameworkVersion));
+                    + ", clrversion '{1}').", frameworkFamily, frameworkClrVersion));
             }
 
             if (defaultTargetFramework != null && defaultTargetFramework != "auto") {
