@@ -19,7 +19,9 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.IO;
+
 using SourceForge.NAnt.Attributes;
 
 using ICSharpCode.SharpZipLib.Checksums;
@@ -47,6 +49,7 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("zip")]
     public class ZipTask : Task {
+        #region Private Instance Fields
 
         string _zipfile = null;
         int _ziplevel = 6; 
@@ -55,23 +58,27 @@ namespace SourceForge.NAnt.Tasks {
         DateTime _stampDateTime = DateTime.MinValue;
         string _comment = null;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         /// <summary>The zip file to create.</summary>
         [TaskAttribute("zipfile", Required=true)]
         public string ZipFileName { get { return Project.GetFullPath(_zipfile); } set {_zipfile = value; } }
 
         /// <summary>The comment for the file</summary>
         [TaskAttribute("comment", Required=false)]
-        public string Comment { set {_comment = value; } }
-
+        public string Comment     { get { return _comment; } set {_comment = value; } }
 
         /// <summary>An optional date/time stamp for the files.</summary>
         [TaskAttribute("stampdatetime", Required=false)]
         public string Stamp { 
+            get { return _stampDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo); }
             set {
                 try {
-                    _stampDateTime = DateTime.Parse(value);
-                } catch {
-                    _stampDateTime = DateTime.Now;
+                    _stampDateTime = DateTime.Parse(value, DateTimeFormatInfo.InvariantInfo);
+                } catch (FormatException exc) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid string representatation {0} of a DateTime value.", value), "Stamp", exc);
                 }
             } 
         }
@@ -84,6 +91,10 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>The set of files to be included in the archive.</summary>
         [FileSet("fileset")]
         public FileSet ZipFileSet { get { return _fileset; } }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
                 
         protected override void ExecuteTask() {
 
@@ -100,7 +111,7 @@ namespace SourceForge.NAnt.Tasks {
             string basePath = Path.GetDirectoryName(Project.GetFullPath(ZipFileSet.BaseDirectory));
             
             //set comment
-            if(_comment != null){
+            if (_comment != null) {
                 zOutstream.SetComment(_comment);
             }
 
@@ -119,10 +130,9 @@ namespace SourceForge.NAnt.Tasks {
                     ZipEntry entry = new ZipEntry(entryName);
                     
                     //set time/date stamp on files
-                    if(_stampDateTime != DateTime.MinValue) {
+                    if (_stampDateTime != DateTime.MinValue) {
                         entry.DateTime = _stampDateTime;
-                    }
-                    else {
+                    } else {
                         entry.DateTime = File.GetLastWriteTime(file);
                     }
 
@@ -149,5 +159,7 @@ namespace SourceForge.NAnt.Tasks {
             zOutstream.Finish();
             zOutstream.Close();
         }
+
+        #endregion Override implementation of Task
     }
 }

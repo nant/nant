@@ -41,9 +41,14 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("unzip")]
     public class UnZipTask : Task {
+        #region Private Instance Fields
 
         string _zipfile = null;
         string _toDir = ".";
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>The zip file to use.</summary>
         [TaskAttribute("zipfile", Required=true)]
@@ -52,40 +57,23 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>The zip file to use.</summary>
         [TaskAttribute("todir", Required=false)]
         public string ToDir { get { return Project.GetFullPath(_toDir ); } set {_toDir = value; } }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
         
         protected override void ExecuteTask() {
             ZipInputStream s = new ZipInputStream(File.OpenRead(ZipFileName));
-		
             Log.WriteLine(LogPrefix + "Unzipping {0} to {1} ({2} bytes)", _zipfile, _toDir, s.Length);
             ZipEntry theEntry;
-            while ((theEntry = s.GetNextEntry()) != null) {
-                string directoryName = Path.GetDirectoryName(theEntry.Name);
-                string fileName      = Path.GetFileName(theEntry.Name);
-
+            while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName      = Path.GetFileName(theEntry.Name);
                 Log.WriteLineIf(Verbose, "Extracting {0} to {1}", theEntry.Name, _toDir);
-			
-                // create directory
-                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(ToDir, directoryName));
-			
-                if (fileName != String.Empty) {
-                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));
-                    FileStream streamWriter = fi.Create();
-				
-                    int size = 2048;
-                    byte[] data = new byte[2048];
-                    while (true) {
-                        size = s.Read(data, 0, data.Length);
-                        if (size > 0) {
-                            streamWriter.Write(data, 0, size);
-                        } else {
-                            break;
-                        }
-                    }
-                    streamWriter.Close();
-                    fi.LastWriteTime = theEntry.DateTime;
-                }
-            }
-            s.Close();
+                // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(ToDir, directoryName));
+                if (fileName != null && fileName.Length != 0) {                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));                    FileStream streamWriter = fi.Create();                    int size = 2048;                    byte[] data = new byte[2048];
+                    while (true) {                        size = s.Read(data, 0, data.Length);                        if (size > 0) {                            streamWriter.Write(data, 0, size);                        } else {                            break;                        }                    }
+                    streamWriter.Close();                    fi.LastWriteTime = theEntry.DateTime;                }            }            s.Close();
         }
+
+        #endregion Override implementation of Task
     }
 }
