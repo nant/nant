@@ -265,29 +265,29 @@ namespace NAnt.DotNet.Tasks {
             writer.WriteEndElement();
             writer.Close();
 
-            // read NDoc project file
-            Log(Level.Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
-            project.Read(projectFileName);
+            try {
+                // read NDoc project file
+                Log(Level.Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
+                project.Read(projectFileName);
 
-            foreach (XmlNode node in _docNodes) {
-                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
-                    continue;
-                }
-            
-                string documenterName = node.Attributes["name"].Value;
-                IDocumenter documenter =  CheckAndGetDocumenter(project, documenterName);
+                foreach (XmlNode node in _docNodes) {
+                    //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                    if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
+                        continue;
+                    }
+                
+                    string documenterName = node.Attributes["name"].Value;
+                    IDocumenter documenter =  CheckAndGetDocumenter(project, documenterName);
 
-                // hook up events for feedback during the build
-                documenter.DocBuildingStep += new DocBuildingEventHandler(OnDocBuildingStep);
-                documenter.DocBuildingProgress += new DocBuildingEventHandler(OnDocBuildingProgress);
+                    // hook up events for feedback during the build
+                    documenter.DocBuildingStep += new DocBuildingEventHandler(OnDocBuildingStep);
+                    documenter.DocBuildingProgress += new DocBuildingEventHandler(OnDocBuildingProgress);
 
-                // build documentation
-                try {
+                    // build documentation
                     documenter.Build(project);
-                } catch (Exception ex) {
-                    throw new BuildException("Error building documentation.", Location, ex);
                 }
+            } catch (Exception ex) {
+                throw new BuildException("Error building documentation.", Location, ex);
             }
         }
 
