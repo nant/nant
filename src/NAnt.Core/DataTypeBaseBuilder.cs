@@ -25,8 +25,7 @@ using System.Security.Permissions;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core {
-    
-    public class DataTypeBaseBuilder {
+    internal class DataTypeBaseBuilder {
         #region Public Instance Constructors
 
         /// <summary>
