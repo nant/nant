@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>
@@ -39,18 +40,16 @@ namespace NAnt.Core {
 
         #region Public Instance Properties
 
-        /// <summary>The base of the directory of this file set.  Default is project base directory.</summary>
         [TaskAttribute("id" )]
         public string ID {
             get { return _id; }
-            set { _id = value; }
+            set { _id = StringUtils.ConvertEmptyToNull(value); }
         }
 
-        // todo if ref has value then load it from collection ...
         [TaskAttribute("refid")]
         public string RefID {
             get { return _refID; }
-            set { _refID = value; }
+            set { _refID = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -74,16 +73,16 @@ namespace NAnt.Core {
 
         protected override void InitializeElement(XmlNode elementNode) {
             if (Parent.GetType() == typeof(Project) || Parent.GetType() == typeof(Target)) {
-                if (ID == null || ID.Length == 0) {
+                if (StringUtils.IsNullOrEmpty(ID)) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "'id' is a required attribute for a <{0}> datatype declaration.", Name);
                     throw new BuildException(msg, Location);
                 }
-                if (RefID != null && RefID.Length > 0) {
+                if (!StringUtils.IsNullOrEmpty(RefID)) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "'refid' attribute is invalid for a <{0}> datatype declaration.", Name);
                     throw new BuildException(msg, Location);
                 }
             } else {
-                  if (ID != null && ID.Length > 0 ) {
+                  if (!StringUtils.IsNullOrEmpty(ID)) {
                     string msg = string.Format(CultureInfo.InvariantCulture, "'id' is an invalid attribute for a <{0}> tag. Datatypes can only be declared at Project or Task level.", Name);
                     throw new BuildException(msg, Location);
                 }
