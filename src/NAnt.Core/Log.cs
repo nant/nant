@@ -38,7 +38,7 @@ using System.Globalization;
 namespace SourceForge.NAnt {
 
     public class BuildEventArgs : EventArgs {
-        protected string _name = "";
+        private string _name = "";
 
         public BuildEventArgs(string name) {
             _name = name;

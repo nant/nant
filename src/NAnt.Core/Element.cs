@@ -34,10 +34,10 @@ namespace SourceForge.NAnt {
     /// </remarks>
     public class Element {
 
-        protected Location _location = Location.UnknownLocation;
-        protected Project _project = null;
-        protected XmlNode _xmlNode = null;
-        protected object _parent = null;
+        private Location _location = Location.UnknownLocation;
+        private Project _project = null;
+        private XmlNode _xmlNode = null;
+        private object _parent = null;
         //protected LocalPropertyDictionary _elementProperties = null;
 
         /// <summary>The default contstructor.</summary>
@@ -52,8 +52,17 @@ namespace SourceForge.NAnt {
             //this._elementProperties = e._elementProperties;
         }
 
-        /// <summary><see cref="Location"/> in the build file where the element is defined.</summary>
-        protected virtual Location Location {
+        /// <summary>
+        /// Gets or sets the xml node of the element.
+        /// </summary>
+        /// <value>The xml node of the element.</value>
+        protected virtual XmlNode XmlNode {
+            get { return _xmlNode; }
+            set { _xmlNode = value; }
+        }
+
+         /// <summary><see cref="Location"/> in the build file where the element is defined.</summary>
+         protected virtual Location Location {
             get { return _location; }
             set { _location = value; }
         }

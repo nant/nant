@@ -42,11 +42,11 @@ namespace SourceForge.NAnt {
         // copy constructor 
         public FileSet( FileSet source)        {            
             _defaultExcludes = source._defaultExcludes;     
-            _location = source._location;
-            _parent = source._parent;           
-            _project = source._project;         
-            if ( _xmlNode != null )
-                _xmlNode = source._xmlNode.Clone();
+            Location = source.Location;
+            Parent = source.Parent;           
+            Project = source.Project;         
+            if ( XmlNode != null )
+                XmlNode = source.XmlNode.Clone();
         }       
         
         /// <summary>Determines if a file has a more recent last write time than the given time.</summary>

@@ -28,7 +28,7 @@ using SourceForge.NAnt.Attributes;
 namespace SourceForge.NAnt {
 
     public abstract class TaskContainer : Task {
-        protected StringCollection _subXMLElements = null;
+        private StringCollection _subXMLElements = null;
 
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             base.InitializeTask(taskNode);
@@ -53,7 +53,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <remarks> Skips any element defined by the host task that has an BuildElementAttribute (included filesets and special xml) defined.</remarks>
         protected virtual void ExecuteChildTasks() {
-            foreach(XmlNode childNode in _xmlNode) {
+            foreach(XmlNode childNode in XmlNode) {
                 if(childNode.Name.StartsWith("#") && 
                    childNode.NamespaceURI.Equals(Project.Doc.DocumentElement.NamespaceURI)) {
                     continue;

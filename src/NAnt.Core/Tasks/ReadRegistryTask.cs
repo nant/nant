@@ -40,14 +40,14 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("readregistry")]
     public class ReadRegistryTask : Task {
-        protected string _propName = null;
-        protected string _propPrefix = null;
-        protected string _regKey = null;
-        protected string _regKeyValueName = null;
-        protected RegistryHive[] _regHive = {RegistryHive.LocalMachine};
+        private string _propName = null;
+        private string _propPrefix = null;
+        private string _regKey = null;
+        private string _regKeyValueName = null;
+        private RegistryHive[] _regHive = {RegistryHive.LocalMachine};
         private string _regHiveString = RegistryHive.LocalMachine.ToString();
 
-        
+
         /// <summary>The property to set to the specified registry key value.</summary>
         [TaskAttribute("property")]
         public virtual string PropertyName {
@@ -63,7 +63,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>The registry key to read.</summary>
         [TaskAttribute("key", Required=true)]
         public virtual string RegistryKey {
-            set { 
+            set {
                 string[] pathParts = value.Split("\\".ToCharArray(0,1)[0]);
                 _regKeyValueName = pathParts[pathParts.Length - 1];
                 _regKey = value.Substring(0, (value.Length - _regKeyValueName.Length));
@@ -122,7 +122,7 @@ namespace SourceForge.NAnt.Tasks {
             throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
         }
         protected static RegistryKey GetHiveKey(RegistryHive hive) {
-            
+
             switch(hive) {
                 case RegistryHive.LocalMachine:
                     return Registry.LocalMachine;

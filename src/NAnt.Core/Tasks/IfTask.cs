@@ -98,11 +98,11 @@ namespace SourceForge.NAnt.Tasks {
     [TaskName("if")]
     public class IfTask : TaskContainer{
         
-        protected string _propNameTrue = null;
-        protected string _propNameExists = null;
-        protected string _targetName = null;
-        protected string _uptodateFile = null;
-        protected FileSet _compareFiles = null;
+        private string _propNameTrue = null;
+        private string _propNameExists = null;
+        private string _targetName = null;
+        private string _uptodateFile = null;
+        private FileSet _compareFiles = null;
 
         /// <summary>
         /// The file to compare if uptodate

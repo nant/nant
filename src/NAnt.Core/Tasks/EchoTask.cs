@@ -50,7 +50,7 @@ namespace SourceForge.NAnt.Tasks {
             get { return _message; }
             set {
                 if (_contents !=null && value != null && value.Trim().Length > 0) {
-                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", _location);
+                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
                 } else {
                     _message = value; 
                 }
@@ -61,7 +61,7 @@ namespace SourceForge.NAnt.Tasks {
             get { return _contents; }
             set { 
                 if (_message != null && value != null && value.Trim().Length > 0) {
-                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", _location);
+                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
                 } else {
                     _contents = value;
                 }

@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // Kevin Dente (kevindente@yahoo.com)
 
-// This class is an extremely stripped down version of Jared Bienz's code from CodeProject.com, 
+// This class is an extremely stripped down version of Jared Bienz's code from CodeProject.com,
 // Even stripped down, it still includes more than NAnt needs right now, but
 // the extra functionality was left in there in case it's needed in the future.
 
@@ -56,13 +56,13 @@ namespace SourceForge.NAnt {
     public class InvalidVolumeTypeException : ApplicationException {
         /// <summary>
         /// Constructs a build exception with no descriptive information.
-        /// </summary>      
+        /// </summary>
         public InvalidVolumeTypeException() : base("This action cannot be performed because of the volume is of the wrong type."){}
 
         public InvalidVolumeTypeException(String message) : base(message) {
         }
         public InvalidVolumeTypeException(String message, Exception e) : base(message, e) {
-        } 
+        }
         public InvalidVolumeTypeException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
     }
@@ -71,7 +71,7 @@ namespace SourceForge.NAnt {
     public class VolumeAccessException : ApplicationException {
         /// <summary>
         /// Constructs a build exception with no descriptive information.
-        /// </summary> 
+        /// </summary>
         public VolumeAccessException() : base("The volume could not be accessed and may be offline."){}
 
          public VolumeAccessException(String message) : base(message) {
@@ -80,20 +80,20 @@ namespace SourceForge.NAnt {
         }
         public VolumeAccessException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
-      
+
     }
 
     /// <summary>
     /// Represents the different types of drives that may exist in a system.
     /// </summary>
     public enum VolumeTypes {
-        Unknown,    // The drive type cannot be determined. 
-        Invalid,    // The root path is invalid. For example, no volume is mounted at the path. 
-        Removable,  // The disk can be removed from the drive. 
-        Fixed,      // The disk cannot be removed from the drive. 
-        Remote,     // The drive is a remote (network) drive. 
-        CDROM,      // The drive is a CD-ROM drive. 
-        RAMDisk     // The drive is a RAM disk. 
+        Unknown,    // The drive type cannot be determined.
+        Invalid,    // The root path is invalid. For example, no volume is mounted at the path.
+        Removable,  // The disk can be removed from the drive.
+        Fixed,      // The disk cannot be removed from the drive.
+        Remote,     // The drive is a remote (network) drive.
+        CDROM,      // The drive is a CD-ROM drive.
+        RAMDisk     // The drive is a RAM disk.
     };
 
     /// <summary>
@@ -136,19 +136,19 @@ namespace SourceForge.NAnt {
         * Private Structures
         *********************************************************/
         [StructLayout(LayoutKind.Sequential)]
-        private class UniversalNameInfo { 
+        private class UniversalNameInfo {
             public string NetworkPath=null;
         }
 
         [StructLayout ( LayoutKind.Sequential, CharSet=CharSet.Ansi )]
-        public struct SHFILEINFOA { 
-            public IntPtr   hIcon; 
-            public int      iIcon; 
-            public uint   dwAttributes; 
+        private struct SHFILEINFOA {
+            public IntPtr   hIcon;
+            public int      iIcon;
+            public uint   dwAttributes;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst=MAX_PATH)]
-            public string szDisplayName; 
+            public string szDisplayName;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst=NAMESIZE)]
-            public string szTypeName; 
+            public string szTypeName;
         };
 
         /**********************************************************
@@ -168,7 +168,7 @@ namespace SourceForge.NAnt {
         private static extern long GetDriveType(string driveLetter);
         [DllImport("kernel32.dll")]
         private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
-        
+
         private static void ValidateURI(Uri uri) {
             // Make sure we were passed something
             if (uri == null) throw new ArgumentNullException();
@@ -180,9 +180,9 @@ namespace SourceForge.NAnt {
             string dirsep =  String.Format(CultureInfo.InvariantCulture, "{0}",Path.DirectorySeparatorChar);
             if (!uri.LocalPath.EndsWith(dirsep) ) throw new InvalidVolumeException(uri);
         }
-        
+
         /// <summary>
-        /// Determines whether the file system is case sensitive. Performs a 
+        /// Determines whether the file system is case sensitive. Performs a
         /// P/Invoke to the Win32 API GetVolumeInformation.
         /// </summary>
         /// <param name="uri"></param>
@@ -195,7 +195,7 @@ namespace SourceForge.NAnt {
 
             if ((platformID == PlatformID.Win32NT) ||
                 (platformID == PlatformID.Win32Windows)) {
-            
+
                 //We're on some version of Windows, so the PInvoke is OK.
 
                 // Declare Receiving Variables
@@ -204,7 +204,7 @@ namespace SourceForge.NAnt {
                 StringBuilder FSName = new StringBuilder(256);  // File System Name
                 UInt32 SerNum = 0;
                 UInt32 MaxCompLen = 0;
-            
+
                 // Attempt to retreive the information
                 long Ret = GetVolumeInformation(uri.LocalPath, VolLabel, (UInt32)VolLabel.Capacity, ref SerNum, ref MaxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity);
 

@@ -117,7 +117,7 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// The xml used to initialize this Target.
         /// </summary>
-        protected XmlNode TargetNode { get {return _xmlNode;} }
+        protected XmlNode TargetNode { get {return XmlNode;} }
 
         /// <summary>Executes dependent targets first, then the target.</summary>
         public void Execute() {
@@ -142,7 +142,7 @@ namespace SourceForge.NAnt {
                     Log.WriteLine("{0}:", Name);
 
                     // select all the task nodes and execute them
-                    foreach (XmlNode taskNode in _xmlNode) {
+                    foreach (XmlNode taskNode in XmlNode) {
                         if(taskNode.Name.StartsWith("#")) continue;
 
                         Task task = Project.CreateTask(taskNode, this);

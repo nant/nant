@@ -184,6 +184,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="nantPatterns">In. NAnt patterns. Absolute or relative paths.</param>
         /// <param name="regexPatterns">Out. Regex patterns. Absolute canonical paths.</param>
+        /// <param name="isInclude">In.</param>
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>

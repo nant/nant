@@ -21,6 +21,9 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+// Mark NAnt.Core CLS compliant
+//
+[assembly: System.CLSCompliant(true)]
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
 [assembly: AssemblyConfiguration("")]
