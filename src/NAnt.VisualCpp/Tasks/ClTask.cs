@@ -74,6 +74,8 @@ namespace NAnt.VisualCpp.Tasks {
         private string _options;
         private OptionCollection _defines = new OptionCollection();
         private OptionCollection _undefines = new OptionCollection();
+        private string _objectFile;
+        private string _pdbFile;
 
         #endregion Private Instance Fields
 
@@ -218,6 +220,26 @@ namespace NAnt.VisualCpp.Tasks {
         [BuildElementCollection("undefines", "undefine")]
         public OptionCollection Undefines {
             get { return _undefines; }
+        }
+
+        /// <summary>
+        /// A name to override the default object file name; can be either a file
+        /// or directory name. The default is the output directory.
+        /// </summary>
+        [TaskAttribute("objectfile")]
+        public string ObjectFile {
+            get { return (_objectFile != null ? _objectFile : OutputDir.FullName); }
+            set { _objectFile = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// A name for the compiler-generated PDB file; can be either a file or 
+        /// directory name. The default is the output directory.
+        /// </summary>
+        [TaskAttribute("pdbfile")]
+        public string ProgramDatabaseFile {
+            get { return (_pdbFile != null ? _pdbFile : OutputDir.FullName); }
+            set { _pdbFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -375,47 +397,45 @@ namespace NAnt.VisualCpp.Tasks {
                     // write preprocesser define(s)
                     foreach (Option define in _defines) {
                         if (define.Value == null)  {
-                            writer.WriteLine("/D " + ArgumentUtils.DuplicateTrailingBackSlash(define.OptionName));
+                            writer.WriteLine("/D " + QuoteArgumentValue(define.OptionName));
                         } else {
-                            writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.DuplicateTrailingBackSlash(define.Value));
+                            writer.WriteLine("/D " + QuoteArgumentValue(define.OptionName 
+                                + "=" + ArgumentUtils.DuplicateTrailingBackSlash(define.Value)));
                         }
                     }
 
                     // write preprocesser undefine(s)
                     foreach (Option undefine in _undefines) {
-                        writer.WriteLine("/U " + ArgumentUtils.DuplicateTrailingBackSlash(undefine.OptionName));
+                        writer.WriteLine("/U " + QuoteArgumentValue(undefine.OptionName));
                     }
 
                     // write user provided include directories
                     foreach (string include in IncludeDirs.DirectoryNames) {
-                        writer.WriteLine("/I \"{0}\"", ArgumentUtils.DuplicateTrailingBackSlash(include));
+                        writer.WriteLine("/I {0}", QuoteArgumentValue(include));
                     }
 
                     // write directories that the compiler will search to resolve 
                     // file references  passed to the #using directive
                     foreach (string metaDataIncludeDir in MetaDataIncludeDirs.DirectoryNames) {
-                        writer.WriteLine("/AI \"{0}\"", ArgumentUtils.DuplicateTrailingBackSlash(metaDataIncludeDir));
+                        writer.WriteLine("/AI {0}", QuoteArgumentValue(metaDataIncludeDir));
                     }
 
                     // writes metadata files to reference in this compilation 
                     // as an alternative to passing a file name to #using in 
                     // source code
                     foreach (string forcedUsingFile in ForcedUsingFiles.FileNames) {
-                        writer.WriteLine("/FU \"{0}\"", ArgumentUtils.DuplicateTrailingBackSlash(forcedUsingFile));
+                        writer.WriteLine("/FU {0}", QuoteArgumentValue(forcedUsingFile));
                     }
- 
-                    // specify output directories.  note that these need to end 
-                    // in a slash, but not a backslash.  not sure if 
-                    // Path.AltDirectorySeparatorChar is the right way to get this 
-                    // behavior.
-                    writer.WriteLine("/Fd\"{0}{1}\"", OutputDir.FullName, 
-                        Path.AltDirectorySeparatorChar);
-                    writer.WriteLine("/Fo\"{0}{1}\"", OutputDir.FullName, 
-                        Path.AltDirectorySeparatorChar);
+
+                    // program database file
+                    writer.WriteLine("/Fd{0}", QuoteArgumentValue(ProgramDatabaseFile));
+
+                    // the object file
+                    writer.WriteLine("/Fo{0}", QuoteArgumentValue(ObjectFile));
 
                     // specify pch file, if user specified one
                     if (PchFile != null) {
-                        writer.WriteLine("/Fp\"{0}\"", PchFile);
+                        writer.WriteLine("/Fp{0}", QuoteArgumentValue(PchFile));
 
                         switch (PchMode) {
                             case PrecompiledHeaderMode.Use:
@@ -430,7 +450,7 @@ namespace NAnt.VisualCpp.Tasks {
                         }
 
                         if (PchThroughFile != null) {
-                            writer.WriteLine("\"{0}\"", PchThroughFile);
+                            writer.WriteLine("{0}", QuoteArgumentValue(PchThroughFile));
                         }
                     }
 
@@ -476,6 +496,31 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         #endregion Override implementation of Task
+
+        #region Public Static Methods
+
+        /// <summary>
+        /// Quotes an argument value and duplicates trailing backslahes.
+        /// </summary>
+        /// <param name="value">The argument value to quote.</param>
+        /// <returns>
+        /// The quotes argument value.
+        /// </returns>
+        public static string QuoteArgumentValue(string value) {
+            // duplicate trailing backslashes (even if value is quoted)
+            string quotedValue = ArgumentUtils.DuplicateTrailingBackSlash(value);
+            
+            // determine if value is already quoted
+            bool isQuoted = value.StartsWith("\"") && value.EndsWith("\"");
+
+            if (!isQuoted) {
+                quotedValue = "\"" + quotedValue + "\"";
+            }
+
+            return quotedValue;
+        }
+
+        #endregion Public Static Methods
 
         /// <summary>
         /// Defines the supported modes for the use of precompiled header files.
