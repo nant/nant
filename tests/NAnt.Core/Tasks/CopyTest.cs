@@ -26,6 +26,8 @@ using System.Globalization;
 
 using NUnit.Framework;
 
+using NAnt.Core;
+
 namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// <para>Tests the deletion of the following:</para>
@@ -125,7 +127,7 @@ namespace Tests.NAnt.Core.Tasks {
             string results;
             string dest = CreateTempDir("a.99");
             
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1, string.Empty));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1, string.Empty));
 
             Assertion.Assert("File should not have been created:" + tempFile1, !File.Exists(GetPath(dest,tempDir1,tempFile1)));
             Assertion.Assert("File should not have been created:" + tempFile2, !File.Exists(GetPath(dest,tempDir1,tempFile2)));
@@ -143,6 +145,22 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Ensure that an invalid path for destination directory causes a 
+        /// <see cref="BuildException" /> to be thrown.
+        /// </summary>
+        [Test]
+        public void Test_Copy_InvalidDestinationDirectory() {
+            try {
+                RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "abc#?-{", tempDir1, string.Empty));
+                // have the test fail
+                Assertion.Fail("Build should have failed.");
+            } catch (TestBuildException ex) {
+                // assert that a BuildException was the cause of the TestBuildException
+                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            }
+        }
+
+        /// <summary>
         /// Copy everything from under tempDir1 to a new temp directory and 
         /// ensure it exists.
         /// </summary>
@@ -151,7 +169,7 @@ namespace Tests.NAnt.Core.Tasks {
             string results;
             string dest = CreateTempDir("a.xx");
             
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", string.Empty));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", string.Empty));
 
             Assertion.Assert("File should have been created:" + tempFile1, File.Exists(GetPath(dest,tempDir1,tempFile1)));
             Assertion.Assert("File should have been created:" + tempFile2, File.Exists(GetPath(dest,tempDir1,tempFile2)));
@@ -177,7 +195,7 @@ namespace Tests.NAnt.Core.Tasks {
             string results;
             string dest = CreateTempDir("a.xx");
             
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='true' "));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='true' "));
 
             Assertion.Assert("File should have been created:" + tempFile1, File.Exists(GetPath(dest,tempDir1,tempFile1)));
             Assertion.Assert("File should have been created:" + tempFile2, File.Exists(GetPath(dest,tempDir1,tempFile2)));
@@ -203,7 +221,7 @@ namespace Tests.NAnt.Core.Tasks {
             string results;
             string dest = CreateTempDir("a.xx");
             
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='false' "));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='false' "));
 
             Assertion.Assert("File should have been created:" + tempFile1, File.Exists(GetPath(dest,tempDir1,tempFile1)));
             Assertion.Assert("File should have been created:" + tempFile2, File.Exists(GetPath(dest,tempDir1,tempFile2)));
@@ -225,7 +243,7 @@ namespace Tests.NAnt.Core.Tasks {
             string results;
             string dest = CreateTempDir("a.c");
             
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
 
             Assertion.Assert("File should have been created:" + tempFile1, File.Exists(GetPath(dest,tempDir1,tempFile1)));
             Assertion.Assert("File should have been created:" + tempFile2, File.Exists(GetPath(dest,tempDir1,tempFile2)));
@@ -268,12 +286,48 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Dir should have been created:" + tempDir5, Directory.Exists(GetPath(dest,tempDir1,tempDir5)));
         }
 
+        /// <summary>
+        /// Ensure that an invalid path for source file causes a <see cref="BuildException" />
+        /// to be thrown.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Files_InvalidSourceFilePath() {
+            File.Delete(tempFile2);
+
+            try {
+                RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
+                    "abc#?-{", tempFile2));
+                // have the test fail
+                Assertion.Fail("Build should have failed.");
+            } catch (TestBuildException ex) {
+                // assert that a BuildException was the cause of the TestBuildException
+                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            }
+        }
+
+        /// <summary>
+        /// Ensure that an invalid path for destination file causes a 
+        /// <see cref="BuildException" /> to be thrown.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Files_InvalidDestinationFilePath() {
+            try {
+                RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
+                    tempFile1, "abc#?-{"));
+                // have the test fail
+                Assertion.Fail("Build should have failed.");
+            } catch (TestBuildException ex) {
+                // assert that a BuildException was the cause of the TestBuildException
+                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            }
+        }
+
         [Test]
         public void Test_Copy_Files_No_Overwrite() {
             string results;
 
             File.Delete(tempFile2);
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assertion.Assert("File should have been created:" + tempFile2, File.Exists(tempFile2));
         }
 
@@ -290,7 +344,7 @@ namespace Tests.NAnt.Core.Tasks {
             string results;
 
             File.SetAttributes(tempFile2, FileAttributes.ReadOnly);
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assertion.Assert("File should have been created:" + tempFile2, File.Exists(tempFile2));
         }
 
@@ -305,7 +359,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_Structure_Directories() {
-            string results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, string.Empty));
+            string results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, string.Empty));
             Assertion.Assert("Dir should have been created:" + GetPath(tempDir1, "destination"), Directory.Exists(GetPath(tempDir1, "destination")));
             Assertion.Assert("Dir should have been created:" + GetPath(tempDir1, "source", "test"), Directory.Exists(GetPath(tempDir1, "source", "test")));
             Assertion.Assert("Dir should have been created:" + GetPath(tempDir1, "destination", "source","test"), Directory.Exists(GetPath(tempDir1, "destination", "source", "test")));
@@ -322,7 +376,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_Structure_Directories_ExcludeEmptyDirs() {
-            string results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, " includeemptydirs='false' "));
+            string results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, " includeemptydirs='false' "));
             Assertion.Assert("Dir should have been created:" + GetPath(tempDir1, "destination"), Directory.Exists(GetPath(tempDir1, "destination")));
             Assertion.Assert("Dir should have been created:" + GetPath(tempDir1, "source", "test"), Directory.Exists(GetPath(tempDir1, "source", "test")));
             Assertion.Assert("Dir should not have been created:" + GetPath(tempDir1, "destination", "source","test"), !Directory.Exists(GetPath(tempDir1, "destination", "source", "test")));

@@ -68,7 +68,7 @@ namespace NAnt.Core.Tasks {
         /// The file to move.
         /// </summary>
         [TaskAttribute("file")]
-        public override string SourceFile {
+        public override FileInfo SourceFile {
             get { return base.SourceFile; }
             set { base.SourceFile = value; }
         }
@@ -77,7 +77,7 @@ namespace NAnt.Core.Tasks {
         /// The file to move to.
         /// </summary>
         [TaskAttribute("tofile")]
-        public override string ToFile {
+        public override FileInfo ToFile {
             get { return base.ToFile; }
             set { base.ToFile = value; }
         }
@@ -86,7 +86,7 @@ namespace NAnt.Core.Tasks {
         /// The directory to move to.
         /// </summary>
         [TaskAttribute("todir")]
-        public override string ToDirectory {
+        public override DirectoryInfo ToDirectory {
             get { return base.ToDirectory; }
             set { base.ToDirectory = value; }
         }
@@ -121,7 +121,8 @@ namespace NAnt.Core.Tasks {
                 foreach (string sourcePath in FileCopyMap.Keys) {
                     string destinationPath = (string) FileCopyMap[sourcePath];
                     if (Flatten) {
-                        destinationPath = Path.Combine(ToDirectory, Path.GetFileName(destinationPath));
+                        destinationPath = Path.Combine(ToDirectory.FullName, 
+                            Path.GetFileName(destinationPath));
                     }
                     if (sourcePath == destinationPath) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);

@@ -25,6 +25,8 @@ using System.Globalization;
 
 using NUnit.Framework;
 
+using NAnt.Core;
+
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
@@ -62,6 +64,23 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);
             Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
             Assertion.Assert(_tempFileName + " should have Normal file attribute.", (File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0);
+        }
+
+        /// <summary>
+        /// Ensure that an invalid path causes a <see cref="BuildException" />
+        /// to be thrown.
+        /// </summary>
+        [Test]
+        public void Test_InvalidFilePath() {
+            try {
+                // execute build with invalid file path
+                RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-}", "", ""));
+                // have the test fail
+                Assertion.Fail("Build should have failed.");
+            } catch (TestBuildException ex) {
+                // assert that a BuildException was the cause of the TestBuildException
+                Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            }
         }
 
         [Test]
@@ -118,7 +137,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         private string FormatBuildFile(string attributes, string nestedElements) {
-            return String.Format(CultureInfo.InvariantCulture, _format, _tempFileName, attributes, nestedElements);
+            return string.Format(CultureInfo.InvariantCulture, _format, _tempFileName, attributes, nestedElements);
         }
     }
 }
