@@ -20,16 +20,16 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
-using System;
-using System.IO;
-using System.Reflection;
-using System.Xml;
-using System.Collections.Specialized;
-using System.Globalization;
-using Microsoft.Win32;
-using System.Configuration;
-
 namespace SourceForge.NAnt {
+
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using System.Xml;
+    using System.Collections.Specialized;
+    using System.Globalization;
+    using Microsoft.Win32;
+    using System.Configuration;
 
     /// <summary>Central representation of an NAnt project.</summary>
     /// <example>
@@ -633,7 +633,11 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.defaultframework.version"] = DefaultFramework.Version;
             Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;             
             Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
-            Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
+            if (DefaultFramework.SdkDirectory != null) {
+                Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
+            } else {
+                Properties["nant.settings.defaultframework.sdkdirectory"] = null;
+            }
             Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.defaultframework.basiccompiler"] = DefaultFramework.BasicCompilerName; 
             Properties["nant.settings.defaultframework.jsharpcompiler"] = DefaultFramework.JSharpCompilerName; 
@@ -643,7 +647,9 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;     
             if (DefaultFramework.RuntimeEngine != null) {
                 Properties["nant.settings.defaultframework.runtimeengine"] = DefaultFramework.RuntimeEngine.Name; 
-            }        
+            } else {
+                Properties["nant.settings.defaultframework.runtimeengine"] = null;
+            }
         }
         
         /// <summary>
@@ -654,7 +660,11 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.currentframework.version"] = CurrentFramework.Version;
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
             Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName; 
-            Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
+            if (CurrentFramework.SdkDirectory != null) {
+                Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
+            } else {
+                Properties["nant.settings.currentframework.sdkdirectory"] = null; 
+            }
             Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.currentframework.csharpcompiler"] = CurrentFramework.CSharpCompilerName; 
             Properties["nant.settings.currentframework.basiccompiler"] = CurrentFramework.BasicCompilerName; 
@@ -664,6 +674,8 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
             if (CurrentFramework.RuntimeEngine != null) {
                 Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name; 
+            } else {
+                Properties["nant.settings.currentframework.runtimeengine"] = null;
             }
         }
 
@@ -702,7 +714,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="frameworkInfoNodes"></param>
         void ProcessFrameworkInfo( XmlNodeList frameworkInfoNodes ) {
-            foreach ( XmlNode frameworkNode in frameworkInfoNodes ) {
+            foreach (XmlNode frameworkNode in frameworkInfoNodes) {
                 // load the runtimInfo stuff
                 XmlNode sdkDirectoryNode = frameworkNode.SelectSingleNode("sdkdirectory");
                 XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkdirectory");
@@ -718,9 +730,9 @@ namespace SourceForge.NAnt {
                 string resgenToolName = GetXmlAttributeValue(frameworkNode, "resgenname");
                 string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
 
-                string sdkDirectory = "";
-                string frameworkDirectory = "";
-                string frameworkAssemblyDirectory = "";
+                string sdkDirectory = null;
+                string frameworkDirectory = null;
+                string frameworkAssemblyDirectory = null;
 
                 // Do some validation here on null or not null fields
                 if (GetXmlAttributeValue(sdkDirectoryNode, "useregistry") == "true") {
@@ -728,11 +740,11 @@ namespace SourceForge.NAnt {
                     string regValue = GetXmlAttributeValue(sdkDirectoryNode, "regvalue");
                     RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
 
-                    if ( sdkKey != null && sdkKey.GetValue(regValue) != null ) {
-                        sdkDirectory  = sdkKey.GetValue(regValue).ToString() + Path.DirectorySeparatorChar + "bin";
+                    if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
+                        sdkDirectory = sdkKey.GetValue(regValue).ToString() + Path.DirectorySeparatorChar + "bin";
                     }
                 } else {
-                    sdkDirectory =  GetXmlAttributeValue(sdkDirectoryNode, "dir");
+                    sdkDirectory = GetXmlAttributeValue(sdkDirectoryNode, "dir");
                 }
 
                 if (GetXmlAttributeValue(frameworkDirectoryNode, "useregistry") == "true" ) {
@@ -740,11 +752,11 @@ namespace SourceForge.NAnt {
                     string regValue = GetXmlAttributeValue(frameworkDirectoryNode, "regvalue");
                     RegistryKey frameworkKey = Registry.LocalMachine.OpenSubKey(regKey);
                     
-                    if ( frameworkKey  != null && frameworkKey.GetValue(regValue) != null ) {
-                        frameworkDirectory  = frameworkKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
+                    if (frameworkKey != null && frameworkKey.GetValue(regValue) != null) {
+                        frameworkDirectory = frameworkKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
                     }
                 } else {
-                    frameworkDirectory =  GetXmlAttributeValue(frameworkDirectoryNode, "dir");
+                    frameworkDirectory = GetXmlAttributeValue(frameworkDirectoryNode, "dir");
                 }
                 
                 if (GetXmlAttributeValue(frameworkAssemDirectoryNode, "useregistry") == "true") {
@@ -752,11 +764,11 @@ namespace SourceForge.NAnt {
                     string regValue = GetXmlAttributeValue(frameworkAssemDirectoryNode, "regvalue");
                     RegistryKey frameworkAssemKey = Registry.LocalMachine.OpenSubKey(regKey);
                     
-                    if ( frameworkAssemKey  != null && frameworkAssemKey.GetValue(regValue) != null ) {
-                        frameworkAssemblyDirectory  = frameworkAssemKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
+                    if (frameworkAssemKey != null && frameworkAssemKey.GetValue(regValue) != null) {
+                        frameworkAssemblyDirectory = frameworkAssemKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
                     }
                 } else {
-                    frameworkAssemblyDirectory =  GetXmlAttributeValue(frameworkAssemDirectoryNode, "dir");
+                    frameworkAssemblyDirectory = GetXmlAttributeValue(frameworkAssemDirectoryNode, "dir");
                 }
 
                 FrameworkInfo info = null;
@@ -773,12 +785,12 @@ namespace SourceForge.NAnt {
                                             jscriptCompilerName,
                                             resgenToolName,
                                             runtimeEngine );
-                }
-                catch (Exception e ) {
+                } catch (Exception e ) {
                     Log.WriteLineIf(Verbose, string.Format(CultureInfo.InvariantCulture, "settings warning: frameworkinfo {0} is invalid and has not been loaded: ", name ) + e.Message );
-                } // just ignore frameworks that don't validate
-                if ( info != null ) {
-                    _frameworkInfoTable.Add( info.Name, info );
+                } 
+                // just ignore frameworks that don't validate
+                if (info != null ) {
+                    _frameworkInfoTable.Add(info.Name, info);
                 }
             }
         }

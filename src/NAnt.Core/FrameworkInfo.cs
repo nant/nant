@@ -75,11 +75,10 @@ namespace SourceForge.NAnt {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "framework Assembly Dir {0} does not exist", frameworkAssemblyDir) );
             }
                                    
-            if (Directory.Exists(sdkDir)) {
+            if (sdkDir != null && Directory.Exists(sdkDir)) {
                 _sdkDirectory = new DirectoryInfo(sdkDir);
-            } else {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "sdkDirectory {0} does not exist", sdkDir)  );
             }           
+
             // if runtime engine is blank assume we aren't using one
             if (runtimeEngine != null && runtimeEngine.Length != 0) {
                 string runtimeEnginePath = _frameworkDirectory.FullName + Path.DirectorySeparatorChar + runtimeEngine;
@@ -163,21 +162,21 @@ namespace SourceForge.NAnt {
             get { return _frameworkDirectory; }
         }
         /// <summary>
-        /// Gets the path to the runtime engine for this framework. ( not required for many frameworks )
+        /// Gets the path to the runtime engine for this framework. (not required for many frameworks )
         /// </summary>
         public FileInfo RuntimeEngine {
             get { return _runtimEngine; }
         }
        
         /// <summary>
-        /// Directory where the System assemblies are located
+        /// Gets the directory where the system assemblies are located.
         /// </summary>
         public DirectoryInfo FrameworkAssemblyDirectory {
             get { return _frameworkAssemblyDirectory; }
         }
         
         /// <summary>
-        /// Director containing the framework SDK tools
+        /// Gets the directory containing the framework SDK tools.
         /// </summary>
         public DirectoryInfo SdkDirectory {
             get { return _sdkDirectory; }
