@@ -48,7 +48,11 @@ namespace NAnt.Core {
             _evalMode = EvalMode.Evaluate;
 
             _tokenizer.InitTokenizer(s);
-            return ParseExpression();
+            object val = ParseExpression();
+            if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
+                throw BuildParseError("Unexpected token at the end of expression", _tokenizer.CurrentPosition);
+            }
+            return val;
         }
 
         public void CheckSyntax(string s) {
@@ -57,6 +61,9 @@ namespace NAnt.Core {
 
             _tokenizer.InitTokenizer(s);
             ParseExpression();
+            if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
+                throw BuildParseError("Unexpected token at the end of expression", _tokenizer.CurrentPosition);
+            }
         }
 
 #region Parser
@@ -86,7 +93,6 @@ namespace NAnt.Core {
                             _evalMode = EvalMode.ParseOnly;
                         }
                     }
-
 
                     _tokenizer.GetNextToken();
                     ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
@@ -179,13 +185,9 @@ namespace NAnt.Core {
                         
                     case ExpressionTokenizer.TokenType.GE:
                         return ((IComparable) o).CompareTo(o2) >= 0;
-
-                    default:
-                        throw new Exception(); // shouldn't happen
                 }
-            } else {
-                return o;
             }
+            return o;
         }
 
         private object ParseAddSubtract() {
@@ -217,7 +219,7 @@ namespace NAnt.Core {
 
                             o = i1 + i2;
                         } else {
-                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                         "Addition not supported for arguments of type '{0}' and '{1}'.", 
                                         GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
@@ -240,7 +242,7 @@ namespace NAnt.Core {
 
                             o = i1 - i2;
                         } else {
-                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                         "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
                                         GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
@@ -275,7 +277,7 @@ namespace NAnt.Core {
                             int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the mutliplication operator", p2, p3);
                             o = i1 * i2;
                         } else {
-                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                         "Multiplication not supported for arguments of type '{0}' and '{1}'.", 
                                         GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
@@ -295,9 +297,14 @@ namespace NAnt.Core {
                         } else if (o is int || o2 is int) {
                             int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the division operator", p0, p1);
                             int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the division operator", p2, p3);
+                            if (i2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                            "Attempt to divide by zero."), p2, p3);
+                            }
+                                
                             o = i1 / i2;
                         } else {
-                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                         "Division not supported for arguments of type '{0}' and '{1}'.", 
                                         GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
@@ -312,6 +319,10 @@ namespace NAnt.Core {
                     if (!SyntaxCheckOnly()) {
                         int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the modulus operator", p0, p1);
                         int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the modulus operator", p2, p3);
+                        if (i2 == 0) {
+                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                        "Attempt to divide by zero."), p2, p3);
+                        }
                         o = i1 % i2;
                     }
                 } else {
@@ -322,12 +333,10 @@ namespace NAnt.Core {
         }
 
         private object ParseConditional() {
-            if (_tokenizer.TokenText != "if") {
-                ReportParseError("'if' expected.", _tokenizer.CurrentPosition);
-            }
+            // we're on "if" token - skip it 
             _tokenizer.GetNextToken();
             if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
-                ReportParseError("'(' expected.", _tokenizer.CurrentPosition);
+                throw BuildParseError("'(' expected.", _tokenizer.CurrentPosition);
             }
             _tokenizer.GetNextToken();
 
@@ -343,7 +352,7 @@ namespace NAnt.Core {
 
             // skip comma between condition value and then
             if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
-                ReportParseError("',' expected.", _tokenizer.CurrentPosition);
+                throw BuildParseError("',' expected.", _tokenizer.CurrentPosition);
             }
             _tokenizer.GetNextToken();
 
@@ -360,7 +369,7 @@ namespace NAnt.Core {
                 _evalMode = oldEvalMode;
 
                 if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
-                    ReportParseError("',' expected.", _tokenizer.CurrentPosition);
+                    throw BuildParseError("',' expected.", _tokenizer.CurrentPosition);
                 }
                 _tokenizer.GetNextToken(); // skip comma
 
@@ -376,7 +385,7 @@ namespace NAnt.Core {
 
                 // skip closing ')'
                 if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
-                    ReportParseError("')' expected.", _tokenizer.CurrentPosition);
+                    throw BuildParseError("')' expected.", _tokenizer.CurrentPosition);
                 }
                 _tokenizer.GetNextToken();
 
@@ -402,7 +411,7 @@ namespace NAnt.Core {
                     number += ".";
                     _tokenizer.GetNextToken();
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Number) {
-                        ReportParseError("Fractional part expected.", _tokenizer.CurrentPosition);
+                        throw BuildParseError("Fractional part expected.", _tokenizer.CurrentPosition);
                     }
                     number += _tokenizer.TokenText;
                     _tokenizer.GetNextToken();
@@ -426,7 +435,7 @@ namespace NAnt.Core {
                     if (v is double) {
                         return -((double) v);
                     }
-                    ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                    throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                         "Unary minus not supported for arguments of type '{0}'.", 
                         GetSimpleTypeName(v.GetType())), p0, p1);
                 }
@@ -451,7 +460,7 @@ namespace NAnt.Core {
                 _tokenizer.GetNextToken();
                 object v = ParseExpression();
                 if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
-                    ReportParseError("')' expected.", _tokenizer.CurrentPosition);
+                    throw BuildParseError("')' expected.", _tokenizer.CurrentPosition);
                 }
                 _tokenizer.GetNextToken();
                 return v;
@@ -489,7 +498,7 @@ namespace NAnt.Core {
                     functionOrPropertyName += "::";
                     _tokenizer.GetNextToken();
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Keyword) {
-                        ReportParseError("Function name expected.", p0, _tokenizer.CurrentPosition);
+                        throw BuildParseError("Function name expected.", p0, _tokenizer.CurrentPosition);
                     }
                     functionOrPropertyName += _tokenizer.TokenText;
                     _tokenizer.GetNextToken();
@@ -511,7 +520,7 @@ namespace NAnt.Core {
 
                 if (isFunction) {
                     if ( _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
-                        ReportParseError("'(' expected.", _tokenizer.CurrentPosition);
+                        throw BuildParseError("'(' expected.", _tokenizer.CurrentPosition);
                     }
 
                     _tokenizer.GetNextToken();
@@ -522,13 +531,13 @@ namespace NAnt.Core {
                     try {
                         formalParameters = GetFunctionParameters(functionOrPropertyName);
                     } catch (Exception e) {
-                        ReportParseError(e.Message, p0, _tokenizer.CurrentPosition);
+                        throw BuildParseError(e.Message, p0, _tokenizer.CurrentPosition);
                     }
 
                     while (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen &&
                             _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
                         if (currentArgument >= formalParameters.Length) {
-                            ReportParseError(string.Format(CultureInfo.InvariantCulture,
+                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture,
                                         "Too many actual parameters for '{0}'.", functionOrPropertyName), p0, _tokenizer.CurrentPosition);
                         }
 
@@ -548,17 +557,17 @@ namespace NAnt.Core {
                             break;
                         }
                         if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
-                            ReportParseError("',' expected.", _tokenizer.CurrentPosition);
+                            throw BuildParseError("',' expected.", _tokenizer.CurrentPosition);
                         }
                         _tokenizer.GetNextToken();
                     }
                     if (currentArgument < formalParameters.Length) {
-                        ReportParseError(string.Format(CultureInfo.InvariantCulture,
+                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture,
                                     "Too few actual parameters for '{0}'.", functionOrPropertyName), p0, _tokenizer.CurrentPosition);
                     }
 
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
-                        ReportParseError("')' expected.", _tokenizer.CurrentPosition);
+                        throw BuildParseError("')' expected.", _tokenizer.CurrentPosition);
                     }
                     _tokenizer.GetNextToken();
                 }
@@ -573,27 +582,26 @@ namespace NAnt.Core {
                     }
                 } catch (Exception e) {
                     if (isFunction) {
-                        ReportParseError("Function call failed.", p0, _tokenizer.CurrentPosition, e);
+                        throw BuildParseError("Function call failed.", p0, _tokenizer.CurrentPosition, e);
                     } else {
-                        ReportParseError("Property evaluation failed.", p0, _tokenizer.CurrentPosition, e);
+                        throw BuildParseError("Property evaluation failed.", p0, _tokenizer.CurrentPosition, e);
                     }
                 }
             }
 
-            UnexpectedToken();
-            return null;
+            return UnexpectedToken();
         }
 
-        protected void ReportParseError(string desc, ExpressionTokenizer.Position p0) {
-            throw new ExpressionParseException(desc, p0.CharIndex);
+        protected ExpressionParseException BuildParseError(string desc, ExpressionTokenizer.Position p0) {
+            return new ExpressionParseException(desc, p0.CharIndex);
         }
         
-        protected void ReportParseError(string desc, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1) {
-            throw new ExpressionParseException(desc, p0.CharIndex, p1.CharIndex);
+        protected ExpressionParseException BuildParseError(string desc, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1) {
+            return new ExpressionParseException(desc, p0.CharIndex, p1.CharIndex);
         }
         
-        protected void ReportParseError(string desc, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1, Exception ex) {
-            throw new ExpressionParseException(desc, p0.CharIndex, p1.CharIndex, ex);
+        protected ExpressionParseException BuildParseError(string desc, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1, Exception ex) {
+            return new ExpressionParseException(desc, p0.CharIndex, p1.CharIndex, ex);
         }
 
         protected object SafeConvert(Type returnType, object source, string description, ExpressionTokenizer.Position p0, ExpressionTokenizer.Position p1) {
@@ -626,21 +634,20 @@ namespace NAnt.Core {
                 }
 
                 if (returnType == typeof(DateTime)) {
-                    if (!(source is DateTime || source is DateTime)) {
+                    if (!(source is DateTime || source is string)) {
                         // only string and DateTime can be converted to DateTime
                         disallow = true;
                     }
                 }
 
                 if (disallow) {
-                    ReportParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1);
+                    throw BuildParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1);
                 }
                 
                 return Convert.ChangeType(source, returnType, CultureInfo.InvariantCulture);
             }
             catch (Exception ex) {
-                ReportParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1, ex);
-                return null; // never gets here
+                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1, ex);
             }
         }
 
@@ -655,10 +662,6 @@ namespace NAnt.Core {
                 return "boolean";
             } else if (t == typeof(DateTime)) {
                 return "datetime";
-            } else if (t == typeof(FileInfo)) {
-                return "file";
-            } else if (t == typeof(DirectoryInfo)) {
-                return "directory";
             } else {
                 return t.FullName;
             }
@@ -672,8 +675,8 @@ namespace NAnt.Core {
         protected abstract ParameterInfo[] GetFunctionParameters(string functionName);
         protected abstract object EvaluateProperty(string propertyName);
 
-        protected virtual void UnexpectedToken() {
-            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+        protected virtual object UnexpectedToken() {
+            throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                 "Unexpected token '{0}'.", _tokenizer.CurrentToken), _tokenizer.CurrentPosition);
         }
 #endregion

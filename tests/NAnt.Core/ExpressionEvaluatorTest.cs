@@ -22,6 +22,8 @@ using System.IO;
 using System.Globalization;
 
 using NUnit.Framework;
+using System.Collections;
+using System.Collections.Specialized;
 
 using NAnt.Core;
 using Tests.NAnt.Core.Util;
@@ -64,22 +66,62 @@ namespace Tests.NAnt.Core {
             AssertExpression("2*1*3", 6);
             AssertExpression("1/2+3", 3);
             AssertExpression("5.0/(2+8)", 0.5);
-            AssertExpression("convert::to-double(5)/(2+8)", 0.5);
-            AssertExpression("convert::to-double(1)/2+3", 3.5);
             AssertExpression("((((1))))", 1);
             AssertExpression("((((1+2))))", 3);
             AssertExpression("((((1+2)+(2+1))))", 6);
             AssertExpression("((((1+2)/(2+1))))", 1);
             AssertExpression("-1", -1);
             AssertExpression("--1", 1);
+            AssertExpression("10 % 3", 1);
+            AssertExpression("10 % 3 % 5", 1);
+            AssertExpression("-1 = 1-2", true);
+            AssertExpression("--1.0 = 1.0", true);
+            AssertExpression("1 <> 1", false);
+            AssertExpression("1 = 2", false);
+            AssertExpression("10.0 - 1.0 >= 8.9", true);
+            AssertExpression("10.0 + 1 <= 11.1", true);
+            AssertExpression("1 * 1.0 = 1.0", true);
+            AssertFailure("1.aaaa"); // fractional part expected
+            AssertFailure("(1 1)");
+            AssertFailure("aaaa::1");
+            AssertFailure("aaaa::bbbb 1");
+        }
+        
+        [Test] public void TestCoreOperationFailures() {
+            AssertFailure("1+aaaa");
+            AssertFailure("1+");
+            AssertFailure("*3");
+            AssertFailure("2*/1*3");
+            AssertFailure("1//2+3");
+            AssertFailure("convert::todouble(5)/(2+8)");
+            AssertFailure("convert::to-double(1/2+3");
+            AssertFailure("-'aaa'");
+            AssertFailure("true + true");
+            AssertFailure("true - true");
+            AssertFailure("true * true");
+            AssertFailure("true / true");
+            AssertFailure("true % true");
+            AssertFailure("((((1)))");
+            AssertFailure("((1+2))))");
+            AssertFailure("((((1+2)+(2+1)))");
+            AssertFailure("5/0");
+            AssertFailure("5%0");
+            AssertFailure("convert::to-double(5)/(2+8)");
+        }
+        
+        [Test] public void TestRelationalOperators() {
             AssertExpression("'a' = 'a'", true);
             AssertExpression("'a' = 'b'", false);
             AssertExpression("'a' <> 'a'", false);
             AssertExpression("'a' <> 'b'", true);
             AssertExpression("'a' + 'b' = 'ab'", true);
             AssertExpression("1 = 1", true);
-            AssertExpression("1 <> 1", false);
-            AssertExpression("1 = 2", false);
+            AssertExpression("1 < 2", true);
+            AssertExpression("1 > 2", false);
+            AssertExpression("2 < 1", false);
+            AssertExpression("2 > 1", true);
+            AssertExpression("2 <= 1", false);
+            AssertExpression("2 >= 1", true);
             AssertExpression("1 <> 2", true);
             AssertExpression("1.0 = 1.0", true);
             AssertExpression("1.0 <> 1.0", false);
@@ -91,25 +133,41 @@ namespace Tests.NAnt.Core {
             AssertExpression("true==false", false);
             AssertExpression("true<>false", true);
             AssertExpression("true<>true", false);
+        }
+        
+        [Test] public void TestLogicalOperators() {
+            AssertExpression("true or false or false", true);
+            AssertExpression("false or false or false", false);
+            AssertExpression("false or true", true);
+            AssertExpression("true and false", false);
+            AssertExpression("true and true and false", false);
+            AssertExpression("true and true and true", true);
+            AssertExpression("false and true and true", false);
             AssertExpression("not true", false);
             AssertExpression("not false", true);
             AssertExpression("not (1=1)", false);
+            AssertExpression("true or not (1=1)", true);
+            AssertExpression("true or not (--1=1)", true);
         }
         
-        [Test] public void TestCoreOperationFailures() {
-            AssertFailure("1+aaaa");
-            AssertFailure("1+");
-            AssertFailure("*3");
-            AssertFailure("2*/1*3");
-            AssertFailure("1//2+3");
-            AssertFailure("convert::todouble(5)/(2+8)");
-            AssertFailure("convert::to-double(1/2+3");
-            //AssertFailure("((((1)))");
-            //AssertFailure("((1+2))))");
-            //AssertFailure("((((1+2)+(2+1))))");
-            //AssertFailure("5.0/0.0");
+        [Test] public void TestConversionFunctions() {
+            AssertExpression("convert::to-double(5)/(2+8)", 0.5);
+            AssertExpression("convert::to-double(1)/2+3", 3.5);
+            AssertExpression("convert::to-datetime('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
+            AssertExpression("convert::to-datetime(convert::to-datetime('12/31/1999 01:23:34'))", new DateTime(1999,12,31,1,23,34));
+            AssertFailure("convert::to-int(datetime::now())");
+            AssertFailure("convert::to-double('aaaaaaaaa')");
+            AssertFailure("convert::to-datetime(1)");
+            AssertFailure("convert::to-boolean(1)");
+            AssertExpression("convert::to-boolean('True')",true);
+            AssertExpression("convert::to-boolean('true')",true);
+            AssertExpression("convert::to-boolean('False')",false);
+            AssertExpression("convert::to-boolean('false')",false);
+            AssertFailure("convert::to-boolean('aaafalse')");
+            AssertExpression("convert::to-string(false)","False");
+            AssertExpression("convert::to-string(1)","1");
+            AssertExpression("convert::to-int('123'+'45')",12345);
         }
-        
         [Test] public void TestStringFunctions() {
             AssertExpression("string::get-length('')", 0);
             AssertExpression("string::get-length('')=0", true);
@@ -132,6 +190,12 @@ namespace Tests.NAnt.Core {
             AssertExpression("string::index-of('abc','d')=-1", true);
         }
         
+        [Test] public void TestDateTimeFunctions() {
+            AssertFailure("datetime::now(111)");
+            AssertFailure("datetime::add()");
+            AssertFailure("datetime::now(");
+        }
+        
         [Test] public void TestMathFunctions() {
             AssertExpression("math::round(0.1)", 0.0);
             AssertExpression("math::round(0.7)", 1.0);
@@ -147,10 +211,16 @@ namespace Tests.NAnt.Core {
             AssertExpression("if(true,1,2)", 1);
             AssertExpression("if(true,'a','b')", "a");
             AssertExpression("if(false,'a','b')", "b");
+            AssertFailure("if(1,2,3)");
+            AssertFailure("if(true 2,3)");
+            AssertFailure("if(true,2,3 3");
+            AssertFailure("if(true,2 2,3)");
+            AssertFailure("if [ true, 1, 0 ]");
         }
         
         [Test] public void TestFileFunctions() {
             AssertExpression("file::exists('c:\\i_am_not_there.txt')", false);
+            AssertFailure("file::get-last-write-time('c:/no-such-file.txt')");
         }
         
         [Test] public void TestDirectoryFunctions() {
@@ -165,6 +235,55 @@ namespace Tests.NAnt.Core {
             //AssertExpression("target::exists('i_am_not_there')", false);
             //AssertExpression("target::exists('test')", true);
         }
+
+        [Test] public void TestStandaloneEvaluator() {
+            ExpressionEvaluator eval = 
+                new ExpressionEvaluator(_project, 
+                        _project.Properties, 
+                        Location.UnknownLocation, 
+                        new Hashtable(), 
+                        new Stack());
+            
+            Assert.AreEqual(eval.Evaluate("1+2*3"), 7);
+            eval.CheckSyntax("1+2*3");
+        }
+        
+        [Test]
+        [ExpectedException(typeof(ExpressionParseException))]
+        public void TestStandaloneEvaluatorFailure() {
+            ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
+                    _project.Properties, 
+                    Location.UnknownLocation, 
+                    new Hashtable(), 
+                    new Stack());
+
+            eval.Evaluate("1+2*datetime::now(");
+        }
+        
+        [Test]
+        [ExpectedException(typeof(ExpressionParseException))]
+        public void TestStandaloneEvaluatorFailure2() {
+            ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
+                    _project.Properties, 
+                    Location.UnknownLocation, 
+                    new Hashtable(), 
+                    new Stack());
+
+            eval.Evaluate("1 1");
+        }
+        
+        [Test]
+        [ExpectedException(typeof(ExpressionParseException))]
+        public void TestStandaloneEvaluatorSyntaxCheckFailure() {
+            ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
+                    _project.Properties, 
+                    Location.UnknownLocation, 
+                    new Hashtable(), 
+                    new Stack());
+
+            eval.CheckSyntax("1+2*3 1");
+        }
+        
         #endregion
         
         #region Private Instance Methods
