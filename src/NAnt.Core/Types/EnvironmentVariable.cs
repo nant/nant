@@ -36,7 +36,8 @@ namespace NAnt.Core.Types {
         private string _value;
         private string _literalValue;
         private FileInfo _file;
-        private PathList _path;
+        private DirectoryInfo _directory;
+        private PathSet _path;
         private bool _ifDefined = true;
         private bool _unlessDefined = false;
 
@@ -71,7 +72,6 @@ namespace NAnt.Core.Types {
         /// it to an absolute filename.
         /// </summary>
         [TaskAttribute("file")]
-        [StringValidator(AllowEmpty=false)]
         public FileInfo File {
             get { return _file; }
             set { 
@@ -81,16 +81,48 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
+        /// The value for a directory-based environment variable. NAnt will 
+        /// convert it to an absolute path.
+        /// </summary>
+        [TaskAttribute("dir")]
+        public DirectoryInfo Directory {
+            get { return _directory; }
+            set { 
+                _value = value.ToString();
+                _directory = value;
+            }
+        }
+
+        /// <summary>
         /// The value for a PATH like environment variable. You can use 
         /// you can use <c>:</c> or <c>;</c> as path separators and NAnt will 
         /// convert it to the platform's local conventions.
         /// </summary>
         [TaskAttribute("path")]
-        public PathList Path {
+        public PathSet Path {
             get { return _path; }
             set { 
                 _value = value.ToString(); 
                 _path = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets a single environment variable and treats it like a PATH - 
+        /// ensures the right separator for the local platform is used.
+        /// </summary>
+        [BuildElement("path")]
+        public PathSet PathSet {
+            get { return _path; }
+            set {
+                // check if path hasn't already been set using "path" attribute
+                if (_path != null) {
+                    throw new BuildException("Either set the path using the \"path\""
+                        + " attribute or the <path> element. You cannot set both.",
+                        Location);
+                }
+                _value = value.ToString(); 
+                _path = value; 
             }
         }
 

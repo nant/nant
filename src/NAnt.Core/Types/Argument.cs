@@ -61,11 +61,11 @@ namespace NAnt.Core.Types {
     ///   </code>
     /// </example>
     [ElementName("arg")]
-    public class Argument : DataTypeBase {
+    public class Argument : Element {
         #region Private Instance Fields
 
         private FileInfo _file;
-        private PathList _path;
+        private PathSet _path;
         private string _value;
         private string _line;
         private bool _ifDefined = true;
@@ -101,7 +101,7 @@ namespace NAnt.Core.Types {
         /// Initializes a new instance of the <see cref="Argument" /> class
         /// with the given path.
         /// </summary>
-        public Argument(PathList value) {
+        public Argument(PathSet value) {
             _path = value;
         }
 
@@ -156,19 +156,46 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
-        /// A string that will be treated as a path-like string as a single 
-        /// command-line argument; you can use <c>:</c> or <c>;</c> as path 
-        /// separators and NAnt will convert it to the platform's local 
-        /// conventions.
+        /// The value for a PATH-like command-line argument; you can use 
+        /// <c>:</c> or <c>;</c> as path separators and NAnt will convert it 
+        /// to the platform's local conventions, while resolving references to 
+        /// environment variables.
         /// </summary>
         /// <remarks>
         /// Individual parts will be replaced with the absolute path, resolved
         /// relative to the project base directory.
         /// </remarks>
         [TaskAttribute("path")]
-        public PathList Path {
+        public PathSet Path {
             get { return _path; }
-            set { _path = value; }
+            set { 
+                // check if path hasn't already been set using <path> element
+                if (_path != null) {
+                    throw new BuildException("Either set the path using the \"path\""
+                        + " attribute or the <path> element. You cannot set both.",
+                        Location);
+                }
+                _path = value; 
+            }
+        }
+
+        
+        /// <summary>
+        /// Sets a single command-line argument and treats it like a PATH - ensures 
+        /// the right separator for the local platform is used.
+        /// </summary>
+        [BuildElement("path")]
+        public PathSet PathSet {
+            get { return _path; }
+            set {
+                // check if path hasn't already been set using "path" attribute
+                if (_path != null) {
+                    throw new BuildException("Either set the path using the \"path\""
+                        + " attribute or the <path> element. You cannot set both.",
+                        Location);
+                }
+                _path = value; 
+            }
         }
 
         /// <summary>
