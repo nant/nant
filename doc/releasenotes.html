@@ -15,8 +15,8 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
-                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" /> Release 
-                    Notes
+                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" />
+                    Release Notes
                 </td>
             </tr>
         </table>
@@ -70,6 +70,19 @@
                 build files that assume that both arguments specified using the "file" and 
                 "value" attributes will automatically be quoted.
             </li>
+            <li>
+                Overwriting of read-only properties will now result in a build failure. 
+                Previous versions of NAnt would silently ignore an update of a read-only 
+                property.
+            </li>
+            <li>
+                The <code><a href="help/tasks/nunit2.html">&lt;nunit2&gt;</a></code> task
+                been updated to support <a href="http://sourceforge.net/project/showfiles.php?group_id=10749&package_id=89482&release_id=259085">NUnit 2.2</a>. 
+                Assemblies built using previous versions of NUnit should either be rebuilt using
+                <a href="http://sourceforge.net/project/showfiles.php?group_id=10749&package_id=89482&release_id=259085">NUnit 2.2</a>
+                or configure a <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconAssemblyVersionRedirection.asp">binding redirect</a>
+                in the application configuration file of the test assembly.
+            </li>
         </ul>
         <h4>General&nbsp;changes</h4>
         <ul>
@@ -89,9 +102,6 @@
                 Enums that are used in tasks or types now have their own doc pages.
             </li>
             <li>
-                Overwriting of read-only properties will now result in a build failure.
-            </li>
-            <li>
                 The default logger will now also output the number non-fatal errors and 
                 warnings.
             </li>
@@ -102,6 +112,10 @@
             <li>
                 Added support for <a href="help/fundamentals/targets.html#wild-targets">wild 
                     targets</a>.
+            </li>
+            <li>
+                Lots of built-in properties have been deprecated, and replaced by functions.
+                More information is available <a href="help/fundamentals/properties.html">here</a>.
             </li>
             <li>
                 NAnt will now report unknown attributes and child elements when initializing 
@@ -400,6 +414,17 @@
             </li>
             <li>
                 Added support for deploying App.config to output directory.
+            </li>
+        </ul>
+        <h5><a class="heading" href="help/tasks/sysinfo.html">&lt;sysinfo&gt;</a></h5>
+        <ul>
+            <li>
+                If "failonerror" is <b>false</b>, the <a class="heading" href="help/tasks/sysinfo.html">
+                    &lt;sysinfo&gt;</a> task will output a warning message in the build log when a 
+                certain environment variable cannot be exposed as a property (because of, for 
+                example, more strict naming rules for properties) and continue processing other 
+                environment variables. In previous versions of NAnt execution of the <a class="heading" href="help/tasks/sysinfo.html">
+                    &lt;sysinfo&gt;</a> task would halt on the first error.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a></h5>
