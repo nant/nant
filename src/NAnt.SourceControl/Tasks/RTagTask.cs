@@ -72,6 +72,15 @@ namespace NAnt.SourceControl.Tasks
     /// </example>
     [TaskName("cvs-rtag")]
     public class RTagTask : AbstractCvsTask {
+		private const string COMMAND_NAME = "checkout";
+		/// <summary>
+		/// The name of the cvs command that is going to be executed.
+		/// </summary>
+		public override string CommandName {
+			get {return COMMAND_NAME;}
+		}
+
+
         #region Private Instance Fields
         
         private String _tagName;
@@ -126,24 +135,6 @@ namespace NAnt.SourceControl.Tasks
         }
 
         #endregion Public Instance Constructors
-
-        #region Override implementation of AbstractCvsTask
-
-        /// <summary>
-        /// Creates an instance of the rtag command.
-        /// </summary>
-        /// <returns>
-        /// An instance of the rtag command.
-        /// </returns>
-        protected override ICommand CreateCommand () {
-            RTagCommand command = new RTagCommand(this.WorkingDirectory);
-            command.TagName = this.TagName;
-            command.DeleteTag = this.Remove;
-
-            return command;
-        }
-
-        #endregion Override implementation of AbstractCvsTask
 
     }
 }

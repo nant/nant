@@ -85,6 +85,14 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-update")]
     public class UpdateTask : AbstractCvsTask {
+		private const string COMMAND_NAME = "update";
+		/// <summary>
+		/// The name of the cvs command that is going to be executed.
+		/// </summary>
+		public override string CommandName {
+			get {return COMMAND_NAME;}
+		}
+
         #region Private Static Fields
 
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -101,21 +109,6 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         #endregion Public Instance Constructors
-
-        #region Override implementation of AbstractCvsTask
-
-        /// <summary>
-        /// Creates an instance of the update command.
-        /// </summary>
-        /// <returns>
-        /// An instance of the update command.
-        /// </returns>
-        protected override ICommand CreateCommand () {
-            this.PopulateFolders (this.WorkingDirectory);
-            return new UpdateCommand2(this.WorkingDirectory);
-        }
-
-        #endregion Override implementation of AbstractCvsTask
 
         #region Private Instance Methods
 

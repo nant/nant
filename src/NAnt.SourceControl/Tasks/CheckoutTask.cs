@@ -82,6 +82,14 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
+		private const string COMMAND_NAME = "checkout";
+		/// <summary>
+		/// The name of the cvs command that is going to be executed.
+		/// </summary>
+		public override string CommandName {
+			get {return COMMAND_NAME;}
+		}
+
         #region Public Instance Constructors
 
         /// <summary>
@@ -91,19 +99,5 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         #endregion Public Instance Constructors
-
-        #region Override implementation of AbstractCvsTask
-
-        /// <summary>
-        /// Creates the checkout command.
-        /// </summary>
-        /// <returns>
-        /// An instance of the checkout command.
-        /// </returns>
-        protected override ICommand CreateCommand () {
-            return new CheckoutModuleCommand(this.WorkingDirectory); 
-        }
-
-        #endregion Override implementation of AbstractCvsTask
     }
 }

@@ -71,12 +71,6 @@
                     HintPath = "..\..\lib\net\1.0\log4net.dll"
                 />
                 <Reference
-                    Name = "NAnt.Core"
-                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                    Private = "False"
-                />
-                <Reference
                     Name = "ICSharpCode.SharpCvsLib"
                     AssemblyName = "ICSharpCode.SharpCvsLib"
                     HintPath = "..\..\lib\ICSharpCode.SharpCvsLib.dll"
@@ -95,6 +89,12 @@
                     Name = "System.XML"
                     AssemblyName = "System.Xml"
                     HintPath = "C:\WINNT\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
+                />
+                <Reference
+                    Name = "NAnt.Core"
+                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Private = "False"
                 />
             </References>
         </Build>

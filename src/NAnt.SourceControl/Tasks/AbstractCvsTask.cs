@@ -18,6 +18,7 @@
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -29,6 +30,7 @@ using ICSharpCode.SharpCvsLib.FileSystem;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -37,10 +39,43 @@ namespace NAnt.SourceControl.Tasks {
     /// A base class for creating tasks for executing CVS client commands on a 
     /// CVS repository.
     /// </summary>
-    public abstract class AbstractCvsTask : Task {
+    public abstract class AbstractCvsTask : ExternalProgramBase {
+		#region Protected Static Fields
+
+		/// <summary>
+		/// Name of the environmental variable specifying a users' home
+		///		in a *nix environment.
+		/// </summary>
+		protected const String HOME = "HOME";
+		/// <summary>
+		/// Name of the password file that cvs stores pserver 
+		///		cvsroot/ password pairings.
+		/// </summary>
+		protected const String CVS_PASSFILE = ".cvspass";
+		/// <summary>
+		/// The default compression level to use for cvs commands.
+		/// </summary>
+		protected const int DEFAULT_COMPRESSION_LEVEL = 3;
+		/// <summary>
+		/// The default use of binaries, defaults to use sharpcvs
+		///		<code>true</code>.
+		/// </summary>
+        protected const bool DEFAULT_USE_SHARPCVSLIB = true;
+
+		/// <summary>
+		/// The name of the cvs executable.
+		/// </summary>
+		protected const string CVS_EXE = "cvs.exe";
+		/// <summary>
+		/// Environment variable that holds the executable name that is used for
+		///		ssh communication.
+		/// </summary>
+		protected const string CVS_RSH = "CVS_RSH";
+
+		#endregion
+
         #region Private Instance Fields
 
-        private const bool DEFAULT_USE_SHARPCVSLIB = true;
         private string _cvsRoot;
         private string _module;
         private DirectoryInfo _destinationDirectory;
@@ -48,17 +83,14 @@ namespace NAnt.SourceControl.Tasks {
         private string _passFile;
         private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
 
-        private CvsRoot _root;
-        private WorkingDirectory _workingDirectory;
-        private CVSServerConnection _connection;
-        private ICommand _command;
+		private string _commandName = null;
+		private string _commandLine = null;
         private OptionCollection _commandOptions = new OptionCollection();
+		private string _commandLineArguments;
         private OptionCollection _globalOptions = new OptionCollection();
+		private string _cvsRsh;
 
-        /// <summary>
-        /// Environment variable cvs uses to specify the cvs passfile.
-        /// </summary>
-        public const string CVS_PASSFILE = "CVS_PASSFILE";
+        private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -80,6 +112,13 @@ namespace NAnt.SourceControl.Tasks {
         #endregion Protected Instance Constructors
 
         #region Public Instance Properties
+
+		/// <summary>
+		/// The name of the cvs executable.
+		/// </summary>
+		public override string ExeName {
+			get {return CVS_EXE;}
+		}
 
         /// <summary>
         /// <para>
@@ -239,6 +278,7 @@ namespace NAnt.SourceControl.Tasks {
         [BuildElementCollection("commandoptions", "option")]
         public OptionCollection CommandOptions {
             get { return _commandOptions;}
+			set { this._commandOptions = value; }
         }
 
         /// <summary>
@@ -249,13 +289,31 @@ namespace NAnt.SourceControl.Tasks {
             get {return _commandOptions;}
         }
 
-        /// <summary>
-        /// Holds a collection of globally available cvs options.
-        /// </summary>
-        [BuildElementCollection("globaloptions", "option")]
-        public OptionCollection GlobalOptions {
-            get {return this._globalOptions;}
-        }
+		/// <summary>
+		/// The command-line arguments for the program.
+		/// </summary>
+        [TaskAttribute("commandline")]
+		public string CommandLineArguments {
+			get {return this._commandLineArguments;}
+			set {this._commandLineArguments = StringUtils.ConvertEmptyToNull(value);}
+		}
+
+		/// <summary>
+		/// Get the command line arguments for the task.
+		/// </summary>
+		public override string ProgramArguments {
+			get {
+				return this._commandLine;
+			}
+		}
+
+		/// <summary>
+		/// Holds a collection of globally available cvs options.
+		/// </summary>
+		[BuildElementCollection("globaloptions", "option")]
+			public OptionCollection GlobalOptions {
+			get {return this._globalOptions;}
+		}
 
         /// <summary>
         /// <code>true</code> if the SharpCvsLib binaries that come bundled with 
@@ -272,182 +330,211 @@ namespace NAnt.SourceControl.Tasks {
             set {this._useSharpCvsLib = value;}
         }
 
+		/// <summary>
+		/// The name of the cvs command that is going to be executed.
+		/// </summary>
+		public virtual string CommandName {
+			get {return this._commandName;}
+			set {this._commandName = value;}
+		}
+
+		/// <summary>
+		/// Used to select the files to copy. 
+		/// </summary>
+		[BuildElement("fileset")]
+		public virtual FileSet CvsFileSet {
+			get { return _fileset; }
+			set { _fileset = value; }
+		}
+
+		/// <summary>
+		/// The executable to use for ssh communication.
+		/// </summary>
+		[TaskAttribute("cvsrsh", Required=false)]
+		public string CvsRsh {
+			get {return this._cvsRsh;}
+			set {this._cvsRsh = StringUtils.ConvertEmptyToNull(value);}
+		}
+
         #endregion Public Instance Properties
 
-        #region Protected Instance Properties
-
-            /// <summary>
-            /// Gets or sets the root of the CVS repository.
-            /// </summary>
-            /// <value>
-            /// The root of the CVS repository.
-            /// </value>
-            protected CvsRoot Root {
-            get { return this._root; }
-            set { this._root = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the directory where checked out sources are placed.
-        /// </summary>
-        /// <value>
-        /// The directory where checked out sources are placed.
-        /// </value>
-        protected WorkingDirectory WorkingDirectory {
-            get { return this._workingDirectory; }
-            set { this._workingDirectory = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the connection used to connect to the CVS repository.
-        /// </summary>
-        /// <value>
-        /// The connection used to connect to the CVS repository.
-        /// </value>
-        protected CVSServerConnection Connection {
-            get { return this._connection; }
-            set { this._connection = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ICommand" /> to execute.
-        /// </summary>
-        /// <value>
-        /// The <see cref="ICommand" /> to execute.
-        /// </value>
-        protected ICommand Command {
-            get { return this._command; }
-            set { this._command = value; }
-        }
-
-        #endregion Protected Instance Properties
-
-        #region Protected Instance Methods
-
-        /// <summary>
-        /// Executes the CVS command.
-        /// </summary>
-        protected override void ExecuteTask () {
-            if (!this.DestinationDirectory.Exists) {
-                Log(Level.Info, LogPrefix + "Creating directory '{0}'.", 
-                    this.DestinationDirectory.FullName);
-                this.DestinationDirectory.Create();
-            }
-
-            this.Root = new CvsRoot(CvsRoot);
-            this.WorkingDirectory = new WorkingDirectory(this.Root, 
-                this.DestinationDirectory.FullName, this.Module);
-
-            this.SetCommandOptions(this.WorkingDirectory);
-            Logger.Debug("this.WorkingDirectory.Revision=[" + this.WorkingDirectory.Revision + "]");
-
-            this.Connection = new CVSServerConnection();
-            this.Connection.MessageEvent.MessageEvent +=
-                new EncodedMessage.MessageHandler(LogCvsMessage);
-
-            this.Command = this.CreateCommand();
-
-            this.Validate ();
-
-            Logger.Debug("Before trying to get a connection.");
-            this.Connection.Connect(this.WorkingDirectory, this.Password);
-            Logger.Debug("After trying to get a connection.");
-
-            this.Command.Execute(this.Connection);
-            this.Connection.Close();
-        }
-
-        /// <summary>
-        /// Creates the CVS command object to execute against the specified 
-        /// CVS repository.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="ICommand" /> to execute against the CVS repository.
-        /// </returns>
-        protected abstract ICommand CreateCommand ();
-
-        /// <summary>
-        /// Populates the files and folders as well as sub-folders in the given 
-        /// path.
-        /// </summary>
-        /// <param name="path">The path to begin populating folders from.</param>
-        /// <returns></returns>
-        protected Folders GetFolders (String path) {
-            return new Folders();
-        }
-
-        #endregion Protected Instance Methods
-
         #region Private Instance Methods
-
-        /// <summary>
-        /// Validates that all required information is available.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">
-        ///     <para><see cref="CvsRoot" /> is <see langword="null" /></para>
-        ///     <para>-or-</para>
-        ///     <para><see cref="WorkingDirectory" /> is <see langword="null" /></para>
-        ///     <para>-or-</para>
-        ///     <para><see cref="Connection" /> is <see langword="null" /></para>
-        ///     <para>-or-</para>
-        ///     <para><see cref="Command" /> is <see langword="null" /></para>
-        /// </exception>
-        private void Validate() {
-            if (null == this.CvsRoot || null == this.WorkingDirectory || 
-                null == this.Connection || null == this.Command) {
-                throw new ArgumentNullException(
-                    "Cvsroot, working directory, connection and command cannot be null.");
-            } 
-            if (Logger.IsDebugEnabled) {
-                string msg = "In validate. " +
-                    ";  Cvsroot=[" + this.WorkingDirectory.CvsRoot + "]" +
-                    ";  Local directory=[" + this.WorkingDirectory.LocalDirectory + "]" + 
-                    ";  Working directory name=[" + this.WorkingDirectory.WorkingDirectoryName + "]" +
-                    "Command=[" + this.Command + "]";
-                Logger.Info(msg);
-            }
-        }
-
-        /// <summary>
-        /// Set the checkout/ update options.
-        /// </summary>
-        /// <param name="workingDirectory">Information about the cvs repository and local sandbox.</param>
-        private void SetCommandOptions(WorkingDirectory workingDirectory) {
-            Logger.Debug ("Setting options");
-            foreach (Option option in _commandOptions) {
-                if (!IfDefined || UnlessDefined) {
-                    // skip option
-                    continue;
-                }
-
-                Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
-                Logger.Debug ("option.Value=[" + option.Value + "]");
-                switch (option.OptionName) {
-                    case "sticky-tag":
-                    case "-r":
-                        workingDirectory.Revision =
-                            option.Value;
-                        Logger.Debug ("setting sticky-tag=[" + option.Value + "]");
-                        break;
-                    case "override-directory":
-                    case "-d":
-                        workingDirectory.OverrideDirectory = 
-                            option.Value;
-                        Logger.Debug ("setting override-directory=[" + option.Value + "]");
-                        break;
-                    default:
-                        StringBuilder msg = new StringBuilder ();
-                        msg.Append(Environment.NewLine + "Unsupported argument.");
-                        msg.Append(Environment.NewLine + "\tname=[").Append(option.OptionName).Append ("]");
-                        msg.Append(Environment.NewLine + "\tvalue=[").Append(option.Value).Append ("]");
-                        throw new NotSupportedException(msg.ToString());
-                }
-            }
-        }
 
         private void LogCvsMessage(string message) {
             Log(Level.Debug, LogPrefix + message);
         }
+
+		/*********************** Moved from the Cvs.cs file ********/
+		private String GetPassFile () {
+			if (this.PassFile == null) {
+				string userHome =
+					System.Environment.GetEnvironmentVariable(HOME);
+
+				// if the user home is null then try to get the rooted path,
+				//  this will be cvs' behavior as well
+				if (null == userHome) {
+					userHome = 
+						Path.GetPathRoot(System.Environment.CurrentDirectory);
+				}
+
+				this.PassFile = Path.Combine(userHome, CVS_PASSFILE);
+			}
+			return this.PassFile;
+		}
+
+		private String GetCvsVersion (String fileName) {
+			ProcessStartInfo versionStartInfo = 
+				new ProcessStartInfo(fileName, "--version");
+			versionStartInfo.UseShellExecute = false;
+			versionStartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
+			versionStartInfo.RedirectStandardOutput = true;
+			versionStartInfo.CreateNoWindow = true;
+
+			// Run the process
+			Process cvsProcess = new Process();
+			cvsProcess.StartInfo = versionStartInfo;
+			try {
+				cvsProcess.Start();
+			} catch (Exception e) {
+				Log(Level.Debug, LogPrefix + "Exception getting version.  Exception: " +
+					e);
+			}
+
+			string versionInfo = cvsProcess.StandardOutput.ReadToEnd();
+
+			return versionInfo;
+		}
+
+		private void AppendGlobalOptions () {
+			foreach (Option option in this.GlobalOptions) {
+				if (!IfDefined || UnlessDefined) {
+					// skip option
+					continue;
+				}
+
+				Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
+				Logger.Debug ("option.Value=[" + option.Value + "]");
+				switch (option.OptionName) {
+					case "cvsroot-prefix":
+					case "-D":
+					case "temp-dir":
+					case "-T":
+					case "editor":
+					case "-e":
+					case "compression":
+					case "-z":
+					case "variable":
+					case "-s": 
+						Arguments.Add(new Argument(option.OptionName));
+						Arguments.Add(new Argument(option.Value));
+						Logger.Debug ("setting option" + option.OptionName + 
+							"=[" + option.Value + "]");
+						break;
+					default:
+						Arguments.Add(new Argument(option.OptionName));
+						Logger.Debug("setting prune to true.");
+						break;
+				}
+																																																								}
+		}
+
+		private void AppendCommandOptions () {
+			foreach (Option option in this.CommandOptions) {
+				if (!IfDefined || UnlessDefined) {
+					// skip option
+					continue;
+				}
+
+				Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
+				Logger.Debug ("option.Value=[" + option.Value + "]");
+				switch (option.OptionName) {
+					case "sticky-tag":
+					case "-r":
+					case "override-directory":
+					case "-d":
+					case "join":
+					case "-j":
+					case "revision-date":
+					case "-D":
+					case "rcs-kopt":
+					case "-k":
+						Arguments.Add(new Argument(option.OptionName));
+						Arguments.Add(new Argument(option.Value));
+						Logger.Debug ("setting option" + option.OptionName + 
+							"=[" + option.Value + "]");
+						break;
+					default:
+						Arguments.Add(new Argument(option.OptionName));
+						Logger.Debug("adding command option: " + option.OptionName);
+						break;
+				}
+			}
+		}
+
+		private void AppendFiles () {
+			foreach (string pathname in this.CvsFileSet.FileNames) {
+				Arguments.Add(new Argument(pathname));
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		protected override void ExecuteTask () {
+			try {
+				base.ExecuteTask();
+				
+			} catch (Exception e) {
+				Logger.Error(e);
+				throw e;
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="process"></param>
+		protected override void PrepareProcess (Process process) {
+			Logger.Debug("number of arguments: " + Arguments.Count);
+			if (null == this.Arguments || 0 == this.Arguments.Count) {
+				this.Arguments.Add(new Argument("-d" + this.CvsRoot));
+				this.AppendGlobalOptions();
+				this.Arguments.Add(new Argument(this.CommandName));
+
+				Logger.Debug("commandline args null: " + ((null == this.CommandLineArguments) ? "yes" : "no"));
+				if (null == this.CommandLineArguments) {
+					this.AppendCommandOptions();
+				}
+
+				this.AppendFiles();
+				if (this.IsModuleNeeded) {
+					this.Arguments.Add(new Argument(this.Module));
+				}
+			}
+			if (!Directory.Exists(this.DestinationDirectory.FullName)) {
+				Directory.CreateDirectory(this.DestinationDirectory.FullName);
+			}
+			base.PrepareProcess(process);
+
+			if (this.CvsRsh != null ) {
+				process.StartInfo.EnvironmentVariables.Add(CVS_RSH, this.CvsRsh);				
+			}
+
+			process.StartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
+			Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
+			Logger.Debug("executable: " + process.StartInfo.FileName);
+			Logger.Debug("arguments: " + process.StartInfo.Arguments);
+		}
+
+		private bool IsModuleNeeded {
+			get {
+				if ("checkout".Equals(this.CommandName)) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
 
         #endregion Private Instance Methods
     }
