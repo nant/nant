@@ -21,6 +21,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
+using ICSharpCode.SharpZipLib;
 using ICSharpCode.SharpZipLib.Zip;
 
 using NAnt.Core;
@@ -118,6 +119,9 @@ namespace NAnt.Compression.Tasks {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Failed to extract '{0}' to '{1}'.", ZipFile.FullName, 
                     ToDirectory.FullName), Location, ex);
+            } catch (ZipException ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Invalid zip file '{0}'.", ZipFile.FullName), Location, ex);
             }
         }
 
