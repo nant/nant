@@ -120,6 +120,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "NAnt.Core\BuildFilesInResourcesTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\BuildTestBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -136,11 +141,6 @@
                 />
                 <File
                     RelPath = "NAnt.Core\ExceptionTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Types\FileSetTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -240,6 +240,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\Tasks\MailTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\Tasks\MkDirTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -265,11 +270,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core\Tasks\MailTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.Core\Tasks\ScriptTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -291,6 +291,21 @@
                 />
                 <File
                     RelPath = "NAnt.Core\Tasks\TStampTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core\Tasks\XmlPeekTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core\Tasks\XmlPokeTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core\Types\FileSetTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -340,12 +355,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.DotNet\Types\ResourceFileSetTest.cs"
+                    RelPath = "NAnt.DotNet\Tasks\VbcTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.DotNet\Tasks\VbcTaskTest.cs"
+                    RelPath = "NAnt.DotNet\Types\ResourceFileSetTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
