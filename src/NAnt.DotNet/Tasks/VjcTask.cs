@@ -18,6 +18,7 @@
 // Tom Jordan (tdjordan@users.sourceforge.net)
 
 using System.IO;
+using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -54,6 +55,9 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Instance Fields
            
+        static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
+        static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|package\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
+     
         #region Public Instance Properties
 
         /// <summary>
@@ -214,7 +218,7 @@ namespace NAnt.DotNet.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
-
+       
         /// <summary>
         /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
@@ -267,6 +271,20 @@ namespace NAnt.DotNet.Tasks {
         /// <value>For the J# compiler, the file extension is always <c>jsl</c>.</value>
         protected override string Extension {
             get { return "jsl"; }
+        }
+        /// <summary>
+        /// Gets the class name regular expression for the language of the current compiler.
+        /// </summary>
+        /// <value> class name regular expression for the language of the current compiler</value>
+        protected override Regex ClassNameRegex {
+            get { return _classNameRegex;  }
+        }
+        /// <summary>
+        /// Gets the namespace regular expression for the language of the current compiler.
+        ///</summary>
+        /// <value> namespace regular expression for the language of the current compiler</value>
+        protected override Regex NamespaceRegex {
+            get { return _namespaceRegex; }
         }
 
         #endregion Override implementation of CompilerBase

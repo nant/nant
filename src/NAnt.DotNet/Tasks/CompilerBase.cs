@@ -54,6 +54,91 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Instance Fields
 
+        /// <summary>
+        /// Contains a list of extensions for all file types that should be treated as
+        /// 'code-behind' when looking for resources.  Ultimately this will determine
+        /// if we use the "namespace+filename" or "namespace+classname" algorithm, since
+        /// code-behind will use the "namespace+classname" algorithm.
+        /// </summary>
+        protected static string[] CODE_BEHIND_EXTENSIONS = { ".aspx", ".asax", ".ascx", ".asmx" };        
+
+        #region Protected Classes
+        /// <summary>
+        /// Protected inner class to hold class and namespace information for resource (*.resx) linkage.  
+        /// </summary>
+        public class ResourceLinkage {
+            
+            private string _namespaceName;
+            private string _className;
+
+            /// <summary>
+            /// Constructor used to initialize members.
+            /// </summary>
+            /// <param name="namespaceName">The namespace the resource is under.</param>
+            /// <param name="className">The class name the resource is associated with.</param>
+            public ResourceLinkage(string namespaceName, string className) {
+                _namespaceName = namespaceName.Trim();
+                _className     = className.Trim();
+            }
+  
+            /// <summary>
+            /// Returns the resource linkage as a string.
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString() {
+                bool namespaceValid = !StringUtils.IsNullOrEmpty(_namespaceName);
+                bool classNameValid = !StringUtils.IsNullOrEmpty(_className);
+    
+                if (!namespaceValid && !classNameValid) {
+                    return string.Empty;
+                }
+                if ( namespaceValid && classNameValid) {
+                    return _namespaceName + "." + _className;
+                }
+                if (namespaceValid) { 
+                    return _namespaceName;
+                }    
+                return _className;
+            }
+  
+            /// <summary>
+            /// Determines whether or not the ResourceLinkage structure contains valid data
+            /// </summary>
+            public bool IsValid {
+                get { return !StringUtils.IsNullOrEmpty(_namespaceName) || !StringUtils.IsNullOrEmpty(_className); }
+            }
+  
+            /// <summary>
+            /// Returns true if namespace is valid (not empty or null)
+            /// </summary>
+            public bool HasNamespaceName {
+                get { return !StringUtils.IsNullOrEmpty(_namespaceName); }
+            }
+  
+            /// <summary>
+            /// Returns true if classname is valid (not empty or null)
+            /// </summary>
+            public bool HasClassName {
+                get { return !StringUtils.IsNullOrEmpty(_className); }
+            }
+  
+            /// <summary>
+            /// The name of namespace the resource is under.  
+            /// </summary>
+            public string NamespaceName  {
+                get { return _namespaceName; }
+                set { _namespaceName = (value != null) ? value.Trim() : null; }
+            }
+  
+            /// <summary>
+            /// The name of class (most likely a form) that the resource is associated with.  
+            /// </summary>
+            public string ClassName {
+                get { return _className; }
+                set { _className = (value != null) ? value.Trim() : null; }
+            }
+        }
+        #endregion
         #region Public Instance Properties
 
         /// <summary>
@@ -226,6 +311,20 @@ namespace NAnt.DotNet.Tasks {
         protected abstract string Extension {
             get;
         }
+        /// <summary>
+        /// Gets the class name regular expression for the language of the current compiler.
+        /// </summary>
+        /// <value> class name regular expression for the language of the current compiler</value>
+        protected abstract Regex ClassNameRegex {
+            get;
+        }
+        /// <summary>
+        /// Gets the namespace regular expression for the language of the current compiler.
+        /// </summary>
+        /// <value> namespace regular expression for the language of the current compiler</value>
+        protected abstract Regex NamespaceRegex {
+            get;
+        }
 
         #endregion Protected Instance Properties
 
@@ -328,27 +427,30 @@ namespace NAnt.DotNet.Tasks {
 
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames) {
-                            string prefix = GetFormNamespace(fileName); // try and get it from matching form
-                            if (StringUtils.IsNullOrEmpty(prefix)) {
-                                prefix = resources.Prefix;
+                            ResourceLinkage resourceLinkage = GetFormResourceLinkage(fileName); // try and get it from matching form
+
+                            if ( resourceLinkage != null && !resourceLinkage.HasNamespaceName) {
+                              resourceLinkage.NamespaceName = resources.Prefix;
                             }
                             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                             string tmpResourcePath = Path.ChangeExtension(fileName, "resources");
                             string manifestResourceName = Path.GetFileName(tmpResourcePath);
 
                             // cater for asax/aspx special cases ...
-                            if (manifestResourceName.IndexOf(".aspx") > -1){
-                                manifestResourceName = manifestResourceName.Replace(".aspx", "");
-                                actualFileName = actualFileName.Replace(".aspx", "");
-                            } else if (manifestResourceName.IndexOf(".asax") > -1){
-                                manifestResourceName = manifestResourceName.Replace(".asax", "");
-                                actualFileName = actualFileName.Replace(".asax", "");
-                            } else if (manifestResourceName.IndexOf(".ascx") > -1) {
-                                manifestResourceName = manifestResourceName.Replace(".ascx", "");
-                                actualFileName = actualFileName.Replace(".ascx", "");
+                            foreach ( string extension in CODE_BEHIND_EXTENSIONS ){
+                                if (manifestResourceName.IndexOf(extension) > -1){
+                                    manifestResourceName = manifestResourceName.Replace(extension, "");
+                                    actualFileName = actualFileName.Replace(extension, "");
+                                    break;
+                                }
                             }
-                            if (!StringUtils.IsNullOrEmpty(prefix)) {
-                                manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName);
+                            
+                            if (resourceLinkage!= null && !resourceLinkage.HasClassName) {
+                                resourceLinkage.ClassName = actualFileName;
+                            }
+
+                            if (resourceLinkage != null && resourceLinkage.IsValid) {
+                                manifestResourceName = manifestResourceName.Replace(actualFileName, resourceLinkage.ToString());
                             }
                             string resourceoption = tmpResourcePath + "," + manifestResourceName;
                             WriteOption(writer, "resource", resourceoption);
@@ -486,57 +588,84 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// An abstract method that must be overridden in each compiler.  It is reasonable for extracting and 
+        /// returning the associated namespace/classname linkage found in the given stream.
+        /// </summary>
+        /// <param name="sr">The read-only stream of the source file to search</param>
+        /// <returns>The namespace/classname of the source file matching the resource.</returns>
+        public virtual ResourceLinkage PerformSearchForResourceLinkage(TextReader sr){
+            Regex matchNamespaceRE  = NamespaceRegex;  
+            Regex matchClassNameRE  = ClassNameRegex;
+            
+            string namespaceName  = "";
+            string className      = "";
+    
+            while (sr.Peek() > -1) {
+                string str = sr.ReadLine();
+                            
+                Match matchNamespace = matchNamespaceRE.Match(str);
+                if (matchNamespace.Success) {
+                    Group group = matchNamespace.Groups["namespace"];
+                    if (group.Success) {
+                        foreach (Capture capture in group.Captures) {
+                            namespaceName += (namespaceName.Length > 0 ? "." : "") + capture.Value;
+                        }
+                    }
+                }
+                Match matchClassName = matchClassNameRE.Match(str);
+                if (matchClassName.Success) {
+                    Group group = matchClassName.Groups["class"];
+                    if (group.Success) {
+                      className = group.Value;
+                      break;
+                    }
+                }
+            }
+            return new ResourceLinkage(namespaceName, className);
+        }
+
+        /// <summary>
         /// Opens matching source file to find the correct namespace for the
         /// specified rsource file.
         /// </summary>
         /// <param name="resxPath"></param>
         /// <returns>
-        /// The namespace of the source file matching the resource, or
+        /// The namespace/classname of the source file matching the resource.
         /// <see langword="null" /> if there's no matching source file.
         /// </returns>
         /// <remarks>
-        /// This behaviour may need to be overidden by a particular compiler
-        /// if the namespace syntax is different for that language.
+        /// This behaviour may be overidden by each particular compiler to support the namespace/classname syntax 
+        /// for that language.  
         /// </remarks>
-        protected virtual string GetFormNamespace(string resxPath){
-            string retnamespace = "";
-            StreamReader sr = null;
-
+        /// 
+        protected virtual ResourceLinkage GetFormResourceLinkage(string resxPath) {
             // open matching source file if it exists
             string sourceFile = resxPath.Replace("resx", Extension);
-
+  
+            StreamReader sr = null;
+            ResourceLinkage resourceLinkage  = null; 
+  
             try {
                 sr = File.OpenText(sourceFile);
-
-                while (sr.Peek() > -1) {
-                    string str = sr.ReadLine();
-                    string matchnamespace =  @"namespace ((\w+.)*)";
-                    string matchnamespaceCaps =  @"Namespace ((\w+.)*)";
-                    Regex matchNamespaceRE = new Regex(matchnamespace);
-                    Regex matchNamespaceCapsRE = new Regex(matchnamespaceCaps);
-
-                    if (matchNamespaceRE.Match(str).Success){
-                        Match namematch = matchNamespaceRE.Match(str);
-                        retnamespace = namematch.Groups[1].Value;
-                        retnamespace = retnamespace.Replace("{", "");
-                        retnamespace = retnamespace.Trim();
-                        break;
-                    } else if (matchNamespaceCapsRE.Match(str).Success) {
-                        Match namematch = matchNamespaceCapsRE.Match(str);
-                        retnamespace = namematch.Groups[1].Value;
-                        retnamespace = retnamespace.Trim();
-                        break;
-                    }
-                }
-                return retnamespace;
-            } catch (FileNotFoundException) {
-                // if no matching file, dump out
-                return null;
-            } finally {
+                resourceLinkage = PerformSearchForResourceLinkage(sr);
+            } 
+            catch (FileNotFoundException) { // if no matching file, dump out
+                Log(Level.Debug, LogPrefix + "Did not find associated source file for resource {0}.", resxPath);
+                return resourceLinkage;
+                } 
+                finally {
                 if (sr != null) {
-                    sr.Close();
+                        sr.Close();
                 }
             }
+            // Output some debug information about resource linkage found...
+            if (resourceLinkage.IsValid) {
+                Log(Level.Debug, LogPrefix + "Found resource linkage '{0}' for resource {1}.", resourceLinkage.ToString(), resxPath);
+            }
+            else {
+                Log(Level.Debug, LogPrefix + "Could not find any resource linkage in matching source file for resource {0}.", resxPath);
+            }
+            return resourceLinkage;
         }
 
         /// <summary>

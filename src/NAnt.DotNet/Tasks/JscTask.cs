@@ -19,6 +19,7 @@
 // Mike Krueger (mike@icsharpcode.net)
 
 using System.IO;
+using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -49,6 +50,9 @@ namespace NAnt.DotNet.Tasks {
         private string _codepage = null;
 
         #endregion Private Instance Fields
+        
+        static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
+        static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|namespace\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");    
 
         #region Public Instance Properties
 
@@ -89,7 +93,7 @@ namespace NAnt.DotNet.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
-
+        
         /// <summary>
         /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
@@ -118,6 +122,18 @@ namespace NAnt.DotNet.Tasks {
         /// </value>
         protected override string Extension { 
             get { return "js"; }
+        }
+        /// <summary>
+        /// Gets the class name regular expression for the language of the current compiler.
+        /// </summary>        
+        protected override Regex ClassNameRegex {
+            get { return _classNameRegex; }
+        }
+        /// <summary>
+        /// Gets the namespace regular expression for the language of the current compiler.
+        /// </summary>        
+        protected override Regex NamespaceRegex {
+            get { return _namespaceRegex; }
         }
 
         #endregion Override implementation of CompilerBase

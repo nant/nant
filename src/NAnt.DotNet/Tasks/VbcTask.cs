@@ -21,10 +21,12 @@
 
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
+
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -74,7 +76,10 @@ namespace NAnt.DotNet.Tasks {
         private string _rootNamespace = null;
 
         #endregion Private Instance Fields
-
+        
+        static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Class\s+(?<class>\w+)|(?<keyword>\w+))*");
+        static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Namespace\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
+     
         #region Public Instance Properties
 
         /// <summary>
@@ -211,26 +216,24 @@ namespace NAnt.DotNet.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
-
         /// <summary>
         /// Local override to ensure the Rootnamespace is prefixed
         /// </summary>
-        /// <param name="resxPath"></param>
+        /// <param name="fileName"></param>
         /// <returns></returns>
-        protected override string GetFormNamespace(string resxPath) {
-            string baseNamespace = base.GetFormNamespace(resxPath);
-
+        protected override ResourceLinkage GetFormResourceLinkage(string fileName ) {
+           
+            ResourceLinkage resourceLinkage = base.GetFormResourceLinkage(fileName); // try and get it from matching form
+          
             if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
-                if (!StringUtils.IsNullOrEmpty(baseNamespace)) {
-                    return RootNamespace + "." + baseNamespace;
+                if (!StringUtils.IsNullOrEmpty(resourceLinkage.NamespaceName )) {
+                    resourceLinkage.NamespaceName = RootNamespace + "." + resourceLinkage.NamespaceName;
                 } else {
-                    return RootNamespace;
+                    resourceLinkage.NamespaceName =  RootNamespace;
                 }
-            } else {
-                return baseNamespace;
-            }
+            } 
+            return resourceLinkage;
         }
-
         /// <summary>
         /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
@@ -281,6 +284,20 @@ namespace NAnt.DotNet.Tasks {
         /// <value>For the VB.NET compiler, the file extension is always <c>vb</c>.</value>
         protected override string Extension {
             get { return "vb"; }
+        }
+        /// <summary>
+        /// Gets the class name regular expression for the language of the current compiler.
+        /// </summary>
+        /// <value>class name regular expression for the language of the current compiler</value>
+        protected override Regex ClassNameRegex {
+            get { return _classNameRegex;  }
+        }
+        /// <summary>
+        /// Gets the namespace regular expression for the language of the current compiler.
+        /// </summary>
+        /// <value>namespace regular expression for the language of the current compiler</value>
+        protected override Regex NamespaceRegex {
+            get { return _namespaceRegex; }
         }
 
         #endregion Override implementation of CompilerBase
