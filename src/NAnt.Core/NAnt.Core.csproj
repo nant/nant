@@ -418,6 +418,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\BooleanFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\ConversionFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -433,7 +438,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\DoubleFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\FileFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\Int32Functions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
