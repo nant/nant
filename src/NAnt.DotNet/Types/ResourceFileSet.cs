@@ -78,8 +78,8 @@ namespace NAnt.DotNet.Types {
 				ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
                 retFileSet.Includes.Clear();
                 retFileSet.Excludes.Clear();
-                retFileSet.DirectoryNames.Clear();
 				retFileSet.AsIs.Clear();
+                retFileSet.FailOnEmpty = false;
                 foreach (string file in FileNames) {
                     if (Path.GetExtension(file).ToLower(CultureInfo.InvariantCulture) == ".resx" ) {
                         retFileSet.Includes.Add(file);
@@ -102,8 +102,8 @@ namespace NAnt.DotNet.Types {
 				ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
 				retFileSet.Includes.Clear();
 				retFileSet.Excludes.Clear();
-				retFileSet.DirectoryNames.Clear();
 				retFileSet.AsIs.Clear();
+                retFileSet.FailOnEmpty = false;
 				foreach (string file in FileNames) {
                     if (Path.GetExtension(file).ToLower(CultureInfo.InvariantCulture) != ".resx" ) {
                         retFileSet.Includes.Add(file);
@@ -141,7 +141,9 @@ namespace NAnt.DotNet.Types {
         /// attributes that resources was defined with.
         /// </summary>
         /// <param name="fileName">The full path and name of the file as returned from <see cref="FileSet.FileNames" />.</param>
-        /// <returns>The manifest resource name to be sent to the compiler.</returns>
+        /// <returns>
+        /// The manifest resource name to be sent to the compiler.
+        /// </returns>
         public string GetManifestResourceName(string fileName) {
             StringBuilder prefix = new StringBuilder(Prefix);
 
