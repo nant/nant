@@ -528,4 +528,57 @@
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
+    <!-- install targets -->
+    <target name="install" depends="build" >
+        <if test="${platform::is-win32()}">
+            <call target="install-windows"/>
+        </if>
+        <if test="${not(platform::is-win32())}">
+            <call target="install-linux"/>
+        </if>
+    </target>
+    
+    <target name="install-windows">
+        <property name="install.realprefix" value="c:\program files" />
+        <if test="${property::exists('install.prefix') and string::get-length('install.prefix') = 0}">
+            <property name="install.realprefix" value="${install.prefix}" />
+        </if>
+        <property name="install.copylocation" value="${path::combine(install.realprefix, 'nant')}"/>
+        <echo message="installing NAnt to ${install.copylocation}" />
+        <copy todir="${install.copylocation}" overwrite="true">
+            <fileset basedir="bin">
+                <include name="**/*" />
+                <exclude name="*.Tests.dll"/>
+                <exclude name="*.xml"/>
+                <exclude name="*.pdb"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="install-linux">
+        <property name="install.realprefix" value="/usr/local" />
+        <if test="${not( property::exists('install.prefix')) and not(string::get-length('install.prefix') = 0)}">
+            <property name="install.realprefix" value="${install.prefix}" />
+        </if>
+        <property name="install.bindir" value="${path::combine(install.realprefix, 'bin')}"/>
+        <property name="install.share" value="${path::combine(install.realprefix, 'share')}"/>
+        <property name="install.copylocation" value="${path::combine (install.share, 'nant')}"/>
+        <echo message="installing NAnt to ${install.copylocation}" />
+        <property name="prefix" value="${pkg-config::get-variable('mono', 'prefix')}"/>
+        
+        <copy todir="${install.copylocation}" overwrite="true">
+            <fileset basedir="bin">
+                <include name="**/*" />
+                <exclude name="*.Tests.dll"/>
+                <exclude name="*.xml"/>
+            </fileset>
+        </copy>
+        <echo message="installing NAnt wrapper script to ${install.bindir}" />
+        <echo file="${path::combine(install.bindir, 'nant')}">
+#!/bin/sh
+
+exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'NAnt.exe')} "$@"
+        </echo>
+        <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
+    </target>
 </project>
