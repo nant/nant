@@ -614,34 +614,41 @@ namespace NAnt.DotNet.Tasks {
         /// Determines the manifest resource name of the given resource file.
         /// </summary>
         /// <param name="resources">The <see cref="ResourceFileSet" /> containing information that will used to assemble the manifest resource name.</param>
-        /// <param name="resourceFile">The resource file of which the manifest resource name should be determined.</param>
+        /// <param name="resourcePhysicalFile">The resource file of which the manifest resource name should be determined.</param>
+        /// <param name="resourceLogicalFile">The logical location of the resource file.</param>
         /// <param name="dependentFile">The source file on which the resource file depends.</param>
         /// <returns>
         /// The manifest resource name of the specified resource file.
         /// </returns>
-        public string GetManifestResourceName(ResourceFileSet resources, string resourceFile, string dependentFile) {
+        public string GetManifestResourceName(ResourceFileSet resources, string resourcePhysicalFile, string resourceLogicalFile, string dependentFile) {
             if (resources == null) {
                 throw new ArgumentNullException("resources");
             }
 
-            if (resourceFile == null) {
-                throw new ArgumentNullException("resourceFile");
+            if (resourcePhysicalFile == null) {
+                throw new ArgumentNullException("resourcePhysicalFile");
+            }
+
+            if (resourceLogicalFile == null) {
+                throw new ArgumentNullException("resourceLogicalFile");
             }
 
             // make sure the resource file exists
-            if (!File.Exists(resourceFile)) {
+            if (!File.Exists(resourcePhysicalFile)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Resource '{0}' does not exist.", resourceFile), Location);
+                    "Resource '{0}' does not exist.", resourcePhysicalFile), 
+                    Location);
             }
 
             // will hold the manifest resource name
             string manifestResourceName = null;
           
             // check if we're dealing with a localized resource
-            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile, dependentFile);
+            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(
+                resourceLogicalFile, dependentFile);
 
             // determine the resource type
-            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InvariantCulture)) {
+            switch (Path.GetExtension(resourcePhysicalFile).ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
                     // try and get manifest resource name from dependent file
                     ResourceLinkage resourceLinkage = GetResourceLinkage(
@@ -652,10 +659,10 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     string actualFileName = Path.GetFileNameWithoutExtension(
-                        resourceFile);
+                        resourcePhysicalFile);
                     
                     manifestResourceName = Path.ChangeExtension(
-                        Path.GetFileName(resourceFile), ".resources");
+                        Path.GetFileName(resourcePhysicalFile), ".resources");
 
                     // cater for asax/aspx special cases ...
                     foreach (string extension in CodebehindExtensions) {
@@ -677,21 +684,21 @@ namespace NAnt.DotNet.Tasks {
 
                     if (resourceLinkage == null) {
                         manifestResourceName = Path.ChangeExtension(
-                            resources.GetManifestResourceName(resourceFile), 
-                            "resources");
+                            resources.GetManifestResourceName(resourcePhysicalFile,
+                            resourceLogicalFile), "resources");
                     }
                     break;
                 case ".resources":
                     // determine resource name, and leave culture information
                     // in manifest resource name
                     manifestResourceName = resources.GetManifestResourceName(
-                        resourceFile);
+                        resourcePhysicalFile, resourceLogicalFile);
                     break;
                 default:
                     // VS.NET handles an embedded resource file named licenses.licx
                     // in the root of the project and without culture in a special
                     // way
-                    if (Path.GetFileName(resourceFile) == "licenses.licx") {
+                    if (Path.GetFileName(resourcePhysicalFile) == "licenses.licx") {
                         // the manifest resource name will be <output file>.licenses
                         // eg. TestAssembly.exe.licenses
                         manifestResourceName = Path.GetFileName(OutputFile.FullName)
@@ -701,7 +708,7 @@ namespace NAnt.DotNet.Tasks {
                         if (resourceCulture != null) {
                             // determine resource name
                             manifestResourceName = resources.GetManifestResourceName(
-                                resourceFile);
+                                resourcePhysicalFile, resourceLogicalFile);
 
                             // remove culture name from name of resource
                             int cultureIndex = manifestResourceName.LastIndexOf("." + resourceCulture.Name);
@@ -710,7 +717,7 @@ namespace NAnt.DotNet.Tasks {
                                 + resourceCulture.Name, string.Empty);
                         } else {
                             manifestResourceName = resources.GetManifestResourceName(
-                                resourceFile);
+                                resourcePhysicalFile, resourceLogicalFile);
                         }
                     }
                     break;
@@ -773,11 +780,13 @@ namespace NAnt.DotNet.Tasks {
 
                     // determine the manifest resource name using the given
                     // dependent file
-                    return GetManifestResourceName(resources, resourceFile, dependentFile);
+                    return GetManifestResourceName(resources, resourceFile, 
+                        resourceFile, dependentFile);
                 default:
                     // for non-resx resources, a dependent file has no influence 
                     // on the manifest resource name
-                    return GetManifestResourceName(resources, resourceFile, null);
+                    return GetManifestResourceName(resources, resourceFile, 
+                        resourceFile, null);
             }
         }
 
@@ -1254,7 +1263,7 @@ namespace NAnt.DotNet.Tasks {
                 if (Path.GetFileNameWithoutExtension(dependentFile) == noextpath) {
                     return null;
                 }
-            } 
+            }
 
             int index = noextpath.LastIndexOf('.');
             if (index >= 0 && index <= noextpath.Length) {
