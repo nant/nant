@@ -16,32 +16,31 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Ian MacLean (ian_maclean@another.com)
-
-using System;
-using System.Xml;
-
-using NUnit.Framework;
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
+    /// <summary>
+    /// Represents a test element of an NUnit task.
+    /// </summary>
     [ElementName("test")]
-    public class NUnitTest : BaseTest {
+    public class NUnitTest : Element {
         #region Private Instance Fields
 
+        string _class = null;
+        string _assembly = null;
+        bool _fork = false;
+        bool _haltonerror = false;
+        bool _haltonfailure = false;
+        string _appConfigFile = null;
         string _todir = null;
         string _outfile = null;
-        ITest _suite = null;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        public ITest Suite {
-            get { return _suite; }
-            set { _suite = value; }
-        }
-             
         /// <summary>Base name of the test result. The full filename is determined by this attribute and the extension of formatter</summary>
         [TaskAttribute("outfile")]
         public string OutFile { get { return _outfile; } set {_outfile = value;} }
@@ -50,13 +49,41 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         [TaskAttribute("todir")]
         public string ToDir { get { return _todir; } set {_todir = value;} }
 
+        /// <summary>Class Name of the test</summary>
+        [TaskAttribute("class", Required=true)]
+        public string Class             { get { return _class; } set { _class = value; } }
+        
+        /// <summary>Assembly to Load the test from</summary>
+        [TaskAttribute("assembly", Required=true)]
+        public string Assembly          { get { return Project.GetFullPath(_assembly); } set { _assembly = value; } }
+        
+        /// <summary>Run the tests in a separate AppDomain</summary>
+        [TaskAttribute("fork")]
+        [BooleanValidator()]
+        public bool Fork                { get { return _fork; } set { _fork = value; } }
+        
+        /// <summary>Stop the build process if an error occurs during the test run</summary>
+        [TaskAttribute("haltonerror")]
+        [BooleanValidator()]
+        public bool HaltOnError         { get { return _haltonerror; } set { _haltonerror = value; } }
+        
+        /// <summary>Stop the build process if a test fails (errors are considered failures as well).</summary>
+        [TaskAttribute("haltonfailure")]
+        [BooleanValidator()]
+        public bool HaltOnFailure       { get { return _haltonfailure; } set { _haltonfailure = value; }}
+
+        [TaskAttribute("appconfig")]
+        public string AppConfigFile {
+            get { return _appConfigFile; }
+            set { _appConfigFile = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Internal Instance Methods
 
         internal NUnitTestData GetTestData() {
             NUnitTestData data = new NUnitTestData();
-            data.Suite = Suite;
             data.OutFile = OutFile;
             data.ToDir = ToDir;
             data.Class = Class;
