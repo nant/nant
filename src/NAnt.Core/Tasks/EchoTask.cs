@@ -16,9 +16,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Brian Deacon (bdeacon@vidya.com)
 
 using System;
 using SourceForge.NAnt.Attributes;
+using System.Xml;
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -31,21 +33,53 @@ namespace SourceForge.NAnt.Tasks {
     ///   <code>&lt;echo message="Hello, World!"/&gt;</code>
     ///   <para>Writes message with expanded macro to build log.</para>
     ///   <code>&lt;echo message="Base build directory = ${nant.project.basedir}"/&gt;</code>
+    ///   <para>Functionally equivalent to the previous example.</para>
+    ///   <code>&lt;echo&gt;Base build directory = ${nant.project.basedir}&lt;/echo&gt;</code>
+    ///   <para>Triggers a ValidationException</para>
+    ///   <code>&lt;echo message="Hello, World!"&gt;Hello, World&lt;/echo&gt;</code>
     /// </example>
     [TaskName("echo")]
     public class EchoTask : Task {
 
         string _message = null;
+        string _contents = null;
 
         /// <summary>The message to display.</summary>
-        [TaskAttribute("message", Required=true)]
+        [TaskAttribute("message")]
         public string Message {
             get { return _message; }
-            set { _message = value; }
+            set {
+                if (_contents !=null && value != null && value.Trim().Length > 0) {
+                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", _location);
+                } else {
+                    _message = value; 
+                }
+            }
         }
 
+        public string Contents {
+            get { return _contents; }
+            set { 
+                if (_message != null && value != null && value.Trim().Length > 0) {
+                    throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", _location);
+                } else {
+                    _contents = value;
+                }
+
+            }
+        }
+        protected override void InitializeElement(XmlNode elementNode) {
+            Contents = Project.ExpandProperties(elementNode.InnerText);
+        }
         protected override void ExecuteTask() {
-            Log.WriteLine(LogPrefix + Message);
+            if (Message != null) {
+                Log.WriteLine(LogPrefix + Message);
+            } else if (Contents != null) {
+                Log.WriteLine(LogPrefix + Contents);
+            } else {
+                //IMHO, <echo/> should be valid.
+                Log.WriteLine(LogPrefix);
+            }
         }
     }
 }
