@@ -30,7 +30,7 @@ namespace Tests.NAnt.Win32.Tasks {
     [TestFixture]
     public class ReadRegistryTest : BuildTestBase {
 
-		[Test]
+        [Test]
         public void Test_Read_Defaults() {
             string _xml = @"
                     <project name='PropTests'>
