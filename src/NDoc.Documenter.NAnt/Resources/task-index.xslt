@@ -59,10 +59,10 @@
                 <div class="table">
                     <table>
                         <colgroup>
-		                    <col />
-		                    <col />
-		                    <col style="white-space: nowrap;" />
-	                    </colgroup>                    
+                            <col />
+                            <col />
+                            <col style="white-space: nowrap;" />
+                        </colgroup>
                         <tr>
                             <th>Task</th>
                             <th>Summary</th>
