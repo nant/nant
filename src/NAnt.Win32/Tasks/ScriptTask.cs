@@ -28,6 +28,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
+using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -119,7 +120,8 @@ namespace NAnt.Core.Tasks {
                                                                   "System.IO",
                                                                   "System.Text",
                                                                   "System.Text.RegularExpressions",
-                                                                  "NAnt.Core"};
+                                                                  "NAnt.Core",
+                                                                  "NAnt.Core.Attributes"};
 
         #endregion Private Static Fields
 
@@ -266,7 +268,12 @@ namespace NAnt.Core.Tasks {
             } else {
                 compiled = results.CompiledAssembly;
             }
-
+            // scan the new assembly for tasks, types and functions
+            // Its unlikely that tasks will be defined in buildfiles though.
+            TypeFactory.AddFunctionSets( compiled );
+            TypeFactory.AddDataTypes( compiled );
+            TypeFactory.AddTasks( compiled );
+            
             string mainClass = _rootClassName;
             if (!StringUtils.IsNullOrEmpty(MainClass)) {
                 mainClass += "+" + MainClass;
