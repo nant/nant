@@ -51,7 +51,7 @@ namespace NAnt.VSNet {
                 _outputDir = outputDir;
             }
 
-            _name = elemConfig.GetAttribute("Name").ToLower(CultureInfo.InvariantCulture);
+            _name = elemConfig.GetAttribute("Name");
 
             if (!StringUtils.IsNullOrEmpty(elemConfig.GetAttribute("DocumentationFile"))) {
                 if (outputDir == null) {
