@@ -18,62 +18,79 @@
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
-using System.Reflection;
-using System.Xml;
-using System.Globalization;
-using System.Collections;
-
-using SourceForge.NAnt.Attributes;
-
 namespace SourceForge.NAnt {
+
+    using System;
+    using System.Collections;
+    using System.Globalization;
+    using System.Reflection;
+    using System.Xml;
+
+    using SourceForge.NAnt.Attributes;
 
     /// <summary>Models a NAnt XML element in the build file.</summary>
     /// <remarks>
     ///   <para>Automatically validates attributes in the element based on Attribute settings in the derived class.</para>
     /// </remarks>
     public class Element {
+        #region Private Instance Fields
 
         private Location _location = Location.UnknownLocation;
         private Project _project = null;
         private XmlNode _xmlNode = null;
         private object _parent = null;
-
+        #endregion Private Instance Fields        #region Private Static Fields
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #endregion Private Static Fields
 
-        //protected LocalPropertyDictionary _elementProperties = null;
+        #region Public Instance Constructors
 
-        /// <summary>The default contstructor.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Element" /> class.
+        /// </summary>
         public Element(){
         }
 
-        /// <summary>A copy contstructor.</summary>
+        #endregion Public Instance Constructors
+
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Element" /> class
+        /// from the specified element.
+        /// </summary>
+        /// <param name="e">The element that should be used to create a new instance of the <see cref="Element" /> class.</param>
         protected Element(Element e) : this() {
             this._location = e._location;
             this._project = e._project;
             this._xmlNode = e._xmlNode;
-            //this._elementProperties = e._elementProperties;
+        }
+
+        #endregion Protected Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the parent of the element.
+        /// </summary>
+        /// <value>
+        /// The parent of the element.
+        /// </value>
+        /// <remarks>
+        /// This will be the parent <see cref="Task" />, <see cref="Target" />, or 
+        /// <see cref="Project" /> depending on where the element is defined.
+        /// </remarks>
+        public object Parent {
+            get { return _parent; } 
+            set { _parent = value; } 
         }
 
         /// <summary>
-        /// Gets or sets the xml node of the element.
+        /// Gets the name of the XML element used to initialize this element.
         /// </summary>
-        /// <value>The xml node of the element.</value>
-        protected virtual XmlNode XmlNode {
-            get { return _xmlNode; }
-            set { _xmlNode = value; }
-        }
-
-         /// <summary><see cref="Location"/> in the build file where the element is defined.</summary>
-         protected virtual Location Location {
-            get { return _location; }
-            set { _location = value; }
-        }
-
-        /// <summary>The Parent object. This will be your parent Task, Target, or Project depeding on where the element is defined.</summary>
-        public object Parent {get {return _parent;} set {_parent = value;} }
-
-        /// <summary>Name of the XML element used to initialize this element.</summary>
+        /// <value>
+        /// The name of the XML element used to initialize this element.
+        /// </value>
         public virtual string Name {
             get {
                 ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
@@ -87,25 +104,106 @@ namespace SourceForge.NAnt {
             }
         }
 
-        /// <summary><see cref="Project"/> this element belongs to.</summary>
+        /// <summary>
+        /// Gets or sets the <see cref="Project"/> to which this element belongs.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Project"/> to which this element belongs.
+        /// </value>
         public virtual Project Project {
-            get {
-                return _project;
-            }
-            set {
-                _project = value;
-                //_elementProperties = new PropertyDictionary(Project.Properties);
-            }
+            get { return _project; }
+            set { _project = value; }
         }
 
-        /// <summary>The properties local to this Element and the project.</summary>
+        /// <summary>
+        /// Gets the properties local to this <see cref="Element" /> and the <see cref="Project" />.
+        /// </summary>
+        /// <value>
+        /// The properties local to this <see cref="Element" /> and the <see cref="Project" />.
+        /// </value>
         public virtual PropertyDictionary Properties {
             get { 
                 return Project.Properties;
             }
         }
-     
-        /// <summary>Initializes all build attributes.</summary>
+
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets or sets the xml node of the element.
+        /// </summary>
+        /// <value>
+        /// The xml node of the element.
+        /// </value>
+        protected virtual XmlNode XmlNode {
+            get { return _xmlNode; }
+            set { _xmlNode = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the location in the build file where the element is defined.
+        /// </summary>
+        /// <value>
+        /// The location in the build file where the element is defined.
+        /// </value>
+        protected virtual Location Location {
+            get { return _location; }
+            set { _location = value; }
+        }
+
+        #endregion Protected Instance Properties
+
+        #region Public Instance Methods            
+
+        /// <summary>
+        /// Performs default initialization.
+        /// </summary>
+        /// <remarks>
+        /// <para>Derived classes that wish to add custom initialization should override 
+        /// the <see cref="InitializeElement"/> method.
+        /// </para>
+        /// </remarks>
+        public void Initialize(XmlNode elementNode) {
+            if (Project == null) {
+                throw new InvalidOperationException("Element has invalid Project property.");
+            }
+
+            // Save position in buildfile for reporting useful error messages.
+            try {
+                _location = Project.LocationMap.GetLocation(elementNode);
+            }
+            catch(ArgumentException ae) {
+                Log.WriteLineIf(Project.Verbose, ae.ToString());
+                //ignore
+            }
+
+            InitializeAttributes(elementNode);
+
+            // Allow inherited classes a chance to do some custom initialization.
+            InitializeElement(elementNode);
+        }
+
+        #endregion Public Instance Methods            
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Derived classes should override to this method to provide extra initialization 
+        /// and validation not covered by the base class.
+        /// </summary>
+        /// <param name="elementNode">The xml node of the element to use for initialization.</param>
+        protected virtual void InitializeElement(XmlNode elementNode) {
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods            
+
+        /// <summary>
+        /// Initializes all build attributes.
+        /// </summary>
         private void InitializeAttributes(XmlNode elementNode) {
             // This is a bit of a monster function but if you look at it 
             // carefully this is what it does:            
@@ -197,7 +295,7 @@ namespace SourceForge.NAnt {
                                     throw new BuildException(message, Location);
                                 }
                             } else {
-                                paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType);
+                                paramaters[0] = Convert.ChangeType(attrValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
                             }
                             //set value
                             info.Invoke(this, paramaters);
@@ -211,7 +309,7 @@ namespace SourceForge.NAnt {
                 if (buildElementArrayAttribute != null) {
                     
                     if(!propertyInfo.PropertyType.IsArray) {
-                        throw new BuildException(String.Format(" BuildElementArrayAttribute must be applied to array types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute must be applied to array types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
                     
                     // get collection of nodes  ( TODO - do this without using xpath )
@@ -219,7 +317,7 @@ namespace SourceForge.NAnt {
 
                     // check if its required
                     if (nodes == null && buildElementArrayAttribute.Required) {
-                        throw new BuildException(String.Format(" Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
 
                     // get the type of the array elements
@@ -264,33 +362,6 @@ namespace SourceForge.NAnt {
             }            
         }
 
-        /// <summary>Performs default initialization.</summary>
-        /// <remarks>
-        ///   <para>Derived classes that wish to add custom initialization should override <see cref="InitializeElement"/>.</para>
-        /// </remarks>
-        public void Initialize(XmlNode elementNode) {
-            if (Project == null) {
-                throw new InvalidOperationException("Element has invalid Project property.");
-            }
-
-            // Save position in buildfile for reporting useful error messages.
-            try {
-                _location = Project.LocationMap.GetLocation(elementNode);
-            }
-            catch(ArgumentException ae) {
-                Log.WriteLineIf(Project.Verbose, ae.ToString());
-                //ignore
-            }
-
-            InitializeAttributes(elementNode);
-
-            // Allow inherited classes a chance to do some custom initialization.
-            InitializeElement(elementNode);
-        }
-
-        /// <summary>Allows derived classes to provide extra initialization and validation not covered by the base class.</summary>
-        /// <param name="elementNode">The xml node of the element to use for initialization.</param>
-        protected virtual void InitializeElement(XmlNode elementNode) {
-        }
+        #endregion Private Instance Methods            
     }
 }
