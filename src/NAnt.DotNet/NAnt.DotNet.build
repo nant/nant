@@ -7,7 +7,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.dll" doc="${build.dir}/bin/NAnt.DotNetTasks.xml">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.dll" doc="${build.dir}/bin/NAnt.DotNetTasks.xml">
             <sources>
                 <includes name="NAnt.DotNetTasks/**/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -17,10 +17,9 @@
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NDoc.Core.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
         <!-- build test assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll">
             <sources>
                 <includes name="NAnt.DotNetTasks.Tests/**/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -37,7 +36,6 @@
                 <includes name="NAnt.DotNetTasks.dll"/>
                 <includes name="nunit.framework.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
     </target>
     <target name="test" depends="build">

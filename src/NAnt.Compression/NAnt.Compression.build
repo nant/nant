@@ -7,7 +7,7 @@
     -->
     <target name="build"> 
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.dll" doc="${build.dir}/bin/NAnt.ZipTasks.xml">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.dll" doc="${build.dir}/bin/NAnt.ZipTasks.xml">
             <sources>
                 <includes name="NAnt.ZipTasks/**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -17,10 +17,9 @@
                 <includes name="NAnt.Core.dll" />
                 <includes name="ICSharpCode.SharpZipLib.dll" />
             </references>
-            <arg value="/nowarn:1591" />
         </csc> 
         <!-- build test assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.Tests.dll">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.Tests.dll">
             <sources>
                 <includes name="NAnt.ZipTasks.Tests/**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -33,7 +32,6 @@
                 <includes name="NAnt.ZipTasks.dll" />
                 <includes name="nunit.framework.dll" />
             </references>
-            <arg value="/nowarn:1591" />
         </csc>
     </target>
     <target name="test" depends="build">

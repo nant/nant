@@ -7,7 +7,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
             <sources>
                 <includes name="NAnt.NUnitTasks/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -18,9 +18,8 @@
                 <includes name="NDoc.Core.dll"/>
                 <includes name="nunit.framework.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
             <sources>
                 <includes name="NAnt.NUnitTasks/NUnit1/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -32,10 +31,8 @@
                 <includes name="NUnitCore.dll"/>
                 <includes name="NAnt.NUnitFormatters.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
-        <!-- warnaserrors must be false to compile under 1.1 framework -->
-        <csc target="library" warnaserror="false" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
+        <csc target="library" warnaserror="true" nowarn="1591;0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
             <sources>
                 <includes name="NAnt.NUnitTasks/NUnit2/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -47,7 +44,6 @@
                 <includes name="nunit.framework.dll"/>
                 <includes name="NAnt.NUnitFormatters.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
         <!-- build test assembly
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitTasks.Tests.dll">

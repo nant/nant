@@ -7,7 +7,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.dll" doc="${build.dir}/bin/NAnt.Win32Tasks.xml">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.dll" doc="${build.dir}/bin/NAnt.Win32Tasks.xml">
             <sources>
                 <includes name="NAnt.Win32Tasks/**/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -18,10 +18,9 @@
                 <includes name="NDoc.Core.dll"/>
                 <includes name="Microsoft.JScript.dll" asis="true" />
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
         <!-- build test assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.Tests.dll">
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.Tests.dll">
             <sources>
                 <includes name="NAnt.Win32Tasks.Tests/**/*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -34,7 +33,6 @@
                 <includes name="NAnt.Win32Tasks.dll"/>
                 <includes name="nunit.framework.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
     </target>
     <target name="test" depends="build">
