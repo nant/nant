@@ -277,7 +277,7 @@ namespace NAnt.Compression.Tasks {
     }
 
     /// <summary>
-    /// Specifies the compression methods support by <see cref="TarTask" />.
+    /// Specifies the compression methods supported by <see cref="TarTask" />.
     /// </summary>
     public enum TarCompressionMethod {
         /// <summary>
