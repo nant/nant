@@ -480,6 +480,10 @@ namespace NAnt.Core.Tasks {
                 ct = new XmlSchemaComplexType();
                 ct.Name = typeId;
 
+                // add complex type to collection immediately to avoid stack 
+                // overflows, when we allow a type to be nested
+                _nantComplexTypes.Add(typeId, ct);
+
 #if NOT_IMPLEMENTED
                 //
                 // TODO - add task/type documentation in the future
@@ -549,8 +553,15 @@ namespace NAnt.Core.Tasks {
                             childType = ((PropertyInfo) memInfo).PropertyType;
                         } else if (memInfo is FieldInfo) {
                             childType = ((FieldInfo) memInfo).FieldType;
-                        } else  {
-                            throw new ApplicationException("Member Type != Field/Property");
+                        } else  if (memInfo is MethodInfo) {
+                            MethodInfo method = (MethodInfo) memInfo;
+                            if (method.GetParameters().Length == 1) {
+                                childType = method.GetParameters()[0].ParameterType;
+                            } else {
+                                throw new ApplicationException("Method should have one parameter.");
+                            }
+                        } else {
+                            throw new ApplicationException("Member Type != Field/Property/Method");
                         }
 
                         // determine type of child elements
@@ -593,7 +604,6 @@ namespace NAnt.Core.Tasks {
                 }
 
                 Schema.Items.Add(ct);
-                _nantComplexTypes.Add(GenerateIDFromType(t), ct);
                 Compile();
 
                 return ct;
