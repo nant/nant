@@ -220,7 +220,7 @@ namespace NAnt.Core {
             get { 
                 if (_baseDirectory == null) {
                     _baseDirectory = new DirectoryInfo(CleanPath(
-                        Environment.CurrentDirectory).ToString()));
+                        Environment.CurrentDirectory).ToString());
                 }
                 return _baseDirectory; 
             }
