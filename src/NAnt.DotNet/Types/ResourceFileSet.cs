@@ -41,14 +41,6 @@ namespace NAnt.DotNet.Types {
         public ResourceFileSet() : base() {
         }
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceFileSet" /> class from
-        /// the specified <see cref="FileSet" />.
-        /// </summary>
-        /// <param name="source">The <see cref="FileSet" /> that should be used to create a new instance of the <see cref="ResourceFileSet" /> class.</param>
-        public ResourceFileSet(FileSet source) : base(source) {
-        }
-
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
@@ -83,9 +75,12 @@ namespace NAnt.DotNet.Types {
         /// </value>
         public FileSet ResxFiles {
             get {
-                FileSet retFileSet = new FileSet(this);
+				ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
                 retFileSet.Includes.Clear();
-                foreach (string file in FileNames){
+                retFileSet.Excludes.Clear();
+                retFileSet.DirectoryNames.Clear();
+				retFileSet.AsIs.Clear();
+                foreach (string file in FileNames) {
                     if (Path.GetExtension(file) == ".resx" ) {
                         retFileSet.Includes.Add(file);
                     }
@@ -104,9 +99,13 @@ namespace NAnt.DotNet.Types {
         /// </value>
         public FileSet NonResxFiles {
             get {
-                FileSet retFileSet = new FileSet(this);
-                retFileSet.Includes.Clear();
-                foreach (string file in FileNames) {
+				ResourceFileSet retFileSet = (ResourceFileSet) this.Clone();
+				retFileSet.Includes.Clear();
+				retFileSet.Excludes.Clear();
+				retFileSet.DirectoryNames.Clear();
+				retFileSet.AsIs.Clear();
+				foreach (string file in FileNames) 
+				{
                     if (Path.GetExtension(file) != ".resx" ) {
                         retFileSet.Includes.Add(file);
                     }
