@@ -176,7 +176,8 @@ namespace SourceForge.NAnt {
             if (!uri.IsFile) throw new InvalidVolumeException(uri);
 
             // Make sure Uri is trailed properly
-            if (!uri.LocalPath.EndsWith("\\")) throw new InvalidVolumeException(uri);
+            string dirsep =  string.Format("{0}",Path.DirectorySeparatorChar);
+            if (!uri.LocalPath.EndsWith(dirsep) ) throw new InvalidVolumeException(uri);
         }
         
         /// <summary>
