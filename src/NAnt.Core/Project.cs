@@ -566,16 +566,17 @@ namespace SourceForge.NAnt {
                 logger.Info(message, e);
                 success = false;
                 return false;
-            }
-            finally {
+            } finally {
                 string endTask;
-                if(success)
+                if(success) {
                     endTask = _properties[NANT_PROPERTY_ONSUCCESS];
-                else
+                } else {
                     endTask = _properties[NANT_PROPERTY_ONFAILURE];
+                }
 
-                if(endTask != null && endTask != string.Empty)
+                if (endTask != null && endTask != string.Empty) {
                     Execute(endTask);
+                }
 
                 Project.OnBuildFinished(this, new BuildEventArgs(_projectName));
             }
@@ -844,10 +845,10 @@ namespace SourceForge.NAnt {
             logger.Debug("Current Config:\n" + node.OuterXml);
             logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
 
-            if ( node == null) { 
+            if (node == null) { 
                 // todo pull a settings file out of the assembly resource and copy to that location                          
-                Log.WriteLine("Settings not found. Using none!");
-                logger.Info("Settings not found. Using none!");
+                Log.WriteLine("Framework settings not found. Defaulting to no known framework.");
+                logger.Info("Framework settings not found. Defaulting to no known framework.");
                 return;
             }     
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
@@ -857,22 +858,20 @@ namespace SourceForge.NAnt {
             
             string defaultFramework = GetXmlAttributeValue(node, "defaultframework");
             if (defaultFramework != null && _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
-                
                 Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );
                 Properties.Add("nant.settings.currentframework", defaultFramework );
                 
                 DefaultFramework = _frameworkInfoTable[defaultFramework];
                 CurrentFramework = _defaultFramework;
-            }   
-            else {        
-                logger.Info( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
+            } else {        
+                Log.WriteLine(String.Format(CultureInfo.InvariantCulture, "Framework {0} does not exist or is not specified in the config. Defaulting to no known framework.", defaultFramework ));
             }
 
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             // now load the default property set
             XmlNodeList propertyNodes = node.SelectNodes("properties/property");
             ProcessGlobalProperties( propertyNodes );
-        }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                }
         #endregion
     }
 }
