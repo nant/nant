@@ -51,29 +51,28 @@ namespace NAnt.VSNet {
 
             _name = elemConfig.GetAttribute("Name");
 
-            if (!StringUtils.IsNullOrEmpty(elemConfig.GetAttribute("DocumentationFile"))) {
-                if (outputDir == null) {
-                    // combine project root directory with (relative) path for 
-                    // documentation file
-                    _docFilename = Path.GetFullPath(Path.Combine(
-                        project.ProjectDirectory.FullName, 
-                        elemConfig.GetAttribute("DocumentationFile")));
-                } else {
-                    // combine output directory and filename of document file (do not use path information)
-                    _docFilename = Path.GetFullPath(Path.Combine(outputDir.FullName,
-                        Path.GetFileName(elemConfig.GetAttribute("DocumentationFile"))));
-                }
-                _settings.Add(@"/doc:""" + _docFilename + @"""");
+            string documentationFile = elemConfig.GetAttribute("DocumentationFile");
+            if (!StringUtils.IsNullOrEmpty(documentationFile)) {
+                // to match VS.NET, the XML Documentation file will be output 
+                // in the project directory, and only later copied to the output
+                // directory
+                string xmlDocBuildFile = Path.Combine(project.ProjectDirectory.FullName,
+                    documentationFile);
+
+                // add compiler option to build XML Documentation file
+                _settings.Add(@"/doc:""" + xmlDocBuildFile + @"""");
 
                 // make sure the output directory for the doc file exists
-                Directory.CreateDirectory(Path.GetDirectoryName(_docFilename));
+                if (!Directory.Exists(Path.GetDirectoryName(xmlDocBuildFile))) {
+                    Directory.CreateDirectory(Path.GetDirectoryName(xmlDocBuildFile));
+                }
 
-                // add documentation file as extra output file
-                ExtraOutputFiles[_docFilename] = Path.GetFileName(_docFilename);
+                // add built documentation file as extra output file
+                ExtraOutputFiles[xmlDocBuildFile] = Path.GetFileName(xmlDocBuildFile);
             }
 
             SolutionTask.Log(Level.Debug, "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
-                Project.Name, _relativeOutputDir, _outputDir.FullName, _docFilename);
+                Project.Name, _relativeOutputDir, _outputDir.FullName, documentationFile);
 
             Hashtable htStringSettings = new Hashtable();
             Hashtable htBooleanSettings = new Hashtable();
@@ -138,7 +137,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            _settings.Add(string.Format(CultureInfo.InvariantCulture, "/out:\"{0}\"", OutputPath));
+            _settings.Add(string.Format(CultureInfo.InvariantCulture, "/out:\"{0}\"", BuildPath));
         }
 
         #endregion Public Instance Constructors
@@ -170,6 +169,17 @@ namespace NAnt.VSNet {
             }
         }
 
+        /// <summary>
+        /// Gets the path in which the output file will be created before its
+        /// copied to the actual output path.
+        /// </summary>
+        public override string BuildPath {
+            get { 
+                return Path.Combine(ObjectDir.FullName, 
+                    Path.GetFileName(OutputPath));
+            }
+        }
+
         public string[] Settings {
             get { return (string[]) _settings.ToArray(typeof(string)); }
         }
@@ -183,7 +193,6 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private readonly ArrayList _settings;
-        private readonly string _docFilename;
         private readonly string _relativeOutputDir;
         private readonly DirectoryInfo _outputDir;
         private readonly string _name;

@@ -96,6 +96,15 @@ namespace NAnt.VSNet {
             get;
         }
 
+
+        /// <summary>
+        /// Gets the path in which the output file will be created before its
+        /// copied to the actual output path.
+        /// </summary>
+        public abstract string BuildPath {
+            get;
+        }
+
         /// <summary>
         /// Get the path of the output directory relative to the project
         /// directory.

@@ -186,6 +186,18 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets the path in which the output file will be created before its
+        /// copied to the actual output path.
+        /// </summary>
+        /// <remarks>
+        /// For Visual C++ projects, the output file will be immediately
+        /// created in the output path.
+        /// </remarks>
+        public override string BuildPath {
+            get { return OutputPath; }
+        }
+
+        /// <summary>
         /// Gets the name of the configuration.
         /// </summary>
         /// <value>
