@@ -86,8 +86,7 @@
 
     <!-- match class tag -->
     <xsl:template match="class">
-        <xsl:variable name="attr" select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/@name" />
-        <xsl:if test="string-length(string($attr)) != 0 and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())">
+        <xsl:if test="starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter()) and NAntUtil:IsTask(@id)">
             <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
             <xsl:choose>
                 <!-- check if the task is deprecated -->

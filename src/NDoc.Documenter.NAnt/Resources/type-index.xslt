@@ -76,7 +76,7 @@
     <!-- match class tag -->
     <xsl:template match="class">
         <!-- ensure type should actually be documented -->
-        <xsl:if test="starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())">
+        <xsl:if test="starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter()) and NAntUtil:IsDataType(@id)">
             <xsl:variable name="ObsoleteAttribute" select="attribute[@name='System.ObsoleteAttribute']" />
             <xsl:choose>
                 <!-- check if the task is deprecated -->
