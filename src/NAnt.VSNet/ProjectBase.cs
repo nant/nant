@@ -38,12 +38,13 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
-        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, DirectoryInfo outputDir) {
+        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, ReferenceGacCache gacCache, DirectoryInfo outputDir) {
             _projectConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _buildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _solutionTask = solutionTask;
             _tempFiles = tempFiles;
             _outputDir = outputDir;
+            _gacCache = gacCache;
         }
 
         #endregion Protected Instance Constructors
@@ -136,6 +137,10 @@ namespace NAnt.VSNet {
 
                 return string.Empty;
             }
+        }
+
+        protected ReferenceGacCache GacCache {
+            get { return _gacCache; }
         }
 
         #endregion Protected Instance Properties
@@ -246,6 +251,7 @@ namespace NAnt.VSNet {
         private DirectoryInfo _outputDir;
         private Hashtable _projectConfigurations;
         private Hashtable _buildConfigurations;
+        private ReferenceGacCache _gacCache;
 
         #endregion Private Instance Fields
     }

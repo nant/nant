@@ -58,7 +58,7 @@ namespace NAnt.VSNet {
             _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
 
-        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, ReferenceGACCache gacCache, DirectoryInfo outputDir, string path) {
+        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, ReferenceGacCache gacCache, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
