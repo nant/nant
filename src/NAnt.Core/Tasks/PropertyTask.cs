@@ -201,9 +201,19 @@ namespace NAnt.Core.Tasks {
             } else {
                 if (Overwrite) {
                     if (Project.Properties.IsReadOnlyProperty(PropertyName)) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Read-only property \"{0}\" cannot be overwritten.", 
-                            PropertyName), Location);
+						// for now, just output a warning when attempting to 
+						// overwrite a readonly property
+						//
+						// we should actually be throwing a BuildException here, but
+						// we currently don't have a good mechanism in place to allow
+						// users to specify properties on the command line and provide
+						// default values for these properties in the build file
+						//
+						// users could use either the "overwrite" property or a 
+						// "property::exists(...)" unless condition on the <property> 
+						// task, but these do not seem to be intuitive for users
+						Log(Level.Warning, "Read-only property \"{0}\" cannot"
+							+ " be overwritten.");
                     } else {
                         Properties[PropertyName] = propertyValue;
 
