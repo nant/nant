@@ -69,7 +69,7 @@
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                    Private = "False"
+                    Private = "True"
                 />
                 <Reference
                     Name = "ICSharpCode.SharpZipLib"
