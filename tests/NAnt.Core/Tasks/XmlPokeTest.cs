@@ -36,7 +36,7 @@ namespace Tests.NAnt.Core.Tasks {
             + "<project>"
                 + "<xmlpoke {0} />"
                 + "<xmlpeek {1} property=\"configuration.server\" />" 
-                + "<echo message=\"configuration.server={2}\" />"
+                + "<echo message=\"configuration.server={2}!\" />"
             + "</project>";
 
         private const string _validXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" 
@@ -72,11 +72,40 @@ namespace Tests.NAnt.Core.Tasks {
 
             // ensure original value was not retained
             Assertion.Assert("Value of node was not updated, orignal value is still in xml file.", 
-                buildLog.IndexOf("configuration.server=testhost.somecompany.com") == -1);
+                buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1);
 
             // ensure new value was set
             Assertion.Assert("Value of node was not updated correctly, new value does not match.", 
-                buildLog.IndexOf("configuration.server=productionhost.somecompany.com") != -1);
+                buildLog.IndexOf("configuration.server=productionhost.somecompany.com!") != -1);
+        }
+
+        [Test]
+        public void Test_PokeEmptyValue() {
+            // write xml content to file
+            string xmlFile = TempFile.CreateWithContents(_validXml);
+
+            // set-up <xmlpoke> task attributes
+            string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/appSettings/add[@key ='server']/@value\"" +
+                " value=\"\"", xmlFile);
+
+            // set-up <xmlpeek> task attributes
+            string xmlPeekTaskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/appSettings/add[@key ='server']/@value\"",
+                xmlFile);
+
+            // execute build
+            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                _projectXml, xmlPokeTaskAttributes, xmlPeekTaskAttributes, 
+                "${configuration.server}"));
+
+            // ensure original value was not retained
+            Assertion.Assert("Value of node was not updated, orignal value is still in xml file.", 
+                buildLog.IndexOf("configuration.server=testhost.somecompany.com!") == -1);
+
+            // ensure new value was set
+            Assertion.Assert("Value of node was not updated correctly, new value does not match.", 
+                buildLog.IndexOf("configuration.server=!") != -1);
         }
 
         /// <summary>
