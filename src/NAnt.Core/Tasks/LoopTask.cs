@@ -168,11 +168,15 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("delim")]
         public string Delimiter { get { return _delim;} set { _delim = value; }}
 
-        /// <summary>        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.        /// </summary>
+        /// <summary>
+        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
+        /// </summary>
         [BuildElement("in")]
         public InElement InElement { get { return _inElement; } set { _inElement = value; }}
 
-        /// <summary>        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.        /// </summary>
+        /// <summary>
+        /// Stuff to operate in. Just like the in attribute, but support more complicated things like filesets and such.
+        /// </summary>
         [BuildElement("do")]
         public TaskContainer StuffToDo { get { return _doStuff; } set { _doStuff = value; }}
 
@@ -280,7 +284,13 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        protected override void ExecuteChildTasks() {            if(_doStuff == null) {                base.ExecuteChildTasks();            } else {                _doStuff.Execute();            }        }
+        protected override void ExecuteChildTasks() {
+            if(_doStuff == null) {
+                base.ExecuteChildTasks();
+            } else {
+                _doStuff.Execute();
+            }
+        }
 
         #endregion Override implementation of TaskContainer
 
@@ -305,7 +315,10 @@ namespace SourceForge.NAnt.Tasks {
                 Properties[_props[ nIndex ]] = propValue;
             }
             base.ExecuteTask();
-        }        #endregion Protected Instance Methods    }
+        }
+
+        #endregion Protected Instance Methods
+    }
 
     public class InElement : Element {
         #region Private Instance Fields
