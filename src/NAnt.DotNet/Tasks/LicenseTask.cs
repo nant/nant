@@ -204,7 +204,7 @@ namespace NAnt.DotNet.Tasks {
                 // create assembly resolver
                 AssemblyResolver assemblyResolver = new AssemblyResolver();
 
-                // attach it the current domain
+                // attach assembly resolver to the current domain
                 assemblyResolver.Attach();
 
                 licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
@@ -361,6 +361,7 @@ namespace NAnt.DotNet.Tasks {
 
                     dlc = null;
                 } finally {
+                    // detach assembly resolver from the current domain
                     assemblyResolver.Detach();
                 }
             }
