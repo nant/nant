@@ -44,12 +44,13 @@
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <!-- temporary workaround for Mono Runtime bug #57602 -->
+                <!-- temporary workaround for Mono runtime bug #57602 -->
                 <include name="${lib.framework.dir}/log4net.dll" />
+                <include name="${lib.framework.dir}/NDoc.Core.dll" />
                 <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
-                <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />                
+                <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />
                 <include name="${lib.framework.dir}/nunit.framework.dll" />
             </references>
         </csc>
