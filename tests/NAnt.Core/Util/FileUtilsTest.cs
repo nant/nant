@@ -49,44 +49,61 @@ namespace Tests.NAnt.Core.Util {
 
         [Test]
         public void Test_GetFullPath() {
-            if (PlatformHelper.IsWin32) {
-                Assert.IsTrue(FileUtils.GetFullPath("Z:").StartsWith(@"Z:\"), "#1");
-                Assert.AreEqual(@"c:\abc\def", FileUtils.GetFullPath (@"c:\abc\def"), "#2");
-                Assert.IsTrue(FileUtils.GetFullPath(@"\").EndsWith(@"\"), "#3");
-                Assert.IsTrue(FileUtils.GetFullPath("/").EndsWith (@"\"), "#4");
-                Assert.IsTrue(FileUtils.GetFullPath("readme.txt").EndsWith(@"\readme.txt"), "#5");
-                Assert.IsTrue(FileUtils.GetFullPath("c").EndsWith(@"\c"), "#5");
-                Assert.IsTrue(FileUtils.GetFullPath(@"abc\def").EndsWith(@"abc\def"), "#6");
-                Assert.IsTrue(FileUtils.GetFullPath(@"\abc\def").EndsWith(@"\abc\def"), "#7");
-                Assert.AreEqual(@"\\abc\def", FileUtils.GetFullPath (@"\\abc\def"), "#8");
-                Assert.AreEqual(Directory.GetCurrentDirectory() + @"\abc\def", FileUtils.GetFullPath(@"abc//def"), "#9");
-                Assert.AreEqual(Directory.GetCurrentDirectory().Substring(0,2) + @"\abc\def", FileUtils.GetFullPath("/abc/def"), "#10");
-                Assert.AreEqual(@"\\abc\def", FileUtils.GetFullPath("//abc/def"), "#11");
-               
-
-                StringBuilder sb = new StringBuilder();
-                while (sb.Length < 260) {
-                    sb.Append(@"test\..\");
-                }
-                sb.Append("what.txt");
-
-                Assert.AreEqual(Path.Combine(Directory.GetCurrentDirectory(), "what.txt"), 
-                    FileUtils.GetFullPath(sb.ToString()), "#12");
-
-                // clear buffer
-                sb.Length = 0;
-
-                string[] currentDirParts = Directory.GetCurrentDirectory().Split(Path.DirectorySeparatorChar);
-
-                for (int i = 0; i < (currentDirParts.Length - 1); i++) {
-                    sb.Append(@"..\");
-                }
-                sb.Append(@"test\what.txt");
-
-                Assert.AreEqual(Path.Combine(currentDirParts[0] + Path.DirectorySeparatorChar, @"test\what.txt"), 
-                    FileUtils.GetFullPath(sb.ToString()), "#13");
+            if (!PlatformHelper.IsWin32) {
+                return;
             }
 
+            Assert.IsTrue(FileUtils.GetFullPath("Z:").StartsWith(@"Z:\"), "#1");
+            Assert.AreEqual(@"c:\abc\def", FileUtils.GetFullPath (@"c:\abc\def"), "#2");
+            Assert.IsTrue(FileUtils.GetFullPath(@"\").EndsWith(@"\"), "#3");
+            Assert.IsTrue(FileUtils.GetFullPath("/").EndsWith (@"\"), "#4");
+            Assert.IsTrue(FileUtils.GetFullPath("readme.txt").EndsWith(@"\readme.txt"), "#5");
+            Assert.IsTrue(FileUtils.GetFullPath("c").EndsWith(@"\c"), "#5");
+            Assert.IsTrue(FileUtils.GetFullPath(@"abc\def").EndsWith(@"abc\def"), "#6");
+            Assert.IsTrue(FileUtils.GetFullPath(@"\abc\def").EndsWith(@"\abc\def"), "#7");
+            Assert.AreEqual(@"\\abc\def", FileUtils.GetFullPath (@"\\abc\def"), "#8");
+            Assert.AreEqual(Directory.GetCurrentDirectory() + @"\abc\def", FileUtils.GetFullPath(@"abc//def"), "#9");
+            Assert.AreEqual(Directory.GetCurrentDirectory().Substring(0,2) + @"\abc\def", FileUtils.GetFullPath("/abc/def"), "#10");
+            Assert.AreEqual(@"\\abc\def", FileUtils.GetFullPath("//abc/def"), "#11");
+            
+
+            StringBuilder sb = new StringBuilder();
+            while (sb.Length < 260) {
+                sb.Append(@"test\..\");
+            }
+            sb.Append("what.txt");
+
+            Assert.AreEqual(Path.Combine(Directory.GetCurrentDirectory(), "what.txt"), 
+                FileUtils.GetFullPath(sb.ToString()), "#12");
+
+            // clear buffer
+            sb.Length = 0;
+
+            string[] currentDirParts = Directory.GetCurrentDirectory().Split(Path.DirectorySeparatorChar);
+
+            for (int i = 0; i < (currentDirParts.Length - 1); i++) {
+                sb.Append(@"..\");
+            }
+            sb.Append(@"test\what.txt");
+
+            Assert.AreEqual(Path.Combine(currentDirParts[0] + Path.DirectorySeparatorChar, @"test\what.txt"), 
+                FileUtils.GetFullPath(sb.ToString()), "#13");
+        }
+
+        [Test]
+        public void Test_CombinePaths() {
+            if (!PlatformHelper.IsWin32) {
+                return;
+            }
+
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", @"whatever\test.txt"), "#1");
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", "whatever/test.txt"), "#2");
+
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test\whatever", @"..\whatever\test.txt"), "#3");
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test\whatever", "../whatever/test.txt"), "#4");
+
+            Assert.AreEqual(@"\\test\c$\whatever.txt", FileUtils.CombinePaths(@"\\test\c$", @"test\..\whatever.txt"), "#5");
+            Assert.AreEqual(@"\\test\c$\whatever.txt", FileUtils.CombinePaths(@"\\test\c$", "test/../whatever.txt"), "#6");
         }
     }
 }
