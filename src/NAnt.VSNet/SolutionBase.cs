@@ -398,7 +398,10 @@ namespace NAnt.VSNet {
                 ProjectBase p = (ProjectBase) de.Value;
 
                 foreach (string configuration in p.Configurations) {
-                    _htOutputFiles[p.GetOutputPath(configuration)] = projectGuid;
+                    string projectOutputFile = p.GetOutputPath(configuration);
+                    if (projectOutputFile != null) {
+                        _htOutputFiles[p.GetOutputPath(configuration)] = projectGuid;
+                    }
                 }
             }
 
@@ -439,7 +442,7 @@ namespace NAnt.VSNet {
                         // if we reference an assembly in an AssemblyFolder
                         // that is an output directory of another project, 
                         // then add dependency on that project
-                        if (outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
+                        if (outputFile != null && outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
                             AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
                         }
                     }

@@ -150,27 +150,20 @@ namespace NAnt.VSNet {
                 assemblyReferences = new StringCollection();
             }
 
-            // check if we're referencing a Visual C++ project
-            if (typeof(VcProject).IsAssignableFrom(Project.GetType())) {
-                VcConfiguration vcConfig = ((VcProject) Project).GetConfiguration(
-                    config.Name) as VcConfiguration;
-                // if configuration type if Makefile, then we know that the
-                // project has no assembly references and no output file
-                if (vcConfig.Type == VcConfiguration.ConfigurationType.Makefile) {
-                    return assemblyReferences;
-                }
-            }
-
             string projectOutputFile = Project.GetConfiguration(
                 config.Name).OutputPath;
-            if (!File.Exists(projectOutputFile)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Output file '{0}' of project '{1}' does not exist.",
-                    projectOutputFile, Project.Name), Location.UnknownLocation);
-            }
 
-            // add primary output to list of reference assemblies
-            assemblyReferences.Add(projectOutputFile);
+            // check if project has output file
+            if (projectOutputFile != null) {
+                if (!File.Exists(projectOutputFile)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Output file '{0}' of project '{1}' does not exist.",
+                        projectOutputFile, Project.Name), Location.UnknownLocation);
+                }
+
+                // add primary output to list of reference assemblies
+                assemblyReferences.Add(projectOutputFile);
+            }
 
             // return assembly references
             return assemblyReferences;
@@ -184,7 +177,15 @@ namespace NAnt.VSNet {
         /// The timestamp of the reference.
         /// </returns>
         public override DateTime GetTimestamp(ConfigurationBase config) {
-            return GetTimestamp(Project.GetOutputPath(config.Name));
+            string projectOutputFile = Project.GetOutputPath(config.Name);
+            if (projectOutputFile != null) {
+                return GetTimestamp(projectOutputFile);
+            } else {
+                // if project has no output file, then we assume that it creates
+                // a file through another way (eg. by launching an application 
+                // that creates an assembly)
+                return DateTime.MaxValue;
+            }
         }
 
         #endregion Override implementation of ReferenceBase

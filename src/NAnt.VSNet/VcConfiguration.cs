@@ -175,6 +175,13 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Gets the path for the output file.
         /// </summary>
+        /// <value>
+        /// The path for the output file, or <see langword="null" /> if there's
+        /// no output file for this configuration.
+        /// </value>
+        /// <remarks>
+        /// An NMake project does not necessarily have an output file.
+        /// </remarks>
         public override string OutputPath {
             get { 
                 string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
@@ -187,7 +194,12 @@ namespace NAnt.VSNet {
                     return Path.Combine(ProjectDir.FullName, librarianOutput);
                 }
 
-                return OutputDir.Name;
+                string nmakeOutput = GetToolSetting("VCNMakeTool", "Output");
+                if (nmakeOutput != null) {
+                    return Path.Combine(ProjectDir.FullName, nmakeOutput);
+                }
+
+                return null;
             }
         }
 

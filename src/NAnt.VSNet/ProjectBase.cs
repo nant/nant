@@ -387,13 +387,17 @@ namespace NAnt.VSNet {
             // determine output file of project
             string projectOutputFile = config.OutputPath;
 
-            // get list of files related to project output file (eg. debug symbols,
-            // xml doc, ...), this will include the project output file itself
-            Hashtable relatedFiles = ReferenceBase.GetRelatedFiles(projectOutputFile);
+            // check if project has output file (eg. NMake project does not 
+            // necessarily have an output file)
+            if (projectOutputFile != null) {
+                // get list of files related to project output file (eg. debug symbols,
+                // xml doc, ...), this will include the project output file itself
+                Hashtable relatedFiles = ReferenceBase.GetRelatedFiles(projectOutputFile);
 
-            // add each related file to set of primary output files
-            foreach (DictionaryEntry de in relatedFiles) {
-                outputFiles[(string) de.Key] = (string) de.Value;
+                // add each related file to set of primary output files
+                foreach (DictionaryEntry de in relatedFiles) {
+                    outputFiles[(string) de.Key] = (string) de.Value;
+                }
             }
 
             // add extra project-level output files
