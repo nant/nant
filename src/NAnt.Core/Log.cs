@@ -646,15 +646,15 @@ namespace NAnt.Core {
     ///     </item>
     ///     <item>
     ///         <term>MailLogger.success.to</term>
-    ///         <description>The address to send build success messages to </description>
+    ///         <description>The address to send build success messages to.</description>
     ///     </item>
     ///     <item>
     ///         <term>MailLogger.failure.subject</term>
-    ///         <description>subject of build failure messages. [default: "Build Failure"]</description>
+    ///         <description>The subject of build failure messages. [default: "Build Failure"]</description>
     ///     </item>
     ///     <item>
     ///         <term>MailLogger.success.subject</term>
-    ///         <description>subject of build success messages. [default: "Build Success"]</description>
+    ///         <description>The subject of build success messages. [default: "Build Success"]</description>
     ///     </item>
     /// </list>
     /// </remarks>
