@@ -88,11 +88,11 @@ namespace NAnt.VSNet {
         public override bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands) {
             _objFiles.Clear();
             
-            VcConfiguration baseConfig = (VcConfiguration) _htConfigurations [configuration];
+            VcConfiguration baseConfig = (VcConfiguration) _htConfigurations[configuration];
 
-            ArrayList cppFilesToBuild = new ArrayList();
-            VcConfiguration lastConfig = null;
-            
+            // initialize hashtable for holding all build configuration
+            Hashtable buildConfigs = new Hashtable();
+
             foreach (DictionaryEntry de in _htFiles) {
                 string fileName = (string) de.Key;
                 string ext = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
@@ -112,20 +112,17 @@ namespace NAnt.VSNet {
                 }
 
                 if (ext == ".cpp" || ext == ".c") {
-                    if (fileConfig != lastConfig) {
-                        if (cppFilesToBuild.Count > 0) {
-                            BuildCPPFiles(cppFilesToBuild, baseConfig, lastConfig);
-                        }
-
-                        lastConfig = fileConfig;
-                        cppFilesToBuild.Clear();
+                    if (!buildConfigs.ContainsKey(fileConfig)) {
+                        buildConfigs[fileConfig] = new ArrayList(1);
                     }
-                    cppFilesToBuild.Add(fileName);
+
+                    // add file to list of sources to build with this config
+                    ((ArrayList) buildConfigs[fileConfig]).Add(fileName);
                 }
             }
 
-            if (cppFilesToBuild.Count > 0) {
-                BuildCPPFiles(cppFilesToBuild, baseConfig, lastConfig);
+            foreach (VcConfiguration config in buildConfigs.Keys) {
+                BuildCPPFiles((ArrayList) buildConfigs[config], baseConfig, config);
             }
 
             string libOutput = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
@@ -176,8 +173,8 @@ namespace NAnt.VSNet {
             XmlNodeList configurationNodes = elem.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
                 VcConfiguration config = new VcConfiguration(configElem, this, sln, OutputDir);
-                _htConfigurations [config.Name] = config;
-                _htPlatformConfigurations [config.FullName] = config;
+                _htConfigurations[config.Name] = config;
+                _htPlatformConfigurations[config.FullName] = config;
             }
 
             XmlNodeList referenceNodes = elem.SelectNodes("//References/ProjectReference");
@@ -196,7 +193,7 @@ namespace NAnt.VSNet {
                     htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
                     foreach (XmlElement fileConfigElem in fileConfigList) {
                         string fileConfigName = fileConfigElem.GetAttribute("Name");
-                        VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations [fileConfigName];
+                        VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations[fileConfigName];
                         VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, sln, baseConfig, OutputDir);
                         htFileConfigurations [fileConfig.Name] = fileConfig;
                    }
@@ -261,8 +258,9 @@ namespace NAnt.VSNet {
 
             // set task properties
             clTask.OutputDir = new DirectoryInfo(Path.Combine(_projectDirectory, 
-                baseConfig.IntermediateDir));
+                fileConfig.IntermediateDir));
             clTask.PchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
+            clTask.CharacterSet = fileConfig.CharacterSet;
             
             // ensure output directory exists
             clTask.OutputDir.Create();
@@ -295,14 +293,14 @@ namespace NAnt.VSNet {
                 clTask.Arguments.Add(new Argument("/Fa" + asmListingLocation));
             }
 
-            string intermediateDir = Path.Combine(_projectDirectory, baseConfig.IntermediateDir);
+            string intermediateDir = Path.Combine(_projectDirectory, fileConfig.IntermediateDir);
 
             foreach (string fileName in fileNames) {
                 clTask.Sources.FileNames.Add(fileName);
                 _objFiles.Add(Path.Combine(intermediateDir, Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
-            string preprocessorDefs = baseConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
+            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
             if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     clTask.Arguments.Add(new Argument("/D"));
@@ -310,24 +308,45 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (IsOutputDll(baseConfig)) {
+            if (IsOutputDll(fileConfig)) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_WINDLL"));
             }
 
-            if (baseConfig.WholeProgramOptimization) {
+            if (fileConfig.WholeProgramOptimization) {
                 clTask.Arguments.Add(new Argument("/GL"));
             }
 
-            string[] args = baseConfig.GetToolArguments(compilerTool, _clArgMap);   
-            foreach (string arg in args) {
-                clTask.Arguments.Add(new Argument(arg));
-            }
+            Hashtable compilerArgs = fileConfig.GetToolArguments(compilerTool, _clArgMap);   
+            foreach (string key in compilerArgs.Keys) {
+                switch (key) {
+                    case "PrecompiledHeaderThrough":
+                    case "PrecompiledHeaderFile":
+                        // skip these as they will only be used in combination 
+                        // with the "UsePrecompiledHeader" argument
+                        break;
+                    case "UsePrecompiledHeader":
+                        string headerThrough = compilerArgs["PrecompiledHeaderThrough"] as string;
+                        if (headerThrough == null) {
+                            headerThrough = "StdAfx.h";
+                        }
+                        clTask.Arguments.Add(new Argument(((string) compilerArgs[key]) + "\"" + headerThrough + "\""));
 
-            if (baseConfig.ManagedExtensions) {
-                // enable Managed Extensions for C++
-                clTask.ManagedExtensions = true;
+                        string headerFile = compilerArgs["PrecompiledHeaderFile"] as string;
+                        if (headerFile == null) {
+                            headerFile = fileConfig.ExpandMacros("$(IntDir)/$(TargetName).pch");
+                        }
+
+                        clTask.Arguments.Add(new Argument("/Fp\"" + headerFile + "\""));
+                        break;
+                    default:
+                        clTask.Arguments.Add(new Argument((string) compilerArgs[key]));
+                        break;
+                }
             }
+                
+            // enable/disable Managed Extensions for C++
+            clTask.ManagedExtensions = fileConfig.ManagedExtensions;
 
             // execute the task
             ExecuteInProjectDirectory(clTask);
@@ -441,8 +460,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string[] args = baseConfig.GetToolArguments(linkerTool, _linkerArgMap);
-            foreach (string arg in args) {
+            Hashtable linkerArgs = baseConfig.GetToolArguments(linkerTool, _linkerArgMap);
+            foreach (string arg in linkerArgs.Values) {
                 linkTask.Arguments.Add(new Argument(arg));
             }
 
