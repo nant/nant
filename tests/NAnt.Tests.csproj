@@ -494,6 +494,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "NAnt.VSNet\Tasks\CppSolutionTests.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.VSNet\Tasks\CSharpSolutionTests.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -504,7 +509,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.VSNet\Tasks\VbSolutionTests.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.VSNet\Tasks\VCProjectTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.VSNet\Tasks\VjsSolutionTests.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
