@@ -116,8 +116,8 @@ namespace NAnt.Core.Tasks {
         /// <see langword="false" />.
         /// </summary>
         /// <remarks>
-        /// If the exit code of the program is <c>-1</c> then the program could 
-        /// not be started, or did not finish in time.
+        /// If the exit code of the program is <c>-1000</c> then the program 
+        /// could not be started, or did not exit (in time).
         /// </remarks>
         [TaskAttribute("resultproperty")]
         [StringValidator(AllowEmpty=false)]

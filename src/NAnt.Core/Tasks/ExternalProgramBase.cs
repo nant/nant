@@ -40,19 +40,25 @@ namespace NAnt.Core.Tasks {
     public abstract class ExternalProgramBase : Task {
         #region Private Instance Fields
         
-        StreamReader _stdError = null;
-        StreamReader _stdOut = null;
+        private StreamReader _stdError;
+        private StreamReader _stdOut;
         private ArgumentCollection _arguments = new ArgumentCollection();
-        private bool _useRuntimeEngine = false;
-        private string _exeName = null;
+        private bool _useRuntimeEngine;
+        private string _exeName;
         private int _timeout = Int32.MaxValue;
         private TextWriter _outputWriter;
         private TextWriter _errorWriter;
-        private int _exitCode = -1;
+        private int _exitCode = -100;
 
         #endregion Private Instance Fields
 
         #region Private Static Fields
+
+        /// <summary>
+        /// Defines the exit code that will be returned by <see cref="ExitCode" />
+        /// if the process could not be started, or did not exit (in time).
+        /// </summary>
+        public const int UnknownExitCode = -1000;
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -228,8 +234,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <value>
         /// The code that the associated process specified when it terminated, 
-        /// or <c>-1</c> if the process could not be started or did not finish
-        /// in time.
+        /// or <c>-1000</c> if the process could not be started or did not 
+        /// exit (in time).
         /// </value>
         public int ExitCode {
             get { return _exitCode; }
