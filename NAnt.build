@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-
-<project name="NAnt" default="test" basedir=".">
+<project name="NAnt" default="test">
     <tstamp/>
     <property name="debug" value="true"/>
     <property name="project.name" value="nant"/>
@@ -14,7 +13,7 @@
     <property name="backup.name" value="..\${project.name}-backup-${nant.dstamp}-${nant.tstamp}.zip" />
     <property name="project.version" value="x.x"/>
 
-    <target name="release" depends="clean" description="makes a clean release, usage: 'nant release build'">
+    <target name="release" description="makes a release, usage: 'nant clean release build'">
         <property name="debug" value="false"/>
 
         <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
@@ -101,11 +100,11 @@
                 <includes name="*.cs"/>               
             </sources>
             <references>              
-                <includes name="System.dll" />
-                <includes name="System.Drawing.dll" />
+                <includes name="System.dll" match="false" />
                 <includes name="System.Design.dll" />
                 <includes name="System.Windows.Forms.dll" />
-                <includes name="System.Xml.dll" />               
+                <includes name="System.Xml.dll" />   
+				
                 <includes name="${build.dir}\NDoc.Core.dll" />
             </references>
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\css\NAntDoc.css,Documenter.css.NAntDoc.css" />
@@ -120,8 +119,7 @@
         <csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
             <sources basedir="${src.dir}\${project.FormalName}.Tests">
                 <includes name="**/*.cs"/>
-
-                <!-- these tests should be run during intergration because they use third party network resources -->
+                <!-- these tests should not be run during intergration because they use third party network resources -->
                 <excludes name="**/GetTaskTest.cs"/>
                 <excludes name="**/MailTaskTest.cs"/>
             </sources>
@@ -131,6 +129,12 @@
                 <includes name="${build.dir}/${project.FormalName}.exe"/>
             </references>
         </csc>
+    </target>
+
+    <target name="buildextras" description="compiles projects in src\Extras">
+		<!-- compile extras folder (but only if we are not doing a debug build) -->
+		<nant buildfile="${src.dir}/Extras/BuildServer/BuildServer.build"/>
+		<nant buildfile="${src.dir}/Extras/SourceSafe/SourceSafe.build"/>
     </target>
 
     <!--
