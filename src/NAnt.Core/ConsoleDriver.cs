@@ -50,19 +50,14 @@ namespace SourceForge.NAnt {
         /// <param name="args">Command Line args, or whatever you want to pass it. They will treated as Command Line args.</param>
         /// <returns>The exit code.</returns>
         public static int Main(string[] args) {
-            BuildListenerCollection buildListeners = new BuildListenerCollection();
             CommandLineParser commandLineParser = null;
             Project project = null;
             Level projectThreshold = Level.Info;
-            IBuildLogger buildLogger = null;
-
-            TextWriter outputWriter = Console.Out;
 
             try {
                 PropertyDictionary buildOptionProps = new PropertyDictionary();
 
                 CommandLineOptions cmdlineOptions = new CommandLineOptions();
-
                 commandLineParser = new CommandLineParser(typeof(CommandLineOptions));
                 commandLineParser.Parse(args, cmdlineOptions);
 
@@ -92,6 +87,22 @@ namespace SourceForge.NAnt {
                     project = new Project(cmdlineOptions.BuildFile, projectThreshold, cmdlineOptions.IndentationLevel);
                 }
 
+                // Get build file name if the project has not been created.
+                // If a build file was not specified on the command line.
+                if(project == null) {
+                    project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
+                }
+
+                // add build logger and build listeners to project
+                ConsoleDriver.AddBuildListeners(cmdlineOptions, project);
+
+                // copy cmd line targets
+                foreach (string target in cmdlineOptions.Targets) {
+                    project.BuildTargets.Add(target);
+                }
+
+                // build collection of valid properties that were specified on 
+                // the command line.
                 foreach (string property in cmdlineOptions.Properties) {
                     Match match = Regex.Match(property, @"(\w+.*)=(\w*.*)");
                     if (match.Success) {
@@ -101,60 +112,7 @@ namespace SourceForge.NAnt {
                     }
                 }
 
-                // Get build file name if the project has not been created.
-                // If a build file was not specified on the command line.
-                if(project == null) {
-                    project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
-                }
-
-                if(cmdlineOptions.LogFile != null) {
-                    try {
-                        outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
-                    } catch (Exception ex) {
-                        logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}.", cmdlineOptions.LogFile.FullName), ex);
-                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}: {1}", cmdlineOptions.LogFile.FullName, ex.Message));
-                    }
-                }
-
-                if (cmdlineOptions.LoggerType != null) {
-                    try {
-                        buildLogger = ConsoleDriver.CreateLogger(cmdlineOptions.LoggerType);
-                    } catch(Exception ex) {
-                        logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}.", cmdlineOptions.LoggerType), ex);
-                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}: {1}", cmdlineOptions.LoggerType, ex.Message));
-                    }
-                }
-
-                // if no logger was specified on the commandline use the default logger.
-                if (buildLogger == null) {
-                    buildLogger = new DefaultLogger();
-
-                    // only set OutputWriter of DefaultLogger is logfile was 
-                    // specified on command-line, setting the OutputWriter of
-                    // the DefaultLogger to Console.Out would cause issues with
-                    // unit tests. 
-                    if (outputWriter is StreamWriter) {
-                        buildLogger.OutputWriter = outputWriter;
-                    }
-
-                } else {
-                    buildLogger.OutputWriter = outputWriter;
-                }
-
-                // set threshold of build logger equal to threshold of project
-                buildLogger.Threshold = project.Threshold;
-
-                // add logger to listeners collection
-                buildListeners.Add(buildLogger);
-
-                // attach listeners to project
-                project.AttachBuildListeners(buildListeners);
-
-                // copy cmd line targets
-                foreach (string target in cmdlineOptions.Targets) {
-                    project.BuildTargets.Add(target);
-                }
-
+                // add valid properties to the project.
                 foreach (System.Collections.DictionaryEntry de in buildOptionProps) {
                     project.Properties.AddReadOnly((string) de.Key, (string) de.Value);
                 }
@@ -225,8 +183,8 @@ namespace SourceForge.NAnt {
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
                 return 2;
             } finally {
-                if (buildLogger != null) {
-                    buildLogger.Flush();
+                if (project != null) {
+                    project.DetachBuildListeners();
                 }
             }
         }
@@ -306,7 +264,8 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Dynamically constructs an instance of the class specified.
+        /// Dynamically constructs an <see cref="IBuildLogger" /> instance of 
+        /// the class specified.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -330,9 +289,100 @@ namespace SourceForge.NAnt {
             return (IBuildLogger) buildLogger;
         }
 
+        /// <summary>
+        /// Dynamically constructs an <see cref="IBuildListener" /> instance of 
+        /// the class specified.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// At this point, only looks in the assembly where <see cref="IBuildListener" /> 
+        /// is defined.
+        /// </para>
+        /// </remarks>
+        /// <param name="className">The fully qualified name of the listener that should be instantiated.</param>
+        /// <exception cref="ArgumentException"><paramref name="className" /> does not implement <see cref="IBuildListener" />.</exception>
+        public static IBuildListener CreateListener(string className) {
+            Assembly assembly = Assembly.GetAssembly(typeof(IBuildListener));
+
+            object buildListener = Activator.CreateInstance(assembly.GetType(className, true));
+
+            if (!typeof(IBuildListener).IsAssignableFrom(buildListener.GetType())) {
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture, "{0} does not implement {1}.",
+                    buildListener.GetType().FullName, typeof(IBuildListener).FullName));
+            }
+
+            return (IBuildListener) buildListener;
+        }
+
         #endregion Public Static Methods
 
         #region Private Static Methods
+
+        /// <summary>
+        /// Add the listeners specified in the command line arguments,
+        /// along with the default listener, to the specified project.
+        /// </summary>
+        /// <param name="cmdlineOptions">The command-line options.</param>
+        /// <param name="project">The <see cref="Project" /> to add listeners to.</param>
+        private static void AddBuildListeners(CommandLineOptions cmdlineOptions, Project project) {
+            BuildListenerCollection listeners = new BuildListenerCollection();
+            IBuildLogger buildLogger = null;
+            TextWriter outputWriter = Console.Out;
+
+            if(cmdlineOptions.LogFile != null) {
+                try {
+                    outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
+                } catch (Exception ex) {
+                    logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}.", cmdlineOptions.LogFile.FullName), ex);
+                    Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}: {1}", cmdlineOptions.LogFile.FullName, ex.Message));
+                }
+            }
+
+            if (cmdlineOptions.LoggerType != null) {
+                try {
+                    buildLogger = ConsoleDriver.CreateLogger(cmdlineOptions.LoggerType);
+                } catch (Exception ex) {
+                    logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}.", cmdlineOptions.LoggerType), ex);
+                    Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}: {1}", cmdlineOptions.LoggerType, ex.Message));
+                }
+            }
+
+            // if no logger was specified on the commandline or an error occurred 
+            // while creating an instance of the specified logger, use the default 
+            // logger.
+            if (buildLogger == null) {
+                buildLogger = new DefaultLogger();
+            }
+
+            // only set OutputWriter if build logger does not derive from 
+            // DefaultLogger, or if logfile was specified on command-line. 
+            // Setting the OutputWriter of the DefaultLogger to Console.Out 
+            // would cause issues with unit tests.
+            if (!typeof(DefaultLogger).IsAssignableFrom(buildLogger.GetType()) || outputWriter is StreamWriter) {
+                buildLogger.OutputWriter = outputWriter;
+            }
+
+            // set threshold of build logger equal to threshold of project
+            buildLogger.Threshold = project.Threshold;
+
+            // add build logger to listeners collection
+            listeners.Add(buildLogger);
+
+            // add listeners to listener collection
+            foreach (string listenerTypeName in cmdlineOptions.Listeners) {
+                try {
+                    IBuildListener listener = ConsoleDriver.CreateListener(listenerTypeName);
+                    listeners.Add(listener);
+                } catch (Exception ex) {
+                    logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating listener of type {0}.", listenerTypeName), ex);
+                    Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating listener of type {0}: {1}", listenerTypeName, ex.Message));
+                }
+            }
+
+            // attach listeners to project
+            project.AttachBuildListeners(listeners);
+        }
         
         /// <summary>
         /// Spits out generic help info to the console.
