@@ -21,12 +21,21 @@
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
+<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:include href="nant-attributes.xslt" />
 
-    <xsl:output method="html" indent="yes" />
+    <xsl:output 
+        method="xml" 
+        indent="yes" 
+        encoding="utf-8" 
+        version="1.0"  
+        doctype-public="-//w3c//dtd xhtml 1.1 strict//en" 
+        doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
+        omit-xml-declaration="yes"
+        standalone="yes"
+        />
     
     <xsl:param name="productName"></xsl:param>
     <xsl:param name="productVersion"></xsl:param>
@@ -35,7 +44,7 @@
     <xsl:param name="refType">Function</xsl:param>
 
     <xsl:template match="/">
-        <html>
+        <html xmlns="http://www.w3.org/1999/xhtml">
             <xsl:comment> Documenting <xsl:value-of select="$functionName" /> </xsl:comment>
             <xsl:apply-templates select="//method[@id=$method-id]" mode="FunctionDoc" />
         </html>

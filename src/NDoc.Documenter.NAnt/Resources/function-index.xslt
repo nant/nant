@@ -19,11 +19,21 @@
 //
 // Ian MacLean (ian@maclean.ms)
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil"
+<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil"
     version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
-    <xsl:output method="html" indent="yes" />
+    
+    <xsl:output 
+        method="xml" 
+        indent="yes" 
+        encoding="utf-8" 
+        version="1.0"  
+        doctype-public="-//w3c//dtd xhtml 1.1 strict//en" 
+        doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
+        omit-xml-declaration="yes"
+        standalone="yes"
+        />
 
     <xsl:param name="productName"></xsl:param>
     <xsl:param name="productVersion"></xsl:param>
@@ -39,7 +49,7 @@
         use="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
 
     <xsl:template match="/">
-        <html>
+        <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
