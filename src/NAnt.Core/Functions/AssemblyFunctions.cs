@@ -45,7 +45,7 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
         
         /// <summary>
-        ///  Gets the Version of the given assembly file as a string.
+        /// Gets the Version of the given assembly file as a string.
         /// </summary>
         /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
