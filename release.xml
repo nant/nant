@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
-<project name="nant" default="build-official-release">
+<project name="nant" default="build-release">
     <property name="sf.net.ssh.server" value="shell1.sf.net"/>
-    <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs"/>
+    <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs"/>
     <!-- retrieve system information and environment variables -->
     <sysinfo />
     <!-- setup property that holds partial path to be used by scp -->
-    <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}" />
+    <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.web.path}" />
     <!-- include master build file -->
     <include buildfile="nant.build"/>
     <!-- perform a 'release' package and upload to sf.net -->
-    <target name="build-official-release" depends="set-net-1.0-runtime-configuration, release, package, deploy" description="Perform a 'release' package and uploads to sf.net" />
-    <!-- deploy website content to sourceforge -->
-    <target name="deploy" depends="deploy-schema, deploy-help, deploy-website" />
+    <target name="build-release" depends="set-net-1.0-runtime-configuration, release, package, deploy" description="Perform a 'release' package and uploads to sf.net" />
+    <!-- deploy content to sourceforge -->
+    <target name="deploy" depends="deploy-schema, deploy-help, deploy-web" />
     <!-- copy schema to sourceforge -->
     <target name="deploy-schema" depends="set-net-1.0-runtime-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/schema" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}/schema" />
         </exec>
         <!-- copy schema file to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/schema" program="scp">
@@ -29,7 +29,7 @@
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 755 ${sf.net.build.path}/schema/${project.name}-${project.version}.xsd" />
+            <arg value="chmod 755 ${sf.net.web.path}/schema/${project.name}-${project.version}.xsd" />
         </exec>
     </target>
     <!-- copy help to sourceforge -->
@@ -37,12 +37,12 @@
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/help" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}/help" />
         </exec>
         <!-- try to remove existing files and directories -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="rm -R --force ${sf.net.build.path}/help/*" />
+            <arg value="rm -R --force ${sf.net.web.path}/help/*" />
         </exec>
         <!-- copy help to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/doc/help" program="scp">
@@ -55,20 +55,20 @@
         <!-- make sure permissions are set right -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod -R 755 ${sf.net.build.path}/help" />
+            <arg value="chmod -R 755 ${sf.net.web.path}/help" />
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-website" depends="set-net-1.0-runtime-configuration, release, package">
+    <target name="deploy-web" depends="set-net-1.0-runtime-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}" />
         </exec>
         <!-- try to remove existing files -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="find ${sf.net.build.path} -maxdepth 1 -type f -exec rm --force {} \;" />
+            <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec rm --force {} \;" />
         </exec>
         <!-- copy html files for website to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/doc" program="scp">
@@ -98,7 +98,7 @@
         <!-- make sure permissions are set right -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 755 ${sf.net.build.path}/*" />
+            <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chmod 755 {} \;" />
         </exec>
     </target>
 </project>
