@@ -630,9 +630,15 @@ namespace NAnt.VSNet {
             }
 
             // check for shared ATL
-            if (baseConfig.UseOfATL == UseOfATL.Shared) {
-                clTask.Arguments.Add(new Argument("/D"));
-                clTask.Arguments.Add(new Argument("_ATL_DLL"));
+            switch (baseConfig.UseOfATL) {
+                case UseOfATL.Shared:
+                    clTask.Arguments.Add(new Argument("/D"));
+                    clTask.Arguments.Add(new Argument("_ATL_DLL"));
+                    break;
+                case UseOfATL.Static:
+                    clTask.Arguments.Add(new Argument("/D"));
+                    clTask.Arguments.Add(new Argument("_ATL_STATIC_REGISTRY"));
+                    break;
             }
                 
             // enable/disable Managed Extensions for C++
