@@ -32,7 +32,9 @@ using Microsoft.Win32;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
-    /// <summary>Central representation of a NAnt project.</summary>
+    /// <summary>
+    /// Central representation of a NAnt project.
+    /// </summary>
     /// <example>
     ///   <para>
     ///   The <see cref="Run" /> method will initialize the project with the build
@@ -44,6 +46,8 @@ namespace NAnt.Core {
     /// p.Run();
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   If no target is given, the default target will be executed if specified 
     ///   in the project.
@@ -58,7 +62,11 @@ namespace NAnt.Core {
     public class Project {
         #region Private Static Fields
 
+        /// <summary>
+        /// Holds the logger for this class.
+        /// </summary>
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         // XML element and attribute names that are not defined in metadata
         private const string RootXml = "project";
         private const string ProjectNameAttribute = "name";
@@ -67,14 +75,14 @@ namespace NAnt.Core {
         private const string TargetXml = "target";
 
         /// <summary>
-        /// Constant for the "visiting" state, used when traversing a DFS of target 
-        /// dependencies.
+        /// Constant for the "visiting" state, used when traversing a DFS of 
+        /// target dependencies.
         /// </summary>
         private const string Visiting = "VISITING";
 
         /// <summary>
-        /// Constant for the "visited" state, used when traversing a DFS of target 
-        /// dependencies.
+        /// Constant for the "visited" state, used when traversing a DFS of 
+        /// target dependencies.
         /// </summary>
         private const string Visited = "VISITED";
 
@@ -83,6 +91,8 @@ namespace NAnt.Core {
         #region Internal Static Fields
 
         // named properties
+        internal const string NAntPlatform = "nant.platform";
+        internal const string NAntPlatformName = NAntPlatform + ".name";
         internal const string NAntPropertyFileName = "nant.filename";
         internal const string NAntPropertyVersion = "nant.version";
         internal const string NAntPropertyLocation = "nant.location";
@@ -348,6 +358,43 @@ namespace NAnt.Core {
             set {
                 _currentFramework = value;
                 UpdateCurrentFrameworkProperties();
+            }
+        }
+
+        /// <summary>
+        /// Gets the name of the platform on which NAnt is currently running.
+        /// </summary>
+        /// <value>
+        /// The name of the platform on which NAnt is currently running.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Possible values are:
+        /// </para>
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description>win32</description>
+        ///     </item>
+        ///     <item>
+        ///         <description>unix</description>
+        ///     </item>
+        /// </list>
+        /// </remarks>
+        /// <exception cref="BuildException">NAnt does not support the current platform.</exception>
+        public string PlatformName {
+            get { 
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT 
+                    || Environment.OSVersion.Platform == PlatformID.Win32S 
+                    || Environment.OSVersion.Platform == PlatformID.Win32Windows) {
+                    return "win32";
+                } else if (((int) Environment.OSVersion.Platform) == 128) {
+                    return "unix";
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "NAnt currently does not support this platform ({0}, ID = {0}).", 
+                        Environment.OSVersion.Platform.ToString(CultureInfo.InvariantCulture),
+                        (int) Environment.OSVersion.Platform));
+                }
             }
         }
 
@@ -646,21 +693,22 @@ namespace NAnt.Core {
         /// will be passed onto the caller.
         /// </remarks>
 		public virtual void Execute() {
-			
 			if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
 				BuildTargets.Add(DefaultTargetName);
 			}			
 
-
 			//log the targets specified, or the default target if specified.
 			StringBuilder sb = new StringBuilder();
-			if(BuildTargets != null) {
+			if (BuildTargets != null) {
 				foreach(string target in BuildTargets) {
 					sb.Append(target);
 					sb.Append(" ");
 				}
 			}
-			if(sb.Length > 0) Log(Level.Info, "Target(s) specified: " + sb.ToString());
+
+            if(sb.Length > 0) {
+                Log(Level.Info, "Target(s) specified: " + sb.ToString());
+            }
             
 			// initialize the list of Targets, and execute any global tasks.
 			InitializeProjectDocument(Document);
@@ -971,6 +1019,9 @@ namespace NAnt.Core {
             // add default logger
             CreateDefaultLogger();
 
+            // configure platform properties
+            ConfigurePlatformProperties();
+
             //fill the namespace manager up. So we can make qualified xpath expressions.
             if (StringUtils.IsNullOrEmpty(doc.DocumentElement.NamespaceURI)) {
                 string defURI;
@@ -1147,6 +1198,30 @@ namespace NAnt.Core {
                 throw new BuildException("Error loading buildfile.", location, ex);
             }
             return doc;
+        }
+
+        /// <summary>
+        /// Configures the platform properties for the current platform.
+        /// </summary>
+        /// <exception cref="BuildException">NAnt does not support the current platform.</exception>
+        private void ConfigurePlatformProperties() {
+            Properties.AddReadOnly(NAntPlatformName, PlatformName);
+
+            switch (PlatformName) {
+                case "win32":
+                    Properties.AddReadOnly(NAntPlatform + ".unix", "false");
+                    Properties.AddReadOnly(NAntPlatform + "." + PlatformName, "true");
+                    break;
+                case "unix":
+                    Properties.AddReadOnly(NAntPlatform + "." + PlatformName, "true");
+                    Properties.AddReadOnly(NAntPlatform + ".win32", "false");
+                    break;
+                default:
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "NAnt currently does not support this platform ({0}, ID = {0}).", 
+                        Environment.OSVersion.Platform.ToString(CultureInfo.InvariantCulture),
+                        (int) Environment.OSVersion.Platform));
+            }
         }
 
         /// <summary>

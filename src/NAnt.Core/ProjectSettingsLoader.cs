@@ -29,7 +29,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+
 using Microsoft.Win32;
+
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -110,7 +112,7 @@ namespace NAnt.Core {
             ProcessFrameworkNeutralProperties(nantNode.SelectNodes("frameworks/properties/property"));
 
             // process the defined frameworks
-            ProcessFrameworks(nantNode.SelectNodes("frameworks/framework"));
+            ProcessFrameworks(nantNode.SelectNodes("frameworks/platform[@name='" + Project.PlatformName + "']/framework"));
 
             // get taskpath setting to load external tasks and types from
             string taskPath = GetXmlAttributeValue(nantNode, "taskpath");
@@ -133,7 +135,9 @@ namespace NAnt.Core {
             }
 
             // determine default framework
-            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode("frameworks"), "default");
+            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode(
+                "frameworks/platform[@name='" + Project.PlatformName + "']"), 
+                "default");
 
             if (defaultFramework != null && Project.FrameworkInfoDictionary.ContainsKey(defaultFramework)) {
                 Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
