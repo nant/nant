@@ -599,7 +599,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if <paramref name="fileName" /> was found
         /// in <paramref name="folderList" />.
         /// </returns>
-        protected bool ResolveFromFolderList(StringCollection folderList, string fileName) {
+        private bool ResolveFromFolderList(StringCollection folderList, string fileName) {
             foreach (string path in folderList) {
                 if (ResolveFromPath(Path.Combine(path, fileName))) {
                     return true;
@@ -617,7 +617,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if the assembly could be located in the
         /// framework assembly directory; otherwise, see langword="false" />.
         /// </returns>
-        protected bool ResolveFromFramework() {
+        private bool ResolveFromFramework() {
             DirectoryInfo frameworkAssemblyDirectory = new DirectoryInfo(
                 SolutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName);
             string systemAssembly = Path.Combine(frameworkAssemblyDirectory.FullName, _referenceFile);
@@ -641,7 +641,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if the assembly could be located using the
         /// relative path; otherwise, <see langword="false" />.
         /// </returns>
-        protected bool ResolveFromRelativePath(XmlElement referenceElement, string relativePath) {
+        private bool ResolveFromRelativePath(XmlElement referenceElement, string relativePath) {
             if (!StringUtils.IsNullOrEmpty(relativePath)) {
                 string referencePath = Path.GetFullPath(Path.Combine(
                     Parent.ProjectDirectory.FullName, relativePath));
@@ -829,8 +829,9 @@ namespace NAnt.VSNet {
                         referenceName, tlbRegistryKey), Location.UnknownLocation);
                 }
 
+                // extract path to type library from reg value
+                _typelibFile = ExtractTypeLibPath((string) registryKey.GetValue(null));
                 // check if the typelib actually exists
-                _typelibFile = (string) registryKey.GetValue(null);
                 if (!File.Exists(_typelibFile)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Couldn't find referenced type library '{0}'.", _typelibFile),
@@ -855,6 +856,32 @@ namespace NAnt.VSNet {
                 _namespace = referenceName;
                 _copyLocal = true;
                 _isCreated = true;
+            }
+        }
+
+        /// <summary>
+        /// Extracts the path of the type library or the file containing the type 
+        /// libary.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If the path refers to a DLL, then it is possible that the DLL
+        /// contains more than one type library resource.  The number of the 
+        /// resource is appended to the Win32 value.
+        /// </para>
+        /// <para>
+        /// We required the path to the DLL without the trailing resource 
+        /// identifier.
+        /// </para>
+        /// </remarks>
+        private string ExtractTypeLibPath(string typeLibraryWin32Value) {
+            string regex = "([A-Z]:\\\\[^/:\\*\\?<>\\|]+\\.\\w{2,6})|(\\\\{2}[^/:\\*\\?<>\\|]+\\.\\w{2,6})";
+            Regex reg = new Regex(regex, RegexOptions.IgnorePatternWhitespace 
+                | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            if (reg.IsMatch(typeLibraryWin32Value)) {
+                return reg.Match(typeLibraryWin32Value).Value;
+            } else {
+                return typeLibraryWin32Value;
             }
         }
 
