@@ -318,7 +318,7 @@ namespace Tests.NAnt.Console {
             string buildFileContents = @"<?xml version='1.0' ?>
                 <project name='Test' default='test' basedir='.'>
                     <target name='test'>
-                        <property name='project.name' value='Foo.Bar'/>
+                        <property name='project.name' value='Foo.Bar' overwrite='false' />
                         <echo message='project.name = ${project.name}'/>
                     </target>
                 </project>";
