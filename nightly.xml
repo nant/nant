@@ -194,7 +194,7 @@
     <!-- copies NAnt to install dir -->
     <target name="install" depends="set-net-1.0-runtime-configuration, package">
         <!-- ensure install directory was specified -->
-        <if test="${not(nant::property-exists('install.dir'))}">
+        <if test="${not(property::exists('install.dir'))}">
             <fail>Please specify the directory to where NAnt should be installed on the commandline.</fail>
         </if>
         <!-- ensure the install directory exists -->
