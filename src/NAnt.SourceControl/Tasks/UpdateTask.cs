@@ -194,7 +194,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime Date {
             get {return Convert.ToDateTime(((Option)CommandOptions["date"]).Value);}
-            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true);}
+            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
         }
 
         #endregion
