@@ -1,0 +1,7 @@
+build
+obj
+*.dat
+*.sln
+*.suo
+*.user
+*.suo
