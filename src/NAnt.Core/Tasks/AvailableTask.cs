@@ -189,7 +189,7 @@ namespace SourceForge.NAnt.Tasks {
         private bool CheckFramework() {
             bool frameworkAvailable = false;
 
-            if (Project.FrameworkInfoTable.Contains(Resource)) {
+            if (Project.FrameworkInfoDictionary.Contains(Resource)) {
                 frameworkAvailable = true;
             } else {
                 Log.WriteLineIf(Verbose, LogPrefix + "Unable to find " + Type + " " + Resource);

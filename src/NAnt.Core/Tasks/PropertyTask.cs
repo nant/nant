@@ -63,10 +63,9 @@ namespace SourceForge.NAnt.Tasks {
             // Special check for framework setting.
             // TODO design framework for handling special properties
             if (_name == "nant.settings.currentframework"){               
-                if (  Project.FrameworkInfoTable.Contains( _value  )) {
-                    Project.CurrentFramework  = Project.FrameworkInfoTable[_value];
-                }
-                else {
+                if (  Project.FrameworkInfoDictionary.Contains(_value)) {
+                    Project.CurrentFramework  = Project.FrameworkInfoDictionary[_value];
+                } else {
                     throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier.", _value ), Location );
                 }          
             }        

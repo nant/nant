@@ -81,7 +81,7 @@ namespace SourceForge.NAnt {
         XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         
         // info about framework information
-        FrameworkInfoHashTable _frameworkInfoTable = new FrameworkInfoHashTable();
+        FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
         FrameworkInfo _defaultFramework;
         FrameworkInfo _currentFramework;
 
@@ -393,8 +393,8 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Table of framework info - accessilbe by tasks and others
         /// </summary>
-        public FrameworkInfoHashTable FrameworkInfoTable {
-            get { return _frameworkInfoTable; }   
+        public FrameworkInfoDictionary FrameworkInfoDictionary {
+            get { return _frameworkInfoDictionary; }
         }
         
         /// <summary>
@@ -803,7 +803,7 @@ namespace SourceForge.NAnt {
                 } 
                 // just ignore frameworks that don't validate
                 if (info != null ) {
-                    _frameworkInfoTable.Add(info.Name, info);
+                    _frameworkInfoDictionary.Add(info.Name, info);
                 }
             }
         }
@@ -838,7 +838,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         private void ProcessSettings(){
             XmlDocument confdoc = new XmlDocument();
-            _frameworkInfoTable = new FrameworkInfoHashTable();
+            _frameworkInfoDictionary = new FrameworkInfoDictionary();
             
             object testobj = ConfigurationSettings.GetConfig("nantsettings");
             XmlNode node = testobj as XmlNode;
@@ -857,11 +857,11 @@ namespace SourceForge.NAnt {
             ProcessFrameworkInfo(frameworkInfoNodes);
             
             string defaultFramework = GetXmlAttributeValue(node, "defaultframework");
-            if (defaultFramework != null && _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
+            if (defaultFramework != null && _frameworkInfoDictionary.ContainsKey( defaultFramework ) ) {
                 Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );
                 Properties.Add("nant.settings.currentframework", defaultFramework );
                 
-                DefaultFramework = _frameworkInfoTable[defaultFramework];
+                DefaultFramework = _frameworkInfoDictionary[defaultFramework];
                 CurrentFramework = _defaultFramework;
             } else {        
                 Log.WriteLine(String.Format(CultureInfo.InvariantCulture, "Framework {0} does not exist or is not specified in the config. Defaulting to no known framework.", defaultFramework ));
@@ -870,8 +870,8 @@ namespace SourceForge.NAnt {
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             // now load the default property set
             XmlNodeList propertyNodes = node.SelectNodes("properties/property");
-            ProcessGlobalProperties( propertyNodes );
+            ProcessGlobalProperties(propertyNodes);
                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
-        #endregion
+        #endregion Settings file Load routines
     }
 }
