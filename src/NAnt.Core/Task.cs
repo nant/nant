@@ -174,7 +174,7 @@ namespace NAnt.Core {
         /// <see cref="Level.Info" />.
         /// </para>
         /// </remarks>
-        public void Log(Level messageLevel, string message) {
+        public override void Log(Level messageLevel, string message) {
             if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
                 Project.Log(this, Level.Info, message);
             } else {
@@ -204,7 +204,7 @@ namespace NAnt.Core {
         /// <see cref="Level.Info" />.
         /// </para>
         /// </remarks>
-        public void Log(Level messageLevel, string message, params object[] args) {
+        public override void Log(Level messageLevel, string message, params object[] args) {
             string logMessage = string.Format(CultureInfo.InvariantCulture, message, args);
 
             if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
