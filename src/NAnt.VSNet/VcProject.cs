@@ -260,9 +260,12 @@ namespace NAnt.VSNet {
             clTask.ForcedUsingFiles.BaseDirectory = fileConfig.ProjectDir;
 
             // set task properties
-            clTask.OutputDir = Path.Combine(_projectDirectory, baseConfig.IntermediateDir);
+            clTask.OutputDir = new DirectoryInfo(Path.Combine(_projectDirectory, 
+                baseConfig.IntermediateDir));
             clTask.PchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
-            Directory.CreateDirectory(clTask.OutputDir);
+            
+            // ensure output directory exists
+            clTask.OutputDir.Create();
 
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
