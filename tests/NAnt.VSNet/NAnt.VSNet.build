@@ -23,7 +23,8 @@
     </target>
     <target name="test" depends="build">
          <nunit2>
-            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+            <formatter type="Plain" />
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${nant.location}nant.exe.config"/>
          </nunit2>
     </target>
 </project>
