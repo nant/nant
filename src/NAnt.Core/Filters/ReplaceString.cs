@@ -35,31 +35,39 @@ namespace NAnt.Core.Filters {
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This filter replaces all occurrences of a given string in the original input stream with 
-    /// a user-supplied replacement string. By default string comparisons are case
-    /// sensitive but this can be changed by setting the optional <see cref="IgnoreCase"/> attribute to true.
+    /// This filter replaces all occurrences of a given string in the original 
+    /// input stream with a user-supplied replacement string. By default string 
+    /// comparisons are case sensitive but this can be changed by setting the 
+    /// optional <see cref="IgnoreCase"/> attribute to <see langword="true" />.
     /// </para>
     /// <para>
-    /// To use this filter specify the string to be replaced with the <see cref="TargetString"/> attribute and
-    /// the string to replace it with using the <see cref="ReplacementString"/> attribute. Both the target and 
-    /// replacement strings can contain from 1 to n character but may not be empty.
+    /// To use this filter specify the string to be replaced with the 
+    /// <see cref="From"/> attribute and the string to replace it with using the 
+    /// <see cref="To" /> attribute. 
     /// </para>
     /// <para>
-    /// Filters are intended to be used as a element of a <see cref="FilterChain"/>. A FilterChain can 
-    /// be applied to a given task.
+    /// Filters are intended to be used as a element of a <see cref="FilterChain" />.
     /// </para>
     /// </remarks>
     /// <example>
-    ///  <para>Standard Syntax</para>
-    ///  <code>
-    ///  <![CDATA[
-    ///  //Replaces all occurrences of 3.14 with PI
-    ///  <replacestring targetstring="3.14" replacementstring="PI"/>
-    ///  
-    ///  //Replaces string, String, etc with System.String
-    ///  <replacestring targetstring="String" replacementstring="System.String" />
-    ///  ]]>
-    ///  </code>
+    ///   <para>
+    ///   Replace all occurrences of "3.14" with "PI".
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <replacestring from="3.14" to="PI" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Replace all occurrences of "string", "String", etc. with "System.String".
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <replacestring from="String" to="System.String" ignorecase="true" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [ElementName("replacestring")] 
     public class ReplaceString : Filter {
@@ -70,14 +78,14 @@ namespace NAnt.Core.Filters {
         delegate int AcquireCharDelegate();
 
         #region Private Instance Fields
-        
-        private string    _targetString;
-        private string    _replacementString;
-        private string    _outputBuffer;
-        private bool    _endStreamAfterBuffer;
-        private int        _bufferPosition = 0;
-        private bool    _stringNotFound = true;
-        private bool    _ignoreCase = false;
+
+        private string _from;
+        private string _to = string.Empty;
+        private string _outputBuffer;
+        private bool _endStreamAfterBuffer;
+        private int _bufferPosition = 0;
+        private bool _stringNotFound = true;
+        private bool _ignoreCase;
 
         //Methods used for Read and Peek
         private AcquireCharDelegate ReadChar = null;
@@ -89,28 +97,28 @@ namespace NAnt.Core.Filters {
         #region Public Instance Properties
 
         /// <summary>
-        /// String to replace with the value specified by <see cref="ReplacementString"/>.
+        /// The string that must be replaced.
         /// </summary>
-        [TaskAttribute("targetstring", Required=true)]
+        [TaskAttribute("from", Required=true)]
         [StringValidator(AllowEmpty=false)]
-        public string TargetString {
-            get { return _targetString; }
-            set { _targetString = value; }
+        public string From {
+            get { return _from; }
+            set { _from = value; }
         }
 
         /// <summary>
-        /// String the replaces all instances of the string specified by <see cref="TargetString"/>.
+        /// The new value for the replaced string.
         /// </summary>
-        [TaskAttribute("replacementstring", Required=true)]
+        [TaskAttribute("to", Required=false)]
         [StringValidator(AllowEmpty=false)]
-        public string ReplacementString {
-            get { return _replacementString; }
-            set { _replacementString = value; }
+        public string To {
+            get { return _to; }
+            set { _to = value; }
         }
 
         /// <summary>
-        /// Determines if case will be ignored
-        /// The default is <see langword="false"/>.
+        /// Determines if case will be ignored.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("ignorecase", Required=false)]
         [BooleanValidator()]
@@ -118,6 +126,7 @@ namespace NAnt.Core.Filters {
             get { return _ignoreCase; }
             set { _ignoreCase = value; }
         }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ChainableReader
@@ -158,20 +167,6 @@ namespace NAnt.Core.Filters {
 
         #endregion Override implementation of ChainableReader
 
-        #region Override implementation of Element
-
-        /// <summary>
-        /// Initialize the filter by setting its parameters.
-        /// </summary>
-        protected override void InitializeElement(XmlNode elementNode) {
-
-            if (this._targetString.Length == 0) {
-                throw new BuildException("The target string can not be empty.", Location);
-            }
-        }
-
-        #endregion Override implementation of Element
-
         #region Private Instance Methods
 
         /// <summary>
@@ -198,7 +193,7 @@ namespace NAnt.Core.Filters {
             nonMatchingChars = "";
 
             //create a new buffer
-            StringBuilder buffer = new StringBuilder(_targetString.Length, _targetString.Length);
+            StringBuilder buffer = new StringBuilder(_from.Length, _from.Length);
 
             //Add first char that initiate the FindString
             buffer.Append((char)startChar);
@@ -207,7 +202,7 @@ namespace NAnt.Core.Filters {
             //Store the characters in the output buffer until we know 
             //we have found the string.
             int streamChar;
-            for (int pos = 1 ; pos < _targetString.Length ; pos++) {
+            for (int pos = 1 ; pos < _from.Length ; pos++) {
                 //Read a character
                 streamChar = base.Read();
 
@@ -217,7 +212,7 @@ namespace NAnt.Core.Filters {
                 }
 
                 //Is it the correct character?
-                if (CompareCharacters(streamChar, _targetString[pos]) == false) {
+                if (CompareCharacters(streamChar, _from[pos]) == false) {
                     //Check for end of stream
                     if (streamChar == -1) {
                         streamEnded = true;
@@ -248,7 +243,7 @@ namespace NAnt.Core.Filters {
             if (_outputBuffer == null) {
                 ch = base.Read();
             } else {
-                //Characters left in the buffer?
+                // characters left in the buffer?
                 if (_bufferPosition < _outputBuffer.Length) {
 
                     //If this is the last character of a buffer that was not the replacemant string
@@ -277,18 +272,18 @@ namespace NAnt.Core.Filters {
                 }
             }
 
-            //If the character matches the first character of the target string then search
-            //for the string.
-            if (CompareCharacters(ch, _targetString[0])) {
-
-                //Search for the target string
+            // if the character matches the first character of the target string then search
+            // for the string.
+            if (CompareCharacters(ch, _from[0])) {
+                // search for the target string
                 if (FindString(ch, out _endStreamAfterBuffer, out _outputBuffer) == true) {
                     //Target was found
 
                     _stringNotFound = false;
-                    _outputBuffer = _replacementString;
+                    _outputBuffer = _to;
                     _bufferPosition = 1;
-                    return _replacementString[0];
+
+                    return _to[0];
                 } else {
                     //Target not found
 
