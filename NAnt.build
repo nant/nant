@@ -338,7 +338,7 @@
                         <property name="DocumentProtected" value="True" />
                         <property name="DocumentEmptyNamespaces" value="False" />
                         <property name="IncludeAssemblyVersion" value="False" />
-                        <property name="CopyrightText" value="Copyright (C) 2001-2003 Gerry Shaw" />
+                        <property name="CopyrightText" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
                         <property name="CopyrightHref" value="http://nant.sourceforge.net" />
                         <property name="EditorBrowsableFilter" value="Off" />
                     </documenter>
