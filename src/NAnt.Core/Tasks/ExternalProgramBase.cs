@@ -43,7 +43,7 @@ namespace NAnt.Core.Tasks {
         private ArgumentCollection _arguments = new ArgumentCollection();
         private bool _useRuntimeEngine = false;
         private string _exeName = null;
-#if (mono)
+#if (MONO)
         // TO-DO : remove this when issue has been fixed in Mono
         // Mono does not (always) wait for process to exit when large timeout is
         // specified (bug #45302)

@@ -187,7 +187,7 @@ namespace NAnt.Core {
                 (platformID == PlatformID.Win32Windows) ) {
 
                 //We're on some version of Windows, so the PInvoke is OK. Unless we're on mono in which case assume false
-#if (!mono)
+#if (!MONO)
                 // Declare Receiving Variables
                 StringBuilder VolLabel = new StringBuilder(256);    // Label
                 UInt32 VolFlags = new UInt32();
@@ -214,7 +214,7 @@ namespace NAnt.Core {
 
         #region Private Static Methods
 
-#if (!mono)
+#if (!MONO)
         [DllImport("kernel32.dll")]
         private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
 #endif
