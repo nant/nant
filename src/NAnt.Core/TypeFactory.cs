@@ -152,7 +152,7 @@ namespace NAnt.Core {
                         // it doesn't reference an older version of NAnt.Core
                         if (assemblyName.Version != coreAssemblyName.Version) {
                             task.Log(Level.Warning, "Assembly \"{0}\" is built"
-                                + "using version {1} of the NAnt. If any problems"
+                                + " using version {1} of NAnt. If any problems"
                                 + " arise, then try using a version that is built"
                                 + " for NAnt version {2}.", assembly.GetName().Name, 
                                 assemblyName.Version, coreAssemblyName.Version);
