@@ -139,7 +139,7 @@ namespace SourceForge.NAnt.Tests {
             // fail if constructor is public
             Assertion.Assert(t.Name + description + " is public, must be private.", !ci.IsPublic);
             // fail if constructor is protected
-            Assertion.Assert(t.Name + description + " is internal, must be public.", !ci.IsFamily);
+            Assertion.Assert(t.Name + description + " is protected, must be private.", !ci.IsFamily);
             // fail if constructor is internal
             Assertion.Assert(t.Name + description + " is internal, must be private.", !ci.IsAssembly);
             // fail if constructor is protected internal
