@@ -1,0 +1,87 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="en-ca">
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<title>NAnt Change Log</title>
+</head>
+
+<body>
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+		<tr><td class="NavBar-Cell" width="100%"><a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->"/> Change Log</td></tr>
+	</table>
+
+	<h1><span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
+
+	<h3>0.1.6 In Progress</h3>
+	<ul>
+		<li>converted change log to html and added link from main page</li>
+		<li>made src a parent folder to be able to hold multiple assemblies in anticipation of the NAnt.Tests.dll assembly</li>
+	</ul>
+	<h4>Not Completed</h4>
+	<ul>
+		<li>stuff</li>
+	</ul>
+
+	<h3>0.1.5 July 22, 2001</h3>
+	<ul>
+		<li>only compiles program if source file last write time > output last write time</li>
+		<li>refactored compiler code into common CompilerBase class</li>
+		<li>refactored compiler and exec task into common ExternalProgramBase class</li>
+		<li>added &lt;arg value="/win32res:filename"/&gt; element to all external program tasks</li>
+		<li>added Int32ValidatorAttribute and BooleanValidatorAttribute classes to perform error checking on task attributes after macro expansion but before task execution.  Search for BooleanValidator or Int32Validator in Tasks for examples.</li>
+		<li>changed Task attribute names to TaskAttributeAttribute and FileSetAttribute</li>
+		<li>removed default value for task attributes (set with initial value)</li>
+		<li>changes to Project class on how to initialize a project and run it</li>
+		<li>right aligned task prefixes to clean up output</li>
+		<li>added or enhanced these tasks
+			<ul>
+				<li>vbc, jsc, csc</li>
+				<li>move</li>
+				<li>nant</li>
+				<li>taskdef</li>
+				<li>tstamp</li>
+				<li>exec (failonerror attribute)</li>
+			</ul>
+		</li>
+	</ul>
+
+	<h3>0.1.4 July 19, 2001</h3>
+	<ul>
+		<li>added or enhanced these tasks
+			<ul>
+				<li>echo</li>
+				<li>fail</li>
+				<li>property</li>
+				<li>copy (respects basedir)</li>
+				<li>delete (respects basedir)</li>
+				<li>mkdir (respects basedir)</li>
+				<li>exec</li>
+			</ul>
+		</li>
+	</ul>
+
+	<h3>0.1.3 July 18, 2001</h3>
+	<ul>
+		<li>dependices working via depends attribute on targets</li>
+		<li>changed name from NBuild to NAnt</li>
+		<li>using the name "Parameter" to refer to the xml attributes in tasks because it was conflicting badly with .NET Attributes</li>
+		<li>added FileSetParameterAttribute so that fileset parameters would autoinit</li>
+		<li>renamed TaskAttributeAttribute to StringParameterAttribute</li>
+		<li>broke into seperate source files (one per class)</li>
+		<li>changed default build file from Project.xml to the first file with a .build extension</li>
+	</ul>
+
+	<h3>0.1.2 July 16, 2001</h3>
+	<ul>
+		<li>basic functionality to have NAnt build itself (csc task)</li>
+	</ul>
+
+	<h3>0.1.1 July 5, 2001</h3>
+	<ul>
+		<li>initial test version</li>
+	</ul>
+</body>
+
+</html>
