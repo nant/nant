@@ -135,6 +135,7 @@ namespace NDoc.Documenter.NAnt {
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "enums"));
             } catch (Exception ex) {
                 throw new DocumenterException("The output directories could not" 
                     + " be created.", ex);
@@ -170,7 +171,6 @@ namespace NDoc.Documenter.NAnt {
                 // build the file mapping
                 buildStepProgress += 15;
                 OnDocBuildingStep(buildStepProgress, "Building mapping...");
-                //MakeFilenames(_xmlDocumentation);
 
                 // create arguments for nant index page transform
                 XsltArgumentList indexArguments = new XsltArgumentList();
@@ -237,31 +237,24 @@ namespace NDoc.Documenter.NAnt {
         #endregion Override implementation of IDocumenter
 
         #region Private Instance Methods
-        
+
         private void DocumentType(XmlNode typeNode, ElementDocType docType) {
             if (typeNode == null) {
                 throw new ArgumentNullException("typeNode");
             }
 
-            // do not document tasks that are deprecated and have the IsError 
-            // property of ObsoleteAttribute set to "true"
-            XmlNode obsoleteErrorNode = typeNode.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
-            if (obsoleteErrorNode != null) {
-                if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
-                    return;
-                }
-            }
-            
             string classID = typeNode.Attributes["id"].Value;
             string filename = NAntXsltUtilities.GetFileNameForType(typeNode);
+            if (filename == null) {
+                // we don't have to document this type
+                return;
+            }
+
             if (_writtenFiles.ContainsValue(classID)) {
                 return;
             } else {
                 _writtenFiles.Add(filename, classID);
             }
-
-            //Console.WriteLine(classID + " --> " + filename);
-
 
             // create arguments for nant task page transform (valid args are class-id, refType, imagePath, relPathAdjust)
             XsltArgumentList arguments = new XsltArgumentList();
@@ -278,6 +271,9 @@ namespace NDoc.Documenter.NAnt {
                 case ElementDocType.Task:
                     refTypeString = "Task";
                     break;
+                case ElementDocType.Enum:
+                    refTypeString = "Enum";
+                    break;
                 default:
                     refTypeString = "Other?";
                     break;
@@ -291,10 +287,6 @@ namespace NDoc.Documenter.NAnt {
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
-
-            // generate filename for page
-            //Console.Write(classID);
-            //Console.WriteLine(" filename is " + filename);
 
             // Process all sub-elements and generate docs for them. :)
             // Just look for properties with attributes to narrow down the foreach loop. 
@@ -338,12 +330,18 @@ namespace NDoc.Documenter.NAnt {
                         }
                     }
 
-                    //ElementDocType type = _elementNames[elementType] == null ? ElementDocType.DataTypeElement : ElementDocType.Element;
                     XmlNode elementNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
                     if (elementNode == null) {
                         //Console.WriteLine(elementType + " not found in document");
                     } else {
                         DocumentType(elementNode, ElementDocType.Element);
+                    }
+
+                    XmlNode enumNode = _xmlDocumentation.SelectSingleNode("//enumeration[@id='" + elementType + "']");
+                    if (enumNode == null) {
+                        //Console.WriteLine(elementType + " not found in document");
+                    } else {
+                        DocumentType(enumNode, ElementDocType.Enum);
                     }
                 }
             }
@@ -351,19 +349,12 @@ namespace NDoc.Documenter.NAnt {
             // create the page
             TransformAndWriteResult(_xsltTypeDoc, arguments, filename);
         }
+
         private void DocumentFunction(XmlElement functionElement) {
             if (functionElement == null) {
                 throw new ArgumentNullException("functionElement");
             }
 
-            // do not document methods that are deprecated and have the IsError 
-            // property of ObsoleteAttribute set to "true"
-            XmlNode obsoleteErrorNode = functionElement.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
-            if (obsoleteErrorNode != null) {
-                if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
-                    return;
-                }
-            }
             string methodID = functionElement.GetAttribute("id");
             string filename = NAntXsltUtilities.GetFileNameForFunction(functionElement);
 
@@ -383,6 +374,7 @@ namespace NDoc.Documenter.NAnt {
             // create the page
             TransformAndWriteResult(_xsltFunctionDoc, arguments, filename);
         }
+
         private void MakeTransforms() {
             OnDocBuildingProgress(0);
 
@@ -403,7 +395,6 @@ namespace NDoc.Documenter.NAnt {
             MakeTransform(_xsltFunctionDoc, "function-doc.xslt");
             OnDocBuildingProgress(100);
         }
-
 
         private void MakeTransform(XslTransform transform, string fileName) {
             transform.Load(Path.Combine(Path.Combine(_resourceDirectory, "xslt"), 
@@ -428,13 +419,15 @@ namespace NDoc.Documenter.NAnt {
                 transform.Transform(_xmlDocumentation, arguments, writer);
             }
         }
-        #endregion
+
+        #endregion Private Instance Methods
     }
 
     public enum ElementDocType {
         Task,
         DataTypeElement,
         Element,
-        Inline
+        Inline,
+        Enum
     }
 }
