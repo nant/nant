@@ -24,12 +24,6 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 
-using ICSharpCode.SharpCvsLib.Client;
-using ICSharpCode.SharpCvsLib.Commands;
-using ICSharpCode.SharpCvsLib.Messages;
-using ICSharpCode.SharpCvsLib.Misc;
-using ICSharpCode.SharpCvsLib.FileSystem;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
