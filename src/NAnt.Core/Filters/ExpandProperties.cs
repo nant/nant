@@ -41,7 +41,7 @@ namespace NAnt.Core.Filters {
     ///   <para>Replace all properties with their corresponding values.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <expandexpressions />
+    /// <expandproperties />
     ///     ]]>
     ///   </code>
     /// </example>
