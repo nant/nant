@@ -57,7 +57,7 @@ namespace SourceForge.NAnt {
         #region Private Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildException" /> class 
+        /// Initializes a new instance of the <see cref="CommandLineArgumentException" /> class 
         /// with serialized data.
         /// </summary>
         /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
