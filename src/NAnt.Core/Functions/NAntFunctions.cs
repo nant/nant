@@ -97,11 +97,12 @@ namespace NAnt.Core.Functions {
         /// Gets the name of the current project.
         /// </summary>
         /// <returns>
-        /// The name of the current project.
+        /// The name of the current project, or an empty <see cref="string" />
+        /// if no name is specified in the build file.
         /// </returns>
         [Function("get-name")]
         public string GetName() {
-            return Project.ProjectName;
+            return StringUtils.ConvertNullToEmpty(Project.ProjectName);
         }
 
         /// <summary>
@@ -128,8 +129,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-buildfile-path")]
         public string GetBuildFilePath() {
-            string buildFile = Project.BuildFileLocalName;
-            return (buildFile != null) ? buildFile : string.Empty;
+            return StringUtils.ConvertNullToEmpty(Project.BuildFileLocalName);
         }
 
         /// <summary>
