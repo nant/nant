@@ -73,7 +73,7 @@ namespace NAnt.DotNet.Tasks {
             get { return _doc; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
-                    _doc = value;
+                    _doc = Project.GetFullPath(value);
                 } else {
                     _doc = null;
                 }
@@ -235,6 +235,8 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
+            // causes the compiler to specify the full path of the file in which 
+            // an error was found
             WriteOption(writer, "fullpaths");
 
             if (Doc != null) {
