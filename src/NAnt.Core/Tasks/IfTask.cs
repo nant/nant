@@ -42,7 +42,8 @@ namespace NAnt.Core.Tasks {
     ///   <if targetexists="myTarget">
     ///     <echo message="myTarget exists."/>
     ///   </if>
-    ///   ]]></code>
+    ///   ]]>
+    ///   </code>
     /// </example>
     /// <example>
     ///   <para>Check existence of a property</para>
@@ -51,15 +52,16 @@ namespace NAnt.Core.Tasks {
     ///   <if propertyexists="myProp">
     ///     <echo message="myProp Exists. Value='${myProp}'"/>
     ///   </if>
-    ///   ]]></code>
-    ///   
+    ///   ]]>
+    ///   </code>
     ///   <para>Check that a property value is true</para>
     ///   <code>
     ///   <![CDATA[
     ///   <if propertytrue="myProp">
     ///     <echo message="myProp is true. Value='${myProp}'"/>
     ///   </if>
-    ///   ]]></code>
+    ///   ]]>
+    ///   </code>
     /// </example>
     /// <example>
     ///   <para>Check that a property exists and is true (uses multiple conditions)</para>
@@ -68,7 +70,8 @@ namespace NAnt.Core.Tasks {
     ///   <if propertyexists="myProp" propertytrue="myProp">
     ///     <echo message="myProp is '${myProp}'"/>    
     ///   </if>
-    ///   ]]></code>
+    ///   ]]>
+    ///   </code>
     ///   <para>which is the same as</para>
     ///   <code>
     ///   <![CDATA[
@@ -77,10 +80,9 @@ namespace NAnt.Core.Tasks {
     ///         <echo message="myProp is '${myProp}'"/>    
     ///     </if>
     ///   </if>
-    ///   ]]></code>
+    ///   ]]>
+    ///   </code>
     /// </example>
-    /// 
-    /// 
     /// <para>
     ///     Note: For dates you probably want to use <ifnot/>. 
     ///     That way you can say, if these files aren't uptodate, then do this. 
@@ -93,8 +95,9 @@ namespace NAnt.Core.Tasks {
     ///   <if uptodatefile="myfile.dll" comparefile="myfile.cs">
     ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
     ///   </if>
-    ///   ]]></code>
-    ///   or
+    ///   ]]>
+    ///   </code>
+    ///   <para>or</para>
     ///   <code>
     ///   <![CDATA[
     ///   <if uptodatefile="myfile.dll">
@@ -103,7 +106,8 @@ namespace NAnt.Core.Tasks {
     ///     </comparefiles>
     ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
     ///   </if>
-    ///   ]]></code>
+    ///   ]]>
+    ///   </code>
     /// </example>
     [TaskName("if")]
     public class IfTask : TaskContainer {
@@ -112,7 +116,7 @@ namespace NAnt.Core.Tasks {
         private string _propNameTrue = null;
         private string _propNameExists = null;
         private string _targetName = null;
-        private string _uptodateFile = null;
+        private string _primaryFile = null;
         private FileSet _compareFiles = null;
 
         #endregion Private Instance Fields
@@ -120,12 +124,12 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The file to compare if uptodate
+        /// The file to compare if uptodate.
         /// </summary>
         [TaskAttribute("uptodatefile")]
         public string PrimaryFile {
-            get { return _uptodateFile; }
-            set {_uptodateFile = Project.GetFullPath(value);}
+            get { return (_primaryFile != null) ? Project.GetFullPath(_primaryFile) : null; }
+            set { _primaryFile = SetStringValue(value); }
         }
 
         /// <summary>
@@ -156,7 +160,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("propertytrue")]
         public string PropertyNameTrue {
             get { return _propNameTrue; }
-            set { _propNameTrue = value; }
+            set { _propNameTrue = SetStringValue(value); }
         }
 
         /// <summary>
@@ -165,7 +169,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("propertyexists")]
         public string PropertyNameExists {
             get { return _propNameExists;}
-            set { _propNameExists = value; }
+            set { _propNameExists = SetStringValue(value); }
         }
 
         /// <summary>
@@ -174,7 +178,7 @@ namespace NAnt.Core.Tasks {
        [TaskAttribute("targetexists")]
         public string TargetNameExists {
             get { return _targetName; }
-            set { _targetName = value; }
+            set { _targetName = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
@@ -185,44 +189,51 @@ namespace NAnt.Core.Tasks {
             get {
                 bool ret = true;
 
-                //check for target
-                if(_targetName != null) {
-                    ret = ret && (Project.Targets.Find(_targetName) != null);
-                    if (!ret) return false;
+                // check if target exists
+                if (TargetNameExists != null) {
+                    ret = ret && (Project.Targets.Find(TargetNameExists) != null);
+                    if (!ret) {
+                        return false;
+                    }
                 }
 
-                //Check for Property existence
-                if(_propNameExists != null) {
-                    ret = ret && (Properties[_propNameExists] != null);
-                    if (!ret) return false;
+                // check if property exists
+                if (PropertyNameExists != null) {
+                    ret = ret && Properties.Contains(PropertyNameExists);
+                    if (!ret) {
+                        return false;
+                    }
                 }
 
-                //Check for the Property value of true.
-                if(_propNameTrue != null) {
+                // check if value of property is boolean true
+                if (PropertyNameTrue != null) {
                     try {
-                        ret = ret && bool.Parse(Properties[_propNameTrue]);
-                        if (!ret) return false;
-                    }
-                    catch (Exception e) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Property True test failed for '{0}'", _propNameTrue), Location, e);
+                        ret = ret && bool.Parse(Properties[PropertyNameTrue]);
+                        if (!ret) {
+                            return false;
+                        }
+                    } catch (Exception ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "PropertyTrue test failed for '{0}'.", PropertyNameTrue), Location, ex);
                     }
                 }
 
-                //check for uptodate file
-                if(_uptodateFile != null) {
-                    FileInfo primaryFile = new FileInfo(_uptodateFile);
-                    if(primaryFile == null) {
+                // check if file is up-to-date
+                if (PrimaryFile != null) {
+                    FileInfo primaryFile = new FileInfo(PrimaryFile);
+                    if (!primaryFile.Exists) {
                         ret = false;
-                    }
-                    else {
+                    } else {
                         string newerFile = FileSet.FindMoreRecentLastWriteTime(_compareFiles.FileNames, primaryFile.LastWriteTime);
-                        bool bNeedsAnUpdate = !(null == newerFile);
-                        if (bNeedsAnUpdate) {
-                            Log(Level.Verbose, "{2}:{0} is newer than {1}. Executing Embedded Tasks.", newerFile, primaryFile.Name, LogPrefix);
+                        bool needsAnUpdate = (newerFile != null);
+                        if (needsAnUpdate) {
+                            Log(Level.Verbose, LogPrefix + "{0} is newer than {1}.", newerFile, primaryFile.Name);
                         }
-                        ret = ret && bNeedsAnUpdate;
+                        ret = ret && !needsAnUpdate;
                     }
-                    if (!ret) return false;
+                    if (!ret) {
+                        return false;
+                    }
                 }
 
                 return ret;
@@ -234,7 +245,7 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of TaskContainer
 
         protected override void ExecuteTask() {
-            if(ConditionsTrue) {
+            if (ConditionsTrue) {
                 base.ExecuteTask();
             }
         }
@@ -252,8 +263,8 @@ namespace NAnt.Core.Tasks {
     ///   <ifnot propertyexists="myProp">
     ///     <echo message="myProp does not exist."/>
     ///   </if>
-    ///   ]]></code>
-    ///   
+    ///   ]]>
+    ///   </code>
     ///   <para>Checks that a property value is not true</para>
     ///   <code>
     ///   <![CDATA[
@@ -262,7 +273,6 @@ namespace NAnt.Core.Tasks {
     ///   </if>
     ///   ]]></code>
     /// </example>
-    ///
     /// <example>
     ///   <para>Checks that a target does not exist</para>
     ///   <code>
@@ -270,7 +280,8 @@ namespace NAnt.Core.Tasks {
     ///   <ifnot targetexists="myTarget">
     ///     <echo message="myTarget does not exist."/>
     ///   </if>
-    ///   ]]></code>
+    ///   ]]>
+    ///   </code>
     /// </example>
     [TaskName("ifnot")]
     public class IfNotTask : IfTask {

@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Scott Hernandez (ScottHernandez@hotmail.com)
+// Copyright (C) 2002-2003 Scott Hernandez (ScottHernandez@hotmail.com)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
@@ -27,7 +27,6 @@ using System.Globalization;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
-
     [TestFixture]
     public class IfTest : BuildTestBase {
         string _newFile = null;
@@ -45,11 +44,11 @@ namespace Tests.NAnt.Core.Tasks {
             string _xml = @"
                     <project>
                         <if uptodatefile='{1}' comparefile='{0}'>
-                            <echo message='{1} is newer than {0}'/>
+                            <echo message='{1} is same/newer than {0}'/>
                         </if>
                     </project>";
-            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
-            Assertion.Assert(result.IndexOf("is newer than") == -1);
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
+            Assertion.Assert(result.IndexOf("is same/newer than") != -1);
         }
         
         [Test]
@@ -57,11 +56,11 @@ namespace Tests.NAnt.Core.Tasks {
             string _xml = @"
                     <project>
                         <ifnot uptodatefile='{1}' comparefile='{0}'>
-                            <echo message='{1} is newer than {0}'/>
+                            <echo message='{1} is not same/newer than {0}'/>
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _oldFile, _newFile));
-            Assertion.Assert(result.IndexOf("is newer than") != -1);
+            Assertion.Assert(result.IndexOf("is not same/newer than") == -1);
         }
 
         [Test]
@@ -72,11 +71,11 @@ namespace Tests.NAnt.Core.Tasks {
                             <comparefiles>
                                 <includes name='{1}'/>
                             </comparefiles>
-                            <echo message='{1} is newer than {0}'/>
+                            <echo message='{0} is same/newer than {1}'/>
                         </if>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
-            Assertion.Assert(result.IndexOf("is newer than") == -1);
+            Assertion.Assert(result.IndexOf("is same/newer than") != -1);
         }
 
         [Test]
@@ -87,11 +86,11 @@ namespace Tests.NAnt.Core.Tasks {
                             <comparefiles>
                                 <includes name='{1}'/>
                             </comparefiles>
-                            <echo message='{1} is newer than {0}'/>
+                            <echo message='{0} is not same/newer than {1}'/>
                         </ifnot>
                     </project>";
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _newFile, _oldFile));
-            Assertion.Assert(result.IndexOf("is newer than") != -1);
+            Assertion.Assert(result.IndexOf("is not same/newer than") == -1);
         }
 
         [Test]
