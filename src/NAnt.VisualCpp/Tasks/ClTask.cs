@@ -122,7 +122,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 // write user provided include directories
-                foreach (string include in Includes.FileNames) {
+                foreach (string include in Includes.DirectoryNames) {
                     writer.WriteLine("/I \"{0}\"", include);
                 }
 

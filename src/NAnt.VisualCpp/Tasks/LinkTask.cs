@@ -118,7 +118,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 // write each of the libdirs
-                foreach(string libdir in LibDirs.FileNames) {
+                foreach(string libdir in LibDirs.DirectoryNames) {
                     writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
                 }
 

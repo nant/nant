@@ -40,14 +40,14 @@ namespace SourceForge.NAnt {
     public class FileSet : Element {
 
         // copy constructor 
-        public FileSet( FileSet source)        { 			
-            _defaultExcludes = source._defaultExcludes;		
+        public FileSet( FileSet source)        {            
+            _defaultExcludes = source._defaultExcludes;     
             _location = source._location;
-            _parent = source._parent;			
-            _project = source._project;			
+            _parent = source._parent;           
+            _project = source._project;         
             if ( _xmlNode != null )
                 _xmlNode = source._xmlNode.Clone();
-        }		
+        }       
         
         /// <summary>Determines if a file has a more recent last write time than the given time.</summary>
         /// <param name="fileNames">A collection of filenames to check last write times against.</param>
@@ -74,7 +74,7 @@ namespace SourceForge.NAnt {
         bool _failOnEmpty = false;
         DirectoryScanner _scanner = new DirectoryScanner();
         StringCollection _asis = new StringCollection();
-        PathScanner _pathFiles = new PathScanner();		
+        PathScanner _pathFiles = new PathScanner();     
 
         public FileSet() {
         }
@@ -131,13 +131,26 @@ namespace SourceForge.NAnt {
             }
         }
 
+        /// <summary>The collection of directory names that match the file set.</summary>
+        public StringCollection DirectoryNames {
+            get { 
+                if (!_hasScanned) {
+                    Scan();
+                }
+                return _scanner.DirectoryNames;
+            }
+        }
+
         public void Scan() {
             try {
                 _scanner.Scan();
 
                 // Add all the as-is patterns to the scanned files.
                 foreach (string name in AsIs) {
-                    _scanner.FileNames.Add(name);
+                    if (Directory.Exists(name))
+                        _scanner.DirectoryNames.Add(name);
+                    else
+                        _scanner.FileNames.Add(name);
                 }
 
                 // Add all the path-searched patterns to the scanned files.
