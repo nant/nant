@@ -131,11 +131,12 @@
             </fileset>
         </copy>
         <!-- copy log4net assembly, workaround for Mono bug #57602 -->
-        <copy file="bin/log4net.dll" todir="${build.dir}/bin" />
+        <copy file="lib/log4net.dll" todir="${build.dir}/bin" />
         <!-- copy third party assemblies -->
         <copy todir="${build.dir}/bin/lib">
-            <fileset basedir="bin/lib">
+            <fileset basedir="lib">
                 <include name="**/*" />
+		<exclude name="log4net.dll" />
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
