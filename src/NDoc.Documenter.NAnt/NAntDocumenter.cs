@@ -147,11 +147,22 @@ namespace NDoc.Documenter.NAnt {
             OnDocBuildingStep(25, "Building mapping...");
             MakeFilenames(_xmlDocumentation);
 
-            // transform nant task index page transform (requires no arguments)
-            TransformAndWriteResult(_xsltTaskIndex, "index.html");
+            // create arguments for nant index page transform
+            XsltArgumentList indexArguments = new XsltArgumentList();
+
+            // add extension object for NAnt utilities
+            NAntXsltUtilities indexUtilities = new NAntXsltUtilities(_fileNames, 
+                _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
+                LinkToSdkDocVersion);
+
+            // add extension object to Xslt arguments
+            indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
+
+            // transform nant task index page transform
+            TransformAndWriteResult(_xsltTaskIndex, indexArguments, "index.html");
             
-            // transform nant type index page transform (requires no arguments)
-            TransformAndWriteResult(_xsltTypeIndex, "type-index.html");
+            // transform nant type index page transform
+            TransformAndWriteResult(_xsltTypeIndex, indexArguments, "type-index.html");
 
             // generate a page for each marked task
             XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
@@ -162,9 +173,11 @@ namespace NDoc.Documenter.NAnt {
                 arguments.AddParam("class-id", String.Empty, classID);
 
                 // add extension object for NAnt utilities
-                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, 
-                                                                    _namespaceNames, _assemblyNames, 
-                                                                    _taskNames, LinkToSdkDocVersion);
+                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, 
+                    _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
+                    LinkToSdkDocVersion);
+
+                // add extension object to Xslt arguments
                 arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
                 // generate filename for page
@@ -178,15 +191,17 @@ namespace NDoc.Documenter.NAnt {
             // generate a page for each marked type
             XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.ElementNameAttribute']");
             foreach (XmlNode node in typeAttrNodes) {
-                // create arguments for nant task page transform
+                // create arguments for nant type page transform
                 XsltArgumentList arguments = new XsltArgumentList();
                 string classID = node.ParentNode.Attributes["id"].Value;
                 arguments.AddParam("class-id", String.Empty, classID);
                 
                 // add extension object for NAnt utilities
-                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, 
-                                                                    _namespaceNames, _assemblyNames, 
-                                                                    _taskNames, LinkToSdkDocVersion);
+                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, 
+                    _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
+                    LinkToSdkDocVersion);
+
+                // add extension object to Xslt arguments
                 arguments.AddExtensionObject("urn:NAntUtil", utilities);
                 
                 // generate filename for page
