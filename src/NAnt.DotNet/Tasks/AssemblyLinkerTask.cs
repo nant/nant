@@ -65,7 +65,7 @@ namespace NAnt.DotNet.Tasks {
         private string _culture = null;
         private string _template = null;
         private string _keyfile = null;
-        private ResourceFileSet _sources = new ResourceFileSet();
+        private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
 
         #endregion Private Instance Fields
 
@@ -154,12 +154,11 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// The set of source files to embed.
+        /// The set of resources to embed.
         /// </summary>
-        [BuildElement("sources")]
-        public ResourceFileSet Sources {
-            get { return _sources; }
-            set {_sources = value; }
+        [BuildElementArray("sources")]
+        public ResourceFileSetCollection EmbeddedResourcesList {
+            get { return _resourcesList; }
         }
 
         #endregion Public Instance Properties
@@ -193,12 +192,6 @@ namespace NAnt.DotNet.Tasks {
                 StreamWriter writer = new StreamWriter(_responseFileName);
 
                 try {
-                    if (Sources.BaseDirectory == null) {
-                        Sources.BaseDirectory = BaseDirectory;
-                    }
-
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Output);
-
                     // write output target
                     writer.Write(" /target:{0}", OutputTarget);
 
@@ -220,32 +213,43 @@ namespace NAnt.DotNet.Tasks {
                         writer.Write(" /keyfile:\"{0}\"", KeyFile);
                     }
 
-                    foreach (string fileName in Sources.FileNames) {
-                        if (Path.GetExtension(fileName) == ".resources") {
-                            // no need to determine name of resource to embed
-                            writer.Write(" /embed:\"{0}\"", fileName);
-                        } else {
-                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
-                            if (resourceCulture != null) {
-                                // determine resource name
-                                string resourceName = Sources.GetManifestResourceName(fileName);
+                    // field for holding total numbers of resources to embed
+                    int resourceCount = 0;
 
-                                // remove culture name from name of resource
-                                int cultureIndex = resourceName.LastIndexOf("." + resourceCulture.Name);
-                                resourceName = resourceName.Substring(0, cultureIndex) 
-                                    + resourceName.Substring(cultureIndex).Replace("." 
-                                    + resourceCulture.Name, string.Empty);
+                    // write embedded resources to response file
+                    foreach (ResourceFileSet resources in EmbeddedResourcesList) {
+                        // add resources to total number of resources to embed
+                        resourceCount += resources.FileNames.Count;
 
-                                // write option to response file
-                                writer.Write(" /embed:\"{0},{1}\"", fileName, resourceName);
-                            } else {
-                                // write option to response file
+                        foreach (string fileName in resources.FileNames) {
+                            if (Path.GetExtension(fileName) == ".resources") {
+                                // no need to determine name of resource to embed
                                 writer.Write(" /embed:\"{0}\"", fileName);
+                            } else {
+                                CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
+                                if (resourceCulture != null) {
+                                    // determine resource name
+                                    string resourceName = resources.GetManifestResourceName(fileName);
+
+                                    // remove culture name from name of resource
+                                    int cultureIndex = resourceName.LastIndexOf("." + resourceCulture.Name);
+                                    resourceName = resourceName.Substring(0, cultureIndex) 
+                                        + resourceName.Substring(cultureIndex).Replace("." 
+                                        + resourceCulture.Name, string.Empty);
+
+                                    // write option to response file
+                                    writer.Write(" /embed:\"{0},{1}\"", fileName, resourceName);
+                                } else {
+                                    // write option to response file
+                                    writer.Write(" /embed:\"{0}\"", fileName);
+                                }
                             }
                         }
                     }
 
-                    // Make sure to close the response file otherwise contents
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", resourceCount, Output);
+
+                    // make sure to close the response file otherwise contents
                     // Will not be written to disk and ExecuteTask() will fail.
                     writer.Close();
 
@@ -288,10 +292,12 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, outputFileInfo.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
-                return true;
+            foreach (ResourceFileSet resources in EmbeddedResourcesList) {
+                string fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, outputFileInfo.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
+                    return true;
+                }
             }
 
             // if we made it here then we don't have to recompile
