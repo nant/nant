@@ -200,7 +200,7 @@ namespace NAnt.VSNet {
                 return new JSharpProject(solution, projectPath, xmlDefinition, 
                     solutionTask, tfc, gacCache, referencesResolver, outputDir);
             } else if (VcProject.IsSupported(xmlDefinition)) {
-                return new CSharpProject(solution, projectPath, xmlDefinition, 
+                return new VcProject(solution, projectPath, xmlDefinition, 
                     solutionTask, tfc, gacCache, referencesResolver, outputDir);
             }
 
