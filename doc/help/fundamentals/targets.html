@@ -114,10 +114,10 @@
             been set.&nbsp; This allows, for example, better control on the building process
             depending on the state of the system (OS, command-line property defines, etc.).&nbsp;
             To make a target <i>sense</i> this property, you should add the <code>if</code>
-            or <code>unless</code> attribute with the name of the property that the target should
+            or <code>unless</code> attribute with an expression that the target should
             react to. For example:</p>
         <pre class="code">
-    &lt;target name="build-module-A" if="module-A-present" /&gt;
+    &lt;target name="build-module-A" if="${module-A-present}" /&gt;
     &lt;target name="build-own-fake-module-A" unless="${file::exists('fake-module-a.dll')}" /&gt;
         </pre>
         <p>
