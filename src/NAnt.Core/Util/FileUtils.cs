@@ -17,6 +17,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -32,6 +33,8 @@ namespace NAnt.Core.Util {
     public sealed class FileUtils {
         private FileUtils() {
         }
+
+        #region Public Static Methods
 
         /// <summary>
         /// Copies a file filtering its content through the filter chain.
@@ -54,7 +57,7 @@ namespace NAnt.Core.Util {
                 // encoding is specified, we'll use the system's current ANSI
                 // code page
                 Encoding actualInputEncoding = (inputEncoding != null) ? 
-                    inputEncoding : Encoding.Default;
+                inputEncoding : Encoding.Default;
 
                 // get base filter built on the file's reader. Use a 8k buffer.
                 using (StreamReader sourceFileReader = new StreamReader(sourceFileName, actualInputEncoding, true, 8192)) {
@@ -139,5 +142,93 @@ namespace NAnt.Core.Util {
             // return the 
             return new DirectoryInfo(tempFile);
         }
+
+        public static string CombinePaths(string path1, string path2) {
+            if (path1 == null) {
+                throw new ArgumentNullException("path1");
+            }
+            if (path2 == null) {
+                throw new ArgumentNullException("path2");
+            }
+
+            if (PlatformHelper.IsUnix || (path1.Length + path2.Length + 1) <= 260) {
+                return Path.Combine(path1, path2);
+            }
+
+            char separatorChar = Path.DirectorySeparatorChar;
+            char splitChars = new char[] {'/', separatorChar};
+
+            // Now we split the Path by the Path Separator
+            String[] path2Parts = path2.Split(splitChars);
+
+            ArrayList arList = new ArrayList();
+            
+            // for each Item in the path that differs from ".." we just add it to the ArrayList
+            for (int iCount = 0; iCount < path2Parts.Length; iCount++) {
+                // If we get a ".." Try to remove the last item added (as if going up in the Directory Structure)
+                if (path2Parts[iCount] == "..") {
+                    if (arList.Count > 0 && ((string) arList[arList.Count - 1] != "..")) {
+                        arList.RemoveAt(arList.Count -1);
+                    } else {
+                        arList.Add(path2Parts[iCount]);
+                    }
+                } else {
+                    arList.Add(path2Parts[iCount]);
+                }
+            }
+
+            string[] path1Parts = path1.Split(splitChars);
+            int counter = path1Parts.Length;
+
+            // if the second path starts with parts to move up the directory tree, 
+            // then remove corresponding parts in the first path
+            //
+            // eg. path1 = d:\whatever\you\want\to\do 
+            //     path2 = ../../test
+            //     
+            //     ->
+            //
+            //     path1 = d:\whatever\you\want
+            //     path2 = test
+            ArrayList arList2 = (ArrayList) arList.Clone();
+            for (int i = 0; i < arList2.Count; i++) {
+                if ((string) arList2[i] != ".." || counter < 3) {
+                    break;
+                }
+
+                // skip part of current directory
+                counter--;
+
+                arList.RemoveAt(0);
+            }
+
+            string separatorString = separatorChar.ToString(CultureInfo.InvariantCulture);
+
+            return Path.Combine(string.Join(separatorString, path1Parts,
+                0, counter), string.Join(separatorString, (String[]) arList.ToArray(typeof(String))));
+        }
+
+        /// <summary>
+        /// Returns Absolute Path (Fix for 260 Char Limit of Path.GetFullPath(...))
+        /// </summary>
+        /// <param name="path">The file or directory for which to obtain absolute path information.</param>
+        /// <returns>Path Resolved</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null" />.</exception>
+        public static string GetFullPath(string path) {
+            if (path == null) {
+                throw new ArgumentNullException("path");
+            }
+
+            if (PlatformHelper.IsUnix || Path.IsPathRooted(path)) {
+                return Path.GetFullPath(path);
+            }
+
+            string combinedPath = FileUtils.CombinePaths(
+                Directory.GetCurrentDirectory(), path);
+
+            return Path.GetFullPath(combinedPath);
+        }
+
+        #endregion Public Static Methods
     }
 }
