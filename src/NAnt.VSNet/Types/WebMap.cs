@@ -36,10 +36,10 @@ namespace NAnt.VSNet.Types {
         #region Private Instance Fields
 
         private string _url;
-        private string _path;
-        private bool _caseSensitive = false;
+        private FileInfo _path;
+        private bool _caseSensitive;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 
@@ -59,16 +59,17 @@ namespace NAnt.VSNet.Types {
         }
 
         /// <summary>
-        /// Specifies the actual path to the project file, or the path fragment to replace.
+        /// Specifies the actual path to the project file, or the path fragment 
+        /// to replace.
         /// </summary>
         /// <value>
-        /// The actual path to the project file or the path fragment to replace the URL fragment with.
+        /// The actual path to the project file or the path fragment to replace 
+        /// the URL fragment with.
         /// </value>
         [TaskAttribute("path", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Path {
+        public FileInfo Path {
             get { return _path; } 
-            set { _path = StringUtils.ConvertEmptyToNull(value); }
+            set { _path = value; }
         }
 
         /// <summary>
