@@ -51,6 +51,7 @@ namespace NDoc.Documenter.NAnt {
         private const string MsdnOnlineSdkBaseUrl = "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrf";
         private const string MsdnOnlineSdkPageExt = ".asp";
         private const string SystemPrefix = "System.";
+        private const string MicrosoftWin32Prefix = "Microsoft.Win32.";
         
         private static ArrayList Instances = new ArrayList(3);
 
@@ -208,7 +209,7 @@ namespace NDoc.Documenter.NAnt {
             }
 
             // check if the ref is for a system namespaced element or not
-            if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
+            if (cref.Length < 9 || (!cref.Substring(2).StartsWith(SystemPrefix) && !cref.Substring(2).StartsWith(MicrosoftWin32Prefix))) {
                 // not a system one.
                 if (!cref.StartsWith("T:")){
                     return string.Empty;
@@ -261,7 +262,7 @@ namespace NDoc.Documenter.NAnt {
             }
 
             if (cref[1] == ':') {
-                if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
+                if (cref.Length < 9 || (!cref.Substring(2).StartsWith(SystemPrefix) && !cref.Substring(2).StartsWith(MicrosoftWin32Prefix))) {
                     //what name should be found?
                     string name = _elementNames[cref];
                     if (name != null) {
