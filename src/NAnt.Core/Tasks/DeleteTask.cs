@@ -87,7 +87,7 @@ namespace SourceForge.NAnt.Tasks {
                 try {
                     path = Project.GetFullPath(FileName);
                 } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", FileName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", FileName);
                     throw new BuildException(msg, Location, e);
                 }
                 DeleteFile(path, true);
@@ -103,16 +103,16 @@ namespace SourceForge.NAnt.Tasks {
                 }
                 if (!Directory.Exists(path))
                     throw new DirectoryNotFoundException();
-                Log.WriteLine(LogPrefix + "Deleting directory {0}", path);
+                Log.WriteLine( LogPrefix + "Deleting directory {0}.", path);
                 RecursiveDeleteDirectory(path);
             } else {
                 // delete files in fileset
                 if ( DeleteFileSet.DirectoryNames.Count == 0 )
-                    Log.WriteLine(LogPrefix + "Deleting {0} files", DeleteFileSet.FileNames.Count);
+                    Log.WriteLine(LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
                 else if ( DeleteFileSet.FileNames.Count == 0 )
-                    Log.WriteLine(LogPrefix + "Deleting {0} directories", DeleteFileSet.DirectoryNames.Count);
+                    Log.WriteLine(LogPrefix + "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
                 else
-                    Log.WriteLine(LogPrefix + "Deleting {0} files and {1} directories", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
+                    Log.WriteLine(LogPrefix + "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
 
                 foreach (string path in DeleteFileSet.FileNames) {
                     DeleteFile(path, Verbose);
@@ -136,28 +136,30 @@ namespace SourceForge.NAnt.Tasks {
                 foreach (string file in files) {
                     try {
                         File.SetAttributes(file, FileAttributes.Normal);
-                        Log.WriteLineIf(Verbose, LogPrefix + "Deleting file {0}", file);
+                        Log.WriteLineIf(Verbose, LogPrefix + "Deleting file {0}.", file);
                         File.Delete(file);
                     }
                     catch (Exception e) {
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", file);
                         if (FailOnError) {
-                            string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}", file);
                             throw new BuildException(msg, Location, e);
                         }
-                        Log.WriteLineIf(Verbose, LogPrefix + "Error while deleting file {0}", file);
+                        Log.WriteLineIf(Verbose, LogPrefix + msg);
                     }
                 }
 
                 // Finally, delete the directory
                 File.SetAttributes(path, FileAttributes.Normal);
-                Log.WriteLineIf(Verbose, LogPrefix + "Deleting directory {0}", path);
+                Log.WriteLineIf(Verbose, LogPrefix + "Deleting directory {0}.", path);
                 Directory.Delete(path);
+            } catch (BuildException e) {
+                throw e;
             } catch (Exception e) {
+                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}.", path);
                 if (FailOnError) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}", path);
                     throw new BuildException(msg, Location, e);
                 }
-                Log.WriteLineIf(Verbose, LogPrefix + "Error while deleting directory {0}", path);
+                Log.WriteLineIf(Verbose, LogPrefix + msg);
             }
         }
 
@@ -165,7 +167,7 @@ namespace SourceForge.NAnt.Tasks {
             try {
                 FileInfo deleteInfo = new FileInfo( path );
                 if (deleteInfo.Exists)  {
-                    Log.WriteLineIf(verbose, LogPrefix + "Deleting file {0}", path);
+                    Log.WriteLineIf(verbose, LogPrefix + "Deleting file {0}.", path);
                     if ( deleteInfo.Attributes != FileAttributes.Normal ) {
                         File.SetAttributes( deleteInfo.FullName, FileAttributes.Normal );
                     }
@@ -174,10 +176,11 @@ namespace SourceForge.NAnt.Tasks {
                     throw new FileNotFoundException();
                 }
             } catch (Exception e) {
+                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", path);
                 if (FailOnError) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}", path);
                     throw new BuildException(msg, Location, e);
                 }
+                Log.WriteLineIf(Verbose, LogPrefix + msg);
             }
         }
     }
