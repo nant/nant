@@ -606,8 +606,8 @@ namespace NAnt.VSNet {
                     if (includeDir.Length == 0) {
                         continue;
                     }
-                    clTask.IncludeDirs.DirectoryNames.Add(
-                        CleanPath(includeDir));
+                    clTask.IncludeDirs.DirectoryNames.Add(FileUtils.CombinePaths(
+                        fileConfig.ProjectDir.FullName, CleanPath(includeDir)));
                 }
             }
 
