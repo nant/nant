@@ -285,12 +285,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Attributes\Int32ValidatorAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Attributes\ProgramLocationAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Attributes\Int32ValidatorAttribute.cs"
+                    RelPath = "Attributes\StringValidatorAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
