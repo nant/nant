@@ -27,8 +27,9 @@
                 <includes name="log4net.dll"/>
             </references>
             <resources failonempty="true" basedir="Resources" dynamicprefix="true" prefix="XML:">
-				<includes name="**/*.xml"/>
-				<includes name="**/*.build"/>
+		<includes name="**/*.xml"/>
+		<includes name="**/*.build"/>
+		<excludes name="**/mixed*"/>
             </resources>
         </csc>
     </target>
