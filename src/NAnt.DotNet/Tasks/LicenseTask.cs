@@ -196,19 +196,46 @@ namespace NAnt.DotNet.Tasks {
                 // licensed component
                 foreach (string assemblyFileName in licenseTask.Assemblies.FileNames) {
                     try {
-                        // output assembly filename to build log
-                        licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                            + "{0}", assemblyFileName);
+                        // holds a valid idicating whether the assembly should
+                        // be loaded
+                        bool loadAssembly = true;
 
-                        Assembly assembly = null;
+                        // check if there's a valid current framework
+                        if (licenseTask.Project.CurrentFramework != null) {
+                            // get framework assembly directory
+                            DirectoryInfo frameworkAssemblyDir = licenseTask.Project.
+                                CurrentFramework.FrameworkAssemblyDirectory;
 
-                        // do not load the System assembly again
-                        if (Path.GetFileName(assemblyFileName).ToLower() != "system.dll") {
-                            assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                            // get path to reference assembly
+                            DirectoryInfo referenceAssemblyDir = new DirectoryInfo(
+                                Path.GetDirectoryName(assemblyFileName));
+
+                            // check if the assembly is a system assembly for the 
+                            // currently active framework
+                            if (referenceAssemblyDir.FullName == frameworkAssemblyDir.FullName) {
+                                // don't load any assemblies from currently 
+                                // activate framework, as this will eventually
+                                // cause InvalidCastExceptions when 
+                                // LicenseManager.CreateWithContext is called
+                                loadAssembly = false;
+                            }
                         }
 
-                        if (assembly != null) {
-                            assemblies.Add(assembly);
+                        if (loadAssembly) {
+                            Assembly assembly = Assembly.LoadFrom(assemblyFileName, 
+                                AppDomain.CurrentDomain.Evidence);
+
+                            if (assembly != null) {
+                                // output assembly filename to build log
+                                licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
+                                    + "{0} (loaded)", assemblyFileName);
+
+                                assemblies.Add(assembly);
+                            }
+                        } else {
+                            // output assembly filename to build log
+                            licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
+                                + "{0} (skipped)", assemblyFileName);
                         }
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
