@@ -49,7 +49,7 @@ namespace NAnt.Win32.Tasks {
         private FileInfo _outputFile;
         private FileInfo _publicKeyFile;
         private FileInfo _keyFile;
-        private FileInfo _rcw;
+        private FileInfo _rcwFile;
         private string _keyContainer;
         private bool _delaySign;
         private bool _generateSource;
@@ -145,9 +145,9 @@ namespace NAnt.Win32.Tasks {
         /// new one. Only supported on .NET 1.1 or higher.
         /// </summary>
         [TaskAttribute("rcw")]
-        public FileInfo Rcw {
-            get { return _rcw; }
-            set { _rcw = value; }
+        public FileInfo RcwFile {
+            get { return _rcwFile; }
+            set { _rcwFile = value; }
         }
 
         #endregion Public Instance Properties
@@ -170,6 +170,10 @@ namespace NAnt.Win32.Tasks {
         protected override void ExecuteTask() {
             Log(Level.Info, "Generating Windows Forms Control wrapping '{0}'.",
                 OcxFile.FullName);
+
+            if (!NeedsCompiling()) {
+                return;
+            }
 
             if (DelaySign) {
                 Arguments.Add(new Argument("/delaysign"));
@@ -205,9 +209,9 @@ namespace NAnt.Win32.Tasks {
                     "/keycontainer:\"{0}\"", KeyContainer)));
             }
 
-            if (Rcw != null) {
+            if (RcwFile != null) {
                 Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture, 
-                    "/rcw:\"{0}\"", Rcw.FullName)));
+                    "/rcw:\"{0}\"", RcwFile.FullName)));
             }
 
             // suppresses display of the sign-on banner
@@ -225,5 +229,69 @@ namespace NAnt.Win32.Tasks {
         }
 
         #endregion Override implementation of ExternalProgramBase
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Determines whether the assembly needs to be created again.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the assembly needs to be created again; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        protected virtual bool NeedsCompiling() {
+            // return true as soon as we know we need to compile
+
+            if (!OutputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                    OutputFile.FullName);
+                return true;
+            }
+
+            // check if the ocx was changed since the assembly was generated
+            string fileName = FileSet.FindMoreRecentLastWriteTime(OcxFile.FullName, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
+                return true;
+            }
+
+            // check if the public key file was changed since the assembly was 
+            // generated
+            if (PublicKeyFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(PublicKeyFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
+                    return true;
+                }
+            }
+
+            // check if the key file was changed since the assembly was generated
+            if (KeyFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(KeyFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
+                    return true;
+                }
+            }
+
+            // check if the Runtime Callable Wrapper file was changed since the 
+            // assembly was generated
+            if (RcwFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(RcwFile.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
+                    return true;
+                }
+            }
+
+            // if we made it here then we don't have to export the assembly again.
+            return false;
+        }
+
+        #endregion Protected Instance Methods
     }
 }
