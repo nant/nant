@@ -35,6 +35,28 @@ Change Log</td>
 </table>
 
 <h1><span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
+<h3>0.8.3-rc2 July 28, 2003</h3>
+<h4>USER-VISIBLE CHANGES</h4>
+ <ul>
+ <li><dt>Built with .NET 1.0</dt>
+<dd>This release candidate is built with version 1.0 of the .NET Framework.  The binaries
+for RC1 had been built with version 1.1, which had backwards compatibility issues.</dd>
+</li>
+ <li><dt>Fixed defect: temp directory leak in &lt;solution&gt; task</dt>
+<dd>Matthew Mastracci fixed a major temp directory leak.  It was leaking approx. one temp directory per project!  You should clear your Local Settings\Temp directory for 
+the user you use to build your solutions.</dd>
+</li>
+<li><dt>&lt;solution&gt; VB.NET support</dt>
+<dd>The &lt;solution&gt; task now supports VB.NET projects.  This was meant to be part of the RC1 release.</dd>
+</li>
+<li>Matthew Mastracci has also checked in support for reading resources of VB projects and 
+generating the appropriate dependent resource name. 
+</li>
+ <li><dt>Documentation for NAntContrib</dt>
+<dd>This release candidate includes the binaries and documentation for the NAntContrib extensions. Note that the source is still distributed seperately during this release cycle.</dd>
+</li>
+</ul>
+
 <h3>0.8.3-rc1 July 10, 2003</h3>
 <h4>USER-VISIBLE CHANGES</h4>
  <ul>
