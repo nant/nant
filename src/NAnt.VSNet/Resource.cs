@@ -124,6 +124,8 @@ namespace NAnt.VSNet {
                     return GetManifestResourceNameCSharp(configSettings, _dependentFile);
                 case ProjectType.VB:
                     return GetManifestResourceNameVB(configSettings, _dependentFile);
+                case ProjectType.JSharp:
+                    return GetManifestResourceNameJSharp(configSettings, _dependentFile);
                 default:
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                         "Unsupported project type '{0}'.", Project.Type));
@@ -174,6 +176,30 @@ namespace NAnt.VSNet {
             // bug #1042917: use logical location of resource file to determine
             // manifest resource name
             return vbc.GetManifestResourceName(resources, InputFile.FullName,
+                LogicalFile.FullName, dependentFile);
+        }
+
+        private string GetManifestResourceNameJSharp(ConfigurationSettings configSetting, string dependentFile) {
+            // defer to the resource management code in JscTask
+            JscTask jsc = new JscTask();
+            jsc.Project = _solutionTask.Project;
+            jsc.NamespaceManager = _solutionTask.NamespaceManager;
+            jsc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName,
+                Project.ProjectSettings.OutputFileName));
+
+            // set-up resource fileset
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.Project = _solutionTask.Project;
+            resources.NamespaceManager = _solutionTask.NamespaceManager;
+            resources.Parent = jsc;
+            resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(
+                Project.ProjectPath));
+            resources.Prefix = Project.ProjectSettings.RootNamespace;
+            resources.DynamicPrefix = true;
+
+            // bug #1042917: use logical location of resource file to determine
+            // manifest resource name
+            return jsc.GetManifestResourceName(resources, InputFile.FullName,
                 LogicalFile.FullName, dependentFile);
         }
 

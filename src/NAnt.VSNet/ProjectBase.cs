@@ -508,6 +508,11 @@ namespace NAnt.VSNet {
         /// <summary>
         /// A Visual C++ project.
         /// </summary>
-        VisualC = 2
+        VisualC = 2,
+
+        /// <summary>
+        /// A Visual J# project.
+        /// </summary>
+        JSharp = 3
     }
 }

@@ -115,7 +115,8 @@ namespace NAnt.VSNet {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
-            return projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vcproj";
+            return projectExt == ".vbproj" || projectExt == ".csproj" 
+                || projectExt == ".vcproj" || projectExt == ".vjsproj";
         }
 
         public static string LoadGuid(string fileName) {
@@ -131,7 +132,7 @@ namespace NAnt.VSNet {
 
             // check if GUID of project is already cached
             if (!_cachedProjectGuids.Contains(fileName)) {
-                if (projectExt == ".vbproj" || projectExt == ".csproj") {
+                if (projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vjsproj") {
                     // add project GUID to cache
                     _cachedProjectGuids[fileName] = ManagedProjectBase.LoadGuid(fileName);
                 } else if (projectExt == ".vcproj") {
@@ -182,6 +183,10 @@ namespace NAnt.VSNet {
                     return new CSharpProject(solution, projectPath, xmlDefinition, 
                         solutionTask, tfc, gacCache, referencesResolver, 
                         outputDir);
+                case ".vjsproj":
+                    return new JSharpProject(solution, projectPath, xmlDefinition,
+                        solutionTask, tfc, gacCache, referencesResolver,
+                        outputDir);
                 case ".vcproj":
                     return new VcProject(solution, projectPath, xmlDefinition, 
                         solutionTask, tfc, gacCache, referencesResolver, 
@@ -194,6 +199,9 @@ namespace NAnt.VSNet {
                     solutionTask, tfc, gacCache, referencesResolver, outputDir);
             } else if (CSharpProject.IsSupported(xmlDefinition)) {
                 return new CSharpProject(solution, projectPath, xmlDefinition, 
+                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
+            } else if (JSharpProject.IsSupported(xmlDefinition)) {
+                return new JSharpProject(solution, projectPath, xmlDefinition, 
                     solutionTask, tfc, gacCache, referencesResolver, outputDir);
             } else if (VcProject.IsSupported(xmlDefinition)) {
                 return new CSharpProject(solution, projectPath, xmlDefinition, 

@@ -88,6 +88,11 @@ namespace NAnt.VSNet {
                     htStringSettings["NoWarn"] = "/nowarn:{0}";
                     htBooleanSettings["IncrementalBuild"] = "/incremental";
                     break;
+                case ProjectType.JSharp:
+                    htStringSettings["WarningLevel"] = "/warn:{0}";
+                    htStringSettings["NoWarn"] = "/nowarn:{0}";
+                    htBooleanSettings["IncrementalBuild"] = "/incremental";
+                    break;
                 case ProjectType.VB:
                     htStringSettings["DefineDebug"] = "/d:DEBUG={0}";
                     htStringSettings["DefineTrace"] = "/d:TRACE={0}";
