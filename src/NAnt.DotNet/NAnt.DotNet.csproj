@@ -89,7 +89,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "AssemblyLinkerTask.cs"
+                    RelPath = "Tasks\AssemblyLinkerTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -99,57 +99,57 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CompilerBase.cs"
+                    RelPath = "Tasks\CompilerBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CscTask.cs"
+                    RelPath = "Tasks\CscTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "FXCompilerBase.cs"
+                    RelPath = "Tasks\FXCompilerBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "JscTask.cs"
+                    RelPath = "Tasks\JscTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NDocTask.cs"
+                    RelPath = "Tasks\NDocTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ResGenTask.cs"
+                    RelPath = "Tasks\ResGenTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ResourceFileSet.cs"
+                    RelPath = "Types\ResourceFileSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ResourceFileSetCollection.cs"
+                    RelPath = "Types\ResourceFileSetCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "SdkExternalProgramBase.cs"
+                    RelPath = "Tasks\SdkExternalProgramBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "VbcTask.cs"
+                    RelPath = "Tasks\VbcTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "VjcTask.cs"
+                    RelPath = "Tasks\VjcTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
