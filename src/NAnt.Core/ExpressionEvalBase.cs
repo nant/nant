@@ -601,6 +601,8 @@ namespace NAnt.Core {
                         } else {
                             return EvaluateProperty(functionOrPropertyName);
                         }
+                    } else {
+                        return null; // this is needed because of short-circuit evaluation
                     }
                 } catch (Exception e) {
                     if (isFunction) {
