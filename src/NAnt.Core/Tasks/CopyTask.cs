@@ -47,13 +47,13 @@ namespace NAnt.Core.Tasks {
     ///   <see cref="ToDirectory" /> attribute must be set. Files that are 
     ///   located under the base directory of the <see cref="FileSet" /> will
     ///   be copied to a directory under the destination directory matching the
-    ///   path relative to the the base directory of the <see cref="FileSet" />,
+    ///   path relative to the base directory of the <see cref="FileSet" />,
     ///   unless the <see cref="Flatten" /> attribute is set to
     ///   <see langword="true" />.
     ///   </para>
     ///   <para>
     ///   Files that are not located under the the base directory of the
-    ///   <see cref="FileSet" /> will be copied directty under to the destination 
+    ///   <see cref="FileSet" /> will be copied directly under to the destination 
     ///   directory, regardless of the value of the <see cref="Flatten" />
     ///   attribute.
     ///   </para>
