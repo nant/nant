@@ -294,6 +294,39 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Ensure that nested files are in fact flattened, nested directories
+        /// are not created and up-to-date checking compares the flattened files.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Files_Flatten() {
+            string results;
+            string dest = CreateTempDir("a.f");
+            
+            results = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                _xmlProjectTemplate, dest, tempDir1 + "/**/*", "flatten=\"true\""));
+
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile1)), "File should have been created:" + tempFile1);
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile2)), "File should have been created:" + tempFile2);
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile3)), "File should have been created:" + tempFile3);
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile4)), "File should have been created:" + tempFile4);
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile5)), "File should have been created:" + tempFile5);
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile6)), "File should have been created:" + tempFile6);
+            Assert.IsTrue(File.Exists(GetPath(dest, tempFile7)), "File should have been created:" + tempFile7);
+
+            Assert.IsFalse(Directory.Exists(GetPath(dest, tempDir1)), "Dir should not have been created:" + tempDir1);
+
+            // make a file read-only
+            File.SetAttributes(GetPath(dest, tempFile1), FileAttributes.ReadOnly);
+
+            // run build again
+            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", "flatten=\"true\""));
+
+            // if up-to-date check works, build should not have failed and 
+            // read-only file should still be read-only
+            Assert.IsTrue((File.GetAttributes(GetPath(dest, tempFile1)) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly);
+        }
+
+        /// <summary>
         /// Ensure that an invalid path for source file causes a <see cref="BuildException" />
         /// to be thrown.
         /// </summary>
