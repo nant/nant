@@ -61,6 +61,11 @@ namespace NAnt.Win32.Tasks {
             Stop,
 
             /// <summary>
+            /// Restarts a service.
+            /// </summary>
+            Restart,
+
+            /// <summary>
             /// Pauses a running service.
             /// </summary>
             Pause,
@@ -107,12 +112,23 @@ namespace NAnt.Win32.Tasks {
         /// <summary>
         /// The action that should be performed on the service - either 
         /// <see cref="ActionType.Start" />, <see cref="ActionType.Stop" />,
-        /// <see cref="ActionType.Pause" /> or <see cref="ActionType.Continue" />.
+        /// <see cref="ActionType.Restart" />, <see cref="ActionType.Pause" /> 
+        /// or <see cref="ActionType.Continue" />.
         /// </summary>
         [TaskAttribute("action", Required=true)]
         public ActionType Action {
             get { return _action; }
             set { _action = value; }
+        }
+
+        /// <summary>
+        /// The time, in milliseconds, the task will wait for the service to
+        /// reach the desired status. The default is 5000 milliseconds.
+        /// </summary>
+        [TaskAttribute("timeout", Required=false)]
+        public double Timeout {
+            get { return _timeout; }
+            set { _timeout = value; }
         }
 
         #endregion Public Instance Properties
@@ -137,9 +153,9 @@ namespace NAnt.Win32.Tasks {
                 throw new BuildException(ex.Message, Location, ex.InnerException);
             }
 
-            // check if the service status differs from the desired status
-            if (serviceController.Status != desiredStatus) {
-                // perform action on service to reach desired status
+            // we only need to take action if the service status differs from 
+            // the desired status or if the service should be restarted
+            if (serviceController.Status != desiredStatus || Action == ActionType.Restart) {
                 switch (Action) {
                     case ActionType.Start:
                         StartService(serviceController);
@@ -152,6 +168,9 @@ namespace NAnt.Win32.Tasks {
                         break;
                     case ActionType.Stop:
                         StopService(serviceController);
+                        break;
+                    case ActionType.Restart:
+                        RestartService(serviceController);
                         break;
                 }
 
@@ -195,6 +214,10 @@ namespace NAnt.Win32.Tasks {
                 } else {
                     serviceController.Start();
                 }
+
+                // wait until service is running or timeout expired
+                serviceController.WaitForStatus(ServiceControllerStatus.Running, 
+                    TimeSpan.FromMilliseconds(Timeout));
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "Cannot start service {0} on computer '{1}'.", ServiceName,
@@ -216,14 +239,33 @@ namespace NAnt.Win32.Tasks {
                         "Cannot stop service {0} on computer '{1}'.", ServiceName, 
                         MachineName), Location);
                 }
+
+                // wait until service is stopped or timeout expired
+                serviceController.WaitForStatus(ServiceControllerStatus.Stopped, 
+                    TimeSpan.FromMilliseconds(Timeout));
             } catch (BuildException ex) {
                 // rethrow exception
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot stop service {0} on computer '{1}.", ServiceName, 
+                    "Cannot stop service {0} on computer '{1}'.", ServiceName, 
                     MachineName), Location, ex);
             }
+        }
+
+        /// <summary>
+        /// Restarts the service identified by <see cref="ServiceName" /> and
+        /// <see cref="MachineName" />.
+        /// </summary>
+        /// <param name="serviceController"><see cref="ServiceController" /> instance for controlling the service identified by <see cref="ServiceName" /> and <see cref="MachineName" />.</param>
+        private void RestartService(ServiceController serviceController) {
+            // only stop service if its not already stopped
+            if (serviceController.Status != ServiceControllerStatus.Stopped) {
+                StopService(serviceController);
+            }
+
+            // start the service
+            StartService(serviceController);
         }
 
         /// <summary>
@@ -233,21 +275,32 @@ namespace NAnt.Win32.Tasks {
         /// <param name="serviceController"><see cref="ServiceController" /> instance for controlling the service identified by <see cref="ServiceName" /> and <see cref="MachineName" />.</param>
         private void PauseService(ServiceController serviceController) {
             try {
-                if (serviceController.CanPauseAndContinue) {
-                    if (serviceController.Status != ServiceControllerStatus.Running) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot pause service {0} on computer '{1}' as its" +
-                            " not currently started.", ServiceName, MachineName), 
-                            Location);
+                if (serviceController.Status == ServiceControllerStatus.Running) {
+                    if (serviceController.CanPauseAndContinue) {
+                        if (serviceController.Status != ServiceControllerStatus.Running) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Cannot pause service {0} on computer '{1}' as its" +
+                                " not currently started.", ServiceName, MachineName), 
+                                Location);
+                        } else {
+                            serviceController.Pause();
+                        }
                     } else {
-                        serviceController.Pause();
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Cannot pause service {0} on computer '{1}' as it does not" +
+                            " support the pause and continue mechanism.", ServiceName,
+                            MachineName), Location);
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot pause service {0} on computer '{1}' as it does not" +
-                        " support the pause and continue mechanism.", ServiceName,
-                        MachineName), Location);
+                        "Cannot pause service {0} on computer '{1}' as its" +
+                        " not currently started.", ServiceName, MachineName), 
+                        Location);
                 }
+
+                // wait until service is paused or timeout expired
+                serviceController.WaitForStatus(ServiceControllerStatus.Paused, 
+                    TimeSpan.FromMilliseconds(Timeout));
             } catch (BuildException ex) {
                 // rethrow exception
                 throw ex;
@@ -265,29 +318,40 @@ namespace NAnt.Win32.Tasks {
         /// <param name="serviceController"><see cref="ServiceController" /> instance for controlling the service identified by <see cref="ServiceName" /> and <see cref="MachineName" />.</param>
         private void ContinueService(ServiceController serviceController) {
             try {
-                if (serviceController.CanPauseAndContinue) {
-                    if (serviceController.Status == ServiceControllerStatus.Paused) {
-                        serviceController.Continue();
-                    } else if (serviceController.Status != ServiceControllerStatus.Running) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot continue service {0} on computer '{1} as its" +
-                            " not currently started.", ServiceName, MachineName), 
-                            Location);
+                if (serviceController.Status == ServiceControllerStatus.Paused) {
+                    if (serviceController.CanPauseAndContinue) {
+                        if (serviceController.Status == ServiceControllerStatus.Paused) {
+                            serviceController.Continue();
+                        } else if (serviceController.Status != ServiceControllerStatus.Running) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Cannot continue service {0} on computer '{1} as its" +
+                                " not currently started.", ServiceName, MachineName), 
+                                Location);
+                        } else {
+                            // do nothing as service is already running
+                        }
                     } else {
-                        // dot nothing as service is already running
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Cannot continue service {0} on computer '{1} as it does" +
+                            " not support the pause and continue mechanism.", ServiceName, 
+                            MachineName), Location);
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot continue service {0} on computer '{1} as it does" +
-                        " not support the pause and continue mechanism.", ServiceName, 
-                        MachineName), Location);
+                        "Cannot continue service {0} on computer '{1} as its" +
+                        " not currently running or paused.", ServiceName, MachineName), 
+                        Location);
                 }
+
+                // wait until service is running or timeout expired
+                serviceController.WaitForStatus(ServiceControllerStatus.Running, 
+                    TimeSpan.FromMilliseconds(Timeout));
             } catch (BuildException ex) {
                 // rethrow exception
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot continue service {0} on computer '{1}.", ServiceName, 
+                    "Cannot continue service {0} on computer '{1}'.", ServiceName, 
                     MachineName), Location, ex);
             }
         }
@@ -310,6 +374,12 @@ namespace NAnt.Win32.Tasks {
         /// Holds the action that should be performed on the service.
         /// </summary>
         private ActionType _action;
+
+        /// <summary>
+        /// Holds the time, in milliseconds, the task will wait for a service
+        /// to reach the desired status.
+        /// </summary>
+        private double _timeout = 5000;
 
         #endregion Private Instance Fields
     }
