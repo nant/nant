@@ -78,7 +78,7 @@ namespace NAnt.Core.Tasks {
         public string BuildFileName {
             get { 
                 if (_buildFileName != null) {
-                    return _buildFileName;
+                    return Project.GetFullPath(_buildFileName);
                 }
                 return Project.BuildFileLocalName; 
             }
@@ -173,18 +173,21 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
+
+            // store original current directory
             string oldCurrentDirectory = Directory.GetCurrentDirectory();
+
             try {
-                string newDir = Path.GetDirectoryName(Project.GetFullPath(BuildFileName));
-                Directory.SetCurrentDirectory(newDir);
+                // change current directory to directory of the build file that
+                // will be run
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(
+                    Project.GetFullPath(BuildFileName)));
+                // run the given build
                 if (!project.Run()) {
                     throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
                 }
-            } catch (Exception ) {
-                throw; // just re-throw to be handled by the standard exception handlers
-            }
-            finally {
-                // set the current directory back to the original value.
+            } finally {
+                // restore current directory to original value
                 Directory.SetCurrentDirectory(oldCurrentDirectory);
             }
         }
