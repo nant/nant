@@ -69,7 +69,7 @@ namespace NAnt.NUnit2.Types {
         /// <summary>
         /// Assemblies to include in test.
         /// </summary>
-        [FileSet("assemblies")]
+        [BuildElement("assemblies")]
         public FileSet Assemblies {
             get { return _assemblies; }
         }

@@ -49,7 +49,7 @@ namespace NAnt.Core.Attributes {
     ///     set { _warnLevel = value; }
     /// }
     ///
-    /// [FileSet("sources")]
+    /// [BuildElement("sources")]
     /// public FileSet Sources {
     ///     get { return _sources; }
     ///     set { _sources = value; }

@@ -96,7 +96,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// All the files in this fileset will have their file attributes set.
         /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public FileSet AttribFileSet {
             get { return _fileset; }
             set {_fileset = value; }

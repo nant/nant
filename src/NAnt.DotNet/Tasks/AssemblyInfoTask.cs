@@ -140,7 +140,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Assembly files used to locate the types of the specified attributes.
         /// </summary>
-        [FileSet("references")]
+        [BuildElement("references")]
         public FileSet References {
             get { return _references; }
             set { _references = value; }

@@ -190,7 +190,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Reference metadata from the specified assembly files.
         /// </summary>
-        [FileSet("references")]
+        [BuildElement("references")]
         public FileSet References {
             get { return _references; }
             set { _references = value; }
@@ -229,7 +229,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Link the specified modules into this assembly.
         /// </summary>
-        [FileSet("modules")]
+        [BuildElement("modules")]
         public FileSet Modules {
             get { return _modules; }
             set { _modules = value; }
@@ -238,7 +238,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The set of source files for compilation.
         /// </summary>
-        [FileSet("sources")]
+        [BuildElement("sources", Required=true)]
         public FileSet Sources {
             get { return _sources; }
             set { _sources = value; }

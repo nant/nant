@@ -123,7 +123,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.      
         /// </summary>
-        [FileSet("resources")]
+        [BuildElement("resources")]
         public ResourceFileSet Resources {
             get { return _resources; }
             set { _resources = value; }

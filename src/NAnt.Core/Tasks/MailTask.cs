@@ -189,7 +189,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Files that are transmitted as part of the body of the email message.
         /// </summary>
-        [FileSet("files")]
+        [BuildElement("files")]
         public FileSet Files { 
             get { return _files; } 
             set { _files = value; } 
@@ -198,7 +198,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Attachments that are transmitted with the message.
         /// </summary>
-        [FileSet("attachments")]
+        [BuildElement("attachments")]
         public FileSet Attachments { 
             get { return _attachments; } 
             set { _attachments = value; } 

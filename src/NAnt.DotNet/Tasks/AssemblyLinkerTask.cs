@@ -154,7 +154,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The set of source files to embed.
         /// </summary>
-        [FileSet("sources")]
+        [BuildElement("sources")]
         public FileSet Sources {
             get { return _sources; }
             set {_sources = value; }

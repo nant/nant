@@ -111,7 +111,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The set of assemblies to document.
         /// </summary>
-        [FileSet("assemblies")]
+        [BuildElement("assemblies")]
         public FileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
@@ -120,7 +120,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The set of namespace summary files.
         /// </summary>
-        [FileSet("summaries")]
+        [BuildElement("summaries")]
         public FileSet Summaries {
             get { return _summaries; }
             set { _summaries = value; }

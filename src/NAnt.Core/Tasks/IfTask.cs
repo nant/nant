@@ -174,7 +174,7 @@ namespace NAnt.Core.Tasks {
         /// The <see cref="FileSet" /> that contains the comparison files for 
         /// the <see cref="UpToDateFile" />(s) check.
         /// </summary>
-        [FileSet("comparefiles")]
+        [BuildElement("comparefiles")]
         public FileSet CompareFiles {
             get { return _compareFiles; }
             set { _compareFiles = value; }
@@ -184,7 +184,7 @@ namespace NAnt.Core.Tasks {
         /// The <see cref="FileSet" /> that contains the uptodate files for 
         /// the <see cref="CompareFile" />(s) check.
         /// </summary>
-        [FileSet("uptodatefiles")]
+        [BuildElement("uptodatefiles")]
         public FileSet UpToDateFiles {
             get { return _uptodateFiles; }
             set { _uptodateFiles = value; }

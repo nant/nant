@@ -41,7 +41,7 @@ namespace NAnt.Core.Attributes {
     /// // during ExecuteTask you can safely use Convert.ToInt32(_optimize)
     /// string _warnlevel = "0";
     ///
-    /// [FileSet("sources")]
+    /// [BuildElement("sources")]
     /// FileSet _sources = new FileSet();
     /// </code>
     /// NOTE: Attribute values must be of type of string if you want

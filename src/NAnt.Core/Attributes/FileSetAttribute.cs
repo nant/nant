@@ -25,6 +25,7 @@ namespace NAnt.Core.Attributes {
     /// Indicates that a property should be treated as a XML file set for the task.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
+    [Obsolete("Please use a BuildElement attribute instead. This class will be removed soon.", false)]
     public sealed class FileSetAttribute : BuildElementAttribute {
         #region Public Instance Constructors
 

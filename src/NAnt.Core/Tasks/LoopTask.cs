@@ -425,7 +425,7 @@ namespace NAnt.Core.Tasks {
 
         #region Public Instance Properties
 
-        [FileSet("items")]
+        [BuildElement("items")]
         public FileSet Items {
             get { return _items;}
             set { _items = value; }

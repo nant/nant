@@ -80,7 +80,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// The list of files to combine into the output file.
         /// </summary>
-        [FileSet("sources")]
+        [BuildElement("sources")]
         public FileSet Sources {
             get { return _sources; }
             set { _sources = value; }
@@ -89,7 +89,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// The list of additional library directories to search.
         /// </summary>
-        [FileSet("libdirs")]
+        [BuildElement("libdirs")]
         public FileSet LibDirs {
             get { return _libdirs; }
             set { _libdirs = value; }

@@ -97,7 +97,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Names of the references to scan for the licensed component.
         /// </summary>
-        [FileSet("assemblies")]
+        [BuildElement("assemblies")]
         public FileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }

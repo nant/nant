@@ -66,7 +66,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// List of assemblies/executables to sign.
         /// </summary>
-        [FileSet("targets")]
+        [BuildElement("targets")]
         public FileSet Targets {
             get { return _targets; }
             set { _targets = value; }

@@ -94,7 +94,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Used to select files that should be touched.
         /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public FileSet TouchFileSet {
             get { return _fileset; }
             set { _fileset = value; }

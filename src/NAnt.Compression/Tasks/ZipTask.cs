@@ -126,7 +126,7 @@ namespace NAnt.Zip.Tasks {
         /// <summary>
         /// The set of files to be included in the archive.
         /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public FileSet ZipFileSet {
             get { return _fileset; }  
             set { _fileset = value; } 

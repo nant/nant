@@ -163,7 +163,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Specifies a group of input files to which to apply the stylesheet.
         /// </summary>
-        [FileSet("infiles")]
+        [BuildElement("infiles")]
         public FileSet InFiles {
             get { return _inFiles; }
             set { _inFiles = value; }

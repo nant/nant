@@ -110,7 +110,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// The list of files to compile.
         /// </summary>
-        [FileSet("sources")]
+        [BuildElement("sources")]
         public FileSet Sources {
             get { return _sources; }
             set { _sources = value; }
@@ -119,7 +119,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// The list of directories in which to search for include files.
         /// </summary>
-        [FileSet("includedirs")]
+        [BuildElement("includedirs")]
         public FileSet IncludeDirs {
             get { return _includeDirs; }
             set { _includeDirs = value; }
@@ -129,7 +129,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Directories that the compiler will search to resolve file references 
         /// passed to the <c>#using</c> directive.
         /// </summary>
-        [FileSet("metadataincludedirs")]
+        [BuildElement("metadataincludedirs")]
         public FileSet MetaDataIncludeDirs {
             get { return _metaDataIncludeDirs; }
             set { _metaDataIncludeDirs = value; }
@@ -139,7 +139,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Specifies metadata files to reference in this compilation as an
         /// alternative to passing a file name to <c>#using</c> in source code.
         /// </summary>
-        [FileSet("forcedusingfiles")]
+        [BuildElement("forcedusingfiles")]
         public FileSet ForcedUsingFiles {
             get { return _forcedUsingFiles; }
             set { _forcedUsingFiles = value; }

@@ -95,7 +95,7 @@ namespace NAnt.Core.Tasks {
         /// Used to select the files to move. To use a <see cref="FileSet" />, 
         /// the <see cref="ToDirectory" /> attribute must be set.
         /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public override FileSet CopyFileSet {
             get { return base.CopyFileSet; }
             set { base.CopyFileSet = value; }

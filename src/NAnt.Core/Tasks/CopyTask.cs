@@ -147,7 +147,7 @@ namespace NAnt.Core.Tasks {
         /// Used to select the files to copy. To use a <see cref="FileSet" />, 
         /// the <see cref="ToDirectory" /> attribute must be set.
         /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public virtual FileSet CopyFileSet {
             get { return _fileset; }
             set { _fileset = value; }

@@ -206,7 +206,7 @@ namespace NAnt.Win32.Tasks {
         /// outside the current type library.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
-        [FileSet("references")]
+        [BuildElement("references")]
         public FileSet References {
             get { return _references; }
             set { _references = value; }

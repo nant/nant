@@ -100,7 +100,7 @@ namespace NAnt.Core.Tasks {
          /// <summary>
          /// Used to select which directories or individual assemblies to scan.
          /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public FileSet TaskFileSet {
             get { return _fileset; }
             set { _fileset = value; }

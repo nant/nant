@@ -137,7 +137,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Any required references.
         /// </summary>
-        [FileSet("references")]
+        [BuildElement("references")]
         public FileSet References {
             get { return _references; }
             set { _references = value; }

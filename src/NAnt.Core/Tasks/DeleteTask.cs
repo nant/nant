@@ -111,7 +111,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// All the files in the file set will be deleted.
         /// </summary>
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public FileSet DeleteFileSet {
             get { return _fileset; }
             set { _fileset = value; }

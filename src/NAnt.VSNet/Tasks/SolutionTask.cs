@@ -160,7 +160,7 @@ namespace NAnt.VSNet.Tasks {
         /// <summary>
         /// The projects to build.
         /// </summary>
-        [FileSet("projects", Required=false)]
+        [BuildElement("projects", Required=false)]
         public FileSet Projects {
             get { return _projects; }
             set { _projects = value; }
@@ -175,7 +175,7 @@ namespace NAnt.VSNet.Tasks {
         /// these project's output files are converted to use the appropriate 
         /// solution configuration at build time.
         /// </remarks>
-        [FileSet("referenceprojects", Required=false)]
+        [BuildElement("referenceprojects", Required=false)]
         public FileSet ReferenceProjects {
             get { return _referenceProjects; }
             set { _referenceProjects = value; }
@@ -238,7 +238,7 @@ namespace NAnt.VSNet.Tasks {
         /// <summary>
         /// Fileset of projects to exclude.
         /// </summary>
-        [FileSet("excludeprojects", Required=false)]
+        [BuildElement("excludeprojects", Required=false)]
         public FileSet ExcludeProjects {
             get { return _excludeProjects; }
             set { _excludeProjects = value; }
@@ -248,7 +248,7 @@ namespace NAnt.VSNet.Tasks {
         /// Set of folders where references are searched when not found in path 
         /// from project file (HintPath).
         /// </summary>
-        [FileSet("assemblyfolders", Required = false)]
+        [BuildElement("assemblyfolders", Required = false)]
         public FileSet AssemblyFolders {
             get { return _assemblyFolders; }
             set { _assemblyFolders = value; }
