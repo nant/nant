@@ -148,8 +148,18 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// Test that the validations for the module attribute are carried out
         ///     correctly.
         /// </summary>
-        public void TestModuleValidation() {
-            
+        [ExpectedException (typeof(TestBuildException))]
+        public void TestModuleValidation_Bad() {
+            object[] args = { 
+                String.Format("{0}/bad/module", MODULE), 
+                CVSROOT, this.destination, string.Empty, "2003/08/16", "2003_08_16"};
+
+            string checkoutPath = Path.Combine(this.destination, "2003_08_16");
+            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+
+            string result = 
+                this.RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
+
         }
 
         #endregion Private Instance Methods

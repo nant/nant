@@ -39,11 +39,11 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
 		private const bool USESHARPCVSLIB = false;
 
-        private readonly string MODULE = "sharpcvslib-test-repository";
-        private readonly string CHECK_FILE = "test-file.txt";
+        private readonly string MODULE = "sharpcvslib";
+        private readonly string CHECK_FILE = "lib/ICSharpCode.SharpZipLib.dll";
 
         private readonly string CVSROOT = 
-            ":pserver:anonymous@linux.sporadicism.com:/home/cvs/src";
+            ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib";
 
         private readonly string _checkoutXML = @"<?xml version='1.0'?>
             <project>
@@ -52,7 +52,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 cvsroot='{2}'
                                 destination='{3}'
                                 password='{4}'
-                                tag='{5}' />
+                                tag='{5}'
+                                usesharpcvslib='false' />
             </project>";
 
         /// <summary>
@@ -65,7 +66,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 cvsroot='{2}'
                                 destination='{3}'
                                 password='{4}'
-                                tag='{5}' />
+                                tag='{5}'
+                                usesharpcvslib='false' />
             </project>";
 
 		/// <summary>
@@ -97,7 +99,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
 								builddirs='{5}'
 								pruneempty='{6}'
 								overwritelocal='{7}'
-								recursive='{8}'>
+								recursive='{8}'
+                                usesharpcvslib='false'>
 					<fileset>
 						<includes name='{9}'/>
 					</fileset>
