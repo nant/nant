@@ -120,6 +120,7 @@ namespace NAnt.Console {
 
             // add privatebinpath of current domain to privatebinpath 
             if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
+                
                 privateBinPath += ";" + AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
             }
 
@@ -332,6 +333,14 @@ namespace NAnt.Console {
             /// Invokes the application entry point in NAnt.Core.
             /// </summary>
             public void CallConsoleRunner() {
+                // explicitly add the lib directory to privatebinpath although 
+                // its added to privatebinpath in the config file, as entries 
+                // in the config file are not reflected in SetupInformation
+                if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib"))) {
+                    AppDomain.CurrentDomain.AppendPrivatePath("lib");
+                }
+
+                // add framework specific entries to privatebinpath
                 if (_probePaths != null) {
                     foreach (string probePath in _probePaths.Split(';')) {
                         AppDomain.CurrentDomain.AppendPrivatePath(probePath);
