@@ -74,6 +74,20 @@ namespace NAnt.Core.Attributes {
             set { _maxValue = value; }
         }
 
+        /// <summary>
+        /// The base of the number to validate, which must be 2, 8, 10, or 16.
+        /// </summary>
+        /// <value>
+        /// The base of the number to validate.
+        /// </value>
+        /// <remarks>
+        /// The default is 10.
+        /// </remarks>
+        public int Base {
+            get { return _base; }
+            set { _base = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ValidatorAttribute
@@ -98,7 +112,11 @@ namespace NAnt.Core.Attributes {
             Int32 intValue;
 
             try {
-                intValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                if (value is String) {
+                    intValue = Convert.ToInt32((string) value, Base);
+                } else {
+                    intValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                }
             } catch (Exception ex) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
                     "Cannot resolve '{0}' to integer value.", value.ToString()), ex);
@@ -117,6 +135,7 @@ namespace NAnt.Core.Attributes {
 
         private int _minValue = Int32.MinValue;
         private int _maxValue = Int32.MaxValue;
+        private int _base = 10;
 
         #endregion Private Instance Fields
     }
