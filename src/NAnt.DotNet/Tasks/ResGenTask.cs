@@ -64,9 +64,10 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Input file to process.
         /// </summary>
+        /// <value>The full path to the input file.</value>
         [TaskAttribute("input", Required=false)]
         public string Input {
-            get { return _input; }
+            get { return (_input != null) ? Project.GetFullPath(_input) : null; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
                     _input = value;
@@ -81,7 +82,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("output", Required=false)]
         public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
+            get { return _output; }
             set { 
                 if (value != null && value.Trim().Length != 0) {
                     _output = value;
