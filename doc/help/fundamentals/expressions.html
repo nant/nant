@@ -20,8 +20,8 @@
             </tr>
         </table>
         <h1>Expressions</h1>
-        <p>Expressions are simple, but powerful mechanism that allows you to write advanced formulas to be used in task arguments and conditions that direct the build process. Expressions can access project <a href="fog0000000082.html">properties</a> and call builtin or user-defined <a href="../functions/index.html">functions</a>.</p>
-        <p>NAnt provides a rich set of bulitin functions, that allow you to:<p>
+        <p>Expressions are a simple, yet powerful mechanism that allow you to write advanced formulas to be used in task arguments and conditions that direct the build process. Expressions can access project <a href="fog0000000082.html">properties</a> and call builtin or user-defined <a href="../functions/index.html">functions</a>.</p>
+        <p>NAnt provides a rich set of builtin functions, that allow you to:<p>
         <ul>
             <li>manipulate strings</li>
             <li>manipulate date/time values</li>
@@ -33,7 +33,7 @@
         <p>For a full list of supported functions, click <a href="../functions/index.html">here</a>.</p>
         <h3>Expression Syntax</h3>
         <p>Expressions can be used in all task arguments, by surrounding them with <code>${...}</code> notation. 
-        You may use natural syntax for arithmetical (addition, subtraction, multiplication, division, modulus), logical (negation, conjunction, alternative) and relational operators (equality, inequality). To call functions, use <code>prefix::function-name(argument1, ..., argumentN)</code> syntax. 
+        You may use standard syntax for arithmetical (addition, subtraction, multiplication, division, modulus), logical (negation, conjunction, alternative) and relational operators (equality, inequality). To call functions, use <code>prefix::function-name(argument1, ..., argumentN)</code> syntax. 
         To access properties, you simply use their names without any prefix or suffix. See the examples section below for more information.</p>
         <h3>Examples:</h3>
         <ol>
@@ -55,7 +55,7 @@
         <p>
             <code>&lt;property name="autoexec-present" value="<span class="expression">${<a href="../functions/file.exists.html">file::exists</a>('c:\autoexec.bat')}</span>" /&gt;</code>
         </p>
-        <p>This will set the property <code>autoexec-present</code> to either <code>true</code> or <code>false</code> depending on whether the specified file exists.</p></li>
+        <p>This will set the property <code>autoexec-present</code> to either <code>true</code> or <code>false</code> depending on whether the specified file exists or not.</p></li>
         <li>Real-life expression use
         <p>
         <code>
@@ -66,9 +66,9 @@
             &lt;/if&gt;</br>
         </code>
         </p>
-        <p>This will check for the existence of a file <i>version.txt</i> in a directory pointed by myprj.basedir. 
-        Note that this makes use of short-circuit evaluation supported by NAnt, so you can test for the existence of
-        the file and check its length in the same expression.
+        <p>This will check for the existence of a file <i>version.txt</i> in a directory specified by myprj.basedir. 
+        Note that this makes use of the short-circuit evaluation supported by NAnt, so you can test for the existence of
+        the file and check its length in the same expression. ( ie like C, NAnt will not evaluate the second part of an 'or' expression if the first evaluates to true ) 
         </li>
         <li>Using expressions to conditionally execute tasks
         <p>All tasks support <code>if</code> and <code>unless</code> attributes. Expressions can be used there to control which tasks get executed:</p>
@@ -252,13 +252,13 @@
         
         <p><b>NOTE</b>: Because NAnt supports properties whose names can contain dashes, 
         there's a possible ambiguity between the subtraction of two properties and accessing 
-        a single property with name containing dash:</p>
+        a single property with a name containing a dash:</p>
         <p></p><code>aaa-bbb</code> - this is ambiguous. It could either be <u>property <code>aaa</code> MINUS property <code>bbb</code></u> or <u>property <code>aaa-bbb</code></u>.</p>
         <p>To avoid confusion, it's recommended to surround the subtraction operator (or even better, all binary operators) with spaces. The expression 
         <code>aaa - bbb</code> always evaluates as a subtraction.</p>
 
         <h3>Operator precedence</h3>
-        <p>NAnt expressions support natural operator precedence, that we're accustomed to:</p>
+        <p>NAnt expressions support standard ( c style ) operator precedence, that we're accustomed to:</p>
         <ul>
             <li><code>and</code> is evaluated before <code>or</code>, left to right. For example <code>false or true and true and false</code> evaluates as <code>false or ((true and true) and false)</code></li>
             <li>multiplication,division and modulus are evaluated before addition and subtraction, left to right. For example <code>1 + 2 * 3 / 4</code> evaluates as <code>1 + ((2 * 3) / 4)</code></li>
@@ -294,6 +294,6 @@
             </tr>
             </table>
         </div>
-        <p>In addition, expression evaluation engine does allow you to return and pass values of any CLI type through the use of <a href="functions.html#custom">custom functions</a>. Note that there's no support any implicit type conversion.</p>
+        <p>In addition, the expression evaluation engine allows you to return and pass values of any CLI type through the use of <a href="functions.html#custom">custom functions</a>. Note that there's no support for implicit type conversions.</p>
     </body>
 </html>
