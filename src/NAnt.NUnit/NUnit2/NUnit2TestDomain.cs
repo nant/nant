@@ -64,15 +64,23 @@ namespace NAnt.NUnit2.Tasks {
 
             // change current dir to directory containing test assembly
             Directory.SetCurrentDirectory(assemblyDir);
-            assemblyFile = Path.GetFileName(assemblyFile);
 
             try {
+                // create testrunner
                 RemoteTestRunner runner = CreateTestRunner(domain);
-                runner.TestFileName = assemblyFile;
+
+                // set the file name of the test assembly
+                runner.TestFileName = Path.GetFileName(assemblyFile);
+
+                // check whether an individual testcase should be run
                 if (testcase != null) {
                     runner.TestName = testcase;
                 }
-                runner.BuildSuite(); 
+
+                // build the test suite
+                runner.BuildSuite();
+
+                // run the test(s)
                 return runner.Run(listener, _outStream, _errorStream);
             } finally {
                 // restore original current directory
