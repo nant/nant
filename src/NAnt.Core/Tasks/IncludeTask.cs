@@ -118,8 +118,15 @@ namespace NAnt.Core.Tasks {
         } 
 
         protected override void ExecuteTask() {
-            // push ourselves onto the stack (prevents recursive includes)
             string includedFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
+           
+            // has this file already been mapped ?
+            if ( Project.LocationMap.FileIsMapped( includedFileName )) {
+                Log(Level.Verbose, LogPrefix + "Duplicate include of file {0}.", includedFileName);
+                return;
+            }
+            
+            // push ourselves onto the stack (prevents recursive includes)
             _includedFileNames.Push(includedFileName);
             _nestinglevel ++;
             

@@ -49,6 +49,16 @@ namespace NAnt.Core {
         #endregion Public Instance Constructors
 
         #region Public Instance Methods
+        
+        /// <summary>
+        /// Helper method to determine if a file has been loaded by the current project. 
+        /// </summary>
+        /// <param name="fileOrUri"></param>
+        /// <returns></returns>
+        public bool FileIsMapped( string fileOrUri ){
+            Uri uri = new Uri( fileOrUri );
+            return _fileMap.ContainsKey( uri.AbsoluteUri );
+        }
 
         /// <summary>
         /// Adds an <see cref="XmlDocument" /> to the map.
@@ -67,6 +77,7 @@ namespace NAnt.Core {
             }
 
             if (_fileMap.ContainsKey(fileName)) {
+                // do not re-map the file a 2nd time               
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "XML document '{0}' has already been mapped.", fileName));
            }
 
