@@ -75,7 +75,7 @@ namespace NAnt.SourceControl.Tasks {
 		/// Property value used to specify on a project level whether sharpcvs is
 		///		used or not.
 		/// </summary>
-		protected const string USE_SHARPCVS = "sourcecontrol.usesharpcvslib";
+		protected const string USE_SHARPCVSLIB = "sourcecontrol.usesharpcvslib";
 
 		#endregion
 
@@ -325,23 +325,34 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// <code>true</code> if the SharpCvsLib binaries that come bundled with 
         ///     NAnt should be used to perform the cvs commands, <code>false</code>
-        ///     otherwise.  
+        ///     otherwise.
         ///     
+        ///     You may also specify an override value for all cvs tasks instead
+        ///     of specifying a value for each.  To do this set the property
+        ///     <code>sourcecontrol.usesharpcvslib</code> to <code>false</code>.
         ///     <warn>If you choose not to use SharpCvsLib to checkout from 
         ///         cvs you will need to include a cvs.exe binary in your
         ///         path.</warn>
         /// </summary>
+        /// <example>
+        ///		To use a cvs client in your path instead of sharpcvslib specify
+        ///			the property:
+        ///		&gt;property name="sourcecontrol.usesharpcvslib" value="false"&lt;
+        ///		
+        ///		The default settings is to use sharpcvslib.
+        /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public bool UseSharpCvsLib {
 			get {
-				
- 				System.Console.WriteLine("_useSharpCvsLib: " + _useSharpCvsLib);
-				System.Console.WriteLine("Properties[USE_SHARPCVS]: " + 
-					System.Convert.ToString((null == Properties[USE_SHARPCVS] || 
-					System.Convert.ToBoolean(Properties[USE_SHARPCVS]))));
-				return (_useSharpCvsLib && (null != Properties[USE_SHARPCVS] && 
-					System.Convert.ToBoolean(Properties[USE_SHARPCVS])));
-				//return _useSharpCvsLib;
+				if (null == Properties[USE_SHARPCVSLIB]) {
+					return this._useSharpCvsLib;
+				} else {
+					try {
+						return System.Convert.ToBoolean(Properties[USE_SHARPCVSLIB]);
+					} catch (Exception) {
+						throw new BuildException (USE_SHARPCVSLIB + " must be convertable to a boolean.");
+					}
+				}
 			}
             set {this._useSharpCvsLib = value;}
         }
@@ -412,7 +423,7 @@ namespace NAnt.SourceControl.Tasks {
 					this.Arguments.Add(new Argument(this.Module));
 				}
 			}
-			System.Console.WriteLine("Using sharpcvs" + this.UseSharpCvsLib);
+			Logger.Debug("Using sharpcvs" + this.UseSharpCvsLib);
 			if (this.UseSharpCvsLib) {
 				this.ExeName = 
 					Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
@@ -423,7 +434,7 @@ namespace NAnt.SourceControl.Tasks {
 				Directory.CreateDirectory(this.DestinationDirectory.FullName);
 			}
 			base.PrepareProcess(process);
-			System.Console.WriteLine("exe name: " + process.StartInfo.FileName);
+			Logger.Debug("exe name: " + process.StartInfo.FileName);
 
 			if (this.CvsRsh != null ) {
 				try {
