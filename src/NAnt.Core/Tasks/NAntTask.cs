@@ -74,14 +74,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The build file to build. If not specified, use the current build file.
         /// </summary>
-        [TaskAttribute("buildfile")]
+        [TaskAttribute("buildfile", Required=true) ]
         public string BuildFileName {
-            get { 
-                if (_buildFileName != null) {
-                    return Project.GetFullPath(_buildFileName);
-                }
-                return Project.BuildFileLocalName; 
-            }
+            get { return Project.GetFullPath(_buildFileName); }
             set { _buildFileName = StringUtils.ConvertEmptyToNull(value); }
         }
 
