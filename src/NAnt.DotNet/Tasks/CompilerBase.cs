@@ -31,6 +31,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -222,6 +223,7 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [BuildElement("lib")]
+        [Obsolete("Use the <lib> element in <references> and <modules> instead.", false)]
         public FileSet Lib {
             get { return _lib; }
             set {_lib = value; }
@@ -270,7 +272,7 @@ namespace NAnt.DotNet.Tasks {
         /// Link the specified modules into this assembly.
         /// </summary>
         [BuildElement("modules")]
-        public AssemblyFileSet Modules {
+        public virtual AssemblyFileSet Modules {
             get { return _modules; }
             set { _modules = value; }
         }
@@ -361,8 +363,10 @@ namespace NAnt.DotNet.Tasks {
                         References.Lib.DirectoryNames.Add(directoryName);
                         Modules.Lib.DirectoryNames.Add(directoryName);
                     }
+
                     // rescan to ensure correct assembly resolution
                     References.Scan();
+                    Modules.Scan();
                     
                     Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.",
                         Sources.FileNames.Count, OutputFile.FullName);
@@ -401,7 +405,9 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     // writes assembly references to the response file
-                    WriteAssemblyReferences(writer);
+                    foreach (string fileName in References.FileNames) {
+                        WriteOption(writer, "reference", fileName);
+                    }
 
                     // writes module references to the response file
                     WriteModuleReferences(writer);
@@ -456,7 +462,7 @@ namespace NAnt.DotNet.Tasks {
                                 }
                                 // store resource filename for later linking
                                 ((Hashtable) cultureResources[resourceCulture.Name])[manifestResourceName] = fileName;
-                            } else {                   
+                            } else {
                                 string resourceoption = string.Format(CultureInfo.InvariantCulture, "{0},{1}",fileName, manifestResourceName);
                                 WriteOption(writer, "resource", resourceoption);
                             }
@@ -725,26 +731,16 @@ namespace NAnt.DotNet.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Writes assembly references to the specified <see cref="TextWriter" />.
-        /// </summary>
-        /// <param name="writer">The <see cref="TextWriter" /> to which the assembly references should be written.</param>
-        protected void WriteAssemblyReferences(TextWriter writer) {
-            // write references to the TextWriter
-            foreach (string fileName in References.FileNames) {
-                WriteOption(writer, "reference", fileName);
-            }
-        }
-
-        /// <summary>
         /// Writes module references to the specified <see cref="TextWriter" />.
         /// </summary>
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
-        protected void WriteModuleReferences(TextWriter writer) {
+        protected virtual void WriteModuleReferences(TextWriter writer) {
             // write references to the TextWriter
             foreach (string fileName in Modules.FileNames) {
                 WriteOption(writer, "addmodule", fileName);
             }
         }
+
         /// <summary>
         /// Allows derived classes to provide compiler-specific options.
         /// </summary>
