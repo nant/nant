@@ -824,7 +824,7 @@ namespace NAnt.Core {
                         description, GetSimpleTypeName(returnType)), p0, p1);
                 }
 
-                if (source.GetType() == typeof(bool)) {
+                if (source is bool) {
                     if (returnType != typeof(string) && returnType != typeof(bool)) {
                         // boolean can only be converted to string or boolean
                         disallow = true;
@@ -838,7 +838,7 @@ namespace NAnt.Core {
                     }
                 }
 
-                if (source.GetType() == typeof(DateTime)) {
+                if (source is DateTime) {
                     if (returnType != typeof(string) && returnType != typeof(DateTime)) {
                         // DateTime can only be converted to string or DateTime
                         disallow = true;
@@ -852,7 +852,7 @@ namespace NAnt.Core {
                     }
                 }
 
-                if (source.GetType() == typeof(TimeSpan) && returnType != typeof(TimeSpan)) {
+                if (source is TimeSpan && returnType != typeof(TimeSpan)) {
                     // implicit conversion from TimeSpan is not supported, as
                     // TimeSpan does not implement IConvertible
                     disallow = true;
@@ -868,6 +868,14 @@ namespace NAnt.Core {
                         return ((DirectoryInfo) source).FullName;
                     } else if (source is FileInfo) {
                         return ((FileInfo) source).FullName;
+                    }
+                }
+
+                if (returnType.IsEnum) {
+                    if (source is string) {
+                        return Enum.Parse(returnType, (string) source, false);
+                    } else {
+                        return Enum.ToObject(returnType, source);
                     }
                 }
 
