@@ -13,18 +13,43 @@
     <property name="build.number" value="${math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01/01/2000')))}" dynamic="true" />
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
-    <!-- MSNetTaskAssemblies (tas.msnet) -->
-    <!-- These will be used in this order -->
-    <property name="tas.msnet" value="NAnt.MSNet" />
-    <property name="tas.msnet.tests" value="${tas.msnet}" />
-    <!-- Win32TaskAssemblies (tas.win32) -->
-    <!-- These will be used in this order -->
-    <property name="tas.win32" value="NAnt.Win32,NAnt.VisualCpp,NAnt.VSNet" />
-    <property name="tas.win32.tests" value="${tas.win32}" />
-    <!-- CoreTaskAssemblies (tas.core) -->
-    <!-- These will be used in this order -->
-    <property name="tas.core" value="NAnt.DotNet,NAnt.Zip,NAnt.NUnit,NAnt.SourceControl" />
-    <property name="tas.core.tests" value="NAnt.DotNet,NAnt.Zip" />
+
+    <fileset id="tas.msnet" basedir="src">
+        <includes name="NAnt.MSNet/NAnt.MSNet.build" />
+    </fileset>
+    
+    <fileset id="tas.msnet.tests" basedir="tests">
+        <includes name="NAnt.MSNet/NAnt.MSNet.build" />
+    </fileset>
+    
+    <fileset id="tas.win32" basedir="src">
+        <includes name="NAnt.Win32/NAnt.Win32.build" />
+        <includes name="NAnt.VisualCpp/NAnt.VisualCpp.build" />
+        <includes name="NAnt.VSNet/NAnt.VSNet.build" />
+    </fileset>
+    
+    <fileset id="tas.win32.tests" basedir="tests">
+        <includes name="NAnt.Win32/NAnt.Win32.build" />
+        <includes name="NAnt.VSNet/NAnt.VSNet.build" />
+        <!-- <includes name="NAnt.VisualCpp/NAnt.VisualCpp.build" /> -->
+    </fileset>
+    
+    <fileset id="tas.core" basedir="src">
+        <includes name="NAnt.DotNet/NAnt.DotNet.build" />
+        <includes name="NAnt.Zip/NAnt.Zip.build" />
+        <includes name="NAnt.NUnit/NAnt.NUnit.build" />
+        <includes name="NAnt.SourceControl/NAnt.SourceControl.build" />
+    </fileset>
+    
+    <fileset id="tas.core.tests" basedir="tests">
+        <includes name="NAnt.DotNet/NAnt.DotNet.build" />
+        <includes name="NAnt.Zip/NAnt.Zip.build" />
+        <!--
+        <includes name="NAnt.NUnit/NAnt.NUnit.build" />
+        <includes name="NAnt.SourceControl/NAnt.SourceControl.build" />
+        -->
+    </fileset>
+    
     <!-- exclude the nunit and sourcecontrol assemblies -->
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
@@ -106,37 +131,32 @@
         <!-- build NAnt.Console assembly -->
         <nant buildfile="src/NAnt.Console/NAnt.Console.build" target="build" />
         <!-- build task assemblies -->
-        <foreach item="String" delim="," property="filename" in="${tas.core}">
-            <nant buildfile="src/${filename}/${filename}.build" target="build" />
-        </foreach>
+        <nant target="build">
+            <buildfiles refid="tas.core"/>
+        </nant>
         <!-- build Microsoft.NET specific task assemblies if we are on win32 and targeting a .NET Framework -->
-        <if test="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
-            <foreach item="String" delim="," property="filename" in="${tas.msnet}">
-                <nant buildfile="src/${filename}/${filename}.build" target="build" />
-            </foreach>
-        </if>            
+        <nant target="build" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
+            <buildfiles refid="tas.msnet"/>
+        </nant>
         <!-- build win32 specific task assemblies if we are on win32 -->
-        <foreach item="String" delim="," property="filename" in="${tas.win32}">
-            <nant buildfile="src/${filename}/${filename}.build" target="build" if="${platform::is-win32()}" />
-        </foreach>
+        <nant target="build" if="${platform::is-win32()}">
+            <buildfiles refid="tas.win32" />
+        </nant>
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
         <!-- build NAnt.Console.Tests assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
         <!-- build tests for task assemblies -->
-        <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="build" />
-        </foreach>
+        <nant target="build">
+            <buildfiles refid="tas.core.tests"/>
+        </nant>
         <!-- build tests for Microsoft.NET specific extension assemblies if we are on win32 and targeting a .NET Framework -->
-        <if test="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
-            <foreach item="String" delim="," property="filename" in="${tas.msnet.tests}">
-                <nant buildfile="tests/${filename}/${filename}.build" target="build" />
-            </foreach>
-        </if>
-        <!-- build tests for win32 specific task assemblies if we are on win32 -->
-        <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="build" if="${platform::is-win32()}" />
-        </foreach>
+        <nant target="build" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
+            <buildfiles refid="tas.msnet.tests"/>
+        </nant>
+        <nant target="build" if="${platform::is-win32()}">
+            <buildfiles refid="tas.win32.tests" />
+        </nant>
     </target>
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
@@ -164,19 +184,16 @@
         <!-- test NAnt.Core assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="test" />
         <!-- test task assemblies -->
-        <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="test" />
-        </foreach>
-        <!-- test Microsoft.NET specific extensions assemblies if we are on win32 and targeting a .NET Framework -->
-        <if test="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
-            <foreach item="String" delim="," property="filename" in="${tas.msnet.tests}">
-                <nant buildfile="tests/${filename}/${filename}.build" target="test" />
-            </foreach>
-        </if>            
-        <!-- test win32 specific task assemblies -->
-        <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
-            <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${platform::is-win32()}" />
-        </foreach>
+        <nant target="test">
+            <buildfiles refid="tas.core.tests"/>
+        </nant>
+        <!-- test Microsoft.NET specific extension assemblies if we are on win32 and targeting a .NET Framework -->
+        <nant target="test" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
+            <buildfiles refid="tas.msnet.tests"/>
+        </nant>
+        <nant target="test" if="${platform::is-win32()}">
+            <buildfiles refid="tas.win32.tests" />
+        </nant>
     </target>
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->

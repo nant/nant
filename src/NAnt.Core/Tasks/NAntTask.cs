@@ -26,6 +26,7 @@ using System.Globalization;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
+using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -63,6 +64,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private FileInfo _buildFile;
+        private FileSet _buildFileSet = new FileSet();
         private string _target;
         private bool _inheritAll = true;
         private ArrayList _overrideProperties = new ArrayList();
@@ -74,7 +76,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The build file to build.
         /// </summary>
-        [TaskAttribute("buildfile", Required=true) ]
+        [TaskAttribute("buildfile")]
         public FileInfo BuildFile {
             get { return _buildFile; }
             set { _buildFile = value; }
@@ -90,6 +92,15 @@ namespace NAnt.Core.Tasks {
         public string DefaultTarget {
             get { return _target; }
             set { _target = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Used to specify a list of build files to process.
+        /// </summary>
+        [BuildElement("buildfiles")]
+        public virtual FileSet BuildFilesFileSet {
+            get { return _buildFileSet; }
+            set { _buildFileSet = value; }
         }
 
         /// <summary>
@@ -117,11 +128,28 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "{0} {1}", BuildFile.FullName, DefaultTarget);
+            // run the build file specified in an attribute
+            int buildFileCount = 0;
+            if (BuildFile != null) {
+                RunBuild(BuildFile);
+                buildFileCount++;
+            };
+            // run all build files specified in the fileset
+            foreach (string s in BuildFilesFileSet.FileNames) {
+                RunBuild(new FileInfo(s));
+                buildFileCount++;
+            }
+            if (buildFileCount == 0) {
+                throw new BuildException("You need to specify at least one build file.", Location);
+            }
+        }
+
+        private void RunBuild(FileInfo buildFile) {
+            Log(Level.Info, LogPrefix + "{0} {1}", buildFile.FullName, DefaultTarget);
             Log(Level.Info, string.Empty);
 
             // create new project with same threshold as current project and increased indentation level
-            Project project = new Project(BuildFile.FullName, Project.Threshold, 
+            Project project = new Project(buildFile.FullName, Project.Threshold, 
                 Project.IndentationLevel + 1);
 
             // add listeners of current project to new project
@@ -177,7 +205,7 @@ namespace NAnt.Core.Tasks {
             try {
                 // change current directory to directory of the build file that
                 // will be run
-                Directory.SetCurrentDirectory(BuildFile.DirectoryName);
+                Directory.SetCurrentDirectory(buildFile.DirectoryName);
                 // run the given build
                 if (!project.Run()) {
                     throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
