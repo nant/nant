@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,14 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.IO;
-using System.Text;
-using System.Xml;
 using System.Globalization;
+using System.IO;
 
 using NUnit.Framework;
 
@@ -29,11 +26,17 @@ using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.DotNet.Tasks {
-
 	[TestFixture]
     public class CscTaskTest : BuildTestBase {
+        #region Private Instance Fields
 
-        const string _format = @"<?xml version='1.0'?>
+        private string _sourceFileName;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private const string _format = @"<?xml version='1.0'?>
             <project>
                 <csc target='exe' output='{0}.exe' {2}>
                     <sources basedir='{1}'>
@@ -42,14 +45,16 @@ namespace Tests.NAnt.DotNet.Tasks {
                 </csc>
             </project>";
 
-        const string _sourceCode = @"
+        private const string _sourceCode = @"
             public class HelloWorld { 
                 static void Main() { 
                     System.Console.WriteLine(""Hello World using C#""); 
                 }
             }";
 
-        string _sourceFileName;
+        #endregion Private Static Fields
+
+        #region Override implementation of BuildTestBase
 
 		[SetUp]
         protected override void SetUp() {
@@ -58,7 +63,13 @@ namespace Tests.NAnt.DotNet.Tasks {
             TempFile.CreateWithContents(_sourceCode, _sourceFileName);
 		}
 
-        /// <summary>Test to make sure debug option works.</summary>
+        #endregion Override implementation of BuildTestBase
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Test to make sure debug option works.
+        /// </summary>
         [Test]
         public void Test_DebugBuild() {
             string result = RunBuild(FormatBuildFile("debug='true'"));
@@ -66,7 +77,9 @@ namespace Tests.NAnt.DotNet.Tasks {
             Assertion.Assert(_sourceFileName + ".pdb does not exists, program did compile with debug switch.", File.Exists(_sourceFileName + ".pdb"));
         }
 
-        /// <summary>Test to make sure debug option works.</summary>
+        /// <summary>
+        /// Test to make sure debug option works.
+        /// </summary>
         [Test]
         public void Test_ReleaseBuild() {
             string result = RunBuild(FormatBuildFile("debug='false'"));
@@ -74,8 +87,17 @@ namespace Tests.NAnt.DotNet.Tasks {
             Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
         }
 
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
         private string FormatBuildFile(string attributes) {
-            return String.Format(CultureInfo.InvariantCulture, _format, Path.GetFileName(_sourceFileName), Path.GetDirectoryName(_sourceFileName), attributes);
+            return string.Format(CultureInfo.InvariantCulture, _format, 
+                Path.GetFileName(_sourceFileName), 
+                Path.GetDirectoryName(_sourceFileName), 
+                attributes);
         }
+
+        #endregion Private Instance Methods
     }
 }
