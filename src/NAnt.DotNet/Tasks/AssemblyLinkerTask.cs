@@ -313,6 +313,12 @@ namespace NAnt.DotNet.Tasks {
                         if (indexOfComma != -1) {
                             path = path.Substring(0, indexOfComma);
                         }
+
+                        bool isQuoted = path.Length > 2 && path.StartsWith("\"") && path.EndsWith("\"");
+                        if (isQuoted) {
+                            path = path.Substring(1, path.Length - 2);
+                        }
+
                         // resolve path to full path (relative to project base dir)
                         path = Project.GetFullPath(path);
                         // add path to collection of resource files
