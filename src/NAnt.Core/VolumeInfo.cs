@@ -37,13 +37,16 @@ namespace SourceForge.NAnt {
         /// </summary>
         public InvalidVolumeException() : base() {
         }
+
         public InvalidVolumeException(String message) : base(message) {
         }
+
         public InvalidVolumeException(String message, Exception e) : base(message, e) {
         }
 
         public InvalidVolumeException(Uri VolUri) : base("Volume information could not be retreived for the path '" + VolUri.LocalPath + "'. Verify that the path is valid and ends in a trailing backslash, and try again."){}
-        public InvalidVolumeException(SerializationInfo info, StreamingContext context) : base(info, context) {
+
+        protected InvalidVolumeException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
     }
 
@@ -58,7 +61,7 @@ namespace SourceForge.NAnt {
         }
         public InvalidVolumeTypeException(String message, Exception e) : base(message, e) {
         }
-        public InvalidVolumeTypeException(SerializationInfo info, StreamingContext context) : base(info, context) {
+        protected InvalidVolumeTypeException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
     }
 
@@ -69,13 +72,14 @@ namespace SourceForge.NAnt {
         /// </summary>
         public VolumeAccessException() : base("The volume could not be accessed and may be offline."){}
 
-         public VolumeAccessException(String message) : base(message) {
-        }
-        public VolumeAccessException(String message, Exception e) : base(message, e) {
-        }
-        public VolumeAccessException(SerializationInfo info, StreamingContext context) : base(info, context) {
+        public VolumeAccessException(String message) : base(message) {
         }
 
+        public VolumeAccessException(String message, Exception e) : base(message, e) {
+        }
+
+        protected VolumeAccessException(SerializationInfo info, StreamingContext context) : base(info, context) {
+        }
     }
 
     /// <summary>

@@ -62,7 +62,7 @@ namespace SourceForge.NAnt {
         public ValidationException(String message, Location location, Exception e) : base(message, location, e) {}
 
         /// <summary>Initializes a new instance of the ValidationException class with serialized data.</summary>
-        public ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+        protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
         /// <summary>Sets the SerializationInfo object with information about the exception.</summary>
         /// <param name="info">The object that holds the serialized object data. </param>

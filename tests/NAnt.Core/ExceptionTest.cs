@@ -82,12 +82,72 @@ namespace SourceForge.NAnt.Tests {
             return false;
         }
 
-        void CheckConstructor(Type t, string description, params Type[] parameters) {
+        void CheckPublicConstructor(Type t, string description, params Type[] parameters) {
+            // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
+            // fail if constructor does not exist
             Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
-            Assertion.Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
-            Assertion.Assert(t.Name + description + " is internal, must be public or protected.", !ci.IsFamily);
+            // fail if constructor is private
+            Assertion.Assert(t.Name + description + " is private, must be public.", !ci.IsPrivate);
+            // fail if constructor is protected
+            Assertion.Assert(t.Name + description + " is internal, must be public.", !ci.IsFamily);
+            // fail if constructor is internal
+            Assertion.Assert(t.Name + description + " is internal, must be public.", !ci.IsAssembly);
+            // fail if constructor is protected internal
+            Assertion.Assert(t.Name + description + " is protected internal, must be public.", !ci.IsFamilyOrAssembly);
+            // sanity check to make sure the constructor is public
+            Assertion.Assert(t.Name + description + " is not public, must be public.", ci.IsPublic);
         }
+
+        void CheckProtectedConstructor(Type t, string description, params Type[] parameters) {
+            // locate constructor
+            ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
+            // fail if constructor does not exist
+            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            // fail if constructor is public
+            Assertion.Assert(t.Name + description + " is public, must be protected.", !ci.IsPublic);
+            // fail if constructor is private
+            Assertion.Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
+            // fail if constructor is internal
+            Assertion.Assert(t.Name + description + " is internal, must be protected.", !ci.IsAssembly);
+            // fail if constructor is protected internal
+            Assertion.Assert(t.Name + description + " is protected internal, must be protected.", !ci.IsFamilyOrAssembly);
+            // sanity check to make sure the constructor is protected
+            Assertion.Assert(t.Name + description + " is not protected, must be protected.", ci.IsFamily);
+        }
+
+        void CheckPublicOrProtectedConstructor(Type t, string description, params Type[] parameters) {
+            // locate constructor
+            ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
+            // fail if constructor does not exist
+            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            // fail if constructor is private
+            Assertion.Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
+            // fail if constructor is internal
+            Assertion.Assert(t.Name + description + " is internal, must be public or protected.", !ci.IsAssembly);
+            // fail if constructor is protected internal
+            Assertion.Assert(t.Name + description + " is protected internal, must be public or protected.", !ci.IsFamilyOrAssembly );
+            // sainty check to make sure the constructor is protected or public
+            Assertion.Assert(t.Name + description + " is not public or protected, must be public or protected.", ci.IsPublic || ci.IsFamily);
+        }
+
+        void CheckPrivateConstructor(Type t, string description, params Type[] parameters) {
+            // locate constructor
+            ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
+            // fail if constructor does not exist
+            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            // fail if constructor is public
+            Assertion.Assert(t.Name + description + " is public, must be private.", !ci.IsPublic);
+            // fail if constructor is protected
+            Assertion.Assert(t.Name + description + " is internal, must be public.", !ci.IsFamily);
+            // fail if constructor is internal
+            Assertion.Assert(t.Name + description + " is internal, must be private.", !ci.IsAssembly);
+            // fail if constructor is protected internal
+            Assertion.Assert(t.Name + description + " is protected internal, must be private.", !ci.IsFamilyOrAssembly );
+            // sainty check to make sure the constructor is private
+            Assertion.Assert(t.Name + description + " is not private, must be private.", ci.IsPrivate);
+        }
+
 
         void CheckException(Assembly assembly, Type t) {
             // check to see that the exception is correctly named, with "Exception" at the end
@@ -97,19 +157,29 @@ namespace SourceForge.NAnt.Tests {
             // Does the exception have the 3 standard constructors?
 
             // Default constructor
-            CheckConstructor(t, "()");
+            CheckPublicConstructor(t, "()");
 
             // Constructor with a single string parameter
-            CheckConstructor(t, "(string message)", typeof(System.String));
+            CheckPublicConstructor(t, "(string message)", typeof(System.String));
 
             // Constructor with a string and an inner exception
-            CheckConstructor(t, "(string message, Exception inner)", 
+            CheckPublicConstructor(t, "(string message, Exception inner)", 
                     typeof(System.String), typeof(System.Exception));
 
-            // check to see if the serialization constructor is present...
-            CheckConstructor(t, "(SerializationInfo info, StreamingContext context)",
+            // check to see if the serialization constructor is present
+            // if exception is sealed, constructor should be private
+            // if exception is not sealed, constructor should be protected
+            if (t.IsSealed) {
+                // check to see if the private serialization constructor is present...
+                CheckPrivateConstructor(t, "(SerializationInfo info, StreamingContext context)",
                     typeof(System.Runtime.Serialization.SerializationInfo),
                     typeof(System.Runtime.Serialization.StreamingContext));
+            } else {
+                // check to see if the protected serialization constructor is present...
+                CheckProtectedConstructor(t, "(SerializationInfo info, StreamingContext context)",
+                    typeof(System.Runtime.Serialization.SerializationInfo),
+                    typeof(System.Runtime.Serialization.StreamingContext));
+            }
 
             // check to see if the type is market as serializable
             Assertion.Assert(t.Name + " is not serializable, missing [Serializable]?", t.IsSerializable);
@@ -162,11 +232,13 @@ namespace SourceForge.NAnt.Tests {
         }
 
         // deserialization constructor
-        public SimpleTestException(SerializationInfo info, StreamingContext context) : base(info, context) {
+        protected SimpleTestException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
     }
 
-    /// <summary>Do nothing exception to verify that the exception tester is working correctly.</summary>
+    /// <summary>
+    /// Exception to verify that the exception tester is working correctly.
+    /// </summary>
     [Serializable]
     public class TestException : ApplicationException, ISerializable {
         int _value;
@@ -187,7 +259,7 @@ namespace SourceForge.NAnt.Tests {
         }
 
         // deserialization constructor
-        public TestException(SerializationInfo info, StreamingContext context) : base(info, context) {
+        protected TestException(SerializationInfo info, StreamingContext context) : base(info, context) {
             _value = info.GetInt32("Value");
         }
 
@@ -211,6 +283,30 @@ namespace SourceForge.NAnt.Tests {
                 string s = String.Format(CultureInfo.InvariantCulture, "Value: {0}", _value);
                 return base.Message + Environment.NewLine + s;
             }
+        }
+    }
+
+    /// <summary>
+    /// Exception to verify that the exception tester is working on sealed exception.
+    /// </summary>
+    [Serializable]
+    public sealed class SealedTestException : TestException {
+        // Normal 3 constructors
+        public SealedTestException() {
+        }
+
+        public SealedTestException(string message) : base(message) {
+        }
+
+        public SealedTestException(string message, Exception inner) : base(message, inner) {
+        }
+
+        // constructors that take the added value
+        public SealedTestException(string message, int value) : base(message, value) {
+        }
+
+        // deserialization constructor
+        private SealedTestException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
     }
 }
