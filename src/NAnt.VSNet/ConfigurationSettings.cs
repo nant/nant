@@ -37,7 +37,7 @@ namespace NAnt.VSNet {
                 if (!_relativeOutputPath.EndsWith(@"\")) {
                     _relativeOutputPath = _relativeOutputPath + @"\";
                 }
-                _outputPath = new DirectoryInfo(Path.Combine(projectSettings.RootDirectory, elemConfig.GetAttribute("OutputPath")).FullName;
+                _outputPath = new DirectoryInfo(Path.Combine(projectSettings.RootDirectory, elemConfig.GetAttribute("OutputPath"))).FullName;
             } else {
                 _relativeOutputPath = outputDir;
                 if (!_relativeOutputPath.EndsWith(@"\")) {
