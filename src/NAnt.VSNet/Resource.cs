@@ -213,18 +213,19 @@ namespace NAnt.VSNet {
             // make sure framework specific information is set
             lt.InitializeTaskConfiguration();
 
+            // set parent of child elements
+            lt.Assemblies.Parent = lt;
+
+            // inherit project from solution task for child elements
+            lt.Assemblies.Project = lt.Project;
+
             // set task properties
             lt.Input = _resourceSourceFile;
             lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFile + ".licenses");
             lt.Target = outputFile;
-            lt.Assemblies = new FileSet();
 
             foreach (Reference reference in Project.References) {
-                if (reference.IsSystem) {
-                    lt.Assemblies.AsIs.Add(reference.Name);
-                } else {
-                    lt.Assemblies.Includes.Add(reference.Filename);
-                }
+                lt.Assemblies.Includes.Add(reference.Filename);
             }
 
             // execute task
