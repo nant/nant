@@ -24,10 +24,11 @@ using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
+using Tests.NAnt.Core;
+using Tests.NAnt.Core.Util;
 
-namespace SourceForge.NAnt.Tests
+namespace Tests.NAnt.VisualCpp.Tasks
 {
     [TestFixture]
     public class ClTaskTest_HelloWorld : BuildTestBase {
