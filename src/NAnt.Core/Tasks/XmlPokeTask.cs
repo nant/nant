@@ -30,13 +30,16 @@ using System.Xml;
 namespace NAnt.Core.Tasks {
 
     /// <summary>
-    /// Replaces text in an XML file at the location specified by an XPath expression.
+    /// Replaces text in an XML file at the location specified by an XPath 
+    /// expression.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The location specified by the XPath expression must exist, it will
     /// not create the parent elements for you. However, provided you have
     /// a root element you could use a series of the tasks to build the
     /// XML file up if necessary.
+    /// </para>
     /// </remarks>
     /// <example>
     ///     <para>

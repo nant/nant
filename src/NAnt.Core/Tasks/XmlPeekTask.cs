@@ -30,11 +30,14 @@ using System.Xml;
 namespace NAnt.Core.Tasks {
 
     /// <summary>
-    /// Extracts text from an XML file at the location specified by an XPath expression.
+    /// Extracts text from an XML file at the location specified by an XPath 
+    /// expression.
     /// </summary>
     /// <remarks>
-    ///    If the XPath expression specifies multiple nodes the node index is used to
-    ///    determine which of the nodes' text is returned.
+    /// <para>
+    /// If the XPath expression specifies multiple nodes the node index is used 
+    /// to determine which of the nodes' text is returned.
+    /// </para>
     /// </remarks>
     /// <example>
     ///     <para>
