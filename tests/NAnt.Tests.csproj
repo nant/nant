@@ -180,6 +180,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\Attributes\DateTimeValidatorAttributeTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.Core\Attributes\StringValidatorAttributeTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\Filters\ExpandPropertiesTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
