@@ -28,7 +28,7 @@
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
-        <property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}-${project.config}" />
+        <property name="build.dir" value="${nant.project.basedir}/build/${nant.settings.currentframework}.${nant.platform.name}/${project.name}-${project.version}-${project.config}" />
     </target>
 
     <target name="release" description="Perform a 'release' build">
@@ -146,6 +146,7 @@
             <nant buildfile="tests/${filename}/${filename}.build" target="test" if="${nant.platform.win32}" />
         </foreach>
     </target>
+
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
@@ -162,7 +163,8 @@
                 <includes name="**/*" />
             </resources>
         </csc>
-        <echo message="Documenting NAnt with just built version of NAnt.Documenter." />
+
+        <echo message="Creating task and type documentation from ${build.dir}/bin" />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
@@ -172,53 +174,64 @@
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
     </target>
+    
     <target name="self-userdoc" depends="init">
-<!--
-        <ndoc>
-            <assemblies basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-            </assemblies>
-            <documenters>
-                <documenter name="XML">
-                    <property name="OutputFile" value="${build.dir}/doc/nantdoc.raw.xml" />
-                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
-                    <property name="DocumentAttributes" value="True" />
-                    <property name="IncludeAssemblyVersion" value="True" />
-                </documenter>
-            </documenters>
-        </ndoc>
--->
-        <!-- use ndoc and NAnt.Documenter to build user doc -->
-		<ndoc>
-            <assemblies basedir="${build.dir}/bin">
+        <!-- use ndoc and NAnt.Documenter to build user doc if they need it -->
+		<ifnot uptodatefile="${build.dir}/doc/help/tasks.html">
+		    <comparefiles basedir="${build.dir}/bin">
+                <!-- make sure the tasks/types are not new -->
                 <includes name="NAnt.Core.dll" />
                 <includes name="*Tasks.dll" />
-            </assemblies>
-            <documenters>
+                <!-- make sure the documenter is not new -->
+                <includes name="NDoc.Documenter.*.dll"/>
+		    </comparefiles>
 <!--
-                <documenter name="NAntTaskMissingDocs">
-                    <property name="OutputDirectory" value="${build.dir}/doc/missing" />
-                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
-                    <property name="IncludeAssemblyVersion" value="True" />
-                </documenter>
+            <ndoc>
+                <assemblies basedir="${build.dir}/bin">
+                    <includes name="NAnt.Core.dll" />
+                </assemblies>
+                <documenters>
+                    <documenter name="XML">
+                        <property name="OutputFile" value="${build.dir}/doc/nantdoc.raw.xml" />
+                        <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="DocumentAttributes" value="True" />
+                        <property name="IncludeAssemblyVersion" value="True" />
+                    </documenter>
+                </documenters>
+            </ndoc>
 -->
-                <documenter name="NAntTask">
-                    <property name="OutputDirectory" value="${build.dir}/doc/help" />
-                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
-                    <property name="DocumentAttributes" value="True" />
-                    <property name="IncludeAssemblyVersion" value="True" />
-                </documenter>
-            </documenters>
-        </ndoc>
+		    
+		    <ndoc>
+                <assemblies basedir="${build.dir}/bin">
+                    <includes name="NAnt.Core.dll" />
+                    <includes name="*Tasks.dll" />
+                </assemblies>
+                <documenters>
+                    <documenter name="NAntTask">
+                        <property name="OutputDirectory" value="${build.dir}/doc/help" />
+                        <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="DocumentAttributes" value="True" />
+                        <property name="IncludeAssemblyVersion" value="True" />
+                    </documenter>
+                </documenters>
+            </ndoc>		    
+		</ifnot>
 
-        
-        <!-- copy images so we can preview userdoc and have it look right -->
-        <copy file="doc/style.css" todir="${build.dir}/doc" />
-        <copy file="doc/arrow.gif" todir="${build.dir}/doc" />
-        <echo message="Preview task references: file://${build.dir}/doc/help/tasks.html" />
+        <!-- copy doc files from source-->
+        <copy todir="${build.dir}" failonerror="false">
+            <fileset>
+                <includes name="doc/**" />
+                
+                <excludes name="**/obj/**"/>
+                <excludes name="**/bin/**"/>
+            </fileset>
+        </copy>
+      
+        <echo message="User documentation: file://${build.dir}/doc/index.html" />
     </target>
+
     <target name="sdkdoc" depends="build" description="Builds SDK documentation">
-        <echo message="Documenting NAnt with just built version of NAnt." />
+        <echo message="Creating SDK Documentation for ${build.dir}/bin/${nant.console.name}.exe" />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
@@ -227,6 +240,7 @@
             <arg value="-D:project.version=${project.version}" />
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
+
         <!-- delete everything but the .chm -->
         <delete>
             <fileset basedir="${build.dir}/doc/sdk">
@@ -235,6 +249,7 @@
             </fileset>
         </delete>
     </target>
+
     <target name="self-sdkdoc" depends="init">
         <ndoc>
             <assemblies basedir="${build.dir}/bin">
@@ -272,7 +287,7 @@
             </documenters>
         </ndoc>
     </target>
-    <target name="schema">
+    <target name="schema" depends="init">
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
         <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
