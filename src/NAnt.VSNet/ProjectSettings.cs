@@ -74,6 +74,7 @@ namespace NAnt.VSNet {
 
             Hashtable htStringSettings = new Hashtable();
 
+            htStringSettings["StartupObject"] = @"/main:""{0}""";
             htStringSettings["ApplicationIcon"] = @"/win32icon:""{0}""";
 
             foreach (DictionaryEntry de in htStringSettings) {
