@@ -7,7 +7,7 @@
     with this one.
 -->
 
-<project name="HelloWindowsForms" default="run" basedir=".">
+<project name="HelloWindowsForms" default="run">
 
     <property name="basename" value="HelloWindowsForms"/>
     <property name="debug" value="true"/>
@@ -27,7 +27,7 @@
 
     <target name="build">
         <mkdir dir="${build.dir}"/>
-        <vbc target="exe" output="${build.dir}\${basename}.exe" debug="${debug}" 
+        <vbc target="winexe" output="${build.dir}\${basename}.exe" debug="${debug}" 
                 imports="Microsoft.VisualBasic,System,System.Collections,System.Data,System.Diagnostics,System.Drawing,System.Windows.Forms" 
                 optioncompare="text" 
                 optionexplicit="true" 
@@ -38,17 +38,17 @@
                 <includes name="*.vb"/>
             </sources>
             <references>
-                <absolute file="System.dll"/>
-                <absolute file="System.Data.dll"/>
-                <absolute file="System.Drawing.dll"/>
-                <absolute file="System.Windows.Forms.dll"/>
-                <absolute file="System.XML.dll"/>
+                <includes asis="true" name="System.dll"/>
+                <includes asis="true" name="System.Data.dll"/>
+                <includes asis="true" name="System.Drawing.dll"/>
+                <includes asis="true" name="System.Windows.Forms.dll"/>
+                <includes asis="true" name="System.XML.dll"/>
             </references>
 			<arg value="/main:HelloWindowsForms.MainForm"/>
         </vbc>
     </target>
 
     <target name="run" depends="build">
-        <exec program="${build.dir}/${basename}.exe" basedir="${build.dir}"/>
+        <exec program="${basename}.exe" basedir="${build.dir}"/>
     </target>
 </project>

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="Hello World" default="test" basedir=".">
+<project name="Hello World" default="test">
 	<property name="basename" value="HelloWorld"/>
 	<property name="debug" value="true"/>
 
@@ -31,8 +31,8 @@
 	</target>
 
 	<target name="test" depends="build">
-		<exec program="${basename}-cs.exe"/>
-		<exec program="${basename}-js.exe"/>
-		<exec program="${basename}-vb.exe"/>
+		<exec program="${basename}-cs.exe" basedir="."/>
+		<exec program="${basename}-js.exe" basedir="."/>
+		<exec program="${basename}-vb.exe" basedir="."/>
 	</target>
 </project>

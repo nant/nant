@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="NAnt" default="test" basedir=".">
+<project name="NAnt" default="test">
 	
 	<!-- compile the test task and add it then use it -->
 	<!-- this currently will only work in the global section of the build file -->
@@ -8,14 +8,10 @@
 		<sources>
 			<includes name="UserTask.cs"/>
 		</sources>
-		<references basedir="..\..\build">
+		<references basedir="${nant.location}">
 			<includes name="NAnt.Core.dll"/>
 		</references>
 	</csc>
-
-	<!-- add task to NAnt, this task must be in the global section for now -->
-	<!-- must get taskdef.Tasks.dll from NAntContrib -->
-	<taskdef assembly="UserTasks.dll"/>
 
 	<!-- 
 		The test task is referenced in the newly created UserTask.dll but can 
@@ -27,6 +23,11 @@
 	
 	<target name="test">
 		<!-- call our new task, converts the message attribute to all caps and displays it -->
+		<copy todir="${nant.location}" file="UserTasks.dll"/>
+		<nant target="UserTask"/>
+	</target>
+	
+	<target name="UserTask">
 		<usertask message="This string should be all caps"/>
 	</target>
 

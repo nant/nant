@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="NAnt Examples" default="run" basedir=".">
+<project name="NAnt Examples" default="run">
 	<target name="clean">
 		<!-- UserTask build file for why we have to delete the file -->
 		<echo message="Cleaning UserTask"/>
