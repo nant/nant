@@ -72,7 +72,7 @@ namespace SourceForge.NAnt.Tests {
                 string result = RunBuild(_xml);
                 Assertion.Fail("Invalid attribute combination did not generate an exception");
             }
-            catch(BuildException be) {               
+            catch(BuildException) {               
             }
             catch {
                 Assertion.Fail("Incorrect exception type !");
