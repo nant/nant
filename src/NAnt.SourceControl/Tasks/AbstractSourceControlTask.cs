@@ -282,6 +282,16 @@ namespace NAnt.SourceControl.Tasks {
         ///     appended to the commandline, otherwise <code>false</code>.</param>
         protected void SetGlobalOption (String name, String value, bool on) {
             Option option;
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
+                "{0} name: {1}",
+                LogPrefix, name));
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
+                "{0} value: {1}",
+                LogPrefix, value));
+            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
+                "{0} on: {1}",
+                LogPrefix, on));
+
             if (GlobalOptions.Contains(name)) {
                 option = (Option)GlobalOptions[name];
             } else {

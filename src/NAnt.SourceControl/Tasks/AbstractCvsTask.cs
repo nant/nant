@@ -333,11 +333,14 @@ namespace NAnt.SourceControl.Tasks {
         /// <code>true</code> if the sandbox files should be checked out in
         ///     read only mode.
         /// </summary>
-        [TaskAttribute("readonly", Required=false)]
+        [TaskAttribute("read", Required=false)]
         [BooleanValidator()]
         public bool ReadOnly {
-            get {return ((Option)GlobalOptions["readonly"]).IfDefined;}
-            set {SetGlobalOption("readonly", "-r", value);}
+            get {return ((Option)GlobalOptions["readonly-attribute"]).IfDefined;}
+            set {
+                SetGlobalOption("readonly-attribute", "-r", value);
+                this.ReadWrite = !value;
+            }
         }
 
         /// <summary>
@@ -351,10 +354,7 @@ namespace NAnt.SourceControl.Tasks {
         public bool ReadWrite {
             get {return ((Option)GlobalOptions["readwrite"]).IfDefined;}
             set {
-                if (true == ReadOnly && 
-                    value == true) {
-                    throw new BuildException ("Cannot set readonly and read/ write.");
-                }
+                this.ReadWrite = !value;
                 SetGlobalOption("readwrite", "-w", value);
             }
         }
