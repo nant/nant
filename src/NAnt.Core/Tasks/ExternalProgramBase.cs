@@ -37,6 +37,7 @@ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Provides the abstract base class for tasks that execute external applications.
     /// </summary>
+    [Serializable()]
     public abstract class ExternalProgramBase : Task {
         #region Private Instance Fields
         

@@ -34,6 +34,7 @@ namespace NAnt.DotNet.Types {
     /// The primary reason for this class is to allow the <see cref="BaseDirectory" />
     /// to always be the same value as the parent <see cref="AssemblyFileSet" />
     /// </remarks>
+    [Serializable()]
     public class LibDirectorySet : FileSet {
         #region Public Instance Constructors
         
@@ -71,6 +72,7 @@ namespace NAnt.DotNet.Types {
     /// <summary>
     /// Specialized <see cref="FileSet" /> class for managing assembly files.
     /// </summary>
+    [Serializable()]
     [ElementName("assemblyfileset")]
     public class AssemblyFileSet : FileSet, ICloneable {
         #region Public Instance Constructors
