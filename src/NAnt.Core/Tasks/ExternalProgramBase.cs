@@ -19,12 +19,15 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Globalization;
+using System.Threading;
 
 using SourceForge.NAnt.Attributes;
 
@@ -72,6 +75,8 @@ namespace SourceForge.NAnt.Tasks {
         }
         /// <summary>The maximum amount of time the application is allowed to execute, expressed in milliseconds.  Defaults to no time-out.</summary>
         public virtual int TimeOut { get { return Int32.MaxValue;  } set{} }
+
+        private Hashtable _htThreadStream = new Hashtable();
 
         StringCollection _args = new StringCollection();       
 
@@ -148,50 +153,52 @@ namespace SourceForge.NAnt.Tasks {
             return p;
         }
 
+        private void StreamReaderThread() {
+            StreamReader reader = ( StreamReader )_htThreadStream[ Thread.CurrentThread.Name ];
+            while ( true ) {                        
+                string strLogContents = reader.ReadLine();
+                if ( strLogContents == null )
+                    break;
+                // Ensure only one thread writes to the log at any time
+                lock ( _htThreadStream ) {
+                    Log.WriteLine( LogPrefix + strLogContents );
+                    if (OutputFile != null && OutputFile != "") {
+                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
+                        writer.Write(strLogContents);
+                        writer.Close();
+                    }
+                }
+            }
+        }
+
         protected override void ExecuteTask() {
             try {
                 // Start the external process
                 Process process = StartProcess();
+                Thread outputThread = new Thread( new ThreadStart( StreamReaderThread ) );
+                outputThread.Name = "Output";
+                Thread errorThread = new Thread( new ThreadStart( StreamReaderThread ) );
+                errorThread.Name = "Error";
+                _htThreadStream[ outputThread.Name ] = process.StandardOutput;
+                _htThreadStream[ errorThread.Name ] = process.StandardError;
 
-                // display standard output
-                StreamReader stdOut = process.StandardOutput;
-                string output = stdOut.ReadToEnd();
-                
-                // display standard error -- needs to implemented in separate stream
-                StreamReader stdErr = process.StandardError;
-                string errors = stdErr.ReadToEnd();
-                if (errors.Length > 0) {
-                    int indentLevel = Log.IndentLevel;
-                    Log.IndentLevel = 0;
-                    Log.WriteLine(errors);
-                    Log.IndentLevel = indentLevel;
-                } 
-                
-                // wait for program to exit
+                outputThread.Start();
+                errorThread.Start();
+
+                // Wait for the process to terminate
                 process.WaitForExit(TimeOut);
+                // Wait for the threads to terminate
+                outputThread.Join();
+                errorThread.Join();
+                _htThreadStream.Clear();
+
                 if (process.ExitCode != 0){
                     throw new BuildException(
-                        String.Format(CultureInfo.InvariantCulture, 
-                        "External Program Failed: {0} return {1}\nOutput:\n{2}", 
-                        ProgramFileName, 
-                        process.ExitCode, 
-                        output), 
-                        Location);
-                }
-                if (output.Length > 0) {
-                    if (OutputFile == null) {
-                        int indentLevel = Log.IndentLevel;
-                        Log.IndentLevel = 0;
-                        
-                        if (process.ExitCode == 0) {
-                            Log.WriteLine(output);
-                        } 
-                        Log.IndentLevel = indentLevel;
-                    } else if (OutputFile != "") {
-                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
-                        writer.Write(output);
-                        writer.Close();
-                    }
+                                String.Format(CultureInfo.InvariantCulture, 
+                                    "External Program Failed: {0} (return code was {1})", 
+                                    ProgramFileName, 
+                                    process.ExitCode), 
+                                Location);
                 }
             } catch (BuildException e) {
                 if (FailOnError) {
