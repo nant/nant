@@ -1026,6 +1026,11 @@ namespace NAnt.DotNet.Tasks {
             resgen.InputFile = inputFile;
             resgen.OutputFile = outputFile;
 
+            // inherit asssembly references from current task
+            foreach (string assemblyFile in References.FileNames) {
+                resgen.Assemblies.Includes.Add(assemblyFile);
+            }
+
             // increment indentation level
             Project.Indent();
             try {
