@@ -116,4 +116,55 @@
             <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chgrp nant {} \;" />
         </exec>
     </target>
+    
+    
+    <!-- Temporary directories for building the rpm...there might be a better way to do this. -->
+    <property name="rpm.base" value="c:/temp/NAnt/rpm"/>
+    <property name="rpm.working" value="c:/temp/NAnt/working"/>
+    <property name="cygwin.rpm.base" value="/cygdrive/c/temp/NAnt/rpm"/>
+    <property name="cygwin.rpm.working" value="/cygdrive/c/temp/NAnt/working"/>
+    
+    <target name="setup-rpm" description="Sets up the environment for building rpms.">
+        <mkdir dir="${rpm.base}"/>
+        <mkdir dir="${rpm.base}/BUILD"/>
+        <mkdir dir="${rpm.base}/RPMS"/>
+        <mkdir dir="${rpm.base}/i386"/>
+        <mkdir dir="${rpm.base}/i686"/>
+        <mkdir dir="${rpm.base}/noarch"/>
+        <mkdir dir="${rpm.base}/SOURCES"/>
+        <mkdir dir="${rpm.base}/SPECS"/>
+        <mkdir dir="${rpm.base}/SRPMS"/>
+        <mkdir dir="${rpm.working}/tmp"/>
+        
+        <mkdir dir="${rpm.working}/tmp/NAnt-src"/>
+        <mkdir dir="${rpm.working}/tmp/NAnt-tar"/>
+        
+    </target>    
+
+    <target name="prepare-rpm" description="Prepare the binaries for packaging.">
+        <copy todir="${rpm.working}/tmp/NAnt-src">
+            <fileset basedir="${build.dir}">
+                <include name="bin/**"/>
+                <!--include name="doc/**"/-->
+                <!--include name="examples/**"/-->
+            </fileset>
+        </copy>    
+
+        <exec program="bash" verbose="true">
+            <arg value="-c"/>
+            <arg value="'tar -cvzf ${cygwin.rpm.working}/tmp/NAnt-tar/NAnt.tar.gz -C${cygwin.rpm.working}/tmp/NAnt-src bin'"/>
+        </exec>
+        
+        <copy file="${rpm.working}/tmp/NAnt-tar/NAnt.tar.gz" tofile="${rpm.base}/SOURCES/NAnt.tar.gz" overwrite="true"/>
+        <copy file="${build.dir}/NAnt.spec" tofile="${rpm.base}/SPECS/NAnt.spec" overwrite="true"/>
+    </target>
+    
+    <target name="binary-rpm" depends="setup-rpm, prepare-rpm" description="Build the binary rpm for NAnt.">
+        <exec program="bash">
+            <arg value="--debug -c"/>
+            <arg value="&quot;rpmbuild -ba --buildroot=${cygwin.rpm.working} ${cygwin.rpm.base}/SPECS/NAnt.spec&quot;"/>
+        </exec>
+        
+        <copy file="${rpm.base}/RPMS/i386/NAnt-*" tofile="NAnt-0.85-1.rpm"/>
+    </target>
 </project>
