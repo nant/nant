@@ -651,12 +651,11 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="elementNode"></param>
         /// <returns></returns>
-        DataTypeBase CreateDataTypeBase(XmlNode elementNode ) {
+        public DataTypeBase CreateDataTypeBase(XmlNode elementNode ) {
             DataTypeBase type = TypeFactory.CreateDataType( elementNode, this);
 
             type.Project = this;
             type.Parent = this;
-            //type.Parent = target;
             type.Initialize(elementNode);
             return type;
         }
@@ -984,7 +983,10 @@ namespace NAnt.Core {
                         // we are an datatype declaration
                         DataTypeBase dataType = CreateDataTypeBase(childNode);
                         Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-                        _dataTypeReferences.Add(dataType.ID, dataType);
+                        DataTypeReferences.Add(dataType.ID, dataType);
+                    } else {
+                        string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
+                        throw new BuildException(message, LocationMap.GetLocation(childNode));
                     }
                 }
             }

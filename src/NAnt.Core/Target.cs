@@ -126,15 +126,25 @@ namespace NAnt.Core {
 
                 try {
                     Project.OnTargetStarted(this, new BuildEventArgs(this));
-
+                
                     // select all the task nodes and execute them
-                    foreach (XmlNode taskNode in XmlNode) {
-                        if(taskNode.Name.StartsWith("#")) continue;
+                    foreach (XmlNode childNode in XmlNode) {
+                        if(childNode.Name.StartsWith("#")) continue;
+                        
+                           if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+                                Task task = Project.CreateTask(childNode, this);
+                                if (task != null) {
+                                    task.Execute();
+                                }
+                           } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
+                                DataTypeBase dataType = Project.CreateDataTypeBase(childNode);
+                                Project.Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
+                                Project.DataTypeReferences.Add(dataType.ID, dataType);                     
+                           } else {
+                                string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
+                                throw new BuildException(message, Project.LocationMap.GetLocation(childNode) );
+                           }
 
-                        Task task = Project.CreateTask(taskNode, this);
-                        if (task != null) {
-                            task.Execute();
-                        }
                     }
                 } finally {
                     Project.OnTargetFinished(this, new BuildEventArgs(this));
