@@ -485,6 +485,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\OperatingSystemFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\PathFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
