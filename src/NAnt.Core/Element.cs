@@ -390,7 +390,7 @@ namespace NAnt.Core {
                             }
                         } catch (ValidationException ve) {
                             logger.Error("Validation Exception", ve);
-                            throw new ValidationException(string.Format(CultureInfo.InvariantCulture,
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                                 "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
                                 attributeValue, attributeNode.Name, this.Name), Location, ve);
                         }
@@ -402,9 +402,11 @@ namespace NAnt.Core {
                         if (propertyType.IsEnum) {
                             try {
                                 propertyValue = Enum.Parse(propertyType, attributeValue);
-                            } catch (Exception) {
-                                // catch type conversion exceptions here
-                                string message = "Invalid value \"" + attributeValue + "\". Valid values for this attribute are: ";
+                            } catch (ArgumentException) {
+                                string message = string.Format(CultureInfo.InvariantCulture, 
+                                    "'{0}' is not a valid value for attribute" +
+                                    " '{1}' of <{2} ... />. Valid values are: ", 
+                                    attributeValue, attributeNode.Name, this.Name);
                                 foreach (object value in Enum.GetValues(propertyType)) {
                                     message += value.ToString() + ", ";
                                 }
@@ -413,7 +415,13 @@ namespace NAnt.Core {
                                 throw new BuildException(message, Location);
                             }
                         } else {
-                            propertyValue = Convert.ChangeType(attributeValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
+                            try {
+                                propertyValue = Convert.ChangeType(attributeValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
+                            } catch (Exception ex) {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                    "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                    attributeValue, attributeNode.Name, this.Name), Location, ex);
+                            }
                         }
 
                         // set value
