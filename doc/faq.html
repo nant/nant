@@ -38,6 +38,15 @@
                         NAnt on Mono?</a>
                 </div>
             </div>
+            <a href="#general">General</a>
+            <div style="margin-left: 20px;">
+                <a href="#framework-support">Framework support</a>
+                <div style="margin-left: 20px;">
+                    <a href="#default-framework">What framework does NAnt target by default?</a>
+                    <br />
+                    <a href="#change-targetframework">How do I change the target framework?</a>
+                </div>
+            </div>
         </div>
         <h3>
             <a id="building" />Building NAnt</h3>
@@ -64,6 +73,58 @@ $ make clean
 $ make
 $ mono bin/NAnt.exe clean build
                     </pre>
+                </div>
+            </div>
+        </div>
+        <h3>
+            <a id="general" />General</h3>
+        <div style="margin-left: 20px;">
+            <h4 style="margin-left: 20px;">
+                <a id="framework-support" />Framework support</h4>
+            <div style="margin-left: 20px;">
+                <h5>
+                    <a id="default-framework" />What framework does NAnt target by default?</h5>
+                <div style="margin-left: 20px;">
+                    <p>
+                        As from NAnt 0.85, NAnt by default targets the framework on which its running.
+                    </p>
+                </div>
+                <h5>
+                    <a id="change-targetframework" />How do I change the target framework?</h5>
+                <div style="margin-left: 20px;">
+                    <p>
+                        NAnt supports three ways for changing the target framework:
+                    </p>
+                    <ol>
+                        <li>
+                            From the command line, using the -defaultframework (short format : /k):
+                            <br />
+                            <br />
+                            <pre class="code">
+NAnt.exe -k:net-1.0
+                            </pre>
+                        </li>
+                        <li>
+                            By changing the default target framework in the NAnt configuration file:
+                            <br />
+                            <br />
+                            <pre class="code">
+&lt;frameworks&gt;
+    &lt;platform name=&quot;win32&quot; default=&quot;net-1.0&quot;&gt;
+        ...
+    &lt;/platform&gt;
+&gt;
+                            </pre>
+                        </li>
+                        <li>
+                            By changing the value of the system property <code>nant.settings.currentframework</code>:
+                            <br />
+                            <br />
+                            <pre class="code">
+&lt;property&gt; name=&quot;nant.settings.currentframework&quot; value=&quot;net-1.0&quot; /&gt;
+                            </pre>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div>
