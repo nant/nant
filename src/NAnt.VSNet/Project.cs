@@ -310,16 +310,26 @@ namespace NAnt.VSNet {
                             // inherit project from solution task for child elements
                             ct.CopyFileSet.Project = SolutionTask.Project;
 
-                            // set task properties
+                            // set base directory of fileset
+                            ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
+
+                            // add files to copy
                             foreach (string file in fromFilenames) {
                                 ct.CopyFileSet.Includes.Add(file);
                             }
-                            ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
+
+                            // set destination directory
                             ct.ToDirectory = cs.OutputDir;
 
+                            // increment indentation level
                             ct.Project.Indent();
-                            ct.Execute();
-                            ct.Project.Unindent();
+                            try {
+                                // execute task
+                                ct.Execute();
+                            } finally {
+                                // restore indentation level
+                                ct.Project.Unindent();
+                            }
                         }
                     }
                     sw.WriteLine(reference.Setting);
@@ -355,6 +365,7 @@ namespace NAnt.VSNet {
                 using (StreamReader sr = new StreamReader(tempResponseFile)) {
                     Log(Level.Verbose, LogPrefix + "Commands:");
 
+                    // increment indentation level
                     SolutionTask.Project.Indent();
                     try {
                         while (true) {
@@ -367,6 +378,7 @@ namespace NAnt.VSNet {
                             Log(Level.Verbose, LogPrefix + "    "  + line);
                         }
                     } finally {
+                        // restore indentation level
                         SolutionTask.Project.Unindent();
                     }
                 }
@@ -387,6 +399,7 @@ namespace NAnt.VSNet {
 
             Process p = Process.Start(psi);
 
+            // increment indentation level
             SolutionTask.Project.Indent();
             try {
                 while (true) {
@@ -399,6 +412,7 @@ namespace NAnt.VSNet {
                     Log(Level.Info, "[compile] " + line);
                 }
             } finally {
+                // restore indentation level
                 SolutionTask.Project.Unindent();
             }
 
@@ -492,11 +506,17 @@ namespace NAnt.VSNet {
                         arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",\"{1}\"", resource.CompiledResourceFile, resource.ManifestResourceName);
                         al.Arguments.Add(arg);
  					}
- 					// run assembly linker
+
+                    // increment indentation level
  					SolutionTask.Project.Indent();
- 					Log(Level.Verbose, LogPrefix + " - {0}", culture);
- 					al.Execute();
- 					SolutionTask.Project.Unindent();
+                    try {
+                        Log(Level.Verbose, LogPrefix + " - {0}", culture);
+                        // run assembly linker
+                        al.Execute();
+                    } finally {
+                        // restore indentation level
+                        SolutionTask.Project.Unindent();
+                    }
  				}
  			}
 

@@ -184,10 +184,15 @@ namespace NAnt.VSNet {
                 lt.Assemblies.Includes.Add(reference.Filename);
             }
 
-            // execute task
+            // increment indentation level
             lt.Project.Indent();
-            lt.Execute();
-            lt.Project.Unindent();
+            try {
+                // execute task
+                lt.Execute();
+            } finally {
+                // restore indentation level
+                lt.Project.Unindent();
+            }
 
             return lt.OutputFile.FullName;
         }
@@ -222,10 +227,15 @@ namespace NAnt.VSNet {
             rt.InputFile = InputFile;
             rt.OutputFile = outputFile;
 
-            // execute task
+            // increment indentation level
             rt.Project.Indent();
-            rt.Execute();
-            rt.Project.Unindent();
+            try {
+                // execute task
+                rt.Execute();
+            } finally {
+                // restore indentation level
+                rt.Project.Unindent();
+            }
 
             return outputFile.FullName;
         }

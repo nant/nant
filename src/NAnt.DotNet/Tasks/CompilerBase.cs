@@ -981,14 +981,15 @@ namespace NAnt.DotNet.Tasks {
                 alink.Arguments.Add(arg);
             }
             
-            // fix up the indent level
+            // increment indentation level
             Project.Indent();
-            
-            // execute the nested task
-            alink.Execute();
-
-            // restore indent level
-            Project.Unindent();
+            try {
+                // execute the nested task
+                alink.Execute();
+            } finally {
+                // restore indentation level
+                Project.Unindent();
+            }
         }
         
         /// <summary>
@@ -1010,14 +1011,15 @@ namespace NAnt.DotNet.Tasks {
             resgen.InputFile = inputFile;
             resgen.OutputFile = outputFile;
 
-            // fix up the indent level
+            // increment indentation level
             Project.Indent();
-
-            // execute the task
-            resgen.Execute();
-
-            // restore the indent level
-            Project.Unindent();
+            try {
+                // execute the task
+                resgen.Execute();
+            } finally {
+                // restore indentation level
+                Project.Unindent();
+            }
         }
         
         #endregion Protected Instance Methods
