@@ -113,7 +113,7 @@ namespace NAnt.NUnit2.Tasks {
             if (configFile != null) {
                 configurationFile = configFile.FullName;                    
             } else {
-                configurationFile = Path.Combine(assemblyFile.FullName, ".config");
+                configurationFile = assemblyFile.FullName + ".config";
             }
 
             // only set configuration file if it actually exists
