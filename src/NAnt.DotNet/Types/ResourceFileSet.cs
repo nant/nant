@@ -177,28 +177,51 @@ namespace NAnt.DotNet.Types {
                 }
                 prefix.Append(relativePrefix);
             }
-            if (prefix.Length > 0 && !prefix.ToString().EndsWith(".")) {
-                prefix.Append(".");
-            }
-            string actualFileName = Path.GetFileNameWithoutExtension(fileName);
-            prefix.Append(actualFileName);
 
-            int firstindex = Path.GetFileName(fileName).IndexOf(actualFileName, 0 );
-            
-            StringBuilder result = new StringBuilder(Path.GetFileName(fileName));
-            result.Remove(firstindex, actualFileName.Length );
-            result.Insert(firstindex, prefix.ToString());
-            return result.ToString();
-        }
+            StringBuilder manifestResourceName = new StringBuilder();
+
+            // perform the following character operations :
+            // 1) if a part of the prefix of a manifest resource name starts with
+            //    a digit, prefix it with an underscore
+            //    eg. Namespace.16x16.1image.if -> Namespace._16x16.1image.gif
+            // 2) characters in the prefix that are neither letter nor digit
+            //    must be replaced with underscores
+
+            string[] parts = prefix.ToString().Split('.');
+            for (int i = 0; i < parts.Length; i++) {
+                string currentPart = parts[i];
+                if (currentPart.Length == 0) {
+                    // skip empty parts
+                    continue;
+                }
+                for (int charIndex = 0; charIndex < currentPart.Length; charIndex++) {
+                    char currentChar = currentPart[charIndex];
+                    if (charIndex == 0 && char.IsDigit(currentChar)) {
+                        manifestResourceName.Append('_');
+                        manifestResourceName.Append(currentChar);
+                    } else if (!char.IsLetterOrDigit(currentChar)) {
+                        manifestResourceName.Append('_');
+                    } else {
+                        manifestResourceName.Append(currentChar);
+                    }
+                }
+                manifestResourceName.Append('.');
+            }
+
+            // add filename to manifest resource name as is
+            manifestResourceName.Append(Path.GetFileName(fileName));
+            // return manifest resource name
+            return manifestResourceName.ToString();
+        }   
 
         #endregion Public Instance Methods
 
         #region Private Instance Fields
 
-        private string _prefix = null;
-        private bool _dynamicprefix = false;
+        private string _prefix;
+        private bool _dynamicprefix;
 
         #endregion Private Instance Fields
     }
- }
+}
  
