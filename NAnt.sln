@@ -120,15 +120,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		Item:1 = NAnt.build
-		Item:2 = src\NAnt.DotNet\NAnt.DotNet.build
-		Item:3 = bin\nant.exe.config
-		Item:4 = src\NAnt.NUnit\NAnt.NUnit.build
-		Item:5 = src\NAnt.VisualCpp\NAnt.VisualCpp.build
-		Item:6 = src\NAnt.VSNet\NAnt.VSNet.build
-		Item:7 = src\NAnt.Zip\NAnt.Zip.build
-		Item:8 = nightly.xml
-		Item:9 = release.xml
-		Item:10 = src\NAnt.Win32\NAnt.Win32.build
+		Item:2 = bin\nant.exe.config
+		Item:3 = nightly.xml
+		Item:4 = release.xml
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
