@@ -22,9 +22,11 @@ using System;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 
+using NAnt.NUnit2.Tasks;
+
 namespace NAnt.NUnit2.Types {
     /// <summary>
-    /// Controls the categories of tests to executes.
+    /// Controls the categories of tests to execute using the <see cref="NUnit2Task" />.
     /// </summary>
     /// <example>
     ///   <para>

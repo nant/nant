@@ -97,7 +97,8 @@ namespace NAnt.NUnit2.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Run all tests in files listed in the <c>tests.txt</c> file.
+    ///   Only tests that are not known to fail in files listed in the <c>tests.txt</c>
+    ///   file.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -107,6 +108,9 @@ namespace NAnt.NUnit2.Tasks {
     ///         <assemblies>
     ///             <includesfile name="tests.txt" />
     ///         </assemblies>
+    ///         <categories>
+    ///             <exclude name="NotWorking" />
+    ///         </categories>
     ///     </test>
     /// </nunit2>
     ///     ]]>
