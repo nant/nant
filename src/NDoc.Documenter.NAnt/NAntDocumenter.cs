@@ -165,13 +165,13 @@ namespace NDoc.Documenter.NAnt {
             OnDocBuildingStep(buildStepProgress, "Creating Task Index Page...");
 
             // transform nant task index page transform
-            TransformAndWriteResult(_xsltTaskIndex, indexArguments, "tasks.html");
+            TransformAndWriteResult(_xsltTaskIndex, indexArguments, "tasks/index.html");
 
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Creating Type Index Page...");
 
             // transform nant type index page transform
-            TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types.html");
+            TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types/index.html");
 
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
@@ -192,7 +192,6 @@ namespace NDoc.Documenter.NAnt {
                 DocumentType(typeNode, ElementDocType.DataTypeElement);
             }
             OnDocBuildingStep(100, "Complete");
-
         }
 
         #endregion Override implementation of IDocumenter

@@ -31,17 +31,17 @@
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
                 <meta name="description" content="Introduction" />
-                <link rel="stylesheet" type="text/css" href="../style.css" />
+                <link rel="stylesheet" type="text/css" href="../../style.css" />
                 <title>Task Reference</title>
             </head>
             <body>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
                         <td class="NavBar-Cell" width="100%">
-                            <a href="../index.html"><b>NAnt</b></a>
-                            <img alt="->" src="images/arrow.gif" />
-                            <a href="index.html">Help</a>
-                            <img alt="->" src="images/arrow.gif" />
+                            <a href="../../index.html"><b>NAnt</b></a>
+                            <img alt="->" src="../images/arrow.gif" />
+                            <a href="../index.html">Help</a>
+                            <img alt="->" src="../images/arrow.gif" />
                             Task Reference
                         </td>
                     </tr>

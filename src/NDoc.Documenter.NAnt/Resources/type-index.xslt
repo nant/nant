@@ -30,7 +30,7 @@
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
                 <meta name="description" content="Introduction" />
-                <link rel="stylesheet" type="text/css" href="../style.css" />
+                <link rel="stylesheet" type="text/css" href="../../style.css" />
                 <title>Data Type Reference</title>
             </head>
             <body>
@@ -38,9 +38,9 @@
                     <tr>
                         <td class="NavBar-Cell" width="100%">
                             <a href="../../index.html"><b>NAnt</b></a>
-                            <img alt="->" src="images/arrow.gif" />
-                            <a href="index.html">Help</a>
-                            <img alt="->" src="images/arrow.gif" />
+                            <img alt="->" src="../images/arrow.gif" />
+                            <a href="../index.html">Help</a>
+                            <img alt="->" src="../images/arrow.gif" />
                             Type Reference
                         </td>
                     </tr>
@@ -74,14 +74,14 @@
                 <xsl:if test="$IsErrorValue != 'True'">
                     <tr>
                         <!-- output task name in italics to indicate that its deprecated -->
-                        <td><a><xsl:attribute name="href">tasks/<xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
+                        <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
                         <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                     </tr>
                 </xsl:if>
             </xsl:when>
             <xsl:otherwise>
                 <tr>
-                    <td><a><xsl:attribute name="href">types/<xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
+                    <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
                     <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
                 </tr>
             </xsl:otherwise>
