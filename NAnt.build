@@ -136,7 +136,8 @@
 			load external data files wihtout having to worry about complicated paths.
 		-->
 		<nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltOnError="true" haltOnFailure="true">
-            <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" />
+            <formatter type="xml"  />
+            <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" outfile="${build.dir}\TestResult" />
 		</nunit>
     </target>
 
