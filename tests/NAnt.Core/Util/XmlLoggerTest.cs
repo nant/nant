@@ -57,7 +57,7 @@ namespace Tests.NAnt.Core.Util {
         public void Test_StripFormatting() {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
-            Console.WriteLine(_log.StripFormatting(formattedMessage));
+
             Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t[foo] " + baseMessage;
