@@ -250,6 +250,11 @@ namespace NDoc.Documenter.NAnt {
             }
 
             string classID = typeNode.Attributes["id"].Value;
+            if (!classID.Substring(2).StartsWith(NamespaceFilter)) {
+                // we don't need to types in this namespace
+                return;
+            }
+
             string filename = NAntXsltUtilities.GetFileNameForType(typeNode);
             if (filename == null) {
                 // we don't have to document this type
