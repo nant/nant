@@ -364,9 +364,9 @@ namespace NAnt.Core {
                     buildFileName = files[0].FullName;
                 } else if (files.Length > 1) {
                     throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
-                        "More than one '{0}' file found in '{1}' and no default.build."
-                        + "  Use -buildfile:<file> to specify or create a default.build file.", 
-                        searchPattern, directory));
+                        "More than one '{0}' file found in '{1}' and no default.build exists."
+                        + "  Use -buildfile:<file> to specify the build file to execute or "
+                        + " create a default.build file.", searchPattern, directory));
                 } else if (files.Length == 0 && findInParent) { // recurse up the tree
                     DirectoryInfo parentDirectoryInfo = directoryInfo.Parent;
                     if (findInParent && parentDirectoryInfo != null) {
