@@ -56,15 +56,18 @@ namespace NAnt.NUnit2.Tasks {
             AppDomain domain = CreateDomain(assemblyFile.Directory, configFile);
             
             // get the path to the copy of nunit.framework residing in nants bin dir
-            string nunitpath =  Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location ),"nunit.framework.dll");
+            string nunitpath = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "nunit.framework.dll");
             
-            if ( File.Exists(nunitpath) ) {
+            if (File.Exists(nunitpath)) {
                 // create an instance of our custom Assembly Resolver in the target domain.
-                ObjectHandle oh = domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, "NAnt.NUnit2.Tasks.AssemblyResolveHandler",
+                ObjectHandle oh = domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
+                        typeof(AssemblyResolveHandler).FullName,
                         false, 
                         BindingFlags.Public | BindingFlags.Instance,
                         null,
-                        new object[]{nunitpath},
+                        new object[] {nunitpath},
                         CultureInfo.InvariantCulture,
                         null,
                         AppDomain.CurrentDomain.Evidence);     
@@ -149,37 +152,56 @@ namespace NAnt.NUnit2.Tasks {
         private TextWriter _errorStream;
 
         #endregion Private Instance Fields
-    }
-    
-    /// <summary>
-    /// Helper class called when an assembly resolve event is raised.
-    /// </summary>
-    [Serializable]
-    class AssemblyResolveHandler  {
-        private string _nunitPath;
-        
-        public AssemblyResolveHandler(string nunitpath) {
-            _nunitPath = nunitpath;
-            ResolveEventHandler resolveHandler = new ResolveEventHandler(ResolveAssembly);
-            
-            // attach our handler for the current domain.
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(resolveHandler);
-        }
+
         /// <summary>
-        /// Called back when the CLR cannot resolve a given assembly. If its Nunit return the copy
-        /// we know to be in NAnts bin directory. If not then just return null.
+        /// Helper class called when an assembly resolve event is raised.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public Assembly ResolveAssembly(Object sender, ResolveEventArgs args) {
+        [Serializable()]
+        private class AssemblyResolveHandler {
+            #region Private Instance Fields
+
+            private string _nunitPath;
+
+            #endregion Private Instance Fields
+        
+            #region Public Instance Constructors
+
+            /// <summary> 
+            /// Initializes an instanse of the <see cref="AssemblyResolveHandler" /> 
+            /// class.
+            /// </summary>
+            public AssemblyResolveHandler(string nunitpath) {
+                _nunitPath = nunitpath;
+                ResolveEventHandler resolveHandler = new ResolveEventHandler(ResolveAssembly);
             
-            // Use args.Name to look up the assembly name.           
-            if ( args.Name.IndexOf("nunit.framework") != -1 ) {
-                return Assembly.LoadFrom( _nunitPath );
-            }          
-            // if its not NUnit then we don't know about it
-            return null;
+                // attach our handler for the current domain.
+                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(resolveHandler);
+            }
+
+            #endregion Public Instance Constructors
+
+            #region Public Instance Methods
+
+            /// <summary>
+            /// Called back when the CLR cannot resolve a given assembly.
+            /// </summary>
+            /// <param name="sender">The source of the event.</param>
+            /// <param name="args">A <see cref="ResolveEventArgs" /> that contains the event data.</param>
+            /// <returns>
+            /// The <c>nunit.framework</c> we know to be in NAnts bin directory, if 
+            /// that is the assembly that needs to be resolved; otherwise, 
+            /// <see langword="null" />.
+            /// </returns>
+            public Assembly ResolveAssembly(Object sender, ResolveEventArgs args) {
+                // check whether the nunit.framework assembly should be resolved
+                if (args.Name.IndexOf("nunit.framework") != -1) {
+                    return Assembly.LoadFrom(_nunitPath);
+                }          
+                // if its not the nunit.framework assembly then we don't know about it
+                return null;
+            }
+
+            #endregion Public Instance Methods
         }
     }
 }
