@@ -334,6 +334,12 @@ namespace NAnt.DotNet.Tasks {
             if (RootNamespace != null) {
                 WriteOption(writer, "rootnamespace", RootNamespace);
             }
+
+            if (Project.TargetFramework.Family == "netcf") {
+                WriteOption(writer, "netcf");
+                WriteOption(writer, "sdkpath", Project.TargetFramework.
+                    FrameworkAssemblyDirectory.FullName);
+            }
         }
 
         /// <summary>
