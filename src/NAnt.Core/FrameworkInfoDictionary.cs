@@ -21,7 +21,7 @@ using System;
 using System.Collections;
 
 namespace NAnt.Core {
-    public class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
+    public sealed class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
         #region Private Instance Fields
 
         private Hashtable _innerHash;
