@@ -1,11 +1,11 @@
-<?xml version="1.0" ?>
-<project name="nant" default="test"> 
+<?xml version="1.0"?>
+<project name="nant" default="test">
     <!--
         Required properties:
             * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
             * build.debug   - (true|false) debug build?
     -->
-    <target name="build"> 
+    <target name="build">
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VisualCppTasks.dll"
             doc="${build.dir}/bin/NAnt.VisualCppTasks.xml">
