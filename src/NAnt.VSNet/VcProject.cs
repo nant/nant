@@ -56,6 +56,7 @@ namespace NAnt.VSNet {
             _references = new ArrayList();
             _clArgMap = VcArgumentMap.CreateCLArgumentMap();
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
+            _midlArgMap = VcArgumentMap.CreateMidlArgumentMap();
             _objFiles = new ArrayList();
             _projectPath = Path.GetFullPath(projectPath);
 
@@ -226,6 +227,14 @@ namespace NAnt.VSNet {
             // build configuration
             Hashtable buildRcConfigs = new Hashtable();
 
+            // initialize hashtable for holding the IDL files for each build 
+            // configuration
+            //
+            // the key of the hashtable is a build configuration, and the
+            // value is an ArrayList holding the IDL files for that build 
+            // configuration
+            Hashtable buildIdlConfigs = new Hashtable();
+
             foreach (DictionaryEntry de in _htFiles) {
                 string fileName = (string) de.Key;
                 string ext = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
@@ -248,20 +257,33 @@ namespace NAnt.VSNet {
                     continue;
                 }
 
-                if (ext == ".cpp" || ext == ".c") {
-                    if (!buildConfigs.ContainsKey(fileConfig)) {
-                        buildConfigs[fileConfig] = new ArrayList(1);
-                    }
+                switch (ext) {
+                    case ".cpp":
+                    case ".c":
+                        if (!buildConfigs.ContainsKey(fileConfig)) {
+                            buildConfigs[fileConfig] = new ArrayList(1);
+                        }
 
-                    // add file to list of sources to build with this config
-                    ((ArrayList) buildConfigs[fileConfig]).Add(fileName);
-                } else if (ext == ".rc") {
-                    if (!buildRcConfigs.ContainsKey(fileConfig)) {
-                        buildRcConfigs[fileConfig] = new ArrayList(1);
-                    }
+                        // add file to list of sources to build with this config
+                        ((ArrayList) buildConfigs[fileConfig]).Add(fileName);
+                        break;
+                    case ".rc":
+                        if (!buildRcConfigs.ContainsKey(fileConfig)) {
+                            buildRcConfigs[fileConfig] = new ArrayList(1);
+                        }
 
-                    // add file to list of resources to build with this config
-                    ((ArrayList) buildRcConfigs[fileConfig]).Add(fileName);
+                        // add file to list of resources to build with this config
+                        ((ArrayList) buildRcConfigs[fileConfig]).Add(fileName);
+                        break;
+                    case ".idl":
+                    case ".odl": // ODL is used for old OLE objects
+                        if (!buildIdlConfigs.ContainsKey(fileConfig)) {
+                            buildIdlConfigs[fileConfig] = new ArrayList(1);
+                        }
+
+                        // add file to list of idl's to build with this config
+                        ((ArrayList) buildIdlConfigs[fileConfig]).Add(fileName);
+                        break;
                 }
             }
 
@@ -272,6 +294,11 @@ namespace NAnt.VSNet {
             }
 
             VcConfiguration stdafxConfig = null;
+
+            // build idl files before everything else
+            foreach (VcConfiguration idlConfig in buildIdlConfigs.Keys) {
+                BuildIDLFiles((ArrayList) buildIdlConfigs[idlConfig], idlConfig);
+            }
 
             // If VC project uses precompiled headers then the precompiled header
             // output (.pch file) must be generated before compiling any other
@@ -745,6 +772,152 @@ namespace NAnt.VSNet {
             }
         }
 
+        /// <summary>
+        /// Build Interface Definition Language files for the given
+        /// configuration.
+        /// </summary>
+        /// <param name="fileNames">The IDL files to build.</param>
+        /// <param name="fileConfig">The build configuration.</param>
+        private void BuildIDLFiles(ArrayList fileNames, VcConfiguration fileConfig) {
+            const string compilerTool = "VCMIDLTool";
+
+            // create instance of MIDL task
+            MidlTask midlTask = new MidlTask();
+
+            // inherit project from solution task
+            midlTask.Project = SolutionTask.Project;
+
+            // Set the base directory
+            midlTask.BaseDirectory = fileConfig.ProjectDir;
+
+            // inherit namespace manager from solution task
+            midlTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // parent is solution task
+            midlTask.Parent = SolutionTask;
+
+            // inherit verbose setting from solution task
+            midlTask.Verbose = SolutionTask.Verbose;
+
+            // make sure framework specific information is set
+            midlTask.InitializeTaskConfiguration();
+
+            // If outputDirectory is not supplied in the configuration, assume 
+            // it's the project directory
+            string outputDirectory = fileConfig.GetToolSetting(compilerTool, "OutputDirectory");
+            if (StringUtils.IsNullOrEmpty(outputDirectory)) {
+                outputDirectory = fileConfig.ProjectDir.FullName;
+            }
+
+            midlTask.Arguments.Add(new Argument("/out"));
+            midlTask.Arguments.Add(new Argument(outputDirectory));
+
+            string typeLibraryName = fileConfig.GetToolSetting(compilerTool, "TypeLibraryName");
+            if (!StringUtils.IsNullOrEmpty(typeLibraryName)) {
+                midlTask.Tlb = new FileInfo(Path.Combine(outputDirectory, typeLibraryName));
+            } else {
+                // if typeLibraryName is not supplied in the configuration, 
+                // uses the default setting
+                string intermediateDir = Path.Combine(outputDirectory, 
+                    fileConfig.IntermediateDir);
+                midlTask.Tlb = new FileInfo(Path.Combine(intermediateDir, 
+                    fileConfig.Project.Name + ".tlb"));
+            }
+
+            string proxyFileName = fileConfig.GetToolSetting(compilerTool, "ProxyFileName");
+            if (!StringUtils.IsNullOrEmpty(proxyFileName)) {
+                midlTask.Proxy = new FileInfo(Path.Combine(outputDirectory, 
+                    proxyFileName));
+            }
+
+            string interfaceIdentifierFileName = fileConfig.GetToolSetting(compilerTool, "InterfaceIdentifierFileName");
+            if (!StringUtils.IsNullOrEmpty(interfaceIdentifierFileName)) {
+                midlTask.Iid = new FileInfo(Path.Combine(outputDirectory, 
+                    interfaceIdentifierFileName));
+            }
+
+            string dllDataFileName = fileConfig.GetToolSetting(compilerTool, "DLLDataFileName");
+            if (!StringUtils.IsNullOrEmpty(dllDataFileName)) {
+                midlTask.DllData = new FileInfo(Path.Combine(outputDirectory, 
+                    dllDataFileName));
+            }
+
+            string headerFileName = fileConfig.GetToolSetting(compilerTool, "HeaderFileName");
+            if (!StringUtils.IsNullOrEmpty(headerFileName)) {
+                midlTask.Header = new FileInfo(Path.Combine(outputDirectory, 
+                    headerFileName));
+            }
+
+            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
+            if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
+                foreach (string preprocessorDef in preprocessorDefs.Split(';')) {
+                    if (preprocessorDef.Length == 0) {
+                        continue;
+                    }
+                    Option op = new Option();
+                    op.OptionName = preprocessorDef;
+                    midlTask.Defines.Add(op);
+                }            
+            }
+
+            string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
+            if (!StringUtils.IsNullOrEmpty(undefinePreprocessorDefs)) {
+                foreach (string undefinePreprocessorDef in undefinePreprocessorDefs.Split(';')) {
+                    if (undefinePreprocessorDef.Length == 0) {
+                        continue;
+                    }
+                    Option op = new Option();
+                    op.OptionName = undefinePreprocessorDef;
+                    midlTask.Undefines.Add(op);
+                }            
+            }
+
+            string additionalIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
+            if (!StringUtils.IsNullOrEmpty(additionalIncludeDirs)) {
+                foreach (string additionalIncludeDir in additionalIncludeDirs.Split(';')) {
+                    if (additionalIncludeDir.Length == 0) {
+                        continue;
+                    }
+                    midlTask.Arguments.Add(new Argument("/I"));
+                    midlTask.Arguments.Add(new Argument(additionalIncludeDir));
+                }            
+            }
+
+            string cPreprocessOptions = fileConfig.GetToolSetting(compilerTool, "CPreprocessOptions");
+            if (!StringUtils.IsNullOrEmpty(cPreprocessOptions)) {
+                foreach (string cPreprocessOption in cPreprocessOptions.Split(';')) {
+                    if (cPreprocessOption.Length == 0) {
+                        continue;
+                    }
+                    midlTask.Arguments.Add(new Argument(string.Format("/cpp_opt\"{0}\"", cPreprocessOption)));
+                }    
+            }
+
+            Hashtable midlArgs = fileConfig.GetToolArguments(compilerTool, _midlArgMap);   
+            foreach (string key in midlArgs.Keys) {
+                switch (key) {
+                    case "TargetEnvironment":
+                        midlTask.Env = (string) midlArgs[key];
+                        break;
+                    case "DefaultCharType":
+                        midlTask.Char = (string) midlArgs[key];
+                        break;
+                    default:
+                        midlTask.Arguments.Add(new Argument((string) midlArgs[key]));
+                        break;
+                }
+            }
+
+            // Compile each idl file
+            foreach (string idlFile in fileNames) {
+                midlTask.Filename = new FileInfo(Path.Combine(
+                    fileConfig.ProjectDir.FullName, idlFile));
+                
+                // execute the task
+                ExecuteInProjectDirectory(midlTask);
+            }
+        }
+
         private void RunLibrarian(VcConfiguration baseConfig) {
             // create instance of Lib task
             LibTask libTask = new LibTask();
@@ -901,7 +1074,8 @@ namespace NAnt.VSNet {
             if (outFile == null) {
                 return false;
             }
-            return Path.GetExtension(outFile).ToLower(CultureInfo.InvariantCulture) == ".dll";
+            string ext = Path.GetExtension(outFile).ToLower(CultureInfo.InvariantCulture);
+            return ext == ".dll" || ext == ".ocx";
         }
 
         private void ExecuteInProjectDirectory(NAnt.Core.Task task) {
@@ -1092,6 +1266,7 @@ namespace NAnt.VSNet {
         private readonly ArrayList _objFiles;
         private readonly VcArgumentMap _clArgMap;
         private readonly VcArgumentMap _linkerArgMap;
+        private readonly VcArgumentMap _midlArgMap;
 
         #endregion Private Instance Fields
 

@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Dmitry Jemerov <yole@yole.ru>
+// Hani Atassi (haniatassi@users.sourceforge.net)
 
 using System;
 using System.Collections;
@@ -100,6 +101,26 @@ namespace NAnt.VSNet {
             map.AddEnum("SubSystem", "/SUBSYSTEM:", null, "CONSOLE", "WINDOWS");
             map.AddEnum("OptimizeReferences", "/OPT:", null, "NOREF", "REF");
             map.AddEnum("EnableCOMDATFolding", "/OPT:", null, "NOICF", "ICF");
+            return map;
+        }
+
+        public static VcArgumentMap CreateMidlArgumentMap() {
+            VcArgumentMap map = new VcArgumentMap();
+            map.AddBool("IgnoreStandardIncludePath", "/no_def_idir");
+            map.AddBool("MkTypLibCompatible", "/mktyplib203");
+            map.AddEnum("WarningLevel", null, "/W0", "/W1", "/W2", "/W3", "/W4");
+            map.AddBool("WarnAsError", "/WX");
+            map.AddEnum("DefaultCharType", null, "unsigned", "signed", "ascii7");
+            map.AddEnum("TargetEnvironment", null, null, "win32", "win64");
+            map.AddBool("GenerateStublessProxies", "/Oicf");
+            map.AddEnum("EnableErrorChecks", "/error ", null, "none", "all");
+            map.AddBool("ErrorCheckAllocations", "/error allocation");
+            map.AddBool("ErrorCheckBounds", "/error bounds_check");
+            map.AddBool("ErrorCheckEnumRange", "/error enum");
+            map.AddBool("ErrorCheckRefPointers", "/error ref");
+            map.AddBool("ErrorCheckStubData", "/error stub_data");
+            map.AddBool("ValidateParameters", "/robust");
+            map.AddEnum("StructMemberAlignment", null, null, "/Zp1", "/Zp2", "/Zp4", "/Zp8");
             return map;
         }
 
