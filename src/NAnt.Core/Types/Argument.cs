@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using System.IO;
 
 using NAnt.Core.Attributes;
 
@@ -30,8 +31,8 @@ namespace NAnt.Core.Types {
     public class Argument : DataTypeBase {
         #region Private Instance Fields
 
-        private string _value = null;
-        private string _file = null;
+        private string _value;
+        private FileInfo _file;
         private bool _ifDefined = true;
         private bool _unlessDefined;
 
@@ -47,7 +48,7 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Argument" /> class
-        /// with the specified value.
+        /// with the specified command-line argument.
         /// </summary>
         public Argument(string value) {
             _value = value;
@@ -55,10 +56,38 @@ namespace NAnt.Core.Types {
 
         #endregion Public Instance Constructors
 
+        #region Override implementation of Object
+
+        /// <summary>
+        /// Returns the argument as a <see cref="string" /> and puts quotes
+        /// around the argument if necessary.
+        /// </summary>
+        /// <returns>
+        /// The argument as a <see cref="string" />.
+        /// </returns>
+        public override string ToString() {
+            if (Value != null || File != null) {
+                string argument = File == null ? Value : File.FullName;
+                if (argument.IndexOf("\"") > -1) {
+                    // argument is already quoted
+                    return argument;
+                } else if (argument.IndexOf("'") > -1 || argument.IndexOf(" ") > -1) {
+                    // argument contains space and is not quoted, so quote it
+                    return '\"' + argument + '\"';
+                } else {
+                    return argument;
+                }
+            } else {
+                return string.Empty;
+            }
+        }
+
+        #endregion Override implementation of Object
+
         #region Public Instance Properties
 
         /// <summary>
-        /// Value of this argument.
+        /// A single command-line argument; can contain space characters.
         /// </summary>
         [TaskAttribute("value")]
         public string Value {
@@ -67,12 +96,13 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
-        /// File of this argument.
+        /// The name of a file as a single command-line argument; will be 
+        /// replaced with the absolute filename of the file.
         /// </summary>
         [TaskAttribute("file")]
-        public string File {
+        public FileInfo File {
             get { return _file; }
-            set { _file = Project.GetFullPath(value); }
+            set { _file = value; }
         }
 
         /// <summary>
@@ -100,5 +130,22 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Public Instance Properties
+
+        #region Internal Instance Properties
+
+        /// <summary>
+        /// Gets string value corresponding with the argument.
+        /// </summary>
+        internal string StringValue {
+            get {
+                if (File != null) {
+                    return File.FullName;
+                } else {
+                    return Value;
+                }
+            }
+        }
+
+        #endregion Internal Instance Properties
     }
 }
