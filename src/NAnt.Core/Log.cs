@@ -324,6 +324,7 @@ namespace NAnt.Core {
         void Flush();
     }
 
+    [Serializable()]
     public class DefaultLogger : IBuildLogger {
         #region Public Instance Constructors
 
@@ -635,6 +636,7 @@ namespace NAnt.Core {
     ///     </item>
     /// </list>
     /// </remarks>
+    [Serializable()]
     public class MailLogger : DefaultLogger {
         #region Public Instance Constructors
 
@@ -790,7 +792,7 @@ namespace NAnt.Core {
     /// Contains a strongly typed collection of <see cref="IBuildListener"/> 
     /// objects.
     /// </summary>
-    [Serializable]
+    [Serializable()]
     public class BuildListenerCollection : CollectionBase {
         #region Public Instance Constructors
 
