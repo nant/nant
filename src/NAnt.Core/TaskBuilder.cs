@@ -26,7 +26,7 @@ using System.Security.Permissions;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core {
-    internal class TaskBuilder {
+    public class TaskBuilder {
         #region Public Instance Constructors
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace NAnt.Core {
         /// <value>
         /// List of loaded <see cref="TaskBuilder" /> instances.
         /// </value>
-        internal static TaskBuilderCollection TaskBuilders {
+        public static TaskBuilderCollection TaskBuilders {
             get { return _taskBuilders; }
         }
 
@@ -77,7 +77,7 @@ namespace NAnt.Core {
         /// <value>
         /// List of loaded <see cref="DataTypeBaseBuilder" /> instances.
         /// </value>
-        internal static DataTypeBaseBuilderCollection DataTypeBuilders {
+        public static DataTypeBaseBuilderCollection DataTypeBuilders {
             get { return _dataTypeBuilders; }
         }
 
@@ -87,7 +87,7 @@ namespace NAnt.Core {
         /// <value>
         /// List of loaded <see cref="FilterBuilder" /> instances.
         /// </value>
-        internal static FilterBuilderCollection FilterBuilders {
+        public static FilterBuilderCollection FilterBuilders {
             get { return _filterBuilders; }
         }
 

@@ -26,7 +26,7 @@ namespace NAnt.Core {
     /// Contains a strongly typed collection of <see cref="TaskBuilder"/> objects.
     /// </summary>
     [Serializable]
-    internal class TaskBuilderCollection : CollectionBase {
+    public class TaskBuilderCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace NAnt.Core {
     /// <summary>
     /// Enumerates the <see cref="TaskBuilder"/> elements of a <see cref="TaskBuilderCollection"/>.
     /// </summary>
-    internal class TaskBuilderEnumerator : IEnumerator {
+    public class TaskBuilderEnumerator : IEnumerator {
         #region Internal Instance Constructors
 
         /// <summary>

@@ -25,7 +25,7 @@ using System.Security.Permissions;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Filters {
-    internal class FilterBuilder {
+    public class FilterBuilder {
         #region Public Instance Constructors
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace NAnt.Core {
     /// Contains a strongly typed collection of <see cref="DataTypeBaseBuilder"/> objects.
     /// </summary>
     [Serializable]
-    internal class DataTypeBaseBuilderCollection : CollectionBase {
+    public class DataTypeBaseBuilderCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace NAnt.Core {
     /// <summary>
     /// Enumerates the <see cref="DataTypeBaseBuilder"/> elements of a <see cref="DataTypeBaseBuilderCollection"/>.
     /// </summary>
-    internal class DataTypeBaseBuilderEnumerator : IEnumerator {
+    public class DataTypeBaseBuilderEnumerator : IEnumerator {
         #region Internal Instance Constructors
 
         /// <summary>

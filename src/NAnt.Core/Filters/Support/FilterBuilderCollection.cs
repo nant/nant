@@ -25,7 +25,7 @@ namespace NAnt.Core.Filters {
     /// Contains a strongly typed collection of <see cref="FilterBuilder"/> objects.
     /// </summary>
     [Serializable]
-    internal class FilterBuilderCollection : CollectionBase {
+    public class FilterBuilderCollection : CollectionBase {
         #region Public Instance Constructors
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace NAnt.Core.Filters {
     /// <summary>
     /// Enumerates the <see cref="FilterBuilder"/> elements of a <see cref="FilterBuilderCollection"/>.
     /// </summary>
-    internal class FilterBuilderEnumerator : IEnumerator {
+    public class FilterBuilderEnumerator : IEnumerator {
         #region Internal Instance Constructors
 
         /// <summary>
