@@ -109,6 +109,11 @@ namespace NDoc.Documenter.NAnt {
                     case "T:":  // Type: class, interface, struct, enum, delegate
                         return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + "ClassTopic" + SdkDocExt;
                     case "F:":  // Field
+                        // do not generate href for fields, as the .NET SDK does 
+                        // not have separate pages for enum fields, and we have no
+                        // way of knowing whether it's a reference to an enum field 
+                        // or class field.
+                        return string.Empty;
                     case "P:":  // Property
                     case "M:":  // Method
                     case "E:":  // Event
