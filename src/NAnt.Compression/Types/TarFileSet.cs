@@ -31,7 +31,7 @@ namespace NAnt.Compression.Types {
     /// A <see cref="TarFileSet" /> is a <see cref="FileSet" /> with extra 
     /// attributes useful in the context of the <see cref="TarTask" />.
     /// </summary>
-    [TaskName("tarfileset")]
+    [ElementName("tarfileset")]
     public class TarFileSet : FileSet {
         #region Private Instance Fields
 

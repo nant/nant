@@ -29,7 +29,7 @@ namespace NAnt.Compression.Types {
     /// A <see cref="ZipFileSet" /> is a <see cref="FileSet" /> with extra 
     /// attributes useful in the context of the <see cref="ZipTask" />.
     /// </summary>
-    [TaskName("zipfileset")]
+    [ElementName("zipfileset")]
     public class ZipFileSet : FileSet {
         #region Private Instance Fields
 

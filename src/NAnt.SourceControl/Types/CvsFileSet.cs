@@ -34,7 +34,7 @@ namespace NAnt.SourceControl.Types {
     /// A <see cref="CvsFileSet" /> is a <see cref="FileSet" /> with extra 
     /// attributes useful in the context of the <see cref="CvsTask" />.
     /// </summary>
-    [TaskName("cvsfileset")]
+    [ElementName("cvsfileset")]
     public class CvsFileSet : FileSet {
         #region Private Instance Fields
 
