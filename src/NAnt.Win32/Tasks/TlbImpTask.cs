@@ -23,6 +23,8 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 
+using NAnt.DotNet.Types;
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -56,19 +58,19 @@ namespace NAnt.Win32.Tasks {
         #region Private Instance Fields
 
         private FileInfo _outputFile;
-        private string _namespace = null;
-        private string _asmVersion = null; 
-        private bool _delaySign = false;
-        private bool _primary = false;
+        private string _namespace;
+        private string _asmVersion;
+        private bool _delaySign;
+        private bool _primary;
         private FileInfo _publicKeyFile;
         private FileInfo _keyFile;
-        private string _keyContainer = null;
-        private FileSet _references = new FileSet();
-        private bool _strictref = false;
-        private bool _sysarray = false;
-        private bool _unsafe = false;
+        private string _keyContainer;
+        private AssemblyFileSet _references = new AssemblyFileSet();
+        private bool _strictref;
+        private bool _sysarray;
+        private bool _unsafe;
         private FileInfo _typelib;
-        private StringBuilder _argumentBuilder = null;
+        private StringBuilder _argumentBuilder;
 
         #endregion Private Instance Fields
 
@@ -207,7 +209,7 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [BuildElement("references")]
-        public FileSet References {
+        public AssemblyFileSet References {
             get { return _references; }
             set { _references = value; }
         }
@@ -305,22 +307,6 @@ namespace NAnt.Win32.Tasks {
             // from XML
             if (References.BaseDirectory == null) {
                 References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
-            }
-
-            // fix references to system assemblies
-            if (Project.TargetFramework != null) {
-                foreach (string pattern in References.Includes) {
-                    if (Path.GetFileName(pattern) == pattern) {
-                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                        string localPath = Path.Combine(References.BaseDirectory.FullName, pattern);
-                        string fullPath = Path.Combine(frameworkDir, pattern);
-
-                        if (!File.Exists(localPath) && File.Exists(fullPath)) {
-                            // found a system reference
-                            References.FileNames.Add(fullPath);
-                        }
-                    }
-                }
             }
 
             // check to see if any of the underlying interop dlls or the typelibs have changed
