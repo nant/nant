@@ -120,6 +120,25 @@ namespace SourceForge.NAnt.Tasks {
         public string RootNamespace   { get { return _rootNamespace; } set {_rootNamespace = value;}}
 
         /// <summary>
+        /// Local override to ensure the Rootnamespace is prefixed
+        /// </summary>
+        /// <param name="resxPath"></param>
+        /// <returns></returns>
+        protected override string GetFormNamespace(string resxPath){
+            string baseNamespace = base.GetFormNamespace( resxPath );
+            if ( RootNamespace  != null ) {
+                if ( baseNamespace.Length > 0 ) {
+                    return RootNamespace +  "." + baseNamespace;
+                }
+                else {
+                    return RootNamespace;
+                }
+            } 
+            else {
+                return baseNamespace;
+            }            
+        }
+        /// <summary>
         /// Writes the compiler options to the specified TextWriter.
         /// </summary>
         /// <param name="writer"></param>
