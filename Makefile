@@ -1,5 +1,6 @@
 # Simple makefile to build NAnt with Core and DotNetTasks
 MCS=mcs
+MONO=mono
 
 all: 
 	make bootstrap
@@ -20,7 +21,7 @@ windows-bootstrap:
 
 linux-bootstrap-nant:
 	$(MCS) -target:exe -define:MONO -debug -o bin/NAnt.exe -r:lib/mono/1.0/log4net.dll -recurse:src/NAnt.Console/*.cs src/CommonAssemblyInfo.cs
-	cp src/NAnt.Console/NAnt.Console.exe.config.linux bin/NAnt.exe.config
+	cp src/NAnt.Console/NAnt.Console.exe.config bin/NAnt.exe.config
 
 linux-bootstrap-nant.core:
 	$(MCS) -target:library -define:MONO -debug -o bin/NAnt.Core.dll -r:bin/log4net.dll -r:System.Web.dll -recurse:src/NAnt.Core/*.cs src/CommonAssemblyInfo.cs
@@ -32,7 +33,7 @@ nant:
 	if test x$(OS) = xWindows_NT; then make windows-nant; else make linux-nant; fi
 
 linux-nant:
-	mono bin/NAnt.exe -buildfile:NAnt.build build
+	$(MONO) bin/NAnt.exe -buildfile:NAnt.build build
 
 windows-nant:
 	echo Windows-based make is not yet supported; exit 1;\
