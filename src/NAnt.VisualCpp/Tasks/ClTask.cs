@@ -24,6 +24,7 @@
 // TODO: review interface for future compatibility/customizations issues
 
 using System;
+using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
@@ -31,6 +32,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
+using NAnt.VisualCpp.Types;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
@@ -63,6 +66,7 @@ namespace NAnt.VisualCpp.Tasks {
         private FileSet _metaDataIncludeDirs = new FileSet();
         private FileSet _forcedUsingFiles = new FileSet();
         private bool _managedExtensions;
+        private CharacterSet _characterSet = CharacterSet.NotSet;
         private string _options;
 
         #endregion Private Instance Fields
@@ -98,6 +102,24 @@ namespace NAnt.VisualCpp.Tasks {
         public bool ManagedExtensions {
             get { return _managedExtensions; }
             set { _managedExtensions = value;}
+        }
+
+        /// <summary>
+        /// Tells the compiler to use the specified character set - either
+        /// <see cref="NAnt.VisualCpp.Types.CharacterSet.Unicode" /> or 
+        /// <see cref="NAnt.VisualCpp.Types.CharacterSet.MultiByte" />.
+        /// </summary>
+        [TaskAttribute("characterset", Required=false)]
+        public CharacterSet CharacterSet {
+            get { return _characterSet; }
+            set {
+                if (!Enum.IsDefined(typeof(CharacterSet), value)) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                        "An invalid character set '{0}' was specified.", value)); 
+                } else {
+                    this._characterSet = value;
+                }
+            }
         }
 
         /// <summary>
@@ -317,6 +339,17 @@ namespace NAnt.VisualCpp.Tasks {
                         writer.WriteLine("\"{0}\"", filename);
                     }
 
+                    // tell compiler which character set to use
+                    switch (CharacterSet) {
+                        case CharacterSet.Unicode:
+                            writer.WriteLine("/D \"_UNICODE\"");
+                            writer.WriteLine("/D \"UNICODE\"");
+                            break;
+                        case CharacterSet.MultiByte:
+                            writer.WriteLine("/D \"_MBCS\"");
+                            break;
+                    }
+
                     writer.Close();
 
                     if (Verbose) {
@@ -329,7 +362,7 @@ namespace NAnt.VisualCpp.Tasks {
 
                     // suppresses display of the sign-on banner
                     // (this has no effect in response file)
-                    this.Arguments.Add(new Argument("/nologo "));
+                    this.Arguments.Add(new Argument("/nologo"));
 
                     // call base class to do the actual work
                     base.ExecuteTask();
