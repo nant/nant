@@ -74,7 +74,12 @@
         <p>NAnt tries to execute the targets in the <code>depends</code> attribute in the 
             order they appear from left to right.&nbsp; It is possible that a target can 
             get executed earlier when an earlier target depends on it:</p>
-        <pre class="code">    &lt;target name="A"/&gt;    &lt;target name="B" depends="A" /&gt;    &lt;target name="C" depends="B" /&gt;    &lt;target name="D" depends="C,B,A" /&gt;        </pre>
+        <pre class="code">
+    &lt;target name="A"/&gt;
+    &lt;target name="B" depends="A" /&gt;
+    &lt;target name="C" depends="B" /&gt;
+    &lt;target name="D" depends="C,B,A" /&gt;
+        </pre>
         <p>Suppose we want to execute target D.&nbsp; From its <code>depends</code> attribute, 
             you might think that first target C, then B and then A is executed.&nbsp; 
             Wrong!&nbsp; C depends on B, and B depends on A, so first A is executed, then 
@@ -87,7 +92,10 @@
             defines, etc.).&nbsp; To make a target <i>sense</i> this property, you should 
             add the <code>if</code> or <code>unless</code> attribute with the name of the 
             property that the target should react to. For example:</p>
-        <pre class="code">    &lt;target name="build-module-A" if="module-A-present" /&gt;    &lt;target name="build-own-fake-module-A" unless="module-A-present" /&gt;        </pre>
+        <pre class="code">
+    &lt;target name="build-module-A" if="module-A-present" /&gt;
+    &lt;target name="build-own-fake-module-A" unless="module-A-present" /&gt;
+        </pre>
         <p>If no <code>if</code> and no <code>unless</code> attribute is present, the 
             target will always be executed.</p>
         <p>The optional <code>description</code> attribute can be used to provide a 
