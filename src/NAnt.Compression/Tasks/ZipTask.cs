@@ -99,18 +99,18 @@ namespace NAnt.Zip.Tasks {
                 }
             } 
         }
-        
+
         /// <summary>
-        /// Desired level of compression (default is <c>6</c>).
+        /// Desired level of compression. Possible values are 0 (STORE only) 
+        /// to 9 (highest). The default is <c>6</c>.
         /// </summary>
-        /// <value>0 - 9 (0 - STORE only, 1-9 DEFLATE (1-lowest, 9-highest))</value>
         [TaskAttribute("ziplevel", Required=false)]
         [Int32ValidatorAttribute(0, 9)]
         public int ZipLevel {
             get { return _ziplevel; }
             set { _ziplevel = value; }
         }
-        
+
         /// <summary>
         /// Include empty directories in the generated zip file. The default is
         /// <see langword="false" />.
@@ -127,8 +127,8 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         [BuildElement("fileset")]
         public FileSet ZipFileSet {
-            get { return _fileset; }  
-            set { _fileset = value; } 
+            get { return _fileset; }
+            set { _fileset = value; }
         }
 
         #endregion Public Instance Properties
@@ -160,13 +160,7 @@ namespace NAnt.Zip.Tasks {
                 zOutstream = new ZipOutputStream(ZipFile.Create());
 
                 // set compression level
-                if (ZipLevel > 0) {
-                    zOutstream.SetLevel(ZipLevel);
-                } else {
-                    // setting the method to store still compresses the files
-                    // setting the level to 0 fixes this
-                    zOutstream.SetLevel(ZipLevel);
-                }
+                zOutstream.SetLevel(ZipLevel);
 
                 // set comment
                 if (!StringUtils.IsNullOrEmpty(Comment)) {
@@ -224,7 +218,7 @@ namespace NAnt.Zip.Tasks {
                             crc.Update(buffer);
                             entry.Crc  = crc.Value;
                         }
-                        
+
                         // write file to zip file
                         zOutstream.PutNextEntry(entry);
                         zOutstream.Write(buffer, 0, buffer.Length);
