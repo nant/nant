@@ -30,6 +30,18 @@ namespace SourceForge.NAnt.Tasks
 	/// <summary>
 	/// Task to generate a .licence file from a .licx file.
 	/// </summary>
+	/// <remarks>
+	/// If no output file is specified, the default filename is the name of the target file with the extension 
+	/// ".licenses" appended.
+	/// </remarks>
+	/// <example>
+	///   <para>Generate the file <c>component.exe.licenses</c> file from <c>component.licx</c>.</para>
+	///   <code>
+	///     <![CDATA[
+	///         <resx input="component.licx" target="component.exe" />
+	///     ]]>
+	///   </code>
+	/// </example>
 	[TaskName("license")]
 	public class LicenseTask : Task
 	{
@@ -40,12 +52,28 @@ namespace SourceForge.NAnt.Tasks
 
 		protected override void ExecuteTask()
 		{
-			string strResourceFilename = _output;
-			if ( strResourceFilename == null )
-				strResourceFilename = _strTarget + ".licenses";
+			// Get the input .licx file
+			string strLicxFilename = null;
+			try {
+				strLicxFilename = Project.GetFullPath( _input );
+			} catch ( Exception e ) {
+				string msg = String.Format( "Could not determine path from {0}", _input );
+				throw new BuildException( msg, Location, e );
+			}			
 
-			if ( Verbose )
-				Log.WriteLine( "Compiling {0} to {1}...", _input, strResourceFilename );
+			// Get the output .licenses file
+			string strResourceFilename = null;
+			try {
+				if ( _output == null )
+					strResourceFilename = Project.GetFullPath( _strTarget + ".licenses" );
+				else
+					strResourceFilename = Project.GetFullPath( _output );
+			} catch ( Exception e ) {
+				string msg = String.Format( "Could not determine path from output file {0} and target {1}", _output, _strTarget );
+				throw new BuildException( msg, Location, e );
+			}
+
+			Log.WriteLine( "Compiling license file {0} to {1} using target {2}", _input, strResourceFilename, _strTarget );
 
 			ArrayList alAssemblies = new ArrayList();
 
@@ -56,14 +84,16 @@ namespace SourceForge.NAnt.Tasks
 
 				try
 				{
+					string strRealAssemblyName = Project.GetFullPath( strAssembly );
+
 					// See if we've got an absolute path to the assembly
-					if ( File.Exists( strAssembly ) )
+					if ( File.Exists( strRealAssemblyName ) )
 					{
-						asm = Assembly.LoadFrom( strAssembly );
+						asm = Assembly.LoadFrom( strRealAssemblyName );
 					}
 					else
 					{
-						// No absolute path, ask .NET to load it for us
+						// No absolute path, ask .NET to load it for us (use the original assembly name)
 						FileInfo fiAssembly = new FileInfo( strAssembly );
 						asm = Assembly.LoadWithPartialName( Path.GetFileNameWithoutExtension( fiAssembly.Name ) );
 					}
@@ -81,7 +111,7 @@ namespace SourceForge.NAnt.Tasks
 			LicenseManager.CurrentContext = dlc;
 			
 			// Read in the input file
-			using ( StreamReader sr = new StreamReader( _input ) )
+			using ( StreamReader sr = new StreamReader( strLicxFilename ) )
 			{
 				Hashtable htLicenses = new Hashtable();
 
