@@ -87,8 +87,10 @@ namespace Tests.NAnt.Core.Tasks {
             tempFile6 = CreateTempFile(Path.Combine(tempDir3, "ha.he2"));
             tempFile7 = CreateTempFile(Path.Combine(tempDir3, "ha.he3"));
 
+            /*
             File.SetAttributes(tempDir2, FileAttributes.ReadOnly);
             File.SetAttributes(tempDir3, FileAttributes.ReadOnly); 
+            */
             File.SetAttributes(Path.Combine(tempDir3, "ha.he3"), FileAttributes.ReadOnly);
             File.SetAttributes(Path.Combine(tempDir3, "ha.he2"), FileAttributes.ReadOnly);
         }

@@ -261,16 +261,18 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Dir should have been created:" + tempDir4, Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)));
             Assertion.Assert("Dir should have been created:" + tempDir5, Directory.Exists(GetPath(dest,tempDir1,tempDir5)));
 
-            // Set some read-only attributes
-            File.SetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5), FileAttributes.ReadOnly);
-            File.SetAttributes(GetPath(dest,tempDir1,tempDir2), FileAttributes.ReadOnly);
-
-            // Delete some files and directories
+            // delete some files and directories
             File.Delete(GetPath(dest,tempDir1,tempDir3,tempDir4,tempFile4));
             File.Delete(GetPath(dest,tempDir1,tempDir2,tempFile3));
             Directory.Delete(GetPath(dest,tempDir1,tempDir5));
 
-            // Run it again to overwrite
+            // ensure file is outdated
+            File.SetLastWriteTime(GetPath(dest,tempDir1,tempDir3,tempFile5), new DateTime(2000, 1,1));
+
+            // set some read-only attributes
+            File.SetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5), FileAttributes.ReadOnly);
+
+            // run it again to overwrite
             results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
 
             Assertion.Assert("File should have been created:" + tempFile1, File.Exists(GetPath(dest,tempDir1,tempFile1)));
@@ -286,6 +288,9 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Dir should have been created:" + tempDir3, Directory.Exists(GetPath(dest,tempDir1,tempDir3)));
             Assertion.Assert("Dir should have been created:" + tempDir4, Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)));
             Assertion.Assert("Dir should have been created:" + tempDir5, Directory.Exists(GetPath(dest,tempDir1,tempDir5)));
+
+            // check whether readonly file was overwritten (no longer readonly)
+            Assertion.Assert((File.GetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5)) & FileAttributes.ReadOnly) != FileAttributes.ReadOnly);
         }
 
         /// <summary>
