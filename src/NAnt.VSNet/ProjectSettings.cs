@@ -24,6 +24,8 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
+using NAnt.Core.Util;
+
 namespace NAnt.VSNet {
     public class ProjectSettings {
         #region Public Instance Constructors
@@ -65,11 +67,29 @@ namespace NAnt.VSNet {
             // suppresses display of Microsoft startup banner
             _settings.Add("/nologo");
 
-            _name = elemSettings.Attributes["AssemblyName"].Value;
+            _assemblyName = elemSettings.Attributes["AssemblyName"].Value;
+
+            // pre and post build events are VS .NET 2003 specific, so do not 
+            // assume they are there
+            if (elemSettings.Attributes["RunPostBuildEvent"] != null) {
+                _runPostBuildEvent = StringUtils.ConvertEmptyToNull(
+                    elemSettings.Attributes["RunPostBuildEvent"].Value);
+            }
+
+            if (elemSettings.Attributes["PreBuildEvent"] != null) {
+                _preBuildEvent = StringUtils.ConvertEmptyToNull(
+                    elemSettings.Attributes["PreBuildEvent"].Value);
+            }
+            
+            if (elemSettings.Attributes["PostBuildEvent"] != null) {
+                _postBuildEvent = StringUtils.ConvertEmptyToNull(
+                    elemSettings.Attributes["PostBuildEvent"].Value);
+            }
 
             if (elemSettings.Attributes["RootNamespace"] != null) {
-                _rootNamespace = elemSettings.Attributes["RootNamespace"].Value;
-                if (_type == ProjectType.VBNet) {
+                _rootNamespace = StringUtils.ConvertEmptyToNull(
+                    elemSettings.Attributes["RootNamespace"].Value);
+                if (RootNamespace != null && Type == ProjectType.VBNet) {
                     _settings.Add("/rootnamespace:" + _rootNamespace);
                 }
             }
@@ -81,7 +101,7 @@ namespace NAnt.VSNet {
 
             foreach (DictionaryEntry de in htStringSettings) {
                 string strValue = elemSettings.GetAttribute(de.Key.ToString());
-                if (strValue != null && strValue.Length > 0) {
+                if (!StringUtils.IsNullOrEmpty(strValue)) {
                     _settings.Add(string.Format(de.Value.ToString(), strValue));
                 }
             }
@@ -108,16 +128,16 @@ namespace NAnt.VSNet {
             set { _rootDirectory = value; }
         }
 
-        public string Name {
-            get { return _name; }
+        public string AssemblyName {
+            get { return _assemblyName; }
         }
 
         public TempFileCollection TemporaryFiles {
             get { return _tfc; }
         }
 
-        public string OutputFile {
-            get { return string.Concat(Name, OutputExtension); }
+        public string OutputFileName {
+            get { return string.Concat(AssemblyName, OutputExtension); }
         }
 
         public string OutputExtension {
@@ -128,7 +148,7 @@ namespace NAnt.VSNet {
             get { return _rootNamespace; }
         }
 
-        public string GUID {
+        public string Guid {
             get { return _guid; }
         }
 
@@ -136,6 +156,35 @@ namespace NAnt.VSNet {
             get { return _type; }
         }
 
+        /// <summary>
+        /// Designates when the <see cref="PostBuildEvent" /> command line should
+        /// be run. Possible values are "OnBuildSuccess", "Always" or 
+        /// "OnOutputUpdated".
+        /// </summary>
+        public string RunPostBuildEvent {
+            get { return _runPostBuildEvent; }
+        }
+
+        /// <summary>
+        /// Contains commands to be run before a build takes place.
+        /// </summary>
+        /// <remarks>
+        /// Valid commands are those in a .bat file. For more info see MSDN.
+        /// </remarks>
+        public string PreBuildEvent {
+            get { return _preBuildEvent; }
+        }
+
+        /// <summary>
+        /// Contains commands to be ran after a build has taken place.
+        /// </summary>
+        /// <remarks>
+        /// Valid commands are those in a .bat file. For more info see MSDN.
+        /// </remarks>
+        public string PostBuildEvent {
+            get { return _postBuildEvent; }
+        }
+        
         #endregion Public Instance Properties
 
         #region Public Instance Methods
@@ -149,11 +198,14 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private ArrayList _settings;
-        private string _name;
+        private string _assemblyName;
         private string _rootDirectory;
         private string _outputExtension;
         private string _rootNamespace;
         private string _guid;
+        private string _runPostBuildEvent;
+        private string _preBuildEvent;
+        private string _postBuildEvent;
         private XmlElement _elemSettings;
         private TempFileCollection _tfc;
         private ProjectType _type;

@@ -51,7 +51,7 @@ namespace NAnt.VSNet {
                         _name));
                 }
 
-                string projectFile = solution.GetProjectFileFromGUID(elemReference.GetAttribute("Project"));
+                string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("Project"));
 
                 TempFileCollection temporaryFiles = solution.TemporaryFiles;
                 if (ps != null) {
@@ -80,7 +80,7 @@ namespace NAnt.VSNet {
                         _name));
                 }
 
-                string projectFile = solution.GetProjectFileFromGUID(elemReference.GetAttribute("ReferencedProjectIdentifier"));
+                string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("ReferencedProjectIdentifier"));
 
               
 
@@ -214,7 +214,7 @@ namespace NAnt.VSNet {
         public DateTime Timestamp {
             get { 
                 if (Project != null) {
-                    return GetTimestamp(Project.GetOutputFile(ConfigurationSettings.Name));
+                    return GetTimestamp(Project.GetOutputPath(ConfigurationSettings.Name));
                 }
 
                 return _referenceTimeStamp; 
@@ -226,7 +226,7 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void GetCreationCommand(ConfigurationSettings cs, out string program, out string commandLine) {
-            _referenceFile = new FileInfo(Path.Combine(cs.OutputPath, _interopFile)).FullName;
+            _referenceFile = new FileInfo(Path.Combine(cs.OutputDir, _interopFile)).FullName;
 
             commandLine = @"""" + _typelibFile + @""" /silent /out:""" + _referenceFile + @"""";
             if (_importTool == "tlbimp") {
@@ -237,7 +237,7 @@ namespace NAnt.VSNet {
 
         public string GetBaseDirectory(ConfigurationSettings configurationSettings) {
             if (Project != null) {
-                return Project.GetConfiguration(configurationSettings.Name).OutputPath;
+                return Project.GetConfiguration(configurationSettings.Name).OutputDir;
             }
             return _baseDirectory;
         }
@@ -247,7 +247,7 @@ namespace NAnt.VSNet {
 
             if (Project != null) {
                 _referenceFile = Project.GetConfiguration(
-                    configurationSettings.Name).OutputFile; 
+                    configurationSettings.Name).OutputPath; 
             }
 
             FileInfo fi = new FileInfo(_referenceFile);

@@ -58,11 +58,24 @@ namespace NAnt.VSNet {
 
         #region Override implementation of ProjectBase
 
+        /// <summary>
+        /// Gets the name of the Visual C++ project.
+        /// </summary>
         public override string Name {
             get { return _name; }
         }
 
-        public override string GUID {
+        /// <summary>
+        /// Gets the path of the Visual C++ project.
+        /// </summary>
+        public override string ProjectPath {
+            get { return Path.GetFullPath(_projectPath); }
+        }
+
+        /// <summary>
+        /// Gets or sets the unique identifier of the Visual C++ project.
+        /// </summary>
+        public override string Guid {
             get { return _guid; }
             set { _guid = value; }
         }
@@ -133,13 +146,13 @@ namespace NAnt.VSNet {
             return true;
         }
 
-        public override string GetOutputFile(string configuration) {
+        public override string GetOutputPath(string configuration) {
             VcConfiguration config = (VcConfiguration) _htConfigurations [configuration];
             if (config == null) {
                 return null;
             }
 
-            return config.OutputFile;
+            return config.OutputPath;
         }
 
         public string GetProjectDir(string configuration) {
@@ -155,10 +168,11 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public override void Load(Solution sln, string fileName) {
-            _projectDirectory = Path.GetFullPath(Path.GetDirectoryName(fileName));
+        public override void Load(Solution sln, string projectPath) {
+            _projectDirectory = Path.GetFullPath(Path.GetDirectoryName(projectPath));
+            _projectPath = projectPath;
             
-            XmlDocument doc = LoadXmlDocument(fileName);
+            XmlDocument doc = LoadXmlDocument(projectPath);
 
             XmlElement elem = doc.DocumentElement;
             _name = elem.GetAttribute("Name");
@@ -205,7 +219,7 @@ namespace NAnt.VSNet {
 
         #region Public Static Methods
 
-        public static string LoadGUID(string fileName) {
+        public static string LoadGuid(string fileName) {
             XmlDocument doc = LoadXmlDocument(fileName);
             return doc.DocumentElement.GetAttribute("ProjectGUID");
         }
@@ -298,7 +312,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (IsOutputDLL(baseConfig)) {
+            if (IsOutputDll(baseConfig)) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_WINDLL"));
             }
@@ -401,7 +415,7 @@ namespace NAnt.VSNet {
                 linkTask.Arguments.Add(new Argument("/PDB:" + pdbFile));
             }
 
-            if (IsOutputDLL(baseConfig)) {
+            if (IsOutputDll(baseConfig)) {
                 linkTask.Arguments.Add(new Argument("/DLL"));
             }
 
@@ -447,7 +461,7 @@ namespace NAnt.VSNet {
             ExecuteInProjectDirectory(linkTask);
         }
 
-        private bool IsOutputDLL(VcConfiguration config) {
+        private bool IsOutputDll(VcConfiguration config) {
             string outFile = config.GetToolSetting("VCLinkerTool", "OutputFile");
             if (outFile == null) {
                 return false;
@@ -471,6 +485,7 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private string _name;
+        private string _projectPath;
         private string _guid;
         private string _projectDirectory;
         private string _outputDir;

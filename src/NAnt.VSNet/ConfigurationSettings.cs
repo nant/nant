@@ -31,24 +31,24 @@ namespace NAnt.VSNet {
     public class ConfigurationSettings : ConfigurationBase {
         #region Public Instance Constructors
 
-        public ConfigurationSettings(ProjectSettings projectSettings, XmlElement elemConfig, SolutionTask solutionTask, string outputDir) {
+        public ConfigurationSettings(Project project, XmlElement elemConfig, SolutionTask solutionTask, string outputDir) {
+            _project = project;
             _settings = new ArrayList();
             _solutionTask = solutionTask;
             if (StringUtils.IsNullOrEmpty(outputDir)) {
-                _relativeOutputPath = elemConfig.Attributes["OutputPath"].Value;
-                if (!_relativeOutputPath.EndsWith(@"\")) {
-                    _relativeOutputPath = _relativeOutputPath + @"\";
+                _relativeOutputDir = elemConfig.Attributes["OutputPath"].Value;
+                if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                    _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
-                _outputPath = new DirectoryInfo(Path.Combine(projectSettings.RootDirectory, _relativeOutputPath)).FullName;
+                _outputDir = new DirectoryInfo(Path.Combine(Project.ProjectSettings.RootDirectory, _relativeOutputDir)).FullName;
             } else {
-                _relativeOutputPath = outputDir;
-                if (!_relativeOutputPath.EndsWith(@"\")) {
-                    _relativeOutputPath = _relativeOutputPath + @"\";
+                _relativeOutputDir = outputDir;
+                if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                    _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
-                _outputPath = Path.GetFullPath(outputDir);
+                _outputDir = Path.GetFullPath(outputDir);
             }
 
-            _projectSettings = projectSettings;
             _name = elemConfig.GetAttribute("Name").ToLower(CultureInfo.InvariantCulture);
 
             if (!StringUtils.IsNullOrEmpty(elemConfig.GetAttribute("DocumentationFile"))) {
@@ -56,7 +56,7 @@ namespace NAnt.VSNet {
                     // combine project root directory with (relative) path for 
                     // documentation file
                     _docFilename = Path.GetFullPath(Path.Combine(
-                        projectSettings.RootDirectory, elemConfig.GetAttribute("DocumentationFile")));
+                        Project.ProjectSettings.RootDirectory, elemConfig.GetAttribute("DocumentationFile")));
                 } else {
                     // combine output directory and filename of document file (do not use path information)
                     _docFilename = Path.GetFullPath(Path.Combine(outputDir,
@@ -69,7 +69,7 @@ namespace NAnt.VSNet {
             }
 
             _solutionTask.Log(Level.Debug, _solutionTask.LogPrefix + "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
-                projectSettings.Name, _relativeOutputPath, _outputPath, _docFilename);
+                Project.Name, _relativeOutputDir, _outputDir, _docFilename);
 
             Hashtable htStringSettings = new Hashtable();
             Hashtable htBooleanSettings = new Hashtable();
@@ -78,7 +78,7 @@ namespace NAnt.VSNet {
             htStringSettings["FileAlignment"] = "/filealign:{0}";
             htStringSettings["DefineConstants"] = "/define:{0}";
             
-            if (projectSettings.Type == ProjectType.CSharp) {
+            if (Project.ProjectSettings.Type == ProjectType.CSharp) {
                 htStringSettings["WarningLevel"] = "/warn:{0}";
                 htStringSettings["NoWarn"] = "/nowarn:{0}";
                 htBooleanSettings["IncrementalBuild"] = "/incremental";
@@ -108,12 +108,16 @@ namespace NAnt.VSNet {
                 }
             }
 
-            _settings.Add(string.Format(CultureInfo.InvariantCulture, "/out:\"{0}\"", OutputFile));
+            _settings.Add(string.Format(CultureInfo.InvariantCulture, "/out:\"{0}\"", OutputPath));
         }
 
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
+
+        public Project Project {
+            get { return _project; }
+        }
 
         public string[] ExtraOutputFiles {
             get {
@@ -125,16 +129,16 @@ namespace NAnt.VSNet {
             }
         }
 
-        public string RelativeOutputPath {
-            get { return _relativeOutputPath; }
+        public string RelativeOutputDir {
+            get { return _relativeOutputDir; }
+        }
+
+        public override string OutputDir {
+            get { return _outputDir; }
         }
 
         public override string OutputPath {
-            get { return _outputPath; }
-        }
-
-        public override string OutputFile {
-            get { return Path.Combine(OutputPath, _projectSettings.OutputFile); }
+            get { return Path.Combine(OutputDir, Project.ProjectSettings.OutputFileName); }
         }
 
         public string[] Settings {
@@ -149,12 +153,12 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
+        private Project _project;
         private ArrayList _settings;
         private string _docFilename;
-        private string _relativeOutputPath;
-        private string _outputPath;
+        private string _relativeOutputDir;
+        private string _outputDir;
         private string _name;
-        private ProjectSettings _projectSettings;
         private SolutionTask _solutionTask;
 
         #endregion Private Instance Fields

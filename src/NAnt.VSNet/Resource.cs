@@ -198,7 +198,7 @@ namespace NAnt.VSNet {
         }
 
         private string CompileLicx() {
-            string outputFile = Project.ProjectSettings.OutputFile;
+            string outputFileName = Project.ProjectSettings.OutputFileName;
 
             // create instance of License task
             LicenseTask lt = new LicenseTask();
@@ -223,8 +223,8 @@ namespace NAnt.VSNet {
 
             // set task properties
             lt.Input = _resourceSourceFile;
-            lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFile + ".licenses");
-            lt.Target = outputFile;
+            lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFileName + ".licenses");
+            lt.Target = outputFileName;
 
             foreach (Reference reference in Project.References) {
                 lt.Assemblies.Includes.Add(reference.Filename);

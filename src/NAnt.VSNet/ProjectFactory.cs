@@ -27,7 +27,7 @@ using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     /// <summary>
-    /// Factory class for VcProject-derived classes.
+    /// Factory class for VS.NET projects.
     /// </summary>
     public sealed class ProjectFactory {
         #region Public Static Methods
@@ -63,13 +63,13 @@ namespace NAnt.VSNet {
             return projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vcproj";
         }
 
-        public static string LoadGUID(string fileName, TempFileCollection tfc) {
+        public static string LoadGuid(string fileName, TempFileCollection tfc) {
             string projectExt = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
             if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                return Project.LoadGUID(fileName, tfc);
+                return Project.LoadGuid(fileName, tfc);
             }
             if (projectExt == ".vcproj") {
-                return VcProject.LoadGUID(fileName);
+                return VcProject.LoadGuid(fileName);
             }
             throw new BuildException("Unknown project file extension " + projectExt);
         }

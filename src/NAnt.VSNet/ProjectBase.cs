@@ -41,11 +41,24 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets the name of the VS.NET project.
+        /// </summary>
         public abstract string Name {
             get;
         }
+
+        /// <summary>
+        /// Gets the path of the VS.NET project.
+        /// </summary>
+        public abstract string ProjectPath {
+            get;
+        }
         
-        public abstract string GUID {
+        /// <summary>
+        /// Gets or sets the unique identifier of the VS.NET project.
+        /// </summary>
+        public abstract string Guid {
             get; 
             set;
         }
@@ -62,7 +75,7 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public abstract string GetOutputFile(string configuration);
+        public abstract string GetOutputPath(string configuration);
 
         public abstract bool Compile(string configuration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands);
 

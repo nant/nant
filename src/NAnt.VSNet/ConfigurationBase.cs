@@ -32,11 +32,17 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public abstract string OutputPath {
+        /// <summary>
+        /// Gets the output directory.
+        /// </summary>
+        public abstract string OutputDir {
             get;
         }
 
-        public abstract string OutputFile {
+        /// <summary>
+        /// Gets the path for the output file.
+        /// </summary>
+        public abstract string OutputPath {
             get;
         }
 

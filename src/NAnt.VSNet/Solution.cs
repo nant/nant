@@ -108,8 +108,8 @@ namespace NAnt.VSNet {
                 AddProjectDependency(guid, dependency);
             }
 
-            LoadProjectGUIDs(additionalProjects, false);
-            LoadProjectGUIDs(referenceProjects, true);
+            LoadProjectGuids(additionalProjects, false);
+            LoadProjectGuids(referenceProjects, true);
             LoadProjects();
             GetDependenciesFromProjects();
         }
@@ -127,8 +127,8 @@ namespace NAnt.VSNet {
             _webMaps = webMaps;
             _outputDir = outputDir;
 
-            LoadProjectGUIDs(projects, false);
-            LoadProjectGUIDs(referenceProjects, true);
+            LoadProjectGuids(projects, false);
+            LoadProjectGuids(referenceProjects, true);
             LoadProjects();
             GetDependenciesFromProjects();
         }
@@ -180,12 +180,12 @@ namespace NAnt.VSNet {
             }
         }
 
-        public string GetProjectFileFromGUID(string projectGUID) {
-            return (string) _htProjectFiles[projectGUID];
+        public string GetProjectFileFromGuid(string projectGuid) {
+            return (string) _htProjectFiles[projectGuid];
         }
 
-        public ProjectBase GetProjectFromGUID(string projectGUID) {
-            return (ProjectBase) _htProjects[projectGUID];
+        public ProjectBase GetProjectFromGuid(string projectGuid) {
+            return (ProjectBase) _htProjects[projectGuid];
         }
 
         public bool Compile(string configuration, ArrayList compilerArguments, string logFile, bool verbose, bool showCommands) {
@@ -198,12 +198,12 @@ namespace NAnt.VSNet {
                 bool compiledThisRound = false;
 
                 foreach (ProjectBase p in _htProjects.Values) {
-                    if (htProjectsDone.Contains(p.GUID)) {
+                    if (htProjectsDone.Contains(p.Guid)) {
                         continue;
                     }
 
-                    if (GetProjectDependencies(p.GUID).Length == 0) {
-                        bool failed = htFailedProjects.Contains(p.GUID);
+                    if (GetProjectDependencies(p.Guid).Length == 0) {
+                        bool failed = htFailedProjects.Contains(p.Guid);
 
                         if (!failed) {
                             // Fixup references
@@ -217,23 +217,23 @@ namespace NAnt.VSNet {
                                 reference.ResolveFolder();
 
                                 if (reference.IsProjectReference) {
-                                    ProjectBase pRef = GetProjectFromGUID(reference.Project.GUID);
+                                    ProjectBase pRef = GetProjectFromGuid(reference.Project.Guid);
                                     if (pRef == null) {
                                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                             "Unable to locate referenced project '{0}' while loading '{1}'.",
                                             reference.Name, p.Name), Location.UnknownLocation);
                                     }
-                                    string outputFile = pRef.GetOutputFile(configuration);
-                                    if (outputFile == null) {
+                                    string outputPath = pRef.GetOutputPath(configuration);
+                                    if (outputPath == null) {
                                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                             "Unable to find '{0}' configuration for project '{1}'.",
                                             configuration, pRef.Name), Location.UnknownLocation);
                                     }
-                                    reference.Filename = outputFile;
+                                    reference.Filename = outputPath;
                                 } else if (_htOutputFiles.Contains(reference.Filename)) {
                                     ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
                                     if (pRef != null) {
-                                        reference.Filename = pRef.GetOutputFile(configuration);
+                                        reference.Filename = pRef.GetOutputPath(configuration);
                                     }
                                 }
 
@@ -245,19 +245,19 @@ namespace NAnt.VSNet {
                             }
                         }
 
-                        if (!_htReferenceProjects.Contains(p.GUID) && (failed || !p.Compile(configuration, compilerArguments, logFile, verbose, showCommands))) {
+                        if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration, compilerArguments, logFile, verbose, showCommands))) {
                             if (!failed) {
                                 Log(Level.Error, LogPrefix + "Project '{0}' failed!", p.Name);
                                 Log(Level.Error, LogPrefix + "Continuing build with non-dependent projects.");
                             }
 
                             success = false;
-                            htFailedProjects[p.GUID] = null;
+                            htFailedProjects[p.Guid] = null;
 
                             // mark the projects referencing this one as failed
                             foreach (ProjectBase pFailed in _htProjects.Values) {
-                                if (HasProjectDependency(pFailed.GUID, p.GUID)) {
-                                    htFailedProjects[pFailed.GUID] = null;
+                                if (HasProjectDependency(pFailed.Guid, p.Guid)) {
+                                    htFailedProjects[pFailed.Guid] = null;
                                 }
                             }
                         }
@@ -266,9 +266,9 @@ namespace NAnt.VSNet {
 
                         // remove all references to this project
                         foreach (ProjectBase pRemove in _htProjects.Values) {
-                            RemoveProjectDependency(pRemove.GUID, p.GUID);
+                            RemoveProjectDependency(pRemove.Guid, p.Guid);
                         }
-                        htProjectsDone[p.GUID] = null;
+                        htProjectsDone[p.Guid] = null;
                     }
                 }
 
@@ -320,46 +320,46 @@ namespace NAnt.VSNet {
 
         #region Private Instance Methods
 
-        private void LoadProjectGUIDs(ArrayList projects, bool isReferenceProject) {
+        private void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
-                string projectGUID = ProjectFactory.LoadGUID(projectFileName, _tfc);
-                _htProjectFiles[projectGUID] = projectFileName;
+                string projectGuid = ProjectFactory.LoadGuid(projectFileName, _tfc);
+                _htProjectFiles[projectGuid] = projectFileName;
                 if (isReferenceProject) {
-                    _htReferenceProjects[projectGUID] = null;
+                    _htReferenceProjects[projectGuid] = null;
                 }
             }
         }
 
-        private void AddProjectDependency(string projectGUID, string dependencyGUID) {
-            if (!_htProjectDependencies.Contains(projectGUID)) {
-                _htProjectDependencies[projectGUID] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+        private void AddProjectDependency(string projectGuid, string dependencyGuid) {
+            if (!_htProjectDependencies.Contains(projectGuid)) {
+                _htProjectDependencies[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
             }
 
-            ((Hashtable) _htProjectDependencies[projectGUID])[dependencyGUID] = null;
+            ((Hashtable) _htProjectDependencies[projectGuid])[dependencyGuid] = null;
         }
 
-        private void RemoveProjectDependency(string projectGUID, string dependencyGUID) {
-            if (!_htProjectDependencies.Contains(projectGUID)) {
+        private void RemoveProjectDependency(string projectGuid, string dependencyGuid) {
+            if (!_htProjectDependencies.Contains(projectGuid)) {
                 return;
             }
 
-            ((Hashtable) _htProjectDependencies[projectGUID]).Remove(dependencyGUID);
+            ((Hashtable) _htProjectDependencies[projectGuid]).Remove(dependencyGuid);
         }
 
-        private bool HasProjectDependency(string projectGUID, string dependencyGUID) {
-            if (!_htProjectDependencies.Contains(projectGUID)) {
+        private bool HasProjectDependency(string projectGuid, string dependencyGuid) {
+            if (!_htProjectDependencies.Contains(projectGuid)) {
                 return false;
             }
 
-            return ((Hashtable) _htProjectDependencies[projectGUID]).Contains(dependencyGUID);
+            return ((Hashtable) _htProjectDependencies[projectGuid]).Contains(dependencyGuid);
         }
 
-        private string[] GetProjectDependencies(string projectGUID) {
-            if (!_htProjectDependencies.Contains(projectGUID)) {
+        private string[] GetProjectDependencies(string projectGuid) {
+            if (!_htProjectDependencies.Contains(projectGuid)) {
                 return new string[0];
             }
 
-            return (string[]) new ArrayList(((Hashtable) _htProjectDependencies[projectGUID]).Keys).ToArray(typeof(string));
+            return (string[]) new ArrayList(((Hashtable) _htProjectDependencies[projectGuid]).Keys).ToArray(typeof(string));
         }
 
         private void LoadProjects() {
@@ -371,8 +371,8 @@ namespace NAnt.VSNet {
                 if (!excludes.FileNames.Contains(projectPath)) {
                     Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
                     ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, _outputDir, projectPath);
-                    if (p.GUID == null || p.GUID == String.Empty) {
-                        p.GUID = FindGUIDFromPath(projectPath);
+                    if (p.Guid == null || p.Guid == string.Empty) {
+                        p.Guid = FindGuidFromPath(projectPath);
                     }
                     _htProjects[de.Key] = p;
                 } else {
@@ -381,11 +381,11 @@ namespace NAnt.VSNet {
             }
         }
 
-        private string FindGUIDFromPath(string projectPath) {
+        private string FindGuidFromPath(string projectPath) {
             foreach(DictionaryEntry de in _htProjectFiles) {
                 string guid = (string) de.Key;
                 string path = (string) de.Value;
-                if (String.Compare(path, projectPath, true, CultureInfo.InvariantCulture) == 0) {
+                if (string.Compare(path, projectPath, true, CultureInfo.InvariantCulture) == 0) {
                     return guid;
                 }
             }
@@ -401,7 +401,7 @@ namespace NAnt.VSNet {
                 ProjectBase p = (ProjectBase) de.Value;
 
                 foreach (string configuration in p.Configurations) {
-                    _htOutputFiles[p.GetOutputFile(configuration)] = projectGuid;
+                    _htOutputFiles[p.GetOutputPath(configuration)] = projectGuid;
                 }
             }
 
@@ -423,16 +423,16 @@ namespace NAnt.VSNet {
 
             // build the dependency list
             foreach (DictionaryEntry de in _htProjects) {
-                string projectGUID = (string) de.Key;
+                string projectGuid = (string) de.Key;
                 ProjectBase project = (ProjectBase) de.Value;
 
                 foreach (Reference reference in project.References) {
                     if (reference.IsProjectReference) {
-                        AddProjectDependency(projectGUID, reference.Project.GUID);
+                        AddProjectDependency(projectGuid, reference.Project.Guid);
                     } else if (_htOutputFiles.Contains(reference.Filename)) {
-                        AddProjectDependency(projectGUID, (string) _htOutputFiles[reference.Filename]);
+                        AddProjectDependency(projectGuid, (string) _htOutputFiles[reference.Filename]);
                     } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(reference.Filename))) {
-                        AddProjectDependency(projectGUID, (string) outputsInAssemblyFolders[Path.GetFileName(reference.Filename)]);
+                        AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(reference.Filename)]);
                     }
                 }
             }

@@ -41,16 +41,16 @@ namespace NAnt.VSNet {
         }
 
         internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, VcConfiguration parent, string outputDir) {
-            string projectDir = Path.GetDirectoryName(parentSln.GetProjectFileFromGUID(parentProject.GUID));
+            string projectDir = Path.GetDirectoryName(parentSln.GetProjectFileFromGuid(parentProject.Guid));
 
             _parent = parent;
             _name = elem.GetAttribute("Name");
 
             if (StringUtils.IsNullOrEmpty(outputDir)) {
-                _outputPath = elem.GetAttribute("OutputDirectory");
-                _outputPath = new DirectoryInfo(Path.Combine(projectDir, elem.GetAttribute("OutputDirectory"))).FullName;
+                _outputDir = elem.GetAttribute("OutputDirectory");
+                _outputDir = new DirectoryInfo(Path.Combine(projectDir, elem.GetAttribute("OutputDirectory"))).FullName;
             } else {
-                _outputPath = outputDir;
+                _outputDir = outputDir;
             }
 
             _intermediateDir = elem.GetAttribute("IntermediateDirectory");
@@ -65,7 +65,7 @@ namespace NAnt.VSNet {
             } 
 
             _htMacros = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htMacros ["OutDir"] = OutputPath;
+            _htMacros ["OutDir"] = OutputDir;
             _htMacros ["IntDir"] = _intermediateDir;
             _htMacros ["ConfigurationName"] = Name;
             _htMacros ["PlatformName"] = PlatformName;
@@ -86,22 +86,22 @@ namespace NAnt.VSNet {
             _htMacros ["TargetExt"] = Path.GetExtension(_targetPath);
 
             // create the output path if it doesn't already exist
-            Directory.CreateDirectory(OutputPath);
+            Directory.CreateDirectory(OutputDir);
         }
 
         #endregion Internal Instance Constructors
-        #region Override implementation of ConfigurationBase        public override string OutputPath {
-            get { return _outputPath; }
+        #region Override implementation of ConfigurationBase        public override string OutputDir {
+            get { return _outputDir; }
         }
 
-        public override string OutputFile {
+        public override string OutputPath {
             get { 
                 string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
-                    return Path.Combine(OutputPath, linkOutput);
+                    return Path.Combine(OutputDir, linkOutput);
                 }
             
-                return Path.Combine(OutputPath, GetToolSetting("VCLibrarianTool", "OutputFile"));
+                return Path.Combine(OutputDir, GetToolSetting("VCLibrarianTool", "OutputFile"));
             }
         }
         #endregion Override implementation of ConfigurationBase        #region Public Instance Properties        public string ProjectDir {
@@ -151,7 +151,7 @@ namespace NAnt.VSNet {
 
         #endregion Private Instance Methods
         #region Private Instance Fields
-        private string _name;        private VcConfiguration _parent;        private Hashtable _htTools;        private string _outputPath;        private string _intermediateDir;        private string _targetPath;        private Hashtable _htMacros;        private Regex _rxMacro;        private bool _wholeProgramOptimization = false;
+        private string _name;        private VcConfiguration _parent;        private Hashtable _htTools;        private string _outputDir;        private string _intermediateDir;        private string _targetPath;        private Hashtable _htMacros;        private Regex _rxMacro;        private bool _wholeProgramOptimization = false;
         private bool _managedExtensions = false;
         #endregion Private Instance Fields
     }
