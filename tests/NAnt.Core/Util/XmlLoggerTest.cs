@@ -64,6 +64,12 @@ namespace Tests.NAnt.Core.Util {
             formattedMessage = "\t[foo] " + baseMessage;
             Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
 
+            formattedMessage = "\t\0[foo] " + baseMessage;
+            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+
+            formattedMessage = "\t\0[foo] \0" + baseMessage + '\0';
+            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
+
             formattedMessage = "\t\t[foo] " + baseMessage;
             Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
 
@@ -86,6 +92,9 @@ namespace Tests.NAnt.Core.Util {
             Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = " ";
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+
+            message = "\0";
             Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "        ";
@@ -343,4 +352,3 @@ namespace Tests.NAnt.Core.Util {
         }
     }
 }
-
