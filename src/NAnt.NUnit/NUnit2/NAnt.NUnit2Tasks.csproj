@@ -55,11 +55,6 @@
                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\mscorlib.dll"
                 />
                 <Reference
-                    Name = "mscorcfg"
-                    AssemblyName = "mscorcfg"
-                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\mscorcfg.dll"
-                />
-                <Reference
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
@@ -69,11 +64,6 @@
                     Name = "NAnt.NUnitFormatters"
                     Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NDoc.Core"
-                    AssemblyName = "NDoc.Core"
-                    HintPath = "..\..\..\bin\NDoc.Core.dll"
                 />
                 <Reference
                     Name = "nunit.framework"
