@@ -65,16 +65,6 @@ namespace NAnt.SourceControl.Tasks {
             set {_commandName = value;}
         }
 
-        /// <summary>
-        /// The command line to use for the cvs command.
-        /// </summary>
-        [TaskAttribute("command-line", Required=false)]
-        [StringValidator(AllowEmpty=false)]
-        public string RawCommandLine {
-            get {return ((Option)CommandOptions["command-line"]).Value;}
-            set {SetCommandOption("command-line", value, true);}
-        }
-
         #endregion
     }
 }

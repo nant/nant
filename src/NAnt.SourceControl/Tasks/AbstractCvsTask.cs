@@ -314,7 +314,10 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("quiet", Required=false)]
         [BooleanValidator()]
         public bool Quiet {
-            get {return ((Option)GlobalOptions["quiet"]).IfDefined;}
+            get {
+                Option option = (Option)GlobalOptions["quiet"];
+                return null == option ? false : option.IfDefined;
+            }
             set {SetGlobalOption("quiet", "-q", value);}
         }
 
@@ -325,7 +328,10 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("reallyquiet", Required=false)]
         [BooleanValidator()]
         public bool ReallyQuiet {
-            get {return ((Option)GlobalOptions["reallyquiet"]).IfDefined;}
+            get {
+                Option option = (Option)GlobalOptions["reallyquiet"];
+                return null == option ? false : option.IfDefined;
+            }
             set {SetGlobalOption("reallyquiet", "-Q", value);}
         }
 
@@ -336,7 +342,10 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
         public bool ReadOnly {
-            get {return ((Option)GlobalOptions["readonly"]).IfDefined;}
+            get {
+                Option option = (Option)GlobalOptions["readonly"];
+                return null == option ? false : option.IfDefined;
+            }
             set {SetGlobalOption("readonly", "-r", value);}
         }
 
@@ -349,7 +358,10 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("readwrite", Required=false)]
         [BooleanValidator()]
         public bool ReadWrite {
-            get {return ((Option)GlobalOptions["readwrite"]).IfDefined;}
+            get {
+                Option option = (Option)GlobalOptions["readwrite"];
+                return null == option ? false : option.IfDefined;
+            }
             set {SetGlobalOption("readwrite", "-w", value);}
         }
 
