@@ -30,6 +30,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
@@ -55,8 +56,8 @@ namespace NAnt.VisualCpp.Tasks {
         #region Private Instance Fields
 
         private string _responseFileName;
-        private string _outputdir = null;
-        private string _pchfile = null;
+        private DirectoryInfo _outputDir;
+        private string _pchFile;
         private FileSet _sources = new FileSet();
         private FileSet _includeDirs = new FileSet();
         private FileSet _metaDataIncludeDirs = new FileSet();
@@ -72,19 +73,20 @@ namespace NAnt.VisualCpp.Tasks {
         /// Directory where all output files are placed.
         /// </summary>
         [TaskAttribute("outputdir", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string OutputDir {
-            get { return _outputdir; }
-            set { _outputdir = value; }
+        public DirectoryInfo OutputDir {
+            get { return _outputDir; }
+            set { _outputDir = value; }
         }
 
         /// <summary>
-        /// The name of the precompiled header file.
+        /// Specifies the path and/or name of the generated precompiled header 
+        /// file - given either relative to <see cref="OutputDir" /> or as an 
+        /// absolute path. 
         /// </summary>
         [TaskAttribute("pchfile")]
         public string PchFile {
-            get { return _pchfile; }
-            set { _pchfile = value; }
+            get { return (_pchFile != null) ? Path.Combine(OutputDir.FullName, _pchFile) : null; }
+            set { _pchFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -169,15 +171,14 @@ namespace NAnt.VisualCpp.Tasks {
 
         private bool IsPchfileUpToDate() {
             // if no pch file, then then it is theoretically up to date
-            if (_pchfile == null) {
+            if (PchFile == null) {
                 return true;
             }
 
             // if pch file declared, but doesn't exist, it must be stale
-            FileInfo pchFileInfo = new FileInfo(Path.Combine(Path.Combine(
-                BaseDirectory.FullName, OutputDir), PchFile));
+            FileInfo pchFileInfo = new FileInfo(PchFile);
             if (!pchFileInfo.Exists) {
-                Log(Level.Verbose, LogPrefix + "{0} does not exist, recompiling.", pchFileInfo.Name);
+                Log(Level.Verbose, LogPrefix + "{0} does not exist, recompiling.", pchFileInfo.FullName);
                 return false;
             }
 
@@ -194,18 +195,18 @@ namespace NAnt.VisualCpp.Tasks {
 
         private bool IsObjUpToDate(string srcFileName) {
             // if obj file doesn't exist, it must be stale
-            string objFileName = Path.ChangeExtension(Path.Combine(Path.Combine(
-                BaseDirectory.FullName, OutputDir), Path.GetFileName(srcFileName)), ".obj");
+            string objFileName = Path.ChangeExtension(Path.Combine(OutputDir.FullName, 
+                Path.GetFileName(srcFileName)), ".obj");
             FileInfo objFileInfo = new FileInfo(objFileName);
             if (!objFileInfo.Exists) {
-                Log(Level.Verbose, LogPrefix  + "{0} does not exist, recompiling.", objFileName);
+                Log(Level.Verbose, LogPrefix  + "'{0}' does not exist, recompiling.", objFileName);
                 return false;
             }
 
             // if obj file is older the source file, it is stale
-            FileInfo srcFileInfo = new FileInfo(srcFileName);
-            if (srcFileInfo.LastWriteTime > objFileInfo.LastWriteTime) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", objFileName);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(srcFileName, objFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "'{0}' is out of date, recompiling.", objFileName);
                 return false;
             }
 
@@ -260,9 +261,8 @@ namespace NAnt.VisualCpp.Tasks {
             }
 
             if (NeedsCompiling()) {
-                Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", 
-                    Sources.FileNames.Count, Path.Combine(BaseDirectory.FullName, 
-                    OutputDir));
+                Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", 
+                    Sources.FileNames.Count, OutputDir.FullName);
  
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
@@ -302,21 +302,14 @@ namespace NAnt.VisualCpp.Tasks {
                     // in a slash, but not a backslash.  not sure if 
                     // Path.AltDirectorySeparatorChar is the right way to get this 
                     // behavior.
-                    writer.WriteLine("/Fd\"{0}{1}\"", Path.Combine(BaseDirectory.FullName, 
-                        OutputDir), Path.AltDirectorySeparatorChar);
-                    writer.WriteLine("/Fo\"{0}{1}\"", Path.Combine(BaseDirectory.FullName, 
-                        OutputDir), Path.AltDirectorySeparatorChar);
+                    writer.WriteLine("/Fd\"{0}{1}\"", OutputDir.FullName, 
+                        Path.AltDirectorySeparatorChar);
+                    writer.WriteLine("/Fo\"{0}{1}\"", OutputDir.FullName, 
+                        Path.AltDirectorySeparatorChar);
 
-                    // specify pch file, if user gave one
-                    if (_pchfile != null) {
-                        string pchPath;
-                        if (Path.GetDirectoryName(PchFile) != "") {
-                            pchPath = BaseDirectory.FullName;
-                        } else {
-                            pchPath = Path.Combine(BaseDirectory.FullName, OutputDir);
-                        }
-
-                        writer.WriteLine("/Fp\"{0}\"", Path.Combine(pchPath, PchFile));
+                    // specify pch file, if user specified one
+                    if (PchFile != null) {
+                        writer.WriteLine("/Fp\"{0}\"", PchFile);
                     }
 
                     // write each of the filenames
