@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean ( ian_maclean@another.com )
 
-using System;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
 
 using SourceForge.NAnt;
@@ -49,8 +46,8 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         [TaskAttribute("prefix")]
         public string Prefix {
-                get { return _prefix; }
-                set { _prefix = value; } 
+            get { return _prefix; }
+            set { _prefix = value; } 
         }
             
         /// <summary>
@@ -61,8 +58,8 @@ namespace SourceForge.NAnt.Tasks {
         [BooleanValidator()]
         [TaskAttribute("dynamicprefix")]
         public bool DynamicPrefix { 
-                get { return _dynamicprefix; } 
-                set { _dynamicprefix = value; }
+            get { return _dynamicprefix; } 
+            set { _dynamicprefix = value; }
         }
  
         /// <summary>
