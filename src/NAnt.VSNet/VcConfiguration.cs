@@ -494,9 +494,13 @@ namespace NAnt.VSNet {
         }
 
         internal Hashtable GetToolArguments(string toolName, VcArgumentMap argMap) {
+            return GetToolArguments(toolName, argMap, VcArgumentMap.ArgGroup.Unassigned);
+        }
+
+        internal Hashtable GetToolArguments(string toolName, VcArgumentMap argMap, VcArgumentMap.ArgGroup ignoreGroup) {
             Hashtable args;
             if (_parentConfig != null) {
-                args = _parentConfig.GetToolArguments(toolName, argMap);
+                args = _parentConfig.GetToolArguments(toolName, argMap, ignoreGroup);
             } else {
                 args = CollectionsUtil.CreateCaseInsensitiveHashtable();
             }
@@ -504,7 +508,7 @@ namespace NAnt.VSNet {
             Hashtable toolSettings = (Hashtable) _htTools[toolName];
             if (toolSettings != null) {
                 foreach (DictionaryEntry de in toolSettings) {
-                    string arg = argMap.GetArgument((string) de.Key, ExpandMacros((string) de.Value));
+                    string arg = argMap.GetArgument((string) de.Key, ExpandMacros((string) de.Value), ignoreGroup);
                     if (arg != null) {
                         args[(string) de.Key] = arg;
                     }

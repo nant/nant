@@ -684,7 +684,20 @@ namespace NAnt.VSNet {
                 clTask.Arguments.Add(new Argument("/GL"));
             }
 
-            Hashtable compilerArgs = fileConfig.GetToolArguments(compilerTool, _clArgMap);   
+            // Used to ignore some arguments
+            VcArgumentMap.ArgGroup vcArgIgnoreGroup = VcArgumentMap.ArgGroup.Unassigned;
+
+            // If optimzation level is 1 or 2, we need to ignore all the arguments of 
+            // the group "OptiIgnoreGroup"
+            string optimization = fileConfig.GetToolSetting(compilerTool, "Optimization");
+            if (optimization != null) {
+                int optimizationLevel = Convert.ToInt32(optimization);
+                if (optimizationLevel == 1 || optimizationLevel == 2) {
+                    vcArgIgnoreGroup |= VcArgumentMap.ArgGroup.OptiIgnoreGroup;
+                }
+            }
+
+            Hashtable compilerArgs = fileConfig.GetToolArguments(compilerTool, _clArgMap, vcArgIgnoreGroup);   
             foreach (string arg in compilerArgs.Values) {
                 Argument compilerArg = new Argument();
                 compilerArg.Line = arg;

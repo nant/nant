@@ -27,6 +27,7 @@ using NAnt.VisualCpp.Tasks;
 using NAnt.VisualCpp.Util;
 
 namespace NAnt.VSNet {
+
     /// <summary>
     /// A mapping from properties in the .vcproj file to command line arguments.
     /// </summary>
@@ -46,28 +47,64 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void AddString(string propName, string argName) {
-            _htArgs [propName] = new VcStringArgument(argName);
+            AddString(ArgGroup.Unassigned, propName, argName);
+        }
+        public void AddString(ArgGroup group, string propName, string argName) {
+            _htArgs [propName] = new VcStringArgument(group, argName);
         }
 
         public void AddLinkerString(string propName, string argName) {
-            _htArgs [propName] = new LinkerStringArgument(argName);
+            AddLinkerString(ArgGroup.Unassigned, propName, argName);
+        }
+        public void AddLinkerString(ArgGroup group, string propName, string argName) {
+            _htArgs [propName] = new LinkerStringArgument(group, argName);
         }
 
         public void AddQuotedLinkerString(string propName, string argName) {
-            _htArgs [propName] = new QuotedLinkerStringArgument(argName);
+            AddQuotedLinkerString(ArgGroup.Unassigned, propName, argName);
+        }
+        public void AddQuotedLinkerString(ArgGroup group, string propName, string argName) {
+            _htArgs [propName] = new QuotedLinkerStringArgument(group, argName);
         }
 
         public void AddBool(string propName, string argName) {
-            _htArgs [propName] = new VcBoolArgument(argName);
+            AddBool(ArgGroup.Unassigned, propName, argName);
+        }
+        public void AddBool(ArgGroup group, string propName, string argName) {
+            _htArgs [propName] = new VcBoolArgument(group, argName);
         }
 
         public void AddEnum(string propName, string argName, params string[] values) {
-            _htArgs [propName] = new VcEnumArgument(argName, values);
+            AddEnum(ArgGroup.Unassigned, propName, argName, values);
+        }
+        public void AddEnum(ArgGroup group, string propName, string argName, params string[] values) {
+            _htArgs [propName] = new VcEnumArgument(group, argName, values);
         }
 
+        /// <summary>
+        /// Get the argument string from its name and its value
+        /// </summary>
+        /// <param name="propName">the name of the argument.</param>
+        /// <param name="propValue">the value of the argument.</param>
+        /// <returns>The argument string.</returns>
         public string GetArgument(string propName, string propValue) {
+            return GetArgument(propName, propValue, ArgGroup.Unassigned);
+        }
+
+        /// <summary>
+        /// Get the argument string from its name and its value. An ignore mask could be used
+        /// to eliminate some arguments from the search.
+        /// </summary>
+        /// <param name="propName">the name of the argument.</param>
+        /// <param name="propValue">the value of the argument.</param>
+        /// <param name="useIgnoreGroup">Specify any groups that needs to be ignored.</param>
+        /// <returns>The argument string</returns>
+        public string GetArgument(string propName, string propValue, ArgGroup useIgnoreGroup) {
             VcArgument arg = (VcArgument) _htArgs [propName];
             if (arg == null)
+                return null;
+            if (arg.Group != ArgGroup.Unassigned && 
+                (arg.Group & useIgnoreGroup) != 0)
                 return null;
             return arg.MapValue(propValue);
         }
@@ -163,12 +200,12 @@ namespace NAnt.VSNet {
             
             // Optimization
             map.AddEnum("Optimization", null, "/Od", "/O1", "/O2", "/Ox");
-            map.AddBool("GlobalOptimizations", "/Og");
-            map.AddEnum("InlineFunctionExpansion", null, "/Ob0", "/Ob1", "/Ob2");
-            map.AddBool("EnableIntrinsicFunctions", "/Oi");
+            map.AddBool(ArgGroup.OptiIgnoreGroup, "GlobalOptimizations", "/Og");
+            map.AddEnum(ArgGroup.OptiIgnoreGroup, "InlineFunctionExpansion", null, "/Ob0", "/Ob1", "/Ob2");
+            map.AddBool(ArgGroup.OptiIgnoreGroup, "EnableIntrinsicFunctions", "/Oi");
             map.AddBool("ImproveFloatingPointConsistency", "/Op");
             map.AddEnum("FavorSizeOrSpeed", null, null, "/Ot", "/Os");
-            map.AddBool("OmitFramePointers", "/Oy");
+            map.AddBool(ArgGroup.OptiIgnoreGroup, "OmitFramePointers", "/Oy");
             map.AddBool("EnableFiberSafeOptimizations", "/GT");
             map.AddEnum("OptimizeForProcessor", null, null, "/G5", "/G6", "/G7");
             map.AddBool("OptimizeForWindowsApplication", "/GA");
@@ -179,14 +216,14 @@ namespace NAnt.VSNet {
             map.AddBool("KeepComments", "/C");
             
             // Code Generation
-            map.AddBool("StringPooling", "/GF");
+            map.AddBool(ArgGroup.OptiIgnoreGroup, "StringPooling", "/GF");
             map.AddBool("MinimalRebuild", "/Gm");
             map.AddBool("SmallerTypeCheck", "/RTCc");
             map.AddEnum("BasicRuntimeChecks", null, null, "/RTCs", "/RTCu", "/RTC1");
             map.AddEnum("RuntimeLibrary", null, "/MT", "/MTd", "/MD", "/MDd", "/ML", "/MLd");
             map.AddEnum("StructMemberAlignment", null, null, "/Zp1", "/Zp2", "/Zp4", "/Zp8", "/Zp16");
             map.AddBool("BufferSecurityCheck", "/GS");
-            map.AddBool("EnableFunctionLevelLinking", "/Gy");
+            map.AddBool(ArgGroup.OptiIgnoreGroup, "EnableFunctionLevelLinking", "/Gy");
             map.AddEnum("EnableEnhancedInstructionSet", null, null, "/arch:SSE", "/arch:SSE2");
 
             // Language
@@ -413,9 +450,11 @@ namespace NAnt.VSNet {
 
         private abstract class VcArgument {
             private string _name;
+            private ArgGroup _group;
             
-            protected VcArgument(string name) {
+            protected VcArgument(ArgGroup group, string name) {
                 _name = name;
+                _group = group;
             }
 
             /// <summary>
@@ -426,6 +465,10 @@ namespace NAnt.VSNet {
             /// </value>
             public string Name {
                 get { return _name; }
+            }
+
+            public ArgGroup Group {
+                get { return _group; }
             }
 
             internal abstract string MapValue(string propValue);
@@ -439,7 +482,7 @@ namespace NAnt.VSNet {
         }
 
         private class VcStringArgument: VcArgument {
-            internal VcStringArgument(string name): base(name) {
+            internal VcStringArgument(ArgGroup group, string name): base(group, name) {
             }
 
             internal override string MapValue(string propValue) {
@@ -452,7 +495,7 @@ namespace NAnt.VSNet {
         /// in the value should be duplicated.
         /// </summary>
         private class LinkerStringArgument: VcArgument {
-            internal LinkerStringArgument(string name): base(name) {
+            internal LinkerStringArgument(ArgGroup group, string name): base(group, name) {
             }
 
             internal override string MapValue(string value) {
@@ -469,7 +512,7 @@ namespace NAnt.VSNet {
         /// quoted, and of which trailing backslahes should be duplicated.
         /// </summary>
         private class QuotedLinkerStringArgument: VcArgument {
-            internal QuotedLinkerStringArgument(string name): base(name) {
+            internal QuotedLinkerStringArgument(ArgGroup group, string name): base(group, name) {
             }
 
             internal override string MapValue(string value) {
@@ -482,7 +525,7 @@ namespace NAnt.VSNet {
         }
 
         private class VcBoolArgument: VcArgument {
-            internal VcBoolArgument(string name): base(name) {
+            internal VcBoolArgument(ArgGroup group, string name): base(group, name) {
             }
 
             internal override string MapValue(string propValue) {
@@ -496,7 +539,7 @@ namespace NAnt.VSNet {
         private class VcEnumArgument: VcArgument {
             private string[] _values;
             
-            internal VcEnumArgument(string name, string[] values): base(name) {
+            internal VcEnumArgument(ArgGroup group, string name, string[] values): base(group, name) {
                 _values = values;
             }
 
@@ -513,6 +556,23 @@ namespace NAnt.VSNet {
                 }
                 return FormatOption(_values [iValue]);
             }
+        }
+
+        /// <summary>
+        /// Allow us to assign any argument to a specific group.
+        /// </summary>
+        [Flags]
+        public enum ArgGroup {
+            /// <summary>
+            /// The argument is Unassigned to any group
+            /// </summary>
+            Unassigned = 0,
+
+            /// <summary>
+            /// Arguments to this group are ignored when the optimization level is set
+            /// to 1 or 2.
+            /// </summary>
+            OptiIgnoreGroup = 1
         }
     }
 }
