@@ -105,7 +105,7 @@ namespace NAnt.Core {
                 // build collection of valid properties that were specified on 
                 // the command line.
                 foreach (string property in cmdlineOptions.Properties) {
-                    Match match = Regex.Match(property, @"(\w+.*)=(\w*.*)");
+                    Match match = Regex.Match(property, @"(\w+[^=]*)=(\w*.*)");
                     if (match.Success) {
                         string name = match.Groups[1].Value;
                         string value = match.Groups[2].Value;
