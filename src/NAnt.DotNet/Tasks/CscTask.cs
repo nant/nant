@@ -49,7 +49,9 @@ namespace SourceForge.NAnt.Tasks {
         bool _noconfig = false;
         bool _checked = false;
         bool _unsafe = false;
-        bool _optionOptimize = false;
+        bool _optimize = false;
+        string _warningLevel = null;
+        string _noWarn = null;
 
         #endregion Private Instance Fields
 
@@ -60,7 +62,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/doc:</c> flag.
+        /// Corresponds with the <c>/doc:</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("doc")]
@@ -71,7 +73,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/nostdlib[+|-]</c> flag.
+        /// Corresponds with the <c>/nostdlib[+|-]</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("nostdlib")]
@@ -82,7 +84,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/noconfig</c> flag.
+        /// Corresponds with the <c>/noconfig</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("noconfig")]
@@ -95,7 +97,7 @@ namespace SourceForge.NAnt.Tasks {
         /// Default is <c>&quot;false&quot;</c>.</summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/checked[+|-]</c> flag.
+        /// Corresponds with the <c>/checked[+|-]</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("checked")]
@@ -103,21 +105,58 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>
         /// Instructs the compiler to allow code that uses the <c>unsafe</c> keyword
-        /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
+        /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// </summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/unsafe[+|-]</c> flag.
+        /// Corresponds with the <c>/unsafe[+|-]</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("unsafe")]
         public bool Unsafe      { get { return _unsafe; } set {_unsafe = value; } }
 
-        /// <summary>Specifies whether the <c>/optimize</c> option gets passed to the compiler.</summary>
-        /// <remarks></remarks>
-        /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
-        [TaskAttribute("optionoptimize")]
+        /// <summary>
+        /// Specifies whether the compiler should perform optimizations to the make 
+        /// output files smaller, faster, and more effecient.
+        /// </summary>
+        /// <value>
+        /// The value of this attribute must be either <c>true</c> or <c>false</c>.
+        /// If <c>false</c>, the switch is omitted.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/optimize[+|-]</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("optimize")]
         [BooleanValidator()]
-        public bool   OptionOptimize{ get { return _optionOptimize; } set {_optionOptimize = value;}}
+        public bool   Optimize{ get { return _optimize; } set {_optimize = value;}}
+
+        /// <summary>
+        /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
+        /// </summary>
+        /// <value>The warning level for the compiler to display.</value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/warn</c> option.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("warninglevel")]
+        [Int32Validator(0, 4)]
+        public string WarningLevel  { get { return _warningLevel; } set {_warningLevel = value;}}
+
+        /// <summary>
+        /// Specifies a comma-separated list of warnings that should be suppressed 
+        /// by the compiler.
+        /// </summary>
+        /// <value>Comma-separated list of warnings that should be suppressed by the compiler.</value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/nowarn</c> option.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("nowarn")]
+        public string NoWarn  { get { return _noWarn; } set {_noWarn = value;}}
 
         #endregion Public Instance Properties
 
@@ -174,11 +213,19 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "unsafe");
             }
 
-            if (OptionOptimize) {
+            if (Optimize) {
                 WriteOption(writer, "optimize");
             }
 
-            if (NoConfig && ! Args.Contains("/noconfig")) {
+            if (WarningLevel != null) {
+                WriteOption(writer, "warn", WarningLevel);
+            }
+
+            if (NoWarn != null) {
+                WriteOption(writer, "nowarn", NoWarn);
+            }
+
+            if (NoConfig && !Args.Contains("/noconfig")) {
                 Args.Add("/noconfig");
             }
         }
