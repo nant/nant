@@ -34,9 +34,14 @@ namespace Tests.NAnt.Core {
     ///   <para>Provides support for quickly running a build and capturing the output.</para>
     /// </remarks>
     public abstract class BuildTestBase {
+        #region Private Instance Fields
 
         string _tempDirName = null;
-       
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
         /// <summary>
         /// The Temp Directory name for this test case. Should be in the form %temp%\ClassName (ex. c:\temp\Tests.NAnt.Core.BuildTestBase).
         /// </summary>
@@ -44,82 +49,85 @@ namespace Tests.NAnt.Core {
             get { return _tempDirName; }
         }
 
-        /// <remarks>
-        ///   <para>No need to add SetUp attribute to overriden method.</para>
-        ///   <para>Super classes that override SetUp must call the base class first.</para>
-        /// </remarks>
-        protected virtual void SetUp() {
-            _tempDirName = TempDir.Create(this.GetType().FullName);
-        }
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
 
         /// <summary>
-        /// This method will be called by NUnit for setup.
+        /// Runs the xml as NAnt project and returns the console output as a 
+        /// string.
         /// </summary>
-        [SetUp]
-        protected void NUnitSetUp() {
-            SetUp();
-        }
-
-        /// <remarks>
-        ///   <para>Super classes that override must call the base class last.</para>
-        /// </remarks>
-        [TearDown]
-        protected virtual void TearDown() {
-            TempDir.Delete(TempDirName);
-        }
-
-        /// <summary>
-        /// run the xml as nant project and return the console output as a string
-        /// </summary>
-        /// <param name="xml">xml representing the build file contents</param>
-        /// <returns>The console output</returns>
+        /// <param name="xml">Xml representing the build file contents.</param>
+        /// <returns>The console output.</returns>
         public string RunBuild(string xml) {
-            Project p = CreateFilebasedProject(xml);
-            return ExecuteProject(p);
+            return RunBuild(xml, Level.Info);
         }
 
         /// <summary>
-        /// executes the project return the console output as a string
+        /// Runs the xml as NAnt project and returns the console output as a 
+        /// string.
         /// </summary>
-        /// <param name="p">The Project to Execute()</param>
-        /// <returns>The console output</returns>
+        /// <param name="xml">Xml representing the build file contents.</param>
+        /// <returns>The console output.</returns>
+        public string RunBuild(string xml, Level level) {
+            Project project = CreateFilebasedProject(xml, level);
+            return ExecuteProject(project);
+        }
+
+        /// <summary>
+        /// Executes the project and returns the console output as a string.
+        /// </summary>
+        /// <param name="p">The Project to execute.</param>
+        /// <returns>The console output.</returns>
+        /// <remarks>
+        /// Any exception that is thrown as part of the execution of the 
+        /// <see cref="Project" /> is wrapped in a <see cref="TestBuildException" />.
+        /// </remarks>
         public string ExecuteProject(Project p) {
             using (ConsoleCapture c = new ConsoleCapture()) {
                 string output = null;
-                try{
+                try {
                     p.Execute();
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     output = c.Close();
                     throw new TestBuildException("Error Executing Project", output, e);
-                    
-                }
-                finally {
-                    if(output == null)
+                } finally {
+                    if(output == null) {
                         output = c.Close();
+                    }
                 }
-                
                 return output;
             }
         }
 
         /// <summary>
-        /// Creates a new Project
+        /// Creates a new <see cref="Project" /> with output level <see cref="Level.Info" />.
         /// </summary>
         /// <param name="xml">The xml of the build file</param>
-        /// <returns>The new project</returns>
+        /// <returns>
+        /// A new <see cref="Project" /> with output level <see cref="Level.Info" />.
+        /// </returns>
         public Project CreateFilebasedProject(string xml) {
+            return CreateFilebasedProject(xml, Level.Info);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Project" />.
+        /// </summary>
+        /// <param name="xml">The xml of the build file</param>
+        /// <param name="level">The build output level.</param>
+        /// <returns>
+        /// A new <see cref="Project" /> with the specified output level.
+        /// </returns>
+        public Project CreateFilebasedProject(string xml, Level level) {
             // create the build file in the temp folder
             string buildFileName = Path.Combine(TempDirName, "test.build");
             TempFile.CreateWithContents(xml, buildFileName);
 
-            return new Project(buildFileName, Level.Info);
+            return new Project(buildFileName, level);
         }
 
-        /// <summary>
-        /// Creates an empty project xmldocument and loads it with a new project.
-        /// </summary>
-        /// <returns>The new project</returns>
+        /// <summary>        /// Creates an empty project xmldocument and loads it with a new project.        /// </summary>        /// <returns>The new project.</returns>
         protected Project CreateEmptyProject() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.AppendChild(doc.CreateElement("project"));
@@ -127,20 +135,20 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Creates a tempfile in the test temp directory
+        /// Creates a tempfile in the test temp directory.
         /// </summary>
-        /// <param name="name">the filename, should not be an absolute</param>
-        /// <returns>The full FilePath to the new file</returns>
+        /// <param name="name">The filename, should not be absolute.</param>
+        /// <returns>The full path to the new file.</returns>
         public string CreateTempFile(string name) {
             return CreateTempFile(name, null);
         }
         /// <summary>
-        /// Creates a tempfile in the test temp directory
+        /// Creates a tempfile in the test temp directory.
         /// </summary>
-        /// <param name="name">the filename, should not be an absolute</param>
-        /// <param name="contents">What you want in the file</param>
-        /// <returns>The full FilePath to the new file</returns>
-        /// <remarks>The file is created and existance is checked</remarks>
+        /// <param name="name">The filename, should not be absolute.</param>
+        /// <param name="contents">The content of the file.</param>
+        /// <returns>The full path to the new file.</returns>
+        /// <remarks>The file is created and existance is checked.</remarks>
         public string CreateTempFile(string name, string contents) {
             string filename = Path.Combine(TempDirName, name);
             
@@ -152,14 +160,43 @@ namespace Tests.NAnt.Core {
             
             return TempFile.CreateWithContents(contents, filename);
         }
+
         /// <summary>
-        /// Creates a temp directory
+        /// Creates a temp directory.
         /// </summary>
-        /// <param name="name">the name of the directory to create (name only, no path info)</param>
-        /// <returns>The full path to the new directory</returns>
-        /// <remarks>The dir is created and existance is checked</remarks>
+        /// <param name="name">The name of the directory to create (name only, no path info).</param>
+        /// <returns>The full path to the new directory.</returns>
+        /// <remarks>The dir is created and existance is checked.</remarks>
         public string CreateTempDir(string name) {
             return TempDir.Create(Path.Combine(TempDirName, name));
         }
+
+        #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        /// <remarks>
+        ///   <para>No need to add SetUp attribute to overriden method.</para>
+        ///   <para>Super classes that override SetUp must call the base class first.</para>
+        /// </remarks>
+        protected virtual void SetUp() {
+            _tempDirName = TempDir.Create(this.GetType().FullName);
+        }
+
+        /// <summary>        /// This method will be called by NUnit for setup.        /// </summary>
+        [SetUp]
+        protected void NUnitSetUp() {
+            SetUp();
+        }
+
+        /// <remarks>
+        /// Super classes that override must call the base class last.
+        /// </remarks>
+        [TearDown]
+        protected virtual void TearDown() {
+            TempDir.Delete(TempDirName);
+        }
+
+        #endregion Protected Instance Methods
     }
 }
