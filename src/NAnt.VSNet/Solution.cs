@@ -21,15 +21,12 @@ using System.Xml;
 using System.Collections;
 using System.Text.RegularExpressions;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Summary description for Solution.
     /// </summary>
-    public class Solution
-    {
-        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, SourceForge.NAnt.Task nanttask )
-        {
+    public class Solution {
+        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, SourceForge.NAnt.Task nanttask ) {
             _strFilename = strSolutionFilename;
             _htProjects = new Hashtable();
             _htProjectDirectories = new Hashtable();
@@ -41,8 +38,7 @@ namespace SourceForge.NAnt.Tasks
 
             string strFileContents;
 
-            using ( StreamReader sr = new StreamReader( strSolutionFilename ) )
-            {
+            using ( StreamReader sr = new StreamReader( strSolutionFilename ) ) {
                 strFileContents = sr.ReadToEnd();
             }
 
@@ -50,24 +46,21 @@ namespace SourceForge.NAnt.Tasks
             MatchCollection mc = re.Matches( strFileContents );
             FileInfo fiSolution = new FileInfo( strSolutionFilename );
 
-            foreach ( Match m in mc )
-            {
+            foreach ( Match m in mc ) {
                 string strPackage = m.Groups[ "package" ].Value;
                 string strName = m.Groups[ "name" ].Value;
                 string strProject = m.Groups[ "project" ].Value;
                 string strGUID = m.Groups[ "guid" ].Value;
 
                 string strFullPath;
-                try
-                {
+                try {
                     Uri uri = new Uri( strProject );
                     if ( uri.Scheme == Uri.UriSchemeFile )
                         strFullPath = Path.Combine( fiSolution.DirectoryName, uri.LocalPath );
                     else
                         strFullPath = strProject;
                 }
-                catch ( UriFormatException )
-                {
+                catch ( UriFormatException ) {
                     strFullPath = Path.Combine( fiSolution.DirectoryName, strProject );
                 }
                 
@@ -80,8 +73,7 @@ namespace SourceForge.NAnt.Tasks
             Regex reDependencies = new Regex( @"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\}).\d+\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline );
             mc = reDependencies.Matches( strFileContents );
 
-            foreach ( Match m in mc )
-            {
+            foreach ( Match m in mc ) {
                 string strGUID = m.Groups[ "guid" ].Value;
                 string strDependency = m.Groups[ "dep" ].Value;
 
@@ -97,13 +89,11 @@ namespace SourceForge.NAnt.Tasks
             GetDependenciesFromProjects();
         }
 
-        public void RecursiveLoadTemplateProject( string strFilename )
-        {
+        public void RecursiveLoadTemplateProject( string strFilename ) {
             XmlDocument doc = new XmlDocument();
             doc.Load( strFilename );
 
-            foreach ( XmlNode node in doc.SelectNodes( "//Reference" ) )
-            {
+            foreach ( XmlNode node in doc.SelectNodes( "//Reference" ) ) {
                 string strSubProjectFilename = node.SelectSingleNode( "FILE" ).InnerText;
                 string strGUID = node.SelectSingleNode( "GUIDPROJECTID" ).InnerText;
 
@@ -115,8 +105,7 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, SourceForge.NAnt.Task nanttask )
-        {
+        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, SourceForge.NAnt.Task nanttask ) {
             _htProjects = new Hashtable();
             _htProjectDirectories = new Hashtable();
             _htOutputFiles = new Hashtable();
@@ -134,10 +123,8 @@ namespace SourceForge.NAnt.Tasks
             GetDependenciesFromProjects();
         }
 
-        private void LoadProjectGUIDs( ArrayList alProjects, bool bIsReferenceProject )
-        {
-            foreach ( string strProjectFilename in alProjects )
-            {
+        private void LoadProjectGUIDs( ArrayList alProjects, bool bIsReferenceProject ) {
+            foreach ( string strProjectFilename in alProjects ) {
                 //Console.WriteLine( "{0} -> {1}", strProjectFilename, Project.LoadGUID( strProjectFilename ) );
                 string strGUID = Project.LoadGUID( strProjectFilename );
                 _htProjectFiles[ strGUID ] = strProjectFilename;
@@ -146,8 +133,7 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        private void AddProjectDependency( string strProjectGUID, string strDependencyGUID )
-        {
+        private void AddProjectDependency( string strProjectGUID, string strDependencyGUID ) {
             //Console.WriteLine( "{0}->{1}", strProjectGUID, strDependencyGUID );
             if ( !_htProjectDependencies.Contains( strProjectGUID ) )
                 _htProjectDependencies[ strProjectGUID ] = new Hashtable();
@@ -155,34 +141,29 @@ namespace SourceForge.NAnt.Tasks
             ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] )[ strDependencyGUID ] = null;
         }
 
-        private void RemoveProjectDependency( string strProjectGUID, string strDependencyGUID )
-        {
+        private void RemoveProjectDependency( string strProjectGUID, string strDependencyGUID ) {
             if ( !_htProjectDependencies.Contains( strProjectGUID ) )
                 return;
 
             ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] ).Remove( strDependencyGUID );
         }
 
-        private bool HasProjectDependency( string strProjectGUID, string strDependencyGUID )
-        {
+        private bool HasProjectDependency( string strProjectGUID, string strDependencyGUID ) {
             if ( !_htProjectDependencies.Contains( strProjectGUID ) )
                 return false;
 
             return ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] ).Contains( strDependencyGUID );
         }
 
-        private string[] GetProjectDependencies( string strProjectGUID )
-        {
+        private string[] GetProjectDependencies( string strProjectGUID ) {
             if ( !_htProjectDependencies.Contains( strProjectGUID ) )
                 return new string[ 0 ];
 
             return ( string[] )new ArrayList( ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] ).Keys ).ToArray( typeof( string ) );
         }
 
-        private void LoadProjects()
-        {
-            foreach ( DictionaryEntry de in _htProjectFiles )
-            {
+        private void LoadProjects() {
+            foreach ( DictionaryEntry de in _htProjectFiles ) {
                 Project p = new Project( _nanttask );
                 //Console.WriteLine( "  {0}", de.Value );
                 p.Load( this, ( string )de.Value );
@@ -190,29 +171,24 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        private void GetDependenciesFromProjects()
-        {
+        private void GetDependenciesFromProjects() {
             // First get all of the output files
-            foreach ( DictionaryEntry de in _htProjects )
-            {
+            foreach ( DictionaryEntry de in _htProjects ) {
                 string strGUID = ( string )de.Key;
                 Project p = ( Project )de.Value;
 
-                foreach ( string strConfiguration in p.Configurations )
-                {
+                foreach ( string strConfiguration in p.Configurations ) {
                     //Console.WriteLine( "{0} [{1}] -> {2}", p.Name, strConfiguration, p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() );
                     _htOutputFiles[ p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() ] = strGUID;
                 }
             }
 
             // Then build the dependency list
-            foreach ( DictionaryEntry de in _htProjects )
-            {
+            foreach ( DictionaryEntry de in _htProjects ) {
                 string strGUID = ( string )de.Key;
                 Project p = ( Project )de.Value;
 
-                foreach ( Reference r in p.References )
-                {
+                foreach ( Reference r in p.References ) {
                     if ( r.IsProjectReference )
                         AddProjectDependency( strGUID, r.ProjectReferenceGUID );
                     else if ( _htOutputFiles.Contains( r.Filename.ToLower() ) )
@@ -221,48 +197,39 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        public string GetProjectFileFromGUID( string strProjectGUID )
-        {
+        public string GetProjectFileFromGUID( string strProjectGUID ) {
             return ( string )_htProjectFiles[ strProjectGUID ];
         }
 
-        public Project GetProjectFromGUID( string strProjectGUID )
-        {
+        public Project GetProjectFromGUID( string strProjectGUID ) {
             return ( Project )_htProjects[ strProjectGUID ];
         }
 
-        public bool Compile( string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands )
-        {
+        public bool Compile( string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
             Hashtable htDeps = ( Hashtable )_htProjectDependencies.Clone();
             Hashtable htProjectsDone = new Hashtable();
             Hashtable htFailedProjects = new Hashtable();
 
             bool bSuccess = true;
-            while ( true )
-            {
+            while ( true ) {
                 bool bCompiledThisRound = false;
 
-                foreach ( Project p in _htProjects.Values )
-                {
+                foreach ( Project p in _htProjects.Values ) {
                     if ( htProjectsDone.Contains( p.GUID ) )
                         continue;
 
                     //Console.WriteLine( "{0} {1}: {2} dep(s)", p.Name, p.GUID, GetProjectDependencies( p.GUID ).Length );
                     //foreach ( string strDep in GetProjectDependencies( p.GUID ) )
                     //    Console.WriteLine( "  " + ( ( Project )_htProjects[ strDep ] ).Name );
-                    if ( GetProjectDependencies( p.GUID ).Length == 0 )
-                    {
+                    if ( GetProjectDependencies( p.GUID ).Length == 0 ) {
                         bool bFailed = htFailedProjects.Contains( p.GUID );
 
-                        if ( !bFailed )
-                        {
+                        if ( !bFailed ) {
                             // Fixup references
                             //Console.WriteLine( "Fixing up references..." );
-                            foreach ( Reference r in p.References )
-                            {
+                            foreach ( Reference r in p.References ) {
                                 //Console.WriteLine( "Original: {0}", r.Filename );
-                                if ( r.IsProjectReference )
-                                {
+                                if ( r.IsProjectReference ) {
                                     Project pRef = ( Project )_htProjects[ r.ProjectReferenceGUID ];
                                     if ( pRef == null )
                                         throw new Exception( "Unable to locate referenced project while loading " + p.Name );
@@ -271,8 +238,7 @@ namespace SourceForge.NAnt.Tasks
                                     if ( pRef != null )
                                         r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower();
                                 } 
-                                else if ( _htOutputFiles.Contains( r.Filename.ToLower() ) )
-                                {
+                                else if ( _htOutputFiles.Contains( r.Filename.ToLower() ) ) {
                                     Project pRef = ( Project )_htProjects[ ( string )_htOutputFiles[ r.Filename.ToLower() ] ];
                                     if ( pRef != null && pRef.GetConfigurationSettings( strConfiguration ) != null )
                                         r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower();
@@ -282,10 +248,8 @@ namespace SourceForge.NAnt.Tasks
                             }
                         }
 
-                        if ( !_htReferenceProjects.Contains( p.GUID ) && ( bFailed || !p.Compile( strConfiguration, alCSCArguments, strLogFile, bVerbose, bShowCommands ) ) )
-                        {
-                            if ( !bFailed )
-                            {
+                        if ( !_htReferenceProjects.Contains( p.GUID ) && ( bFailed || !p.Compile( strConfiguration, alCSCArguments, strLogFile, bVerbose, bShowCommands ) ) ) {
+                            if ( !bFailed ) {
                                 Console.WriteLine( "*** Project {0} failed!", p.Name );
                                 Console.WriteLine( "*** Continuing build with non-dependent projects:" );
                             }
@@ -317,8 +281,7 @@ namespace SourceForge.NAnt.Tasks
             return bSuccess;
         }
 
-        public string Filename
-        {
+        public string Filename {
             get { return _strFilename; }
         }
 

@@ -29,17 +29,14 @@ using System.Text.RegularExpressions;
 
 using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Summary description for Project.
     /// </summary>
-    public class Project
-    {
+    public class Project {
         private const string COMMAND_FILE = "compile-commands.txt";
 
-        public Project(SourceForge.NAnt.Task nanttask)
-        {
+        public Project(SourceForge.NAnt.Task nanttask) {
             _htConfigurations = new Hashtable();
             _htReferences = new Hashtable();
             _htFiles = new Hashtable();
@@ -48,33 +45,26 @@ namespace SourceForge.NAnt.Tasks
             _nanttask = nanttask;
         }
 
-        private static bool IsURL( string strFilename )
-        {
+        private static bool IsURL( string strFilename ) {
             XmlDocument doc = new XmlDocument();
-            if ( strFilename.StartsWith( Uri.UriSchemeFile ) || strFilename.StartsWith( Uri.UriSchemeHttp ) || strFilename.StartsWith( Uri.UriSchemeHttps ) )
-            {
+            if ( strFilename.StartsWith( Uri.UriSchemeFile ) || strFilename.StartsWith( Uri.UriSchemeHttp ) || strFilename.StartsWith( Uri.UriSchemeHttps ) ) {
                 return true;
             }
 
             return false;
         }
 
-        private static XmlDocument LoadXmlDocument( string strFilename )
-        {
+        private static XmlDocument LoadXmlDocument( string strFilename ) {
             XmlDocument doc = new XmlDocument();
-            if ( !IsURL( strFilename ) )
-            {
+            if ( !IsURL( strFilename ) ) {
                 doc.Load( strFilename );
             }
-            else
-            {
+            else {
                 Uri uri = new Uri( strFilename );
-                if ( uri.Scheme == Uri.UriSchemeFile )
-                {
+                if ( uri.Scheme == Uri.UriSchemeFile ) {
                     doc.Load( uri.LocalPath );
                 }
-                else
-                {
+                else {
                     doc.LoadXml( WebDavClient.GetFileContentsStatic( strFilename ) );
                 }
             }
@@ -82,22 +72,19 @@ namespace SourceForge.NAnt.Tasks
             return doc;
         }
 
-        public static bool IsEnterpriseTemplateProject( string strFilename )
-        {
+        public static bool IsEnterpriseTemplateProject( string strFilename ) {
             XmlDocument doc = LoadXmlDocument( strFilename );
             return ( doc.DocumentElement.Name.ToString() == "EFPROJECT" );
         }
 
-        public static string LoadGUID( string strFilename )
-        {
+        public static string LoadGUID( string strFilename ) {
             XmlDocument doc = LoadXmlDocument( strFilename );
 
             ProjectSettings ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ) );
             return ps.GUID;
         }
 
-        public void Load( Solution sln, string strFilename )
-        {
+        public void Load( Solution sln, string strFilename ) {
             XmlDocument doc = LoadXmlDocument( strFilename );
 
             _ps = new ProjectSettings( doc.DocumentElement, ( XmlElement )doc.SelectSingleNode( "//Build/Settings" ) );
@@ -106,12 +93,10 @@ namespace SourceForge.NAnt.Tasks
             _strWebProjectBaseUrl = String.Empty;
             string strWebCacheDirectory = String.Empty;
 
-            if ( !_bWebProject )
-            {
+            if ( !_bWebProject ) {
                 _strProjectDirectory = new FileInfo( strFilename ).DirectoryName;
             }
-            else
-            {
+            else {
                 string strProjectDirectory = strFilename.Replace( ":", "_" );
                 Console.WriteLine( strProjectDirectory );
                 strProjectDirectory = strProjectDirectory.Replace( "/", "_" );
@@ -133,62 +118,50 @@ namespace SourceForge.NAnt.Tasks
             XmlNodeList nlConfigurations, nlReferences, nlFiles, nlImports;
 
             nlConfigurations = doc.SelectNodes( "//Config" );
-            foreach ( XmlElement elemConfig in nlConfigurations )
-            {
+            foreach ( XmlElement elemConfig in nlConfigurations ) {
                 ConfigurationSettings cs = new ConfigurationSettings( _ps, elemConfig );
                 _htConfigurations[ elemConfig.Attributes[ "Name" ].Value.ToLower() ] = cs;
             }
 
             nlReferences = doc.SelectNodes( "//References/Reference" );
-            foreach ( XmlElement elemReference in nlReferences )
-            {
+            foreach ( XmlElement elemReference in nlReferences ) {
                 Reference reference = new Reference( sln, _ps, elemReference, _nanttask );
                 _htReferences[ elemReference.Attributes[ "Name" ].Value ] = reference;
             }
 
-            if ( _ps.Type == ProjectType.VBNet )
-            {
+            if ( _ps.Type == ProjectType.VBNet ) {
                 nlImports = doc.SelectNodes( "//Imports/Import" );
-                foreach ( XmlElement elemReference in nlImports )
-                {
+                foreach ( XmlElement elemReference in nlImports ) {
                     _strImports += elemReference.Attributes[ "Namespace" ].Value.ToString() + ",";
                 }
-                if ( _strImports.Length > 0 ) 
-                {
+                if ( _strImports.Length > 0 ) {
                     _strImports = "/Imports:" + _strImports;
                 }
             }
 
             nlFiles = doc.SelectNodes( "//Files/Include/File" );
-            foreach ( XmlElement elemFile in nlFiles )
-            {
+            foreach ( XmlElement elemFile in nlFiles ) {
                 string strBuildAction = elemFile.Attributes[ "BuildAction" ].Value;
 
-                if ( _bWebProject )
-                {
+                if ( _bWebProject ) {
                     WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
                     string strOutputFile = Path.Combine( strWebCacheDirectory, elemFile.Attributes[ "RelPath" ].Value );
                     wdc.DownloadFile( strOutputFile, elemFile.Attributes[ "RelPath" ].Value );
 
                     FileInfo fi = new FileInfo( strOutputFile );
-                    if ( strBuildAction == "Compile" )
-                    {
+                    if ( strBuildAction == "Compile" ) {
                         _htFiles[ fi.FullName ] = null;
                     }
-                    else if ( strBuildAction == "EmbeddedResource" )
-                    {
+                    else if ( strBuildAction == "EmbeddedResource" ) {
                         Resource r = new Resource( this, fi.FullName, elemFile.Attributes[ "RelPath" ].Value, fi.DirectoryName + @"\" + elemFile.Attributes[ "DependentUpon" ].Value, _nanttask );
                         _htResources[ r.InputFile ] = r;
                     }
                 }
-                else
-                {
-                    if ( strBuildAction == "Compile" )
-                    {
+                else {
+                    if ( strBuildAction == "Compile" ) {
                         _htFiles[ elemFile.Attributes[ "RelPath" ].Value ] = null;
                     }
-                    else if ( strBuildAction == "EmbeddedResource" )
-                    {
+                    else if ( strBuildAction == "EmbeddedResource" ) {
                         string strResourceFilename = Path.Combine( _ps.ProjectRootDirectory, elemFile.GetAttribute( "RelPath" ) );
                         string strDependentOn = ( elemFile.Attributes[ "DependentUpon" ] != null ) ? Path.Combine( new FileInfo( strResourceFilename ).DirectoryName, elemFile.Attributes[ "DependentUpon" ].Value ) : null;
                         Resource r = new Resource( this, strResourceFilename, elemFile.Attributes[ "RelPath" ].Value, strDependentOn, _nanttask );
@@ -198,38 +171,31 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        public string Name
-        {
+        public string Name {
             get { return _ps.Name; }
         }
 
-        public string[] Configurations
-        {
+        public string[] Configurations {
             get { return ( String[] )new ArrayList( _htConfigurations.Keys ).ToArray( typeof( string ) ); }
         }
 
-        public ConfigurationSettings GetConfigurationSettings( string strConfiguration )
-        {
+        public ConfigurationSettings GetConfigurationSettings( string strConfiguration ) {
             return ( ConfigurationSettings )_htConfigurations[ strConfiguration ];
         }
 
-        public Reference[] References
-        {
+        public Reference[] References {
             get { return ( Reference[] )new ArrayList( _htReferences.Values ).ToArray( typeof( Reference ) ); }
         }
 
-        public Resource[] Resources
-        {
+        public Resource[] Resources {
             get { return ( Resource[] )new ArrayList( _htResources.Values ).ToArray( typeof( Resource ) ); }
         }
 
-        public ProjectSettings ProjectSettings
-        {
+        public ProjectSettings ProjectSettings {
             get { return _ps; }
         }
 
-        private bool CheckUpToDate( ConfigurationSettings cs )
-        {
+        private bool CheckUpToDate( ConfigurationSettings cs ) {
             DateTime dtOutputTimeStamp;
             if ( File.Exists( cs.FullOutputFile ) )
                 dtOutputTimeStamp = File.GetLastWriteTime( cs.FullOutputFile );
@@ -242,8 +208,7 @@ namespace SourceForge.NAnt.Tasks
                     return false;
 
             // Check all of the input references
-            foreach ( Reference reference in _htReferences.Values )
-            {
+            foreach ( Reference reference in _htReferences.Values ) {
                 reference.ConfigurationSettings = cs;
                 if ( dtOutputTimeStamp < reference.Timestamp )
                     return false;
@@ -252,15 +217,13 @@ namespace SourceForge.NAnt.Tasks
             return true;
         }
 
-        public bool Compile(string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands )
-        {
+        public bool Compile(string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
             TempFileCollection tfc = new TempFileCollection();
             Directory.CreateDirectory( tfc.BasePath );
             bool bSuccess = true;
 
             ConfigurationSettings cs = ( ConfigurationSettings )_htConfigurations[ strConfiguration.ToLower() ];
-            if ( cs == null )
-            {
+            if ( cs == null ) {
                 Console.WriteLine( "Configuration {0} does not exist, skipping.", strConfiguration );
                 return true;
             }
@@ -268,14 +231,11 @@ namespace SourceForge.NAnt.Tasks
             Log(Level.Info, _nanttask.LogPrefix + "Building {0} [{1}]...", Name, strConfiguration);
             Directory.CreateDirectory( cs.OutputPath );
 
-            try
-            {
+            try {
                 string strTempFile = tfc.BasePath + "\\" + COMMAND_FILE;
             
-                using ( StreamWriter sw = File.CreateText( strTempFile ) )
-                {
-                    if ( CheckUpToDate( cs ) )
-                    {    
+                using ( StreamWriter sw = File.CreateText( strTempFile ) ) {
+                    if ( CheckUpToDate( cs ) ) {    
                         Log(Level.Verbose, _nanttask.LogPrefix + "Project is up-to-date" );
                         return true;
                     }
@@ -293,14 +253,11 @@ namespace SourceForge.NAnt.Tasks
                         sw.WriteLine( _strImports );
 
                     Log(Level.Verbose, _nanttask.LogPrefix + "Copying references:" );
-                    foreach ( Reference reference in _htReferences.Values )
-                    {
+                    foreach ( Reference reference in _htReferences.Values ) {
                         Log(Level.Verbose, _nanttask.LogPrefix + " - " + reference.Name );
 
-                        if ( reference.CopyLocal )
-                        {
-                            if ( reference.IsCreated )
-                            {
+                        if ( reference.CopyLocal ) {
+                            if ( reference.IsCreated ) {
                                 string strProgram, strCommandLine;
                                 reference.GetCreationCommand( cs, out strProgram, out strCommandLine );
 
@@ -308,18 +265,15 @@ namespace SourceForge.NAnt.Tasks
                                 ProcessStartInfo psiRef = new ProcessStartInfo( strProgram, strCommandLine );
                                 psiRef.UseShellExecute = false;
                                 psiRef.WorkingDirectory = cs.OutputPath;
-                                try
-                                {
+                                try {
                                     Process pRef = Process.Start( psiRef );
                                     pRef.WaitForExit();
                                 }
-                                catch ( Win32Exception e )
-                                {
+                                catch ( Win32Exception e ) {
                                     throw new SourceForge.NAnt.BuildException( String.Format( "Unable to start process with commandline: {0} {1}", strProgram, strCommandLine ), e );
                                 }
                             }
-                            else
-                            {
+                            else {
                                 string[] strFromFilenames = reference.GetReferenceFiles( cs );
 
                                 CopyTask ct = new CopyTask();
@@ -339,8 +293,7 @@ namespace SourceForge.NAnt.Tasks
                     }
 
                     Log(Level.Verbose, _nanttask.LogPrefix + "Compiling resources:" );
-                    foreach ( Resource resource in _htResources.Values )
-                    {
+                    foreach ( Resource resource in _htResources.Values ) {
                         Log(Level.Info, _nanttask.LogPrefix + " - {0}", resource.InputFile, Level.Verbose);
                         resource.Compile( cs, bShowCommands );
                         sw.WriteLine( resource.Setting );
@@ -352,10 +305,8 @@ namespace SourceForge.NAnt.Tasks
                 }
 
                 tfc.AddFile( strTempFile, false );
-                if ( bShowCommands )
-                {
-                    using ( StreamReader sr = new StreamReader( strTempFile ) )
-                    {
+                if ( bShowCommands ) {
+                    using ( StreamReader sr = new StreamReader( strTempFile ) ) {
                         Console.WriteLine( "Commands:" );
                         Console.WriteLine( sr.ReadToEnd() );
                     }
@@ -363,13 +314,11 @@ namespace SourceForge.NAnt.Tasks
 
                 Log(Level.Verbose, _nanttask.LogPrefix + "Starting compiler...");
                 ProcessStartInfo psi = null;
-                if ( _ps.Type == ProjectType.CSharp )
-                {
+                if ( _ps.Type == ProjectType.CSharp ) {
                     psi = new ProcessStartInfo( "csc.exe", "@" + strTempFile );
                 }
 
-                if ( _ps.Type == ProjectType.VBNet )
-                {
+                if ( _ps.Type == ProjectType.VBNet ) {
                     psi = new ProcessStartInfo( "vbc.exe", "@" + strTempFile );
                 }
 
@@ -379,14 +328,11 @@ namespace SourceForge.NAnt.Tasks
 
                 Process p = Process.Start( psi );
 
-                if ( strLogFile != null )
-                {
-                    using ( StreamWriter sw = new StreamWriter( strLogFile, true ) )
-                    {
+                if ( strLogFile != null ) {
+                    using ( StreamWriter sw = new StreamWriter( strLogFile, true ) ) {
                         sw.WriteLine( "Configuration: {0}", strConfiguration );
                         sw.WriteLine( "" );
-                        while ( true )
-                        {
+                        while ( true ) {
                             string strLogContents = p.StandardOutput.ReadLine();
                             if ( strLogContents == null )
                                 break;
@@ -394,11 +340,9 @@ namespace SourceForge.NAnt.Tasks
                         }
                     }
                 }
-                else
-                {
+                else {
                     _nanttask.Project.Indent();
-                    while ( true )
-                    {                        
+                    while ( true ) {                        
                         string strLogContents = p.StandardOutput.ReadLine();
                         if ( strLogContents == null )
                             break;                    
@@ -414,10 +358,8 @@ namespace SourceForge.NAnt.Tasks
 
                 if ( nExitCode > 0 )
                     bSuccess = false;
-                else
-                {
-                    if ( _bWebProject )
-                    {
+                else {
+                    if ( _bWebProject ) {
                         Log(Level.Info, _nanttask.LogPrefix + "Uploading output files");
                         WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
                         //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
@@ -425,20 +367,16 @@ namespace SourceForge.NAnt.Tasks
                     }
 
                     // Copy any extra files over
-                    foreach ( string strExtraOutputFile in cs.ExtraOutputFiles )
-                    {
+                    foreach ( string strExtraOutputFile in cs.ExtraOutputFiles ) {
                         FileInfo fi = new FileInfo( strExtraOutputFile );
-                        if ( _bWebProject )
-                        {
+                        if ( _bWebProject ) {
                             WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
                             wdc.UploadFile( strExtraOutputFile, cs.RelOutputPath + "/" + fi.Name );
                         }
-                        else
-                        {
+                        else {
                             string strOutFile = cs.OutputPath + @"\" + fi.Name;
 
-                            if ( File.Exists( strOutFile ) )
-                            {
+                            if ( File.Exists( strOutFile ) ) {
                                 File.SetAttributes( strOutFile, FileAttributes.Normal );
                                 File.Delete( strOutFile );
                             }
@@ -448,8 +386,7 @@ namespace SourceForge.NAnt.Tasks
                     }
                 }
             }
-            finally
-            {
+            finally {
                 tfc.Delete();
                 Directory.Delete( tfc.BasePath, true );
             }
@@ -460,8 +397,7 @@ namespace SourceForge.NAnt.Tasks
             return bSuccess;
         }
 
-        public string GUID
-        {
+        public string GUID {
             get { return _ps.GUID; }
         }
 

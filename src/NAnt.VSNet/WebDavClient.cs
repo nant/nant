@@ -19,20 +19,16 @@ using System;
 using System.Net;
 using System.IO;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Summary description for WebDavClient.
     /// </summary>
-    public class WebDavClient
-    {
-        public WebDavClient( Uri uriBase )
-        {
+    public class WebDavClient {
+        public WebDavClient( Uri uriBase ) {
             _strWebProjectBaseUrl = uriBase.ToString();
         }
 
-        public void UploadFile( string strLocalFilename, string strRemoteFilename )
-        {
+        public void UploadFile( string strLocalFilename, string strRemoteFilename ) {
             WebRequest request = WebRequest.Create( _strWebProjectBaseUrl + "/" + strRemoteFilename );
             Console.WriteLine( request.RequestUri.ToString() );
             request.Method = "PUT";
@@ -44,13 +40,10 @@ namespace SourceForge.NAnt.Tasks
 
             int bufferSize = 100 * 1024;
             byte[] buffer = new byte[bufferSize];
-            using ( FileStream fsInput = new FileStream( fi.FullName, FileMode.Open ) )
-            {
-                using ( Stream s = request.GetRequestStream() )
-                {
+            using ( FileStream fsInput = new FileStream( fi.FullName, FileMode.Open ) ) {
+                using ( Stream s = request.GetRequestStream() ) {
                     int nRead;
-                    do
-                    {
+                    do {
                         nRead = fsInput.Read( buffer, 0, bufferSize );
                         s.Write( buffer, 0, nRead );
                     }
@@ -59,12 +52,10 @@ namespace SourceForge.NAnt.Tasks
             }
 
             buffer = null;
-            try
-            {
+            try {
                 using ( request.GetResponse() ) { }
             }
-            catch ( WebException we )
-            {
+            catch ( WebException we ) {
                 HttpWebResponse hwr = ( HttpWebResponse )we.Response;
                 
                 if ( ( int )hwr.StatusCode != 423 )
@@ -72,8 +63,7 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        public void DeleteFile( string strLocalFilename, string strRemoteFilename )
-        {
+        public void DeleteFile( string strLocalFilename, string strRemoteFilename ) {
             WebRequest request = WebRequest.Create( _strWebProjectBaseUrl + "/" + strRemoteFilename );
             Console.WriteLine( request.RequestUri.ToString() );
             request.Method = "DELETE";
@@ -83,8 +73,7 @@ namespace SourceForge.NAnt.Tasks
             using ( request.GetResponse() ) { }
         }
 
-        public void DownloadFile( string strLocalFilename, string strRemoteFilename )
-        {
+        public void DownloadFile( string strLocalFilename, string strRemoteFilename ) {
             WebRequest request = WebRequest.Create( _strWebProjectBaseUrl + "/" + strRemoteFilename );
             Console.WriteLine( request.RequestUri.ToString() );
             request.Method = "GET";
@@ -96,13 +85,10 @@ namespace SourceForge.NAnt.Tasks
 
             int bufferSize = 100 * 1024;
             byte[] buffer = new byte[bufferSize];
-            using ( FileStream fsOutput = new FileStream( fi.FullName, FileMode.OpenOrCreate ) )
-            {
-                using ( Stream s = request.GetResponse().GetResponseStream() )
-                {
+            using ( FileStream fsOutput = new FileStream( fi.FullName, FileMode.OpenOrCreate ) ) {
+                using ( Stream s = request.GetResponse().GetResponseStream() ) {
                     int nRead;
-                    do
-                    {
+                    do {
                         nRead = s.Read( buffer, 0, bufferSize );
                         fsOutput.Write( buffer, 0, nRead );
                     }
@@ -113,30 +99,26 @@ namespace SourceForge.NAnt.Tasks
             buffer = null;
         }
 
-        public string GetFileContents( string strRemoteFilename )
-        {
+        public string GetFileContents( string strRemoteFilename ) {
             WebRequest request = WebRequest.Create( _strWebProjectBaseUrl + "/" + strRemoteFilename );
             Console.WriteLine( request.RequestUri.ToString() );
             request.Method = "GET";
             request.Headers.Add( "Translate: f" );
             request.Credentials = CredentialCache.DefaultCredentials;
 
-            using ( StreamReader sr = new StreamReader( request.GetResponse().GetResponseStream() ) )
-            {
+            using ( StreamReader sr = new StreamReader( request.GetResponse().GetResponseStream() ) ) {
                 return sr.ReadToEnd();
             }
         }
 
-        public static string GetFileContentsStatic( string strRemoteFilename )
-        {
+        public static string GetFileContentsStatic( string strRemoteFilename ) {
             WebRequest request = WebRequest.Create( strRemoteFilename );
             Console.WriteLine( request.RequestUri.ToString() );
             request.Method = "GET";
             request.Headers.Add( "Translate: f" );
             request.Credentials = CredentialCache.DefaultCredentials;
 
-            using ( StreamReader sr = new StreamReader( request.GetResponse().GetResponseStream() ) )
-            {
+            using ( StreamReader sr = new StreamReader( request.GetResponse().GetResponseStream() ) ) {
                 return sr.ReadToEnd();
             }
         }

@@ -22,15 +22,12 @@ using System.Xml;
 using System.CodeDom.Compiler;
 using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Summary description for ProjectSettings.
     /// </summary>
-    public class ProjectSettings
-    {
-        public ProjectSettings( XmlElement elemRoot, XmlElement elemSettings )
-        {
+    public class ProjectSettings {
+        public ProjectSettings( XmlElement elemRoot, XmlElement elemSettings ) {
             _elemSettings = elemSettings;
             _tfc = new TempFileCollection();
             Directory.CreateDirectory( _tfc.BasePath );
@@ -46,8 +43,7 @@ namespace SourceForge.NAnt.Tasks
 
             _strGUID = elemRoot.FirstChild.Attributes[ "ProjectGuid" ].Value.ToUpper();
 
-            switch ( elemSettings.Attributes[ "OutputType" ].Value.ToLower() )
-            {
+            switch ( elemSettings.Attributes[ "OutputType" ].Value.ToLower() ) {
                 case "library":
                     _alSettings.Add( "/target:library" );
                     _strOutputExtension = ".dll";
@@ -68,8 +64,7 @@ namespace SourceForge.NAnt.Tasks
             _strOutputFile = String.Concat( elemSettings.Attributes[ "AssemblyName" ].Value, _strOutputExtension );
             _alSettings.Add( "/nologo" );
 
-            if ( elemSettings.Attributes[ "RootNamespace" ] != null )
-            {
+            if ( elemSettings.Attributes[ "RootNamespace" ] != null ) {
                 _strRootNamespace = elemSettings.Attributes[ "RootNamespace" ].Value;
                 if ( _projectType == ProjectType.VBNet )
                     _alSettings.Add( "/rootnamespace:" + _strRootNamespace );
@@ -79,72 +74,59 @@ namespace SourceForge.NAnt.Tasks
 
             htStringSettings[ "ApplicationIcon" ] = @"/win32icon:""{0}""";
 
-            foreach ( DictionaryEntry de in htStringSettings )
-            {
+            foreach ( DictionaryEntry de in htStringSettings ) {
                 string strValue = elemSettings.GetAttribute( de.Key.ToString() );
                 if ( strValue != null && strValue.Length > 0 )
                     _alSettings.Add( String.Format( de.Value.ToString(), strValue ) );
             }
         }
 
-        ~ProjectSettings()
-        {
+        ~ProjectSettings() {
             _tfc.Delete();
         }
 
-        public Task[] GetRequiredTasks()
-        {
+        public Task[] GetRequiredTasks() {
             return new Task[ 0 ];
         }
 
-        public string[] Settings
-        {
+        public string[] Settings {
             get { return ( string[] )_alSettings.ToArray( typeof( string ) ); }
         }
 
-        public string ProjectRootDirectory
-        {
+        public string ProjectRootDirectory {
             get { return _strProjectDirectory; }
             set { _strProjectDirectory = value; }
         }
 
-        public string GetTemporaryFilename( string strFilename )
-        {
+        public string GetTemporaryFilename( string strFilename ) {
             return Path.Combine( _tfc.BasePath, strFilename );
         }
 
-        public string Name
-        {
+        public string Name {
             get { return _strName; }
         }
 
-        public TempFileCollection TemporaryFiles
-        {
+        public TempFileCollection TemporaryFiles {
             get { return _tfc; }
         }
 
-        public string OutputFile
-        {
+        public string OutputFile {
             get { return _strOutputFile; }
         }
 
-        public string OutputExtension
-        {
+        public string OutputExtension {
             get { return _strOutputExtension; }
         }
 
-        public string RootNamespace
-        {
+        public string RootNamespace {
             get { return _strRootNamespace; }
         }
 
-        public string GUID
-        {
+        public string GUID {
             get { return _strGUID; }
         }
 
-        public ProjectType Type
-        {
+        public ProjectType Type {
             get { return _projectType; }
         }
 
@@ -160,8 +142,7 @@ namespace SourceForge.NAnt.Tasks
         ProjectType            _projectType;
     }
 
-    public enum ProjectType
-    {
+    public enum ProjectType {
         VBNet = 0,
         CSharp = 1
     }

@@ -23,15 +23,12 @@ using Microsoft.Win32;
 using System.Collections;
 using System.Collections.Specialized;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Summary description for Reference.
     /// </summary>
-    public class Reference
-    {
-        public Reference( Solution sln, ProjectSettings ps, XmlElement elemReference, SourceForge.NAnt.Task nanttask )
-        {
+    public class Reference {
+        public Reference( Solution sln, ProjectSettings ps, XmlElement elemReference, SourceForge.NAnt.Task nanttask ) {
             _ps = ps;
             _nanttask = nanttask;
             _dtReferenceTimeStamp = DateTime.MinValue;
@@ -41,8 +38,7 @@ namespace SourceForge.NAnt.Tasks
             FileInfo fiGAC = new FileInfo( new Uri( typeof( System.Object ).Assembly.CodeBase ).PathAndQuery );
             _strName = ( string )elemReference.Attributes[ "Name" ].Value;
 
-            if ( elemReference.Attributes[ "Project" ] != null )
-            {
+            if ( elemReference.Attributes[ "Project" ] != null ) {
                 if ( sln == null )
                     throw new Exception( "External reference found, but no solution specified: " + _strName );
 
@@ -71,25 +67,21 @@ namespace SourceForge.NAnt.Tasks
             else
                 _bIsPrivate = false;
 
-            if ( _strImportTool == "tlbimp" || _strImportTool == "primary" || _strImportTool == "aximp" )
-            {
+            if ( _strImportTool == "tlbimp" || _strImportTool == "primary" || _strImportTool == "aximp" ) {
                 HandleWrapperImport( elemReference );
             }
-            else
-            {
+            else {
                 _strReferenceFile = elemReference.Attributes[ "AssemblyName" ].Value + ".dll";
                 
                 string strGACFile = Path.Combine( fiGAC.Directory.FullName, _strReferenceFile );
-                if ( File.Exists( strGACFile ) )
-                {
+                if ( File.Exists( strGACFile ) ) {
                     // This file is in the GAC
                     _strBaseDirectory = fiGAC.DirectoryName;
                     _bCopyLocal = _bPrivateSpecified ? _bIsPrivate : false;
                     _strReferenceFile = strGACFile;
                     _bIsSystem = true;
                 }
-                else
-                {
+                else {
                     FileInfo fiRef = new FileInfo( Path.Combine( ps.ProjectRootDirectory, elemReference.Attributes[ "HintPath" ].Value ) );
                     // We may be loading a project whose references are not compiled yet
                     //if ( !fiRef.Exists )
@@ -104,8 +96,7 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        private void HandleWrapperImport( XmlElement elemReference )
-        {
+        private void HandleWrapperImport( XmlElement elemReference ) {
             string strVersionKey = String.Format( @"TYPELIB\{0}\{1}.{2}", 
                 elemReference.Attributes[ "Guid" ].Value,
                 elemReference.Attributes[ "VersionMajor" ].Value,
@@ -120,10 +111,8 @@ namespace SourceForge.NAnt.Tasks
                 );
 
             // First, look for a primary interop assembly
-            using ( RegistryKey rk = Registry.ClassesRoot.OpenSubKey( strVersionKey ) )
-            {
-                if ( rk.GetValue( "PrimaryInteropAssemblyName" ) != null )
-                {
+            using ( RegistryKey rk = Registry.ClassesRoot.OpenSubKey( strVersionKey ) ) {
+                if ( rk.GetValue( "PrimaryInteropAssemblyName" ) != null ) {
                     _strReferenceFile = ( string )rk.GetValue( "PrimaryInteropAssemblyName" );
                     // Assembly.Load does its own checking
                     //if ( !File.Exists( _strReferenceFile ) )
@@ -138,8 +127,7 @@ namespace SourceForge.NAnt.Tasks
                 }
             }
 
-            using ( RegistryKey rk = Registry.ClassesRoot.OpenSubKey( strRegistryKey ) )
-            {
+            using ( RegistryKey rk = Registry.ClassesRoot.OpenSubKey( strRegistryKey ) ) {
                 if ( rk == null )
                     throw new ApplicationException( String.Format( "Couldn't find reference to type library {0} ({1})", elemReference.Attributes[ "Name" ].Value, strRegistryKey ) );
 
@@ -157,18 +145,15 @@ namespace SourceForge.NAnt.Tasks
 
         }
 
-        public bool CopyLocal
-        {
+        public bool CopyLocal {
             get { return _bCopyLocal; }
         }
 
-        public bool IsCreated
-        {
+        public bool IsCreated {
             get { return _bIsCreated; }
         }
 
-        public void GetCreationCommand( ConfigurationSettings cs, out string strProgram, out string strCommandLine )
-        {
+        public void GetCreationCommand( ConfigurationSettings cs, out string strProgram, out string strCommandLine ) {
             _strReferenceFile = new FileInfo( Path.Combine( cs.OutputPath, _strInteropFile ) ).FullName;
 
             strCommandLine = @"""" + _strTypeLib + @""" /silent /out:""" + _strReferenceFile + @"""";
@@ -177,25 +162,21 @@ namespace SourceForge.NAnt.Tasks
             strProgram = _strImportTool + ".exe";
         }
 
-        public string GetBaseDirectory( ConfigurationSettings cs )
-        {
+        public string GetBaseDirectory( ConfigurationSettings cs ) {
             if ( _p != null )
                 return _p.GetConfigurationSettings( cs.Name ).OutputPath;
 
             return _strBaseDirectory;
         }
 
-        public string[] GetReferenceFiles( ConfigurationSettings cs )
-        {
-            if ( _p != null )
-            {
+        public string[] GetReferenceFiles( ConfigurationSettings cs ) {
+            if ( _p != null ) {
                 _strReferenceFile = _p.GetConfigurationSettings( cs.Name ).FullOutputFile; 
             }
 
 
             FileInfo fi = new FileInfo( _strReferenceFile );
-            if ( !fi.Exists )
-            {
+            if ( !fi.Exists ) {
                 if ( _p == null )
                     throw new Exception( "Couldn't find referenced assembly: " + _strReferenceFile );
                 else
@@ -207,13 +188,11 @@ namespace SourceForge.NAnt.Tasks
             StringCollection sc = new StringCollection();
 
             // Get a list of the references in the output directory
-            foreach ( string strReferenceFile in Directory.GetFiles( fi.DirectoryName, strReferenceFiles ) )
-            {
+            foreach ( string strReferenceFile in Directory.GetFiles( fi.DirectoryName, strReferenceFiles ) ) {
                 // Now for each reference, get the related files (.xml, .pdf, etc...)
                 string strRelatedFiles = Path.GetFileName( Path.ChangeExtension( strReferenceFile, ".*" ) );
 
-                foreach ( string strRelatedFile in Directory.GetFiles( fi.DirectoryName, strRelatedFiles ) )
-                {
+                foreach ( string strRelatedFile in Directory.GetFiles( fi.DirectoryName, strRelatedFiles ) ) {
                     // Ignore any other the garbage files created
                     string strExtension = Path.GetExtension( strRelatedFile ).ToLower();
                     if ( strExtension != ".dll" && strExtension != ".xml" && strExtension != ".pdb" )
@@ -226,51 +205,41 @@ namespace SourceForge.NAnt.Tasks
             return ( String[] )new ArrayList( sc ).ToArray( typeof( string ) );
         }
 
-        public string Setting
-        {
+        public string Setting {
             get { return String.Format( @"/r:""{0}""", _strReferenceFile ); }
         }
 
-        public string Filename
-        {
+        public string Filename {
             get { return _strReferenceFile; }
-            set 
-            { 
+            set { 
                 _strReferenceFile = value; 
                 _strBaseDirectory = new FileInfo( _strReferenceFile ).DirectoryName;
                 _dtReferenceTimeStamp = GetTimestamp( _strReferenceFile );
             }
         }
 
-        public ConfigurationSettings ConfigurationSettings
-        {
+        public ConfigurationSettings ConfigurationSettings {
             set { _cs = value; }
         }
 
-        public string Name
-        {
+        public string Name {
             get { return _strName; }
         }
 
-        public bool IsSystem
-        {
+        public bool IsSystem {
             get { return _bIsSystem; }
         }
         
-        public bool IsProjectReference
-        {
+        public bool IsProjectReference {
             get { return _p != null; }
         }
         
-        public string ProjectReferenceGUID
-        {
+        public string ProjectReferenceGUID {
             get { return _p.GUID; }
         }
 
-        public DateTime Timestamp
-        {
-            get 
-            { 
+        public DateTime Timestamp {
+            get { 
                 if ( _p != null )
                     return GetTimestamp( _p.GetConfigurationSettings( _cs.Name ).FullOutputFile );
 
@@ -278,8 +247,7 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        private DateTime GetTimestamp( string strFile )
-        {
+        private DateTime GetTimestamp( string strFile ) {
             if ( !File.Exists( strFile ) )
                 return DateTime.MaxValue;
 

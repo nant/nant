@@ -20,18 +20,17 @@ using System.IO;
 using System.Xml;
 using System.Collections;
 using System.Text.RegularExpressions;
+
 using SourceForge.NAnt;
 using SourceForge.NAnt.Tasks;
+using SourceForge.NAnt.Types;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Summary description for Resouce.
     /// </summary>
-    public class Resource
-    {
-        public Resource( Project p, string strResourceSourceFile, string strResourceSourceFileRelPath, string strDependentFile, SourceForge.NAnt.Task nanttask )
-        {
+    public class Resource {
+        public Resource( Project p, string strResourceSourceFile, string strResourceSourceFileRelPath, string strDependentFile, SourceForge.NAnt.Task nanttask ) {
             _p = p;
             _ps = p.ProjectSettings;
 
@@ -43,14 +42,12 @@ namespace SourceForge.NAnt.Tasks
             _nanttask = nanttask;
         }
 
-        public void Compile( ConfigurationSettings cs, bool bShowCommands )
-        {
+        public void Compile( ConfigurationSettings cs, bool bShowCommands ) {
             _cs = cs;
 
             FileInfo fiResource = new FileInfo( _strResourceSourceFile );
 
-            switch ( fiResource.Extension.ToLower() )
-            {
+            switch ( fiResource.Extension.ToLower() ) {
                 case ".resx":
                     _strResourceFile = CompileResx();
                     break;
@@ -63,20 +60,16 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        public string Setting
-        {
+        public string Setting {
             get { return @"/res:""" + _strResourceFile + @""""; }
         }
 
-        public string InputFile
-        {
+        public string InputFile {
             get { return _strResourceSourceFile; }
         }
 
-        private string GetDependentResourceName( string strDependentFile )
-        {
-            switch ( Path.GetExtension( strDependentFile ).ToLower() )
-            {
+        private string GetDependentResourceName( string strDependentFile ) {
+            switch ( Path.GetExtension( strDependentFile ).ToLower() ) {
                 case ".cs":
                     return GetDependentResourceNameCSharp( strDependentFile );
                 case ".vb":
@@ -86,8 +79,7 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        private string GetDependentResourceNameCSharp( string strDependentFile )
-        {
+        private string GetDependentResourceNameCSharp( string strDependentFile ) {
             Regex re = new Regex( @"
                 (?>namespace(?<ns>(.|\s)*?){)
                     |
@@ -97,27 +89,22 @@ namespace SourceForge.NAnt.Tasks
             ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.Compiled );
 
             Match m;
-            using ( StreamReader sr = new StreamReader( strDependentFile ) )
-            {
+            using ( StreamReader sr = new StreamReader( strDependentFile ) ) {
                 m = re.Match( sr.ReadToEnd() );
             }
 
             Stack st = new Stack();
 
-            while ( m.Success )
-            {            
+            while ( m.Success ) {            
                 string strValue = m.Value;
-                if ( strValue.StartsWith( "namespace" ) )
-                {
+                if ( strValue.StartsWith( "namespace" ) ) {
                     st.Push( m.Result( "${ns}" ).Trim() );
                 }
-                else if ( strValue.StartsWith( "class" ) )
-                {
+                else if ( strValue.StartsWith( "class" ) ) {
                     st.Push( m.Result( "${class}" ).Trim() );
                     break;
                 }
-                else if ( strValue == "}" )
-                {
+                else if ( strValue == "}" ) {
                     if ( st.Count > 0 )
                         st.Pop();
                 }
@@ -137,12 +124,10 @@ namespace SourceForge.NAnt.Tasks
             return strResourceFilename;
         }
 
-        private string CompileResource()
-        {
+        private string CompileResource() {
             string strOutputFile = _ps.GetTemporaryFilename( _ps.RootNamespace + "." + _strResourceSourceFileRelPath.Replace( "\\", "." ) );
             
-            if ( File.Exists( strOutputFile ) )
-            {
+            if ( File.Exists( strOutputFile ) ) {
                 File.SetAttributes( strOutputFile, FileAttributes.Normal );
                 File.Delete( strOutputFile );
             }
@@ -152,8 +137,7 @@ namespace SourceForge.NAnt.Tasks
             return strOutputFile;
         }
 
-        private string CompileLicx()
-        {
+        private string CompileLicx() {
             string strOutputFile = _ps.OutputFile;
 
             LicenseTask lt = new LicenseTask();
@@ -163,8 +147,7 @@ namespace SourceForge.NAnt.Tasks
             lt.Target = strOutputFile;
             lt.Verbose = _nanttask.Verbose;
             lt.Assemblies = new FileSet();
-            foreach ( Reference r in _p.References )
-            {
+            foreach ( Reference r in _p.References ) {
                 if ( r.IsSystem )
                     lt.Assemblies.AsIs.Add( r.Name );
                 else
@@ -180,17 +163,14 @@ namespace SourceForge.NAnt.Tasks
             return lt.Output;
         }
 
-        private string CompileResx()
-        {
+        private string CompileResx() {
             string strInFile = _strResourceSourceFile;
             string strOutFile;
             
-            if ( _strDependentFile != null )
-            {
+            if ( _strDependentFile != null ) {
                 strOutFile = GetDependentResourceName( _strDependentFile );
             }
-            else
-            {
+            else {
                 strOutFile = _strResourceSourceFile;
             }
             strOutFile = _ps.GetTemporaryFilename( strOutFile );
