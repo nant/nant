@@ -257,6 +257,7 @@ namespace NAnt.Core.Tasks {
             options.GenerateExecutable = false;
             options.GenerateInMemory = true;
             options.MainClass = MainClass;
+            options.Evidence = AppDomain.CurrentDomain.Evidence;
 
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
@@ -269,10 +270,8 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            foreach (string assemblyName in References.Includes) {
-                if (!StringUtils.IsNullOrEmpty(assemblyName)) {
-                    options.ReferencedAssemblies.Add(assemblyName);
-                }
+            foreach (string assemblyName in References.FileNames) {
+                options.ReferencedAssemblies.Add(assemblyName);
             }
 
             StringCollection imports = new StringCollection();
@@ -283,8 +282,9 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            string code = compilerInfo.GenerateCode(_rootClassName, _code, imports, Prefix );
-            Log( Level.Debug, "generated code for the script looks like : \n {0}", code );
+            string code = compilerInfo.GenerateCode(_rootClassName, _code, imports, Prefix);
+            Log(Level.Debug, "Generated code for the script looks like :\n{0}", code);
+
             CompilerResults results = compiler.CompileAssemblyFromSource(options, code);
 
             Assembly compiled = null;
@@ -310,13 +310,13 @@ namespace NAnt.Core.Tasks {
             }
 
             Type mainType = compiled.GetType(mainClass);
-            if (mainType == null ) {
+            if (mainType == null) {
                 throw new BuildException("Invalid mainclass.", Location);
             }
 
             MethodInfo entry = mainType.GetMethod("ScriptMain");
             // check for task or function definitions.
-            if (entry == null ) {
+            if (entry == null) {
                 if (functionSetCount <= 0) {
                     throw new BuildException("Missing entry point.", Location);
                 } else {
@@ -337,14 +337,23 @@ namespace NAnt.Core.Tasks {
             if (entryParams[0].ParameterType.FullName != "NAnt.Core.Project") {
                 throw new BuildException("Invalid entry point declaration (invalid parameter type, Project expected).", Location);
             }
-        
+
+            AssemblyResolver assemblyResolver = new AssemblyResolver();
+
             try {
+                // attach to domain
+                assemblyResolver.Attach();
+
+                // invoke Main method
                 entry.Invoke(null, new object[] {Project});
-            } catch (Exception e) {
-                // This exception is not likely to tell us much, BUT the 
+            } catch (Exception ex) {
+                // this exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception
                 // thrown by the executed script code.
-                throw new BuildException("Script exception.", Location, e.InnerException);
+                throw new BuildException("Failure executing script.", Location, ex.InnerException);
+            } finally {
+                // detach from domain
+                assemblyResolver.Detach();
             }
         }
 
@@ -409,21 +418,23 @@ namespace NAnt.Core.Tasks {
                 // create constructor
                 CodeConstructor constructMember = new CodeConstructor();
                 constructMember.Attributes = MemberAttributes.Public;
-                constructMember.Parameters.Add( new CodeParameterDeclarationExpression( "Project", "project" ));
-                constructMember.Parameters.Add( new CodeParameterDeclarationExpression( "PropertyDictionary", "propDict" ));
+                constructMember.Parameters.Add(new CodeParameterDeclarationExpression("Project", "project"));
+                constructMember.Parameters.Add(new CodeParameterDeclarationExpression("PropertyDictionary", "propDict"));
                 
-                constructMember.BaseConstructorArgs.Add( new CodeVariableReferenceExpression( "project" ));
-                constructMember.BaseConstructorArgs.Add( new CodeVariableReferenceExpression ( "propDict" ));
-                typeDecl.Members.Add( constructMember );
+                constructMember.BaseConstructorArgs.Add(new CodeVariableReferenceExpression("project"));
+                constructMember.BaseConstructorArgs.Add(new CodeVariableReferenceExpression ("propDict"));
+                typeDecl.Members.Add(constructMember);
                 
-                typeDecl.BaseTypes.Add( typeof( NAnt.Core.FunctionSetBase ) );
+                typeDecl.BaseTypes.Add(typeof(NAnt.Core.FunctionSetBase));
                 
                 // add FunctionSet attribute
-                CodeAttributeDeclaration attrDecl = new CodeAttributeDeclaration( "FunctionSet" );                
-                attrDecl.Arguments.Add( new CodeAttributeArgument(new CodeVariableReferenceExpression( "\"" + prefix + "\"" ) ));
-                attrDecl.Arguments.Add( new CodeAttributeArgument(new CodeVariableReferenceExpression("\"" + prefix + "\"") ));
+                CodeAttributeDeclaration attrDecl = new CodeAttributeDeclaration("FunctionSet");
+                attrDecl.Arguments.Add(new CodeAttributeArgument(
+                    new CodeVariableReferenceExpression("\"" + prefix + "\"")));
+                attrDecl.Arguments.Add(new CodeAttributeArgument(
+                    new CodeVariableReferenceExpression("\"" + prefix + "\"")));
              
-                typeDecl.CustomAttributes.Add( attrDecl );
+                typeDecl.CustomAttributes.Add(attrDecl);
                 
                 // perform some manipulation at the string level.
                 StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
@@ -440,7 +451,8 @@ namespace NAnt.Core.Tasks {
                     declEnd = "End";
                 }
                 int i = decl.LastIndexOf(declEnd);
-                result =  CodePrologue + extraImports + decl.Substring(0, i-1) + codeBody + Environment.NewLine + decl.Substring(i);
+                result =  CodePrologue + extraImports + decl.Substring(0, i-1) 
+                    + codeBody + Environment.NewLine + decl.Substring(i);
                 
                 return result;
             }
