@@ -74,7 +74,7 @@ namespace NAnt.Core.Types {
                 if (value != null) {
                     // try to locate instance using value
                     foreach (Argument argument in base.List) {
-                        if (argument.Value == value) {
+                        if (argument.StringValue == value) {
                             return argument;
                         }
                     }
