@@ -43,12 +43,34 @@ namespace NAnt.Core.Tasks {
     ///   a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" /> 
     ///   attribute must be set.
     ///   </para>
+    ///   <h3>Encoding</h3>
+    ///   <para>
+    ///   Unless an encoding is specified, the encoding associated with the 
+    ///   system's current ANSI code page is used.
+    ///   </para>
+    ///   <para>
+    ///   An UTF-8, little-endian Unicode, and big-endian Unicode encoded text 
+    ///   file is automatically recognized, if the file starts with the 
+    ///   appropriate byte order marks.
+    ///   </para>
+    ///   <note>
+    ///   If you employ filters in your move operation, you should limit the 
+    ///   move to text files. Binary files will be corrupted by the move 
+    ///   operation.
+    ///   </note>
     /// </remarks>
     /// <example>
-    ///   <para>Move a single file.</para>
+    ///   <para>
+    ///   Move a single file while changing its encoding from "latin1" to 
+    ///   "utf-8".
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <move file="myfile.txt" tofile="mytarget.txt" />
+    /// <move
+    ///     file="myfile.txt"
+    ///     tofile="mycopy.txt"
+    ///     inputencoding="latin1"
+    ///     outputencoding="utf-8" />
     ///     ]]>
     ///   </code>
     /// </example>
@@ -60,6 +82,26 @@ namespace NAnt.Core.Tasks {
     ///     <fileset basedir="bin">
     ///         <includes name="*.dll" />
     ///     </fileset>
+    /// </move>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Move a set of files to a directory, replacing <c>@TITLE@</c> with 
+    ///   "Foo Bar" in all files.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <move todir="../backup/dir">
+    ///     <fileset basedir="src_dir">
+    ///         <include name="**/*" />
+    ///     </fileset>
+    ///     <filterchain>
+    ///         <replacetokens>
+    ///             <token key="TITLE" value="Foo Bar" />
+    ///         </replacetokens>
+    ///     </filterchain>
     /// </move>
     ///     ]]>
     ///   </code>
@@ -117,8 +159,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Chain of filters used to filter the file's steam
-        /// as it is moved.
+        /// Chain of filters used to alter the file's content as it is moved.
         /// </summary>
         [BuildElement("filterchain")]
         public override FilterChain Filters {
@@ -166,7 +207,8 @@ namespace NAnt.Core.Tasks {
                             }
                             
                             // move the file and apply filters
-                            FileUtils.MoveWithFilters(sourcePath, destinationPath, Filters);
+                            FileUtils.MoveFile(sourcePath, destinationPath, Filters, 
+                                InputEncoding, OutputEncoding);
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,

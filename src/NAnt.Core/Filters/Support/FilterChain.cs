@@ -88,8 +88,7 @@ namespace NAnt.Core.Filters {
     public class FilterChain : DataTypeBase {
         #region Private Instance Fields
 
-        private string _encodingName;
-        private string _outputEncodingName;
+        private Encoding _inputEncoding;
         private FilterCollection _filters = new FilterCollection();
 
         #endregion Private Instance Fields
@@ -109,77 +108,15 @@ namespace NAnt.Core.Filters {
         /// system's current ANSI code page.
         /// </summary>
         [TaskAttribute("encoding")]
-        [StringValidator(AllowEmpty=false)]
-        public string EncodingName {
-            get { return _encodingName; }
-            set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
-        /// The encoding to use when writing the files. The default is
-        /// the value of <see cref="EncodingName" /> if specified, or the 
-        /// encoding of the input file.
-        /// </summary>
-        [TaskAttribute("outputencoding")]
-        [StringValidator(AllowEmpty=false)]
-        public string OutputEncodingName {
-            get { return _outputEncodingName; }
-            set { _outputEncodingName = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
-        /// Gets the encoding that will be used when filter-copying the files.
-        /// </summary>
-        /// <value>
-        /// The <see cref="System.Text.Encoding" /> corresponding with 
-        /// <see cref="EncodingName" /> or <see cref="System.Text.Encoding.Default" /> 
-        /// if <see cref="EncodingName" /> is <see langword="null" />.
-        /// </value>
-        public Encoding Encoding {
-            get { 
-                if (EncodingName != null) {
-                    return System.Text.Encoding.GetEncoding(EncodingName);
-                }
-
-                return Encoding.Default;
-            }
-        }
-
-        /// <summary>
-        /// Gets the encoding to use when writing the files.
-        /// </summary>
-        /// <value>
-        /// The <see cref="System.Text.Encoding" /> corresponding with 
-        /// <see cref="OutputEncodingName" /> or <see langword="null" /> if no 
-        /// output encoding is specified.
-        /// </value>
-        public Encoding OutputEncoding {
-            get { 
-                if (OutputEncodingName != null) {
-                    return System.Text.Encoding.GetEncoding(OutputEncodingName);
-                }
-
-                return null;
-            }
+        [Obsolete("The input encoding should now be specified on the task.", true)]
+        public Encoding InputEncoding {
+            get { return _inputEncoding; }
+            set { _inputEncoding = value; }
         }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Element
-
-        /// <summary>
-        /// Ensures the encoding set using <see cref="EncodingName" /> and 
-        /// <see cref="OutputEncodingName" /> is valid.
-        /// </summary>
-        /// <param name="elementNode">The <see cref="XmlNode" /> used to initialized the element.</param>
-        protected override void InitializeElement(XmlNode elementNode) {
-            if (EncodingName != null) {
-                ValidateEncoding(EncodingName);
-            }
-            if (OutputEncodingName != null) {
-                ValidateEncoding(OutputEncodingName);
-            }
-        }
 
         /// <summary>
         /// Initializes all build attributes and child elements.
@@ -238,38 +175,6 @@ namespace NAnt.Core.Filters {
         }
 
         #endregion Internal Instance Methods
-
-        #region Private Instance Methods
-
-        /// <summary>
-        /// Verifies whether the specified encoding is valid.
-        /// </summary>
-        /// <param name="encodingName">The name of the encoding to validate.</param>
-        /// <exception cref="BuildException">
-        ///   <para>
-        ///   <paramref name="encodingName" /> is not a valid encoding.
-        ///   </para>
-        ///   <para>-or-</para>
-        ///   <para>
-        ///   <paramref name="encodingName" /> is not supported on the current
-        ///   platform.
-        ///   </para>
-        /// </exception>
-        private void ValidateEncoding(string encodingName) {
-            try {
-                System.Text.Encoding.GetEncoding(encodingName);
-            } catch (ArgumentException) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "{0} is not a valid encoding.",
-                    encodingName), Location);
-            } catch (NotSupportedException) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "{0} encoding is not supported on the current platform.",
-                    encodingName), Location);
-            }
-        }
-
-        #endregion Private Instance Methods
 
         /// <summary>
         /// Configurator that initializes filters in the order in which they've

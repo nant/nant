@@ -23,6 +23,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
@@ -46,12 +47,33 @@ namespace NAnt.Core.Tasks {
     ///   a <see cref="FileSet" />, the <see cref="ToDirectory" /> attribute 
     ///   must be set.
     ///   </para>
+    ///   <h4>Encoding</h4>
+    ///   <para>
+    ///   Unless an encoding is specified, the encoding associated with the 
+    ///   system's current ANSI code page is used.
+    ///   </para>
+    ///   <para>
+    ///   An UTF-8, little-endian Unicode, and big-endian Unicode encoded text 
+    ///   file is automatically recognized, if the file starts with the 
+    ///   appropriate byte order marks.
+    ///   </para>
+    ///   <note>
+    ///   If you employ filters in your copy operation, you should limit the copy 
+    ///   to text files. Binary files will be corrupted by the copy operation.
+    ///   </note>
     /// </remarks>
     /// <example>
-    ///   <para>Copy a single file.</para>
+    ///   <para>
+    ///   Copy a single file while changing its encoding from "latin1" to 
+    ///   "utf-8".
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <copy file="myfile.txt" tofile="mycopy.txt" />
+    /// <copy 
+    ///     file="myfile.txt"
+    ///     tofile="mycopy.txt"
+    ///     inputencoding="latin1"
+    ///     outputencoding="utf-8" />
     ///     ]]>
     ///   </code>
     /// </example>
@@ -63,6 +85,26 @@ namespace NAnt.Core.Tasks {
     ///     <fileset basedir="bin">
     ///         <includes name="*.dll" />
     ///     </fileset>
+    /// </copy>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Copy a set of files to a directory, replacing <c>@TITLE@</c> with 
+    ///   "Foo Bar" in all files.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <copy todir="../backup/dir">
+    ///     <fileset basedir="src_dir">
+    ///         <include name="**/*" />
+    ///     </fileset>
+    ///     <filterchain>
+    ///         <replacetokens>
+    ///             <token key="TITLE" value="Foo Bar" />
+    ///         </replacetokens>
+    ///     </filterchain>
     /// </copy>
     ///     ]]>
     ///   </code>
@@ -80,6 +122,8 @@ namespace NAnt.Core.Tasks {
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
         private FilterChain _filters;
+        private Encoding _inputEncoding;
+        private Encoding _outputEncoding;
 
         #endregion Private Instance Fields
 
@@ -157,12 +201,32 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The filterchain definition to use when filter-copying the files.
+        /// Chain of filters used to alter the file's content as it is copied.
         /// </summary>
         [BuildElement("filterchain")]
         public virtual FilterChain Filters {
             get { return _filters; }
             set { _filters = value; }
+        }
+
+        /// <summary>
+        /// The encoding to use when reading files. The default is the system's
+        /// current ANSI code page.
+        /// </summary>
+        [TaskAttribute("inputencoding")]
+        public Encoding InputEncoding {
+            get { return _inputEncoding; }
+            set { _inputEncoding = value; }
+        }
+
+        /// <summary>
+        /// The encoding to use when writing the files. The default is
+        /// the encoding of the input file.
+        /// </summary>
+        [TaskAttribute("outputencoding")]
+        public Encoding OutputEncoding {
+            get { return _outputEncoding; }
+            set { _outputEncoding = value; }
         }
 
         #endregion Public Instance Properties
@@ -227,10 +291,6 @@ namespace NAnt.Core.Tasks {
 			// Clear previous copied files
 			_fileCopyMap = new Hashtable();
 
-            // NOTE: when working with file and directory names its useful to 
-            // use the FileInfo an DirectoryInfo classes to normalize paths like:
-            // c:\work\nant\extras\buildserver\..\..\..\bin
-            
             // copy a single file.
             if (SourceFile != null) {
                 if (SourceFile.Exists) {
@@ -383,7 +443,8 @@ namespace NAnt.Core.Tasks {
                         }
 
                         // copy the file with filters
-                        FileUtils.CopyWithFilters(sourceFile, destinationFile, Filters);
+                        FileUtils.CopyFile(sourceFile, destinationFile, Filters, 
+                            InputEncoding, OutputEncoding);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Cannot copy '{0}' to '{1}'.", sourceFile, destinationFile), 

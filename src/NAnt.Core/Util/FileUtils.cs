@@ -38,16 +38,27 @@ namespace NAnt.Core.Util {
         /// <param name="sourceFileName">The file to copy</param>
         /// <param name="destFileName">The file to copy to</param>
         /// <param name="filterChain">Chain of filters to apply when copying, or <see langword="null" /> is no filters should be applied.</param>
-        public static void CopyWithFilters(string sourceFileName, string destFileName, FilterChain filterChain) {
-            if (filterChain == null || filterChain.Filters.Count == 0) {
+        /// <param name="inputEncoding">The encoding used to read the soure file.</param>
+        /// <param name="outputEncoding">The encoding used to write the destination file.</param>
+        public static void CopyFile(string sourceFileName, string destFileName, FilterChain filterChain, Encoding inputEncoding, Encoding outputEncoding) {
+            // determine if filters are available
+            bool filtersAvailable = filterChain != null && filterChain.Filters.Count > 0;
+
+            // if no filters have been defined, and no input or output encoding
+            // is set, we can just use the File.Copy method
+            if (!filtersAvailable && inputEncoding == null && outputEncoding == null) {
                 File.Copy(sourceFileName, destFileName, true);
             } else {
-                // get base filter built on the file's reader. Use a 4k buffer.
-                using (StreamReader sourceFileReader = new StreamReader(sourceFileName, filterChain.Encoding, true, 4096)) {
-                    Filter baseFilter = filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
+                // determine actual input encoding to use. if no explicit input
+                // encoding is specified, we'll use the system's current ANSI
+                // code page
+                Encoding actualInputEncoding = (inputEncoding != null) ? 
+                    inputEncoding : Encoding.Default;
 
-                    Encoding outputEncoding = filterChain.OutputEncoding;
-                    if (outputEncoding == null) {
+                // get base filter built on the file's reader. Use a 8k buffer.
+                using (StreamReader sourceFileReader = new StreamReader(sourceFileName, actualInputEncoding, true, 8192)) {
+                    Encoding actualOutputEncoding = outputEncoding;
+                    if (actualOutputEncoding == null) {
                         // if no explicit output encoding is specified, we'll
                         // just use the encoding of the input file as determined
                         // by the runtime
@@ -56,20 +67,35 @@ namespace NAnt.Core.Util {
                         // might not match the current encoding of the streamreader
                         //
                         // eg. when specifing an ANSI encoding, the runtime might
-                        // still detect the file is using UTF-8 encoding
-                        outputEncoding = sourceFileReader.CurrentEncoding;
+                        // still detect the file is using UTF-8 encoding, because 
+                        // we use BOM detection
+                        actualOutputEncoding = sourceFileReader.CurrentEncoding;
                     }
 
                     // writer for destination file
-                    using (StreamWriter destFileWriter = new StreamWriter(destFileName, false, outputEncoding, 4096)) {
-                        bool atEnd = false;
-                        int character;
-                        while (!atEnd) {
-                            character = baseFilter.Read();
-                            if (character > -1) {
-                                destFileWriter.Write((char)character);
-                            } else {
-                                atEnd = true;
+                    using (StreamWriter destFileWriter = new StreamWriter(destFileName, false, actualOutputEncoding, 8192)) {
+                        if (filtersAvailable) {
+                            Filter baseFilter = filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
+
+                            bool atEnd = false;
+                            int character;
+                            while (!atEnd) {
+                                character = baseFilter.Read();
+                                if (character > -1) {
+                                    destFileWriter.Write((char)character);
+                                } else {
+                                    atEnd = true;
+                                }
+                            }
+                        } else {
+                            char[] buffer = new char[8192];
+
+                            while (true) {
+                                int charsRead = sourceFileReader.Read(buffer, 0, buffer.Length);
+                                if (charsRead == 0) {
+                                    break;
+                                }
+                                destFileWriter.Write(buffer, 0, charsRead);
                             }
                         }
                     }
@@ -83,11 +109,15 @@ namespace NAnt.Core.Util {
         /// <param name="sourceFileName">The file to move</param>
         /// <param name="destFileName">The file to move move to</param>
         /// <param name="filterChain">Chain of filters to apply when moving, or <see langword="null" /> is no filters should be applied.</param>
-        public static void MoveWithFilters(string sourceFileName, string destFileName, FilterChain filterChain) {
-            if (filterChain == null || filterChain.Filters.Count == 0) {
+        /// <param name="inputEncoding">The encoding used to read the soure file.</param>
+        /// <param name="outputEncoding">The encoding used to write the destination file.</param>
+        public static void MoveFile(string sourceFileName, string destFileName, FilterChain filterChain, Encoding inputEncoding, Encoding outputEncoding) {
+            // if no filters have been defined, and no input or output encoding
+            // is set, we can just use the File.Move method
+            if ((filterChain == null || filterChain.Filters.Count == 0) && inputEncoding == null && outputEncoding == null) {
                 File.Move(sourceFileName, destFileName);
             } else {
-                CopyWithFilters(sourceFileName, destFileName, filterChain);
+                CopyFile(sourceFileName, destFileName, filterChain, inputEncoding, outputEncoding);
                 File.Delete(sourceFileName);
             }
         }
