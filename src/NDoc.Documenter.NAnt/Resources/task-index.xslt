@@ -58,6 +58,11 @@
                 <h1>Task Reference</h1>
                 <div class="table">
                     <table>
+                        <colgroup>
+		                    <col />
+		                    <col />
+		                    <col style="white-space: nowrap;" />
+	                    </colgroup>                    
                         <tr>
                             <th>Task</th>
                             <th>Summary</th>
@@ -98,7 +103,7 @@
                 </xsl:choose>
             </xsl:if>
             <td>
-                <xsl:value-of select="ancestor::assembly/@name" />(<xsl:value-of select="ancestor::assembly/@version" />)
+                <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
             </td>
         </xsl:element>
     </xsl:template>
