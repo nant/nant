@@ -77,15 +77,11 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LicenseTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "MailTask.cs"
+                    RelPath = "LicenseTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -80,6 +80,11 @@
                     AssemblyName = "log4net-net-1.0"
                     HintPath = "..\..\bin\log4net-net-1.0.dll"
                 />
+                <Reference
+                    Name = "System.Web"
+                    AssemblyName = "System.Web"
+                    HintPath = "..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Web.dll"
+                />
             </References>
         </Build>
         <Files>
@@ -102,6 +107,7 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -111,11 +117,6 @@
                 />
                 <File
                     RelPath = "ConsoleDriver.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Util\DefaultCommandLineArgumentAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -255,17 +256,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Attributes\FileSetAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Attributes\Int32ValidatorAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Attributes\TaskAttributeAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Attributes\FileSetAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -355,6 +356,11 @@
                 />
                 <File
                     RelPath = "Tasks\LoopTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\MailTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -485,6 +491,11 @@
                 />
                 <File
                     RelPath = "Util\CommandLineParser.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\DefaultCommandLineArgumentAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
