@@ -314,7 +314,7 @@ namespace NAnt.SourceControl.Tasks {
                 option = new Option();
                 option.OptionName = name;
                 option.Value = value;
-                GlobalOptions.Add(option.Name, option);
+                GlobalOptions.Add(option.OptionName, option);
             } 
             option.IfDefined = on;
         }

@@ -333,14 +333,11 @@ namespace NAnt.SourceControl.Tasks {
         /// <code>true</code> if the sandbox files should be checked out in
         ///     read only mode.
         /// </summary>
-        [TaskAttribute("read", Required=false)]
+        [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
-        public bool Read {
-            get {return ((Option)GlobalOptions["readonly-attribute"]).IfDefined;}
-            set {
-                SetGlobalOption("readonly-attribute", "-r", value);
-                this.ReadWrite = !value;
-            }
+        public bool ReadOnly {
+            get {return ((Option)GlobalOptions["readonly"]).IfDefined;}
+            set {SetGlobalOption("readonly-attribute", "-r", value);}
         }
 
         /// <summary>
@@ -353,10 +350,7 @@ namespace NAnt.SourceControl.Tasks {
         [BooleanValidator()]
         public bool ReadWrite {
             get {return ((Option)GlobalOptions["readwrite"]).IfDefined;}
-            set {
-                this.Read = !value;
-                SetGlobalOption("readwrite", "-w", value);
-            }
+            set {SetGlobalOption("readwrite", "-w", value);}
         }
 
         #endregion Public Instance Properties
@@ -376,6 +370,7 @@ namespace NAnt.SourceControl.Tasks {
                 (null == Properties || null == Properties[UseSharpCvsLibProp])) {
                 // if not set and the global property is null then use the default
                 _useSharpCvsLib = UseSharpCvsLib;
+                UseRuntimeEngine = true;
             } else if (!_isUseSharpCvsLibSet &&
                 null != Properties[UseSharpCvsLibProp]){
                 try {
