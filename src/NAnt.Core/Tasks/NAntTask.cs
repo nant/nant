@@ -18,10 +18,12 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -38,13 +40,30 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Build a project while adding a set of properties to that project.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <nant buildfile="${src.dir}/Extras/BuildServer/BuildServer.build">
+    ///     <properties>
+    ///         <property name="build.dir" value="c:/buildserver" />
+    ///         <property name="build.debug" value="false" />
+    ///         <property name="lib.dir" value="c:/shared/lib" readonly="true" />
+    ///     </properties>
+    /// </nant>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("nant")]
     public class NAntTask : Task {
         #region Private Instance Fields
 
-        private string _buildFileName = null;
-        private string _target = null;
+        private string _buildFileName;
+        private string _target;
         private bool _inheritAll = true;
+        private ArrayList _overrideProperties = new ArrayList();
 
         #endregion Private Instance Fields
 
@@ -61,18 +80,19 @@ namespace NAnt.Core.Tasks {
                 }
                 return Project.BuildFileLocalName; 
             }
-            set { _buildFileName = value; }
+            set { _buildFileName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
         /// The target to execute. To specify more than one target seperate 
         /// targets with a space. Targets are executed in order if possible. 
-        /// Defaults to use target specified in the project's default attribute.
+        /// The default is to use target specified in the project's default 
+        /// attribute.
         /// </summary>
         [TaskAttribute("target")]
         public string DefaultTarget {
             get { return _target; }
-            set { _target = value; }
+            set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -83,6 +103,16 @@ namespace NAnt.Core.Tasks {
         public bool InheritAll {
             get { return _inheritAll; }
             set { _inheritAll = value; }
+        }
+
+        /// <summary>
+        /// Specifies a collection of properties that should be created in the
+        /// executed project.  Note, existing properties with identical names 
+        /// that are not read-only will be overwritten.
+        /// </summary>
+        [BuildElementCollection("properties", "property", typeof(PropertyTask))]
+        public ArrayList OverrideProperties {
+            get { return _overrideProperties; }
         }
 
         #endregion Public Instance Properties
@@ -109,6 +139,7 @@ namespace NAnt.Core.Tasks {
                 project.CurrentFramework = project.FrameworkInfoDictionary[Project.CurrentFramework.Name];
             }
 
+            // have the new project inherit properties from the current project
             if (InheritAll) {
                 StringCollection excludes = new StringCollection();
                 excludes.Add(Project.NAntPropertyFileName);
@@ -122,8 +153,15 @@ namespace NAnt.Core.Tasks {
                 excludes.Add(Project.NAntPropertyVersion);
                 project.Properties.Inherit(Properties, excludes);
             }
+
+            // add/overwrite properties
+            foreach (PropertyTask property in OverrideProperties) {
+                property.Project = project;
+                property.Execute();
+            }
+
             // pass datatypes thru to the child project
-            project.DataTypeReferences.Inherit( Project.DataTypeReferences );
+            project.DataTypeReferences.Inherit(Project.DataTypeReferences);
             
             // handle multiple targets
             if (DefaultTarget != null) {
