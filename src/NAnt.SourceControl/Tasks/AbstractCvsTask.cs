@@ -274,19 +274,13 @@ namespace NAnt.SourceControl.Tasks {
         public override string Root {
             get { 
                 if (null == base.Root) {
-                    Manager manager = 
-                        new Manager(this.DestinationDirectory.FullName);
                     try {
-                        Root root = manager.FetchRoot(this.DestinationDirectory.FullName);
+                        ICSharpCode.SharpCvsLib.FileSystem.Root root = 
+                            ICSharpCode.SharpCvsLib.FileSystem.Root.Load(this.DestinationDirectory);
                         this.Root = root.FileContents;
-                    } catch (CvsFileNotFoundException) {
-                        try {
-                            Root root = manager.FetchRoot(Path.Combine(this.DestinationDirectory.FullName, "CVS"));
-                            this.Root = root.FileContents;
-                        } catch (CvsFileNotFoundException) {
-                            throw new BuildException (string.Format("Cvs/Root file not found in {0}, please perform a checkout.",
-                                this.DestinationDirectory.FullName));
-                        }
+                    } catch (ICSharpCode.SharpCvsLib.Exceptions.CvsFileNotFoundException) {
+                        throw new BuildException (string.Format("Cvs/Root file not found in {0}, please perform a checkout.",
+                            this.DestinationDirectory.FullName));
                     }
                 }
                 return base.Root; 
@@ -310,19 +304,12 @@ namespace NAnt.SourceControl.Tasks {
         public string Module {
             get { 
                 if (null == _module) {
-                    Manager manager = 
-                        new Manager(this.DestinationDirectory.FullName);
                     try {
-                        Repository repository = manager.FetchRepository(this.DestinationDirectory.FullName);
+                        Repository repository = Repository.Load(this.DestinationDirectory);
                         this._module = repository.ModuleName;
-                    } catch (CvsFileNotFoundException) {
-                        try {
-                            Repository repository = manager.FetchRepository(Path.Combine(this.DestinationDirectory.FullName, "CVS"));
-                            this._module = repository.ModuleName;
-                        } catch (CvsFileNotFoundException) {
-                            throw new BuildException (string.Format("Cvs/Repository file not found in {0}, please perform a checkout.",
-                                this.DestinationDirectory.FullName));
-                        }
+                    } catch (ICSharpCode.SharpCvsLib.Exceptions.CvsFileNotFoundException) {
+                        throw new BuildException (string.Format("Cvs/Repository file not found in {0}, please perform a checkout.",
+                            this.DestinationDirectory.FullName));
                     }
                 }
                 return _module; 
@@ -502,6 +489,8 @@ namespace NAnt.SourceControl.Tasks {
                 Arguments.Add(new Argument(CommandLineArguments));
             }
 
+            AppendSubCommandArgs();
+
             AppendFiles();
             if (IsModuleNeeded && null == Module) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
@@ -523,6 +512,13 @@ namespace NAnt.SourceControl.Tasks {
             Log(Level.Verbose, "Working directory: {0}", process.StartInfo.WorkingDirectory);
             Log(Level.Verbose, "Executable: {0}", process.StartInfo.FileName);
             Log(Level.Verbose, "Arguments: {0}", process.StartInfo.Arguments);
+        }
+
+        /// <summary>
+        /// Override to append any commands before the modele and files.
+        /// </summary>
+        protected virtual void AppendSubCommandArgs() {
+
         }
 
         #endregion
