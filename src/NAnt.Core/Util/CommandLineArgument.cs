@@ -19,10 +19,12 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Security.Permissions;
+using System.Text.RegularExpressions;
 
 namespace NAnt.Core.Util {
     /// <summary>
@@ -41,11 +43,13 @@ namespace NAnt.Core.Util {
            
             if (IsCollection || IsArray) {
                 _collectionValues = new ArrayList();
+            } else if (IsNameValueCollection) {
+                _valuePairs = new NameValueCollection();
             }
             
             Debug.Assert(LongName != null && LongName.Length > 0);
-            Debug.Assert((!IsCollection && !IsArray) || AllowMultiple, "Collection and array arguments must have allow multiple");
-            Debug.Assert(!Unique || (IsCollection || IsArray), "Unique only applicable to collection arguments");
+            Debug.Assert((!IsCollection && !IsArray && !IsNameValueCollection) || AllowMultiple, "Collection and array arguments must have allow multiple");
+            Debug.Assert(!Unique || (IsCollection || IsArray || IsNameValueCollection), "Unique only applicable to collection arguments");
         }
         
         #endregion Public Instance Constructors
@@ -150,7 +154,10 @@ namespace NAnt.Core.Util {
         /// times; otherwise, <see langword="false" />.
         /// </value>
         public bool AllowMultiple {
-            get { return (IsCollection || IsArray) && (0 != (_argumentType & CommandLineArgumentTypes.Multiple)); }
+            get { 
+                return (IsCollection || IsArray || IsNameValueCollection) 
+                    && (0 != (_argumentType & CommandLineArgumentTypes.Multiple)); 
+            }
         }
         
         /// <summary>
@@ -181,19 +188,34 @@ namespace NAnt.Core.Util {
         /// Gets a value indicating whether the argument is collection-based.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if the argument is collection-based; otherwise, 
-        /// <see langword="false" />.
+        /// <see langword="true" /> if the argument is backed by a <see cref="Type" /> 
+        /// that can be assigned to <see cref="ICollection" /> and is not backed 
+        /// by a <see cref="Type" /> that can be assigned to 
+        /// <see cref="NameValueCollection" />; otherwise, <see langword="false" />.
         /// </value>
         public bool IsCollection {
             get { return IsCollectionType(Type); }
         }
 
         /// <summary>
-        /// Gets a value indicating whether the argument is array-nased.
+        /// Gets a value indicating whether the argument is a set of name/value
+        /// pairs.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if the argument is array-based; otherwise, 
+        /// <see langword="true" /> if the argument is backed by a <see cref="Type" />
+        /// that can be assigned to <see cref="NameValueCollection" />; otherwise, 
         /// <see langword="false" />.
+        /// </value>
+        public bool IsNameValueCollection {
+            get { return IsNameValueCollectionType(Type); }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the argument is array-based.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the argument is backed by an array; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         public bool IsArray {
             get { return IsArrayType(Type); }
@@ -259,13 +281,17 @@ namespace NAnt.Core.Util {
                 // If value of property is null, create new instance of collection 
                 if (_propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
                     if (!_propertyInfo.CanWrite) {
-                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Command-line argument '-{0}' is collection-based, but is not initialized and does not allow the collection to be initialized.", LongName));
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
+                            "Command-line argument '-{0}' is collection-based," 
+                            + " but is not initialized and does not allow the"
+                            + "collection to be initialized.", LongName));
                     }
                     object instance = Activator.CreateInstance(_propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     _propertyInfo.SetValue(destination, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                 }
                 
-                object value = _propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                object value = _propertyInfo.GetValue(destination, 
+                    BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                  
                 MethodInfo addMethod = null;
 
@@ -288,7 +314,56 @@ namespace NAnt.Core.Util {
                             addMethod.Invoke(value, BindingFlags.Default, null, new object[] {item}, CultureInfo.InvariantCulture);
                         }
                     } catch (Exception ex) {
-                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The signature of the Add method for the collection-based command-line argument '-{0}' is not supported.", LongName), ex);
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
+                            "The signature of the Add method for the collection-based"
+                            + " command-line argument '-{0}' is not supported.", 
+                            LongName), ex);
+                    }
+                }
+            } else if (IsNameValueCollection) {
+                // If value of property is null, create new instance of collection 
+                if (_propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
+                    if (!_propertyInfo.CanWrite) {
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
+                            "Command-line argument '-{0}' is collection-based," 
+                            + " but is not initialized and does not allow the"
+                            + "collection to be initialized.", LongName));
+                    }
+                    object instance = Activator.CreateInstance(_propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                    _propertyInfo.SetValue(destination, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                }
+                
+                object value = _propertyInfo.GetValue(destination, 
+                    BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                 
+                MethodInfo addMethod = null;
+
+                // Locate Add method with 2 string parameters
+                foreach (MethodInfo method in value.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                    if (method.Name == "Add" && method.GetParameters().Length == 2) {
+                        if (method.GetParameters()[0].ParameterType == typeof(string) &&
+                            method.GetParameters()[1].ParameterType == typeof(string)) {
+                            addMethod = method;
+                            break;
+                        }
+                    }
+                }
+
+                if (addMethod == null) {
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
+                        "Collection-based command-line argument '-{0}' has no strongly-typed Add method.", LongName));
+                } else {
+                    try {
+                        foreach (string key in _valuePairs) {
+                            addMethod.Invoke(value, BindingFlags.Default, null,
+                                new object[] {key, _valuePairs.Get(key)}, 
+                                CultureInfo.InvariantCulture);
+                        }
+                    } catch (Exception ex) {
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
+                            "The signature of the Add method for the collection-based"
+                            + " command-line argument '-{0}' is not supported.", 
+                            LongName), ex);
                     }
                 }
             } else {
@@ -310,7 +385,8 @@ namespace NAnt.Core.Util {
         /// </exception>
         public void SetValue(string value) {
             if (SeenValue && !AllowMultiple) {
-                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate command-line argument '-{0}'.", LongName));
+                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                "Duplicate command-line argument '-{0}'.", LongName));
             }
 
             _seenValue = true;
@@ -319,10 +395,13 @@ namespace NAnt.Core.Util {
 
             if (IsCollection || IsArray) {
                 if (Unique && _collectionValues.Contains(newValue)) {
-                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate value '-{0}' for command-line argument '{1}'.", value, LongName));
+                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                        "Duplicate value '-{0}' for command-line argument '{1}'.", value, LongName));
                 } else {
                     _collectionValues.Add(newValue);
                 }
+            } else if (IsNameValueCollection) {
+                // name/value pair is added to collection in ParseValue
             } else {
                 _argumentValue = newValue;
             }
@@ -345,6 +424,27 @@ namespace NAnt.Core.Util {
                         } else if (stringData == "-") {
                             return false;
                         }
+                    } else if (IsNameValueCollectionType(type)) {
+                        Match match = Regex.Match(stringData, @"(\w+[^=]*)=(\w*.*)");
+                        if (match.Success) {
+                            string name = match.Groups[1].Value;
+                            string value = match.Groups[2].Value;
+
+                            if (Unique && _valuePairs.Get(name) != null) {
+                                // we always assume we're dealing with properties
+                                // here to make the message more clear
+                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                                    "Duplicate property named '{0}' for command-line argument '{1}'.", 
+                                    name, LongName));
+                            }
+                            _valuePairs.Add(name, value);
+                            return _valuePairs;
+                        } else {
+                            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                                "Invalid value '{0}' for command-line argument '-{1}'.", 
+                                stringData, LongName), new ArgumentException(
+                                "Expected name/value pair (<name>=<value>)."));
+                        }
                     } else {
                         if (type.IsEnum) {
                             try {
@@ -356,32 +456,47 @@ namespace NAnt.Core.Util {
                                 }
                                 // strip last ,
                                 message = message.Substring(0, message.Length - 2) + ".";
-                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, message, stringData, LongName), ex);
+                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                                    message, stringData, LongName), ex);
                             }
                         } else {
                             // Make a guess that the there's a public static Parse method on the type of the property
                             // that will take an argument of type string to convert the string to the type 
                             // required by the property.
-                            System.Reflection.MethodInfo parseMethod = type.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, CallingConventions.Standard, new Type[] {typeof(string)}, null);
+                            System.Reflection.MethodInfo parseMethod = type.GetMethod(
+                                "Parse", BindingFlags.Public | BindingFlags.Static, 
+                                null, CallingConventions.Standard, new Type[] {typeof(string)}, 
+                                null);
+
                             if (parseMethod != null) {
                                 // Call the Parse method
-                                return parseMethod.Invoke(null, BindingFlags.Default, null, new object[] {stringData}, CultureInfo.InvariantCulture);
+                                return parseMethod.Invoke(null, BindingFlags.Default, 
+                                    null, new object[] {stringData}, CultureInfo.InvariantCulture);
                             } else if (type.IsClass) {
                                 // Search for a constructor that takes a string argument
-                                ConstructorInfo stringArgumentConstructor = type.GetConstructor(new Type[] {typeof(string)});
+                                ConstructorInfo stringArgumentConstructor = 
+                                    type.GetConstructor(new Type[] {typeof(string)});
 
                                 if (stringArgumentConstructor != null) {
-                                    return stringArgumentConstructor.Invoke(BindingFlags.Default, null, new object[] {stringData}, CultureInfo.InvariantCulture);
+                                    return stringArgumentConstructor.Invoke(
+                                        BindingFlags.Default, null, new object[] {stringData}, 
+                                        CultureInfo.InvariantCulture);
                                 }
                             }
                         }
                     }
+                } catch (CommandLineArgumentException) {
+                    throw;
                 } catch (Exception ex) {
-                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for command-line argument '-{1}'.", stringData, LongName), ex);
+                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                        "Invalid value '{0}' for command-line argument '-{1}'.", 
+                        stringData, LongName), ex);
                 }
             }
 
-            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for command-line argument '-{1}'.", stringData, LongName));
+            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                "Invalid value '{0}' for command-line argument '-{1}'.", stringData, 
+                LongName));
         }
 
         #endregion Private Instance Methods
@@ -428,10 +543,39 @@ namespace NAnt.Core.Util {
             return elementType;
         }
 
-        private static bool IsCollectionType(Type type) {
-            return typeof(ICollection).IsAssignableFrom(type);
+        /// <summary>
+        /// Indicates whether the specified <see cref="Type" /> is a 
+        /// <see cref="NameValueCollection" />.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if <paramref name="type" /> can be assigned
+        /// to <see cref="NameValueCollection" />; otherwise, <see langword="false" />.
+        /// </value>
+        private static bool IsNameValueCollectionType(Type type) {
+            return typeof(NameValueCollection).IsAssignableFrom(type);
         }
 
+        /// <summary>
+        /// Indicates whether the specified <see cref="Type" /> is collection-based.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if <paramref name="type" /> can be assigned
+        /// to <see cref="ICollection" /> and is not backed by a <see cref="Type" />
+        /// that can be assigned to <see cref="NameValueCollection" />; 
+        /// otherwise, <see langword="false" />.
+        /// </value>
+        private static bool IsCollectionType(Type type) {
+            return typeof(ICollection).IsAssignableFrom(type) 
+                && !IsNameValueCollectionType(type);
+        }
+
+        /// <summary>
+        /// Indicates whether the specified <see cref="Type" /> is an array.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if <paramref name="type" /> is an array;
+        /// otherwise, <see langword="false" />.
+        /// </value>
         private static bool IsArrayType(Type type) {
             return type.IsArray;
         }
@@ -443,10 +587,12 @@ namespace NAnt.Core.Util {
         private Type _elementType;
         private bool _seenValue;
         private CommandLineArgumentTypes _argumentType;
-        private object _argumentValue;
-        private ArrayList _collectionValues;
         private PropertyInfo _propertyInfo;
         private CommandLineArgumentAttribute _attribute;
+
+        private object _argumentValue;
+        private ArrayList _collectionValues;
+        private NameValueCollection _valuePairs;
 
         #endregion Private Instance Fields
     }

@@ -204,6 +204,8 @@ namespace NAnt.Core.Util {
                         valType = ":<filename>";
                     } else if (argument.ValueType == typeof(int)) {
                         valType = ":<number>";
+                    } else if (argument.IsNameValueCollection) {
+                        valType = ":<name>=<value>";
                     } else {
                         valType = ":" + argument.ValueType.FullName;
                     }
