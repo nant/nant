@@ -16,10 +16,15 @@
     <property name="linux" value="false" />
     <property name="sourceconfig" value="NAnt.Console.exe.config" />
     
-    <!-- Win32TaskAssemblies (tas.win32) These will be built in order-->
+    <!-- Win32TaskAssemblies (tas.win32) -->
+    <!-- These will be used in this order -->
     <property name="tas.win32" value="NAnt.Win32,NAnt.VisualCpp,NAnt.VSNet" />
-    <!-- CoreTaskAssemblies (tas.core) These will be built in order-->
+    <property name="tas.win32.tests" value="${tas.win32}" />
+    
+    <!-- CoreTaskAssemblies (tas.core) -->
+    <!-- These will be used in this order -->
     <property name="tas.core" value="NAnt.DotNet,NAnt.Zip,NAnt.NUnit,NAnt.SourceControl" />
+    <property name="tas.core.tests" value="NAnt.DotNet,NAnt.Zip" /> <!-- exclude the nunit and sourcecontrol assemblies -->
 	
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
@@ -93,12 +98,12 @@
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
 
         <!-- build tests for task assemblies -->
-        <foreach item="String" delim="," property="filename" in="${tas.core}">
+        <foreach item="String" delim="," property="filename" in="${tas.core.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
         </foreach>
 
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
-        <foreach item="String" delim="," property="filename" in="${tas.win32}">
+        <foreach item="String" delim="," property="filename" in="${tas.win32.tests}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>
