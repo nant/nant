@@ -47,14 +47,14 @@ namespace Tests.NAnt.Core.Filters {
 
         [Test]
         public void FilterOrderTest1a () {
-            base.FilterTest(@"<replacecharacter from=""^"" to=""$"" />
+            base.FilterTest(@"<replacestring from=""^"" to=""$"" />
                     <expandproperties />", "^{'la' + 'la'}", "lala");
         }
 
         [Test]
         public void FilterOrderTest1b () {
             base.FilterTest(@"<expandproperties />
-                    <replacecharacter from=""^"" to=""$"" />", "^{'la' + 'la'}", "${'la' + 'la'}");
+                    <replacestring from=""^"" to=""$"" />", "^{'la' + 'la'}", "${'la' + 'la'}");
         }
     }
 }
