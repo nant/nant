@@ -17,6 +17,8 @@
 //
 // Gert Driesen (gert.driesen@ardatis.com)
 
+using System;
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -33,8 +35,8 @@ namespace NAnt.Compression.Types {
     public class TarFileSet : FileSet {
         #region Private Instance Fields
 
-        private int _fileMode = 0100644;
-        private int _dirMode = 040755;
+        private int _fileMode = _fileFlag | 420; // = 644 octal
+        private int _dirMode = _dirFlag | 493; // = 755 octal
         private string _userName;
         private int _uid;
         private string _groupName;
@@ -45,8 +47,8 @@ namespace NAnt.Compression.Types {
 
         #region Private Static Fields
 
-        private const int _dirFlag = 040000;
-        private const int _fileFlag = 0100000;
+        private const int _dirFlag = 16384; // = 40000 octal
+        private const int _fileFlag = 32768; // = 100000 octal
 
         #endregion Private Static Fields
 
@@ -60,7 +62,7 @@ namespace NAnt.Compression.Types {
         //[TaskAttribute("filemode")]
         public int FileMode {
             get { return _fileMode; }
-            set { _fileMode = _fileFlag | value; }
+            set { _fileMode = _fileFlag | Convert.ToInt32(Convert.ToString(value), 8); }
         }
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace NAnt.Compression.Types {
         //[TaskAttribute("dirmode")]
         public int DirMode {
             get { return _dirMode; }
-            set { _dirMode = _dirFlag | value; }
+            set { _dirMode = _dirFlag | Convert.ToInt32(Convert.ToString(value), 8); }
         }
 
         /// <summary>

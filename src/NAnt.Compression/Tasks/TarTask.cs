@@ -159,39 +159,50 @@ namespace NAnt.Compression.Tasks {
                             throw new FileNotFoundException("File no longer exists.", file);
                         }
 
-                        // the name of the tar entry
-                        string entryName;
+                        // the filename of the tar entry
+                        string entryFileName;
+
+                        // the directory of the tar entry
+                        string entryDirName = string.Empty;
 
                         // determine name of the tar entry
                         if (file.StartsWith(basePath)) {
-                            entryName = file.Substring(basePath.Length);
-                            if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
-                                entryName = entryName.Substring(1);
+                            entryFileName = file.Substring(basePath.Length);
+                            if (entryFileName.Length > 0 && entryFileName[0] == Path.DirectorySeparatorChar) {
+                                entryFileName = entryFileName.Substring(1);
                             }
 
-                            // remember that directory was added to tar file, so
-                            // that we won't add it again later
-                            string dir = Path.GetDirectoryName(file);
-                            if (_addedDirs[dir] == null) {
-                                _addedDirs[dir] = dir;
+                            // get directory part of entry
+                            entryDirName = Path.GetDirectoryName(entryFileName);
+
+                            // ensure directory separators are understood on linux
+                            if (Path.DirectorySeparatorChar == '\\') {
+                                entryDirName = entryDirName.Replace(@"\", "/");
                             }
+
+                            // get filename part of entry
+                            entryFileName = Path.GetFileName(entryFileName);
                         } else {
-                            // flatten directory structure
-                            entryName = Path.GetFileName(file);
+                            entryFileName = Path.GetFileName(file);
                         }
 
                         // add prefix if specified
                         if (fileset.Prefix != null) {
-                            entryName = fileset.Prefix + entryName;
+                            entryDirName = fileset.Prefix + entryDirName;
                         }
 
-                        // ensure directory separators are understood on linux
-                        if (Path.DirectorySeparatorChar == '\\') {
-                            entryName = entryName.Replace(@"\", "/");
+                        // ensure directory has trailing slash
+                        if (entryDirName.Length != 0) {
+                            if (!entryDirName.EndsWith("/")) {
+                                entryDirName += '/';
+                            }
+
+                            // create directory entry in archive
+                            CreateDirectoryEntry(archive, entryDirName, fileset);
                         }
 
                         TarEntry entry = TarEntry.CreateEntryFromFile(file);
-                        entry.Name = entryName;
+                        entry.Name = entryDirName + entryFileName;
                         entry.GroupId = fileset.Gid;
                         entry.GroupName = fileset.GroupName;
                         entry.UserId = fileset.Uid;
@@ -206,12 +217,6 @@ namespace NAnt.Compression.Tasks {
                     if (IncludeEmptyDirs) {
                         // add (possibly empty) directories to tar
                         foreach (string directory in fileset.DirectoryNames) {
-                            // skip directories that were already added when the 
-                            // files were added
-                            if (_addedDirs[directory] != null) {
-                                continue;
-                            }
-
                             // skip directories that are not located beneath the base 
                             // directory
                             if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
@@ -237,16 +242,8 @@ namespace NAnt.Compression.Tasks {
                                 entryName += "/";
                             }
 
-                            // create directory entry
-                            TarEntry entry = TarEntry.CreateTarEntry(entryName);
-                            entry.GroupId = fileset.Gid;
-                            entry.GroupName = fileset.GroupName;
-                            entry.UserId = fileset.Uid;
-                            entry.UserName = fileset.UserName;
-                            //entry.TarHeader.Mode = fileset.DirMode;
-
-                            // write directory to tar file
-                            archive.WriteEntry(entry, false);
+                            // create directory entry in archive
+                            CreateDirectoryEntry(archive, entryName, fileset);
                         }
                     }
                 }
@@ -276,6 +273,31 @@ namespace NAnt.Compression.Tasks {
         }
 
         #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        private void CreateDirectoryEntry(TarArchive archive, string entryName, TarFileSet fileset) {
+            // skip directories that were already added before
+            if (_addedDirs.ContainsKey(entryName)) {
+                return;
+            }
+
+            // create directory entry
+            TarEntry entry = TarEntry.CreateTarEntry(entryName);
+            entry.GroupId = fileset.Gid;
+            entry.GroupName = fileset.GroupName;
+            entry.UserId = fileset.Uid;
+            entry.UserName = fileset.UserName;
+            //entry.TarHeader.Mode = fileset.DirMode;
+
+            // write directory to tar file
+            archive.WriteEntry(entry, false);
+
+            // remember that directory entry was added
+            _addedDirs[entryName] = null;
+        }
+
+        #endregion Private Instance Methods
     }
 
     /// <summary>
