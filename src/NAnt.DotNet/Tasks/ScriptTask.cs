@@ -416,6 +416,7 @@ namespace NAnt.DotNet.Tasks {
 
             try {
                 switch (language) {
+                    case "vb":
                     case "VB":
                     case "VISUALBASIC":
                         languageId = LanguageId.VisualBasic;
@@ -423,6 +424,7 @@ namespace NAnt.DotNet.Tasks {
                             "Microsoft.VisualBasic.VBCodeProvider",
                             "System, Culture=neutral");
                         break;
+                    case "c#":
                     case "C#":
                     case "CSHARP":
                         languageId = LanguageId.CSharp;
