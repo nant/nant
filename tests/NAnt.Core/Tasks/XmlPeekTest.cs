@@ -69,7 +69,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PeekValidXml() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXml);
+            string xmlFile = CreateTempFile("validxml.xml", _validXml);
 
             // set-up task attributes
             string taskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -87,7 +87,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PeekValidXmlWithNamespace() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXmlWithNamespace);
+            string xmlFile = CreateTempFile("validxmlnamespace.xml", _validXmlWithNamespace);
 
             // set-up task attributes
             string taskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -108,7 +108,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PeekValidXmlNodeIndexOutOfRange() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXml);
+            string xmlFile = CreateTempFile("validxml.xml", _validXml);
 
             // set-up task attributes
             string taskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -134,7 +134,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PeekValidXmlNoMatches() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXml);
+            string xmlFile = CreateTempFile("validxml.xml", _validXml);
 
             // set-up task attributes
             string taskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -156,7 +156,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PeekEmptyFile() {
             // create empty file
-            string xmlFile = TempFile.Create();
+            string xmlFile = CreateTempFile("empty.xml");
 
             // set-up task attributes
             string taskAttributes = string.Format(CultureInfo.InvariantCulture,

@@ -135,7 +135,7 @@ namespace Tests.NAnt.Console {
 
         [Test]
         public void Test_FindInParentOption() {
-            string baseDirectory = TempDir.Create(Path.Combine(TempDirName,"Find"));
+            string baseDirectory = TempDir.Create(Path.Combine(TempDirName, "Find"));
             string buildFileName = Path.Combine(baseDirectory, "file.build");
             string subDirectory = TempDir.Create(Path.Combine(baseDirectory, "SubDirectory"));
 
@@ -239,7 +239,7 @@ namespace Tests.NAnt.Console {
                 </project>";
 
             // write build file to temp file
-            string buildFileName = TempFile.CreateWithContents(buildFileContents);
+            string buildFileName = CreateTempFile("buildfile.xml", buildFileContents);
             Assertion.Assert(buildFileName + " does not exists.", File.Exists(buildFileName));
 
             string[] args = {
@@ -289,7 +289,7 @@ namespace Tests.NAnt.Console {
                 </project>";
 
             // write build file to temp file
-            string buildFileName = TempFile.CreateWithContents(buildFileContents);
+            string buildFileName = CreateTempFile("buildfile.xml", buildFileContents);
             Assertion.Assert(buildFileName + " does not exists.", File.Exists(buildFileName));
 
             string[] args = {
@@ -377,7 +377,7 @@ namespace Tests.NAnt.Console {
 
             IBuildLogger logger;
 
-            string streamFileName = TempFile.Create();
+            string streamFileName = CreateTempFile("XmlLog.xml");
             StreamWriter instanceFileStream = new StreamWriter(File.OpenWrite(streamFileName));
 
             try {

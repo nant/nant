@@ -75,7 +75,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PokeValidXml() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXml);
+            string xmlFile = CreateTempFile("validxml.xml", _validXml);
 
             // set-up <xmlpoke> task attributes
             string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -104,7 +104,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PokeValidXmlWithNamespace() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXmlWithNamespace);
+            string xmlFile = CreateTempFile("validxmlnamespace.xml", _validXmlWithNamespace);
 
             // set-up <xmlpoke> task attributes
             string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -133,7 +133,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PokeEmptyValue() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXml);
+            string xmlFile = CreateTempFile("validxml.xml", _validXml);
 
             // set-up <xmlpoke> task attributes
             string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -166,7 +166,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PokeValidXmlNoMatches() {
             // write xml content to file
-            string xmlFile = TempFile.CreateWithContents(_validXml);
+            string xmlFile = CreateTempFile("validxml.xml", _validXml);
 
             // set-up <xmlpoke> task attributes
             string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
@@ -187,7 +187,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_PokeEmptyFile() {
             // create empty file
-            string xmlFile = TempFile.Create();
+            string xmlFile = CreateTempFile("empty.xml");
 
             // set-up <xmlpoke> task attributes
             string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
