@@ -310,8 +310,14 @@ namespace NAnt.Core.Tasks {
                         // The full filepath to copy to.
                         string destinationDirectory = Path.Combine(ToDirectory.FullName, dstRelPath);
                         if (!Directory.Exists(destinationDirectory)) {
+                            try {
+                                Directory.CreateDirectory(destinationDirectory);
+                            } catch (Exception ex) {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "Failed to create directory '{0}'.", destinationDirectory ), 
+                                 Location, ex);
+                            }
                             Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
-                            Directory.CreateDirectory(destinationDirectory);
                         }
                     }
                 }
