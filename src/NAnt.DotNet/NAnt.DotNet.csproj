@@ -114,11 +114,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "McsTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "MsftFXCompilerBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
