@@ -95,7 +95,7 @@ namespace NAnt.Core.Attributes {
                 valueString = Convert.ToString(value, CultureInfo.InvariantCulture);
             } catch (Exception ex) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot resolve '{0}' to a string value.", value.ToString()), ex);
+                    ResourceUtils.GetString("NA1092"), value.ToString()), ex);
             }
 
             if (!AllowEmpty && StringUtils.IsNullOrEmpty(valueString)) {

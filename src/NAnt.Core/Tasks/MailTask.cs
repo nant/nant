@@ -240,7 +240,7 @@ namespace NAnt.Core.Tasks {
                     }
                 } catch (Exception ex) {
                     Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
-                        "File '{0}' NOT added to message body. {1}", fileName, 
+                        ResourceUtils.GetString("NA1135"), fileName, 
                         ex.Message));
                 }
             }
@@ -258,7 +258,7 @@ namespace NAnt.Core.Tasks {
                     mailMessage.Attachments.Add(attachment);
                 } catch (Exception ex) {
                     Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
-                        "File '{0}' NOT attached to message. {1}", fileName, 
+                        ResourceUtils.GetString("NA1136"), fileName, 
                         ex.Message));
                 }
             }

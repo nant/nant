@@ -27,6 +27,7 @@ using System.Globalization;
 using NAnt.Core;
 using NAnt.Core.Types;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
     /// <summary>
@@ -147,7 +148,7 @@ namespace NAnt.Core.Functions {
         public static string GetVariable(string name) {
             if (!VariableExists(name)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Environment variable \"{0}\" does not exist.", name));
+                                                          ResourceUtils.GetString("NA1095"), name));
             }
 
             return Environment.GetEnvironmentVariable(name);

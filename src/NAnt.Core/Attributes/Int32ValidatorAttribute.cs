@@ -20,6 +20,7 @@
 using System;
 using System.Reflection;
 using System.Globalization;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
@@ -119,12 +120,12 @@ namespace NAnt.Core.Attributes {
                 }
             } catch (Exception ex) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot resolve '{0}' to integer value.", value.ToString()), ex);
+                                                            ResourceUtils.GetString("NA1091"), value.ToString()), ex);
             }
 
             if (intValue < MinValue || intValue > MaxValue) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), 
+                    ResourceUtils.GetString("NA1090"), value.ToString(), 
                     MinValue, MaxValue));
             }
         }

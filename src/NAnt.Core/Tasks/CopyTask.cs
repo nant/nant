@@ -258,31 +258,31 @@ namespace NAnt.Core.Tasks {
         protected override void InitializeTask(XmlNode taskNode) {
             if (Flatten && ToDirectory == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "'flatten' attribute requires that 'todir' has been set."), 
+                    ResourceUtils.GetString("NA1106")), 
                     Location);
             }
 
             if (ToDirectory == null && CopyFileSet != null && CopyFileSet.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'todir' should be set when using the <fileset> element"
+                    ResourceUtils.GetString("NA1109")
                     + " to specify the list of files to be copied."), Location);
             }
 
             if (SourceFile != null && CopyFileSet != null && CopyFileSet.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'file' attribute and the <fileset> element" 
+                    ResourceUtils.GetString("NA1107") 
                     + " cannot be combined."), Location);
             }
 
             if (ToFile == null && ToDirectory == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Either the 'tofile' or 'todir' attribute should be set."), 
+                    ResourceUtils.GetString("NA1108")), 
                     Location);
             }
 
             if (ToFile != null && ToDirectory != null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'tofile' and 'todir' attribute cannot both be set."), 
+                    ResourceUtils.GetString("NA1105")), 
                     Location);
             }
         }
@@ -325,7 +325,7 @@ namespace NAnt.Core.Tasks {
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not find file '{0}' to copy.", SourceFile.FullName), 
+                        ResourceUtils.GetString("NA1112"), SourceFile.FullName), 
                         Location);
                 }
             } else { // copy file set contents.
@@ -376,7 +376,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Could not find file '{0}' to copy.", srcInfo.FullName), 
+                            ResourceUtils.GetString("NA1112"), srcInfo.FullName), 
                             Location);
                     }
                 }
@@ -401,7 +401,7 @@ namespace NAnt.Core.Tasks {
                                 Directory.CreateDirectory(destinationDirectory);
                             } catch (Exception ex) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "Failed to create directory '{0}'.", destinationDirectory ), 
+                                ResourceUtils.GetString("NA1110"), destinationDirectory ), 
                                  Location, ex);
                             }
                             Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
@@ -457,7 +457,7 @@ namespace NAnt.Core.Tasks {
                             InputEncoding, OutputEncoding);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot copy '{0}' to '{1}'.", sourceFile, destinationFile), 
+                            ResourceUtils.GetString("NA1111"), sourceFile, destinationFile), 
                             Location, ex);
                     }
                 }

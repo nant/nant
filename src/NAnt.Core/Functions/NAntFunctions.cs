@@ -215,7 +215,7 @@ namespace NAnt.Core.Functions {
             Target target = Project.Targets.Find(name);
             if (target == null) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Target \"{0}\" does not exist.", name));
+                    ResourceUtils.GetString("NA1097"), name));
             }
 
             return target.Executed;
@@ -268,7 +268,7 @@ namespace NAnt.Core.Functions {
             TaskBuilder task = TypeFactory.TaskBuilders[name];
             if (task == null) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Task '{0}' is not available.", name));
+                    ResourceUtils.GetString("NA1099"), name));
             }
 
             return task.AssemblyFileName;
@@ -322,7 +322,7 @@ namespace NAnt.Core.Functions {
         public bool IsReadOnly(string name) {
             if (!Project.Properties.Contains(name)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Property '{0}' has not been set.", name));
+                    ResourceUtils.GetString("NA1053"), name));
             }
 
             return Project.Properties.IsReadOnlyProperty(name);
@@ -347,7 +347,7 @@ namespace NAnt.Core.Functions {
         public bool IsDynamic(string name) {
             if (!Project.Properties.Contains(name)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Property '{0}' has not been set.", name));
+                    ResourceUtils.GetString("NA1053"), name));
             }
 
             return Project.Properties.IsDynamicProperty(name);
@@ -585,7 +585,7 @@ namespace NAnt.Core.Functions {
         private void CheckFramework(string framework) {
             if (!Project.Frameworks.ContainsKey(framework)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "\"{0}\" is not a valid framework identifier.", framework));
+                    ResourceUtils.GetString("NA1096"), framework));
             }
         }
 

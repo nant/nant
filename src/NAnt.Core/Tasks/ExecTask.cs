@@ -224,7 +224,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' is not a valid value for attribute 'program' of <{1} ... />.", 
+                    ResourceUtils.GetString("NA1117"), 
                     FileName, Name), Location, ex);
             }
 

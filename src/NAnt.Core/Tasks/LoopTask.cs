@@ -282,7 +282,7 @@ namespace NAnt.Core.Tasks {
                             if (!Directory.Exists(Source)) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
-                                    "Source directory '{0}' does not exist.", 
+                                    ResourceUtils.GetString("NA1134"), 
                                     Source), Location);
                             }
                         
@@ -322,7 +322,7 @@ namespace NAnt.Core.Tasks {
                             if (!Directory.Exists(Source)) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
-                                    "Source directory '{0}' does not exist.", 
+                                    ResourceUtils.GetString("NA1134"), 
                                     Source), Location);
                             }
 
@@ -357,7 +357,7 @@ namespace NAnt.Core.Tasks {
                             if (!File.Exists(Source)) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
-                                    "Source file '{0}' does not exist.", 
+                                    ResourceUtils.GetString("NA1133"), 
                                     Source), Location);
                             }
 

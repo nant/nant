@@ -251,7 +251,7 @@ namespace NAnt.Core.Tasks {
             } catch (ArgumentException ex) {
                 throw new BuildException(string.Format(
                     CultureInfo.InvariantCulture,
-                    "Unable to determine whether file '{0}' is available.",
+                    ResourceUtils.GetString("NA1104"),
                     Resource), Location, ex);
             }
         }
@@ -270,7 +270,7 @@ namespace NAnt.Core.Tasks {
             } catch (ArgumentException ex) {
                 throw new BuildException(string.Format(
                     CultureInfo.InvariantCulture,
-                    "Unable to determine whether directory '{0}' is available.",
+                    ResourceUtils.GetString("NA1103"),
                     Resource), Location, ex);
             }
         }

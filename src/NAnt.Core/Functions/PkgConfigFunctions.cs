@@ -30,6 +30,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
     [FunctionSet("pkg-config", "Unix/Cygwin")]
@@ -58,7 +59,7 @@ namespace NAnt.Core.Functions {
         public string GetVariable(string package, string name) {
             if (!Exists(package)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Package \"{0}\" does not exist.", package));
+                                                          ResourceUtils.GetString("NA1100"), package));
             }
             return RunPkgConfigString(new Argument[] {  new Argument("--variable=\"" + name + "\""),
                                                         new Argument(package) });
@@ -78,7 +79,7 @@ namespace NAnt.Core.Functions {
         public string GetLinkFlags(string package) {
             if (!Exists(package)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Package \"{0}\" does not exist.", package));
+                    ResourceUtils.GetString("NA1100"), package));
             }
 
             return RunPkgConfigString(new Argument[] { new Argument("--libs"),
@@ -99,7 +100,7 @@ namespace NAnt.Core.Functions {
         public string GetCompileFlags(string package) {
             if (!Exists(package)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Package \"{0}\" does not exist.", package));
+                    ResourceUtils.GetString("NA1100"), package));
             }
 
             return RunPkgConfigString(new Argument[] { new Argument("--cflags"),
@@ -119,7 +120,7 @@ namespace NAnt.Core.Functions {
         public string GetModVersion(string package) {
             if (!Exists(package)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Package \"{0}\" does not exist.", package));
+                    ResourceUtils.GetString("NA1100"), package));
             }
 
             return RunPkgConfigString( new Argument[]{ new Argument("--modversion"),

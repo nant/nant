@@ -80,7 +80,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Directory '{0}' could not be created.", Dir.FullName), 
+                    ResourceUtils.GetString("NA1137"), Dir.FullName), 
                     Location, ex);
             }
         }

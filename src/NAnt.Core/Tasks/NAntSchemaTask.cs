@@ -257,7 +257,7 @@ namespace NAnt.Core.Tasks {
                 XmlSchemaDocumentation schemaDocumentation = new XmlSchemaDocumentation();
 
                 string doc = String.Format(CultureInfo.InvariantCulture, 
-                    "NAnt schema generated at {0}", DateTime.Now);
+                    ResourceUtils.GetString("String_SchemaGenerated"), DateTime.Now);
                 schemaDocumentation.Markup = TextToNodeArray(doc);
                 schemaAnnotation.Items.Add(schemaDocumentation);
                 _nantSchema.Items.Add(schemaAnnotation);
@@ -556,9 +556,7 @@ namespace NAnt.Core.Tasks {
 
                             if (childType == null || !typeof(Element).IsAssignableFrom(childType)) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
-                                    " should have an element type assigned that derives from Element" +
-                                    " for {0}.{1}.", memInfo.DeclaringType.FullName, memInfo.Name));
+                                    ResourceUtils.GetString("NA1140"), memInfo.DeclaringType.FullName, memInfo.Name));
                             }
                         }
 

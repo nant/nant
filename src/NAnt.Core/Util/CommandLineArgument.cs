@@ -282,7 +282,7 @@ namespace NAnt.Core.Util {
                 if (_propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
                     if (!_propertyInfo.CanWrite) {
                         throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
-                            "Command-line argument '-{0}' is collection-based," 
+                            ResourceUtils.GetString("NA1171") 
                             + " but is not initialized and does not allow the"
                             + "collection to be initialized.", LongName));
                     }
@@ -307,7 +307,7 @@ namespace NAnt.Core.Util {
                 }
 
                 if (addMethod == null) {
-                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Collection-based command-line argument '-{0}' has no strongly-typed Add method.", LongName));
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, ResourceUtils.GetString("NA1169"), LongName));
                 } else {
                     try {
                         foreach (object item in _collectionValues) {
@@ -315,8 +315,7 @@ namespace NAnt.Core.Util {
                         }
                     } catch (Exception ex) {
                         throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
-                            "The signature of the Add method for the collection-based"
-                            + " command-line argument '-{0}' is not supported.", 
+                            ResourceUtils.GetString("NA1173"),
                             LongName), ex);
                     }
                 }
@@ -325,7 +324,7 @@ namespace NAnt.Core.Util {
                 if (_propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
                     if (!_propertyInfo.CanWrite) {
                         throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
-                            "Command-line argument '-{0}' is collection-based," 
+                            ResourceUtils.GetString("NA1171") 
                             + " but is not initialized and does not allow the"
                             + "collection to be initialized.", LongName));
                     }
@@ -351,7 +350,7 @@ namespace NAnt.Core.Util {
 
                 if (addMethod == null) {
                     throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
-                        "Collection-based command-line argument '-{0}' has no strongly-typed Add method.", LongName));
+                        ResourceUtils.GetString("NA1169"), LongName));
                 } else {
                     try {
                         foreach (string key in _valuePairs) {
@@ -361,8 +360,7 @@ namespace NAnt.Core.Util {
                         }
                     } catch (Exception ex) {
                         throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
-                            "The signature of the Add method for the collection-based"
-                            + " command-line argument '-{0}' is not supported.", 
+                            ResourceUtils.GetString("NA1173"),
                             LongName), ex);
                     }
                 }
@@ -386,7 +384,7 @@ namespace NAnt.Core.Util {
         public void SetValue(string value) {
             if (SeenValue && !AllowMultiple) {
                 throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                "Duplicate command-line argument '-{0}'.", LongName));
+                ResourceUtils.GetString("NA1175"), LongName));
             }
 
             _seenValue = true;
@@ -396,7 +394,7 @@ namespace NAnt.Core.Util {
             if (IsCollection || IsArray) {
                 if (Unique && _collectionValues.Contains(newValue)) {
                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                        "Duplicate value '{0}' for command-line argument '-{1}'.", value, LongName));
+                        ResourceUtils.GetString("NA1172"), value, LongName));
                 } else {
                     _collectionValues.Add(newValue);
                 }
@@ -434,14 +432,14 @@ namespace NAnt.Core.Util {
                                 // we always assume we're dealing with properties
                                 // here to make the message more clear
                                 throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                                    "Duplicate property named '{0}' for command-line argument '{1}'.", 
+                                    ResourceUtils.GetString("NA1174"), 
                                     name, LongName));
                             }
                             _valuePairs.Add(name, value);
                             return _valuePairs;
                         } else {
                             throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                                "Invalid value '{0}' for command-line argument '-{1}'.", 
+                                ResourceUtils.GetString("NA1170"), 
                                 stringData, LongName), new ArgumentException(
                                 "Expected name/value pair (<name>=<value>)."));
                         }
@@ -489,13 +487,13 @@ namespace NAnt.Core.Util {
                     throw;
                 } catch (Exception ex) {
                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                        "Invalid value '{0}' for command-line argument '-{1}'.", 
+                        ResourceUtils.GetString("NA1170"), 
                         stringData, LongName), ex);
                 }
             }
 
             throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                "Invalid value '{0}' for command-line argument '-{1}'.", stringData, 
+                ResourceUtils.GetString("NA1170"), stringData, 
                 LongName));
         }
 

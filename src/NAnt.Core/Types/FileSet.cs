@@ -694,7 +694,7 @@ namespace NAnt.Core.Types {
 
             if (FailOnEmpty && _scanner.FileNames.Count == 0) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "The fileset specified is empty after scanning '{0}' for: {1}", 
+                    ResourceUtils.GetString("NA1164"), 
                     _scanner.BaseDirectory, _scanner.Includes.ToString()), 
                     Location);
             }

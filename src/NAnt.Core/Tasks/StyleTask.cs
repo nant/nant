@@ -232,7 +232,7 @@ namespace NAnt.Core.Tasks {
             } else if (InFiles.FileNames.Count > 0) {
                 if (OutputFile != null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "The \"out\" attribute is not allowed when \"infiles\" is used."), 
+                        ResourceUtils.GetString("NA1148")), 
                         Location);
                 }
                 srcFiles = InFiles.FileNames;
@@ -240,13 +240,13 @@ namespace NAnt.Core.Tasks {
 
             if (srcFiles == null || srcFiles.Count == 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "No source files indicated; use \"in\" or \"infiles\"."), 
+                    ResourceUtils.GetString("NA1147")), 
                     Location);
             }
 
             if (!XsltFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Stylesheet file '{0}' does not exist.", XsltFile.FullName), 
+                    ResourceUtils.GetString("NA1149"), XsltFile.FullName), 
                     Location);
             }
 
@@ -276,7 +276,7 @@ namespace NAnt.Core.Tasks {
 
                 if (!srcInfo.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unable to find source XML file '{0}'.", srcInfo.FullName), 
+                        ResourceUtils.GetString("NA1150"), srcInfo.FullName), 
                         Location);
                 }
 
@@ -360,8 +360,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Could not perform XSLT transformation of '{0}' using" 
-                            + " stylesheet '{1}'.", srcInfo.FullName, XsltFile.FullName), 
+                            ResourceUtils.GetString("NA1151"), srcInfo.FullName, XsltFile.FullName), 
                             Location, ex);
                     } finally {
                         // ensure file handles are closed

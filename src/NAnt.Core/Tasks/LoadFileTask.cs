@@ -23,6 +23,7 @@ using System.Text;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Filters;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -169,7 +170,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (IOException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "The content of file '{0}' could not be loaded.",
+                                                       ResourceUtils.GetString("NA1129"),
                     File.FullName), Location, ex);
             }
 

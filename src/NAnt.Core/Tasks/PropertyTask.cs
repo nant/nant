@@ -23,6 +23,7 @@ using System.Collections;
 using System.Globalization;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -195,10 +196,10 @@ namespace NAnt.Core.Tasks {
                     string validvaluesare = string.Empty;
                     if (validvalues.Count > 0) {
                         validvaluesare = string.Format(CultureInfo.InvariantCulture, 
-                            "Valid values are: {0}.", string.Join(", ", (string[]) validvalues.ToArray(typeof(string))));
+                                                       ResourceUtils.GetString("String_ValidValues"), string.Join(", ", (string[]) validvalues.ToArray(typeof(string))));
                     }
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}", 
+                        ResourceUtils.GetString("NA1143"), 
                         propertyValue, validvaluesare), Location);
                 }
             }

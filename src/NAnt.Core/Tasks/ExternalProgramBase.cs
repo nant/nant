@@ -63,7 +63,7 @@ namespace NAnt.Core.Tasks {
 
         #endregion Public Static Fields
 
-        #region Private Static Fields        
+        #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -294,7 +294,7 @@ namespace NAnt.Core.Tasks {
 
                     throw new BuildException(
                         String.Format(CultureInfo.InvariantCulture, 
-                        "External Program {0} did not finish within {1} milliseconds.", 
+                        ResourceUtils.GetString("NA1118"), 
                         ProgramFileName, 
                         TimeOut), 
                         Location);
@@ -305,7 +305,7 @@ namespace NAnt.Core.Tasks {
                 if (process.ExitCode != 0) {
                     throw new BuildException(
                         String.Format(CultureInfo.InvariantCulture, 
-                        "External Program Failed: {0} (return code was {1})", 
+                        ResourceUtils.GetString("NA1119"), 
                         ProgramFileName, 
                         process.ExitCode), 
                         Location);
@@ -410,7 +410,7 @@ namespace NAnt.Core.Tasks {
             try {
                 string msg = string.Format(
                     CultureInfo.InvariantCulture, 
-                    "Starting '{1} ({2})' in '{0}'", 
+                    ResourceUtils.GetString("String_Starting_Program"), 
                     p.StartInfo.WorkingDirectory, 
                     p.StartInfo.FileName, 
                     p.StartInfo.Arguments);
@@ -422,7 +422,7 @@ namespace NAnt.Core.Tasks {
                 return p;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "'{0}' failed to start.", p.StartInfo.FileName), Location, ex);
+                    ResourceUtils.GetString("NA1121"), p.StartInfo.FileName), Location, ex);
             }
         }
 
@@ -504,8 +504,7 @@ namespace NAnt.Core.Tasks {
                     programLocationAttribute.LocationType == LocationType.FrameworkSdkDir) &&
                     (Project.TargetFramework == null)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "The '{0}' task cannot be executed, as it relies on an" 
-                        + " active framework." + Environment.NewLine, Name));
+                        ResourceUtils.GetString("NA1120") + Environment.NewLine, Name));
                 }
 
                 switch (programLocationAttribute.LocationType) {
@@ -516,7 +515,7 @@ namespace NAnt.Core.Tasks {
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
-                                "The framework directory for the '{0}' framework is not available or not configured.", 
+                                ResourceUtils.GetString("NA1124"), 
                                 Project.TargetFramework.Name));
                         }
                         break;
@@ -527,7 +526,7 @@ namespace NAnt.Core.Tasks {
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
-                                "The SDK for the '{0}' framework is not available or not configured.", 
+                                ResourceUtils.GetString("NA1122"), 
                                 Project.TargetFramework.Name));
                         }
                         break;

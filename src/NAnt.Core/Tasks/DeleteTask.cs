@@ -23,6 +23,7 @@ using System.Globalization;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -165,7 +166,7 @@ namespace NAnt.Core.Tasks {
             } else if (Directory != null) { // delete the directory
                 if (!Directory.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot delete directory '{0}'. The directory does not exist.", 
+                                                           ResourceUtils.GetString("NA1115"), 
                         Directory.FullName), Location);
                 }
                 // log message here if we're not in verbose mode, otherwise the 
@@ -193,7 +194,7 @@ namespace NAnt.Core.Tasks {
                                 dirCount++;
                             } catch (Exception ex) {
                                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                                    "Cannot delete directory '{0}'.", path);
+                                    ResourceUtils.GetString("NA1113"), path);
                                 if (FailOnError) {
                                     throw new BuildException(msg, Location, ex);
                                 }
@@ -235,7 +236,7 @@ namespace NAnt.Core.Tasks {
                         System.IO.File.Delete(file);
                     } catch (Exception ex) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot delete file '{0}'.", file);
+                            ResourceUtils.GetString("NA1114"), file);
                         if (FailOnError) {
                             throw new BuildException(msg, Location, ex);
                         }
@@ -247,7 +248,7 @@ namespace NAnt.Core.Tasks {
                 throw ex;
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot delete directory '{0}'.", path);
+                    ResourceUtils.GetString("NA1113"), path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
@@ -272,7 +273,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot delete file '{0}'.", path);
+                    ResourceUtils.GetString("NA1114"), path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }

@@ -140,7 +140,7 @@ namespace NAnt.Core.Util {
                 StringBuilder logoBanner = new StringBuilder();
 
                 logoBanner.AppendFormat(CultureInfo.InvariantCulture,
-                    "{0} {1} (Build {2}; {3}; {4})", productName, 
+                    ResourceUtils.GetString("String_BuildBanner"), productName, 
                     informationalVersion, assemblyVersion.ToString(4),
                     configurationInformation, releaseDate.ToShortDateString()); 
 
@@ -392,7 +392,7 @@ namespace NAnt.Core.Util {
                                     if (attribs.Length > 0) {
                                         ObsoleteAttribute obsoleteAttrib = (ObsoleteAttribute) attribs[0];
                                         string message = string.Format(CultureInfo.InvariantCulture, 
-                                            "Commandline argument '-{0}' is obsolete. {1}", option, 
+                                            ResourceUtils.GetString("NA1177"), option, 
                                             obsoleteAttrib.Message);
                                         if (obsoleteAttrib.IsError) {
                                             throw new CommandLineArgumentException(message);

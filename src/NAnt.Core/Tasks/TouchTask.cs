@@ -180,7 +180,7 @@ namespace NAnt.Core.Tasks {
                 System.IO.File.SetLastWriteTime(path, touchDateTime);
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot touch file '{0}'.", path);
+                    ResourceUtils.GetString("NA1152"), path);
 
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);

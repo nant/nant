@@ -26,6 +26,7 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -151,7 +152,7 @@ namespace NAnt.Core.Tasks {
             // ensure the specified xml file exists
             if (!XmlFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "XML file '{0}' does not exist.", XmlFile.FullName), Location);
+                                                       ResourceUtils.GetString("NA1154"), XmlFile.FullName), Location);
             }
 
             try {
@@ -161,7 +162,7 @@ namespace NAnt.Core.Tasks {
                 throw ex; // Just re-throw the build exceptions.
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not peek at XML file '{0}'.", XmlFile.FullName), 
+                    ResourceUtils.GetString("NA1153"), XmlFile.FullName), 
                     Location, ex);
             }
         }
@@ -187,7 +188,7 @@ namespace NAnt.Core.Tasks {
                 return document;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to load the XML document '{0}'.", fileName), Location, 
+                    ResourceUtils.GetString("NA1158"), fileName), Location, 
                     ex);
             }
         }
@@ -215,13 +216,13 @@ namespace NAnt.Core.Tasks {
                 nodes = document.SelectNodes(xpath, nsMgr);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to select node with XPath expression '{0}'.", xpath), 
+                    ResourceUtils.GetString("NA1155"), xpath), 
                     Location, ex);
             }
 
             if (nodes == null || nodes.Count == 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "No matching nodes found for XPath expression '{0}'.", xpath), 
+                    ResourceUtils.GetString("NA1156"), xpath), 
                     Location);
             }
 
@@ -230,7 +231,7 @@ namespace NAnt.Core.Tasks {
           
             if (nodeIndex >= nodes.Count){
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Nodeindex '{0}' is out of range.", nodeIndex), Location);
+                    ResourceUtils.GetString("NA1157"), nodeIndex), Location);
             }
             
             XmlNode selectedNode = nodes[nodeIndex];

@@ -25,6 +25,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -150,7 +151,7 @@ namespace NAnt.Core.Tasks {
                 regex = new Regex(Pattern, Options);
             } catch (ArgumentException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Invalid value \"{0}\" for \"pattern\" attribute.", Pattern),
+                                                       ResourceUtils.GetString("NA1145"), Pattern),
                     Location, ex);
             }
 
@@ -158,7 +159,7 @@ namespace NAnt.Core.Tasks {
 
             if (match.Groups.Count == 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "No match found for expression '{0}' in '{1}'.", Pattern, 
+                    ResourceUtils.GetString("NA1144"), Pattern, 
                     Input), Location);
             }
 

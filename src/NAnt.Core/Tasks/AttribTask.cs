@@ -256,7 +256,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot set attributes for file '{0}'.", path);
+                    ResourceUtils.GetString("NA1102"), path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {
@@ -296,7 +296,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot set attributes for directory '{0}'.", path);
+                    ResourceUtils.GetString("NA1101"), path);
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {

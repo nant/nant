@@ -238,7 +238,7 @@ namespace NAnt.Core.Tasks {
                     } catch (IOException ex) {
                         if (tryCount > 3) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Unable to download '{0}' to '{1}'.", Source, 
+                                ResourceUtils.GetString("NA1125"), Source, 
                                 DestinationFile.FullName), Location);
                         } else {
                             Log(Level.Warning, "Unable to open connection to '{0}' (try {1} of 3): " + ex.Message, Source, tryCount);
@@ -301,7 +301,7 @@ namespace NAnt.Core.Tasks {
                 // check to see if we actually have a file...
                 if(!DestinationFile.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unable to download '{0}' to '{1}'.", Source, 
+                        ResourceUtils.GetString("NA1125"), Source, 
                         DestinationFile.FullName), Location);
                 }
 
@@ -344,17 +344,17 @@ namespace NAnt.Core.Tasks {
                         return;
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Unable to download '{0}' to '{1}'.", Source, 
+                            ResourceUtils.GetString("NA1125"), Source, 
                             DestinationFile.FullName), Location, ex);
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unable to download '{0}' to '{1}'.", Source, DestinationFile.FullName), 
+                        ResourceUtils.GetString("NA1125"), Source, DestinationFile.FullName), 
                         Location, ex);
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unable to download '{0}' to '{1}'.", Source, DestinationFile.FullName), 
+                    ResourceUtils.GetString("NA1125"), Source, DestinationFile.FullName), 
                     Location, ex);
             }
         }

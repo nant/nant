@@ -182,8 +182,7 @@ namespace NAnt.Core.Tasks {
         protected override void InitializeTask(XmlNode taskNode) {
             if (BuildFile != null && BuildFiles != null && BuildFiles.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'buildfile' attribute and the <buildfiles> element" 
-                    + " cannot be combined."), Location);
+                    ResourceUtils.GetString("NA1141")), Location);
             }
         }
 

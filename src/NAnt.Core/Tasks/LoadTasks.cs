@@ -28,6 +28,7 @@ using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -128,14 +129,14 @@ namespace NAnt.Core.Tasks {
             if (AssemblyPath != null) { // single file case
                 if (!AssemblyPath.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Assembly \"{0}\" does not exist. Can't scan for extensions.", 
+                                                           ResourceUtils.GetString("NA1132"), 
                         AssemblyPath.FullName), Location);
                 }  
                 TaskFileSet.FileNames.Add(AssemblyPath.FullName);
             } else if (Path != null) {
                 if (!Path.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Path \"{0}\" does not exist. Can't scan for extensions.", 
+                        ResourceUtils.GetString("NA1131"), 
                         Path), Location);
                 }
                 TaskFileSet.DirectoryNames.Add(Path.FullName);
@@ -147,7 +148,7 @@ namespace NAnt.Core.Tasks {
                     TypeFactory.ScanAssembly(assemblyPath, this);
                 } catch (Exception ex) {
                     string message = string.Format(CultureInfo.InvariantCulture,
-                        "Failure scanning \"{0}\" for extensions.", assemblyPath);
+                        ResourceUtils.GetString("NA1130"), assemblyPath);
 
                     if (FailOnError) {
                         throw new BuildException(message, Location, ex);
@@ -163,7 +164,7 @@ namespace NAnt.Core.Tasks {
                     TypeFactory.ScanDir(scanPath, this, FailOnError);
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Failure scanning \"{0}\" for extensions.", scanPath),
+                        ResourceUtils.GetString("NA1130"), scanPath),
                         Location, ex);
                 }
             }

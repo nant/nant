@@ -123,7 +123,7 @@ namespace NAnt.Core.Types {
             // test whether extension assembly exists
             if (!AssemblyPath.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Assembly \"{0}\" does not exist. Can't create extension object.",
+                    ResourceUtils.GetString("NA1166"),
                     AssemblyPath.FullName), Location);
             }
 
@@ -134,12 +134,12 @@ namespace NAnt.Core.Types {
                 extensionInstance = extensionAssembly.CreateInstance(TypeName);
                 if ( extensionInstance == null){
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. ",
+                    ResourceUtils.GetString("NA1168"),
                     TypeName, AssemblyPath.FullName), Location );
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Can't create extension object \"{0}\" from \"{1}\".",
+                    ResourceUtils.GetString("NA1167"),
                     TypeName, AssemblyPath.FullName), Location, ex);
             }
             return extensionInstance;

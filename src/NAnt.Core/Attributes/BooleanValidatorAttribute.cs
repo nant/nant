@@ -19,6 +19,7 @@
 
 using System;
 using System.Globalization;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
@@ -50,7 +51,7 @@ namespace NAnt.Core.Attributes {
                 Convert.ToBoolean(value, CultureInfo.InvariantCulture);
             } catch (Exception ex) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot resolve '{0}' to boolean value.", value.ToString()), ex);
+                                                            ResourceUtils.GetString("NA1088"), value.ToString()), ex);
             }
         }
 

@@ -206,7 +206,7 @@ namespace NAnt.Core.Tasks {
                     }
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Failed to write message to file '{0}'.", File.FullName), 
+                        ResourceUtils.GetString("NA1116"), File.FullName), 
                         Location, ex);
                 }
             } else { // output to build log

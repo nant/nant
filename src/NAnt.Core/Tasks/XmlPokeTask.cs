@@ -26,6 +26,7 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -152,7 +153,7 @@ namespace NAnt.Core.Tasks {
             // ensure the specified xml file exists
             if (!XmlFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "XML file '{0}' does not exist.", XmlFile.FullName), Location);
+                    ResourceUtils.GetString("NA1154"), XmlFile.FullName), Location);
             }
 
             try {
@@ -177,7 +178,7 @@ namespace NAnt.Core.Tasks {
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not poke at XML file '{0}'.", XmlFile.FullName), 
+                                                       ResourceUtils.GetString("NA1159"), XmlFile.FullName), 
                     Location, ex);
             }
         }
@@ -210,7 +211,7 @@ namespace NAnt.Core.Tasks {
                 return document;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to load the XML document '{0}'.", fileName), Location,
+                    ResourceUtils.GetString("NA1158"), fileName), Location,
                     ex);
             }
         }
@@ -254,7 +255,7 @@ namespace NAnt.Core.Tasks {
                 return nodes;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to select nodes with XPath expression '{0}'.",
+                    ResourceUtils.GetString("NA1161"),
                     xpath), Location, ex);
             }
         }
@@ -299,7 +300,7 @@ namespace NAnt.Core.Tasks {
                     + " to '{0}'.", fileName);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to save the XML document to '{0}'.", fileName), 
+                    ResourceUtils.GetString("NA1162"), fileName), 
                     Location, ex);
             }
         }

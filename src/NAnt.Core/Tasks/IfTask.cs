@@ -301,7 +301,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "PropertyTrue test failed for '{0}'.", PropertyNameTrue), Location, ex);
+                            ResourceUtils.GetString("NA1126"), PropertyNameTrue), Location, ex);
                     }
                 }
 

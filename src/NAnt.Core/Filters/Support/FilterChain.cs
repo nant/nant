@@ -235,8 +235,7 @@ namespace NAnt.Core.Filters {
 
                 if (addMethod == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Child element type {0} cannot be added to collection" +
-                        " {1} for underlying property {2} for <{3} ... />.", elementType.FullName,
+                        ResourceUtils.GetString("NA1020"), elementType.FullName,
                         propertyInfo.PropertyType.FullName, propertyInfo.Name, Name),
                         Location);
                 }
@@ -246,8 +245,7 @@ namespace NAnt.Core.Filters {
                 if (collection == null) {
                     if (!propertyInfo.CanWrite) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "BuildElementArrayAttribute cannot be applied to read-only property with" +
-                            " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                            ResourceUtils.GetString("NA1093"), 
                             buildElementArrayAttribute.Name, Name), 
                             Location);
                     }

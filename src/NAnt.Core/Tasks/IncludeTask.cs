@@ -110,7 +110,7 @@ namespace NAnt.Core.Tasks {
             // This might not be a firm requirement but you could get some real 
             // funky errors if you start including targets wily-nily.
             if (Parent != null && !(Parent is Project)) {
-                throw new BuildException("Task not allowed in targets.  Must be at project level.", Location);
+                throw new BuildException(ResourceUtils.GetString("NA1180"), Location);
             }
             if (StringUtils.IsNullOrEmpty(_currentBasedir) || _nestinglevel == 0) {
                 _currentBasedir = Project.BaseDirectory;
@@ -123,14 +123,14 @@ namespace NAnt.Core.Tasks {
                 buildFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not include build file '{0}'.", BuildFileName),
+                    ResourceUtils.GetString("NA1128"), BuildFileName),
                     Location, ex);
             }
 
             // check for recursive includes
             foreach (string currentFileName in _includedFileNames) {
                 if (currentFileName == buildFileName) {
-                    throw new BuildException("Recursive includes are not allowed.", Location);
+                    throw new BuildException(ResourceUtils.GetString("NA1179"), Location);
                 }
             }
         } 
@@ -142,12 +142,12 @@ namespace NAnt.Core.Tasks {
             // check if build file exists
             if (!File.Exists(includedFileName)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Build file '{0}' does not exist.", includedFileName), Location);
+                    ResourceUtils.GetString("NA1127"), includedFileName), Location);
             }
 
             // check if file has already been mapped
             if (Project.LocationMap.FileIsMapped(includedFileName)) {
-                Log(Level.Verbose, "Duplicate include of file '{0}'.", includedFileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_DuplicateInclude"), includedFileName);
                 return;
             }
             
@@ -174,7 +174,7 @@ namespace NAnt.Core.Tasks {
                 throw;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not include build file '{0}'.", includedFileName),
+                    ResourceUtils.GetString("NA1128"), includedFileName),
                     Location, ex);
             } finally {
                 // pop off the stack

@@ -212,7 +212,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Failed to move {0} to {1}.", sourcePath, destinationPath),
+                            ResourceUtils.GetString("NA1138"), sourcePath, destinationPath),
                             Location, ex);
                     }
                 }
