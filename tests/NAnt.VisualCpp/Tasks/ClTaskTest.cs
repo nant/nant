@@ -61,6 +61,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure simple compile works.</summary>
         [Test]
         public void Test_HelloWorldCompile() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             string result = RunBuild(_test_build);
             Assertion.Assert("Object file not created.", File.Exists(Path.Combine(_objDir, "HelloWorld.obj")));
         }
