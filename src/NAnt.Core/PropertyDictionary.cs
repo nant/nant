@@ -278,51 +278,18 @@ namespace NAnt.Core {
         /// <param name="state">A mapping from properties to states. The states in question are "VISITING" and "VISITED". Must not be <see langword="null" />.</param>
         /// <param name="visiting">A stack of properties which are currently being visited. Must not be <see langword="null" />.</param>
         /// <returns>The expanded and replaced string.</returns>
-        internal string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {
-            if (!DisableExpressionEvaluator) {
-                return EvaluateEmbeddedExpressions(input, location, state, visiting);
-            }
-            
-            string output = input;
-            if (input != null) {
-                const string pattern = @"\$\{([^\}]*)\}";
-                foreach (Match m in Regex.Matches(input, pattern)) {
-                    if (m.Length > 0) {
-                        string token = m.ToString();
-                        string propertyName = m.Groups[1].Captures[0].Value;
-
-                        string currentState = (string) state[propertyName];
-
-                        // check for circular references
-                        if (currentState == PropertyDictionary.Visiting) {
-                            // currently visiting this node, so have a cycle
-                            throw CreateCircularException(propertyName, visiting);
-                        }
-
-                        visiting.Push(propertyName);
-
-                        state[propertyName] = PropertyDictionary.Visiting;
-
-                        string propertyValue = (string) Dictionary[(object) propertyName];
-
-                        if (propertyValue != null) {
-                            if (IsDynamicProperty(propertyName)) {
-                                propertyValue = ExpandProperties(propertyValue, location, state, visiting);
-                            }
-                        } else {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Property '{0}' has not been set.", propertyName), location);
-                        }
-                        output = output.Replace(token, propertyValue);
-
-                        visiting.Pop();
-                        state[propertyName] = PropertyDictionary.Visited;
-                    }
-                }
-            }
-            return output;
+        internal string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {            
+            return EvaluateEmbeddedExpressions(input, location, state, visiting);
         }
-
+        
+        /// <summary>
+        /// Evaluates the given expression string and returns the result
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="location"></param>
+        /// <param name="state"></param>
+        /// <param name="visiting"></param>
+        /// <returns></returns>
         private string EvaluateEmbeddedExpressions(string input, Location location, Hashtable state, Stack visiting) {
             if (input == null) {
                 return null;
@@ -460,12 +427,6 @@ namespace NAnt.Core {
         #endregion Private Instance Fields
 
         #region Private Static Fields
-
-        /// <summary>
-        /// A global flag to disable expression evaluator. Useful to revert to pre-EE 
-        /// NAnt behaviour.
-        /// </summary>
-        internal static bool DisableExpressionEvaluator = false;
 
         /// <summary>
         /// Constant for the "visiting" state, used when traversing a DFS of 

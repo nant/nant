@@ -89,20 +89,7 @@ namespace NAnt.Core {
             get { return _debug; }
             set { _debug = value; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether expression evaluator should be disabled
-        /// </summary>
-        /// <value>
-        /// <see langword="true" /> if expression evaluator should be disabled
-        /// otherwise, <see langword="false" />. The default is <see langword="false" />.
-        /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "disable-ee", Description = "disables expression evaluator")]
-        public bool DisableExpressionEvaluator {
-            get { return _disableEE; }
-            set { _disableEE = value; }
-        }
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether only error and debug debug messages should be
         /// displayed during the build process.
@@ -264,7 +251,6 @@ namespace NAnt.Core {
         private bool _quiet;
         private bool _verbose;
         private bool _debug;
-        private bool _disableEE;
         private int _indentationLevel = 0;
         private bool _findInParent;
         private StringCollection _properties = new StringCollection();

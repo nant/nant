@@ -120,10 +120,6 @@ namespace NAnt.Core {
                     project.Properties.AddReadOnly((string) de.Key, (string) de.Value);
                 }
 
-                // HACK: this allows the user to disable EE until it's stable 
-                PropertyDictionary.DisableExpressionEvaluator = cmdlineOptions.DisableExpressionEvaluator;
-                // END OF HACK
-
                 //add these here and in the project .ctor
                 Assembly ass = Assembly.GetExecutingAssembly();
 
