@@ -28,7 +28,7 @@ using System.Xml.Xsl;
 
 using NDoc.Core;
 
-namespace NAnt.Documenter.NDoc {
+namespace NDoc.Documenter.NAnt {
     /// <summary>
     /// NDoc Documenter for building custom NAnt User documentation.
     /// </summary>
