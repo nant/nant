@@ -270,6 +270,12 @@ namespace SourceForge.NAnt {
 
             // scan subfolders
             foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
+                // test subfolder as member of fileset before scanning
+                string dirname = Path.Combine(path, directoryInfo.Name);
+                if (IsPathIncluded(dirname, caseSensitive)) {
+                    _fileNames.Add(dirname);
+                }
+                ////
                 ScanDirectory(directoryInfo.FullName);
             }
 
