@@ -25,8 +25,9 @@ using System.Reflection;
 using System.Globalization;
 
 using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
     [FunctionSet("directory", "Directory")]
@@ -105,6 +106,39 @@ namespace NAnt.Core.Functions {
             }
 
             return Directory.GetLastAccessTime(dirPath);
+        }
+
+        /// <summary>
+        /// Retrieves the parent directory of the specified path.
+        /// </summary>
+        /// <param name="path">The path for which to retrieve the parent directory.</param>
+        /// <returns>
+        /// The parent directory, or an empty <see cref="string" /> if 
+        /// <paramref name="path" /> is the root directory, including the root 
+        /// of a UNC server or share name.
+        /// </returns>
+        [Function("get-parent-directory")]
+        public string GetParentDirectory(string path) {
+            DirectoryInfo parentDirectory = Directory.GetParent(
+                Project.GetFullPath(path));
+            return parentDirectory != null ?  parentDirectory.FullName 
+                : string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the volume information, root information, or both for the 
+        /// specified path.
+        /// </summary>
+        /// <param name="path">The path for which to retrieve the parent directory.</param>
+        /// <returns>
+        /// A string containing the volume information, root information, or 
+        /// both for the specified path.
+        /// </returns>
+        [Function("get-directory-root")]
+        public string GetDirectoryRoot(string path) {
+            string directoryRoot = Directory.GetDirectoryRoot(
+                Project.GetFullPath(path));
+            return StringUtils.ConvertNullToEmpty(directoryRoot);
         }
 
         /// <summary>
