@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using ICSharpCode.SharpCvsLib.Client;
 using ICSharpCode.SharpCvsLib.Commands;
@@ -28,6 +29,7 @@ using ICSharpCode.SharpCvsLib.Misc;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.SourceControl.Tasks {
@@ -42,12 +44,12 @@ namespace NAnt.SourceControl.Tasks {
         private string _module;
         private string _destination;
         private string _password;
-        private string _tag;
 
         private CvsRoot _root;
         private WorkingDirectory _workingDirectory;
         private CVSServerConnection _connection;
         private ICommand _command;
+        private OptionCollection _options = new OptionCollection();
 
         #endregion Private Instance Fields
 
@@ -117,16 +119,14 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// The revision tag to use when fetching/ updating the repository
-        ///     files.  If no revision tag is specified in this property then
-        ///     in the case of an update the default revision tag specified 
-        ///     in the CVS/Tag file is used.  If this does not exist then the
-        ///     default revision, or the <code>HEAD</code> revision is used.
+        ///     A collection of options that can be used to modify cvs 
+        ///         checkouts/ updates.  Valid options include:
+        ///             <code>sticky-tag</code>
+        ///             <code>override-directory</code>
         /// </summary>
-        [TaskAttribute ("tag")]
-        public string Tag {
-            get {return _tag;}
-            set {_tag = StringUtils.ConvertEmptyToNull(value);}
+        [BuildElementCollection("options")]
+        public OptionCollection Options {
+            get {return _options;}
         }
 
         #endregion Public Instance Properties
@@ -185,10 +185,12 @@ namespace NAnt.SourceControl.Tasks {
             this.Root = new CvsRoot(this.CvsRoot);
             this.WorkingDirectory = new WorkingDirectory(this.Root, 
                 this.Destination, this.Module);
+
+            this.SetOptions (this.WorkingDirectory);
+            Logger.Debug ("this.WorkingDirectory.Revision=[" + this.WorkingDirectory.Revision + "]");
+
             this.Connection = new CVSServerConnection();
             this.Command = this.CreateCommand();
-
-            this.WorkingDirectory.Revision = this.Tag;
 
             this.Validate ();
 
@@ -238,6 +240,39 @@ namespace NAnt.SourceControl.Tasks {
                     ";  Working directory name=[" + this.WorkingDirectory.WorkingDirectoryName + "]" +
                     "Command=[" + this.Command + "]";
                 Logger.Info(msg);
+            }
+        }
+
+        /// <summary>
+        /// Set the checkout/ update options.
+        /// </summary>
+        /// <param name="workingDirectory">Information about the cvs repository
+        ///     and local sandbox.</param>
+        private void SetOptions (WorkingDirectory workingDirectory) {
+            Logger.Debug ("Setting options");
+            foreach (Option option in _options) {
+                Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
+                Logger.Debug ("option.Value=[" + option.Value + "]");
+                switch (option.OptionName) {
+                    case "sticky-tag":
+                    case "-r":
+                        workingDirectory.Revision =
+                            option.Value;
+                        Logger.Debug ("setting sticky-tag=[" + option.Value + "]");
+                        break;
+                    case "override-directory":
+                    case "-d":
+                        workingDirectory.OverrideDirectory = 
+                            option.Value;
+                        Logger.Debug ("setting override-directory=[" + option.Value + "]");
+                        break;
+                    default:
+                        StringBuilder msg = new StringBuilder ();
+                        msg.Append("\nUnsupported argument.");
+                        msg.Append("\n\tname=[").Append (option.OptionName).Append ("]");
+                        msg.Append("\n\tvalue=[").Append(option.Value).Append ("]");
+                        throw new NotSupportedException (msg.ToString ());
+                }
             }
         }
 

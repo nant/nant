@@ -45,6 +45,42 @@ namespace NAnt.SourceControl.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>Update your nant revision named: "your_favorite_revision_here"
+    ///     in the folder "c:\src\nant\replacement_for_module_directory_name".</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <cvs-checkout 
+    ///     destination="c:\src\nant\" 
+    ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    ///     password="" 
+    ///     module="nant">
+    ///     <options>
+    ///         <option name="sticky-tag" value="your_favorite_revision_here" />
+    ///         <option name="override-directory" value="replacement_for_module_directory_name" />
+    ///     </options>
+    /// <cvs-checkout>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>Update your nant revision named: "your_favorite_revision_here"
+    ///     in the folder "c:\src\nant\replacement_for_module_directory_name".</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <cvs-update 
+    ///     destination="c:\src\nant\" 
+    ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    ///     password="" 
+    ///     module="nant">
+    ///     <options>
+    ///         <option name="-r" value="your_favorite_revision_here" />
+    ///         <option name="-d" value="replacement_for_module_directory_name" />
+    ///     </options>
+    /// <cvs-update>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("cvs-update")]
     public class UpdateTask : AbstractCvsTask {
         #region Private Static Fields
