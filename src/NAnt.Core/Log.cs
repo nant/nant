@@ -661,6 +661,10 @@ namespace NAnt.Core {
             }
         }
 
+        #endregion Private Instance Methods
+
+        #region Private Static Methods
+
         private static BuildEventArgs CreateBuildEvent(Level messageLevel, string message) {
             BuildEventArgs buildEvent = new BuildEventArgs();
             buildEvent.MessageLevel = messageLevel;
@@ -668,7 +672,7 @@ namespace NAnt.Core {
             return buildEvent;
         }
 
-        #endregion Private Instance Methods
+        #endregion Private Static Methods
 
         #region Private Instance Fields
 
