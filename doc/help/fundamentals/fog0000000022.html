@@ -1,0 +1,60 @@
+<!-- Published by Fog Creek Software CityDesk KMAOLQRKGNJKSMQD/76B20119/22 -->
+<!-- topic template -->
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="en-ca" />
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<meta name="description" content="Build Files" />
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<title>Build Files</title>
+</head>
+
+<body>
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+		<tr><td class="NavBar-Cell" width="100%">
+			<a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<a href="../index.html">Help</a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<A href="fog0000000027.html">Fundamentals</A> <IMG height=9 alt="->" src="../images/arrow.gif" width=13 border=0>
+			Build Files
+		</td></tr>
+	</table>
+	<h1>Build Files</h1>
+	<P>NAnt's build files are written in XML. Each build file contains one <A href="fog0000000023.html">project</A>&nbsp;and a number of <A href="fog0000000024.html">targets</A>.&nbsp; Each target contains a number of <A href="fog0000000025.html">tasks</A>.</P>
+<P>Here is a simple build file that compiles a C# HelloWorld project.&nbsp; </P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px"><PRE>&lt;?xml version="1.0"?&gt;
+&lt;project name="Hello World" default="build" basedir="."&gt;
+    &lt;description&gt;The Hello World of build files.&lt;/description&gt;<BR>    &lt;property name="debug" value="true"/&gt;
+
+    &lt;target name="clean" description="remove all generated files"&gt;
+        &lt;delete file="HelloWorld.exe" failonerror="false"/&gt;
+        &lt;delete file="HelloWorld.pdb" failonerror="false"/&gt;
+    &lt;/target&gt;
+
+    &lt;target name="build" description="compiles the source code"&gt;
+        &lt;csc target="exe" output="HelloWorld.exe" debug="${debug}"&gt;
+            &lt;sources&gt;
+                &lt;includes name="HelloWorld.cs"/&gt;
+            &lt;/sources&gt;
+        &lt;/csc&gt;
+    &lt;/target&gt;
+&lt;/project&gt;</PRE></BLOCKQUOTE>
+<P>In this example there are two targets, clean and build.&nbsp; By default the build target will be called.</P>
+<H3>Examples</H3>
+<P>You can find the files you need to try out these examples in the <CODE>examples</CODE> folder that comes with the NAnt distribution.</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt and builds the project in debug mode (the default).</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant clean</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt and removes the compiled files if they exist.</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant -D:debug=false</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt and builds the project in non-debug mode.&nbsp; Even though the build file sets the debug property to true, properties set on the command line override any properties set in the build file.</P>
+<P><STRONG>Important</STRONG>: Some tasks like the compiler tasks will only execute if the date stamp of the generated file is older than the source files.&nbsp; If you compile HelloWorld project in debug mode and then try to compile it again in non-debug mode without first cleaning nothing will happen because NAnt will think the project does not need rebuilding.</P>
+</body>
+
+</html>
+

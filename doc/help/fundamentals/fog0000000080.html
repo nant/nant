@@ -1,0 +1,50 @@
+<!-- Published by Fog Creek Software CityDesk KMAOLQRKGNJKSMQD/76B20119/80 -->
+<!-- topic template -->
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="en-ca" />
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<meta name="description" content="Running NAnt" />
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<title>Running NAnt</title>
+</head>
+
+<body>
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+		<tr><td class="NavBar-Cell" width="100%">
+			<a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<a href="../index.html">Help</a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<A href="fog0000000027.html">Fundamentals</A> <IMG height=9 alt="->" src="../images/arrow.gif" width=13 border=0>
+			Running NAnt
+		</td></tr>
+	</table>
+	<h1>Running NAnt</h1>
+	<P>Running NAnt is simple once you have it <A href="../introduction/fog0000000013.html">installed</A>,&nbsp;just type <NOBR><CODE>nant</CODE></NOBR>.&nbsp;&nbsp;Type <NOBR><CODE>nant -help</CODE></NOBR> to get usage information.</P>
+<H3>Specifying the Build File</H3>
+<P>When nothing is specified, NAnt looks for a file ending with <NOBR><CODE>.build</CODE></NOBR>, e.g., <NOBR><CODE>nant.build</NOBR></CODE>, in the current directory.&nbsp; If found, it uses that file as the build file.&nbsp; If more than one file is found you need to specify the build file using the <NOBR><CODE>-buildfile</NOBR></CODE> option (see below).</P>
+<P>If you use the <NOBR><CODE>-find</NOBR></CODE> option, NAnt will search for a build file in the parent directory, and so on, until the root of the file system has been reached.&nbsp; To make NAnt use another build file, use the command-line option -buildfile:<EM>file</EM>, where <EM>file</EM> is the build file you want to use.</P>
+<H3>Specifying Targets</H3>
+<P>You can specify one or more targets that should be executed. When omitted, the target that is specified in the <CODE>default</CODE> attribute of the <CODE>&lt;project&gt;</CODE> tag is used.</P>
+<P>The <NOBR><CODE>-projecthelp</CODE></NOBR> option prints out the description of the project, if it exists, followed by a list of the project's targets. First those with a description, then those without one.</P>
+<H3>Setting Properties</H3>
+<P>To override properties specified in the build file use the <NOBR><CODE>-D<I>property</I>=<I>value</I></CODE></NOBR> option, where <I>property</I> is the name of the property, and <I>value</I> is the value for that property.&nbsp; By default all environment variables are imported into with the <CODE>nant.env.*</CODE> prefix, e.g., the property <CODE>nant.env.PATH</CODE> would contain the current path.</P>
+<H3>Examples</H3>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt using the file ending in&nbsp;<CODE>*.build.xml</CODE> file in the current directory, on the default target.</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant -buildfile:..\ProjectName.build</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt using the <CODE>ProjectName.build</CODE> file in the parent directory, on the default target.</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant clean</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt using the default build file in the current directory, on a target called <CODE>clean</CODE>.</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+<DIV><PRE>nant -D:debug=false clean dist</PRE></DIV></BLOCKQUOTE>
+<P>Runs NAnt using the default build file in the current directory, first on the&nbsp;<CODE>clean</CODE> target and then on the <CODE>dist</CODE> target while setting the <CODE>debug</CODE> property to <CODE>false</CODE>.&nbsp; This could, for example, make a release distribution from scratch.</P>
+</body>
+
+</html>
+

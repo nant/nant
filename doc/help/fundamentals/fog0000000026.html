@@ -1,0 +1,92 @@
+<!-- Published by Fog Creek Software CityDesk KMAOLQRKGNJKSMQD/76B20119/26 -->
+<!-- topic template -->
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="en-ca" />
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<meta name="description" content="File Sets" />
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<title>File Sets</title>
+</head>
+
+<body>
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+		<tr><td class="NavBar-Cell" width="100%">
+			<a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<a href="../index.html">Help</a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<A href="fog0000000027.html">Fundamentals</A> <IMG height=9 alt="->" src="../images/arrow.gif" width=13 border=0>
+			File Sets
+		</td></tr>
+	</table>
+	<h1>File Sets</h1>
+	<P>File Sets are groups of files.&nbsp; These files can be found in a directory tree starting in a base directory and are matched by patterns taken from a number of patterns.&nbsp; File Sets can appear inside tasks that support this feature or at the project level, i.e., as children of <CODE>project</CODE>.</P>
+<DIV class=Table-Section>
+<TABLE class=Table>
+<TBODY>
+<TR>
+<TH class=Table-Header>Attribute</TH>
+<TH class=Table-Header>Description</TH>
+<TH class=Table-Header align=middle>Required</TH></TR>
+<TR>
+<TD class=Table-Cell>basedir</TD>
+<TD class=Table-Cell>The base of the directory tree of this FileSet.</TD>
+<TD class=Table-Cell align=middle>Yes</TD></TR>
+<TR>
+<TD class=Table-Cell>defaultexcludes</TD>
+<TD class=Table-Cell>Indicates whether default excludes should be used or not (<CODE>true | false</CODE>); default excludes are used when omitted.</TD>
+<TD class=Table-Cell align=middle>No</TD></TR>
+<TR>
+<TD class=Table-Cell>includes</TD>
+<TD class=Table-Cell>comma-separated list of patterns of files that must be included; all files are included when omitted.</TD>
+<TD class=Table-Cell align=middle>No</TD></TR>
+<TR>
+<TD class=Table-Cell>excludes</TD>
+<TD class=Table-Cell>comma-separated list of patterns of files that must be excluded; no files (except default excludes) are excluded when omitted.</TD>
+<TD class=Table-Cell align=middle>No</TD></TR></TBODY></TABLE></DIV>
+<P>The following patterns are excluded by default:</P>
+<UL>
+<LI>
+<DIV>**/CVS/*</DIV>
+<LI>
+<DIV>**/.cvsignore</DIV></LI></UL>
+<H3><A name=patterns>Patterns</A></H3>
+<P>As described earlier, patterns are used for the inclusion and exclusion. These patterns look very much like the patterns used in DOS and UNIX:</P>
+<P>'*' matches zero or more characters, '?' matches one character.</P>
+<P><CODE>*.java</CODE>&nbsp;&nbsp;matches&nbsp;&nbsp;<CODE>.java</CODE>, <CODE>x.java</CODE> and <CODE>FooBar.java</CODE>, but not <CODE>FooBar.xml</CODE> (does not end with <CODE>.java</CODE>).</P>
+<P><CODE>?.java</CODE>&nbsp;&nbsp;matches&nbsp;&nbsp;<CODE>x.java</CODE>, <CODE>A.java</CODE>, but not <CODE>.java</CODE> or <CODE>xyz.java</CODE> (both don't have one character before <CODE>.java</CODE>).</P>
+<P>Combinations of <CODE>*</CODE>'s and <CODE>?</CODE>'s are allowed.</P>
+<P>Matching is done per-directory. This means that first the first directory in the pattern is matched against the first directory in the path to match. Then the second directory is matched, and so on. For example, when we have the pattern <CODE>/?abc/*/*.java</CODE> and the path <CODE>/xabc/foobar/test.java</CODE>, the first <CODE>?abc</CODE> is matched with <CODE>xabc</CODE>, then <CODE>*</CODE> is matched with <CODE>foobar</CODE>, and finally <CODE>*.java</CODE> is matched with <CODE>test.java</CODE>. They all match, so the path matches the pattern.</P>
+<P>To make things a bit more flexible, we add one extra feature, which makes it possible to match multiple directory levels. This can be used to match a complete directory tree, or a file anywhere in the directory tree. To do this, <CODE>**</CODE> must be used as the name of a directory. When <CODE>**</CODE> is used as the name of a directory in the pattern, it matches zero or more directories. For example: <CODE>/test/**</CODE> matches all files/directories under <CODE>/test/</CODE>, such as <CODE>/test/x.java</CODE>, or <CODE>/test/foo/bar/xyz.html</CODE>, but not <CODE>/xyz.xml</CODE>.</P>
+<P>There is one "shorthand" - if a pattern ends with <CODE>/</CODE> or <CODE>\</CODE>, then <CODE>**</CODE> is appended. For example, <CODE>mypackage/test/</CODE> is interpreted as if it were <CODE>mypackage/test/**</CODE>.</P>
+<H3>Examples</H3>
+<DIV class=Table-Section>
+<TABLE class=Table>
+<TBODY>
+<TR>
+<TR>
+<TH class=Table-Header>Pattern</TH>
+<TH class=Table-Header>Match</TH></TR>
+<TR>
+<TD class=Table-Cell><CODE>**/CVS/*</CODE></TD>
+<TD class=Table-Cell>Matches all files in <CODE>CVS</CODE> directories that can be located anywhere in the directory tree.<BR>Matches: <PRE>      CVS/Repository
+      org/apache/CVS/Entries
+      org/apache/jakarta/tools/ant/CVS/Entries     </PRE>But not: <PRE>      org/apache/CVS/foo/bar/Entries</PRE>(<CODE>foo/bar/</CODE> part does not match)</TD><PRE></PRE></TR>
+<TR>
+<TD class=Table-Cell><CODE>org/apache/jakarta/**</CODE></TD>
+<TD class=Table-Cell>Matches all files in the <CODE>org/apache/jakarta</CODE> directory tree.<BR>Matches: <PRE>      org/apache/jakarta/tools/ant/docs/index.html
+      org/apache/jakarta/test.xml      </PRE>But not: <PRE>      org/apache/xyz.java      </PRE>(<CODE>jakarta/</CODE> part is missing)</TD></TR>
+<TR>
+<TD class=Table-Cell><CODE>org/apache/**/CVS/*</CODE></TD>
+<TD class=Table-Cell>Matches all files in <CODE>CVS</CODE> directories that are located anywhere in the directory tree under <CODE>org/apache</CODE>.<BR>Matches: <PRE>      org/apache/CVS/Entries
+      org/apache/jakarta/tools/ant/CVS/Entries      </PRE>But not: <PRE>      org/apache/CVS/foo/bar/Entries     </PRE>(<CODE>foo/bar/</CODE> part does not match)</TD></TR>
+<TR>
+<TD class=Table-Cell><CODE>**/test/**</CODE></TD>
+<TD class=Table-Cell>Matches all files that have a <CODE>test</CODE> element in their path, including <CODE>test</CODE> as a filename.</TD></TR></TBODY></TABLE></DIV>
+<P>&nbsp;</P>
+</body>
+
+</html>
+

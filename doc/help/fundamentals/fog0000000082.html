@@ -1,0 +1,80 @@
+<!-- Published by Fog Creek Software CityDesk KMAOLQRKGNJKSMQD/76B20119/82 -->
+<!-- topic template -->
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="en-ca" />
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<meta name="description" content="Properties" />
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<title>Properties</title>
+</head>
+
+<body>
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+		<tr><td class="NavBar-Cell" width="100%">
+			<a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<a href="../index.html">Help</a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<A href="fog0000000027.html">Fundamentals</A> <IMG height=9 alt="->" src="../images/arrow.gif" width=13 border=0>
+			Properties
+		</td></tr>
+	</table>
+	<h1>Properties</h1>
+	<P>A project can have a set of properties.&nbsp; These might be set in the buildfile by the property task, or might be set outside NAnt.&nbsp; A property has a name and a value.&nbsp; Properties may be used in the value of task attributes.&nbsp; This is done by placing the property name between "<CODE>${</CODE>" and "<CODE>}</CODE>" in the attribute value.</P>
+<H3>
+<P><EM></EM></P>Built-in Properties</H3>
+<P>NAnt has these built-in properties:</P>
+<DIV class=Table-Section>
+<TABLE class=Table>
+<TBODY>
+<TR>
+<TH class=Table-Header>Property</TH>
+<TH class=Table-Header>Description</TH></TR>
+<TR>
+<TD class=Table-Cell>nant.version</TD>
+<TD class=Table-Cell>The version of NAnt.</TD></TR>
+<TR>
+<TD class=Table-Cell>nant.filename</TD>
+<TD class=Table-Cell>The full path to the NAnt assembly.</TD></TR>
+<TR>
+<TD class=Table-Cell>nant.project.basedir</TD>
+<TD class=Table-Cell>The absolute path of the project's basedir.</TD></TR>
+<TR>
+<TD class=Table-Cell>nant.project.buildfile</TD>
+<TD class=Table-Cell>The absolute path of the buildfile.</TD></TR>
+<TR>
+<TD class=Table-Cell>nant.project.name</TD>
+<TD class=Table-Cell>The name of the project.</TD></TR>
+<TR>
+<TD class=Table-Cell>nant.project.default</TD>
+<TD class=Table-Cell>The name of the project's default target.</TD></TR>
+<TR>
+<TD class=Table-Cell>nant.task.*</TD>
+<TD class=Table-Cell>Each task available to nant has a "true" value, e.g., nant.task.copy</TD></TR></TBODY></TABLE></DIV>
+<H3>Example</H3>
+<P>The following build file:</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px"><PRE>&lt;?xml version="1.0"?&gt;
+&lt;project name="Property Test" default="test" basedir="."&gt;
+    &lt;property name="project.name" value="PropertyTest"/&gt;
+    &lt;property name="project.version" value="1.0.0"/&gt;
+    &lt;target name="test"&gt;
+        &lt;echo message="Building ${project.name}-${project.version}"/&gt;
+    &lt;/target&gt;
+&lt;/project&gt;</PRE></BLOCKQUOTE>
+<P>Would display this as output:</P>
+<BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px"><PRE>[echo] Building PropertyTest-1.0.0</PRE></BLOCKQUOTE>
+<H3>See Also</H3>
+<UL>
+<LI>
+<DIV><A href="../tasks/propertytask.html">&lt;property&gt;</A></DIV>
+<LI>
+<DIV><A href="../tasks/sysinfotask.html">&lt;sysinfo&gt;</A></DIV>
+<LI>
+<DIV><A href="../tasks/tstamptask.html">
+<DIV>&lt;tstamp&gt;</DIV></A></DIV></LI></UL>
+</body>
+
+</html>
+

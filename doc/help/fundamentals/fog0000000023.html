@@ -1,0 +1,50 @@
+<!-- Published by Fog Creek Software CityDesk KMAOLQRKGNJKSMQD/76B20119/23 -->
+<!-- topic template -->
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="en-ca" />
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<meta name="description" content="Projects" />
+	<link rel="stylesheet" type="text/css" href="../style.css" />
+	<title>Projects</title>
+</head>
+
+<body>
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+		<tr><td class="NavBar-Cell" width="100%">
+			<a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<a href="../index.html">Help</a> 
+			<img alt="->" src="../images/arrow.gif" /> 
+			<A href="fog0000000027.html">Fundamentals</A> <IMG height=9 alt="->" src="../images/arrow.gif" width=13 border=0>
+			Projects
+		</td></tr>
+	</table>
+	<h1>Projects</h1>
+	<P>A project has these attributes:</P>
+<DIV class=Table-Section>
+<TABLE class=Table>
+<TBODY>
+<TR>
+<TH class=Table-Header>Attribute</TH>
+<TH class=Table-Header>Description</TH>
+<TH class="Table-Header align=" center?>Required</TH></TR>
+<TR>
+<TD class=Table-Cell>name</TD>
+<TD class=Table-Cell>The name of the project.</TD>
+<TD class=Table-Cell align=middle>No</TD></TR>
+<TR>
+<TD class=Table-Cell>default</TD>
+<TD class=Table-Cell>The default target to use when no target is supplied.</TD>
+<TD class=Table-Cell align=middle>Yes</TD></TR>
+<TR>
+<TD class=Table-Cell>basedir</TD>
+<TD class=Table-Cell>The base directory from which all path calculations are done.&nbsp; The current directory is used by default.</TD>
+<TD class=Table-Cell align=middle>No</TD></TR></TBODY></TABLE></DIV>
+<P>Optionally, a description for the project can be provided as a top-level &lt;description&gt; element.&nbsp; The text contained in the description element is used when the <NOBR><CODE>-projecthelp</CODE></NOBR> command line option is used.&nbsp; See the <A href="fog0000000022.html">example build file</A> for details.</P>
+<P>Each project defines one or more <A href="fog0000000024.html">targets</A>.&nbsp; A target is a set of <A href="fog0000000025.html">tasks</A> to be executed.&nbsp; When starting NAnt, you can select which target(s) you want to have executed.&nbsp; When no target is given, the project's default is used.</P>
+</body>
+
+</html>
+
