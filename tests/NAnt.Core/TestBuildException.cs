@@ -108,7 +108,16 @@ namespace Tests.NAnt.Core {
         #endregion Override implementation of ISerializable
 
         public override string Message {
-            get {return base.Message;}
+            get {
+                // TO-DO : just output base.Message when NUnit is fixed to also
+                // output message of innerexception.  This should be fixed in
+                // NUnit 2.1
+                if(InnerException != null) {
+                    return base.Message + Environment.NewLine + InnerException.Message;
+                } else {
+                    return base.Message;
+                }
+            }
         }
 
         #region Override implementation of Object
