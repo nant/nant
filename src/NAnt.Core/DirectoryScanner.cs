@@ -104,15 +104,15 @@ namespace NAnt.Core {
         private DirectoryInfo _baseDirectory; 
 
         // holds the nant patterns (absolute or relative paths)
-        private DirScannerStringCollection _includes = new DirScannerStringCollection();
-        private DirScannerStringCollection _excludes = new DirScannerStringCollection();
+        private StringCollectionWithGoodToString  _includes = new StringCollectionWithGoodToString ();
+        private StringCollectionWithGoodToString  _excludes = new StringCollectionWithGoodToString ();
 
         // holds the nant patterns converted to regular expression patterns (absolute canonized paths)
-        private DirScannerStringCollection _includePatterns = null;
-        private DirScannerStringCollection _excludePatterns = null;
+        private StringCollectionWithGoodToString  _includePatterns = null;
+        private StringCollectionWithGoodToString  _excludePatterns = null;
 
         // holds the result from a scan
-        private DirScannerStringCollection _fileNames = null;
+        private StringCollectionWithGoodToString  _fileNames = null;
         private DirScannerStringCollection _directoryNames = null;
 
         // directories that should be scanned and directories scanned so far
@@ -133,14 +133,14 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the collection of include patterns.
         /// </summary>
-        public DirScannerStringCollection Includes {
+        public StringCollectionWithGoodToString Includes {
             get { return _includes; }
         }
 
         /// <summary>
         /// Gets the collection of exclude patterns.
         /// </summary>
-        public DirScannerStringCollection Excludes {
+        public StringCollectionWithGoodToString Excludes {
             get { return _excludes; }
         }
 
@@ -161,7 +161,7 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the list of files that match the given patterns.
         /// </summary>
-        public DirScannerStringCollection FileNames {
+        public StringCollectionWithGoodToString FileNames {
             get {
                 if (_fileNames == null) {
                     Scan();
@@ -207,9 +207,9 @@ namespace NAnt.Core {
         ///     <change date="20020221" author="Ari Hännikäinen">Changed it again because of performance reasons</change>
         /// </history>
         public void Scan() {
-            _includePatterns = new DirScannerStringCollection();
-            _excludePatterns = new DirScannerStringCollection();
-            _fileNames = new DirScannerStringCollection();
+            _includePatterns = new StringCollectionWithGoodToString ();
+            _excludePatterns = new StringCollectionWithGoodToString ();
+            _fileNames = new StringCollectionWithGoodToString ();
             _directoryNames = new DirScannerStringCollection();
             _searchDirectories = new DirScannerStringCollection();
             _searchDirIsRecursive = new ArrayList();
@@ -239,7 +239,7 @@ namespace NAnt.Core {
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>
-        private void ConvertPatterns(DirScannerStringCollection nantPatterns, DirScannerStringCollection regexPatterns, bool addSearchDirectories) {
+        private void ConvertPatterns(StringCollection nantPatterns, StringCollection regexPatterns, bool addSearchDirectories) {
             string searchDirectory;
             string regexPattern;
             bool isRecursive;
@@ -336,14 +336,13 @@ namespace NAnt.Core {
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
             bool caseInsensitiveFS = !IsCaseSensitiveFileSystem(searchDirectory);
             
-            //move everything to lowercase.
-            if(caseInsensitiveFS) {
-                searchDirectory = searchDirectory.ToLower(CultureInfo.InvariantCulture);
-            }
+            //if the fs in case insensitive, make all the regex directories lowercase.
+            regexPattern = ToRegexPattern(
+                            caseInsensitiveFS ? searchDirectory.ToLower(CultureInfo.InvariantCulture) : searchDirectory, 
+                            modifiedNAntPattern);
 
-            regexPattern = ToRegexPattern(searchDirectory, modifiedNAntPattern);
 
-            // specify pattern as case-insensitive if appropriate to this file system.
+                // specify pattern as case-insensitive if appropriate to this file system.
             if (caseInsensitiveFS) {
                 regexPattern = "(?i)" + regexPattern;
             }
@@ -381,7 +380,7 @@ namespace NAnt.Core {
             DirectoryInfo currentDirectoryInfo = new DirectoryInfo(path);
 
             // check whether directory is on case-sensitive volume
-            bool caseSensitive = VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar));
+            bool caseSensitive = IsCaseSensitiveFileSystem(path);
 
             foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
                 if (recursive) {
@@ -517,9 +516,7 @@ namespace NAnt.Core {
     }
 
     [Serializable()]
-    public class DirScannerStringCollection : StringCollection {
-        #region Override implementation of Object
-
+    public class StringCollectionWithGoodToString : StringCollection {
         /// <summary>
         /// Creates a string representing a list of the strings in the collection.
         /// </summary>
@@ -533,6 +530,41 @@ namespace NAnt.Core {
                 sb.Append(Environment.NewLine);
             }
             return sb.ToString();
+        }
+        
+    }
+    [Serializable()]
+    public class DirScannerStringCollection : StringCollectionWithGoodToString  {
+        #region Override implementation of StringCollection        
+
+        //provides for a case insensitive match based on the file system.
+        public new virtual bool Contains (string dir ) {
+            return (IndexOf(dir) > -1);
+        }
+
+        //provides support for filesystem case sensitivity based comparisons
+        public new virtual int IndexOf(string dir) {
+            if(!IsCaseSensitiveFileSystem(dir)) {
+                foreach(string s in this)
+                    if(s.ToLower(CultureInfo.InvariantCulture).Equals(dir.ToLower(CultureInfo.InvariantCulture))){
+                        return base.IndexOf(s);
+                    }
+                return -1;
+            }
+            else {
+                return base.IndexOf(dir);
+            }
+            
+                 
+        }
+
+        #endregion Override implementation of StringCollection
+
+        #region Override implementation of Object
+
+        private bool IsCaseSensitiveFileSystem(string path) {
+            // Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
+            return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar))); 
         }
 
         #endregion Override implementation of Object
