@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
@@ -27,7 +27,7 @@ using NUnit.Core;
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
-    /// Custom TestDomain, similar to the one included with NUnit 2.0, in order 
+    /// Custom TestDomain, similar to the one included with NUnit, in order 
     /// to workaround some limitations in it.
     /// </summary>
     internal class NUnit2TestDomain {
@@ -45,34 +45,39 @@ namespace NAnt.NUnit2.Tasks {
         /// <summary>
         /// Runs a single testcase.
         /// </summary>
-        /// <param name="testcase">The test to run, or null if running all tests.</param>
-        /// <param name="assemblyFile"></param>
-        /// <param name="configFilePath"></param>
-        /// <param name="listener"></param>
-        /// <returns>The result of the test.</returns>
-        public TestResult RunTest ( 
-            string testcase, 
-            string assemblyFile,
-            string configFilePath, 
-            EventListener listener
-            ) {
-            string assemblyDir = Path.GetFullPath( Path.GetDirectoryName(assemblyFile) );
+        /// <param name="testcase">The test to run, or <see langword="null" /> if running all tests.</param>
+        /// <param name="assemblyFile">The test assembly.</param>
+        /// <param name="configFilePath">The application configuration file for the test domain.</param>
+        /// <param name="listener">An <see cref="EventListener" />.</param>
+        /// <returns>
+        /// The result of the test.
+        /// </returns>
+        public TestResult RunTest(string testcase, string assemblyFile, string configFilePath, EventListener listener) {
+            // get full path to directory containing test assembly
+            string assemblyDir = Path.GetFullPath(Path.GetDirectoryName(assemblyFile));
+
+            // create test domain
             AppDomain domain = CreateDomain(assemblyDir, configFilePath);
 
+            // store current directory
             string currentDir = Directory.GetCurrentDirectory();
+
+            // change current dir to directory containing test assembly
             Directory.SetCurrentDirectory(assemblyDir);
 
             try {
                 RemoteTestRunner runner = CreateTestRunner(domain);
+                runner.TestFileName = assemblyFile;
                 if (testcase != null) {
-                    runner.TestFileName = assemblyFile;
-                } else {
-                    runner.TestFileName = assemblyFile;
+                    runner.TestName = testcase;
                 }
                 runner.BuildSuite(); 
                 return runner.Run(listener, _outStream, _errorStream);
             } finally {
+                // restore original current directory
                 Directory.SetCurrentDirectory(currentDir);
+
+                // unload test domain
                 AppDomain.Unload(domain);
             }
         }
@@ -86,9 +91,9 @@ namespace NAnt.NUnit2.Tasks {
             AppDomainSetup domSetup = new AppDomainSetup();
             domSetup.ApplicationBase = basedir;
             domSetup.ConfigurationFile = configFilePath;
-            domSetup.ApplicationName = "NAnt NUnit2.0 Remote Domain";
+            domSetup.ApplicationName = "NAnt NUnit2.1 Remote Domain";
          
-            return AppDomain.CreateDomain ( 
+            return AppDomain.CreateDomain( 
                 domSetup.ApplicationName, 
                 AppDomain.CurrentDomain.Evidence, 
                 domSetup
