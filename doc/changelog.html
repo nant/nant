@@ -45,6 +45,13 @@
                 The string-based <code>files</code> and <code>attachments</code> attributes of 
                 the <code>&lt;mail&gt;</code> task have been replaced by fileset support.
             </li>
+            <li>
+                In previous versions of NAnt, the documentation stated that a target named
+                <code>nant.onfailure</code> would be executed when the build fails.  However,
+                NAnt actually executed a target named <code>nant.failure</code> (if available).
+                This has now been corrected and the old syntax (<code>nant.failure</code>) is now
+                deprecated.
+            </li>
         </ul>
         <h4>Fixed bugs</h4>
         <ul>
