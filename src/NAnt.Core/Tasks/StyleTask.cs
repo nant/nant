@@ -268,14 +268,27 @@ namespace NAnt.Core.Tasks {
                     TextWriter writer = null;
     
                     try {
-                        // load the xml that needs to be transformed
-                        Log(Level.Verbose, LogPrefix + "Loading XML file '{0}'.", 
-                            srcInfo.FullName);
-                        xmlReader = CreateXmlReader(srcInfo.FullName);
-                        XPathDocument xml = new XPathDocument(xmlReader);
-
                         // store current directory
                         string originalCurrentDirectory = Directory.GetCurrentDirectory();
+
+                        // initialize XPATH document holding input XML
+                        XPathDocument xml = null;
+
+                        try {
+                            // change current directory to directory containing
+                            // XSLT file, to allow includes to be resolved 
+                            // correctly
+                            Directory.SetCurrentDirectory(srcInfo.DirectoryName);
+
+                            // load the xml that needs to be transformed
+                            Log(Level.Verbose, LogPrefix + "Loading XML file '{0}'.", 
+                                srcInfo.FullName);
+                            xmlReader = CreateXmlReader(srcInfo.FullName);
+                            xml = new XPathDocument(xmlReader);
+                        } finally {
+                            // restore original current directory
+                            Directory.SetCurrentDirectory(originalCurrentDirectory);
+                        }
 
                         // initialize XSLT transform
                         XslTransform xslt = new XslTransform();
