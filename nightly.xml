@@ -15,7 +15,7 @@
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
     <target name="nightly" depends="set-net-1.0-framework-configuration, package, deploy-sf, install" description="Perform a 'nightly' package, and installs NAnt." />
     <!-- deploy content to sourceforge -->
-    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf">
+    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-doc-sf, deploy-web-sf">
         <!-- remove existing symlink, if it exists -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />

@@ -11,7 +11,7 @@
     <!-- perform a 'release' package and upload to sf.net -->
     <target name="build-release" depends="set-net-1.0-framework-configuration, release, package, deploy-sf, install" description="Perform a 'release' package, uploads to sf.net and installs it" />
     <!-- deploy content to sourceforge -->
-    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf">
+    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-doc-sf">
         <!-- remove existing symlink, if it exists -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
@@ -94,13 +94,13 @@
         </exec>
     </target>
     <!-- copy online docs (manual & sdk) to sourceforge -->
-    <target name="deploy-help-sf" depends="set-net-1.0-framework-configuration, release, package">
+    <target name="deploy-doc-sf" depends="set-net-1.0-framework-configuration, release, package-doc">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/release/${project.version.full}" />
         </exec>
-        <!-- copy the gzipped tar help distribution to sourceforge -->
+        <!-- copy the gzipped tar doc distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.gzip-path.doc)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.doc)}" />
             <arg value="${serverpart}/release/${project.version.full}/doc.tar.gz" />
