@@ -231,6 +231,13 @@ namespace NAnt.VSNet {
             if (_importTool == "tlbimp") {
                 commandLine += " /namespace:" + _namespace;
             }
+
+            if (_importTool == "tlbimp" || _importTool == "aximp") {
+                // check if wrapper assembly should be strongly signed
+                if (_projectSettings.AssemblyOriginatorKeyFile != null) {
+                    commandLine += @" /keyfile:""" + Path.Combine(_projectSettings.RootDirectory, _projectSettings.AssemblyOriginatorKeyFile) + @"""";
+                }
+            }
             program = _importTool + ".exe";
         }
 
