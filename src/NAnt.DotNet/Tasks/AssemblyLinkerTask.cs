@@ -50,12 +50,14 @@ namespace NAnt.DotNet.Tasks {
     public class AssemblyLinkerTask : NAnt.Core.Tasks.ExternalProgramBase {
         #region Private Instance Fields
 
-        string _arguments;
-        string _output = null;
-        string _target = null;
-        string _culture = null;
-        string _template = null;
-        FileSet _sources = new FileSet();
+        private string _responseFileName = null;
+        private string _output = null;
+        private string _target = null;
+        private string _culture = null;
+        private string _template = null;
+        private string _keyfile = null;
+        private string _exeName = null;
+        private FileSet _sources = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -64,6 +66,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The name of the output file for the assembly manifest.
         /// </summary>
+        /// <value>The complete output path for the assembly manifest.</value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/out</c> flag.
@@ -72,7 +75,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("output", Required=true)]
         public string Output {
             get { return _output; }
-            set {_output = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _output = Project.GetFullPath(value);
+                } else {
+                    _output = null;
+                }
+            }
         }
         
         /// <summary>
@@ -86,7 +95,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("target", Required=true)]
         public string OutputTarget {
             get { return _target; }
-            set {_target = value; }
+            set { _target = value; }
         }
 
         /// <summary>
@@ -101,13 +110,14 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("culture", Required=false)]
         public string Culture {
             get { return _culture; }
-            set {_culture = value; }
+            set { _culture = value; }
         }
          
         /// <summary>
-        /// Specifies an assembly from which to get all options except the culture field.
-        /// The given filename must have a strong name.
+        /// Specifies an assembly from which to get all options except the 
+        /// culture field.
         /// </summary>
+        /// <value>The complete path to the assembly template.</value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/template:</c> flag.
@@ -116,7 +126,35 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("template", Required=false)]
         public string Template {
             get { return _template; }
-            set {_template = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _template = Project.GetFullPath(value);
+                } else {
+                    _template = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Specifies a file (filename) that contains a key pair or
+        /// just a public key to sign an assembly.
+        /// </summary>
+        /// <value>The complete path to the key file.</value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/keyf[ile]:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("keyfile", Required=false)]
+        public string KeyFile {
+            get { return _keyfile; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _keyfile = Project.GetFullPath(value);
+                } else {
+                    _keyfile = null;
+                }
+            }
         }
 
         /// <summary>
@@ -130,31 +168,45 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Public Instance Properties
 
-        #region Protected Instance Properties
-        
+        #region Override implementation of ExternalProgramBase
+
         /// <summary>
-        /// Gets the complete output path.
+        /// Gets or sets the name of the executable that should be used to launch 
+        /// the external program.
         /// </summary>
-        /// <value>The complete output path.</value>
-        protected string OutputPath {
-            get { return Path.GetFullPath(Path.Combine(BaseDirectory, Output)); }
+        /// <value>
+        /// The name of the executable that should be used to launch the external
+        /// program, or <see langword="null" /> if no name is configured or 
+        /// specified.
+        /// </value>
+        /// <remarks>
+        /// If available, the configured value in the NAnt configuration
+        /// file will be used if no name is specified.
+        /// </remarks>
+        [FrameworkConfigurable("exename", Required=false)]
+        public override string ExeName {
+            get { return _exeName; }
+            set { _exeName = value; }
         }
 
-        #endregion Protected Instance Properties
-
-        #region Override implementation of ExternalProgramBase
-           
         /// <summary>
         /// Gets the filename of the external program to start.
         /// </summary>
         /// <value>The filename of the external program.</value>
         public override string ProgramFileName {
-            get { 
+            get {
                 if (Project.CurrentFramework != null) {
-                    string FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                    return Path.Combine(FrameworkDir, ExeName + ".exe");
+                    if (ExeName != null) {
+                        string frameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                        return Path.Combine(frameworkDir, ExeName + ".exe");
+                    } else {
+                        throw new BuildException(
+                            string.Format(CultureInfo.InvariantCulture, 
+                            "The {0} task is not available or not configured for the {1} framework.", 
+                            Name, Project.CurrentFramework.Name));
+                    }
                 } else {
-                    return ExeName;
+                    return (ExeName != null) ? ExeName : Name;
                 }
             }
         }
@@ -163,10 +215,17 @@ namespace NAnt.DotNet.Tasks {
         /// Gets the command-line arguments for the external program.
         /// </summary>
         /// <value>
-        /// The command-line arguments for the external program.
+        /// The command-line arguments for the external program or 
+        /// <see langword="null" /> if the task is not being executed.
         /// </value>
         public override string ProgramArguments {
-            get { return _arguments; }
+            get { 
+                if (_responseFileName != null) {
+                    return "@" + _responseFileName; 
+                } else {
+                    return null;
+                }
+            }
         }
 
         /// <summary>
@@ -175,19 +234,21 @@ namespace NAnt.DotNet.Tasks {
         protected override void ExecuteTask() {
             if (NeedsCompiling()) {
                 // create temp response file to hold compiler options
-                StringBuilder sb = new StringBuilder();
-                StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);
+                _responseFileName = Path.GetTempFileName();
+                StreamWriter writer = new StreamWriter(_responseFileName);
 
                 try {
                     if (Sources.BaseDirectory == null) {
                         Sources.BaseDirectory = BaseDirectory;
                     }
 
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, OutputPath);
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Output);
 
-                    // Microsoft common compiler options
-                    writer.Write(" /t:{0}", OutputTarget);
-                    writer.Write(" /out:\"{0}\"", OutputPath);
+                    // write output target
+                    writer.Write(" /target:{0}", OutputTarget);
+
+                    // write output file
+                    writer.Write(" /out:\"{0}\"", Output);
 
                     if (Culture != null) {
                         writer.Write(" /culture:{0}", Culture);
@@ -197,6 +258,10 @@ namespace NAnt.DotNet.Tasks {
                         writer.Write(" /template:\"{0}\"", Template);
                     }
 
+                    if (KeyFile != null) {
+                        writer.Write(" /keyfile:\"{0}\"", KeyFile);
+                    }
+
                     foreach (string fileName in Sources.FileNames) {
                         writer.Write(" /embed:\"{0}\"", fileName);
                     }
@@ -204,16 +269,24 @@ namespace NAnt.DotNet.Tasks {
                     // Make sure to close the response file otherwise contents
                     // Will not be written to disk and ExecuteTask() will fail.
                     writer.Close();
-                    _arguments = sb.ToString();
 
-                    // display response file contents
-                    Log(Level.Verbose, _arguments);
+                    if (Verbose) {
+                        // display response file contents
+                        Log(Level.Verbose, LogPrefix + "Contents of {0}.", _responseFileName);
+                        StreamReader reader = File.OpenText(_responseFileName);
+                        Log(Level.Verbose, reader.ReadToEnd());
+                        reader.Close();
+                    }
 
                     // call base class to do the work
                     base.ExecuteTask();
                 } finally {
+                    // make sure stream is closed or response file cannot be deleted
+                    writer.Close(); 
                     // make sure we delete response file even if an exception is thrown
-                    writer.Close(); // make sure stream is closed or file cannot be deleted
+                    File.Delete(_responseFileName);
+                    // initialize name of response file
+                    _responseFileName = null;
                 }
             }
         }
@@ -231,7 +304,7 @@ namespace NAnt.DotNet.Tasks {
         /// <c>false</c>.
         /// </returns>
         protected virtual bool NeedsCompiling() {
-            FileInfo outputFileInfo = new FileInfo(OutputPath);
+            FileInfo outputFileInfo = new FileInfo(Output);
             if (!outputFileInfo.Exists) {
                 return true;
             }
