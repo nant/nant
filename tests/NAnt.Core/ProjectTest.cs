@@ -118,6 +118,7 @@ namespace Tests.NAnt.Core {
             Project p = new Project(doc, Level.Info, 0);
 
             p.BuildFinished += new BuildEventHandler(b.BuildFinished);
+            p.OnBuildStarted(this, new BuildEventArgs(p));
             p.OnBuildFinished(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._buildFinished);
