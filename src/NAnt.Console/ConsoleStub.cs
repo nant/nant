@@ -36,6 +36,7 @@ namespace NAnt.Console {
         /// </summary>
         /// <param name="args">Command Line arguments</param>
         /// <returns>The result of the real execution</returns>
+        [STAThread]
         public static int Main(string[] args) {
             AppDomain cd = AppDomain.CurrentDomain;
             AppDomain executionAD = cd;
