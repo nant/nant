@@ -488,10 +488,11 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="resources">The <see cref="ResourceFileSet" /> containing information that will used to assemble the manifest resource name.</param>
         /// <param name="resourceFile">The resource file of which the manifest resource name should be determined.</param>
+        /// <param name="dependentFile">The source file on which the resource file depends.</param>
         /// <returns>
         /// The manifest resource name of the specified resource file.
         /// </returns>
-        public string GetManifestResourceName(ResourceFileSet resources, string resourceFile) {
+        public string GetManifestResourceName(ResourceFileSet resources, string resourceFile, string dependentFile) {
             if (resources == null) {
                 throw new ArgumentNullException("resources");
             }
@@ -508,24 +509,29 @@ namespace NAnt.DotNet.Tasks {
 
             // will hold the manifest resource name
             string manifestResourceName = null;
+          
+            // check if we're dealing with a localized resource
+            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile);
 
             // determine the resource type
             switch (Path.GetExtension(resourceFile)) {
                 case ".resx":
-                    // try and get manifest resource name from matching form
-                    ResourceLinkage resourceLinkage = GetFormResourceLinkage(resourceFile);
+                    // try and get manifest resource name from dependent file
+                    ResourceLinkage resourceLinkage = GetResourceLinkage(
+                        dependentFile, resourceCulture);
 
                     if (resourceLinkage != null && !resourceLinkage.HasNamespaceName) {
                         resourceLinkage.NamespaceName = resources.Prefix;
                     }
 
-                    string actualFileName = Path.GetFileNameWithoutExtension(resourceFile);
+                    string actualFileName = Path.GetFileNameWithoutExtension(
+                        resourceFile);
                     
                     manifestResourceName = Path.ChangeExtension(
                         Path.GetFileName(resourceFile), ".resources");
 
                     // cater for asax/aspx special cases ...
-                    foreach (string extension in CodebehindExtensions){
+                    foreach (string extension in CodebehindExtensions) {
                         if (manifestResourceName.IndexOf(extension) > -1) {
                             manifestResourceName = manifestResourceName.Replace(extension, "");
                             actualFileName = actualFileName.Replace(extension, "");
@@ -550,10 +556,10 @@ namespace NAnt.DotNet.Tasks {
                     break;
                 default:
                     // check if resource is localized
-                    CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile);
                     if (resourceCulture != null) {
                         // determine resource name
-                        manifestResourceName = resources.GetManifestResourceName(resourceFile);
+                        manifestResourceName = resources.GetManifestResourceName(
+                            resourceFile);
 
                         // remove culture name from name of resource
                         int cultureIndex = manifestResourceName.LastIndexOf("." + resourceCulture.Name);
@@ -561,12 +567,68 @@ namespace NAnt.DotNet.Tasks {
                             + manifestResourceName.Substring(cultureIndex).Replace("." 
                             + resourceCulture.Name, string.Empty);
                     } else {
-                        manifestResourceName = resources.GetManifestResourceName(resourceFile);
+                        manifestResourceName = resources.GetManifestResourceName(
+                            resourceFile);
                     }
                     break;
             }
 
             return manifestResourceName;
+        }
+
+        /// <summary>
+        /// Determines the manifest resource name of the given resource file.
+        /// </summary>
+        /// <param name="resources">The <see cref="ResourceFileSet" /> containing information that will used to assemble the manifest resource name.</param>
+        /// <param name="resourceFile">The resource file of which the manifest resource name should be determined.</param>
+        /// <returns>
+        /// The manifest resource name of the specified resource file.
+        /// </returns>
+        /// <remarks>
+        /// For .resx resources, the name of the dependent is determined by
+        /// replacing the extension of the file with the extension of the 
+        /// source files for the compiler, and removing the culture name from
+        /// the file name for localized resources.
+        /// </remarks>
+        public string GetManifestResourceName(ResourceFileSet resources, string resourceFile) {
+            if (resources == null) {
+                throw new ArgumentNullException("resources");
+            }
+
+            if (resourceFile == null) {
+                throw new ArgumentNullException("resourceFile");
+            }
+
+            // make sure the resource file exists
+            if (!File.Exists(resourceFile)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Resource '{0}' does not exist.", resourceFile), Location);
+            }
+
+            // check if we're dealing with a localized resource
+            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile);
+
+            // determine the resource type
+            switch (Path.GetExtension(resourceFile)) {
+                case ".resx":
+                    // open matching source file if it exists
+                    string dependentFile = resourceFile.Replace("resx", Extension);
+
+                    // remove culture name from dependent file for localized
+                    // resources
+                    if (resourceCulture != null) {
+                        dependentFile = dependentFile.Replace(string.Format(CultureInfo.InvariantCulture,
+                            ".{0}", resourceCulture.Name), "");
+                    }
+
+                    // determine the manifest resource name using the given
+                    // dependent file
+                    return GetManifestResourceName(resources, resourceFile, dependentFile);
+                default:
+                    // for non-resx a dependentFile has no influence on the
+                    // manifest resource name
+                    return GetManifestResourceName(resources, resourceFile, null);
+            }
         }
 
         /// <summary>
@@ -792,40 +854,32 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Opens matching source file to find the correct namespace for the
-        /// specified rsource file.
+        /// Finds the correct namespace/classname for a resource file from the 
+        /// given dependent source file.
         /// </summary>
+        /// <param name="dependentFile">The file from which the resource linkage of the resource file should be determined.</param>
+        /// <param name="resourceCulture">The culture of the resource file for which the resource linkage should be determined.</param>
         /// <returns>
         /// The namespace/classname of the source file matching the resource or
-        /// <see langword="null" /> if there's no matching source file.
+        /// <see langword="null" /> if the dependent source file does not exist.
         /// </returns>
         /// <remarks>
         /// This behaviour may be overidden by each particular compiler to 
         /// support the namespace/classname syntax for that language.
         /// </remarks>
-        protected virtual ResourceLinkage GetFormResourceLinkage(string resxPath) {
-            // open matching source file if it exists
-            string sourceFile = resxPath.Replace("resx", Extension);
-            
-            // check if we're dealing with a localized resource
-            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resxPath);
-            if (resourceCulture != null) {
-                sourceFile = sourceFile.Replace(string.Format(CultureInfo.InvariantCulture,
-                    ".{0}", resourceCulture.Name), "");
-            }
-
+        protected virtual ResourceLinkage GetResourceLinkage(string dependentFile, CultureInfo resourceCulture) {
             StreamReader sr = null;
-            ResourceLinkage resourceLinkage  = null; 
+            ResourceLinkage resourceLinkage  = null;
   
             try {
                 // open matching source file
-                sr = File.OpenText(sourceFile);
+                sr = File.OpenText(dependentFile);
                 // get resource linkage
                 resourceLinkage = PerformSearchForResourceLinkage(sr);
                 // set resource culture
                 resourceLinkage.Culture = resourceCulture;
             } catch (FileNotFoundException) { // if no matching file, dump out
-                Log(Level.Debug, LogPrefix + "Did not find associated source file for resource {0}.", resxPath);
+                Log(Level.Debug, LogPrefix + "Did not find dependent file {0}.", dependentFile);
                 return null;
             } finally {
                 if (sr != null) {
@@ -835,9 +889,9 @@ namespace NAnt.DotNet.Tasks {
 
             // output some debug information about resource linkage found...
             if (resourceLinkage.IsValid) {
-                Log(Level.Debug, LogPrefix + "Found resource linkage '{0}' for resource {1}.", resourceLinkage.ToString(), resxPath);
+                Log(Level.Debug, LogPrefix + "Found resource linkage '{0}' in dependent file '{1}'.", resourceLinkage.ToString(), dependentFile);
             } else {
-                Log(Level.Debug, LogPrefix + "Could not find any resource linkage in matching source file for resource {0}.", resxPath);
+                Log(Level.Debug, LogPrefix + "Could not find any resource linkage in dependent file '{0}'.", dependentFile);
             }
 
             return resourceLinkage;
@@ -886,8 +940,8 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Compiles a resx files to a .resources file.
         /// </summary>
-        /// <param name="inputFile"></param>
-        /// <param name="outputFile"></param>
+        /// <param name="inputFile">The resx file to compile.</param>
+        /// <param name="outputFile">The name of the resource file to create.</param>
         protected void CompileResxResource(string inputFile, string outputFile) {
             ResGenTask resgen = new ResGenTask();
             resgen.Project = this.Project;
@@ -922,13 +976,13 @@ namespace NAnt.DotNet.Tasks {
         /// Determines the culture associated with a given resource file by
         /// scanning the filename for valid culture names.
         /// </summary>
-        /// <param name="resXFile">The resx file path to check for culture info.</param>
+        /// <param name="resourceFile">The resource file path to check for culture info.</param>
         /// <returns>
         /// A valid <see cref="CultureInfo" /> instance if the resource is 
         /// associated with a specific culture; otherwise, <see langword="null" />.
         /// </returns>
-        public static CultureInfo GetResourceCulture(string resXFile) {
-            string noextpath = Path.GetFileNameWithoutExtension(resXFile);
+        public static CultureInfo GetResourceCulture(string resourceFile) {
+            string noextpath = Path.GetFileNameWithoutExtension(resourceFile);
             int index = noextpath.LastIndexOf('.');
             if (index >= 0 && index <= noextpath.Length) {
                 string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));
