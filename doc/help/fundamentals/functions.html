@@ -25,34 +25,46 @@
         <!-- @PRELIMINARY_NOTICE@ -->
         <p>NAnt provides a rich set of bulitin functions, that allow you to:</p>
         <ul>
-            <li>manipulate strings</li>
-            <li>manipulate date/time values</li>
-            <li>manipulate path names</li>
-            <li>read the properties of files/directories</li>
-            <li>access current build information and more</li>
-            <li>and more</li>
+            <li>
+                manipulate strings</li>
+            <li>
+                manipulate date/time values</li>
+            <li>
+                manipulate path names</li>
+            <li>
+                read the properties of files/directories</li>
+            <li>
+                access current build information and more</li>
+            <li>
+                and more</li>
         </ul>
         <p>For a full list of supported functions, click <a href="../functions/index.html">here</a>.</p>
-        <h3>Function Call Syntax</h3>
+        <h3><a id="syntax" />Function Call Syntax</h3>
         <p>
-        To call functions, use <code>prefix::function-name(argument1, ..., argumentN)</code> syntax within expressions.
-        NAnt will (implicitly) try to convert the arguments you pass to functions to correct types and will report an error in
-        case of failure.
+            To call functions, use <code>prefix::function-name(argument1, ..., argumentN)</code>
+            syntax within expressions. NAnt will (implicitly) try to convert the arguments 
+            you pass to functions to correct types and will report an error in case of 
+            failure.
         </p>
         <p>
-        For example, assuming you would like to call <code>string::contains('0123456789',1)</code> which expects 
-        two <code>string</code> parameters, but you want to pass the second parameter which is an integer.
-        NAnt would attempt to convert the second parameter from <code>int</code> to <code>string</code>, which succeeds
-        and function is called as if it was written as <code>string::contains('0123456789','1')</code>.
+            For example, assuming you would like to call <code>string::contains('0123456789',1)</code>
+            which expects two <code>string</code> parameters, but you want to pass the 
+            second parameter which is an integer. NAnt would attempt to convert the second 
+            parameter from <code>int</code> to <code>string</code>, which succeeds and 
+            function is called as if it was written as <code>string::contains('0123456789','1')</code>.
         </p>
         <p>The following table shows the possible type conversions:</p>
         <div class="table">
             <table>
                 <tr>
-                    <th>From Type</th>
-                    <th>To Type</th>
-                    <th>Allowed</th>
-                    <th>Remarks</th>
+                    <th>
+                        From Type</th>
+                    <th>
+                        To Type</th>
+                    <th>
+                        Allowed</th>
+                    <th>
+                        Remarks</th>
                 </tr>
                 <tr>
                     <td><code>integer</code></td>
@@ -70,16 +82,20 @@
                     <td><code>integer</code></td>
                     <td><code>boolean</code></td>
                     <td>No</td>
-                    <td>Can be done with the <code>if()</code> conditional operator or simply as <code>(value &lt;&gt; 0)</code></td>
+                    <td>Can be done with the <code>if()</code> conditional operator or simply as <code>(value 
+                            &lt;&gt; 0)</code></td>
                 </tr>
                 <tr>
                     <td><code>integer</code></td>
                     <td><code>datetime</code></td>
                     <td>No</td>
-                    <td>You cannot convert from <code>int</code> to <code>datetime</code>. You may want to use <a href="../functions/datetime.add.html">datetime::add</a> or <a href="../functions/datetime.diff.html">datetime::diff</a></td>
+                    <td>You cannot convert from <code>int</code> to <code>datetime</code>. You may want 
+                        to use <a href="../functions/datetime.add.html">datetime::add</a> or <a href="../functions/datetime.diff.html">
+                            datetime::diff</a></td>
                 </tr>
                 <tr>
-                    <th colspan="4"></th>
+                    <th colspan="4">
+                    </th>
                 </tr>
                 <tr>
                     <td><code>string</code></td>
@@ -97,16 +113,19 @@
                     <td><code>string</code></td>
                     <td><code>boolean</code></td>
                     <td>Yes</td>
-                    <td>If the string isn't either <code>true</code> or <code>false</code> (case insensitive), an error is reported.</td>
+                    <td>If the string isn't either <code>true</code> or <code>false</code> (case 
+                        insensitive), an error is reported.</td>
                 </tr>
                 <tr>
                     <td><code>string</code></td>
                     <td><code>datetime</code></td>
                     <td>Yes</td>
-                    <td>If the string doesn't represent a valid date/time, an error is reported. Date/time string format is <code>MM/DD/YYYY&nbsp;HH:MI:SS</code></td>
+                    <td>If the string doesn't represent a valid date/time, an error is reported. 
+                        Date/time string format is <code>MM/DD/YYYY&nbsp;HH:MI:SS</code></td>
                 </tr>
                 <tr>
-                    <th colspan="4"></th>
+                    <th colspan="4">
+                    </th>
                 </tr>
                 <tr>
                     <td><code>double</code></td>
@@ -118,7 +137,8 @@
                     <td><code>double</code></td>
                     <td><code>string</code></td>
                     <td>Yes</td>
-                    <td>The converted string uses dot as a fractional part separator so the result looks like <code>0.1234567</code></td>
+                    <td>The converted string uses dot as a fractional part separator so the result 
+                        looks like <code>0.1234567</code></td>
                 </tr>
                 <tr>
                     <td><code>double</code></td>
@@ -130,16 +150,20 @@
                     <td><code>double</code></td>
                     <td><code>datetime</code></td>
                     <td>No</td>
-                    <td>You cannot convert from <code>double</code> to <code>datetime</code>. You may want to use <a href="../functions/datetime.add.html">datetime::add</a> or <a href="../functions/datetime.diff.html">datetime::diff</a></td>
+                    <td>You cannot convert from <code>double</code> to <code>datetime</code>. You may 
+                        want to use <a href="../functions/datetime.add.html">datetime::add</a> or <a href="../functions/datetime.diff.html">
+                            datetime::diff</a></td>
                 </tr>
                 <tr>
-                    <th colspan="4"></th>
+                    <th colspan="4">
+                    </th>
                 </tr>
                 <tr>
                     <td><code>boolean</code></td>
                     <td><code>int</code></td>
                     <td>No</td>
-                    <td>You cannot convert from <code>boolean</code> to <code>integer</code>. You may want to use <code>if(boolvalue,1,0)</code> instead.</td>
+                    <td>You cannot convert from <code>boolean</code> to <code>integer</code>. You may 
+                        want to use <code>if(boolvalue,1,0)</code> instead.</td>
                 </tr>
                 <tr>
                     <td><code>boolean</code></td>
@@ -160,7 +184,8 @@
                     <td>You cannot convert from <code>boolean</code> to <code>datetime</code>.</td>
                 </tr>
                 <tr>
-                    <th colspan="4"></th>
+                    <th colspan="4">
+                    </th>
                 </tr>
                 <tr>
                     <td><code>datetime</code></td>
@@ -188,14 +213,16 @@
                 </tr>
             </table>
         </div>
-        <h3>Custom Functions</h3>
+        <h3><a id="custom" />Custom Functions</h3>
         <p>
-        Just as you can extend NAnt with your own tasks it is also possible to implement your own functions for use in
-        build files.</p>        
-        <p>Functions can be implemented in any .net language and are loaded in the same manner as tasks. ie either by locating your
-        custom function assembly in the NAnt bin directory or using the <a href="../tasks/loadtasks.html">loadtasks</a> task.
-        Example c# code for a hellow world function :        
-        <p class="i1">Define a custom function using C#.</p>
+            Just as you can extend NAnt with your own tasks it is also possible to 
+            implement your own functions for use in build files.</p>
+        <p>Functions can be implemented in any .NET language and are loaded in the same 
+            manner as tasks. ie either by locating your custom function assembly in the 
+            NAnt bin directory or using the <code><a href="../tasks/loadtasks.html">&lt;loadtasks&gt;</a></code>
+            task. Example C# code for a Hello World function :
+        </p>
+        <p>Define a custom function using C#.</p>
         <pre class="code">                    
 [FunctionSet("hello", "Hello")]
 public class HelloFunctions : FunctionSetBase {        
@@ -207,14 +234,14 @@ public class HelloFunctions : FunctionSetBase {
     }
 }
         </pre>
-        <p class="i1">and call that function from a build file.</p>
+        <p>and call that function from a build file.</p>
         <pre class="code">       
-&lt;echo message='${hello::hello-world()}'/&gt;
+&lt;echo message="${hello::hello-world()}" /&gt;
         </pre>
-        
-        <p>A quick and easy way to develop new functions is to use the <a href="../tasks/script.html">script</a> task. This allows
-        you to create and test new functions without the overhead of building an external assembly. The <a href="../tasks/script.html">script</a> task
-         documentation contains examples of custom function definitions.</p>
-        
+        <p>A quick and easy way to develop new functions is to use the <code><a href="../tasks/script.html">
+                &lt;script&gt;</a></code> task. This allows you to create and test new functions 
+            without the overhead of building an external assembly. The <code><a href="../tasks/script.html">
+                &lt;script&gt;</a></code> task documentation contains examples of custom function 
+            definitions.</p>
     </body>
 </html>
