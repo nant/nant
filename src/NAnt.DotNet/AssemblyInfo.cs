@@ -18,11 +18,17 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-// Mark NAnt.Core CLS compliant
-[assembly: System.CLSCompliant(true)]
+// Mark NAnt.DotNetTasks CLS compliant
+[assembly: CLSCompliant(true)]
+
+// Make NAnt.DotNetTasks as NOT visible to COM
+[assembly: ComVisible(false)]
+
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
 [assembly: AssemblyConfiguration("")]
