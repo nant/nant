@@ -132,6 +132,11 @@ namespace NAnt.Core.Types {
             try {
                 Assembly extensionAssembly = Assembly.LoadFrom(AssemblyPath.FullName);
                 extensionInstance = extensionAssembly.CreateInstance(TypeName);
+                if ( extensionInstance == null){
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. ",
+                    TypeName, AssemblyPath.FullName), Location );
+                }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Can't create extension object \"{0}\" from \"{1}\".",
