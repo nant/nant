@@ -33,11 +33,11 @@ namespace NAnt.DotNet.Types {
     public class AssemblyAttribute : Element {
         #region Private Instance Fields
 
-        private string _typeName = null;
-        private string _value = null;
-        private bool _asIs = false;
+        private string _typeName;
+        private string _value;
+        private bool _asIs;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 
@@ -70,7 +70,7 @@ namespace NAnt.DotNet.Types {
         [TaskAttribute("value")]
         public string Value {
             get { return _value; }
-            set { _value = StringUtils.ConvertEmptyToNull(value); }
+            set { _value = value; }
         }
 
         /// <summary>
