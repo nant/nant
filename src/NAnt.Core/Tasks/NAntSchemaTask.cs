@@ -84,6 +84,8 @@ namespace SourceForge.NAnt.Tasks {
             }
             FileStream file = File.Open(Project.GetFullPath(_file), FileMode.Create, FileAccess.Write, FileShare.Read);
             WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)),_targetNamespace);
+            file.Flush();
+            file.Close();
             Log.WriteLine("Wrote Schema to: {0} ", _file);
         }
 
