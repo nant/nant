@@ -24,6 +24,8 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
+using Microsoft.Win32;
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -54,14 +56,14 @@ namespace NAnt.VSNet.Tasks {
     ///   <para>Compiles all of the projects in <c>test.sln</c>, in relase mode, in the proper order.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution configuration="release" solutionfile="test.sln">        
+    ///    <solution configuration="release" solutionfile="test.sln">
     ///    </solution>
     ///     ]]>
     ///   </code>
     ///   <para>Compiles all of the projects in <c>projects.txt</c>, in the proper order.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution configuration="release">        
+    ///    <solution configuration="release">
     ///        <projects>
     ///            <includesList name="projects.txt" />
     ///        </projects>
@@ -216,6 +218,41 @@ namespace NAnt.VSNet.Tasks {
             set { _excludeProjects = value; }
         }
 
+        /// <summary>
+        /// Set of folders where references are searched when not found in path 
+        /// from project file (HintPath).
+        /// </summary>
+        [FileSet("assemblyfolders", Required = false)]
+        public FileSet AssemblyFolders {
+            get { return _assemblyFolders; }
+            set { _assemblyFolders = value; }
+        }
+
+        /// <summary>
+        /// Includes Visual Studio search folders in reference search path.
+        /// The default is <see langword="true" />.
+        /// </summary>
+        [TaskAttribute("includevsfolders")]
+        [BooleanValidator()]
+        public bool IncludeVSFolders {
+            get { return _includeVSFolders; }
+            set { _includeVSFolders = value; }
+        }
+
+        /// <summary>
+        /// Set of folders where references are searched when not found in path 
+        /// from project file (HintPath) or <see cref="AssemblyFolders" />.
+        /// </summary>
+        public FileSet DefaultAssemlyFolders {
+            get {
+                if (IncludeVSFolders) {
+                    return FindDefaultAssemblyFolders();
+                } else {
+                    return new FileSet();
+                }
+            }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -290,6 +327,41 @@ namespace NAnt.VSNet.Tasks {
 
         #endregion Override implementation of Task
 
+        #region Private Instance Methods
+
+        private void ScanRegistryForAssemblyFolders(RegistryKey mainKey, FileSet fsFolders) {
+            if (mainKey == null) {
+                return;
+            }
+
+            foreach (string subkey in mainKey.GetSubKeyNames()) {
+                RegistryKey subKey = mainKey.OpenSubKey(subkey);
+                string val = subKey.GetValue(string.Empty).ToString();
+
+                fsFolders.Includes.Add(val);
+            }
+        }
+
+        private FileSet FindDefaultAssemblyFolders() {
+            FileSet fsFolders = new FileSet();
+
+            try {
+                ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(VS71AssemblyFolders), fsFolders);
+                ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(VS71AssemblyFolders), fsFolders);
+                ScanRegistryForAssemblyFolders(Registry.CurrentUser.OpenSubKey(VS70AssemblyFolders), fsFolders);
+                ScanRegistryForAssemblyFolders(Registry.LocalMachine.OpenSubKey(VS70AssemblyFolders), fsFolders);
+            } catch (NotImplementedException) {
+                // ignore this exception, as Mono currently has no implementation 
+                // for registry related classes
+
+                // TO-DO : make sure we remove this in the future if possible
+            }
+
+            return fsFolders;
+        }
+
+        #endregion Private Instance Methods
+
         #region Private Instance Fields
 
         private string _solutionFile;
@@ -298,8 +370,18 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _projects;
         private FileSet _referenceProjects;
         private FileSet _excludeProjects;
+        private FileSet _assemblyFolders;
         private WebMapCollection _webMaps;
+        private bool _includeVSFolders;
+
 
         #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private const string VS71AssemblyFolders = @"SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders";
+        private const string VS70AssemblyFolders = @"SOFTWARE\Microsoft\VisualStudio\7.0\AssemblyFolders";
+
+        #endregion Private Static Fields
     }
 }
