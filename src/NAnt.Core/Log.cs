@@ -33,6 +33,7 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Web.Mail;
 
 namespace SourceForge.NAnt {
     /// <summary>
@@ -77,13 +78,16 @@ namespace SourceForge.NAnt {
     /// An event is built by specifying either a project, a task or a target.
     /// </para>
     /// <para>
-    /// A project level event will only have a project reference.
+    /// A <see cref="Project" /> level event will only have a <see cref="Project" /> 
+    /// reference.
     /// </para>
     /// <para>
-    /// A target level event will have project and target references.
+    /// A <see cref="Target" /> level event will have <see cref="Project" /> and 
+    /// <see cref="Target" /> references.
     /// </para>
     /// <para>
-    /// A task level event will have project, target and task references.
+    /// A <see cref="Task" /> level event will have <see cref="Project" />, 
+    /// <see cref="Target" /> and <see cref="Task" /> references.
     /// </para>
     /// </remarks>
     public class BuildEventArgs : EventArgs {
@@ -91,9 +95,9 @@ namespace SourceForge.NAnt {
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildEventArgs" />
-        /// class for a project level event.
+        /// class for a <see cref="Project" /> level event.
         /// </summary>
-        /// <param name="project">The project that emitted the event.</param>
+        /// <param name="project">The <see cref="Project" /> that emitted the event.</param>
         public BuildEventArgs(Project project) {
             _project = project;
             _target = null;
@@ -102,9 +106,9 @@ namespace SourceForge.NAnt {
     
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildEventArgs" />
-        /// class for a target level event.
+        /// class for a <see cref="Target" /> level event.
         /// </summary>
-        /// <param name="target">The target that emitted the event.</param>
+        /// <param name="target">The <see cref="Target" /> that emitted the event.</param>
         public BuildEventArgs(Target target) {
             _project = target.Project;
             _target = target;
@@ -113,13 +117,12 @@ namespace SourceForge.NAnt {
     
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildEventArgs" />
-        /// class for a task level event.
+        /// class for a <see cref="Task" /> level event.
         /// </summary>
-        /// <param name="task">The task that emitted the event.</param>
+        /// <param name="task">The <see cref="Task" /> that emitted the event.</param>
         public BuildEventArgs(Task task) {
             _project = task.Project;
-            // TO-DO find a way to get the Target that contains the task (if not a top-level task)
-            _target = null;
+            _target = task.Parent as Target;
             _task = task;
         }
 
@@ -154,30 +157,31 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets the project that fired this event.
+        /// Gets the <see cref="Project" /> that fired this event.
         /// </summary>
-        /// <value>The project that fired this event.</value>
+        /// <value>The <see cref="Project" /> that fired this event.</value>
         public Project Project {
             get { return _project; }
         }
 
         /// <summary>
-        /// Gets the target that fired this event.
+        /// Gets the <see cref="Target" /> that fired this event.
         /// </summary>
         /// <value>
-        /// The target that fired this event, or a null reference if this is a
-        /// project level event.
+        /// The <see cref="Target" /> that fired this event, or a null reference 
+        /// if this is a <see cref="Project" /> level event.
         /// </value>
         public Target Target {
             get { return _target; }
         }
 
         /// <summary>
-        /// Gets the task that fired this event.
+        /// Gets the <see cref="Task" /> that fired this event.
         /// </summary>
         /// <value>
-        /// The task that fired this event, or a null reference if this is a
-        /// project or target level event.
+        /// The <see cref="Task" /> that fired this event, or a null reference 
+        /// if this is a <see cref="Project" /> or <see cref="Target" /> level 
+        /// event.
         /// </value>
         public Task Task {
             get { return _task; }
@@ -197,7 +201,11 @@ namespace SourceForge.NAnt {
         #endregion Private Instance Fields
     }
 
-    /// <summary>Delegate to handle Build events</summary>
+    /// <summary>
+    /// Represents the method that handles the build events.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
     public delegate void BuildEventHandler(object sender, BuildEventArgs e);
 
     /// <summary>
@@ -345,7 +353,7 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Flushes buffered build events or messages to the underlying storage.
         /// </summary>
-        void IBuildLogger.Flush() {
+        public virtual void Flush() {
             if (OutputWriter != null) {
                 OutputWriter.Flush();
             }
@@ -412,6 +420,9 @@ namespace SourceForge.NAnt {
 
                 OutputMessage(Level.Info, "", indentationLevel);
             }
+
+            // make sure all messages are written to the underlying storage
+            Flush();
         }
 
         /// <summary>
@@ -541,6 +552,178 @@ namespace SourceForge.NAnt {
 
         private Level _threshold = Level.Info;
         private TextWriter _outputWriter = null;
+
+        #endregion Private Instance Fields
+    }
+
+    /// <summary>
+    /// Buffers log messages from DefaultLogger, and sends an e-mail with the
+    /// results.
+    /// </summary>
+    /// <remarks>
+    /// The following properties are used to send the mail :
+    /// <list type="table">
+    ///     <listheader>
+    ///         <term>Property</term>
+    ///         <description>Description</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term>MailLogger.mailhost</term>
+    ///         <description>Mail server to use. [default: localhost]</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.from</term>
+    ///         <description>The address of the e-mail sender.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.failure.notify</term>
+    ///         <description>Send build failure e-mails ? [default: true]</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.success.notify</term>
+    ///         <description>Send build success e-mails ? [default: true]</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.failure.to</term>
+    ///         <description>The address to send build failure messages to.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.success.to</term>
+    ///         <description>The address to send build success messages to </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.failure.subject</term>
+    ///         <description>subject of build failure messages. [default: "Build Failure"]</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.success.subject</term>
+    ///         <description>subject of build success messages. [default: "Build Success"]</description>
+    ///     </item>
+    /// </list>
+    /// </remarks>
+    public class MailLogger : DefaultLogger {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MailLogger" /> 
+        /// class.
+        /// </summary>
+        public MailLogger() : base() {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Override implementation of DefaultLogger
+
+        /// <summary>
+        /// Signals that the last target has finished, and send an e-mail with 
+        /// the build results.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        public override void BuildFinished(object sender, BuildEventArgs e) {
+            base.BuildFinished(sender, e);
+
+            Project project = e.Project;
+            PropertyDictionary properties = project.Properties;
+
+            bool success = (e.Exception == null);
+            string prefix = success ? "success" : "failure";
+
+            try {
+                string propertyValue = GetPropertyValue(properties, prefix + ".notify", "true");
+
+                bool notify = true;
+
+                try {
+                    notify = Convert.ToBoolean(propertyValue, CultureInfo.InvariantCulture);
+                } catch {
+                    notify = true;
+                }
+
+                if (!notify) {
+                    return;
+                }
+
+                string mailhost = GetPropertyValue(properties, "mailhost", "localhost");
+                string from = GetPropertyValue(properties, "from", null);
+                string toList = GetPropertyValue(properties, prefix + ".to", null);
+                string subject = GetPropertyValue(properties, prefix + ".subject",
+                    (success) ? "Build Success" : "Build Failure");
+
+                SendMail(mailhost, from, toList, subject, buffer.ToString());
+            } catch (Exception ex) {
+                Console.WriteLine("MailLogger failed to send e-mail!");
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Receives and buffers log messages.
+        /// </summary>
+        /// <param name="message">The message being logged.</param>
+        protected override void Log(string message) {
+            buffer.Append(message).Append(Environment.NewLine);
+        }
+
+        #endregion Override implementation of DefaultLogger
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Gets the value of the specified property.
+        /// </summary>
+        /// <param name="properties">Properties to obtain value from.</param>
+        /// <param name="name">Suffix of property name.  "MailLogger" will be prepended internally.</param>
+        /// <param name="defaultValue">Value returned if property is not present in <paramref name="properties" />.</param>
+        /// <returns>
+        /// The value of the specified property; or the default value if the 
+        /// property is not present in <paramref name="properties" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">The specified property is not present and no default value has been given.</exception>
+        private string GetPropertyValue(PropertyDictionary properties, string name, string defaultValue) {
+            string propertyName = "MailLogger." + name;
+            string value = (string) properties[propertyName];
+
+            if (value == null) {
+                value = defaultValue;
+            }
+
+            if (value == null) {
+                throw new ArgumentNullException(string.Format(CultureInfo.InvariantCulture, "Missing required parameter {0}.", propertyName));
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Sends the e-mail.
+        /// </summary>
+        /// <param name="mailhost">The SMTP relay mail server to use to send e-mail messages.</param>
+        /// <param name="from">The address of the e-mail sender.</param>
+        /// <param name="toList">The address(es) of the e-mail recipient(s).</param>
+        /// <param name="subject">The subject line of the e-mail message.</param>
+        /// <param name="message">The body of the e-mail message.</param>
+        private void SendMail(string mailhost, string from, string toList, string subject, string message) {
+
+            Console.WriteLine("mailhost:" + mailhost);
+            Console.WriteLine("from:" + from);
+            Console.WriteLine("to:" + toList);
+            Console.WriteLine("subject:" + subject);
+            Console.WriteLine("message:" + message);
+
+            SmtpMail.SmtpServer = mailhost;
+            SmtpMail.Send(from, toList, subject, message);
+        }
+
+        #endregion Private Instance Methods
+
+        #region Private Instance Fields
+
+        /// <summary>
+        /// Buffer in which the message is constructed prior to sending.
+        /// </summary>
+        private StringBuilder buffer = new StringBuilder();
 
         #endregion Private Instance Fields
     }
