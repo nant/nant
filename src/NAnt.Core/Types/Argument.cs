@@ -33,7 +33,7 @@ namespace NAnt.Core.Types {
         private string _value = null;
         private string _file = null;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 

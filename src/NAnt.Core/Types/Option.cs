@@ -32,6 +32,8 @@ namespace NAnt.Core.Types {
 
         private string _name = null;
         private string _value = null;
+        private bool _ifDefined = true;
+        private bool _unlessDefined = false;
 
         #endregion Private Instance Fields
 
@@ -54,6 +56,30 @@ namespace NAnt.Core.Types {
         public string Value {
             get { return _value; }
             set { _value = value; }
+        }
+
+        /// <summary>
+        /// Indicates if the option should be passed to the task. 
+        /// If <see langword="true" /> then the option will be passed; 
+        /// otherwise, skipped. The default is <see langword="true" />.
+        /// </summary>
+        [TaskAttribute("if")]
+        [BooleanValidator()]
+        public bool IfDefined {
+            get { return _ifDefined; }
+            set { _ifDefined = value; }
+        }
+
+        /// <summary>
+        /// Indicates if the option should not be passed to the task.
+        /// If <see langword="false" /> then the option will be passed; 
+        /// otherwise, skipped. The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("unless")]
+        [BooleanValidator()]
+        public bool UnlessDefined {
+            get { return _unlessDefined; }
+            set { _unlessDefined = value; }
         }
 
         #endregion Public Instance Properties

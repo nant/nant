@@ -24,8 +24,10 @@ namespace NAnt.Core.Types {
     public class Formatter : Element {
         #region Private Instance Fields
 
-        string _property;
-        string _pattern;
+        private string _property;
+        private string _pattern;
+        private bool _ifDefined = true;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 
@@ -49,6 +51,30 @@ namespace NAnt.Core.Types {
         public string Pattern {
             get { return _pattern; }
             set { _pattern= value; }
+        }
+
+        /// <summary>
+        /// Indicates if the formatter should be used to format the timestamp.
+        /// If <see langword="true" /> then the formatter will be used; 
+        /// otherwise, skipped. The default is <see langword="true" />.
+        /// </summary>
+        [TaskAttribute("if")]
+        [BooleanValidator()]
+        public bool IfDefined {
+            get { return _ifDefined; }
+            set { _ifDefined = value; }
+        }
+
+        /// <summary>
+        /// Indicates if the formatter should be not used to format the 
+        /// timestamp. If <see langword="false" /> then the formatter will be 
+        /// used; otherwise, skipped. The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("unless")]
+        [BooleanValidator()]
+        public bool UnlessDefined {
+            get { return _unlessDefined; }
+            set { _unlessDefined = value; }
         }
 
         #endregion Public Instance Properties
