@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
 <project name="nant" default="nightly">
+    <!-- set build.date property to current date in format yyyyMMdd -->
+    <tstamp property="build.date" pattern="yyyyMMdd" />
     <property name="sf.net.ssh.server" value="shell1.sf.net" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- retrieve system information and environment variables -->
@@ -15,7 +17,7 @@
     <!-- copy the zipped nighly build to sourceforge -->
     <target name="deploy-zip-sf" depends="set-net-1.0-runtime-configuration, package">
         <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
-        <tstamp property="build.date" pattern="yyyyMMdd" />
+        <!-- determine filename of distribution package on sf.net -->
         <property name="deploy.zip.file" value="${project.name}-${project.version}-${build.date}.zip" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
@@ -41,6 +43,8 @@
     </target>
     <!-- copy schema to sourceforge -->
     <target name="deploy-schema-sf" depends="set-net-1.0-runtime-configuration, package">
+        <!-- determine filename of schema on sf.net -->
+        <property name="deploy.schema.file" value="${project.name}-${project.version}-${build.date}.xsd" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -50,18 +54,18 @@
         <exec workingdir="${build.dir}/schema" program="scp">
             <arg value="-C" />
             <arg value="${project.name}-${project.version}.xsd" />
-            <arg value="${serverpart}/nightly/schema" />
+            <arg value="${serverpart}/nightly/schema/${deploy.schema.file}" />
         </exec>
         <echo message="Copied schema over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 775 ${sf.net.web.path}/nightly/schema/${project.name}-${project.version}.xsd" />
+            <arg value="chmod 775 ${sf.net.web.path}/nightly/schema/${deploy.schema.file}" />
         </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp nant ${sf.net.web.path}/nightly/schema/${project.name}-${project.version}.xsd" />
+            <arg value="chgrp nant ${sf.net.web.path}/nightly/schema/${deploy.schema.file}" />
         </exec>
     </target>
     <!-- copy help to sourceforge -->
