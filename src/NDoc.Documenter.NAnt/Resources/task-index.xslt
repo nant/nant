@@ -43,11 +43,11 @@
                     </tr>
                 </table>
                 <h1>Task Reference</h1>
-                <div class="Table-Section">
-                    <table class="Table">
+                <div class="table">
+                    <table>
                         <tr>
-                            <th class="Table-Header">Task</th>
-                            <th class="Table-Header">Summary</th>
+                            <th>Task</th>
+                            <th>Summary</th>
                         </tr>
                         <xsl:apply-templates select="//class">
                             <xsl:sort select="attribute/property[@name='Name']/@value" />
@@ -65,8 +65,8 @@
         <xsl:variable name="attr" select="attribute[@name='NAnt.Core.Attributes.TaskNameAttribute']/@name" />
         <xsl:if test="string-length(string($attr)) != 0">
             <tr>
-                <td class="Table-Cell"><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
-                <td class="Table-Cell"><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
+                <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
+                <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
             </tr>
         </xsl:if>
     </xsl:template>

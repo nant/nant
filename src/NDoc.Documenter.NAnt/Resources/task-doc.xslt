@@ -67,31 +67,31 @@
                 <xsl:variable name="properties" select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']"/>
                 <xsl:if test="count($properties) != 0">
                     <h3>Parameters</h3>
-                    <div class="Table-Section">
-                    <table class="Table">
-                        <tr>
-                            <th class="Table-Header">Attribute</th>
-                            <th class="Table-Header" align="center">Type</th>
-                            <th class="Table-Header">Description</th>
-                            <th class="Table-Header" align="center">Required</th>
-                        </tr>
-                        <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TaskAttribute">
-                            <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Name']/@value" />
-                        </xsl:apply-templates>
-                    </table>
+                    <div class="table">
+                        <table>
+                            <tr>
+                                <th>Attribute</th>
+                                <th style="text-align: center;">Type</th>
+                                <th>Description</th>
+                                <th style="text-align: center;">Required</th>
+                            </tr>
+                            <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TaskAttribute">
+                                <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Name']/@value" />
+                            </xsl:apply-templates>
+                        </table>
                     </div>
                 </xsl:if>
 
                 <xsl:variable name="FrameworkProperties" select="property[attribute/@name='NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
                 <xsl:if test="count($FrameworkProperties) != 0">
                     <h3>Framework-configurable parameters</h3>
-                    <div class="Table-Section">
-                        <table class="Table">
+                    <div class="table">
+                        <table>
                             <tr>
-                                <th class="Table-Header">Attribute</th>
-                                <th class="Table-Header" align="center">Type</th>
-                                <th class="Table-Header">Description</th>
-                                <th class="Table-Header" align="center">Required</th>
+                                <th>Attribute</th>
+                                <th style="text-align: center;">Type</th>
+                                <th>Description</th>
+                                <th style="text-align: center;">Required</th>
                             </tr>
                             <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute' ]" mode="FrameworkConfigurableAttribute">
                                 <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']/property[@name = 'Name']/@value" />
@@ -125,14 +125,14 @@
         <xsl:if test="count($TaskAttr) = 1">
             <xsl:variable name="Required" select="$TaskAttr/property[@name='Required']/@value"/>
             <tr>
-                <td class="Table-Cell" valign="top"><xsl:value-of select="$TaskAttr/property[@name='Name']/@value"/> </td>
-                <td class="Table-Cell" align="center">
+                <td valign="top"><xsl:value-of select="$TaskAttr/property[@name='Name']/@value"/> </td>
+                <td style="text-align: center;">
                     <xsl:call-template name="value">
                         <xsl:with-param name="type" select="@type" />
                     </xsl:call-template>
                 </td>
-                <td class="Table-Cell"><xsl:call-template name="docstring" /></td>
-                <td class="Table-Cell" align="center"><xsl:value-of select="string($Required)"/></td>
+                <td><xsl:call-template name="docstring" /></td>
+                <td style="text-align: center;"><xsl:value-of select="string($Required)"/></td>
             </tr>
         </xsl:if>
     </xsl:template>
@@ -143,14 +143,14 @@
         <xsl:if test="count($FrameworkConfigurableAttribute) = 1">
             <xsl:variable name="Required" select="$FrameworkConfigurableAttribute/property[@name='Required']/@value"/>
             <tr>
-                <td class="Table-Cell" valign="top"><xsl:value-of select="$FrameworkConfigurableAttribute/property[@name='Name']/@value"/></td>
-                <td class="Table-Cell" align="center">
+                <td valign="top"><xsl:value-of select="$FrameworkConfigurableAttribute/property[@name='Name']/@value"/></td>
+                <td style="text-align: center;">
                     <xsl:call-template name="value">
                         <xsl:with-param name="type" select="@type" />
                     </xsl:call-template>
                 </td>
-                <td class="Table-Cell"><xsl:call-template name="docstring" /></td>
-                <td class="Table-Cell" align="center"><xsl:value-of select="string($Required)"/></td>
+                <td><xsl:call-template name="docstring" /></td>
+                <td style="text-align: center;"><xsl:value-of select="string($Required)"/></td>
             </tr>
         </xsl:if>
     </xsl:template>

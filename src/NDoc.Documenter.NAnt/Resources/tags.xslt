@@ -159,8 +159,8 @@
     </xsl:template>
 
     <xsl:template match="list[@type='table']" mode="slashdoc" doc:group="block" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrflist.htm">
-        <div class="Table-Section">
-            <table class="Table">
+        <div class="table">
+            <table>
                 <xsl:apply-templates select="listheader" mode="slashdoc" />
                 <xsl:apply-templates select="item" mode="slashdoc" />
             </table>
@@ -174,13 +174,13 @@
     </xsl:template>
 
     <xsl:template match="list[@type='table']/listheader/term" mode="slashdoc" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrflist.htm">
-        <th class="Table-Header">
+        <th>
             <xsl:apply-templates select="./node()" mode="slashdoc" />
         </th>
     </xsl:template>
 
     <xsl:template match="list[@type='table']/listheader/description" mode="slashdoc" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrflist.htm">
-        <th class="Table-Header">
+        <th>
             <xsl:apply-templates select="./node()" mode="slashdoc" />
         </th>
     </xsl:template>
@@ -192,13 +192,13 @@
     </xsl:template>
 
     <xsl:template match="list[@type='table']/item/term" mode="slashdoc" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrflist.htm">
-        <td class="Table-Cell">
+        <td>
             <xsl:apply-templates select="./node()" mode="slashdoc" />
         </td>
     </xsl:template>
 
     <xsl:template match="list[@type='table']/item/description" mode="slashdoc" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrflist.htm">
-        <td class="Table-Cell">
+        <td>
             <xsl:apply-templates select="./node()" mode="slashdoc" />
         </td>
     </xsl:template>
