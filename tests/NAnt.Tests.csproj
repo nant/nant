@@ -444,6 +444,16 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "NAnt.VSNet\Tasks\CSharpSolutionTests.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.VSNet\Tasks\SolutionTestBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.VSNet\Tasks\VCProjectTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
