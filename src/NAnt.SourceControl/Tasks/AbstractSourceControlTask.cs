@@ -415,16 +415,8 @@ namespace NAnt.SourceControl.Tasks {
             Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} Environment value: {1}",
                 LogPrefix, environmentValue));
 
-            string [] environmentPaths = null;
-            if (null != environmentValue) {
-                if (PlatformHelper.IsUnix) {
-                    environmentPaths = environmentValue.Split(':');
-                } else if (PlatformHelper.IsWin32) {
-                    environmentPaths = environmentValue.Split(';');
-                } else {
-                    environmentPaths = new string[] {environmentValue};
-                }
-
+            if (environmentValue != null) {
+				string[] environmentPaths = environmentValue.Split(Path.PathSeparator);
                 foreach (string environmentPath in environmentPaths) {
                     if (null != environmentPath) {
                         string fileFullName = Path.Combine(environmentPath, fileName);
@@ -463,11 +455,7 @@ namespace NAnt.SourceControl.Tasks {
                     relativePath = relativePath.Substring(1, relativePath.Length - 1);
                 }
                 relativePath = relativePath.Replace("\\", "/");
-                try {
-                    Arguments.Add(new Argument(relativePath));
-                } catch (Exception e) {
-                    System.Console.WriteLine("Unable to parse file: " + e.Message);
-                }
+				Arguments.Add(new Argument("\"" + relativePath + "\""));
             }
         }
 
