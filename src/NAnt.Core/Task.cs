@@ -20,25 +20,34 @@
 // Ian MacLean (ian_maclean@another.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
-using System;
-using System.Globalization;
-using System.Reflection;
-using System.Xml;
-
-using SourceForge.NAnt.Attributes;
-
 namespace SourceForge.NAnt {
+
+    using System;
+    using System.Globalization;
+    using System.Reflection;
+    using System.Xml;
+
+    using SourceForge.NAnt.Attributes;
 
     /// <summary>Provides the abstract base class for tasks.</summary>
     /// <remarks>A task is a piece of code that can be executed.</remarks>
     public abstract class Task : Element {
-        //Target _target = null;
+        #region Private Static Fields
+
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        #endregion Private Static Fields
+
+        #region Private Instance Fields
 
         bool _failOnError = true;
         bool _verbose = false;
         bool _ifDefined = true;
         bool _unlessDefined = false;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>Determines if task failure stops the build, or is just reported. Default is "true".</summary>
         [TaskAttribute("failonerror")]
@@ -92,7 +101,11 @@ namespace SourceForge.NAnt {
             }
         }
 
-        /// <summary>Executes the task unless it is skipped. <note>Do not ovveride/new this method. Use ExecuteTask instead.</note></summary>
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+
+        /// <summary>Executes the task unless it is skipped.</summary>
         public void Execute() {
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
@@ -108,16 +121,25 @@ namespace SourceForge.NAnt {
                         CultureInfo.InvariantCulture,
                         "{0} Generated Exception", 
                         Name), e);
+
                     if (FailOnError) {
                         throw;
                     } else {
-                        Log.WriteLine(e.ToString());
+                        if (this.Verbose) {
+                            Log.WriteLine(LogPrefix + e.ToString());
+                        } else {
+                            Log.WriteLine(LogPrefix + e.Message);
+                        }
                     }
                 } finally {
                     Project.OnTaskFinished(this, new BuildEventArgs(Name));
                 }
             }
         }
+
+        #endregion Public Instance Methods
+
+        #region Protected Instance Methods
 
         /// <summary><note>Deprecated (to be deleted).</note></summary>
         [Obsolete("Deprecated- Use InitializeTask instead")]
@@ -132,5 +154,7 @@ namespace SourceForge.NAnt {
 
         /// <summary>Executes the task.</summary>
         protected abstract void ExecuteTask();
+
+        #endregion Protected Instance Methods
     }
 }
