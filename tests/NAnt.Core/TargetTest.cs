@@ -32,18 +32,22 @@ namespace Tests.NAnt.Core {
 
         private const string BuildFragment = @"
             <project default='{0}'>
-                <property name='a' value='{1}'/>
-                <property name='b' value='{2}'/>
-
                 <target name='Target1' depends='Target2 Target3'>
                     <echo message='Target1 executed'/>
                 </target>
-                <target name='Target2' if='${{a}}'>
+                <target name='Target2' if='{1}'>
                     <echo message='Target2 executed'/>
                 </target>
-                <target name='Target3' unless='${{b}}' depends='{3}'>
+                <target name='Target3' unless='{2}' depends='{3}'>
                     <echo message='Target3 executed'/>
                 </target>
+            </project>";
+
+        private const string BuildFragment2 = @"
+            <project>
+                <target name='Target1' depends='Target2 Target3'/>
+                <target name='Target2' />
+                <target name='Target3' depends='Target2'/>
             </project>";
 
         #endregion Private Static Fields
@@ -95,12 +99,47 @@ namespace Tests.NAnt.Core {
             TestBuildListener listener = new TestBuildListener();
 
             // run the build
+            string result = RunBuild(FormatBuildFile("Target1", "true", "false", "Target2"), listener);
+
+            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
+            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
+            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+        }
+
+        [Test]
+        public void Test_Depends2() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            // run the build
             string result = RunBuild(FormatBuildFile("Target1", "true", "false", string.Empty), listener);
 
             Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
             Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
             Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
         }
+
+        [Test]
+        public void Test_CommandLineTargets() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            Project project = CreateFilebasedProject(FormatBuildFile(string.Empty, "true", "false", "Target2"));
+
+            //use Project.AttachBuildListeners to attach.
+            IBuildListener[] listners = {listener};
+            project.AttachBuildListeners(new BuildListenerCollection(listners));
+             
+            //add targets like they are added from the command line.
+            project.BuildTargets.Add("Target1");
+
+            string result = ExecuteProject(project);
+
+            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
+            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
+            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+        }
+
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
