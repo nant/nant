@@ -74,19 +74,33 @@ namespace NAnt.Core {
         }
 
         protected override void InitializeElement(XmlNode elementNode) {
+            if (Parent == null) {
+                // output warning message
+                Log(Level.Warning, "Parent property should be set on types" 
+                    + " deriving from DataTypeBase to determine whether" 
+                    + " the type is declared on a valid level.");
+
+                // skip further tests
+                return;
+            }
+
             if (Parent.GetType() == typeof(Project) || Parent.GetType() == typeof(Target)) {
                 if (StringUtils.IsNullOrEmpty(ID)) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "'id' is a required attribute for a <{0}> datatype declaration.", Name);
-                    throw new BuildException(msg, Location);
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "'id' is a required attribute for a <{0}> datatype declaration.", 
+                        Name), Location);
                 }
                 if (!StringUtils.IsNullOrEmpty(RefID)) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "'refid' attribute is invalid for a <{0}> datatype declaration.", Name);
-                    throw new BuildException(msg, Location);
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "'refid' attribute is invalid for a <{0}> datatype declaration.", 
+                        Name), Location);
                 }
             } else {
                   if (!StringUtils.IsNullOrEmpty(ID)) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "'id' is an invalid attribute for a <{0}> tag. Datatypes can only be declared at Project or Task level.", Name);
-                    throw new BuildException(msg, Location);
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "'id' is an invalid attribute for a <{0}> tag. Datatypes" 
+                        + " can only be declared at Project or Target level.", 
+                        Name), Location);
                 }
             }
         }
