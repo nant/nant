@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,20 +36,26 @@ using NAnt.Core.Util;
 namespace NAnt.Core {
     /// <summary>Central representation of a NAnt project.</summary>
     /// <example>
-    ///   <para>The <c>Run</c> method will initialize the project with the build file specified in the <c>BuildFile</c> property and execute the default target.</para>
-    /// <code>
-    /// <![CDATA[
-    /// Project p = new Project("foo.build");
+    ///   <para>
+    ///   The <see cref="Run" /> method will initialize the project with the build
+    ///   file specified in the constructor and execute the default target.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// Project p = new Project("foo.build", Level.Info);
     /// p.Run();
-    /// ]]>
-    /// </code>
-    ///   <para>If no target is given the default target will be executed if specified in the project.</para>
-    /// <code>
-    /// <![CDATA[
-    /// Project p = new Project("foo.build");
-    /// p.Execute("build"); /
-    /// ]]>
-    /// </code>
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   If no target is given, the default target will be executed if specified 
+    ///   in the project.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// Project p = new Project("foo.build", Level.Info);
+    /// p.Execute("build");
+    ///     ]]>
+    ///   </code>
     /// </example>
     public class Project {
         #region Private Static Fields
@@ -68,7 +74,6 @@ namespace NAnt.Core {
         private const string ProjectDefaultAttribte = "default";
         private const string ProjectBaseDirAttribute = "basedir";
         private const string TargetXml = "target";
-        private const string TargetDependsAttribute = "depends";
 
         #endregion Private Static Fields
 
@@ -117,7 +122,7 @@ namespace NAnt.Core {
         private XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         private DataTypeBaseDictionary _dataTypeReferences = new DataTypeBaseDictionary();
         
-        // info about framework information
+        // info about frameworks
         private FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
         private FrameworkInfo _defaultFramework;
         private FrameworkInfo _currentFramework;
@@ -161,7 +166,9 @@ namespace NAnt.Core {
         /// <para> This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <param name="threshold">The message threshold.</param>
-        /// <remarks><para>If the source is a uri of form 'file:///path' then use the path part.</para></remarks>
+        /// <remarks>
+        /// If the source is a uri of form 'file:///path' then use the path part.
+        /// </remarks>
         public Project(string uriOrFilePath, Level threshold) : this(uriOrFilePath, threshold, 0) {
         }
 
@@ -175,7 +182,9 @@ namespace NAnt.Core {
         /// </param>
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
-        /// <remarks><para>If the source is a uri of form 'file:///path' then use the path part.</para></remarks>
+        /// <remarks>
+        /// If the source is a uri of form 'file:///path' then use the path part.
+        /// </remarks>
         public Project(string uriOrFilePath, Level threshold, int indentLevel) {
             string path = uriOrFilePath;
             //if the source is not a valid uri, pass it thru.
@@ -203,7 +212,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the indendation level of the build output.
         /// </summary>
-        /// <value>The indentation level of the build output.</value>
+        /// <value>
+        /// The indentation level of the build output.
+        /// </value>
         /// <remarks>
         /// To change the <see cref="IndentationLevel" />, the <see cref="Indent()" /> 
         /// and <see cref="Unindent()" /> methods should be used.
@@ -215,7 +226,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the indentation size of the build output.
         /// </summary>
-        /// <value>The indendation size of the build output.</value>
+        /// <value>
+        /// The indendation size of the build output.
+        /// </value>
         public int IndentationSize {
             get { return _indentationSize; }
         }
@@ -244,7 +257,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets or sets the base directory used for relative references.
         /// </summary>
-        /// <value>The base directory used for relative references.</value>
+        /// <value>
+        /// The base directory used for relative references.
+        /// </value>
         /// <remarks>
         /// <para>
         /// The directory must be rooted. (must start with drive letter, unc, 
@@ -307,7 +322,8 @@ namespace NAnt.Core {
         }
         
         /// <summary>
-        /// This is the framework we will normally use unless the nant.settings.currentframework has been set to somthing else  
+        /// This is the framework we will normally use unless the nant.settings.currentframework 
+        /// has been set to somthing else.
         /// </summary>
         public FrameworkInfo DefaultFramework {
             get { return _defaultFramework; }
@@ -355,13 +371,16 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the active <see cref="Project" /> definition.
         /// </summary>
-        /// <value>The active <see cref="Project" /> definition.</value>
+        /// <value>
+        /// The active <see cref="Project" /> definition.
+        /// </value>
         public XmlDocument Document {
             get { return _doc; }
         }
 
         /// <remarks>
-        /// <para>Used only if BuildTargets collection is empty.</para>
+        /// Gets the name of the target that will be executed when no other 
+        /// build targets are specified.
         /// </remarks>
         public string DefaultTargetName {
             get { return _defaultTargetName; }
@@ -412,7 +431,8 @@ namespace NAnt.Core {
         /// configuration file.
         /// </summary>
         /// <value>
-        /// The framework-neutral properties defined in the NAnt configuration file.
+        /// The framework-neutral properties defined in the NAnt configuration 
+        /// file.
         /// </value>
         /// <remarks>
         /// <para>
@@ -442,7 +462,7 @@ namespace NAnt.Core {
         /// </para>
         /// </remarks>
         public DataTypeBaseDictionary DataTypeReferences {
-            get {return _dataTypeReferences; }
+            get { return _dataTypeReferences; }
         }
         
         /// <summary>
@@ -624,10 +644,11 @@ namespace NAnt.Core {
         /// Executes the default target.
         /// </summary>
         /// <remarks>
-        ///     <para>No top level error handling is done. Any BuildExceptions will make it out of this method.</para>
+        /// No top level error handling is done. Any <see cref="BuildException" /> 
+        /// will be passed onto the caller.
         /// </remarks>
         public virtual void Execute() {
-            //will initialize the list of Targets, and execute any global tasks.
+            // initialize the list of Targets, and execute any global tasks.
             InitializeProjectDocument(Document);
 
             if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
@@ -1069,8 +1090,9 @@ namespace NAnt.Core {
                         Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
                         DataTypeReferences.Add(dataType.ID, dataType);
                     } else {
-                        string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
-                        throw new BuildException(message, LocationMap.GetLocation(childNode));
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
+                            LocationMap.GetLocation(childNode));
                     }
                 }
             }
