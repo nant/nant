@@ -392,8 +392,15 @@ namespace NAnt.Core {
 
         private bool IsValidXml(string message) {
             if (Regex.Match(message, @"^<.*>").Success) {
+                XmlNodeType type = XmlNodeType.Element;
+                
+                // if we have an xml decl then parse as a document node type 
+                // works around mono incompatibility bug #61274
+                if (Regex.Match(message, @"^<\?xml\sversion.*\?>").Success) {
+                    type = XmlNodeType.Document;
+                }
                 // validate xml
-                XmlValidatingReader reader = new XmlValidatingReader(message, XmlNodeType.Element, null);
+                XmlValidatingReader reader = new XmlValidatingReader(message, type, null);
 
                 try { 
                     while (reader.Read()) {
