@@ -96,7 +96,7 @@ namespace NAnt.Core {
     ///     </change>
     /// </history>
     [Serializable()]
-    public class DirectoryScanner {
+    public class DirectoryScanner : ICloneable {
         #region Private Instance Fields
 
         // set to current directory in Scan if user doesn't specify something first.
@@ -104,21 +104,21 @@ namespace NAnt.Core {
         private DirectoryInfo _baseDirectory;
 
         // holds the nant patterns (absolute or relative paths)
-        private StringCollectionWithGoodToString  _includes = new StringCollectionWithGoodToString ();
-        private StringCollectionWithGoodToString  _excludes = new StringCollectionWithGoodToString ();
+        private StringCollectionWithGoodToString  _includes = new StringCollectionWithGoodToString();
+        private StringCollectionWithGoodToString  _excludes = new StringCollectionWithGoodToString();
 
         // holds the nant patterns converted to regular expression patterns (absolute canonized paths)
-        private StringCollectionWithGoodToString  _includePatterns = null;
-        private StringCollectionWithGoodToString  _excludePatterns = null;
+        private StringCollectionWithGoodToString  _includePatterns;
+        private StringCollectionWithGoodToString  _excludePatterns;
 
         // holds the result from a scan
-        private StringCollectionWithGoodToString  _fileNames = null;
-        private DirScannerStringCollection _directoryNames = null;
+        private StringCollectionWithGoodToString  _fileNames;
+        private DirScannerStringCollection _directoryNames;
 
         // directories that should be scanned and directories scanned so far
-        private DirScannerStringCollection _searchDirectories = null;
-        private DirScannerStringCollection _scannedDirectories = null;
-        private ArrayList _searchDirIsRecursive = null;
+        private DirScannerStringCollection _searchDirectories;
+        private DirScannerStringCollection _scannedDirectories;
+        private ArrayList _searchDirIsRecursive;
 
         #endregion Private Instance Fields
 
@@ -127,6 +127,54 @@ namespace NAnt.Core {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #endregion Private Static Fields
+
+		#region Implementation of ICloneable
+
+		/// <summary>
+		/// Creates a shallow copy of the <see cref="DirectoryScanner" />.
+		/// </summary>
+		/// <returns>
+		/// A shallow copy of the <see cref="DirectoryScanner" />.
+		/// </returns>
+		public object Clone() {
+			DirectoryScanner clone = new DirectoryScanner();
+			if (_baseDirectory != null) {
+				clone._baseDirectory = new DirectoryInfo(_baseDirectory.FullName);
+			}
+			if (_directoryNames != null) {
+				clone._directoryNames = (DirScannerStringCollection) 
+					_directoryNames.Clone();
+			}
+			if (_excludePatterns != null) {
+				clone._excludePatterns = (StringCollectionWithGoodToString) 
+					_excludePatterns.Clone();
+			}
+			clone._excludes = (StringCollectionWithGoodToString) _excludes.Clone();
+			if (_fileNames != null) {
+				clone._fileNames = (StringCollectionWithGoodToString) 
+					_fileNames.Clone();
+			}
+			if (_includePatterns != null) {
+				clone._includePatterns = (StringCollectionWithGoodToString) 
+					_includePatterns.Clone();
+			}
+			clone._includes = (StringCollectionWithGoodToString) _includes.Clone();
+			if (_scannedDirectories != null) {
+				clone._scannedDirectories = (DirScannerStringCollection) 
+					_scannedDirectories.Clone();
+			}
+			if (_searchDirectories != null) {
+				clone._searchDirectories = (DirScannerStringCollection) 
+					_searchDirectories.Clone();
+			}
+			if (_searchDirIsRecursive != null) {
+				clone._searchDirIsRecursive = (ArrayList) 
+					_searchDirIsRecursive.Clone();
+			}
+			return clone;
+		}
+
+		#endregion Implementation of ICloneable
 
         #region Public Instance Properties
 
