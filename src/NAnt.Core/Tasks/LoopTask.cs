@@ -40,12 +40,6 @@ namespace NAnt.Core.Tasks {
     ///   The property is returned to its normal value once it is used. Read-only 
     ///   parameters cannot be overridden in this loop.
     ///   </para>
-    ///   <para>
-    ///     The delim attribute can have the following values: File, Folder, String, Line.
-    ///   </para>
-    ///   <para>
-    ///     The trim attribute can be: End, Start, Both, or None (default).
-    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Loops over the files in <c>c:\</c>.</para>
