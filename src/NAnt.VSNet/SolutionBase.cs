@@ -339,6 +339,7 @@ namespace NAnt.VSNet {
             // as the value
             foreach (DictionaryEntry de in _htProjectFiles) {
                 string projectPath = (string) de.Value;
+                string projectGuid = (string) de.Key;
 
                 // determine whether project is on case-sensitive filesystem,
                 bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
@@ -359,6 +360,11 @@ namespace NAnt.VSNet {
                 }
 
                 if (skipProject) {
+                    // remove dependencies for excluded projects
+                    if (_htProjectDependencies.ContainsKey(projectGuid)) {
+                        _htProjectDependencies.Remove(projectGuid);
+                    }
+
                     // project was excluded, move on to next project
                     continue;
                 }
@@ -373,7 +379,8 @@ namespace NAnt.VSNet {
                 }
 
                 Log(Level.Verbose, "Loading project '{0}'.", projectPath);
-                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, refResolver, _outputDir, projectPath);
+                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, 
+                    _tfc, gacCache, refResolver, _outputDir, projectPath);
                 if (p.Guid == null || p.Guid == string.Empty) {
                     p.Guid = FindGuidFromPath(projectPath);
                 }
@@ -383,19 +390,19 @@ namespace NAnt.VSNet {
                 // Alert the user to fix this as it is basically a corruption 
                 // probably caused by user manipulation of the solution file
                 // i.e. copy and paste
-                if (!p.Guid.Equals(de.Key.ToString())) {
+                if (!p.Guid.Equals(projectGuid)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "GUID corruption detected for project '{0}'. GUID values" 
                         + " in project file and solution file do not match ('{1}'" 
                         + " and '{2}'). Please correct this manually.", p.Name, 
-                        p.Guid, de.Key.ToString()), Location.UnknownLocation);
+                        p.Guid, projectGuid), Location.UnknownLocation);
                 }
 
                 // set project build configuration
                 SetProjectBuildConfiguration(p);
 
                 // add project to hashtable
-                _htProjects[de.Key] = p;
+                _htProjects[projectGuid] = p;
             }
         }
 
