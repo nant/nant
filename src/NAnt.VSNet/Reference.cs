@@ -77,7 +77,6 @@ namespace NAnt.VSNet.Tasks {
                 _strReferenceFile = elemReference.Attributes[ "AssemblyName" ].Value + ".dll";
                 
                 string strGACFile = Path.Combine( diGAC.FullName, _strReferenceFile );
-				_nanttask.Log( NAnt.Core.Level.Warning, strGACFile );
                 if ( File.Exists( strGACFile ) ) {
                     // This file is in the GAC
                     _strBaseDirectory = diGAC.FullName;
