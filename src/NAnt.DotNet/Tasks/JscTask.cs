@@ -40,7 +40,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("jsc")]
-    [ProgramLocation( LocationType.FrameworkDir ) ]
+    [ProgramLocation(LocationType.FrameworkDir)]
     public class JscTask : CompilerBase {
         #region Private Instance Fields
 
@@ -62,7 +62,16 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("warninglevel")]
         [Int32Validator(0, 4)]
-        public string WarningLevel  { get { return _warningLevel; } set {_warningLevel = value;}}
+        public string WarningLevel {
+            get { return _warningLevel; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _warningLevel = value;
+                } else {
+                    _warningLevel = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Specifies the code page to use for all source code files in the compilation.
@@ -75,7 +84,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { _codepage = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _codepage = value;
+                } else {
+                    _codepage = null;
+                }
+            }
         }
 
         #endregion Public Instance Properties

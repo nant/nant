@@ -42,7 +42,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("csc")]
-    [ProgramLocation( LocationType.FrameworkDir ) ]
+    [ProgramLocation(LocationType.FrameworkDir)]
     public class CscTask : CompilerBase {
         #region Private Instance Fields
        
@@ -71,7 +71,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("doc")]
         public string Doc {
             get { return _doc; }
-            set {_doc = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _doc = value;
+                } else {
+                    _doc = null;
+                }
+            }
         }
 
         /// <summary>
@@ -169,7 +175,13 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set {_warningLevel = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _warningLevel = value;
+                } else {
+                    _warningLevel = null;
+                }
+            }
         }
 
         /// <summary>
@@ -185,7 +197,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("nowarn")]
         public string NoWarn {
             get { return _noWarn; }
-            set {_noWarn = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _noWarn = value;
+                } else {
+                    _noWarn = null;
+                }
+            }
         }
 
         /// <summary>
@@ -199,7 +217,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { _codepage = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _codepage = value;
+                } else {
+                    _codepage = null;
+                }
+            }
         }
 
         #endregion Public Instance Properties
