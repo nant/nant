@@ -15,7 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// Gerry Shaw (gerry_shaw@yahoo.com)
+// Ian MacLean ( ian_maclean@another.com )
 
 using System.Globalization;
 using System.IO;
@@ -26,9 +26,10 @@ using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 using NAnt.DotNet.Tasks;
 
-namespace Tests.NAnt.DotNet.Tasks {
+namespace Tests.NAnt.DotNet.Tasks 
+{
     [TestFixture]
-    public class CscTaskTest : BuildTestBase {
+    public class VjcTaskTest : BuildTestBase {
         #region Private Instance Fields
 
         private string _sourceFileName;
@@ -39,17 +40,17 @@ namespace Tests.NAnt.DotNet.Tasks {
 
         private const string _format = @"<?xml version='1.0'?>
             <project>
-                <csc target='exe' output='{0}.exe' {2}>
+                <vjc target='exe' output='{0}.exe' {2}>
                     <sources basedir='{1}'>
                         <includes name='{0}'/>
                     </sources>
-                </csc>
+                </vjc>
             </project>";
 
         private const string _sourceCode = @"
             public class HelloWorld { 
-                static void Main() { 
-                    System.Console.WriteLine(""Hello World using C#""); 
+                 public static void main(String[] args) { 
+                    System.Console.WriteLine(""Hello World using J#""); 
                 }
             }";
 
@@ -110,37 +111,37 @@ namespace Tests.NAnt.DotNet.Tasks {
             /// Uses a representative sampling of classname inputs to verify that the classname line can be found
             /// </summary>
             [Test]
-            public void TestFindClassname() {
+            public void TestFindClassname()  {
                 // Positive test cases - classname should be found
                 VerifyFindClassname( "public abstract class CompilerBase\r\n{} \r\n}", "CompilerBase" );
                 VerifyFindClassname( "public abstract class Conference \r\n{}", "Conference" );
-                VerifyFindClassname( "public class AssemblyAttributeEnumerator : IEnumerator {\r\n", "AssemblyAttributeEnumerator" );
-                VerifyFindClassname( "internal class FolderCollection : IFolderCollection\r\n{}", "FolderCollection" );
+                VerifyFindClassname( "public class AssemblyAttributeEnumerator implements IEnumerator {\r\n", "AssemblyAttributeEnumerator" );
+                VerifyFindClassname( "private class FolderCollection implements IFolderCollection\r\n{}", "FolderCollection" );
                 VerifyFindClassname( "class InstallTool\r\n{}", "InstallTool" );
-                VerifyFindClassname( "internal abstract class FSObject\r\n{}", "FSObject" );
-                VerifyFindClassname( "private class Enumerator : IEnumerator, ILevelCollectionEnumerator\r\n{}", "Enumerator" );
-                VerifyFindClassname( "private class Enumerator: IEnumerator, ILevelCollectionEnumerator\r\n{}", "Enumerator" );
-                VerifyFindClassname( "private class Enumerator:IEnumerator, ILevelCollectionEnumerator\r\n{}", "Enumerator" );
-                VerifyFindClassname( "public sealed class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {\r\n}", "FrameworkInfoDictionary" );
+                VerifyFindClassname( " abstract class FSObject\r\n{}", "FSObject" );
+                VerifyFindClassname( "private class Enumerator implements IEnumerator, ILevelCollectionEnumerator\r\n{}", "Enumerator" );
+                VerifyFindClassname( "private class Enumerator implements IEnumerator, ILevelCollectionEnumerator\r\n{}", "Enumerator" );
+                VerifyFindClassname( "private class Enumerator implements IEnumerator, ILevelCollectionEnumerator\r\n{}", "Enumerator" );
+                VerifyFindClassname( "public class FrameworkInfoDictionary implements IDictionary, ICollection, IEnumerable, ICloneable {\r\n}", "FrameworkInfoDictionary" );
                 VerifyFindClassname( "\tclass InstallTool\r\n{}", "InstallTool" );
                 VerifyFindClassname( " class InstallTool\r\n{}", "InstallTool" );
-                VerifyFindClassname( "internal abstract class FSObject\r\n{}", "FSObject" );
+                VerifyFindClassname( " abstract class FSObject\r\n{}", "FSObject" );
         
                 // Negative test cases - no classname should be found
                 VerifyFindClassname( "// this is some class here\r\n", "" );
                 //VerifyFindClassname( "/* this is some class here\r\n", null );
             }
                 
-                /// <summary>
-                /// Parses the input, ensuring the class name is found
-                /// </summary>
-            public void VerifyFindClassname( string input, string expectedClassname ) {
-                CscTask cscTask = new CscTask();
+            /// <summary>
+            /// Parses the input, ensuring the class name is found
+            /// </summary>
+            public void VerifyFindClassname( string input, string expectedClassname )   {
+                VjcTask vjcTask = new VjcTask();
                 StringReader reader = new StringReader( input );
-                CompilerBase.ResourceLinkage linkage = cscTask.PerformSearchForResourceLinkage( reader );
+                CompilerBase.ResourceLinkage linkage = vjcTask.PerformSearchForResourceLinkage( reader );
                 
                 Assertion.AssertNotNull("no resourcelinkage found for " + input, linkage);
-                string message = string.Format( "Failed to find expected class name {0}. Found {1} instead.", expectedClassname , linkage.ClassName ); 
+                string message = string.Format( "Failed to find expected class name {0}. Found {1} instead.", linkage.ClassName, expectedClassname ); 
                 Assertion.Assert( message, (expectedClassname == linkage.ClassName ) );
             }
         }

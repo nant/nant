@@ -19,7 +19,7 @@
 
 using System.Globalization;
 using System.IO;
-
+using NAnt.DotNet.Tasks;
 using NUnit.Framework;
 
 using Tests.NAnt.Core;
@@ -84,7 +84,7 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// Test to make sure debug option works.
         /// </summary>
         [Test]
-        public void Test_ReleaseBuild() {
+        public void Test_ReleaseBuild() {   
             string result = RunBuild(FormatBuildFile("debug='false'"));
             Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
             Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
@@ -102,5 +102,38 @@ namespace Tests.NAnt.DotNet.Tasks {
         }
 
         #endregion Private Instance Methods
+        /// <summary>
+        /// Unit tests for FileParser
+        /// </summary>
+        [TestFixture]
+            public class TestResourceLinkage 
+        {
+            /// <summary>
+            /// Uses a representative sampling of classname inputs to verify that the classname line can be found
+            /// </summary>
+            [Test]
+            public void TestFindClassname() 
+            {
+                // Positive test cases - classname should be found
+                VerifyFindClassname( "Public Abstract Class CompilerBase\r\n{} \r\n}", "CompilerBase" );
+                VerifyFindClassname( "Public Abstract Class Conference \r\n{}", "Conference" );              
+        
+                // Negative test cases - no classname should be found
+                VerifyFindClassname( "' this is some Class here\r\n", "" );           
+            }
+                
+            /// <summary>
+            /// Parses the input, ensuring the class name is found
+            /// </summary>
+            public void VerifyFindClassname( string input, string expectedClassname ) {
+                VbcTask vbTask = new VbcTask();
+                StringReader reader = new StringReader( input );
+                CompilerBase.ResourceLinkage linkage = vbTask.PerformSearchForResourceLinkage( reader );
+                
+                Assertion.AssertNotNull("no resourcelinkage found for " + input, linkage);
+                string message = string.Format( "Failed to find expected class name {0}. Found {1} instead.", linkage.ClassName, expectedClassname ); 
+                Assertion.Assert( message, (expectedClassname == linkage.ClassName ) );
+            }
+        }
     }
 }

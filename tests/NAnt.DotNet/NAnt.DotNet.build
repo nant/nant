@@ -8,11 +8,15 @@
     -->
     <target name="build">
         <!-- build test assembly -->
+         <available type="File" resource="{nant.settings.currentframework.sdkdirectory}/vjc.exe" property="vjc.present" />
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
             <sources>
                 <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="../../src/CommonAssemblyInfo.cs" />
+                
+                <!-- exclude these tests if no j# compiler present -->
+                <excludes name="Tasks/VjcTaskTest.cs" unless="${vjc.present}" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
