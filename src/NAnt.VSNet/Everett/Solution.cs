@@ -96,7 +96,6 @@ namespace NAnt.VSNet.Everett {
             LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
             LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
             LoadProjects(gacCache, refResolver);
-            GetDependenciesFromProjects();
         }
     }
 }

@@ -44,7 +44,6 @@ namespace NAnt.VSNet {
                 LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
                 LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
                 LoadProjects(gacCache, refResolver);
-                GetDependenciesFromProjects();
             }
         }
 
@@ -185,6 +184,8 @@ namespace NAnt.VSNet {
         }
 
         public bool Compile(string configuration) {
+            GetDependenciesFromProjects(configuration);
+
             Hashtable htDeps = (Hashtable) _htProjectDependencies.Clone();
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -194,131 +195,107 @@ namespace NAnt.VSNet {
             while (true) {
                 bool compiledThisRound = false;
 
-                foreach (ProjectBase p in _htProjects.Values) {
-                    if (htProjectsDone.Contains(p.Guid)) {
+                foreach (ProjectBase project in _htProjects.Values) {
+                    if (htProjectsDone.Contains(project.Guid)) {
                         continue;
                     }
 
-                    if (GetProjectDependencies(p.Guid).Length == 0) {
-                        bool failed = htFailedProjects.Contains(p.Guid);
+                    if (GetProjectDependencies(project.Guid).Length == 0) {
+                        bool failed = htFailedProjects.Contains(project.Guid);
 
-                        if (!failed) {
+                        // check if project actually support the build configuration
+                        ConfigurationBase projectConfig = (ConfigurationBase) 
+                            project.ProjectConfigurations[configuration];
+
+                        if (!failed && projectConfig != null) {
                             // Fixup references
                             Log(Level.Verbose, "Fixing up references...");
 
-                            foreach (Reference reference in p.References) {
-                                // store original reference filename
-                                string originalReference = reference.Filename;
+                            ArrayList projectReferences = (ArrayList) 
+                                project.References.Clone();
 
-                                if (reference.IsProjectReference) {
-                                    // at the time when the reference was constructed,
-                                    // the configuration was not known, so we need to
-                                    // set the Filename of the reference now
-                                    ProjectBase projectReference = GetProjectFromGuid(reference.Project.Guid);
-                                    if (projectReference == null) {
-                                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                            "Unable to locate referenced project '{0}' while loading '{1}'.",
-                                            reference.Name, p.Name), Location.UnknownLocation);
-                                    }
-                                    string outputPath = projectReference.GetOutputPath(configuration);
-                                    if (outputPath == null) {
-                                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                            "Unable to find '{0}' configuration for project '{1}'.",
-                                            configuration, projectReference.Name), Location.UnknownLocation);
-                                    }
-                                    reference.Filename = outputPath;
-                                } else {
-                                    // if the reference is an output file of
-                                    // another build configuration of a project
-                                    // and this output file wasn't built before
-                                    // then use the output file for the current 
-                                    // build configuration 
-                                    //
-                                    // eg. a project file might be referencing the
-                                    // the debug assembly of a given project as an
-                                    // assembly reference, but the projects are now 
-                                    // being built in release configuration, so
-                                    // instead of failing the build we use the 
-                                    // release assembly of that project
-
-                                    // Note that this was designed to intentionally 
-                                    // deviate from VS.NET's building strategy.
-
-                                    // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
-                                    // for why we must always convert file references to project references
-
-                                    // If we want a different behaviour, this 
-                                    // should be controlled by a flag
-
-                                    ProjectBase projectReference = null;
-
-                                    if (_htOutputFiles.Contains(reference.Filename)) {
-                                        projectReference = (ProjectBase) _htProjects[
-                                            (string) _htOutputFiles[reference.Filename]];
-                                    } else if (_outputDir != null) {
-                                        // if an output directory is set, then the 
-                                        // assembly reference might not have been 
-                                        // resolved during Reference initialization, 
-                                        // as the output file of the project might 
-                                        // not have existed at that time
-
-                                        string projectOutput = Path.Combine(
-                                            _outputDir.FullName, Path.GetFileName(
-                                            reference.Filename));
-                                        if (_htOutputFiles.Contains(projectOutput)) {
-                                            projectReference = (ProjectBase) _htProjects[
-                                                (string) _htOutputFiles[projectOutput]];
-                                        }
-                                    }
-                                        
-                                    if (projectReference != null) {
-                                        reference.Project = projectReference;
-                                        reference.Filename = projectReference.GetOutputPath(configuration);
-                                        Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", 
-                                            originalReference, projectReference.Name);
-                                    }
+                            foreach (ReferenceBase reference in projectReferences) {
+                                FileReferenceBase fileReference = reference as 
+                                    FileReferenceBase;
+                                if (fileReference == null) {
+                                    // project references don't need to be fixed
+                                    continue;
                                 }
 
-                                // only output message when reference has actually been fixed up
-                                if (originalReference != reference.Filename) {
-                                    Log(Level.Verbose, "Fixed reference '{0}': {1} -> {2}.", 
-                                        reference.Name, originalReference, reference.Filename);
+                                // if the reference is an output file of
+                                // another build configuration of a project
+                                // and this output file wasn't built before
+                                // then use the output file for the current 
+                                // build configuration 
+                                //
+                                // eg. a project file might be referencing the
+                                // the debug assembly of a given project as an
+                                // assembly reference, but the projects are now 
+                                // being built in release configuration, so
+                                // instead of failing the build we use the 
+                                // release assembly of that project
+
+                                // Note that this was designed to intentionally 
+                                // deviate from VS.NET's building strategy.
+
+                                // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
+                                // for why we must always convert file references to project references
+
+                                // If we want a different behaviour, this 
+                                // should be controlled by a flag
+
+                                string outputFile = reference.GetOutputFile(projectConfig);
+                                if (_htOutputFiles.Contains(outputFile)) {
+                                    ProjectBase projectRef = (ProjectBase) _htProjects[
+                                        (string) _htOutputFiles[outputFile]];
+                                    ProjectReference projectReference = fileReference.
+                                        CreateProjectReference(projectRef);
+                                    Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", 
+                                        fileReference.Name, projectReference.Name);
+
+                                    // remove file reference from project
+                                    project.References.Remove(fileReference);
+
+                                    // add project reference instead
+                                    project.References.Add(projectReference);
                                 }
                             }
                         }
 
                         try {
-                            if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration))) {
+                            if (!_htReferenceProjects.Contains(project.Guid) && (failed || !project.Compile(configuration))) {
                                 if (!failed) {
-                                    Log(Level.Error, "Project '{0}' failed!", p.Name);
+                                    Log(Level.Error, "Project '{0}' failed!", project.Name);
                                     Log(Level.Error, "Continuing build with non-dependent projects.");
-                                    failedProjects.Add( p.Name );
+                                    failedProjects.Add(project.Name);
                                 }
 
                                 success = false;
-                                htFailedProjects[p.Guid] = null;
+                                htFailedProjects[project.Guid] = null;
 
                                 // mark the projects referencing this one as failed
                                 foreach (ProjectBase pFailed in _htProjects.Values) {
-                                    if (HasProjectDependency(pFailed.Guid, p.Guid)) {
+                                    if (HasProjectDependency(pFailed.Guid, project.Guid)) {
                                         htFailedProjects[pFailed.Guid] = null;
                                     }
                                 }
                             }
-                        } catch ( BuildException ) {
+                        } catch (BuildException) {
                             // Re-throw build exceptions
                             throw;
-                        } catch ( Exception e ) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Unexpected error while compiling project '{0}'", p.Name), Location.UnknownLocation, e);
+                        } catch (Exception e) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Unexpected error while compiling project '{0}'", project.Name), 
+                                Location.UnknownLocation, e);
                         }
 
                         compiledThisRound = true;
 
                         // remove all references to this project
                         foreach (ProjectBase pRemove in _htProjects.Values) {
-                            RemoveProjectDependency(pRemove.Guid, p.Guid);
+                            RemoveProjectDependency(pRemove.Guid, project.Guid);
                         }
-                        htProjectsDone[p.Guid] = null;
+                        htProjectsDone[project.Guid] = null;
                     }
                 }
 
@@ -463,7 +440,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected void GetDependenciesFromProjects() {
+        protected void GetDependenciesFromProjects(string buildConfig) {
             Log(Level.Verbose, "Gathering additional dependencies...");
 
             // first get all of the output files
@@ -484,7 +461,7 @@ namespace NAnt.VSNet {
             Hashtable outputsInAssemblyFolders = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
             foreach (DictionaryEntry de in _htOutputFiles) {
-                string outputfile = (string)de.Key;
+                string outputfile = (string) de.Key;
                 string folder = Path.GetDirectoryName(outputfile);
 
                 if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemblyFolders.DirectoryNames.Contains(folder)) {
@@ -497,13 +474,21 @@ namespace NAnt.VSNet {
                 string projectGuid = (string) de.Key;
                 ProjectBase project = (ProjectBase) de.Value;
 
-                foreach (Reference reference in project.References) {
-                    if (reference.IsProjectReference) {
-                        AddProjectDependency(projectGuid, reference.Project.Guid);
-                    } else if (_htOutputFiles.Contains(reference.Filename)) {
-                        AddProjectDependency(projectGuid, (string) _htOutputFiles[reference.Filename]);
-                    } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(reference.Filename))) {
-                        AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(reference.Filename)]);
+                foreach (ReferenceBase reference in project.References) {
+                    if (reference is ProjectReference) {
+                        AddProjectDependency(projectGuid, ((ProjectReference) reference).Project.Guid);
+                    } else {
+                        // check if project actually support the build configuration
+                        ConfigurationBase projectConfig = (ConfigurationBase) 
+                            project.ProjectConfigurations[buildConfig];
+                        if (projectConfig != null) {
+                            string outputFile = reference.GetOutputFile(projectConfig);
+                            if (_htOutputFiles.Contains(outputFile)) {
+                                AddProjectDependency(projectGuid, (string) _htOutputFiles[outputFile]);
+                            } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
+                                AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
+                            }
+                        }
                     }
                 }
             }

@@ -42,7 +42,7 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
 
         public Project(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, refResolver, outputDir) {
-            _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _references = new ArrayList();
             _sourceFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htAssemblies = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -130,8 +130,8 @@ namespace NAnt.VSNet {
             set { throw new InvalidOperationException( "It is not allowed to change the GUID of a C#/VB.NET project" ); }
         }
 
-        public override Reference[] References {
-            get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
+        public override ArrayList References {
+            get { return _references; }
         }
 
         public override void Load(SolutionBase sln, string projectPath) {
@@ -175,8 +175,8 @@ namespace NAnt.VSNet {
 
             XmlNodeList nlReferences = doc.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
-                Reference reference = new Reference(sln, _projectSettings, elemReference, GacCache, ReferencesResolver, this, OutputDir);
-                _htReferences[elemReference.Attributes["Name"].Value] = reference;
+                ReferenceBase reference = ReferenceFactory.CreateReference(sln, _projectSettings, elemReference, GacCache, ReferencesResolver, this, OutputDir);
+                _references.Add(reference);
             }
 
             if (_projectSettings.Type == ProjectType.VBNet) {
@@ -256,28 +256,30 @@ namespace NAnt.VSNet {
             try {
                 ConfigurationSettings cs = (ConfigurationSettings) configurationSettings;
 
-                // perform prebuild actions (for VS.NET 2003)
-                if (ProjectSettings.RunPostBuildEvent != null) {
-                    bSuccess = PreBuild(cs);
-                }
+                // perform prebuild actions (for VS.NET 2003 and higher)
+                // TODO: should we stop build if prebuild event fails?
+                bSuccess = PreBuild(cs);
 
                 // ensure temp directory exists
                 if (!Directory.Exists(TemporaryFiles.BasePath)) {
                     Directory.CreateDirectory(TemporaryFiles.BasePath);
                 }
 
+                // check if project needs to be rebuilt
+                if (CheckUpToDate(cs)) {
+                    Log(Level.Verbose, "Project is up-to-date.");
+                    // check if postbuild event needs to be executed
+                    if (ProjectSettings.RunPostBuildEvent != null) {
+                        // TODO: should we stop build if postbuild event fails?
+                        PostBuild(cs, true, false);
+                    }
+                    return true;
+                }
+
                 string tempResponseFile = Path.Combine(TemporaryFiles.BasePath, 
                     Project.CommandFile);
 
                 using (StreamWriter sw = File.CreateText(tempResponseFile)) {
-                    if (CheckUpToDate(cs)) {
-                        Log(Level.Verbose, "Project is up-to-date.");
-                        if (ProjectSettings.RunPostBuildEvent != null) {
-                            PostBuild(cs, true, false);
-                        }
-                        return true;
-                    }
-
                     foreach (string setting in ProjectSettings.Settings) {
                         sw.WriteLine(setting);
                     }
@@ -297,50 +299,20 @@ namespace NAnt.VSNet {
 
                     Log(Level.Verbose, "Copying references:");
 
-                    foreach (Reference reference in _htReferences.Values) {
+                    foreach (ReferenceBase reference in _references) {
                         if (reference.CopyLocal) {
                             Log(Level.Verbose, " - " + reference.Name);
 
-                            if (reference.IsCreated) {
-                                string program, commandLine;
-                                reference.GetCreationCommand(cs, out program, out commandLine);
+                            Hashtable outputFiles = reference.GetOutputFiles(cs);
 
-                                // check that the SDK of the current target 
-                                // framework is available
-                                if (SolutionTask.Project.TargetFramework.SdkDirectory == null) {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "The SDK for the '{0}' framework is not installed or not configured correctly.", 
-                                        SolutionTask.Project.TargetFramework.Name), Location.UnknownLocation);
-                                }
-
-                                // append the correct SDK directory to the program
-                                program = Path.Combine(SolutionTask.Project.TargetFramework.SdkDirectory.FullName, program);
-                                Log(Level.Verbose, program + " " + commandLine);
-
-                                ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
-                                psiRef.UseShellExecute = false;
-                                psiRef.WorkingDirectory = cs.OutputDir.FullName;
-
-                                try {
-                                    Process pRef = Process.Start(psiRef);
-                                    pRef.WaitForExit();
-                                } catch (Win32Exception ex) {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "Unable to start process '{0}' with commandline '{1}'.", 
-                                        program, commandLine), Location.UnknownLocation, ex);
-                                }
-                            } else {
-                                Hashtable outputFiles = reference.GetOutputFiles(cs);
-
-                                foreach (DictionaryEntry de in outputFiles) {
-                                    // determine file to copy
-                                    FileInfo srcFile = new FileInfo((string) de.Key);
-                                    // determine destination file
-                                    FileInfo destFile = new FileInfo(Path.Combine(
-                                        cs.OutputDir.FullName, (string) de.Value));
-                                    // perform actual copy
-                                    CopyFile(srcFile, destFile, SolutionTask);
-                                }
+                            foreach (DictionaryEntry de in outputFiles) {
+                                // determine file to copy
+                                FileInfo srcFile = new FileInfo((string) de.Key);
+                                // determine destination file
+                                FileInfo destFile = new FileInfo(Path.Combine(
+                                    cs.OutputDir.FullName, (string) de.Value));
+                                // perform actual copy
+                                CopyFile(srcFile, destFile, SolutionTask);
                             }
                         }
                     }
@@ -540,7 +512,7 @@ namespace NAnt.VSNet {
 
                     // copy primary project output (and related files)
                     if (IsWebProject) {
-                        Hashtable primaryOutputFiles = Reference.GetRelatedFiles(
+                        Hashtable primaryOutputFiles = ReferenceBase.GetRelatedFiles(
                             cs.OutputPath);
 
                         Log(Level.Verbose, "Uploading output files...");
@@ -656,9 +628,9 @@ namespace NAnt.VSNet {
 
         private bool PreBuild(ConfigurationSettings cs) {
             string buildCommandLine = ProjectSettings.PreBuildEvent;
-            Log(Level.Debug, "PreBuild commandline: {0}", buildCommandLine);
             // check if there are pre build commands to be run
             if (buildCommandLine != null) {
+                Log(Level.Debug, "PreBuild commandline: {0}", buildCommandLine);
                 // create a batch file for this, mirroring the behavior of VS.NET
                 // the file is not even removed after a successful build by VS.NET,
                 // so we don't either
@@ -685,9 +657,9 @@ namespace NAnt.VSNet {
 
         private bool PostBuild(ConfigurationSettings cs, bool bCompileSuccess, bool bOutputUpdated) {
             string buildCommandLine = ProjectSettings.PostBuildEvent;
-            Log(Level.Debug, "PostBuild commandline: {0}", buildCommandLine);
             // check if there are post build commands to be run
             if (buildCommandLine != null) {
+                Log(Level.Debug, "PostBuild commandline: {0}", buildCommandLine);
                 // Create a batch file for this. This mirrors VS behavior. Also this
                 // file is not removed even after a successful build by VS so we don't either.
                 using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat"))) {
@@ -805,9 +777,8 @@ namespace NAnt.VSNet {
             }
 
             // check all of the input references
-            foreach (Reference reference in _htReferences.Values) {
-                reference.ConfigurationSettings = cs;
-                if (dtOutputTimeStamp < reference.Timestamp) {
+            foreach (ReferenceBase reference in _references) {
+                if (dtOutputTimeStamp < reference.GetTimestamp(cs)) {
                     return false;
                 }
             }
@@ -882,7 +853,7 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private Hashtable _htReferences;
+        private ArrayList _references;
 
         /// <summary>
         /// Holds a case-insensitive list of source files.

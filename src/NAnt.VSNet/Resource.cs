@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -222,9 +223,14 @@ namespace NAnt.VSNet {
                 CultureInfo.InvariantCulture);
 
             // inherit non-GAC assembly references from project
-            foreach (Reference reference in Project.References) {
-                if (!_gacCache.IsAssemblyInGac(reference.Filename))
-                    lt.Assemblies.Includes.Add(reference.Filename);
+            foreach (ReferenceBase reference in Project.References) {
+                StringCollection assemblyReferences = reference.GetAssemblyReferences(
+                    configurationSettings);
+                foreach (string assemblyFile in assemblyReferences) {
+                    if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
+                        lt.Assemblies.Includes.Add(assemblyFile);
+                    }
+                }
             }
 
             // increment indentation level
@@ -279,9 +285,14 @@ namespace NAnt.VSNet {
             rt.OutputFile = outputFile;
 
             // inherit assembly references from project
-            foreach (Reference reference in Project.References) {
-                if (!_gacCache.IsAssemblyInGac(reference.Filename))
-                    rt.Assemblies.Includes.Add(reference.Filename);
+            foreach (ReferenceBase reference in Project.References) {
+                StringCollection assemblyReferences = reference.GetAssemblyReferences(
+                    configurationSettings);
+                foreach (string assemblyFile in assemblyReferences) {
+                    if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
+                        rt.Assemblies.Includes.Add(assemblyFile);
+                    }
+                }
             }
 
             // increment indentation level

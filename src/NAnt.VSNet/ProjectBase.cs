@@ -120,7 +120,7 @@ namespace NAnt.VSNet {
             get { return _buildConfigurations; }
         }
 
-        public abstract Reference[] References {
+        public abstract ArrayList References {
             get;
         }
 
@@ -159,7 +159,7 @@ namespace NAnt.VSNet {
             get { return _gacCache; }
         }
         
-        protected ReferencesResolver ReferencesResolver {
+        public ReferencesResolver ReferencesResolver {
             get { return _refResolver; }
         }
 
@@ -182,7 +182,10 @@ namespace NAnt.VSNet {
             Log(Level.Info, "Building '{0}' [{1}] ...", Name, configuration);
 
             // ensure output directory exists
-            configurationSettings.OutputDir.Create();
+            if (!configurationSettings.OutputDir.Exists) {
+                configurationSettings.OutputDir.Create();
+                configurationSettings.OutputDir.Refresh();
+            }
 
             // build the project            
             return Build(configurationSettings);
@@ -216,7 +219,7 @@ namespace NAnt.VSNet {
         public StringCollection GetAssemblyReferences(ConfigurationBase config) {
             Hashtable uniqueReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
-            foreach (Reference reference in References) {
+            foreach (ReferenceBase reference in References) {
                 StringCollection references = reference.GetAssemblyReferences(config);
                 foreach (string assemblyReference in references) {
                     if (!uniqueReferences.ContainsKey(assemblyReference)) {
@@ -254,7 +257,7 @@ namespace NAnt.VSNet {
 
             Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
-            foreach (Reference reference in References) {
+            foreach (ReferenceBase reference in References) {
                 if (!reference.CopyLocal) {
                     continue;
                 }
@@ -277,7 +280,7 @@ namespace NAnt.VSNet {
 
             // get list of files related to project output file (eg. debug symbols,
             // xml doc, ...), this will include the project output file itself
-            Hashtable relatedFiles = Reference.GetRelatedFiles(projectOutputFile);
+            Hashtable relatedFiles = ReferenceBase.GetRelatedFiles(projectOutputFile);
 
             // add each related file to set of primary output files
             foreach (DictionaryEntry de in relatedFiles) {

@@ -44,7 +44,7 @@ namespace NAnt.VSNet {
         public VcProject(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, refResolver, outputDir) {
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _references = new ArrayList();
             _clArgMap = VcArgumentMap.CreateCLArgumentMap();
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
             _objFiles = new ArrayList();
@@ -83,8 +83,8 @@ namespace NAnt.VSNet {
             set { _guid = value; }
         }
 
-        public override Reference[] References {
-            get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
+        public override ArrayList References {
+            get { return _references; }
         }
 
         protected override bool Build(ConfigurationBase configurationSettings) {
@@ -180,14 +180,14 @@ namespace NAnt.VSNet {
 
             XmlNodeList projectReferences = elem.SelectNodes("//References/ProjectReference");
             foreach (XmlElement referenceElem in projectReferences) {
-                Reference reference = new Reference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
-                _htReferences[referenceElem.Attributes["Name"].Value] = reference;
+                ReferenceBase reference = ReferenceFactory.CreateReference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                _references.Add(reference);
             }
 
             XmlNodeList assemblyReferences = elem.SelectNodes("//References/AssemblyReference");
             foreach (XmlElement referenceElem in assemblyReferences) {
-                Reference reference = new Reference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
-                _htReferences[reference.Filename] = reference;
+                ReferenceBase reference = ReferenceFactory.CreateReference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                _references.Add(reference);
             }
 
             XmlNodeList fileNodes = elem.SelectNodes("//File");
@@ -354,8 +354,12 @@ namespace NAnt.VSNet {
             }
 
             // add project and assembly references
-            foreach (Reference reference in References) {
-                clTask.ForcedUsingFiles.Includes.Add(reference.Filename);
+            foreach (ReferenceBase reference in References) {
+                StringCollection assemblyReferences = reference.GetAssemblyReferences(
+                    fileConfig);
+                foreach (string assemblyFile in assemblyReferences) {
+                    clTask.ForcedUsingFiles.Includes.Add(assemblyFile);
+                }
             }
 
             string asmOutput = fileConfig.GetToolSetting(compilerTool, "AssemblerOutput");
@@ -628,7 +632,7 @@ namespace NAnt.VSNet {
         private string _projectPath;
         private string _guid;
         private string _rootNamespace;
-        private Hashtable _htReferences;
+        private ArrayList _references;
         private Hashtable _htPlatformConfigurations;
         private Hashtable _htFiles;
         private ArrayList _objFiles;
