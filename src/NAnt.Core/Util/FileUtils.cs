@@ -27,7 +27,7 @@ namespace NAnt.Core.Util {
     /// <summary>
     /// Provides modified version for Copy and Move from the File class that allow for filter chain processing.
     /// </summary>
-    public class FileUtils {
+    public sealed class FileUtils {
         private FileUtils() {
         }
 
@@ -37,44 +37,20 @@ namespace NAnt.Core.Util {
         /// <param name="sourceFileName">Pathname of file to copy</param>
         /// <param name="destFileName">Pathname of file to copy to</param>
         /// <param name="filterChain">Chain of filter to apply when copying. Null is allowed</param>
-        public static void CopyWithFilters(string sourceFileName, string destFileName, FilterChain filterChain) {
-            CopyWithFilters(sourceFileName, destFileName, filterChain, true);
-        }
+        /// <param name="encoding">The character encoding to use.</param>
+        public static void CopyWithFilters(string sourceFileName, string destFileName, FilterChain filterChain, Encoding encoding) {
+            if (filterChain == null || filterChain.Filters.Count == 0) {
+                File.Copy(sourceFileName, destFileName, true);
+            } else {
+                // get base filter built on the file's reader. Use a 4k buffer.
+                using (StreamReader sourceFileReader = new StreamReader(sourceFileName, encoding, true, 4096)) {
+                    Filter baseFilter = filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
 
-        /// <summary>
-        /// Moves a file filtering its content through the filter chain.
-        /// </summary>
-        /// <param name="sourceFileName">Pathname of file to move</param>
-        /// <param name="destFileName">Pathname of file to move to</param>
-        /// <param name="filterChain">Chain of filter to apply when moving. Null is allowed</param>
-        public static void MoveWithFilters(string sourceFileName, string destFileName, FilterChain filterChain) {
-            CopyWithFilters(sourceFileName, destFileName, filterChain, false);
-
-            File.Delete(sourceFileName);
-        }
-
-        /// <summary>
-        /// Copies a file filtering its content through the filter chain.
-        /// </summary>
-        /// <param name="sourceFileName">Pathname of file to copy</param>
-        /// <param name="destFileName">Pathname of file to copy to</param>
-        /// <param name="filterChain">Chain of filter to apply when copying. Null is allowed</param>
-        /// <param name="overwrite">True if the destination file can be overwritten; otherwise, false.</param>
-        static void CopyWithFilters(string sourceFileName, string destFileName, FilterChain filterChain, bool overwrite) {
-            //If a filter chain is specified
-            if (filterChain != null) {
-
-                //Get base filter built on the file's reader. Use a 4k buffer.
-                StreamReader sourceFileReader = new StreamReader(sourceFileName, Encoding.Default, true, 4096);//TODO: Buffer as parameter?
-                try {
-                    Filter baseFilter= filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
-
-                    //Create reader for the source file
-                    StreamWriter destFileWriter = new StreamWriter(destFileName, false, sourceFileReader.CurrentEncoding, 4096);
-                    try {
+                    // writer for destination file
+                    using (StreamWriter destFileWriter = new StreamWriter(destFileName, false, sourceFileReader.CurrentEncoding, 4096)) {
                         bool atEnd = false;
                         int character;
-                        while ( ! atEnd) {
+                        while (!atEnd) {
                             character = baseFilter.Read();
                             if (character > -1) {
                                 destFileWriter.Write((char)character);
@@ -83,16 +59,23 @@ namespace NAnt.Core.Util {
                             }
                         }
                     }
-                    finally {
-                        destFileWriter.Close();
-                    }
-                }
-                finally {
-                    sourceFileReader.Close();
                 }
             }
-            else {
-                File.Copy(sourceFileName, destFileName, overwrite);
+        }
+
+        /// <summary>
+        /// Moves a file filtering its content through the filter chain.
+        /// </summary>
+        /// <param name="sourceFileName">Pathname of file to move</param>
+        /// <param name="destFileName">Pathname of file to move to</param>
+        /// <param name="filterChain">Chain of filter to apply when moving. Null is allowed</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public static void MoveWithFilters(string sourceFileName, string destFileName, FilterChain filterChain, Encoding encoding) {
+            if (filterChain == null || filterChain.Filters.Count == 0) {
+                File.Move(sourceFileName, destFileName);
+            } else {
+                CopyWithFilters(sourceFileName, destFileName, filterChain, encoding);
+                File.Delete(sourceFileName);
             }
         }
     }
