@@ -206,22 +206,27 @@ namespace NAnt.Core {
                         if (o is string || o2 is string) {
                             // promote to strings and concatenate
                             //
-                            string s1 = (string)SafeConvert(typeof(string), o, "the left hand side of the concatenation operator", p0, p1);
-                            string s2 = (string)SafeConvert(typeof(string), o2, "the right hand side of the concatenation operator", p2, p3);
+                            string s1 = (string) SafeConvert(typeof(string), o, 
+                                "the left hand side of the concatenation operator", p0, p1);
+                            string s2 = (string) SafeConvert(typeof(string), o2, 
+                                "the right hand side of the concatenation operator", p2, p3);
                             o = s1 + s2;
                         } else if (o is double || o2 is double) {
-                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the addition operator", p0, p1);
-                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the addition operator", p2, p3);
+                            double d1 = (double) SafeConvert(typeof(double), o, 
+                                "the left hand side of the addition operator", p0, p1);
+                            double d2 = (double) SafeConvert(typeof(double), o2, 
+                                "the right hand side of the addition operator", p2, p3);
                             o = d1 + d2;
                         } else if (o is int || o2 is int) {
-                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the addition operator", p0, p1);
-                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the addition operator", p2, p3);
-
+                            int i1 = (int) SafeConvert(typeof(int), o, 
+                                "the left hand side of the addition operator", p0, p1);
+                            int i2 = (int) SafeConvert(typeof(int), o2, 
+                                "the right hand side of the addition operator", p2, p3);
                             o = i1 + i2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Addition not supported for arguments of type '{0}' and '{1}'.", 
-                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
+                                "Addition not supported for arguments of type '{0}' and '{1}'.", 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus) {
@@ -233,18 +238,27 @@ namespace NAnt.Core {
 
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            double d1 = (double)SafeConvert(typeof(double), o, "the left hand side of the subtraction operator", p0, p1);
-                            double d2 = (double)SafeConvert(typeof(double), o2, "the right hand side of the subtraction operator", p2, p3);
+                            double d1 = (double) SafeConvert(typeof(double), o, 
+                                "the left hand side of the subtraction operator", p0, p1);
+                            double d2 = (double) SafeConvert(typeof(double), o2, 
+                                "the right hand side of the subtraction operator", p2, p3);
                             o = d1 - d2;
                         } else if (o is int || o2 is int) {
-                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the subtraction operator", p0, p1);
-                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the subtraction operator", p2, p3);
-
+                            int i1 = (int) SafeConvert(typeof(int), o, 
+                                "the left hand side of the subtraction operator", p0, p1);
+                            int i2 = (int) SafeConvert(typeof(int), o2, 
+                                "the right hand side of the subtraction operator", p2, p3);
                             o = i1 - i2;
+                        } else if (o is DateTime || o2 is DateTime) {
+                            DateTime date1 = (DateTime) SafeConvert(typeof(DateTime), o, 
+                                "the left hand side of the subtraction operator", p0, p1);
+                            DateTime date2 = (DateTime) SafeConvert(typeof(DateTime), o2, 
+                                "the right hand side of the subtraction operator", p2, p3);
+                            o = date1 - date2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
-                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
+                                "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else {
