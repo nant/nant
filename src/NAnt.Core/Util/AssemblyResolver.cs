@@ -64,6 +64,8 @@ namespace NAnt.Core.Util {
 
             AppDomain.CurrentDomain.AssemblyLoad -= 
                 new AssemblyLoadEventHandler(AssemblyLoad);
+
+            this._assemblyCache.Clear();
         }
 
         #endregion
