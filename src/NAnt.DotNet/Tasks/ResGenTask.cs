@@ -240,7 +240,7 @@ namespace NAnt.DotNet.Tasks {
 			if (!SupportsAssemblyReferences) {
 				// avoid copying the assembly references (and resgen) to a
 				// temporary directory if not necessary
-				if (!RequiresAssemblyReferences) {
+				if (Assemblies.FileNames.Count == 0 || !RequiresAssemblyReferences) {
 					// further delegate preparation to base class
 					base.PrepareProcess(process);
 					
