@@ -27,7 +27,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    /// Provides the abstract base class for a compiler tasks.
+    /// Provides the abstract base class for compiler tasks.
     /// </summary>
     public abstract class CompilerBase : ExternalProgramBase {
         #region Private Instance Fields
