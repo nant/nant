@@ -213,6 +213,14 @@ namespace NAnt.Core.Types {
         /// </summary>
         public FileSet() {
         }
+        
+        /// <summary>
+        /// copy constructor
+        /// </summary>
+        /// <param name="fs"></param>
+        public FileSet(FileSet fs) {
+            fs.CopyTo((FileSet)this);
+        }
 
         #endregion Public Instance Constructors
 

@@ -41,6 +41,15 @@ namespace NAnt.DotNet.Types {
         public ResourceFileSet() : base() {
         }
         
+        /// <summary>
+        /// copy constructor for FileSet. Required in order to 
+        /// assign references of FileSet type where 
+        /// ResourceFileSet are used
+        /// </summary>
+        /// <param name="fs"></param>
+        public ResourceFileSet(FileSet fs) : base(fs) {        
+        }
+        
         #endregion Public Instance Constructors
 
         #region Public Instance Properties

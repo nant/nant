@@ -1096,20 +1096,24 @@ namespace NAnt.Core {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "{0} reference '{1}' not defined.", dataType.Name, dataType.RefID), 
                             dataType.Location);
-                    }
-
+                    }                    
                     if (!elementType.IsAssignableFrom(dataType.GetType())) {
-                        ElementNameAttribute dataTypeAttr = (ElementNameAttribute) 
-                            Attribute.GetCustomAttribute(dataType.GetType(), typeof(ElementNameAttribute));
-                        ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
-                            Attribute.GetCustomAttribute(elementType, typeof(ElementNameAttribute));
-                                        
-                        // throw error wrong type definition
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Attempting to use a <{0}> reference where a <{1}> is required.", 
-                            elementTypeAttr.Name, dataTypeAttr.Name), Location);
+                        // see if we have a valid copy constructor
+                        ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});                      
+                        if (constructor != null){
+                            dataType = (DataTypeBase)constructor.Invoke(new object[] {dataType});                                              
+                        } else {
+                            ElementNameAttribute dataTypeAttr = (ElementNameAttribute) 
+                                Attribute.GetCustomAttribute(dataType.GetType(), typeof(ElementNameAttribute));
+                            ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
+                                Attribute.GetCustomAttribute(elementType, typeof(ElementNameAttribute));
+                                            
+                            // throw error wrong type definition
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Attempting to use a <{0}> reference where a <{1}> is required.", 
+                                elementTypeAttr.Name, dataTypeAttr.Name), Location);
+                        }
                     }
-
                     // re-initialize the object with current context
                     dataType.Project = Project;
                     dataType.Parent = Element;

@@ -82,7 +82,17 @@ namespace NAnt.DotNet.Types {
             // set the parent reference to point back to us
             _lib = new LibDirectorySet(this);
         }
-        
+           
+        /// <summary>
+        /// copy constructor for FileSet. Required in order to 
+        /// assign references of FileSet type where 
+        /// AssemblyFileSets are used
+        /// </summary>
+        /// <param name="fs"></param>
+        public AssemblyFileSet(FileSet fs) : base(fs) {
+           _lib = new LibDirectorySet(this);
+        }
+                
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
