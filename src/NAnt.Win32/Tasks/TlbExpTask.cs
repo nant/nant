@@ -43,19 +43,21 @@ namespace NAnt.Win32.Tasks {
     public class TlbExpTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _assembly = null;
-        string _output = null;
-        string _names = null;
-        string _programArguments = null;
+        private string _assembly = null;
+        private string _output = null;
+        private string _names = null;
+        private StringBuilder _argumentBuilder = null;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or set the assembly for which to export a type library.
+        /// Specifies the assembly for which to export a type library.
         /// </summary>
-        /// <value>The assembly for which to export a type library.</value>
+        /// <value>
+        /// The assembly for which to export a type library.
+        /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("assembly", Required=false)]
         public string Assembly {
@@ -70,7 +72,7 @@ namespace NAnt.Win32.Tasks {
         }
 
         /// <summary>
-        /// Gets or sets the name of the type library file to generate.
+        /// Specifies the name of the type library file to generate.
         /// </summary>
         /// <value>
         /// The name of the type library file to generate.
@@ -89,7 +91,7 @@ namespace NAnt.Win32.Tasks {
         }
 
         /// <summary>
-        /// Gets or sets the file used to determine capitalization of names in a 
+        /// Specifies the file used to determine capitalization of names in a 
         /// type library.
         /// </summary>
         /// <value>
@@ -119,7 +121,13 @@ namespace NAnt.Win32.Tasks {
         /// The command line arguments for the external program.
         /// </value>
         public override string ProgramArguments {
-            get { return _programArguments; }
+            get { 
+                if (_argumentBuilder != null) {
+                    return _argumentBuilder.ToString();
+                } else {
+                    return null;
+                }
+            }
         }
 
         /// <summary>
@@ -130,30 +138,32 @@ namespace NAnt.Win32.Tasks {
             //Otherwise, it's not necessary to reimport.
             if (NeedsCompiling()) {
                 //Using a stringbuilder vs. StreamWriter since this program will not accept response files.
-                StringBuilder writer = new StringBuilder();
+                _argumentBuilder = new StringBuilder();
 
-                try {
-                    writer.Append("\"" + Assembly + "\"");
+                _argumentBuilder.Append("\"" + Assembly + "\"");
 
-                    // Any option that specifies a file name must be wrapped in quotes
-                    // to handle cases with spaces in the path.
-                    writer.AppendFormat(" /out:\"{0}\"", Output);
+                // Any option that specifies a file name must be wrapped in quotes
+                // to handle cases with spaces in the path.
+                _argumentBuilder.AppendFormat(" /out:\"{0}\"", Output);
 
-                    // Microsoft common compiler options
-                    writer.Append(" /nologo");
+                // suppresses the Microsoft startup banner display
+                _argumentBuilder.Append(" /nologo");
 
-                    // Filename used to determine capitalization of names in typelib
-                    if (Names != null) {
-                        writer.AppendFormat(" /names:\"{0}\"", Names);
-                    }
-
-                    // call base class to do the work
-                    _programArguments = writer.ToString();
-                    base.ExecuteTask();
-
-                } finally {
-                    writer = null;
+                if (Verbose) {
+                    // displays extra information
+                    _argumentBuilder.Append(" /verbose");
+                } else {
+                    // suppresses all output except for errors
+                    _argumentBuilder.Append(" /silent");
                 }
+
+                // filename used to determine capitalization of names in typelib
+                if (Names != null) {
+                    _argumentBuilder.AppendFormat(" /names:\"{0}\"", Names);
+                }
+
+                // call base class to do the work
+                base.ExecuteTask();
             }
         }
 
@@ -162,11 +172,12 @@ namespace NAnt.Win32.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Determines whether the type library needs to be exported again.
+        /// Determines whether the assembly needs to be exported to a type 
+        /// library again.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the type library needs to be exported; otherwise, 
-        /// <c>false</c>.
+        /// <c>true</c> if the assembly needs to be exported to a type library; 
+        /// otherwise, <c>false</c>.
         /// </returns>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
@@ -175,16 +186,23 @@ namespace NAnt.Win32.Tasks {
                 return true;
             }
 
-            //HACK:(POSSIBLY)Is there any other way to pass in a single file to check to see if it needs to be updated?
-            StringCollection fileset = new StringCollection();
-            fileset.Add(outputFileInfo.FullName);
-            string fileName = FileSet.FindMoreRecentLastWriteTime(fileset, outputFileInfo.LastWriteTime);
+            // check if the assembly was changed since the typelib was generated
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Assembly, outputFileInfo.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
-            // if we made it here then we don't have to reimport the typelib.
+            // check if the names file was changed since the typelib was generated
+            if (Names != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(Names, outputFileInfo.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // if we made it here then we don't have to export the assembly again.
             return false;
         }
 
