@@ -10,8 +10,8 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
-                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" /> Frequently 
-                    Asked Questions
+                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" />
+                    Frequently Asked Questions
                 </td>
             </tr>
         </table>
@@ -49,6 +49,16 @@
                     <a href="#default-framework">What framework does NAnt target by default?</a>
                     <br />
                     <a href="#change-targetframework">How do I change the target framework?</a>
+                </div>
+            </div>
+            <a href="#third-party">Third-party tools</a>
+            <div style="margin-left: 20px;">
+                <a href="#third-party-vsnet">Visual Studio.NET</a>
+                <div style="margin-left: 20px;">
+                    <a href="#build-as-xml">How do I get Visual Studio.NET to recognize a .build file 
+                        as an XML file?</a>
+                    <br />
+                    <a href="#enable-intellisense">How do I enable intellisense for .build files?</a>
                 </div>
             </div>
         </div>
@@ -158,6 +168,41 @@ NAnt.exe -t:net-1.0
                             </pre>
                         </li>
                     </ol>
+                </div>
+            </div>
+        </div>
+        <h3>
+            <a id="third-party" />Third-party tools
+        </h3>
+        <div style="margin-left: 20px;">
+            <h4 style="margin-left: 20px;">
+                <a id="third-party-vsnet" />Visual Studio.NET
+            </h4>
+            <div style="margin-left: 20px;">
+                <h5>
+                    <a id="build-as-xml" />How do I get Visual Studio.NET to recognize a .build file
+                        as an XML file?
+                </h5>
+                <div style="margin-left: 20px;">
+                    <ol>
+                        <li>
+                            In "Solution Explorer", right-click a .build file and choose "Open With". 
+                        </li>
+                        <li>
+                            In the "Open With" dialog, select "HTML/XML Editor" and click the "Set as Default" button.
+                        </li>
+                    </p>
+                </div>
+                <h5>
+                    <a id="enable-intellisense" />How do I enable intellisense for .build files?
+                </h5>
+                <div style="margin-left: 20px;">
+                    <p>
+                            To get full Intellisense, you have to copy the schema for your version of NAnt 
+                            from the schema folder in the NAnt distribution to the 
+                            "Common7\Packages\schemas\xml" subdirectory of your Visual Studio.NET installation 
+                            (eg. C:\Program Files\Microsoft Visual Studio .NET 2003).
+                    </p>
                 </div>
             </div>
         </div>
