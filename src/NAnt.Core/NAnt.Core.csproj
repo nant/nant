@@ -484,6 +484,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\NamespaceImport.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\NamespaceImportCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\Option.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
