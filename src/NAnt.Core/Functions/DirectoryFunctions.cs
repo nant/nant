@@ -38,7 +38,64 @@ namespace NAnt.Core.Functions {
 
         #endregion Public Instance Constructors
 
-        #region Public Static Methods
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Returns the creation date and time of the specified directory.
+        /// </summary>
+        /// <param name="path">The directory for which to obtain creation date and time information.</param>
+        /// <returns>
+        /// The creation date and time of the specified directory.
+        /// </returns>
+        [Function("get-creation-time")]
+        public DateTime GetCreationTime(string path) {
+            string dirPath = Project.GetFullPath(path);
+
+            if (!Directory.Exists(dirPath)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                    "Directory '{0}' does not exist.", dirPath));
+            }
+
+            return Directory.GetCreationTime(dirPath);
+        }
+
+        /// <summary>
+        /// Returns the date and time the specified directory was last written to.
+        /// </summary>
+        /// <param name="path">The directory for which to obtain write date and time information.</param>
+        /// <returns>
+        /// The date and time the specified directory was last written to.
+        /// </returns>
+        [Function("get-last-write-time")]
+        public DateTime GetLastWriteTime(string path) {
+            string dirPath = Project.GetFullPath(path);
+
+            if (!Directory.Exists(dirPath)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                    "Directory '{0}' does not exist.", dirPath));
+            }
+
+            return Directory.GetLastWriteTime(dirPath);
+        }
+
+        /// <summary>
+        /// Returns the date and time the specified directory was last accessed.
+        /// </summary>
+        /// <param name="path">The directory for which to obtain access date and time information.</param>
+        /// <returns>
+        /// The date and time the specified directory was last accessed.
+        /// </returns>
+        [Function("get-last-access-time")]
+        public DateTime GetLastAccessTime(string path) {
+            string dirPath = Project.GetFullPath(path);
+
+            if (!Directory.Exists(dirPath)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                    "Directory '{0}' does not exist.", dirPath));
+            }
+
+            return Directory.GetLastAccessTime(dirPath);
+        }
 
         /// <summary>
         /// Determines whether the given path refers to an existing directory 
@@ -50,10 +107,10 @@ namespace NAnt.Core.Functions {
         /// existing directory; otherwise, <see langword="false" />.
         /// </returns>
         [Function("exists")]
-        public static bool Exists(string path) {
-            return Directory.Exists(path);
+        public bool Exists(string path) {
+            return Directory.Exists(Project.GetFullPath(path));
         }
 
-        #endregion Public Static Methods
+        #endregion Public Instance Methods
     }
 }

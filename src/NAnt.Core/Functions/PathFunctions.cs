@@ -84,7 +84,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Returns the directory information for the specified path string.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path of a file or directory.</param>
         /// <returns></returns>
         [Function("get-directory-name")]
         public static string GetDirectoryName(string path) {

@@ -41,18 +41,18 @@ namespace NAnt.Core.Functions {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the creation date and time of the specified file or directory.
+        /// Returns the creation date and time of the specified file.
         /// </summary>
-        /// <param name="path">The file or directory for which to obtain creation date and time information.</param>
+        /// <param name="path">The file for which to obtain creation date and time information.</param>
         /// <returns>
-        /// The creation date and time of the specified file or directory.
+        /// The creation date and time of the specified file.
         /// </returns>
         [Function("get-creation-time")]
         public DateTime GetCreationTime(string path) {
             string filePath = Project.GetFullPath(path);
 
             if (!File.Exists(filePath)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
                     "File '{0}' does not exist.", filePath));
             }
 
@@ -60,18 +60,18 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Gets the date and time the specified file or directory was last written to.
+        /// Returns the date and time the specified file was last written to.
         /// </summary>
-        /// <param name="path">The file or directory for which to obtain write date and time information.</param>
+        /// <param name="path">The file for which to obtain write date and time information.</param>
         /// <returns>
-        /// The date and time the specified file or directory was last written to.
+        /// The date and time the specified file was last written to.
         /// </returns>
         [Function("get-last-write-time")]
         public DateTime GetLastWriteTime(string path) {
             string filePath = Project.GetFullPath(path);
 
             if (!File.Exists(filePath)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
                     "File '{0}' does not exist.", filePath));
             }
 
@@ -79,18 +79,18 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Gets the date and time the specified file or directory was last accessed.
+        /// Returns the date and time the specified file was last accessed.
         /// </summary>
-        /// <param name="path">The file or directory for which to obtain access date and time information.</param>
+        /// <param name="path">The file for which to obtain access date and time information.</param>
         /// <returns>
-        /// The date and time the specified file or directory was last accessed.
+        /// The date and time the specified file was last accessed.
         /// </returns>
         [Function("get-last-access-time")]
         public DateTime GetLastAccessTime(string path) {
             string filePath = Project.GetFullPath(path);
 
             if (!File.Exists(filePath)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
                     "File '{0}' does not exist.", filePath));
             }
 
@@ -127,7 +127,7 @@ namespace NAnt.Core.Functions {
             string targetPath = Project.GetFullPath(targetFile);
 
             if (!File.Exists(srcPath)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
                     "Source file '{0}' does not exist.", srcPath));
             }
 
@@ -160,7 +160,7 @@ namespace NAnt.Core.Functions {
             FileInfo fi = new FileInfo(Project.GetFullPath(file));
 
             if (!fi.Exists) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
                     "File '{0}' does not exist.", fi.FullName));
             }
 
