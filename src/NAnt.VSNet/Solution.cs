@@ -20,6 +20,7 @@ using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.CodeDom.Compiler;
 
 using NAnt.Core;
 
@@ -28,7 +29,7 @@ namespace NAnt.VSNet.Tasks {
     /// Summary description for Solution.
     /// </summary>
     public class Solution {
-        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, Task nanttask ) {
+        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, TempFileCollection tfc, Task nanttask ) {
             _strFilename = strSolutionFilename;
             _htProjects = new Hashtable();
             _htProjectDirectories = new Hashtable();
@@ -36,6 +37,7 @@ namespace NAnt.VSNet.Tasks {
             _htProjectFiles = new Hashtable();
             _htProjectDependencies = new Hashtable();
             _htReferenceProjects = new Hashtable();
+            _tfc = tfc;
             _nanttask = nanttask;
 
             string strFileContents;
@@ -107,13 +109,14 @@ namespace NAnt.VSNet.Tasks {
             }
         }
 
-        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, Task nanttask ) {
+        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, TempFileCollection tfc, Task nanttask ) {
             _htProjects = new Hashtable();
             _htProjectDirectories = new Hashtable();
             _htOutputFiles = new Hashtable();
             _htProjectFiles = new Hashtable();
             _htProjectDependencies = new Hashtable();
             _htReferenceProjects = new Hashtable();
+            _tfc = tfc;
             _nanttask = nanttask;
 
             //Console.WriteLine( "Loading project GUIDs..." );
@@ -127,8 +130,8 @@ namespace NAnt.VSNet.Tasks {
 
         private void LoadProjectGUIDs( ArrayList alProjects, bool bIsReferenceProject ) {
             foreach ( string strProjectFilename in alProjects ) {
-                //Console.WriteLine( "{0} -> {1}", strProjectFilename, Project.LoadGUID( strProjectFilename ) );
-                string strGUID = Project.LoadGUID( strProjectFilename );
+                //Console.WriteLine( "{0} -> {1}", strProjectFilename, Project.LoadGUID( strProjectFilename, _tfc ) );
+                string strGUID = Project.LoadGUID( strProjectFilename, _tfc );
                 _htProjectFiles[ strGUID ] = strProjectFilename;
                 if ( bIsReferenceProject )
                     _htReferenceProjects[ strGUID ] = null;
@@ -166,7 +169,7 @@ namespace NAnt.VSNet.Tasks {
 
         private void LoadProjects() {
             foreach ( DictionaryEntry de in _htProjectFiles ) {
-                Project p = new Project( _nanttask );
+                Project p = new Project( _nanttask, _tfc );
                 //Console.WriteLine( "  {0}", de.Value );
                 p.Load( this, ( string )de.Value );
                 _htProjects[ de.Key ] = p;
@@ -295,5 +298,6 @@ namespace NAnt.VSNet.Tasks {
         private Hashtable _htOutputFiles;
         private Hashtable _htReferenceProjects;
         private Task _nanttask;
+        private TempFileCollection _tfc;
     }
 }
