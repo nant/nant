@@ -72,6 +72,7 @@ namespace NAnt.NUnit2.Types {
         [BuildElement("assemblies")]
         public FileSet Assemblies {
             get { return _assemblies; }
+            set { _assemblies = value; }
         }
 
         /// <summary>

@@ -89,6 +89,7 @@ namespace NAnt.VisualCpp.Tasks {
         [BuildElement("sources")]
         public FileSet Sources {
             get { return _sources; }
+            set { _sources = value; }
         }
 
         /// <summary>
