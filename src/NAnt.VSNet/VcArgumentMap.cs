@@ -84,6 +84,10 @@ namespace NAnt.VSNet {
             map.AddEnum("StructMemberAlignment", null, null, "/Zp1", "/Zp2", "/Zp4", "/Zp8", "/Zp16");
             map.AddEnum("UsePrecompiledHeader", null, "", "/Yc", "/YX", "/Yu");
             map.AddEnum("WarningLevel", null, "/W0", "/W1", "/W2", "/W3", "/W4");
+            map.AddBool("Detect64BitPortabilityProblems", "/Wp64");
+            map.AddBool("MinimalRebuild", "/Gm");
+            map.AddEnum("BasicRuntimeChecks", null, null, "/RTCs", "/RTCu", "/RTC1");
+            map.AddBool("TreatWChar_tAsBuiltInType", "/Zc:wchar_t");
             return map;
         }
 
@@ -94,6 +98,8 @@ namespace NAnt.VSNet {
             map.AddString("ModuleDefinitionFile", "/DEF:");
             map.AddEnum("OptimizeForWindows98", "/OPT:", null, "NOWIN98", "WIN98");
             map.AddEnum("SubSystem", "/SUBSYSTEM:", null, "CONSOLE", "WINDOWS");
+            map.AddEnum("OptimizeReferences", "/OPT:", null, "NOREF", "REF");
+            map.AddEnum("EnableCOMDATFolding", "/OPT:", null, "NOICF", "ICF");
             return map;
         }
 
