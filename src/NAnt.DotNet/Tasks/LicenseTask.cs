@@ -348,6 +348,11 @@ namespace NAnt.DotNet.Tasks {
                 Target);
 
             if (HasCommandLineCompiler) {
+                // the command line compiler does not allow us to specify the 
+                // full path to the output file, so we have it create the licenses
+                // file in a temp directory, and copy it to its actual output
+                // location
+
                 // use a newly created temporary directory as working directory
                 BaseDirectory = FileUtils.GetTempDirectory();
 
