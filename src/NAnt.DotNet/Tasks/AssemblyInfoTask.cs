@@ -38,7 +38,10 @@ namespace NAnt.DotNet.Tasks {
     /// Generates an AssemblyInfo file using the attributes given.
     /// </summary>
     /// <example>
-    ///   <para>Create a C# AssemblyInfo file containing the specified assembly-level attributes.</para>
+    ///   <para>
+    ///   Create a C# AssemblyInfo file containing the specified assembly-level 
+    ///   attributes.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <asminfo output="AssemblyInfo.cs" language="CSharp">
@@ -333,7 +336,7 @@ namespace NAnt.DotNet.Tasks {
                     codeCompileUnit.Namespaces.Add(codeNamespace);
                 }
 
-                foreach(AssemblyAttribute assemblyAttribute in assemblyAttributes) {
+                foreach (AssemblyAttribute assemblyAttribute in assemblyAttributes) {
                     if (assemblyAttribute.IfDefined && !assemblyAttribute.UnlessDefined) {
                         // create new assembly-level attribute
                         CodeAttributeDeclaration codeAttributeDeclaration = new CodeAttributeDeclaration(assemblyAttribute.TypeName);
