@@ -28,7 +28,7 @@ using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
     [TestFixture]
-    public class ScriptTaskTest : BuildTestBase {
+    public class ScriptTest : BuildTestBase {
         [Test]
         public void Test_VB() {
             string _xml = @"
