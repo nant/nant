@@ -27,7 +27,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
-    ///     Wraps al, the assembly linker for the .NET Framework.
+    /// Wraps Al.exe, the assembly linker for the .NET Framework.
     /// </summary>
     /// <remarks>
     ///   <para>All specified sources will be embedded using the <c>/embed</c> flag.  Other source types are not supported.</para>
@@ -44,68 +44,185 @@ namespace SourceForge.NAnt.Tasks {
     /// ]]>
     ///   </code>
     /// </example>
-    
     [TaskName("al")]
     public class AlTask : ExternalProgramBase {
+        #region Private Instance Fields
 
-        // TODO - move to compiler base and remove all the
-        string _arguments;        
-        string _output = null;        
-        string _target = null;       
-        string _culture = null;        
-        string _template = null;       
+        string _arguments;
+        string _output = null;
+        string _target = null;
+        string _culture = null;
+        string _template = null;
         FileSet _sources = new FileSet();
 
-        /// <summary>The name of the output file for the assembly manifest.
-        ///     This attribute corresponds to the <c>/out</c> flag.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The name of the output file for the assembly manifest.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/out</c> flag.
+        /// </para>
+        /// </remarks>
         [TaskAttribute("output", Required=true)]
-        public string Output { 
-            get { return _output; } set {_output = value; } }
+        public string Output {
+            get { return _output; }
+            set {_output = value; }
+        }
         
-        /// <summary>The target type (one of "lib", "exe", or "winexe").
-        ///     This attribute corresponds to the <c>/t[arget]:</c> flag.</summary>
+        /// <summary>
+        /// The target type (one of "lib", "exe", or "winexe").
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/t[arget]:</c> flag.
+        /// </para>
+        /// </remarks>
         [TaskAttribute("target", Required=true)]
-        public string OutputTarget { get { return _target; } set {_target = value; } }
-
-        /// <summary>The culture string associated with the output assembly.
-        ///     The string must be in RFC 1766 format, such as "en-US".
-        ///     This attribute corresponds to the <c>/c[ulture]:</c> flag.</summary>
-        [TaskAttribute("culture", Required=false)]
-        public string Culture { get { return _culture; } set {_culture = value; } }
-         
-        /// <summary>Specifies an assembly from which to get all options except the culture field.
-        ///     The given filename must have a strong name.
-        ///     This attribute corresponds to the <c>/template:</c> flag.</summary>
-        [TaskAttribute("template", Required=false)]
-        public string Template { get { return _template; } set {_template = value; } }
-
-        /// <summary>The set of source files to embed.</summary>
-        [FileSet("sources")]
-        public FileSet Sources { get { return _sources; } }
-
-           
-        public override string ProgramFileName { get { return determineFilePath(); } }
-        public override string ProgramArguments { get { return _arguments; } }
-        
-        // copy of code from MsftFXCompilerBase
-        private string determineFilePath() {
-            if (Project.CurrentFramework != null ) {                        
-                string FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                return Path.Combine(FrameworkDir, ExeName + ".exe" );      
-            } else {
-                return ExeName;
-            }                         
-        }      
-        protected virtual void WriteOptions(TextWriter writer) {}
-
-        protected string GetOutputPath() {
-            return Path.GetFullPath(Path.Combine(BaseDirectory, Output));
+        public string OutputTarget {
+            get { return _target; }
+            set {_target = value; }
         }
 
-        protected virtual bool NeedsCompiling() {
-            // return true as soon as we know we need to compile
+        /// <summary>
+        /// The culture string associated with the output assembly.
+        /// The string must be in RFC 1766 format, such as "en-US".
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/c[ulture]:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("culture", Required=false)]
+        public string Culture {
+            get { return _culture; }
+            set {_culture = value; }
+        }
+         
+        /// <summary>
+        /// Specifies an assembly from which to get all options except the culture field.
+        /// The given filename must have a strong name.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/template:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("template", Required=false)]
+        public string Template {
+            get { return _template; }
+            set {_template = value; }
+        }
 
-            FileInfo outputFileInfo = new FileInfo(GetOutputPath());
+        /// <summary>
+        /// The set of source files to embed.
+        /// </summary>
+        [FileSet("sources")]
+        public FileSet Sources {
+            get { return _sources; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+        
+        /// <summary>
+        /// Gets the complete output path.
+        /// </summary>
+        /// <value>The complete output path.</value>
+        protected string OutputPath {
+            get {
+                return Path.GetFullPath(Path.Combine(BaseDirectory, Output));
+            }
+        }
+
+        #endregion Protected Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+           
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>The filename of the external program.</value>
+        public override string ProgramFileName {
+            get { 
+                if (Project.CurrentFramework != null) {
+                    string FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                    return Path.Combine(FrameworkDir, ExeName + ".exe");      
+                } else {
+                    return ExeName;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the command-line arguments for the external program.
+        /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
+        public override string ProgramArguments {
+            get { return _arguments; }
+        }
+
+        /// <summary>
+        /// Generates an assembly manifest.
+        /// </summary>
+        protected override void ExecuteTask() {
+            if (NeedsCompiling()) {
+                // create temp response file to hold compiler options
+                StringBuilder sb = new StringBuilder();
+                StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);
+
+                try {
+                    if (Sources.BaseDirectory == null) {
+                        Sources.BaseDirectory = BaseDirectory;
+                    }
+
+                    Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, OutputPath);
+
+                    // Microsoft common compiler options
+                    writer.Write(" /t:{0}", OutputTarget);
+                    writer.Write(" /out:\"{0}\"", OutputPath);
+
+                    if (Culture != null) {
+                        writer.Write(" /culture:{0}", Culture);
+                    }
+
+                    if (Template != null) {
+                        writer.Write(" /template:\"{0}\"", Template);
+                    }
+
+                    foreach (string fileName in Sources.FileNames) {
+                        writer.Write(" /embed:\"{0}\"", fileName);
+                    }
+
+                    // Make sure to close the response file otherwise contents
+                    // Will not be written to disk and ExecuteTask() will fail.
+                    writer.Close();
+                    _arguments = sb.ToString();
+
+                    // display response file contents
+                    Log.WriteLineIf(Verbose, _arguments);
+
+                    // call base class to do the work
+                    base.ExecuteTask();
+                } finally {
+                    // make sure we delete response file even if an exception is thrown
+                    writer.Close(); // make sure stream is closed or file cannot be deleted
+                }
+            }
+        }
+
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Protected Instance Methods
+
+        protected virtual bool NeedsCompiling() {
+            FileInfo outputFileInfo = new FileInfo(OutputPath);
             if (!outputFileInfo.Exists) {
                 return true;
             }
@@ -120,53 +237,6 @@ namespace SourceForge.NAnt.Tasks {
             return false;
         }
 
-        protected override void ExecuteTask() {
-            if (NeedsCompiling()) {
-                // create temp response file to hold compiler options
-                StringBuilder sb = new StringBuilder();
-                StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);
-
-                try {
-                    if (Sources.BaseDirectory == null) {
-                        Sources.BaseDirectory = BaseDirectory;
-                    }
-
-                    Log.WriteLine(LogPrefix + "Compiling {0} files to {1}", Sources.FileNames.Count, GetOutputPath());
-
-                    // specific compiler options
-                    WriteOptions(writer);
-
-                    // Microsoft common compiler options
-                    writer.Write(" /t:{0}", OutputTarget);
-                    writer.Write(" /out:\"{0}\"", GetOutputPath());
-
-                    if ( null != Culture ) {
-                        writer.Write(" /culture:{0}", Culture);
-                    }
-
-                    if ( null != Template ) {
-                        writer.Write(" /template:\"{0}\"", Template);
-                    }
-
-                    foreach (string fileName in Sources.FileNames) {
-                        writer.Write (" /embed:\"{0}\"", fileName);
-                    }
-                    // Make sure to close the response file otherwise contents
-                    // Will not be written to disk and ExecuteTask() will fail.
-                    writer.Close();
-                    _arguments = sb.ToString();
-
-                    // display response file contents
-                    Log.WriteLineIf(Verbose, _arguments);
-
-                    // call base class to do the work
-                    base.ExecuteTask();
-
-                } finally {
-                    // make sure we delete response file even if an exception is thrown
-                    writer.Close(); // make sure stream is closed or file cannot be deleted
-                }
-            }
-        }
+        #endregion Protected Instance Methods
     }
 }
