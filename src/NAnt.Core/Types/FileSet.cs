@@ -436,6 +436,8 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/%*%");
                 Excludes.Add("**/CVS");
                 Excludes.Add("**/CVS/**");
+                Excludes.Add("**/.svn");
+                Excludes.Add("**/.svn/**");
                 Excludes.Add("**/.cvsignore");
                 Excludes.Add("**/SCCS");
                 Excludes.Add("**/SCCS/**");
