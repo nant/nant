@@ -3,12 +3,13 @@
     <property name="debug" value="true"/>
 
     <target name="clean" description="remove all generated files">
-        <delete file="Simple.exe" if="${file::exists('Simple.exe')}" />
-        <delete file="Simple.pdb" if="${file::exists('Simple.pdb')}" />
+        <delete file="bin/Simple.exe" if="${file::exists('bin/Simple.exe')}" />
+        <delete file="bin/Simple.pdb" if="${file::exists('bin/Simple.pdb')}" />
     </target>
 
     <target name="build" description="compiles the source code">
-        <csc target="exe" output="Simple.exe" debug="${debug}">
+        <mkdir dir="bin" />
+        <csc target="exe" output="bin/Simple.exe" debug="${debug}">
             <sources>
                 <include name="Simple.cs" />
             </sources>
@@ -16,6 +17,6 @@
     </target>
     
     <target name="run" depends="build">
-        <exec program="Simple.exe" />
+        <exec program="bin/Simple.exe" />
     </target>
 </project>

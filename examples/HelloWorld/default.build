@@ -6,24 +6,25 @@
     <target name="clean">
         <delete>
             <fileset>
-                <include name="${basename}-??.exe"/>
-                <include name="${basename}-??.pdb"/>
+                <include name="bin/${basename}-??.exe"/>
+                <include name="bin/${basename}-??.pdb"/>
             </fileset>
         </delete>
     </target>
 
     <target name="build">
-        <csc target="exe" output="${basename}-cs.exe" debug="${debug}">
+        <mkdir dir="bin" />
+        <csc target="exe" output="bin/${basename}-cs.exe" debug="${debug}">
             <sources>
                 <include name="${basename}.cs"/>
             </sources>
         </csc>
-        <jsc target="exe" output="${basename}-js.exe" debug="${debug}">
+        <jsc target="exe" output="bin/${basename}-js.exe" debug="${debug}">
             <sources>
                 <include name="${basename}.js"/>
             </sources>
         </jsc>
-        <vbc target="exe" output="${basename}-vb.exe" debug="${debug}">
+        <vbc target="exe" output="bin/${basename}-vb.exe" debug="${debug}">
             <sources>
                 <include name="${basename}.vb"/>
             </sources>
@@ -31,8 +32,8 @@
     </target>
 
     <target name="run" depends="build">
-        <exec program="${basename}-cs.exe" basedir="."/>
-        <exec program="${basename}-js.exe" basedir="."/>
-        <exec program="${basename}-vb.exe" basedir="."/>
+        <exec program="bin/${basename}-cs.exe" basedir="."/>
+        <exec program="bin/${basename}-js.exe" basedir="."/>
+        <exec program="bin/${basename}-vb.exe" basedir="."/>
     </target>
 </project>
