@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 // build number expressed in number of days since 1/1/2000
-[assembly: AssemblyVersion("0.85.1436.0")]
+[assembly: AssemblyVersion("0.85.1442.0")]
 [assembly: AssemblyInformationalVersion("0.85")]
