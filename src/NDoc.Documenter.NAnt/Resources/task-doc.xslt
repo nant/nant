@@ -30,18 +30,17 @@
 
     <xsl:template match="/">
         <html>
-            <xsl:apply-templates select ="//class[@id=$class-id]"/>
+            <xsl:apply-templates select="//class[@id=$class-id]" />
         </html>
     </xsl:template>
 
     <!-- match class tag -->
     <xsl:template match="class">
-        <xsl:variable name = "attr" select="attribute[@name='NAnt.Core.Attributes.TaskNameAttribute']/@name"/>
+        <xsl:variable name="attr" select="attribute[@name='NAnt.Core.Attributes.TaskNameAttribute']/@name" />
         <xsl:if test="string-length(string($attr)) != 0">
             <head>
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-                <meta name="description" content="Zip" />
                 <link rel="stylesheet" type="text/css" href="../../style.css" />
                 <title>&lt;<xsl:value-of select="attribute/property[@name='Name']/@value" />&gt; Task</title>
             </head>
@@ -76,7 +75,7 @@
                             <th class="Table-Header" align="center">Required</th>
                         </tr>
                         <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute' ]" mode="TaskAttribute">
-                            <!-- uncomment to sort attributes by name <xsl:sort select="@name"/> -->
+                            <xsl:sort select="@name" />
                         </xsl:apply-templates>
                     </table>
                     </div>
@@ -94,14 +93,14 @@
                                 <th class="Table-Header" align="center">Required</th>
                             </tr>
                             <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute' ]" mode="FrameworkConfigurableAttribute">
-                                <xsl:sort select="@name"/>
+                                <xsl:sort select="@name" />
                             </xsl:apply-templates>
                         </table>
                     </div>
                 </xsl:if>
         
-                <xsl:variable name = "filesets" select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]"/>
-                <xsl:variable name = "elementarrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
+                <xsl:variable name="filesets" select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]"/>
+                <xsl:variable name="elementarrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
                 <xsl:if test="count($filesets) != 0 or count($elementarrays) != 0">
                     <h3>Nested Elements</h3>
                     <!-- now do filesets -->
@@ -123,9 +122,6 @@
     <xsl:template match="property" mode="TaskAttribute">
         <xsl:variable name="TaskAttr" select="attribute[@name='NAnt.Core.Attributes.TaskAttributeAttribute']"/>
         <xsl:if test="count($TaskAttr) = 1">
-            <xsl:variable name="documentation">
-                    <xsl:call-template name="docstring" />
-            </xsl:variable> 
             <xsl:variable name="Required" select="$TaskAttr/property[@name='Required']/@value"/>
             <tr>
                 <td class="Table-Cell" valign="top"><xsl:value-of select="$TaskAttr/property[@name='Name']/@value"/> </td>
@@ -134,7 +130,7 @@
                         <xsl:with-param name="type" select="@type" />
                     </xsl:call-template>
                 </td>
-                <td class="Table-Cell"><xsl:value-of select="string($documentation)" /></td>
+                <td class="Table-Cell"><xsl:call-template name="docstring" /></td>
                 <td class="Table-Cell" align="center"><xsl:value-of select="string($Required)"/></td>
             </tr>
         </xsl:if>
@@ -144,9 +140,6 @@
     <xsl:template match="property" mode="FrameworkConfigurableAttribute">
         <xsl:variable name="FrameworkConfigurableAttribute" select="attribute[@name='NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
         <xsl:if test="count($FrameworkConfigurableAttribute) = 1">
-            <xsl:variable name="documentation" >
-                <xsl:call-template name="docstring" />
-            </xsl:variable> 
             <xsl:variable name="Required" select="$FrameworkConfigurableAttribute/property[@name='Required']/@value"/>
             <tr>
                 <td class="Table-Cell" valign="top"><xsl:value-of select="$FrameworkConfigurableAttribute/property[@name='Name']/@value"/></td>
@@ -155,7 +148,7 @@
                         <xsl:with-param name="type" select="@type" />
                     </xsl:call-template>
                 </td>
-                <td class="Table-Cell"><xsl:value-of select="string($documentation)" /></td>
+                <td class="Table-Cell"><xsl:call-template name="docstring" /></td>
                 <td class="Table-Cell" align="center"><xsl:value-of select="string($Required)"/></td>
             </tr>
         </xsl:if>
@@ -163,35 +156,23 @@
 
     <!-- match fileset property tag -->
     <xsl:template match="property" mode="FileSet">
-        <xsl:variable name = "FileSetAttr" select="attribute[@name='NAnt.Core.Attributes.FileSetAttribute']"/>
-        <xsl:variable name = "documentation" >
-            <xsl:call-template name="docstring" />
-        </xsl:variable>
-        <!-- @name -->
+        <xsl:variable name="FileSetAttr" select="attribute[@name='NAnt.Core.Attributes.FileSetAttribute']"/>
         <h4><xsl:value-of select="$FileSetAttr/property[@name='Name']/@value" /> (FileSet)</h4>
-        <p> <xsl:value-of select="$documentation" /></p> 
+        <p><xsl:call-template name="docstring" /></p> 
     </xsl:template> 
 
     <!-- match BuildElementArray property tag -->
     <xsl:template match="property" mode="BuildElementArrayAttribute">
-        <xsl:variable name = "BuildElementArrayAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementArrayAttribute']"/>
-        <xsl:variable name = "documentation" >
-            <xsl:call-template name="docstring" />
-        </xsl:variable>
-        <!-- @name -->
+        <xsl:variable name="BuildElementArrayAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementArrayAttribute']"/>
         <h4><xsl:value-of select="$BuildElementArrayAttr/property[@name='Name']/@value" /> (Array)</h4>
-        <p><xsl:value-of select="$documentation" /></p> 
+        <p><xsl:call-template name="docstring" /></p> 
     </xsl:template> 
 
     <!-- match BuildElementCollection property tag -->
     <xsl:template match="property" mode="BuildElementCollectionAttribute">
-        <xsl:variable name = "BuildElementCollectionAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementCollectionAttribute']"/>
-        <xsl:variable name = "documentation">
-            <xsl:call-template name="docstring" />
-        </xsl:variable>
-        <!-- @name -->
+        <xsl:variable name="BuildElementCollectionAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementCollectionAttribute']"/>
         <h4><xsl:value-of select="$BuildElementCollectionAttr/property[@name='Name']/@value" /> (Collection)</h4>
-        <p><xsl:value-of select="$documentation" /></p> 
+        <p><xsl:call-template name="docstring" /></p> 
     </xsl:template> 
 
     <!-- returns the doc string for a given value (called from the property templates )-->

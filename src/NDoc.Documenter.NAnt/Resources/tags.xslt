@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:doc="http://ndoc.sf.net/doc"    
-    exclude-result-prefixes="doc"
+    xmlns:doc="http://ndoc.sf.net/doc"
+    xmlns:NAntUtil="urn:NAntUtil"
+    exclude-result-prefixes="doc NAntUtil"
+
 >
     <!--
      | Identity Template
@@ -192,9 +194,9 @@
      +-->
 
     <xsl:template match="c" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfc.htm">
-		<code>
-			<xsl:apply-templates mode="slashdoc" />
-		</code>
+        <code>
+            <xsl:apply-templates mode="slashdoc" />
+        </code>
     </xsl:template>
 
     <xsl:template match="paramref[@name]" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfparamref.htm">
@@ -204,24 +206,50 @@
     </xsl:template>
 
     <xsl:template match="see[@cref]" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfsee.htm">
-        <xsl:call-template name="get-href">
-            <xsl:with-param name="cref" select="@cref" />
-        </xsl:call-template>
+		<xsl:call-template name="get-href">
+			<xsl:with-param name="cref" select="@cref" />
+		</xsl:call-template>
     </xsl:template>
     
-    <!-- TODO implement somthing here -->
-    <xsl:template name = "get-href">
+	<!-- get-a-href -->
+	<xsl:template name="get-a-href">
+		<xsl:param name="cref" />
+		<xsl:variable name="href" select="string(NAntUtil:GetHRef($cref))" />
+		<xsl:choose>
+			<xsl:when test="$href=''">
+				<b><xsl:value-of select="string(NAntUtil:GetName($cref))" /></b>
+			</xsl:when>
+			<xsl:otherwise>
+				<a>
+					<xsl:attribute name="href">
+						<xsl:value-of select="$href" />
+					</xsl:attribute>
+					<xsl:choose>
+						<xsl:when test="node()">
+							<xsl:value-of select="." />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="string(NAntUtil:GetName($cref))" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</a>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+    <xsl:template name="get-href">
         <xsl:param name="cref"/>
-        <!-- If this is a task add the href-->
-        <xsl:if test ="substring-before($cref, 'Task') != ''" >            
-            <xsl:variable name ="taskName" select ="//class[@id=$cref]/attribute/property[@name='Name']/@value" />
-            <a><xsl:attribute name ="href"><xsl:value-of select ="$taskName"/>Task.html</xsl:attribute><tt class="c">&lt;<xsl:value-of select="$taskName" />&gt;</tt></a><xsl:text> </xsl:text>task
-        </xsl:if>
-        <!-- Else just display the name -->
-        <xsl:if test="substring-before($cref, 'Task') = ''">
-            <xsl:variable name ="classRef" select ="//class[@id=$cref]/@name" />
-            <xsl:value-of select ="$classRef"/>
-        </xsl:if>
+        <xsl:choose>
+            <!-- if this is a task add the href-->
+            <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
+                <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
+                <a><xsl:attribute name="href"><xsl:value-of select="$taskName"/>task.html</xsl:attribute><tt class="c">&lt;<xsl:value-of select="$taskName" />&gt;</tt></a><xsl:text> </xsl:text>task
+            </xsl:when>
+            <!-- otherwise just display the name -->
+            <xsl:otherwise>
+                <code><xsl:value-of select="string(NAntUtil:GetName($cref))" /></code>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <xsl:template match="see[@href]" mode="slashdoc" doc:group="inline">
