@@ -172,13 +172,6 @@ namespace NAnt.DotNet.Tasks {
 
         #region Override implementation of ExternalProgramBase
 
-        /// <summary>
-        /// Gets the filename of the external program to start.
-        /// </summary>
-        /// <value>The filename of the external program.</value>
-        public override string ProgramFileName {
-            get { return ExeName; }
-        }
 
         /// <summary>
         /// Gets the command-line arguments for the external program.

@@ -39,7 +39,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("vjc")]
-    public class VjcTask : FXCompilerBase {
+    public class VjcTask : CompilerBase {
         #region Private Instance Fields
 
         bool _secureScoping = false;

@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
+using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
@@ -45,7 +46,8 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("resgen")]
-    public class ResGenTask : SdkExternalProgramBase {
+    [ProgramLocation( LocationType.FrameworkSdkDir ) ]
+    public class ResGenTask : ExternalProgramBase {
         #region Private Instance Fields
 
         string _arguments = null;

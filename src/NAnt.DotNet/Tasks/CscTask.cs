@@ -42,7 +42,8 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("csc")]
-    public class CscTask : FXCompilerBase {
+    [ProgramLocation( LocationType.FrameworkDir ) ]
+    public class CscTask : CompilerBase {
         #region Private Instance Fields
        
         string _doc = null;

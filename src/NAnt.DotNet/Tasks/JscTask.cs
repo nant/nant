@@ -40,7 +40,8 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("jsc")]
-    public class JscTask : FXCompilerBase {
+    [ProgramLocation( LocationType.FrameworkDir ) ]
+    public class JscTask : CompilerBase {
         #region Private Instance Fields
 
         string _warningLevel = null;

@@ -56,7 +56,8 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("vbc")]
-    public class VbcTask : FXCompilerBase {
+    [ProgramLocation( LocationType.FrameworkDir ) ]
+    public class VbcTask : CompilerBase {
         #region Private Instance Fields
 
         string _baseAddress     = null;

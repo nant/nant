@@ -269,7 +269,7 @@ namespace NAnt.Core.Tasks {
                 foreach (string sourcePath in FileCopyMap.Keys) {
                     string dstPath = (string)FileCopyMap[sourcePath];
                     if (sourcePath == dstPath) {
-                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}." + sourcePath);
+                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}.",sourcePath);
                         continue;
                     }
 
@@ -294,7 +294,6 @@ namespace NAnt.Core.Tasks {
             // TODO: handle empty directories in the fileset, refer to includeEmptyDirs attribute at
             // http://jakarta.apache.org/ant/manual/CoreTasks/copy.html
         }
-
         #endregion Protected Instance Methods
     }
 }
