@@ -72,10 +72,10 @@ namespace NAnt.Core.Types {
         public Argument this[string value] {
             get {
                 if (value != null) {
-                    // Try to locate instance using Value
-                    foreach (Argument Argument in base.List) {
-                        if (value.Equals(Argument.Value)) {
-                            return Argument;
+                    // try to locate instance using value
+                    foreach (Argument argument in base.List) {
+                        if (argument.Value == value) {
+                            return argument;
                         }
                     }
                 }
