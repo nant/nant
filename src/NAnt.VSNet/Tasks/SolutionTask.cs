@@ -297,7 +297,7 @@ namespace NAnt.VSNet.Tasks {
                     basePath = tfc.BasePath;
                 }
             } finally {
-                if (basePath != null) {
+                if (basePath != null && Directory.Exists(basePath)) {
                     Log(Level.Debug, LogPrefix + "Cleaning up temp folder {0}.", basePath); 
 
                     // force all files to have normal attributes to allow deletion
