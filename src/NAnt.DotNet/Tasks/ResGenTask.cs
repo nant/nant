@@ -29,7 +29,13 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
 
-    /// <summary>Converts files from one resource format to another (wraps Microsoft's resgen.exe).</summary>
+    /// <summary>Converts files from one resource format to another (wraps Microsoft's resgen.exe).
+    /// <note>
+    ///     <para>
+    ///         If no todir is specified, the resource file will be created next to the input file.
+    ///     </para>
+    /// </note>
+    /// </summary>
     /// <example>
     ///   <para>Convert a resource file from the .resx to the .resources format</para>
     ///   <code>
