@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <project name="nant" default="nightly">
+    <!-- set build.date property to current date in format yyyy-MM-dd -->
+    <tstamp property="build.date" pattern="yyyy-MM-dd" />
     <!-- set release type -->
     <property name="project.release.type" value="nightly" />
-    <!-- set build.date property to current date in format yyyyMMdd -->
-    <tstamp property="build.date" pattern="yyyyMMdd" />
     <property name="sf.net.ssh.server" value="shell1.sf.net" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- retrieve system information and environment variables -->
@@ -12,6 +12,8 @@
     <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.web.path}" />
     <!-- include master build file -->
     <include buildfile="nant.build" />
+    <!-- determine path for nightly build dist packages on sf.net relative to web path -->
+    <property name="nightly.builds.path" value="nightly/builds/${build.date}-${project.version}" />
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
     <target name="nightly" depends="set-net-1.0-framework-configuration, package, deploy-sf, install" description="Perform a 'nightly' package, and installs NAnt." />
     <!-- deploy content to sourceforge -->
@@ -19,69 +21,59 @@
     <!-- copy the zipped nighly build to sourceforge -->
     <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- determine filename of source distribution package on sf.net -->
-        <property name="deploy.zip.src" value="${project.name}-${project.version}-${build.date}-src.zip" />
+        <property name="deploy.zip.src" value="${project.name}-src.zip" />
         <!-- determine filename of binary distribution package on sf.net -->
-        <property name="deploy.zip.bin" value="${project.name}-${project.version}-${build.date}-bin.zip" />
+        <property name="deploy.zip.bin" value="${project.name}-bin.zip" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/nightly/builds" />
+            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/${nightly.builds.path}" />
         </exec>
         <!-- copy the source distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
             <arg value="${path::get-file-name(project.zip-path.src)}" />
-            <arg value="${serverpart}/nightly/builds/${deploy.zip.src}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${deploy.zip.src}" />
         </exec>
         <!-- copy the binary distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
             <arg value="${path::get-file-name(project.zip-path.bin)}" />
-            <arg value="${serverpart}/nightly/builds/${deploy.zip.bin}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${deploy.zip.bin}" />
         </exec>
         <echo message="Copied nightly build over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${deploy.zip.src}" />
-        </exec>
-        <exec program="ssh">
-            <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${deploy.zip.bin}" />
+            <arg value="chmod -R 775 ${sf.net.web.path}/${nightly.builds.path}" />
         </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${deploy.zip.src}" />
-        </exec>
-        <exec program="ssh">
-            <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${deploy.zip.bin}" />
+            <arg value="chgrp -R nant ${sf.net.web.path}/${nightly.builds.path}" />
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
     <target name="deploy-schema-sf" depends="set-net-1.0-framework-configuration, package">
-        <!-- determine filename of schema on sf.net -->
-        <property name="deploy.schema.file" value="${project.name}-${project.version}-${build.date}.xsd" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/nightly/schema" />
+            <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/nightly/builds/${sf.net.deploy.path}" />
         </exec>
         <!-- copy the schema file to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/schema" program="scp">
             <arg value="-C" />
             <arg value="${project.name}-${project.version}.xsd" />
-            <arg value="${serverpart}/nightly/schema/${deploy.schema.file}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${project.name}-${project.version}.xsd" />
         </exec>
         <echo message="Copied schema over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 775 ${sf.net.web.path}/nightly/schema/${deploy.schema.file}" />
+            <arg value="chmod 775 ${sf.net.web.path}/${nightly.builds.path}/${project.name}-${project.version}.xsd" />
         </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp nant ${sf.net.web.path}/nightly/schema/${deploy.schema.file}" />
+            <arg value="chgrp nant ${sf.net.web.path}/${nightly.builds.path}/${project.name}-${project.version}.xsd" />
         </exec>
     </target>
     <!-- copy help to sourceforge -->
