@@ -19,9 +19,6 @@
                 <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <include name="../../src/CommonAssemblyInfo.cs" />
-                <!-- requires internet access and server resources -->
-                <exclude name="/**/GetTaskTest.cs" />
-                <exclude name="/**/MailTaskTest.cs" />
             </sources>
             <references>
                 <include name="${lib.framework.dir}/log4net.dll" />
@@ -38,7 +35,11 @@
     <target name="test" depends="build">
          <nunit2>
             <formatter type="Plain" />
-            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${path::combine(nant.location, 'nant.tests.config')}" />
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${path::combine(nant.location, 'nant.tests.config')}">
+                <categories>
+                    <exclude name="InetAccess" />
+                </categories>
+            </test>
          </nunit2>
     </target>
 </project>
