@@ -1,27 +1,27 @@
 Microsoft Visual Studio Solution File, Format Version 7.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Console", "Nant.Console\NAnt.Console.csproj", "{859696F8-F405-4018-A155-D34561498A3E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Console", "src\Nant.Console\NAnt.Console.csproj", "{859696F8-F405-4018-A155-D34561498A3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Tests", "NAnt.Tests.csproj", "{F77EA08E-9473-436A-BBA3-880139A341B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Tests", "src\NAnt.Tests.csproj", "{F77EA08E-9473-436A-BBA3-880139A341B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.DotNetTasks", "NAnt.DotNetTasks\NAnt.DotNetTasks.csproj", "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.DotNet", "src\NAnt.DotNet\NAnt.DotNetTasks.csproj", "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VisualCppTasks", "NAnt.VisualCppTasks\NAnt.VisualCppTasks.csproj", "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VisualCpp", "src\NAnt.VisualCpp\NAnt.VisualCppTasks.csproj", "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.ZipTasks", "NAnt.ZipTasks\NAnt.ZipTasks.csproj", "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Zip", "src\NAnt.Zip\NAnt.ZipTasks.csproj", "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDoc.Documenter.NAnt", "NDoc.Documenter.NAnt\NDoc.Documenter.NAnt.csproj", "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Documenter.NDoc", "src\NAnt.Documenter.NDoc\NDoc.Documenter.NAnt.csproj", "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Core", "NAnt.Core\NAnt.Core.csproj", "{8F5F8375-4097-4952-B860-784EB9961ABE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Core", "src\NAnt.Core\NAnt.Core.csproj", "{8F5F8375-4097-4952-B860-784EB9961ABE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnitFormatters", "NAnt.NUnitTasks\NAnt.NUnitFormatters.csproj", "{00F5C075-9874-4BCE-909A-99C1F600E047}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit", "src\NAnt.NUnit\NAnt.NUnitFormatters.csproj", "{00F5C075-9874-4BCE-909A-99C1F600E047}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit2Tasks", "NAnt.NUnitTasks\NUnit2\NAnt.NUnit2Tasks.csproj", "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit2", "src\NAnt.NUnit\NUnit2\NAnt.NUnit2Tasks.csproj", "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit1Tasks", "NAnt.NUnitTasks\NUnit1\NAnt.NUnit1Tasks.csproj", "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit1", "src\NAnt.NUnit\NUnit1\NAnt.NUnit1Tasks.csproj", "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Win32Tasks", "NAnt.Win32Tasks\NAnt.Win32Tasks.csproj", "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Win32", "src\NAnt.Win32\NAnt.Win32Tasks.csproj", "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VSNetTasks", "NAnt.VSNetTasks\NAnt.VSNetTasks.csproj", "{DD434690-B4DF-4BF9-91FE-F139A41E2474}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VSNet", "src\NAnt.VSNet\NAnt.VSNetTasks.csproj", "{DD434690-B4DF-4BF9-91FE-F139A41E2474}"
 EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
@@ -119,17 +119,16 @@ Global
 		{DD434690-B4DF-4BF9-91FE-F139A41E2474}.Debug NAnt Tests.Build.0 = Debug Main NAnt BuildFile|.NET
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
-		Item:1 = ..\NAnt.build
-		Item:2 = NAnt.DotNetTasks.build
-		Item:3 = ..\bin\nant.exe.config
-		Item:4 = NAnt.NUnitTasks.build
-		Item:5 = NAnt.VisualCppTasks.build
-		Item:6 = NAnt.VSNetTasks.build
-		Item:7 = NAnt.ZipTasks.build
-		Item:8 = ..\nightly.xml
-		Item:9 = ..\release.xml
-		Item:10 = ..\xsdTest.xml
-		Item:11 = NAnt.Win32Tasks.build
+		Item:1 = NAnt.build
+		Item:2 = src\NAnt.DotNet\NAnt.DotNet.build
+		Item:3 = bin\nant.exe.config
+		Item:4 = src\NAnt.NUnit\NAnt.NUnit.build
+		Item:5 = src\NAnt.VisualCpp\NAnt.VisualCpp.build
+		Item:6 = src\NAnt.VSNet\NAnt.VSNet.build
+		Item:7 = src\NAnt.Zip\NAnt.Zip.build
+		Item:8 = nightly.xml
+		Item:9 = release.xml
+		Item:10 = src\NAnt.Win32\NAnt.Win32.build
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
