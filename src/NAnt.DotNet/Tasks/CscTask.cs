@@ -32,11 +32,11 @@ namespace SourceForge.NAnt.Tasks {
     ///   <para>Compile <c>helloworld.cs</c> to <c>helloworld.exe</c>.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <csc target="exe" output="helloworld.exe" debug="true">
-    ///     <sources>
-    ///         <includes name="helloworld.cs"/>
-    ///     </sources>
-    /// </csc>
+	///	<solution configuration="release">		
+	///		<projects>
+	///			<includesList name="projects.txt" />
+	///		</projects>
+	///	</solution>
     ///     ]]>
     ///   </code>
     /// </example>

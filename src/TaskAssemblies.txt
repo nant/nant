@@ -3,3 +3,4 @@ NAnt.ZipTasks
 NAnt.VisualCppTasks
 NAnt.NUnitTasks
 NAnt.Win32Tasks
+NAnt.VSNetTasks

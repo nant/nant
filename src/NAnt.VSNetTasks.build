@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project name="nant" default="test">
+    <!--
+        Required properties:
+        * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
+        * build.debug   - (true|false) debug build?
+    -->
+    <target name="build">
+        <!-- build main assembly -->
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VSNetTasks.dll" doc="${build.dir}/bin/NAnt.VSNetTasks.xml">
+            <sources basedir="NAnt.VSNetTasks">
+                <includes name="**/*.cs"/>
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NAnt.DotNetTasks.dll"/>
+                <includes name="NAnt.Win32Tasks.dll"/>
+                <includes name="NDoc.Core.dll"/>
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+        <!-- build test assembly -->
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VSNetTasks.Tests.dll">
+            <sources basedir="NAnt.VSNetTasks.Tests">
+                <includes name="**/*.cs"/>
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NAnt.Core.Tests.dll"/>
+                <includes name="NAnt.VSNetTasks.dll"/>
+                <includes name="nunit.framework.dll"/>
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+    </target>
+    <target name="test" depends="build">
+         <nunit2>
+            <test assemblyname="${build.dir}/bin/NAnt.VSNetTasks.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
+         </nunit2>
+    </target>
+</project>
