@@ -34,7 +34,7 @@ namespace NAnt.Core {
         
         static PlatformHelper() {
             // check a class in mscorlib to determine if we're running on Mono
-            if (Type.GetType("Mono.Runtime", false) != null) {
+            if (Type.GetType("System.MonoType", false) != null) {
                 // we're on Mono
                 IsMono = true;
             } else {
