@@ -103,7 +103,7 @@ namespace NAnt.DotNet.Tasks {
         private CodeLanguage _language = CodeLanguage.CSharp;
         private AssemblyAttributeCollection _attributes = new AssemblyAttributeCollection();
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
-        private FileSet _references = new FileSet();
+        private AssemblyFileSet _references = new AssemblyFileSet();
 
         #endregion Private Instance Fields
 
@@ -171,7 +171,7 @@ namespace NAnt.DotNet.Tasks {
         /// Assembly files used to locate the types of the specified attributes.
         /// </summary>
         [BuildElement("references")]
-        public FileSet References {
+        public AssemblyFileSet References {
             get { return _references; }
             set { _references = value; }
         }
@@ -197,22 +197,6 @@ namespace NAnt.DotNet.Tasks {
                 // from XML
                 if (References.BaseDirectory == null) {
                     References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
-                }
-
-                // fix references to system assemblies
-                if (Project.TargetFramework != null) {
-                    foreach (string pattern in References.Includes) {
-                        if (Path.GetFileName(pattern) == pattern) {
-                            string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                            string localPath = Path.Combine(References.BaseDirectory.FullName, pattern);
-                            string fullPath = Path.Combine(frameworkDir, pattern);
-
-                            if (!File.Exists(localPath) && File.Exists(fullPath)) {
-                                // found a system reference
-                                References.FileNames.Add(fullPath);
-                            }
-                        }
-                    }
                 }
 
                 // write out code to memory stream, so we can compare it later 

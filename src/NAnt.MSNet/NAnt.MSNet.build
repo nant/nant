@@ -18,6 +18,7 @@
             </sources>
             <references>
                 <includes name="${build.dir}/bin/NAnt.Core.dll" />
+                <includes name="${build.dir}/bin/NAnt.DotNetTasks.dll" />
                 <includes name="Microsoft.JScript.dll" />
                 <includes name="System.ServiceProcess.dll" />
             </references>

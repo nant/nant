@@ -66,8 +66,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
@@ -185,6 +183,11 @@
                 />
                 <File
                     RelPath = "Types\AssemblyAttributeCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\AssemblyFileSet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

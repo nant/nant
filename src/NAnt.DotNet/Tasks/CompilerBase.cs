@@ -49,9 +49,9 @@ namespace NAnt.DotNet.Tasks {
         private bool _warnAsError;
         private bool _forceRebuild;
         private string _mainType;
-        private FileSet _references = new FileSet();
+        private AssemblyFileSet _references = new AssemblyFileSet();
         private FileSet _lib = new FileSet();
-        private FileSet _modules = new FileSet();
+        private AssemblyFileSet _modules = new AssemblyFileSet();
         private FileSet _sources = new FileSet();
         private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
 
@@ -231,7 +231,7 @@ namespace NAnt.DotNet.Tasks {
         /// Reference metadata from the specified assembly files.
         /// </summary>
         [BuildElement("references")]
-        public FileSet References {
+        public AssemblyFileSet References {
             get { return _references; }
             set { _references = value; }
         }
@@ -270,7 +270,7 @@ namespace NAnt.DotNet.Tasks {
         /// Link the specified modules into this assembly.
         /// </summary>
         [BuildElement("modules")]
-        public FileSet Modules {
+        public AssemblyFileSet Modules {
             get { return _modules; }
             set { _modules = value; }
         }
@@ -354,9 +354,17 @@ namespace NAnt.DotNet.Tasks {
                     }   
                     if (Sources.BaseDirectory == null) {   
                         Sources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);   
-                    } 
-
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", 
+                    }
+                    
+                    // copy lib path details across to the children Assembly filesets
+                    foreach(string directoryName in Lib.DirectoryNames){
+                        References.Lib.DirectoryNames.Add(directoryName);
+                        Modules.Lib.DirectoryNames.Add(directoryName);
+                    }
+                    // rescan to ensure correct assembly resolution
+                    References.Scan();
+                    
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.",
                         Sources.FileNames.Count, OutputFile.FullName);
 
                     // specific compiler options
@@ -721,11 +729,6 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="writer">The <see cref="TextWriter" /> to which the assembly references should be written.</param>
         protected void WriteAssemblyReferences(TextWriter writer) {
-            // fix references to system assemblies and assemblies that
-            // can be resolved using directories specified with the
-            // <lib> element
-            ResolveReferences(References);
-
             // write references to the TextWriter
             foreach (string fileName in References.FileNames) {
                 WriteOption(writer, "reference", fileName);
@@ -737,70 +740,11 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
         protected void WriteModuleReferences(TextWriter writer) {
-            // fix references to system modules and modules that
-            // can be resolved using directories specified with the
-            // <lib> element
-            ResolveReferences(Modules);
-
             // write references to the TextWriter
             foreach (string fileName in Modules.FileNames) {
                 WriteOption(writer, "addmodule", fileName);
             }
         }
-
-        /// <summary>
-        /// Resolves references to system assemblies and assemblies that can be 
-        /// resolved using directories specified in <see cref="Lib" />.
-        /// </summary>
-        /// <param name="fileSet">The <see cref="FileSet" /> in which references should be resolved.</param>
-        protected void ResolveReferences(FileSet fileSet) {
-            foreach (string pattern in fileSet.Includes) {
-                if (Path.GetFileName(pattern) == pattern) {
-                    string localPath = Path.Combine(fileSet.BaseDirectory.FullName, 
-                        pattern);
-
-                    // check if a file match the pattern exists in the 
-                    // base directory of the references fileset
-                    if (File.Exists(localPath)) {
-                        // the file will already be included as part of
-                        // the fileset scan process
-                        continue;
-                    }
-
-                    foreach (string libPath in Lib.DirectoryNames) {
-                        string fullPath = Path.Combine(libPath, pattern);
-
-                        // check whether an assembly matching the pattern
-                        // exists in the assembly directory of the current
-                        // framework
-                        if (File.Exists(fullPath)) {
-                            // found a system reference
-                            fileSet.FileNames.Add(fullPath);
-
-                            // continue with the next pattern
-                            continue;
-                        }
-                    }
-
-                    if (Project.TargetFramework != null) {
-                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                        string fullPath = Path.Combine(frameworkDir, pattern);
-
-                        // check whether an assembly matching the pattern
-                        // exists in the assembly directory of the current
-                        // framework
-                        if (File.Exists(fullPath)) {
-                            // found a system reference
-                            fileSet.FileNames.Add(fullPath);
-
-                            // continue with the next pattern
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// Allows derived classes to provide compiler-specific options.
         /// </summary>

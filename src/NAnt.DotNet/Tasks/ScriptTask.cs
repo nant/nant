@@ -33,6 +33,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+using NAnt.DotNet.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -120,7 +121,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private string _language = "Unknown";
-        private FileSet _references = new FileSet();
+        private AssemblyFileSet _references = new AssemblyFileSet();
         private string _mainClass = "";
         private static Hashtable _compilerMap;
         private string _rootClassName;
@@ -159,7 +160,7 @@ namespace NAnt.Core.Tasks {
         /// Any required references.
         /// </summary>
         [BuildElement("references")]
-        public FileSet References {
+        public AssemblyFileSet References {
             get { return _references; }
             set { _references = value; }
         }

@@ -265,7 +265,7 @@ namespace NAnt.Core.Types {
         /// base directory.
         /// </summary>
         [TaskAttribute("basedir")]
-        public DirectoryInfo BaseDirectory {
+        public virtual DirectoryInfo BaseDirectory {
             get { 
                 if (_baseDirectory == null && Project != null) {
                     return new DirectoryInfo(Project.BaseDirectory);
@@ -564,7 +564,7 @@ namespace NAnt.Core.Types {
 
         #region Public Instance Methods
 
-        public void Scan() {
+        public virtual void Scan() {
             try {
                 _scanner.BaseDirectory = BaseDirectory;
 
