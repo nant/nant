@@ -1,4 +1,3 @@
-#region "Nant Copyright notice"
 // NAnt - A .NET build tool
 // Copyright (C) 2001-2003 Gerry Shaw
 //
@@ -17,7 +16,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
-#endregion
 
 using System;
 using System.Globalization;
@@ -46,8 +44,10 @@ namespace NAnt.SourceControl.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Update your nant revision named: "your_favorite_revision_here"
-    ///     in the folder "c:\src\nant\replacement_for_module_directory_name".</para>
+    ///   <para>
+    ///   Update your NAnt revision named <c>your_favorite_revision_here</c> in 
+    ///   the folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <cvs-update 
@@ -64,8 +64,10 @@ namespace NAnt.SourceControl.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Update your nant revision named: "your_favorite_revision_here"
-    ///     in the folder "c:\src\nant\replacement_for_module_directory_name".</para>
+    ///   <para>
+    ///   Update your NAnt revision named <c>your_favorite_revision_here</c> in 
+    ///   the folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <cvs-update 
@@ -105,7 +107,9 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Creates an instance of the update command.
         /// </summary>
-        /// <returns>An instance of the update command.</returns>
+        /// <returns>
+        /// An instance of the update command.
+        /// </returns>
         protected override ICommand CreateCommand () {
             this.PopulateFolders (this.WorkingDirectory);
             return new UpdateCommand2(this.WorkingDirectory);

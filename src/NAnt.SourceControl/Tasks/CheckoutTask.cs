@@ -1,6 +1,5 @@
-#region "Nant Copyright notice"
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,14 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
-#endregion
 
 using System;
 
-using NAnt.Core.Tasks;
-using NAnt.Core.Attributes;
-
 using ICSharpCode.SharpCvsLib.Commands;
+
+using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -42,10 +40,11 @@ namespace NAnt.SourceControl.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
-    /// 
     /// <example>
-    ///   <para>Checkout NAnt Revision named: "your_favorite_revision_here"
-    ///     to the folder "c:\src\nant\replacement_for_module_directory_name".</para>
+    ///   <para>
+    ///   Checkout NAnt revision named <c>your_favorite_revision_here</c> to the 
+    ///   folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <cvs-checkout 
@@ -61,10 +60,11 @@ namespace NAnt.SourceControl.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
-    /// 
     /// <example>
-    ///   <para>Checkout NAnt Revision named: "your_favorite_revision_here"
-    ///     to the folder "c:\src\nant\replacement_for_module_directory_name".</para>
+    ///   <para>
+    ///   Checkout NAnt revision named <c>your_favorite_revision_here</c> to the 
+    ///   folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <cvs-checkout 
@@ -97,7 +97,9 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Creates the checkout command.
         /// </summary>
-        /// <returns>An instance of the checkout command.</returns>
+        /// <returns>
+        /// An instance of the checkout command.
+        /// </returns>
         protected override ICommand CreateCommand () {
             return new CheckoutModuleCommand(this.WorkingDirectory); 
         }

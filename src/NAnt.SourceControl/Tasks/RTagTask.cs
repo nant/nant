@@ -1,4 +1,3 @@
-#region "Nant Copyright notice"
 // NAnt - A .NET build tool
 // Copyright (C) 2001-2002 Gerry Shaw
 //
@@ -17,7 +16,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
-#endregion
 
 using System;
 
@@ -30,19 +28,19 @@ using ICSharpCode.SharpCvsLib.Commands;
 namespace NAnt.SourceControl.Tasks
 {
     /// <summary>
-    /// <para>
-    /// Tags all sources in the remote repository with the given tag.
-    /// </para>
-    /// <para>
-    /// Unlike tag the rtag command acts only on sources that are in the repository.  
-    ///     Any modified sources on the local file system will NOT be tagged with this
-    ///     command, so a commit should be performed before an rtag is done.
-    /// </para>
-    /// <para>
-    /// NOTE: Although a working directory is not necessary to perform the command one
-    ///     must be specified in order to remain in compliance with the cvs library.
-    /// </para>
+    /// Tags all sources in the remote repository with a given tag.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Unlike tag, the rtag command acts only on sources that are in the repository.  
+    /// Any modified sources on the local file system will NOT be tagged with this
+    /// command, so a commit should be performed before an rtag is done.
+    /// </para>
+    /// <para>
+    /// NOTE: Although a working directory is not necessary to perform the command 
+    /// one must be specified in order to remain in compliance with the cvs library.
+    /// </para>
+    /// </remarks>
     /// <example>
     ///   <para>Tag NAnt sources remotely.</para>
     ///   <code>
@@ -56,6 +54,8 @@ namespace NAnt.SourceControl.Tasks
     ///      />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Remove a tag from the remote repository.</para>
     ///   <code>
     ///     <![CDATA[
@@ -88,16 +88,12 @@ namespace NAnt.SourceControl.Tasks
         #region Public Instance Properties
 
         /// <summary>
-        /// Destination directory for the checked out / updated files.
+        /// The name of the tag to assign or remove.
         /// </summary>
         /// <value>
-        /// The destination directory for the checked out or updated files.
+        /// The name of the tag to assign or remove.
         /// </value>
-        /// <example>
-        /// <para>This is the current working directory that will be modifed.
-        /// </para>
-        /// </example>
-        [TaskAttribute ("tagname", Required=true)]
+        [TaskAttribute("tagname", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string TagName {
             get { return _tagName; }
@@ -105,20 +101,17 @@ namespace NAnt.SourceControl.Tasks
         }
 
         /// <summary>
-        /// Indicates whether the tag specified in the TagName property should
-        ///     be removed or not.  Defaults to <code>false</code>.
+        /// Indicates whether the tag specified in <see cref="TagName" /> should
+        /// be removed or not. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <code>true</code> if the tag specified should be removed, <code>false</code>
-        ///     otherwise.  The default value for this property is <code>false</code>.
+        /// <see langword="true" /> if the specified tag should be removed; 
+        /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
-        /// <example>
-        /// <para>false</para>
-        /// </example>
-        [TaskAttribute ("remove", Required=false)]
+        [TaskAttribute("remove", Required=false)]
         public bool Remove {
-            get {return _remove;}
-            set {this._remove = value;}
+            get { return _remove; }
+            set { _remove = value; }
         }
 
         #endregion Public Instance Properties
@@ -139,7 +132,9 @@ namespace NAnt.SourceControl.Tasks
         /// <summary>
         /// Creates an instance of the rtag command.
         /// </summary>
-        /// <returns>An instance of the update command.</returns>
+        /// <returns>
+        /// An instance of the rtag command.
+        /// </returns>
         protected override ICommand CreateCommand () {
             RTagCommand command = new RTagCommand(this.WorkingDirectory);
             command.TagName = this.TagName;
