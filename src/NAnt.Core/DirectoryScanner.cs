@@ -544,7 +544,10 @@ namespace NAnt.Core {
                 } else {
                     // otherwise just test to see if the subdirectories are included
                     if (IsPathIncluded(directoryInfo.FullName, caseSensitive, includedPatterns, excludedPatterns)) {
-                        _directoryNames.Add(directoryInfo.FullName);
+                        // never add the base directory as directory name
+                        if (directoryInfo.FullName != BaseDirectory.FullName) {
+                            _directoryNames.Add(directoryInfo.FullName);
+                        }
                     }
                 }
             }
@@ -564,7 +567,10 @@ namespace NAnt.Core {
             // but it is more like formalizing something in a way that makes
             // writing the delete task easier :)
             if (IsPathIncluded(path, caseSensitive, includedPatterns, excludedPatterns)) {
-                _directoryNames.Add(path);
+                // never add the base directory as directory name
+                if (path != BaseDirectory.FullName) {
+                    _directoryNames.Add(path);
+                }
             }
         }
         
