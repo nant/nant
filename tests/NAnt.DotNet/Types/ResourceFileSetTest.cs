@@ -23,7 +23,9 @@ using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
+
 using SourceForge.NAnt.Tasks;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tests {
 

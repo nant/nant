@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
+using SourceForge.NAnt.Types;
 
 namespace SourceForge.NAnt.Tasks {
     /// <summary>
@@ -76,7 +77,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
         [FileSet("resources")]
         public FileSet Resources { get { return _resources; } set { _resources = value; } }
-                           
+
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase

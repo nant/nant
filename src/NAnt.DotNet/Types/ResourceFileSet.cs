@@ -20,10 +20,9 @@
 
 using System.IO;
 
-using SourceForge.NAnt;
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace SourceForge.NAnt.Types {
     /// <summary>
     /// Specialized <see cref="FileSet" /> class for managing resource files. 
     /// </summary>

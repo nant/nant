@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 
-namespace SourceForge.NAnt.Tasks {
+namespace SourceForge.NAnt.Types {
     /// <summary>
     /// Contains a strongly typed collection of <see cref="ResourceFileSet"/> objects.
     /// </summary>
