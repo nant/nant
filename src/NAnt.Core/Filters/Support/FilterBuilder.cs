@@ -100,9 +100,15 @@ namespace NAnt.Core.Filters {
                 //check to see if it is loaded already
                 Assembly[] ass = AppDomain.CurrentDomain.GetAssemblies();
                 for (int i = 0; i < ass.Length; i++){
-                    if (ass[i].Location != null && ass[i].Location == AssemblyFileName) { 
-                        assembly = ass[i];
-                        return assembly;
+                    try {
+                        string assemblyLocation = ass[i].Location;
+
+                        if (assemblyLocation != null && assemblyLocation == AssemblyFileName) {
+                            assembly = ass[i];
+                            break;
+                        }
+                    } catch (NotSupportedException) {
+                        // dynamically loaded assemblies do not not have a location
                     }
                 }
                 //load if not loaded
