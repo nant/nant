@@ -159,6 +159,7 @@
             <documenters>
                 <documenter name="NAntTask">
                     <property name="OutputDirectory" value="${build.dir}/doc/help/tasks" />
+                    <property name="DocumentAttributes" value="True" />
                 </documenter>
             </documenters>
         </ndoc>

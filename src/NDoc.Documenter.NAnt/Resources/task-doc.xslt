@@ -29,7 +29,7 @@
 <xsl:output method="html" indent="yes" />
 
 <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
-<xsl:param name="class-id">T:SourceForge.NAnt.Tasks.AlTask</xsl:param>
+<xsl:param name="class-id">T:SourceForge.NAnt.Tasks.AttribTask</xsl:param>
 
 <xsl:template match="/">
     <html>
