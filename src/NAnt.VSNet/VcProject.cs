@@ -332,21 +332,24 @@ namespace NAnt.VSNet {
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
                 foreach (string includeDir in includeDirs.Split(',', ';')) {
-                    clTask.IncludeDirs.DirectoryNames.Add(includeDir);
+                    clTask.IncludeDirs.DirectoryNames.Add(
+                        CleanPath(includeDir));
                 }
             }
 
             string metadataDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalUsingDirectories");
             if (!StringUtils.IsNullOrEmpty(metadataDirs)) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
-                    clTask.MetaDataIncludeDirs.DirectoryNames.Add(baseConfig.ExpandMacros(metadataDir));
+                    clTask.MetaDataIncludeDirs.DirectoryNames.Add(
+                        CleanPath(baseConfig.ExpandMacros(metadataDir)));
                 }
             }
 
             string forcedUsingFiles = fileConfig.GetToolSetting(compilerTool, "ForcedUsingFiles");
             if (!StringUtils.IsNullOrEmpty(forcedUsingFiles)) {
                 foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
-                    clTask.ForcedUsingFiles.Includes.Add(baseConfig.ExpandMacros(forcedUsingFile));
+                    clTask.ForcedUsingFiles.Includes.Add(
+                        CleanPath(baseConfig.ExpandMacros(forcedUsingFile)));
                 }
             }
 
@@ -605,6 +608,19 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Static Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Removes leading and trailing quotes from the specified path.
+        /// </summary>
+        /// <param name="path">The path to clean.</param>
+        private static string CleanPath(string path) {
+            string cleanedPath = path.TrimStart('\"');
+            return cleanedPath.TrimEnd('\"');
+        }
+
+        #endregion Private Static Methods
 
         #region Private Instance Fields
 
