@@ -352,7 +352,7 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The items to include in the fileset.
         /// </summary>
-        [BuildElementArray("includes", ElementType=typeof(IncludesElement))]
+        [BuildElementArray("includes")]
         public IncludesElement[] SetIncludes {
             set {                foreach(IncludesElement include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
@@ -369,7 +369,7 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The items to exclude from the fileset.
         /// </summary>
-        [BuildElementArray("excludes", ElementType=typeof(ExcludesElement))]
+        [BuildElementArray("excludes")]
         public ExcludesElement[] SetExcludes {
             set {
                 foreach(ExcludesElement exclude in value) {
@@ -382,7 +382,7 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The items to include in the fileset.
         /// </summary>
-        [BuildElementArray("includesList", ElementType=typeof(IncludesListElement))]
+        [BuildElementArray("includesList")]
         public IncludesListElement[] SetIncludesList {
             set {
                 foreach (IncludesListElement includeList in value){
