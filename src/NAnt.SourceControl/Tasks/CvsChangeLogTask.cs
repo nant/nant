@@ -41,12 +41,15 @@ namespace NAnt.SourceControl.Tasks {
     ///   <para>Checkout NAnt.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvschangelog   cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///                 password="" 
-    ///                 module="nant"
-    ///                 start="2004/07/23"
-    ///                 end="2004/07/25"
-    ///                 destfile="e:/test/nant/sourcecontrol/changelog-nant.xml" />
+    ///    <cvschangelog   destination="e:/test/nant/sourcecontrol/"
+    ///                    cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    ///                    password="" 
+    ///                    module="nant"
+    ///                    start="2004/06/01"
+    ///                    end="2004/07/25"
+    ///                    xmlfile="e:/test/nant/sourcecontrol/changelog-nant.xml" 
+    ///                    xslfile="c:/test/changelog.xsl"
+    ///                    />
     ///     ]]>
     ///   </code>
     /// </example>
