@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
@@ -28,7 +28,9 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks { 
-    /// <summary>A task to send SMTP email.</summary>
+    /// <summary>
+    /// A task to send SMTP email.
+    /// </summary>
     /// <remarks>
     /// Text and text files to include in the message body may be specified as well as binary attachments.
     /// </remarks>
@@ -47,64 +49,127 @@ namespace NAnt.Core.Tasks {
     ///   ]]></code>
     /// </example>
     [TaskName("mail")]
-    public class MailTask : Task
-    {
-        string _from = "";      
-        string _toList = "";        
-        string _ccList = "";        
-        string _bccList = "";        
+    public class MailTask : Task {
+        #region Private Instance Fields
+
+        string _from = null;
+        string _toList = null;
+        string _ccList = null;
+        string _bccList = null;
         string _mailHost = "localhost";
-        string _subject = "";        
-        string _message = "";        
-        string _files = "";        
+        string _subject = "";
+        string _message = "";
+        string _files = "";
         string _attachments = "";
         MailFormat _mailFormat = MailFormat.Text;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
   
-        /// <summary>Email address of sender </summary>
+        /// <summary>
+        /// Email address of sender.
+        /// </summary>
         [TaskAttribute("from", Required=true)]
-        public string From { get { return _from; } set { _from = value; } }
+        public string From {
+            get { return _from; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _from = value; 
+                } else {
+                    _from = null;
+                }
+            }
+        }
         
-        /// <summary>Comma- or semicolon-separated list of recipient email addresses</summary>
+        /// <summary>
+        /// Comma- or semicolon-separated list of recipient email addresses.
+        /// </summary>
         [TaskAttribute("tolist", Required=true)]
         public string ToList {
-            // convert to semicolon delimited
             get { return _toList.Replace("," , ";"); }
-            set { _toList = value.Replace("," , ";"); }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    // convert to semicolon delimited
+                    _toList = value.Replace("," , ";"); 
+                } else {
+                    _toList = null;
+                }
+            }
         }
 
-        /// <summary>Comma- or semicolon-separated list of CC: recipient email addresses </summary>
+        /// <summary>
+        /// Comma- or semicolon-separated list of CC: recipient email addresses.
+        /// </summary>
         [TaskAttribute("cclist")]
         public string CcList { 
-            // convert to semicolon delimited
-            get { return _ccList.Replace("," , ";"); } 
-            set { _ccList = value.Replace("," , ";"); }
+            get { return _ccList; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    // convert to semicolon delimited
+                    _ccList = value.Replace("," , ";");
+                } else {
+                    _ccList = null;
+                }
+            }
         }
 
-        /// <summary> Comma- or semicolon-separated list of BCC: recipient email addresses</summary>
+        /// <summary>
+        /// Comma- or semicolon-separated list of BCC: recipient email addresses.
+        /// </summary>
         [TaskAttribute("bcclist")]
         public string BccList { 
-            // convert to semicolon delimited
-            get { return _bccList.Replace("," , ";"); } 
-            set { _bccList = value.Replace("," , ";"); }
+            get { return _bccList; } 
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    // convert to semicolon delimited
+                    _bccList = value.Replace("," , ";"); 
+                } else {
+                    _bccList = null;
+                }
+            }
         }
 
-        /// <summary>Host name of mail server. Defaults to "localhost"</summary>
+        /// <summary>
+        /// Host name of mail server. Defaults to "localhost"
+        /// </summary>
         [TaskAttribute("mailhost")]
-        public string Mailhost { get { return _mailHost; } set { _mailHost = value; } }
+        public string Mailhost {
+            get { return _mailHost; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _mailHost = value; 
+                } else {
+                    _mailHost = null;
+                }
+            }
+        }
   
-        /// <summary>Text to send in body of email message.</summary>
+        /// <summary>
+        /// Text to send in body of email message.
+        /// </summary>
         [TaskAttribute("message")]
-        public string Message { get { return _message; } set { _message = value; } }
+        public string Message {
+            get { return _message; }
+            set { _message = value; }
+        }
 
-        /// <summary>Text to send in subject line of email message.</summary>
+        /// <summary>
+        /// Text to send in subject line of email message.
+        /// </summary>
         [TaskAttribute("subject")]
-        public string Subject { get { return _subject; } set { _subject = value; } }
+        public string Subject {
+            get { return _subject; }
+            set { _subject = value; }
+        }
 
-        /// <summary>Format of the message body. Valid values are "Html" or "Text".  Defaults to "Text".</summary>
+        /// <summary>
+        /// Format of the message body. Valid values are "Html" or "Text".  Defaults to "Text".
+        /// </summary>
         [TaskAttribute("format")]
-        public MailFormat Format { 
-           get { return _mailFormat; } 
-           set {     
+        public MailFormat Format {
+           get { return _mailFormat; }
+           set {
                if (!Enum.IsDefined(typeof(MailFormat), value)) {
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "An invalid format {0} was specified.", value)); 
                 } else {
@@ -113,45 +178,60 @@ namespace NAnt.Core.Tasks {
             } 
         }
 
-       /// <summary>Name(s) of text files to send as part of body of the email message. 
+       /// <summary>
+       /// Name(s) of text files to send as part of body of the email message. 
         /// Multiple file names are comma- or semicolon-separated.
         /// </summary>
         [TaskAttribute("files")]
-        public string Files { 
-            // convert to semicolon delimited
-            get { return _files.Replace("," , ";"); } 
-            set { _files = value.Replace("," , ";"); }
+        public string Files {
+            get { return _files; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    // convert to semicolon delimited
+                    _files = value.Replace("," , ";");
+                } else {
+                    _files = null;
+                }
+            }
         }
 
-        /// <summary>Name(s) of files to send as attachments to email message.
+        /// <summary>
+        /// Name(s) of files to send as attachments to email message.
         /// Multiple file names are comma- or semicolon-separated.
         /// </summary>
         [TaskAttribute("attachments")]
         public string Attachments { 
-            // convert to semicolon delimited
-            get { return _attachments.Replace("," , ";"); } 
-            set { _attachments = value.Replace("," , ";"); }
+            get { return _attachments; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    // convert to semicolon delimited
+                    _attachments = value.Replace("," , ";");
+                } else {
+                    _attachments = null;
+                }
+            }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         ///<summary>Initializes task and ensures the supplied attributes are valid.</summary>
         ///<param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-
-            if (From.Length == 0) {
+            if (From == null) {
                 throw new BuildException("Mail attribute \"from\" is required.", Location);
             }
 
-            if (ToList.Length == 0 && CcList.Length == 0 && BccList.Length == 0) {
+            if (ToList == null && CcList == null && BccList == null) {
                 throw new BuildException("Mail must provide at least one of these attributes: \"tolist\", \"cclist\" or \"bcclist\".", Location);
             }
-
         }
 
         /// <summary>
-        /// This is where the work is done
+        /// This is where the work is done.
         /// </summary>
         protected override void ExecuteTask() {
-
             MailMessage mailMessage = new MailMessage();
             
             mailMessage.From = this.From;
@@ -162,30 +242,26 @@ namespace NAnt.Core.Tasks {
             mailMessage.BodyFormat = this.Format;
 
             // Begin build message body
-            // The #if is to work around a mono bug. Remove once StringWriter works with a culture argument on mono.
-            #if  mono     
             StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
-            #else
-            StringWriter bodyWriter = new StringWriter();
-            #endif
             
-            if (Message.Length > 0) {
+            if (Message != null && Message.Length > 0) {
                 bodyWriter.WriteLine(Message);
                 bodyWriter.WriteLine();
             }
 
             // Append file(s) to message body
-            if (Files.Length > 0) {
+            if (Files != null && Files.Length > 0) {
                 string[] fileList = Files.Split(new char[]{';'});
                 string content;
-                if ( fileList.Length == 1 ) {
+                if (fileList.Length == 1) {
                    content = ReadFile(fileList[0]);
-                   if ( content != null )
-                     bodyWriter.Write(content);
+                    if (content != null) {
+                        bodyWriter.Write(content);
+                    }
                 } else {
                   foreach (string fileName in fileList) {
                      content = ReadFile(fileName);
-                     if ( content != null ) {
+                     if (content != null) {
                         bodyWriter.WriteLine(fileName);
                         bodyWriter.WriteLine(content);
                         bodyWriter.WriteLine("");
@@ -203,7 +279,7 @@ namespace NAnt.Core.Tasks {
             }
 
             // Append file(s) to message body
-            if (Attachments.Length > 0) {
+            if (Attachments != null && Attachments.Length > 0) {
                 string[] attachList = Attachments.Split(new char[]{';'});
                 foreach (string fileName in attachList) {
                     try {
@@ -220,7 +296,7 @@ namespace NAnt.Core.Tasks {
 
             // send message
             try {
-                Log(Level.Info, LogPrefix + "Sending mail to {0}", mailMessage.To);
+                Log(Level.Info, LogPrefix + "Sending mail to {0}.", mailMessage.To);
                 SmtpMail.SmtpServer = this.Mailhost;
                 SmtpMail.Send(mailMessage);
             } catch (Exception e) {
@@ -233,27 +309,33 @@ namespace NAnt.Core.Tasks {
             }
         }
 
-       /// <summary>
-       /// Reads a text file and returns the contents
-       /// in a string
-       /// </summary>
-       /// <param name="filename"></param>
-       /// <returns></returns>
-       private string ReadFile(string filename)
-       {
-          StreamReader reader = null;
-          try {
-             reader = new StreamReader(File.OpenRead(filename));
-             return reader.ReadToEnd();
-          } catch {
-             string msg = "WARNING! File \"" + filename + "\" NOT added to message body. File does not exist or is not readable. Check: " + Location.ToString() + "files=\"" + Files + "\"";
-             Log(Level.Warning, LogPrefix + msg);
-             return null;
-          } finally {
-             if ( reader != null )
-                reader.Close();
-          }
-       }
+        #endregion Override implementation of Task
 
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Reads a text file and returns the content
+        /// in a string.
+        /// </summary>
+        /// <param name="filename">The file to read content of.</param>
+        /// <returns>The content of the specified file.</returns>
+        private string ReadFile(string filename) {
+            StreamReader reader = null;
+
+            try {
+                reader = new StreamReader(File.OpenRead(filename));
+                return reader.ReadToEnd();
+            } catch {
+                string msg = "WARNING! File \"" + filename + "\" NOT added to message body. File does not exist or is not readable. Check: " + Location.ToString() + "files=\"" + Files + "\"";
+                Log(Level.Warning, LogPrefix + msg);
+                return null;
+            } finally {
+                if (reader != null) {
+                    reader.Close();
+                }
+            }
+        }
+
+        #endregion Private Instance Methods
     }
 }
