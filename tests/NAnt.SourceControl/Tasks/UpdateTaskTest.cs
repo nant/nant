@@ -13,7 +13,6 @@ namespace Tests.NAnt.SourceControl.Tasks {
     /// </summary>
     [TestFixture]
     public class UpdateTaskTest : BuildTestBase {
-
         private static readonly String cvsTempPath = 
             Path.Combine (Path.GetTempPath (), "cvscheckout-test");
         private static readonly String TEST_FILE = 
@@ -31,6 +30,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 password='' />
             </project>";
 
+
         /// <summary>
         /// Project to update the working directory.
         /// </summary>
@@ -41,6 +41,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 destination='" + cvsTempPath + @"'
                                 password='' />
             </project>";
+
 
         /// <summary>
         /// Run the checkout command so we have something to update.
@@ -56,10 +57,10 @@ namespace Tests.NAnt.SourceControl.Tasks {
         ///     is retrieved from the cvs repository during an update.
         /// </summary>
         [Test]
-        public void Test_CvsUpdate () { 
-            System.Console.WriteLine (_projectXML);
-            // Delete the file.
+        public void Test_CvsUpdate () {            
+
             if (File.Exists (TEST_FILE)) {
+                // Delete the file.
                 File.Delete (TEST_FILE);
             }
 
@@ -68,7 +69,19 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 !File.Exists (TEST_FILE));
 
             // Run the update to bring the file back down.
-            String result = this.RunBuild (_projectXML);
+            bool good = false;
+            int run = 0;
+            while (!good || run < 100) {
+                try {
+                    String result = this.RunBuild (_projectXML);
+                    good = true;
+                } catch (Exception e) {
+                    run++;
+                }
+            }
+
+            Assertion.Assert ("Still not good.", good);
+
 
             // Check that the file is back.
             Assertion.Assert ("File does not exist, update probably did not work.", 
@@ -81,7 +94,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
         [TearDown]
         protected override void TearDown () {
             base.TearDown ();
-            //Directory.Delete (cvsTempPath, true);
+            //Directory.Delete ("c:/temp/cvscheckout-test", true);
         }
     }
 }

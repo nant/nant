@@ -14,7 +14,6 @@ namespace Tests.NAnt.SourceControl.Tasks {
     /// </summary>
     [TestFixture]
     public class CheckoutTaskTest : BuildTestBase {
-
         private static readonly String cvsTempPath = 
             Path.Combine (Path.GetTempPath (), "cvscheckout-test");
         private static readonly String TEST_FILE = 
@@ -24,7 +23,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             <project>
                 <cvs-checkout   module='nant' 
                                 cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant'
-                                destination='" + cvsTempPath + @"'
+                                destination='" + cvsTempPath.Replace ("\\", "/") + @"'
                                 password='' />
             </project>";
 
@@ -35,8 +34,18 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         [Test]
         public void Test_CvsCheckout () {
-            System.Console.WriteLine (_projectXML);
-            String result = this.RunBuild (_projectXML);
+            bool good = false;
+            int run = 0;
+            while (!good && run < 100) {
+                try {
+                    String result = this.RunBuild (_projectXML);
+                    good = true;
+                } catch (Exception e) {
+                    run++;
+                }
+            }
+
+            Assertion.Assert ("Still not good.", good);
 
             Assertion.Assert ("File does not exist, checkout probably did not work.", 
                 File.Exists (TEST_FILE));
