@@ -271,7 +271,7 @@ namespace NAnt.Core.Tasks {
             // create process (redirect standard output to temp buffer)
             if (Project.CurrentFramework != null && UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
                 process.StartInfo.FileName = Project.CurrentFramework.RuntimeEngine.FullName;
-                process.StartInfo.Arguments = ProgramFileName + " " + CommandLine;
+                process.StartInfo.Arguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\" {1}", ProgramFileName, CommandLine);
             } else {
                 process.StartInfo.FileName = ProgramFileName;
                 process.StartInfo.Arguments = CommandLine;
