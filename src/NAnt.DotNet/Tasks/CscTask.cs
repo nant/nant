@@ -46,15 +46,15 @@ namespace NAnt.DotNet.Tasks {
     public class CscTask : CompilerBase {
         #region Private Instance Fields
        
-        string _doc = null;
-        bool _nostdlib = false;
-        bool _noconfig = false;
-        bool _checked = false;
-        bool _unsafe = false;
-        bool _optimize = false;
-        string _warningLevel = null;
-        string _noWarn = null;
-        string _codepage = null;
+        private string _doc = null;
+        private bool _nostdlib = false;
+        private bool _noconfig = false;
+        private bool _checked = false;
+        private bool _unsafe = false;
+        private bool _optimize = false;
+        private string _warningLevel = null;
+        private string _noWarn = null;
+        private string _codepage = null;
 
         #endregion Private Instance Fields
 
@@ -71,18 +71,12 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("doc")]
         public string Doc {
             get { return (_doc != null) ? Project.GetFullPath(_doc) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _doc = value;
-                } else {
-                    _doc = null;
-                }
-            }
+            set { _doc = SetStringValue(value); }
         }
 
         /// <summary>
         /// Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). 
-        /// Default is <c>false</c>.
+        /// Default is <c>&quot;false&quot;</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -93,11 +87,12 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("nostdlib")]
         public bool NoStdLib {
             get { return _nostdlib; }
-            set {_nostdlib = value; }
+            set { _nostdlib = value; }
         }
 
         /// <summary>
-        /// Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// Instructs the compiler not to use implicit references to assemblies 
+        /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -108,14 +103,16 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("noconfig")]
         public bool NoConfig {
             get { return _noconfig; }
-            set {_noconfig = value; }
+            set { _noconfig = value; }
         }
 
         /// <summary>
-        /// Specifies whether an integer arithmetic statement that is not in the scope of the
-        /// <c>checked</c> or <c>unchecked</c> keywords and that results in a value outside the
-        /// range of the data type should cause a run-time exception (<c>true</c>/<c>false</c>).
-        /// Default is <c>&quot;false&quot;</c>.</summary>
+        /// Specifies whether an integer arithmetic statement that is not in 
+        /// the scope of the <c>checked</c> or <c>unchecked</c> keywords and 
+        /// that results in a value outside the range of the data type should 
+        /// cause a run-time exception (<c>true</c>/<c>false</c>).
+        /// Default is <c>&quot;false&quot;</c>.
+        /// </summary>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/checked[+|-]</c> flag.
@@ -124,12 +121,12 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("checked")]
         public bool Checked {
             get { return _checked; }
-            set {_checked = value; }
+            set { _checked = value; }
         }
 
         /// <summary>
-        /// Instructs the compiler to allow code that uses the <c>unsafe</c> keyword
-        /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// Instructs the compiler to allow code that uses the <c>unsafe</c> 
+        /// keyword (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -139,16 +136,17 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("unsafe")]
         public bool Unsafe {
             get { return _unsafe; }
-            set {_unsafe = value; }
+            set { _unsafe = value; }
         }
 
         /// <summary>
-        /// Specifies whether the compiler should perform optimizations to the make 
-        /// output files smaller, faster, and more effecient.
+        /// Specifies whether the compiler should perform optimizations to the 
+        /// make output files smaller, faster, and more effecient. 
+        /// Default is <c>&quot;false&quot;</c>.
         /// </summary>
         /// <value>
-        /// The value of this attribute must be either <c>true</c> or <c>false</c>.
-        /// If <c>false</c>, the switch is omitted.
+        /// <c>true</c> if the compiler should perform optimizations; otherwise,
+        /// <c>false</c>.
         /// </value>
         /// <remarks>
         /// <para>
@@ -159,13 +157,16 @@ namespace NAnt.DotNet.Tasks {
         [BooleanValidator()]
         public bool Optimize {
             get { return _optimize; }
-            set {_optimize = value; }
+            set { _optimize = value; }
         }
 
         /// <summary>
-        /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
+        /// Specifies the warning level for the compiler to display. Valid values 
+        /// are 0-4. Default is 4.
         /// </summary>
-        /// <value>The warning level for the compiler to display.</value>
+        /// <value>
+        /// The warning level for the compiler to display.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/warn</c> flag.
@@ -175,20 +176,17 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _warningLevel = value;
-                } else {
-                    _warningLevel = null;
-                }
-            }
+            set { _warningLevel = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Specifies a comma-separated list of warnings that should be suppressed 
+        /// Specifies a comma-separated list of warnings that should be suppressed
         /// by the compiler.
         /// </summary>
-        /// <value>Comma-separated list of warnings that should be suppressed by the compiler.</value>
+        /// <value>
+        /// Comma-separated list of warnings that should be suppressed by the 
+        /// compiler.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/nowarn</c> flag.
@@ -197,17 +195,12 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("nowarn")]
         public string NoWarn {
             get { return _noWarn; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _noWarn = value;
-                } else {
-                    _noWarn = null;
-                }
-            }
+            set { _noWarn = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Specifies the code page to use for all source code files in the compilation.
+        /// Specifies the code page to use for all source code files in the 
+        /// compilation.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -217,13 +210,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _codepage = value;
-                } else {
-                    _codepage = null;
-                }
-            }
+            set { _codepage = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
