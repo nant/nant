@@ -160,6 +160,11 @@ namespace NAnt.Core.Tasks {
             if (BuildFile != null) {
                 RunBuild(BuildFile);
             } else {
+                if (BuildFiles.FileNames.Count == 0) {
+                    Log(Level.Info, "No matching buildfiles found to run.");
+                    return;
+                }
+
                 // run all build files specified in the fileset
                 foreach (string buildFile in BuildFiles.FileNames) {
                     RunBuild(new FileInfo(buildFile));
