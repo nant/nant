@@ -34,9 +34,9 @@ namespace NAnt.Core.Types {
     public class NamespaceImport : Element {
         #region Private Instance Fields
 
-        private string _namespace = null;
+        private string _namespace;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 
@@ -73,7 +73,27 @@ namespace NAnt.Core.Types {
         /// <value>
         /// The name of the namespace to import.
         /// </value>
-        [TaskAttribute("name", Required=true)]
+        [TaskAttribute("name", Required=false)]
+        [StringValidator(AllowEmpty=false)]
+        [Obsolete("Use \"namespace\" attribute instead.", false)]
+        public string TempName {
+            get { return Namespace; }
+            set { Namespace = value; }
+        }
+
+        // TODO: we need to mark "namespace" as required after the release of
+        // NAnt 0.85
+        //
+        // We can't do this right now, as it would be a major breaking change
+        // (build authors still use "name" right now).
+
+        /// <summary>
+        /// The name of the namespace to import.
+        /// </summary>
+        /// <value>
+        /// The name of the namespace to import.
+        /// </value>
+        [TaskAttribute("namespace", Required=false)]
         [StringValidator(AllowEmpty=false)]
         public string Namespace {
             get { return _namespace; }

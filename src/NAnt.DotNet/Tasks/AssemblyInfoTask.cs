@@ -50,10 +50,10 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <asminfo output="AssemblyInfo.cs" language="CSharp">
     ///     <imports>
-    ///         <import name="System" />
-    ///         <import name="System.Reflection" />
-    ///         <import name="System.EnterpriseServices" />
-    ///         <import name="System.Runtime.InteropServices" />
+    ///         <import namespace="System" />
+    ///         <import namespace="System.Reflection" />
+    ///         <import namespace="System.EnterpriseServices" />
+    ///         <import namespace="System.Runtime.InteropServices" />
     ///     </imports>
     ///     <attributes>
     ///         <attribute type="ComVisibleAttribute" value="false" />
@@ -82,7 +82,7 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <asminfo output="AssemblyInfo.cs" language="CSharp">
     ///     <imports>
-    ///         <import name="log4net.Config" />
+    ///         <import namespace="log4net.Config" />
     ///     </imports>
     ///     <attributes>
     ///         <attribute type="DOMConfiguratorAttribute" value="ConfigFile=&quot;config.log4net&quot;,Watch=true" asis="true" />
