@@ -44,7 +44,6 @@ namespace NAnt.DotNet.Tasks {
         private string _responseFileName;
         private FileInfo _outputFile;
         private string _target;
-        private bool _debug;
         private string _define;
         private FileInfo _win32icon;
         private bool _warnAsError;
@@ -128,16 +127,6 @@ namespace NAnt.DotNet.Tasks {
         public string OutputTarget  {
             get { return _target; }
             set { _target = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
-        /// Generate debug output. The default is <see langword="false" />.
-        /// </summary>
-        [TaskAttribute("debug")]
-        [BooleanValidator()]
-        public bool Debug {
-            get { return _debug; }
-            set { _debug = value; }
         }
 
         /// <summary>

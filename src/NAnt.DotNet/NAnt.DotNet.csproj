@@ -214,6 +214,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\DebugOutput.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\Package.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
