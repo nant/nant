@@ -37,14 +37,16 @@ namespace Tests.NAnt.VSNet.Tasks {
 
         #endregion Private Static Fields
 
-        #region Protected Static Fields 
+        #region Protected Instance Properties
+
         /// <summary>
-        /// LanguageType that is being tested.
+        /// Gets the language that is being tested.
         /// </summary>
         protected override LanguageType CurrentLanguage {
             get {return LanguageType.cs;}
         }
-        #endregion
+
+        #endregion Protected Instance Properties
 
         #region Override implementation of SolutionTestBase
 
@@ -67,7 +69,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// </summary>
         [TearDown]
         protected override void TearDown () {
-//            base.TearDown();
+            base.TearDown();
         }
 
         #endregion Override implementation of SolutionTestBase
