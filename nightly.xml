@@ -53,7 +53,7 @@
         <!-- extract the help distribution on sourceforge -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="cd ${sf.net.web.path}/${nightly.builds.path} && tar -xzf help.tar.gz && rm help.tar.gz -f" />
+            <arg value="cd ${sf.net.web.path}/${nightly.builds.path} &amp;&amp; tar -xzf help.tar.gz &amp;&amp; rm help.tar.gz -f" />
         </exec>
         <echo message="Copied nightly build over to SF.Net" />
         <!-- make sure permissions are set right -->
