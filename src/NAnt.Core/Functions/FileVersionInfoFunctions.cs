@@ -78,6 +78,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The file version of a file.
         /// </returns>
+        /// <see cref="VersionFunctions" />
         [Function("get-file-version")]
         public static Version GetFileVersion(FileVersionInfo fileVersionInfo) {
             return new Version(fileVersionInfo.FileMajorPart, fileVersionInfo.FileMinorPart,
@@ -103,6 +104,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The product version of a file.
         /// </returns>
+        /// <see cref="VersionFunctions" />
         [Function("get-product-version")]
         public static Version GetProductVersion(FileVersionInfo fileVersionInfo) {
             return new Version(fileVersionInfo.ProductMajorPart, fileVersionInfo.ProductMinorPart,

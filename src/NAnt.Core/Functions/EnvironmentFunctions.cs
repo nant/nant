@@ -71,16 +71,31 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Gets a <see cref="Version" /> object that identifies this operating 
-        /// system.
+        /// Gets an <see cref="OperatingSystem" /> object that represents the 
+        /// current operating system.
         /// </summary>
         /// <returns>
-        /// A <see cref="Version" /> object that describes the major version, 
-        /// minor version, build, and revision of this operating system.
+        /// An <see cref="OperatingSystem" /> object that contains the current 
+        /// platform identifier and version number.
         /// </returns>
-        [Function("get-os-version")]
-        public static Version GetOSVersion() {
-            return Environment.OSVersion.Version;
+        /// <example>
+        ///   <para>
+        ///   Output string representation of the current operating system.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="OS=${operating-system::to-string(environment::get-operating-system())}" />
+        ///     ]]>
+        ///   </code>
+        ///   <para>If the operating system is Windows 2000, the output is:</para>
+        ///   <code>
+        /// Microsoft Windows NT 5.0.2195.0
+        ///   </code>
+        /// </example>
+        /// <seealso cref="OperatingSystemFunctions" />
+        [Function("get-operating-system")]
+        public static OperatingSystem GetOperatingSystem() {
+            return Environment.OSVersion;
         }
 
         /// <summary>
@@ -90,6 +105,20 @@ namespace NAnt.Core.Functions {
         /// The name of the person logged on to the system who started the 
         /// current thread.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Modify the home directory of the current user on unix-based systems.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <exec program="usermod">
+        ///     <arg value="-d" />
+        ///     <arg value="/home/temp" />
+        ///     <arg value="${environment::get-user-name()}" />
+        /// </exec>
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-user-name")]
         public static string GetUserName() {
             return Environment.UserName;
@@ -122,6 +151,19 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the environment variable exists; otherwise,
         /// <see langword="false" />.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Execute a set of tasks only if the &quot;BUILD_DEBUG&quot; environment
+        ///   variable is set.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <if test="${environment::variable-exists('BUILD_DEBUG')}">
+        ///     ...
+        /// </if>
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("variable-exists")]
         public static bool VariableExists(string name) {
             return (Environment.GetEnvironmentVariable(name) != null);
@@ -129,11 +171,19 @@ namespace NAnt.Core.Functions {
 
         /// <summary>
         /// Gets a <see cref="Version" /> object that describes the major, 
-        /// minor, build, and revision numbers of the common language runtime.
+        /// minor, build, and revision numbers of the Common Language Runtime.
         /// </summary>
         /// <returns>
         /// A Version object.
         /// </returns>
+        /// <example>
+        ///   <para>Output the major version of the CLR.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="Major version=${version::get-major(environment::get-version())}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-version")]
         public static Version GetVersion() {
             return Environment.Version;

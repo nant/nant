@@ -388,6 +388,8 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the SDK for specified framework is installed; 
         /// otherwise, <see langword="false" />.
         /// </returns>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("sdk-exists")]
         public bool SdkExists(string name) {
             if (Project.Frameworks.ContainsKey(name)) {
@@ -427,6 +429,8 @@ namespace NAnt.Core.Functions {
         /// The family of the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-family")]
         public string GetFamily(string framework) {
             // ensure the framework is valid
@@ -443,6 +447,8 @@ namespace NAnt.Core.Functions {
         /// The version of the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-version")]
         public string GetVersion(string framework) {
             // ensure the framework is valid
@@ -459,6 +465,8 @@ namespace NAnt.Core.Functions {
         /// The description of the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-description")]
         public string GetDescription(string framework) {
             // ensure the framework is valid
@@ -475,6 +483,8 @@ namespace NAnt.Core.Functions {
         /// The Common Language Runtime version of the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-clr-version")]
         public string GetClrVersion(string framework) {
             // ensure the framework is valid
@@ -491,6 +501,8 @@ namespace NAnt.Core.Functions {
         /// The framework directory of the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-framework-directory")]
         public string GetFrameworkDirectory(string framework) {
             // ensure the framework is valid
@@ -507,6 +519,8 @@ namespace NAnt.Core.Functions {
         /// The assembly directory of the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-assembly-directory")]
         public string GetAssemblyDirectory(string framework) {
             // ensure the framework is valid
@@ -525,6 +539,8 @@ namespace NAnt.Core.Functions {
         /// installed.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-sdk-directory")]
         public string GetSdkDirectory(string framework) {
             // ensure the framework is valid
@@ -545,6 +561,8 @@ namespace NAnt.Core.Functions {
         /// for the specified framework.
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
+        /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-runtime-engine")]
         public string GetRuntimeEngine(string framework) {
             // ensure the framework is valid

@@ -81,6 +81,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// An <see cref="AssemblyName" /> for the specified assembly.
         /// </returns>
+        /// <seealso cref="AssemblyNameFunctions" />
         [Function("get-name")]
         public static AssemblyName GetName(Assembly assembly) {
             return assembly.GetName(false);

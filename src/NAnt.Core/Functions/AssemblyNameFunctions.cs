@@ -46,6 +46,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The location of the assembly as a URL.
         /// </returns>
+        /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         [Function("get-codebase")]
         public static string GetCodeBase(AssemblyName assemblyName) {
             return assemblyName.CodeBase; 
@@ -58,6 +59,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The URI, including escape characters, that represents the codebase.
         /// </returns>
+        /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         [Function("get-escaped-codebase")]
         public static string GetEscapedCodeBase(AssemblyName assemblyName) {
             return assemblyName.EscapedCodeBase; 
@@ -70,6 +72,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The full name of the assembly, also known as the display name.
         /// </returns>
+        /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         [Function("get-full-name")]
         public static string GetFullName(AssemblyName assemblyName) {
             return assemblyName.FullName; 
@@ -82,6 +85,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The simple, unencrypted name of the assembly.
         /// </returns>
+        /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         [Function("get-name")]
         public static string GetName(AssemblyName assemblyName) {
             return assemblyName.Name; 
@@ -94,6 +98,8 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The version of the assembly.
         /// </returns>
+        /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
+        /// <seealso cref="VersionFunctions" />
         [Function("get-version")]
         public static Version GetVersion(AssemblyName assemblyName) {
             return assemblyName.Version; 

@@ -18,6 +18,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -41,6 +42,9 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The major version number.
         /// </returns>
+        /// <seealso cref="AssemblyNameFunctions.GetVersion(AssemblyName)" />
+        /// <seealso cref="EnvironmentFunctions.GetVersion()" />
+        /// <seealso cref="OperatingSystemFunctions.GetVersion(OperatingSystem)" />
         [Function("get-major")]
         public static int GetMajor(Version version) {
             return version.Major;
@@ -53,6 +57,9 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The minor version number.
         /// </returns>
+        /// <seealso cref="AssemblyNameFunctions.GetVersion(AssemblyName)" />
+        /// <seealso cref="EnvironmentFunctions.GetVersion()" />
+        /// <seealso cref="OperatingSystemFunctions.GetVersion(OperatingSystem)" />
         [Function("get-minor")]
         public static int GetMinor(Version version) {
             return version.Minor;
@@ -65,6 +72,9 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The build number, or -1 if the build number is undefined.
         /// </returns>
+        /// <seealso cref="AssemblyNameFunctions.GetVersion(AssemblyName)" />
+        /// <seealso cref="EnvironmentFunctions.GetVersion()" />
+        /// <seealso cref="OperatingSystemFunctions.GetVersion(OperatingSystem)" />
         [Function("get-build")]
         public static int GetBuild(Version version) {
             return version.Build;
@@ -77,6 +87,9 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The revision number, or -1 if the revision number is undefined.
         /// </returns>
+        /// <seealso cref="AssemblyNameFunctions.GetVersion(AssemblyName)" />
+        /// <seealso cref="EnvironmentFunctions.GetVersion()" />
+        /// <seealso cref="OperatingSystemFunctions.GetVersion(OperatingSystem)" />
         [Function("get-revision")]
         public static int GetRevision(Version version) {
             return version.Revision;
@@ -141,6 +154,9 @@ namespace NAnt.Core.Functions {
         /// The string representation of the values of the major, minor, build, 
         /// and revision components of the specified <see cref="Version" />.
         /// </returns>
+        /// <seealso cref="AssemblyNameFunctions.GetVersion(AssemblyName)" />
+        /// <seealso cref="EnvironmentFunctions.GetVersion()" />
+        /// <seealso cref="OperatingSystemFunctions.GetVersion(OperatingSystem)" />
         [Function("to-string")]
         public static string ToString(Version value) {
             return value.ToString();
