@@ -333,13 +333,16 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public bool UseSharpCvsLib {
-            get {
-				System.Console.WriteLine("_useSharpCvsLib: " + _useSharpCvsLib);
+			get {
+				
+ 				System.Console.WriteLine("_useSharpCvsLib: " + _useSharpCvsLib);
 				System.Console.WriteLine("Properties[USE_SHARPCVS]: " + 
 					System.Convert.ToString((null == Properties[USE_SHARPCVS] || 
 					System.Convert.ToBoolean(Properties[USE_SHARPCVS]))));
 				return (_useSharpCvsLib && (null != Properties[USE_SHARPCVS] && 
-					System.Convert.ToBoolean(Properties[USE_SHARPCVS])));}
+					System.Convert.ToBoolean(Properties[USE_SHARPCVS])));
+				//return _useSharpCvsLib;
+			}
             set {this._useSharpCvsLib = value;}
         }
 
@@ -393,7 +396,9 @@ namespace NAnt.SourceControl.Tasks {
 			
 			Logger.Debug("number of arguments: " + Arguments.Count);
 			if (null == this.Arguments || 0 == this.Arguments.Count) {
-				this.Arguments.Add(new Argument("-d" + this.CvsRoot));
+				if (IsModuleNeeded) {
+					this.Arguments.Add(new Argument("-d" + this.CvsRoot));
+				}
 				this.AppendGlobalOptions();
 				this.Arguments.Add(new Argument(this.CommandName));
 
@@ -412,7 +417,7 @@ namespace NAnt.SourceControl.Tasks {
 				this.ExeName = 
 					Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
 			} else {
-				this.ExeName = CVS_EXE;
+				this.ExeName = GetCvsFromPath();
 			}
 			if (!Directory.Exists(this.DestinationDirectory.FullName)) {
 				Directory.CreateDirectory(this.DestinationDirectory.FullName);
@@ -421,7 +426,11 @@ namespace NAnt.SourceControl.Tasks {
 			System.Console.WriteLine("exe name: " + process.StartInfo.FileName);
 
 			if (this.CvsRsh != null ) {
-				process.StartInfo.EnvironmentVariables.Add(CVS_RSH, this.CvsRsh);				
+				try {
+					process.StartInfo.EnvironmentVariables.Add(CVS_RSH, this.CvsRsh);
+				} catch (System.ArgumentException e) {
+					Logger.Warn("Possibility cvs_rsh key has already been added.", e);
+				}
 			}
 
 			process.StartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
@@ -532,6 +541,8 @@ namespace NAnt.SourceControl.Tasks {
 					case "-D":
 					case "rcs-kopt":
 					case "-k":
+					case "message":
+					case "-m":
 						Arguments.Add(new Argument(option.OptionName));
 						Arguments.Add(new Argument(option.Value));
 						Logger.Debug ("setting option" + option.OptionName + 
@@ -559,6 +570,39 @@ namespace NAnt.SourceControl.Tasks {
 					return false;
 				}
 			}
+		}
+
+		private String GetCvsFromPath () {
+			String fileName = null;
+
+			String path = Environment.GetEnvironmentVariable("PATH");
+			String[] pathElements = path.Split(';');
+			foreach (String pathElement in pathElements) {
+				try {
+					String[] files = Directory.GetFiles(pathElement, "*.exe");
+					foreach (String file in files) {
+						if (Path.GetFileName(file).ToLower().IndexOf("cvs") >= 0) {
+							Log(Level.Debug, LogPrefix + "Using file " + file + 
+								"; file.ToLower().IndexOf(\"cvs\") >=0: " + file.ToLower().IndexOf("cvs"));
+							fileName = file;
+							break;
+						}
+					}
+				} catch (DirectoryNotFoundException) {
+					// expected, happens if the path contains an old directory.
+					Log(Level.Debug, LogPrefix + "Path does not exist: " + pathElement);
+				} catch (ArgumentException) {
+					Log(Level.Debug, LogPrefix + "Path does not exist: " + pathElement);
+				}
+				if (null != fileName) {
+					break;
+				}
+			}
+
+			if (null == fileName) {
+				throw new BuildException ("Cvs binary not specified.");
+			}
+			return fileName;
 		}
 
         #endregion Private Instance Methods
