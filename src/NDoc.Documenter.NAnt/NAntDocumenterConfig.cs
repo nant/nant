@@ -22,9 +22,11 @@
 namespace Sourceforge.NAnt.Documenter {
 
     using System;
-    using System.Xml;
     using System.ComponentModel;
+    using System.Drawing.Design;
     using System.Globalization;
+    using System.Windows.Forms.Design;
+    using System.Xml;
 
     using NDoc.Core;
 
