@@ -81,7 +81,7 @@ namespace Tests.NAnt.Core.Tasks {
             if (! PlatformHelper.IsUnix ) {
                 try {
                     // execute build with invalid file path
-                    RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-'`}", "", ""));
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-}", "", ""));
                     // have the test fail         
                     Assertion.Fail("Build should have failed.");                
                 } catch (TestBuildException ex) {
