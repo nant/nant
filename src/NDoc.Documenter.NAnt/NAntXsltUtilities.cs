@@ -30,13 +30,37 @@ namespace NDoc.Documenter.NAnt {
     /// Provides an extension object for the Xslt transformations.
     /// </summary>
     public class NAntXsltUtilities {
+
+        #region Private Instance Fields
+
+        private SdkDocVersion _linkToSdkDocVersion;
+        private string _sdkDocBaseUrl; 
+        private string _sdkDocExt; 
+        private StringDictionary _elementNames = new StringDictionary();
+        private XmlDocument _doc;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private const string SdkDoc10BaseUrl = "ms-help://MS.NETFrameworkSDK/cpref/html/frlrf";
+        private const string SdkDoc11BaseUrl = "ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrf";
+        private const string SdkDocPageExt = ".htm";
+        private const string MsdnOnlineSdkBaseUrl = "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrf";
+        private const string MsdnOnlineSdkPageExt = ".asp";
+        private const string SystemPrefix = "System.";
+        
+        private static System.Collections.ArrayList Instances = new System.Collections.ArrayList(3);
+
+        #endregion Private Static Fields
+
         #region Public Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NAntXsltUtilities" />
         /// class.
         /// </summary>
-        public NAntXsltUtilities(XmlDocument doc, SdkDocVersion linkToSdkDocVersion) {
+        private NAntXsltUtilities(XmlDocument doc, SdkDocVersion linkToSdkDocVersion) {
             _doc = doc;
             _linkToSdkDocVersion = linkToSdkDocVersion;
 
@@ -53,6 +77,38 @@ namespace NDoc.Documenter.NAnt {
                     _sdkDocBaseUrl = MsdnOnlineSdkBaseUrl;
                     _sdkDocExt = MsdnOnlineSdkPageExt;
                     break;
+            }
+
+            //create a list of element names by id
+            XmlNodeList types = _doc.SelectNodes("//class");
+            foreach (XmlElement typeNode in types) {
+                string typeId = typeNode.Attributes["id"].Value;
+                _elementNames[typeId] = GetElementNameForType(typeNode);
+
+                XmlNodeList members = typeNode.SelectNodes("*[@id]");
+                foreach (XmlElement memberNode in members) {
+                    string id = memberNode.Attributes["id"].Value;
+                    switch (memberNode.Name) {
+                        case "constructor":
+                            _elementNames[id] = _elementNames[typeId];
+                            break;
+                        case "field":
+                            _elementNames[id] = memberNode.Attributes["name"].Value;
+                            break;
+                        case "property":
+                            _elementNames[id] = GetElementNameForProperty(memberNode);
+                            break;
+                        case "method":
+                            _elementNames[id] = memberNode.Attributes["name"].Value;
+                            break;
+                        case "operator":
+                            _elementNames[id] = memberNode.Attributes["name"].Value;
+                            break;
+                        case "event":
+                            _elementNames[id] = memberNode.Attributes["name"].Value;
+                            break;
+                    }                
+                }
             }
         }
 
@@ -115,15 +171,14 @@ namespace NDoc.Documenter.NAnt {
                 cref=cref.Replace("[]","");
             }
 
-            //check if the ref is for a system namespaced element or now
+            //check if the ref is for a system namespaced element or not
             if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
                 //not a system one.
-                  
-                string fileName = GetFileNameForType(cref);
-                if (fileName == null && cref.StartsWith("F:")) {
-                    throw new System.ArgumentException("We Don't Do This!" + cref, "cref");
-                    //fileName = _fileNames["E:" + cref.Substring(2)];
+                if(!cref.StartsWith("T:")){
+                    return string.Empty;
                 }
+
+                string fileName = GetFileNameForType(cref);
 
                 if (fileName == null) {
                     return string.Empty;
@@ -131,6 +186,7 @@ namespace NDoc.Documenter.NAnt {
                     return fileName;
                 }
             } else {
+                //a system cref
                 switch (cref.Substring(0, 2)) {
                     case "N:":  // Namespace
                         return SdkDocBaseUrl + cref.Substring(2).Replace(".", "") + SdkDocExt;
@@ -145,7 +201,7 @@ namespace NDoc.Documenter.NAnt {
                     case "P:":  // Property
                     case "M:":  // Method
                     case "E:":  // Event
-                        throw new System.ArgumentException("We Don't Do Events!", "cref");
+                        return this.GetFilenameForSystemMember(cref);
                     default:
                         return string.Empty;
                 }
@@ -166,12 +222,14 @@ namespace NDoc.Documenter.NAnt {
 
             if (cref[1] == ':') {
                 if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {
-                    string name = GetElementNameForType(cref);
+                    //what name should be found?
+                    string name = _elementNames[cref];
                     if (name != null) {
                         return name;
                     }
                 }
 
+                
                 int index;
                 if ((index = cref.IndexOf(".#c")) >= 0) {
                     cref = cref.Substring(2, index - 2);
@@ -182,7 +240,9 @@ namespace NDoc.Documenter.NAnt {
                 }
             }
 
-            return cref.Substring(cref.LastIndexOf(".") + 1);
+            string returnName = cref.Substring(cref.LastIndexOf(".") + 1);
+            //System.Console.WriteLine("GetName: {0} = {1}", cref, returnName);
+            return returnName;
         }
 
 
@@ -197,37 +257,6 @@ namespace NDoc.Documenter.NAnt {
             return GetTaskNameForType(GetTypeByID(cref));
         }
 
-        public XmlNode GetTypeByID(string id){
-              
-            // if it is a property, field, method or such, remove the last element name, and search for the parent type.
-            // ie. P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined becomes T:NAnt.Core.Types.FileSet.ExcludesElement
-            switch (id.Substring(0, 2)) {
-                case "T:":  // Type: class, interface, struct, enum, delegate
-                    break;
-                case "F:":  // Field
-                case "P:":  // Property
-                case "M:":  // Method
-                case "E:": {  // Event
-                    //should convert P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined to T:NAnt.Core.Types.FileSet.ExcludesElement
-                    id = "T:" + id.Substring(2,id.LastIndexOf(".") - 2);
-                    break;
-                }
-            }
-
-            if(id[1] == ':' && !id.StartsWith("T:")){
-                throw new System.ArgumentException("Cannot lookup type: " + id, "id");
-            }
-
-            if(!id.StartsWith("T:")){
-                id = "T:" + id;
-            }
-            
-            XmlNode classNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
-            if(classNode == null) {
-                //System.Console.WriteLine("Could not find: {0}", id);
-            }
-            return classNode;
-        }
         #endregion Public Instance Methods
 
         #region Private Instance Methods
@@ -278,27 +307,41 @@ namespace NDoc.Documenter.NAnt {
             return SdkDocBaseUrl + crefType.Replace(".", "") + "Class" + crefMember + "Topic" + SdkDocExt;
         }
 
+        private XmlNode GetTypeByID(string id){
+           
+            /*
+            // if it is a property, field, method or such, remove the last element name, and search for the parent type.
+            // ie. P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined becomes T:NAnt.Core.Types.FileSet.ExcludesElement
+            switch (id.Substring(0, 2)) {
+                case "T:":  // Type: class, interface, struct, enum, delegate
+                    break;
+                case "F:":  // Field
+                case "P:":  // Property
+                case "M:":  // Method
+                case "E:": {  // Event
+                    //should convert P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined to T:NAnt.Core.Types.FileSet.ExcludesElement
+                    id = "T:" + id.Substring(2,id.LastIndexOf(".") - 2);
+                    break;
+                }
+            }
+            */
+
+            if(id[1] == ':' && !id.StartsWith("T:")){
+                return null;
+                //throw new System.ArgumentException("Cannot lookup type: " + id, "id");
+            }
+
+            if(!id.StartsWith("T:")){
+                id = "T:" + id;
+            }
+            
+            XmlNode classNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
+            if(classNode == null) {
+                //System.Console.WriteLine("Could not find: {0}", id);
+            }
+            return classNode;
+        }
         #endregion Private Instance Methods
-
-        #region Private Instance Fields
-
-        private SdkDocVersion _linkToSdkDocVersion;
-        private string _sdkDocBaseUrl; 
-        private string _sdkDocExt; 
-        private XmlDocument _doc;
-
-        #endregion Private Instance Fields
-
-        #region Private Static Fields
-
-        private const string SdkDoc10BaseUrl = "ms-help://MS.NETFrameworkSDK/cpref/html/frlrf";
-        private const string SdkDoc11BaseUrl = "ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrf";
-        private const string SdkDocPageExt = ".htm";
-        private const string MsdnOnlineSdkBaseUrl = "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrf";
-        private const string MsdnOnlineSdkPageExt = ".asp";
-        private const string SystemPrefix = "System.";
-
-        #endregion Private Static Fields
 
         #region Internal Static Methods
 
@@ -399,6 +442,21 @@ namespace NDoc.Documenter.NAnt {
             return "elements\\" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
                 
+
+        
+        internal static NAntXsltUtilities CreateInstance(XmlDocument doc, SdkDocVersion linkToSdkDocVersion){
+            //just in case... but we should never see this happen.
+            lock(typeof(NAntXsltUtilities)) {
+                foreach(NAntXsltUtilities util in Instances){
+                    if(util._doc == doc && util._linkToSdkDocVersion.Equals(linkToSdkDocVersion)) {
+                        return util;
+                    }
+                }
+                NAntXsltUtilities inst = new NAntXsltUtilities(doc, linkToSdkDocVersion);
+                Instances.Add(inst);
+                return inst;
+            }
+        }
         #endregion
     }
 }

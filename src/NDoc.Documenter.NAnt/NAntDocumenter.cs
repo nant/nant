@@ -156,7 +156,7 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList indexArguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities indexUtilities = new NAntXsltUtilities(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
 
             // add extension object to Xslt arguments
             indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
@@ -247,7 +247,7 @@ namespace NDoc.Documenter.NAnt {
             arguments.AddParam("refType", string.Empty, refTypeString);
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = new NAntXsltUtilities(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -333,7 +333,7 @@ namespace NDoc.Documenter.NAnt {
             XsltArgumentList arguments = new XsltArgumentList();
 
             // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = new NAntXsltUtilities(_xmlDocumentation, LinkToSdkDocVersion);
+            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(_xmlDocumentation, LinkToSdkDocVersion);
 
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 

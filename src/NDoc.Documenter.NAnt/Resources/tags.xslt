@@ -233,7 +233,7 @@
         <xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$cref"/></xsl:comment>
         <xsl:variable name="href" select="concat('../', string(NAntUtil:GetHRef($cref)))" />
         <xsl:choose>
-            <xsl:when test="$href = ''">
+            <xsl:when test="$href = '../'">
                 <xsl:choose>
                     <!-- if this is a task add the href-->
                     <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
