@@ -237,12 +237,10 @@ namespace SourceForge.NAnt {
             if (this.IsCollection) {
                 if (this.Unique && this._collectionValues.Contains(newValue)) {
                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate '-{0}' argument '{1}'.", this.LongName, value));
-                }
-                else {
+                } else {
                     this._collectionValues.Add(newValue);
                 }
-            }
-            else {
+            } else {
                 this._argumentValue = newValue;
             }
         }
