@@ -153,9 +153,6 @@ Global
 	GlobalSection(SolutionItems) = postSolution
 		Item:1 = Makefile
 		Item:2 = NAnt.build
-		Item:3 = bin\nant.exe.config
-		Item:4 = nightly.xml
-		Item:5 = release.xml
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
