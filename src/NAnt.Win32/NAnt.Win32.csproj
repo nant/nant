@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt.Tasks.Win32"
+                RootNamespace = "NAnt.Win32"
                 StartupObject = ""
             >
                 <Config
@@ -81,12 +81,13 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "LicenseTask.cs"
+                    RelPath = "Tasks\LicenseTask.cs"
+                    Link = "..\NAnt.DotNet\Tasks\LicenseTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ScriptTask.cs"
+                    RelPath = "Tasks\ScriptTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
