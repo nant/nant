@@ -257,7 +257,6 @@ namespace NAnt.Core.Tasks {
             options.GenerateExecutable = false;
             options.GenerateInMemory = true;
             options.MainClass = MainClass;
-            options.Evidence = AppDomain.CurrentDomain.Evidence;
 
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
@@ -346,11 +345,11 @@ namespace NAnt.Core.Tasks {
 
                 // invoke Main method
                 entry.Invoke(null, new object[] {Project});
-            } catch (Exception ex) {
+//            } catch (Exception ex) {
                 // this exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception
                 // thrown by the executed script code.
-                throw new BuildException("Failure executing script.", Location, ex.InnerException);
+//                throw new BuildException("Failure executing script.", Location, ex.InnerException);
             } finally {
                 // detach from domain
                 assemblyResolver.Detach();
