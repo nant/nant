@@ -51,8 +51,8 @@ namespace NAnt.NUnit2.Tasks {
     ///   </para>
     ///   <para>
     ///   The <see cref="HaltOnFailure" /> or <see cref="HaltOnError" /> 
-    ///   attributes are only used to stop more than one test suite to stop 
-    ///   running.  If any test suite fails, a build error will be thrown.  
+    ///   attributes are only used when more than one test suite is used.  
+    ///   If any test suite fails, a build error will be thrown.  
     ///   Set <see cref="Task.FailOnError" /> to <see langword="false" /> to 
     ///   ignore test errors and continue the build.
     ///   </para>
