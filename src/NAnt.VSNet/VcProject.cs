@@ -18,6 +18,7 @@
 // Dmitry Jemerov <yole@yole.ru>
 // Scott Ford (sford@RJKTECH.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Hani Atassi (haniatassi@users.sourceforge.net)
 
 using System;
 using System.CodeDom.Compiler;
@@ -25,6 +26,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core;
@@ -205,8 +207,21 @@ namespace NAnt.VSNet {
             
             VcConfiguration baseConfig = (VcConfiguration) config;
 
-            // initialize hashtable for holding all build configuration
+            // initialize hashtable for holding the C++ sources for each build
+            // configuration
+            //
+            // the key of the hashtable is a build configuration, and the
+            // value is an ArrayList holding the C++ source files for that
+            // build configuration
             Hashtable buildConfigs = new Hashtable();
+
+            // initialize hashtable for holding the resources for each build
+            // configuration
+            //
+            // the key of the hashtable is a build configuration, and the
+            // value is an ArrayList holding the resources files for that
+            // build configuration
+            Hashtable buildRcConfigs = new Hashtable();
 
             foreach (DictionaryEntry de in _htFiles) {
                 string fileName = (string) de.Key;
@@ -237,6 +252,13 @@ namespace NAnt.VSNet {
 
                     // add file to list of sources to build with this config
                     ((ArrayList) buildConfigs[fileConfig]).Add(fileName);
+                } else if (ext == ".rc") {
+                    if (!buildRcConfigs.ContainsKey(fileConfig)) {
+                        buildRcConfigs[fileConfig] = new ArrayList(1);
+                    }
+
+                    // add file to list of resources to build with this config
+                    ((ArrayList) buildRcConfigs[fileConfig]).Add(fileName);
                 }
             }
 
@@ -245,7 +267,6 @@ namespace NAnt.VSNet {
                 RunNMake(nmakeCommand);
                 return true;
             }
-
 
             VcConfiguration stdafxConfig = null;
 
@@ -269,8 +290,15 @@ namespace NAnt.VSNet {
 
             foreach (VcConfiguration vcConfig in buildConfigs.Keys) {
                 if (vcConfig != stdafxConfig) {
-                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig, vcConfig);
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig,
+                        vcConfig);
                 }
+            }
+
+            // build resource files
+            foreach (VcConfiguration rcConfig in buildRcConfigs.Keys) {
+                BuildResourceFiles((ArrayList) buildRcConfigs[rcConfig],
+                    rcConfig);
             }
 
             string libOutput = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
@@ -597,6 +625,98 @@ namespace NAnt.VSNet {
 
             // execute the task
             ExecuteInProjectDirectory(clTask);
+        }
+
+        /// <summary>
+        /// Build resource files for the given configuration.
+        /// </summary>
+        /// <param name="fileNames">The resource files to build.</param>
+        /// <param name="fileConfig">The build configuration.</param>
+        private void BuildResourceFiles(ArrayList fileNames, VcConfiguration fileConfig) {
+            const string compilerTool = "VCResourceCompilerTool";
+
+            string intermediateDir = Path.Combine(ProjectDirectory.FullName, 
+                fileConfig.IntermediateDir);
+
+            // create instance of RC task
+            RcTask rcTask = new RcTask();
+
+            // inherit project from solution task
+            rcTask.Project = SolutionTask.Project;
+
+            // Set the base directory
+            rcTask.BaseDirectory = fileConfig.ProjectDir;
+
+            // inherit namespace manager from solution task
+            rcTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // parent is solution task
+            rcTask.Parent = SolutionTask;
+
+            // inherit verbose setting from solution task
+            rcTask.Verbose = SolutionTask.Verbose;
+
+            // make sure framework specific information is set
+            rcTask.InitializeTaskConfiguration();
+
+            // Store the options to pass to the resource compiler in the options variable
+            StringBuilder options = new StringBuilder();
+
+            // Collect options
+
+            string ignoreStandardIncludePath = fileConfig.GetToolSetting(compilerTool, "IgnoreStandardIncludePath");
+            if (ignoreStandardIncludePath != null && ignoreStandardIncludePath.ToUpper().Equals("TRUE")) {
+                options.Append("/X ");
+            }
+
+            string culture = fileConfig.GetToolSetting(compilerTool, "Culture");
+            if (culture != null) {
+                int cultureId = Convert.ToInt32(culture);
+                options.AppendFormat("/l 0x{0:X} ", cultureId);
+            }
+
+            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
+            if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
+                foreach (string preprocessorDef in preprocessorDefs.Split(';')) {
+                    if (preprocessorDef.Length == 0) {
+                        continue;
+                    }
+                    options.AppendFormat("/d \"{0}\" ", preprocessorDef);
+                }
+            }
+
+            string showProgress = fileConfig.GetToolSetting(compilerTool, "ShowProgress");
+            if (showProgress != null && showProgress.ToUpper().Equals("TRUE")) {
+                options.Append("/v ");
+            }
+
+            string addIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
+            if (!StringUtils.IsNullOrEmpty(addIncludeDirs)) {
+                foreach (string addIncludeDir in addIncludeDirs.Split(';')) {
+                    if (addIncludeDir.Length == 0) {
+                        continue;
+                    }
+                    options.AppendFormat("/I \"{0}\" ", addIncludeDir);
+                }
+            }
+
+            if (options.Length > 0)
+                rcTask.Options = options.ToString();
+
+            // Compile each resource file
+            foreach (string rcFile in fileNames) {
+                string outFile = Path.Combine(intermediateDir, 
+                    Path.GetFileNameWithoutExtension(rcFile) + ".res");
+
+                // add it to _objFiles to link later on
+                _objFiles.Add(outFile);
+
+                rcTask.OutputFile = new FileInfo(outFile);
+                rcTask.RcFile = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, rcFile));
+                
+                // execute the task
+                ExecuteInProjectDirectory(rcTask);
+            }
         }
 
         private void RunLibrarian(VcConfiguration baseConfig) {
