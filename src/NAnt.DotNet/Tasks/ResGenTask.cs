@@ -106,7 +106,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("todir", Required=false)]
         public string ToDirectory {
-            get { return (_toDir != null) ? Project.GetFullPath(_toDir) : null; }
+            get { return Project.GetFullPath(_toDir); }
             set { _toDir = SetStringValue(value); }
         }
        
@@ -166,7 +166,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            if ( _arguments.Length > 0) {
+            if (_arguments.Length > 0) {
                 // call base class to do the work
                 base.ExecuteTask();
             }
@@ -179,7 +179,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Cleans up generated files.
         /// </summary>
-        public void RemoveOutputs () {
+        public void RemoveOutputs() {
             foreach (string filename in Resources.FileNames) {
                 string outputFile = Path.ChangeExtension(filename, TargetExt);
                 if (filename != outputFile) {
