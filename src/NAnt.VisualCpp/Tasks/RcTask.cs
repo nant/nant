@@ -22,6 +22,7 @@
 // TODO: review interface for future compatibility/customizations issues
 
 using System;
+using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
@@ -30,7 +31,7 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
-    /// Compiles resources using rc.exe, Microsoft's Win32 resource compiler.
+    /// Compiles resources using <c>rc.exe</c>, Microsoft's Win32 resource compiler.
     /// </summary>
     /// <example>
     ///   <para>Compile <c>text.rc</c> using the default options.</para>
@@ -39,6 +40,8 @@ namespace NAnt.VisualCpp.Tasks {
     /// <rc rcfile="text.rc"/>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Compile <c>text.rc</c>, passing an additional option.</para>
     ///   <code>
     ///     <![CDATA[
@@ -48,33 +51,53 @@ namespace NAnt.VisualCpp.Tasks {
     /// </example>
     [TaskName("rc")]
     public class RcTask : ExternalProgramBase {
-        string _output = null;
-        string _options = null;
-        string _rcfile = null;
+        #region Private Instance Fields
+
+        private FileInfo _outputFile;
+        private string _options;
+        private FileInfo _rcFile;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>
         /// Options to pass to the compiler.
         /// </summary>
         [TaskAttribute("options")]
-        public string Options {get {return _options;} set {_options = value;}}
+        public string Options {
+            get { return _options; }
+            set { _options = value; }
+        }
 
         /// <summary>
-        /// Output filename.
+        /// Output file.
         /// </summary>
         [TaskAttribute("output")]
-        public string Output {get {return _output;} set {_output = value;}}
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
+        }
 
         /// <summary>
-        /// Input filename.
+        /// The resource file to compile.
         /// </summary>
         [TaskAttribute("rcfile", Required=true)]
-        public string RcFile {get {return _rcfile;} set {_rcfile = value;}}
+        public FileInfo RcFile {
+            get { return _rcFile; }
+            set { _rcFile = value; }
+        }
 
-        // ExternalProgramBase implementation
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
         /// <summary>
         /// Filename of program to execute
         /// </summary>
-        public override string ProgramFileName  { get {return Name;} }
+        public override string ProgramFileName {
+            get { return Name; }
+        }
 
         /// <summary>
         /// Arguments of program to execute
@@ -87,32 +110,40 @@ namespace NAnt.VisualCpp.Tasks {
                     str += "/v ";
                 }
 
-                if (_output != null) {
-                    str += String.Format("/fo\"{0}\" ", Output);
+                if (OutputFile != null) {
+                    str += string.Format(CultureInfo.InvariantCulture, 
+                        "/fo\"{0}\" ", OutputFile.FullName);
                 }
 
-                if (_options != null) {
-                    str += String.Format("{0} ", _options);
+                if (Options != null) {
+                    str += string.Format(CultureInfo.InvariantCulture,
+                        "{0} ", Options);
                 }
 
-                str += _rcfile;
+                str += RcFile.FullName;
 
                 return str.ToString();
             }
         }
+
         /// <summary>
-        /// Compile the resource files
+        /// Compile the resource file
         /// </summary>
         protected override void ExecuteTask() {
-            string message = string.Format( "Compiling {0}", RcFile );
+            string message = string.Format(CultureInfo.InvariantCulture, 
+                "Compiling '{0}'", RcFile.FullName);
 
 
-            if (Output != null) {
-               message+= string.Format(" to {0}", Output);
+            if (OutputFile != null) {
+                message += string.Format(CultureInfo.InvariantCulture, 
+                    " to '{0}'", OutputFile.FullName);
             }
-            Log(Level.Info, message);
+
+            Log(Level.Info, message + ".");
             base.ExecuteTask();
         }
+
+        #endregion Override implementation of ExternalProgramBase
     }
 }
 #if unused

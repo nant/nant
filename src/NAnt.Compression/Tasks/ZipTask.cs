@@ -54,7 +54,7 @@ namespace NAnt.Zip.Tasks {
     public class ZipTask : Task {
         #region Private Instance Fields
 
-        private string _zipfile = null;
+        private FileInfo _zipfile;
         private int _ziplevel = 6; 
         private FileSet _fileset = new FileSet();
         private Crc32 crc = new Crc32();
@@ -71,10 +71,9 @@ namespace NAnt.Zip.Tasks {
         /// The zip file to create.
         /// </summary>
         [TaskAttribute("zipfile", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string ZipFileName {
-            get { return (_zipfile != null) ? Project.GetFullPath(_zipfile) : null; }
-            set { _zipfile = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo ZipFile {
+            get { return _zipfile; }
+            set { _zipfile = value; }
         }
 
         /// <summary>
@@ -143,19 +142,22 @@ namespace NAnt.Zip.Tasks {
             ZipOutputStream zOutstream = null;
             string basePath;
 
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
             if (ZipFileSet.BaseDirectory == null) {
-                ZipFileSet.BaseDirectory = Project.BaseDirectory;
+                ZipFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            Log(Level.Info, LogPrefix + "Zipping {0} files to {1}.", ZipFileSet.FileNames.Count, ZipFileName);
+            Log(Level.Info, LogPrefix + "Zipping {0} files to '{1}'.", 
+                ZipFileSet.FileNames.Count, ZipFile.FullName);
 
-            basePath = Project.GetFullPath(Path.GetFullPath(ZipFileSet.BaseDirectory));
+            basePath = ZipFileSet.BaseDirectory.FullName;
             if (Path.GetPathRoot(basePath) != basePath) {
                 basePath = Path.GetDirectoryName(basePath + Path.DirectorySeparatorChar);
             }
 
             try {
-                zOutstream = new ZipOutputStream(File.Create(ZipFileName));
+                zOutstream = new ZipOutputStream(ZipFile.Create());
 
                 // set compression level
                 if (ZipLevel > 0) {
@@ -268,12 +270,13 @@ namespace NAnt.Zip.Tasks {
                 }
 
                 // delete the (possibly corrupt) zip file
-                if (File.Exists(ZipFileName)) {
-                    File.Delete(ZipFileName);
+                if (ZipFile.Exists) {
+                    ZipFile.Delete();
                 }
 
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Zip file '{0}' could not be created.", ZipFileName), Location, ex);
+                    "Zip file '{0}' could not be created.", ZipFile.FullName), 
+                    Location, ex);
             }
         }
 

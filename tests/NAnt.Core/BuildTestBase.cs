@@ -56,6 +56,19 @@ namespace Tests.NAnt.Core {
             get { return _tempDirName; }
         }
 
+        /// <summary>
+        /// Gets the temporary directory for this test case.
+        /// </summary>
+        /// <value>
+        /// The temporary directory for this test case.
+        /// </value>
+        /// <remarks>
+        /// Should be in the form %temp%\ClassName (ex. c:\temp\Tests.NAnt.Core.BuildTestBase).
+        /// </remarks>
+        public DirectoryInfo TempDirectory {
+            get { return new DirectoryInfo(_tempDirName); }
+        }
+
         #endregion Public Instance Properties
 
         #region Public Instance Methods

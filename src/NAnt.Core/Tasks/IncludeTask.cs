@@ -112,7 +112,7 @@ namespace NAnt.Core.Tasks {
                 _currentBasedir = Project.BaseDirectory;
             }
             // Check for recursive include
-            string buildFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
+            string buildFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
             
             foreach (string currentFileName in _includedFileNames) {
                 if (currentFileName == buildFileName) {

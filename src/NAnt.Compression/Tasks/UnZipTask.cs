@@ -44,30 +44,35 @@ namespace NAnt.Zip.Tasks {
     public class UnZipTask : Task {
         #region Private Instance Fields
 
-        string _zipfile = null;
-        string _toDir = ".";
+        private FileInfo _zipfile;
+        private DirectoryInfo _toDir;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
         /// <summary>
-        /// The zip file to use.
+        /// The archive file to expand.
         /// </summary>
         [TaskAttribute("zipfile", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string ZipFileName {
-            get { return (_zipfile != null) ? Project.GetFullPath(_zipfile) : null; }
-            set { _zipfile = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo ZipFile {
+            get { return _zipfile; }
+            set { _zipfile = value; }
         }
 
         /// <summary>
-        /// The directory where the expanded files should be stored.
+        /// The directory where the expanded files should be stored. The 
+        /// default is the project base directory.
         /// </summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDirectory {
-            get { return Project.GetFullPath(_toDir); }
-            set { _toDir = StringUtils.ConvertEmptyToNull(value); }
+        public DirectoryInfo ToDirectory {
+            get { 
+                if (_toDir == null) {
+                    return new DirectoryInfo(Project.BaseDirectory);
+                }
+                return _toDir;
+            }
+            set { _toDir = value; }
         }
 
         #endregion Public Instance Properties
@@ -78,12 +83,12 @@ namespace NAnt.Zip.Tasks {
         /// Extracts the files from the zip file.
         /// </summary>
         protected override void ExecuteTask() {
-            ZipInputStream s = new ZipInputStream(File.OpenRead(ZipFileName));
-            Log(Level.Info, LogPrefix + "Unzipping {0} to {1} ({2} bytes).", ZipFileName, ToDirectory, s.Length);
+            ZipInputStream s = new ZipInputStream(ZipFile.OpenRead());
+            Log(Level.Info, LogPrefix + "Unzipping '{0}' to '{1}' ({2} bytes).", ZipFile.FullName, ToDirectory.FullName, s.Length);
             ZipEntry theEntry;
             while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName = Path.GetFileName(theEntry.Name);
-                Log(Level.Verbose, "Extracting {0} to {1}.", theEntry.Name, ToDirectory);
-                // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(ToDirectory, directoryName));
+                Log(Level.Verbose, "Extracting '{0}' to '{1}'.", theEntry.Name,                     ToDirectory.FullName);
+                // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(                    ToDirectory.FullName, directoryName));
                 if (!StringUtils.IsNullOrEmpty(fileName)) {                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));                    FileStream streamWriter = fi.Create();                    int size = 2048;                    byte[] data = new byte[2048];
                     while (true) {                        size = s.Read(data, 0, data.Length);                        if (size > 0) {                            streamWriter.Write(data, 0, size);                        } else {                            break;                        }                    }
                     streamWriter.Close();                    fi.LastWriteTime = theEntry.DateTime;                }            }            s.Close();

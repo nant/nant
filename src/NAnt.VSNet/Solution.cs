@@ -35,8 +35,8 @@ namespace NAnt.VSNet {
     public class Solution {
         #region Public Instance Constructors
 
-        public Solution(string solutionFileName, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMappings, FileSet excludesProjects, string outputDir) {
-            _fileName = solutionFileName;
+        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMappings, FileSet excludesProjects, DirectoryInfo outputDir) {
+            _file = solutionFile;
             _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -52,13 +52,12 @@ namespace NAnt.VSNet {
 
             string fileContents;
 
-            using (StreamReader sr = new StreamReader(solutionFileName)) {
+            using (StreamReader sr = new StreamReader(solutionFile.FullName)) {
                 fileContents = sr.ReadToEnd();
             }
 
             Regex re = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""");
             MatchCollection mc = re.Matches(fileContents);
-            FileInfo fiSolution = new FileInfo(solutionFileName);
 
             foreach (Match m in mc) {
                 string project = m.Groups["project"].Value;
@@ -86,17 +85,20 @@ namespace NAnt.VSNet {
                 try {
                     Uri uri = new Uri(project);
                     if (uri.Scheme == Uri.UriSchemeFile) {
-                        fullPath = Path.Combine(fiSolution.DirectoryName, uri.LocalPath);
+                        fullPath = Path.Combine(solutionFile.DirectoryName, uri.LocalPath);
                     } else {
                         fullPath = project;
 
-                        if (!solutionTask.EnableWebDAV) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture,
-                                @"Cannot build web project '{0}'.  Please use <webmap> to map the given URL to a project-relative path, or specify enablewebdav=""true"" on the <solution> task element to use WebDAV.", fullPath));
+                        if (!solutionTask.EnableWebDav) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "Cannot build web project '{0}'.  Please use" 
+                                + " <webmap> to map the given URL to a project-relative" 
+                                + " path, or specify enablewebdav=\"true\" on the" 
+                                + " <solution> task element to use WebDAV.", fullPath));
                         }
                     }
                 } catch (UriFormatException) {
-                    fullPath = Path.Combine(fiSolution.DirectoryName, project);
+                    fullPath = Path.Combine(solutionFile.DirectoryName, project);
                 }
                 
                 if (Project.IsEnterpriseTemplateProject(fullPath)) {
@@ -121,7 +123,7 @@ namespace NAnt.VSNet {
             GetDependenciesFromProjects();
         }
 
-        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, string outputDir) {
+        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) {
             _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -145,8 +147,8 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
-        public string FileName {
-            get { return _fileName; }
+        public FileInfo File {
+            get { return _file; }
         }
 
         public TempFileCollection TemporaryFiles {
@@ -497,7 +499,7 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private string _fileName;
+        private FileInfo _file;
         private Hashtable _htProjectFiles;
         private Hashtable _htProjects;
         private Hashtable _htProjectDirectories;
@@ -507,7 +509,7 @@ namespace NAnt.VSNet {
         private SolutionTask _solutionTask;
         private WebMapCollection _webMaps;
         private FileSet _excludesProjects;
-        private string _outputDir;
+        private DirectoryInfo _outputDir;
         private TempFileCollection _tfc;
 
         #endregion Private Instance Fields

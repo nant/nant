@@ -60,11 +60,11 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private string _responseFileName = null;
-        private string _output = null;
+        private FileInfo _outputFile;
         private string _target = null;
         private string _culture = null;
-        private string _template = null;
-        private string _keyfile = null;
+        private FileInfo _templateFile;
+        private FileInfo _keyfile;
         private FileSet _resources = new FileSet();
 
         #endregion Private Instance Fields
@@ -83,10 +83,9 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("output", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
         
         /// <summary>
@@ -132,25 +131,27 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("template", Required=false)]
-        public string Template {
-            get { return (_template != null) ? Project.GetFullPath(_template) : null; }
-            set { _template = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo TemplateFile {
+            get { return _templateFile; }
+            set { _templateFile = value; }
         }
 
         /// <summary>
         /// Specifies a file (filename) that contains a key pair or
         /// just a public key to sign an assembly.
         /// </summary>
-        /// <value>The complete path to the key file.</value>
+        /// <value>
+        /// The complete path to the key file.
+        /// </value>
         /// <remarks>
         /// <para>
         /// Corresponds with the <c>/keyf[ile]:</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("keyfile", Required=false)]
-        public string KeyFile {
-            get { return (_keyfile != null) ? Project.GetFullPath(_keyfile) : null; }
-            set { _keyfile = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo KeyFile {
+            get { return _keyfile; }
+            set { _keyfile = value; }
         }
 
         /// <summary>
@@ -186,19 +187,25 @@ namespace NAnt.DotNet.Tasks {
         /// Generates an assembly manifest.
         /// </summary>
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Resources.BaseDirectory == null) {
+                Resources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (NeedsCompiling()) {
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
                 StreamWriter writer = new StreamWriter(_responseFileName);
 
                 try {
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Resources.FileNames.Count, Output);
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", Resources.FileNames.Count, OutputFile.FullName);
 
                     // write output target
                     writer.Write(" /target:{0}", OutputTarget);
 
                     // write output file
-                    writer.Write(" /out:\"{0}\"", Output);
+                    writer.Write(" /out:\"{0}\"", OutputFile.FullName);
 
                     if (Culture != null) {
                         writer.Write(" /culture:{0}", Culture);
@@ -207,12 +214,12 @@ namespace NAnt.DotNet.Tasks {
                     // suppresses display of the sign-on banner                    
                     writer.Write(" /nologo" );
                     
-                    if (Template != null) {
-                        writer.Write(" /template:\"{0}\"", Template);
+                    if (TemplateFile != null) {
+                        writer.Write(" /template:\"{0}\"", TemplateFile.FullName);
                     }
 
                     if (KeyFile != null) {
-                        writer.Write(" /keyfile:\"{0}\"", KeyFile);
+                        writer.Write(" /keyfile:\"{0}\"", KeyFile.FullName);
                     }
 
                     // write embedded resources to response file
@@ -258,12 +265,11 @@ namespace NAnt.DotNet.Tasks {
         /// otherwise, <see langword="false" />.
         /// </returns>
         protected virtual bool NeedsCompiling() {
-            FileInfo outputFileInfo = new FileInfo(Output);
-            if (!outputFileInfo.Exists) {
+            if (!OutputFile.Exists) {
                 return true;
             }
 
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, outputFileInfo.LastWriteTime);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "{0} is out of date.", fileName);
                 return true;

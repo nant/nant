@@ -116,17 +116,17 @@ namespace NAnt.Core.Tasks {
         /// to be redirected to a file.  Deriving classes should override this 
         /// property to change this behaviour.
         /// </remarks>
-        public virtual FileInfo OutputFile {
+        public virtual FileInfo Output {
             get { return null; } 
             set {} //so that it can be overriden.
         }
         
         /// <summary>
         /// Gets a value indicating whether output will be appended to the 
-        /// <see cref="OutputFile" />.
+        /// <see cref="Output" />.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if output should be appended to the <see cref="OutputFile" />; 
+        /// <see langword="true" /> if output should be appended to the <see cref="Output" />; 
         /// otherwise, <see langword="false" />.
         /// </value>
         public virtual bool OutputAppend {
@@ -375,8 +375,8 @@ namespace NAnt.Core.Tasks {
                     //do not print LogPrefix, just pad that length.
                     Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + logContents);
 
-                    if (OutputFile != null) {
-                        StreamWriter writer = new StreamWriter(OutputFile.FullName, doAppend);
+                    if (Output != null) {
+                        StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
                         writer.WriteLine(logContents);
                         doAppend = true;
                         writer.Close();
@@ -401,8 +401,8 @@ namespace NAnt.Core.Tasks {
                     //do not print LogPrefix, just pad that length.
                     Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + logContents);
 
-                    if (OutputFile != null) {
-                        StreamWriter writer = new StreamWriter(OutputFile.FullName, doAppend);
+                    if (Output != null) {
+                        StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
                         writer.Write(logContents);
                         doAppend = true;
                         writer.Close();

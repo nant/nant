@@ -50,10 +50,10 @@ namespace NAnt.Win32.Tasks {
     public class TlbExpTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private string _assembly = null;
-        private string _output = null;
-        private string _names = null;
-        private StringBuilder _argumentBuilder = null;
+        private FileInfo _assemblyFile;
+        private FileInfo _outputFile;
+        private FileInfo _namesFile;
+        private StringBuilder _argumentBuilder;
 
         #endregion Private Instance Fields
 
@@ -66,10 +66,10 @@ namespace NAnt.Win32.Tasks {
         /// The assembly for which to export a type library.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
-        [TaskAttribute("assembly", Required=false)]
-        public string Assembly {
-            get { return (_assembly != null) ? Project.GetFullPath(_assembly) : null; }
-            set { _assembly = StringUtils.ConvertEmptyToNull(value); }
+        [TaskAttribute("assembly", Required=true)]
+        public FileInfo AssemblyFile {
+            get { return _assemblyFile; }
+            set { _assemblyFile = value; }
         }
 
         /// <summary>
@@ -80,9 +80,9 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("output", Required=true)]
-        public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -94,9 +94,9 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("names")]
-        public string Names {
-            get { return (_names != null) ? Project.GetFullPath(_names) : null; }
-            set { _names = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo NamesFile {
+            get { return _namesFile; }
+            set { _namesFile = value; }
         }
 
         #endregion Public Instance Properties
@@ -129,11 +129,11 @@ namespace NAnt.Win32.Tasks {
                 //Using a stringbuilder vs. StreamWriter since this program will not accept response files.
                 _argumentBuilder = new StringBuilder();
 
-                _argumentBuilder.Append("\"" + Assembly + "\"");
+                _argumentBuilder.Append("\"" + AssemblyFile.FullName + "\"");
 
                 // Any option that specifies a file name must be wrapped in quotes
                 // to handle cases with spaces in the path.
-                _argumentBuilder.AppendFormat(" /out:\"{0}\"", Output);
+                _argumentBuilder.AppendFormat(" /out:\"{0}\"", OutputFile.FullName);
 
                 // suppresses the Microsoft startup banner display
                 _argumentBuilder.Append(" /nologo");
@@ -147,8 +147,8 @@ namespace NAnt.Win32.Tasks {
                 }
 
                 // filename used to determine capitalization of names in typelib
-                if (Names != null) {
-                    _argumentBuilder.AppendFormat(" /names:\"{0}\"", Names);
+                if (NamesFile != null) {
+                    _argumentBuilder.AppendFormat(" /names:\"{0}\"", NamesFile.FullName);
                 }
 
                 // call base class to do the work
@@ -170,21 +170,21 @@ namespace NAnt.Win32.Tasks {
         /// </returns>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
-            FileInfo outputFileInfo = new FileInfo(Output);
-            if (!outputFileInfo.Exists) {
+
+            if (!OutputFile.Exists) {
                 return true;
             }
 
             // check if the assembly was changed since the typelib was generated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Assembly, outputFileInfo.LastWriteTime);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(AssemblyFile.FullName, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
             // check if the names file was changed since the typelib was generated
-            if (Names != null) {
-                fileName = FileSet.FindMoreRecentLastWriteTime(Names, outputFileInfo.LastWriteTime);
+            if (NamesFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(NamesFile.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
                     return true;

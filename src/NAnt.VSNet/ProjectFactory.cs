@@ -58,7 +58,7 @@ namespace NAnt.VSNet {
             _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
 
-        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, string outputDir, string path) {
+        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
@@ -75,7 +75,7 @@ namespace NAnt.VSNet {
                     _cachedProjects[projectFileName] = p;
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Unknown project file extension {0}.", projectExt),
+                        "Unknown project file extension '{0}'.", projectExt),
                         Location.UnknownLocation);
                 }
             }

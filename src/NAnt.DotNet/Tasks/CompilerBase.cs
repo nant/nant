@@ -41,7 +41,7 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private string _responseFileName;
-        private string _output = null;
+        private FileInfo _outputFile = null;
         private string _target = null;
         private bool _debug = false;
         private string _define = null;
@@ -90,13 +90,12 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The name of the output file created by the compiler.
+        /// The output file created by the compiler.
         /// </summary>
         [TaskAttribute("output", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -315,8 +314,23 @@ namespace NAnt.DotNet.Tasks {
                 StringCollection compiledResourceFiles = new StringCollection();
                 
                 try {
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", 
-                        Sources.FileNames.Count, Output);
+                    // ensure base directory is set, even if fileset was not initialized
+                    // from XML
+                    if (References.BaseDirectory == null) {
+                        References.BaseDirectory = BaseDirectory;
+                    }
+                    if (Lib.BaseDirectory == null) {
+                        Lib.BaseDirectory = BaseDirectory;
+                    }
+                    if (Modules.BaseDirectory == null) {
+                        Modules.BaseDirectory = BaseDirectory;   
+                    }   
+                    if (Sources.BaseDirectory == null) {   
+                        Sources.BaseDirectory = BaseDirectory;   
+                    } 
+
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", 
+                        Sources.FileNames.Count, OutputFile.FullName);
 
                     // specific compiler options
                     WriteOptions(writer);
@@ -332,7 +346,7 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     // the name of the output file
-                    WriteOption(writer, "out", Output);
+                    WriteOption(writer, "out", OutputFile.FullName);
 
                     if (Win32Icon != null) {
                         WriteOption(writer, "win32icon", Win32Icon);
@@ -369,7 +383,7 @@ namespace NAnt.DotNet.Tasks {
                             compiledResourceFiles.Add(tmpResourcePath);
                             
                             // compile to a temp .resources file
-                            CompileResxResource(fileName, tmpResourcePath);
+                            CompileResxResource(new FileInfo(fileName), new FileInfo(tmpResourcePath));
                             
                             // check if resource is localized
                             CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
@@ -435,11 +449,13 @@ namespace NAnt.DotNet.Tasks {
                     // create a satellite assembly for each culture name
                     foreach (string culture in cultureResources.Keys) {
                         // determine directory for satellite assembly
-                        string culturedir = Path.GetDirectoryName(Output) + Path.DirectorySeparatorChar + culture;
+                        string culturedir = Path.Combine(OutputFile.DirectoryName, culture);
                         // ensure diretory for satellite assembly exists
                         Directory.CreateDirectory(culturedir);
                         // determine filename of satellite assembly
-                        string outputFile =  Path.Combine(culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
+                        FileInfo outputFile = new FileInfo(Path.Combine(culturedir, 
+                            Path.GetFileNameWithoutExtension(OutputFile.Name) 
+                            + ".resources.dll"));
                         // generate satellite assembly
                         LinkResourceAssembly((Hashtable)cultureResources[culture], 
                             outputFile, culture);
@@ -701,7 +717,8 @@ namespace NAnt.DotNet.Tasks {
         protected void ResolveReferences(FileSet fileSet) {
             foreach (string pattern in fileSet.Includes) {
                 if (Path.GetFileName(pattern) == pattern) {
-                    string localPath = Path.Combine(fileSet.BaseDirectory, pattern);
+                    string localPath = Path.Combine(fileSet.BaseDirectory.FullName, 
+                        pattern);
 
                     // check if a file match the pattern exists in the 
                     // base directory of the references fileset
@@ -778,27 +795,26 @@ namespace NAnt.DotNet.Tasks {
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
 
-            FileInfo outputFileInfo = new FileInfo(Output);
-            if (!outputFileInfo.Exists) {
+            if (!OutputFile.Exists) {
                 return true;
             }
 
             //Sources Updated?
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, outputFileInfo.LastWriteTime);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
             //References Updated?
-            fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, outputFileInfo.LastWriteTime);
+            fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
             //Modules Updated?
-            fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, outputFileInfo.LastWriteTime);
+            fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
@@ -806,7 +822,7 @@ namespace NAnt.DotNet.Tasks {
 
             //Resources Updated?
             foreach (ResourceFileSet resources in ResourcesList) {
-                fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, outputFileInfo.LastWriteTime);
+                fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, OutputFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                     return true;
@@ -829,7 +845,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, outputFileInfo.LastWriteTime);
+            fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
@@ -892,9 +908,9 @@ namespace NAnt.DotNet.Tasks {
         /// Link a list of files into a resource assembly.
         /// </summary>
         /// <param name="resourceFiles">The collection of resources.</param>
-        /// <param name="outputFile">Resource assembly to generate</param>
+        /// <param name="resourceAssemblyFile">Resource assembly to generate</param>
         /// <param name="culture">Culture of the generated assembly.</param>
-        protected void LinkResourceAssembly(Hashtable resourceFiles, string outputFile, string culture) {
+        protected void LinkResourceAssembly(Hashtable resourceFiles, FileInfo resourceAssemblyFile, string culture) {
             // defer to the assembly linker task
             AssemblyLinkerTask alink = new AssemblyLinkerTask();
 
@@ -908,14 +924,14 @@ namespace NAnt.DotNet.Tasks {
             alink.InitializeTaskConfiguration();
 
             // set task properties
-            alink.Output = outputFile;
+            alink.OutputFile = resourceAssemblyFile;
             alink.Culture = culture;
             alink.OutputTarget = "lib";
-            alink.Template = Output;
+            alink.TemplateFile = OutputFile;
 
             // add resource files using the Arguments collection.
             foreach (string manifestname in resourceFiles.Keys) {
-                string resourcefile = (string)resourceFiles[manifestname];
+                string resourcefile = (string) resourceFiles[manifestname];
                 // add resources to embed 
                 Argument arg = new Argument();
                 arg.Value = string.Format(CultureInfo.InvariantCulture, " /embed:\"{0}\",{1}", resourcefile, manifestname);
@@ -937,7 +953,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="inputFile">The resx file to compile.</param>
         /// <param name="outputFile">The name of the resource file to create.</param>
-        protected void CompileResxResource(string inputFile, string outputFile) {
+        protected void CompileResxResource(FileInfo inputFile, FileInfo outputFile) {
             ResGenTask resgen = new ResGenTask();
             resgen.Project = this.Project;
             resgen.Parent = this.Parent;
@@ -948,11 +964,8 @@ namespace NAnt.DotNet.Tasks {
             // inherit Verbose setting from current task
             resgen.Verbose = this.Verbose;
 
-            resgen.Input = inputFile;
-            resgen.Output = Path.GetFileName(outputFile);
-            resgen.ToDirectory = Path.GetDirectoryName(outputFile);
-            resgen.BaseDirectory = new DirectoryInfo(Project.GetFullPath(
-                Path.GetDirectoryName(inputFile)));
+            resgen.InputFile = inputFile;
+            resgen.OutputFile = outputFile;
 
             // fix up the indent level
             Project.Indent();

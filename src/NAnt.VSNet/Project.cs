@@ -37,7 +37,7 @@ namespace NAnt.VSNet {
     public class Project : ProjectBase {
         #region Public Instance Constructors
 
-        public Project(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) : base(solutionTask, tfc, outputDir) {
+        public Project(SolutionTask solutionTask, TempFileCollection tfc, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
             _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -176,7 +176,7 @@ namespace NAnt.VSNet {
 
                 webCacheDirectory = projectDirectory;
                 _webProjectBaseUrl = projectPath.Substring(0, projectPath.LastIndexOf("/"));
-                _projectDirectory = Path.GetDirectoryName(sln.FileName);
+                _projectDirectory = sln.File.DirectoryName;
             }
 
             _projectSettings.RootDirectory = _projectDirectory;
@@ -218,7 +218,7 @@ namespace NAnt.VSNet {
                     if (buildAction == "Compile") {
                         _htFiles[fi.FullName] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        Resource r = new Resource(this, fi.FullName, elemFile.Attributes["RelPath"].Value, fi.DirectoryName + @"\" + elemFile.Attributes["DependentUpon"].Value, SolutionTask);
+                        Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, fi.DirectoryName + @"\" + elemFile.Attributes["DependentUpon"].Value, SolutionTask);
                         _htResources[r.InputFile] = r;
                     }
                 } else {
@@ -233,9 +233,9 @@ namespace NAnt.VSNet {
                     if (buildAction == "Compile") {
                         _htFiles[sourceFile] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        string resourceFilename = Path.Combine(_projectSettings.RootDirectory, sourceFile);
-                        string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(new FileInfo(resourceFilename).DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                        Resource r = new Resource(this, resourceFilename, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask);
+                        FileInfo resourceFile = new FileInfo(Path.Combine(_projectSettings.RootDirectory, sourceFile));
+                        string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
+                        Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask);
                         _htResources[r.InputFile] = r;
                     }
                 }
@@ -252,7 +252,7 @@ namespace NAnt.VSNet {
             }
 
             Log(Level.Info, LogPrefix + "Building {0} [{1}]...", Name, configuration);
-            Directory.CreateDirectory(cs.OutputDir);
+            cs.OutputDir.Create();
 
             // perform prebuild actions (for VS.NET 2003)
             if (ProjectSettings.RunPostBuildEvent != null) {
@@ -301,7 +301,7 @@ namespace NAnt.VSNet {
                             Log(Level.Verbose, LogPrefix + program + " " + commandLine);
                             ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
                             psiRef.UseShellExecute = false;
-                            psiRef.WorkingDirectory = cs.OutputDir;
+                            psiRef.WorkingDirectory = cs.OutputDir.FullName;
 
                             try {
                                 Process pRef = Process.Start(psiRef);
@@ -338,7 +338,7 @@ namespace NAnt.VSNet {
                                 ct.CopyFileSet.Includes.Add(file);
                             }
                             ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
-                            ct.ToDirectory = new DirectoryInfo(cs.OutputDir);
+                            ct.ToDirectory = cs.OutputDir;
 
                             ct.Project.Indent();
                             ct.Execute();
@@ -432,7 +432,8 @@ namespace NAnt.VSNet {
                         WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                         wdc.UploadFile(extraOutputFile, cs.RelativeOutputDir.Replace(@"\", "/") + sourceFile.Name);
                     } else {
-                        FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir, sourceFile.Name));
+                        FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
+                            sourceFile.Name));
 
                         if (destFile.Exists) {
                             // only copy the file if the source file is more 
@@ -489,7 +490,7 @@ namespace NAnt.VSNet {
                 // create a batch file for this, mirroring the behavior of VS.NET
                 // the file is not even removed after a successful build by VS.NET,
                 // so we don't either
-                using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir, "PreBuildEvent.bat"))) {
+                using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat"))) {
                     sw.WriteLine("@echo off");
                     // replace any VS macros in the command line with real values
                     buildCommandLine = ReplaceMacros(_projectSettings, cs, buildCommandLine);
@@ -504,7 +505,7 @@ namespace NAnt.VSNet {
                     sw.WriteLine(":EventEnd");
                 }
                 // now that we have to file on disk execute it
-                return ExecuteBuildEvent(Path.Combine(cs.OutputDir, "PreBuildEvent.bat"), "PreBuildEvent");
+                return ExecuteBuildEvent(Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat"), "PreBuildEvent");
             }
             // nothing to do, signal success
             return true;
@@ -517,7 +518,7 @@ namespace NAnt.VSNet {
             if (buildCommandLine != null) {
                 // Create a batch file for this. This mirrors VS behavior. Also this
                 // file is not removed even after a successful build by VS so we don't either.
-                using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir, "PostBuildEvent.bat"))) {
+                using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat"))) {
                     sw.WriteLine("@echo off");
                     // replace any VS macros in the command line with real values
                     buildCommandLine = ReplaceMacros(_projectSettings, cs, buildCommandLine);
@@ -540,7 +541,8 @@ namespace NAnt.VSNet {
                         // as long as the build succeeds
                         if (bCompileSuccess) {
                             Log(Level.Debug, LogPrefix + "PostBuild+OnBuildSuccess+bCompileSuccess");
-                            bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(cs.OutputDir, "PostBuildEvent.bat"), "PostBuildEvent");
+                            bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
+                                cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
                         } else {
                             Log(Level.Debug, LogPrefix + "PostBuild+OnBuildSuccess");
                             bBuildEventSuccess = true;
@@ -550,7 +552,8 @@ namespace NAnt.VSNet {
                         // post-build event will run regardless of whether the 
                         // build succeeded
                         Log(Level.Debug, LogPrefix + "PostBuild+Always");
-                        bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(cs.OutputDir, "PostBuildEvent.bat"), "PostBuildEvent");
+                        bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
+                            cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
                         break;
                     case "OnOutputUpdated":
                         // post-build event will only run when the compiler's 
@@ -559,7 +562,8 @@ namespace NAnt.VSNet {
                         // event will not run if a project is up-to-date
                         if (bOutputUpdated) {
                             Log(Level.Debug, LogPrefix + "PostBuild+OnOutputUpdated+bOutputUpdated");
-                            bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(cs.OutputDir, "PostBuildEvent.bat"), "PostBuildEvent");
+                            bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
+                                cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
                         } else {
                             Log(Level.Debug, LogPrefix + "PostBuild+OnOutputUpdated");
                             bBuildEventSuccess = true;
@@ -625,7 +629,7 @@ namespace NAnt.VSNet {
                 // The solution tag allows the specification of a bunch of projects with no
                 // reference to a solution file. $(Solution... macros will not work then.
                 if (SolutionTask.SolutionFile != null) {
-                    solutionPath = Path.GetFullPath(SolutionTask.SolutionFile);
+                    solutionPath = SolutionTask.SolutionFile.FullName;
                 }
                 // As long there are new macros...
                 while (startPosition > -1) {
@@ -666,7 +670,9 @@ namespace NAnt.VSNet {
                             commandsExpanded = commandsExpanded.Replace("$(TargetFileName)", Path.GetFileName(cs.OutputPath));
                             break;
                         case "$(TargetDir)": // Absolute path to OutDir
-                            commandsExpanded = commandsExpanded.Replace("$(TargetDir)", Path.GetDirectoryName(cs.OutputDir) + Path.DirectorySeparatorChar);
+                            commandsExpanded = commandsExpanded.Replace("$(TargetDir)", cs.OutputDir.FullName
+                                + (cs.OutputDir.FullName.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) 
+                                    ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)));
                             break;
                         case "$(SolutionFileName)": // E.g. WindowsApplication1.sln
                             if (solutionPath != null) {

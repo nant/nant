@@ -197,6 +197,12 @@ namespace NAnt.Core.Tasks {
         }
 
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (InFiles.BaseDirectory == null) {
+                InFiles.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             StringCollection srcFiles = null;
             if (SrcFile != null) {
                 srcFiles = new StringCollection();

@@ -154,10 +154,6 @@ namespace NAnt.DotNet.Tasks {
         /// Generates an AssemblyInfo file.
         /// </summary>
         protected override void ExecuteTask() {
-            if (References.BaseDirectory == null) {
-                References.BaseDirectory = Project.BaseDirectory;
-            }
-
             try {
                 StringCollection imports = new StringCollection();
 
@@ -167,12 +163,18 @@ namespace NAnt.DotNet.Tasks {
                     }
                 }
 
+                // ensure base directory is set, even if fileset was not initialized
+                // from XML
+                if (References.BaseDirectory == null) {
+                    References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+                }
+
                 // fix references to system assemblies
                 if (Project.CurrentFramework != null) {
                     foreach (string pattern in References.Includes) {
                         if (Path.GetFileName(pattern) == pattern) {
                             string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
-                            string localPath = Path.Combine(References.BaseDirectory, pattern);
+                            string localPath = Path.Combine(References.BaseDirectory.FullName, pattern);
                             string fullPath = Path.Combine(frameworkDir, pattern);
 
                             if (!File.Exists(localPath) && File.Exists(fullPath)) {

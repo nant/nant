@@ -37,6 +37,8 @@ namespace NAnt.Win32.Tasks {
     /// <servicecontroller action="Start" service="w3svc" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Stops the Alerter service on computer 'MOTHER'.</para>
     ///   <code>
     ///     <![CDATA[

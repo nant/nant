@@ -17,6 +17,8 @@
 //
 // Gert Driesen (gert.driesen@ardatis.com)
 
+using System.IO;
+
 namespace NAnt.VSNet {
     public abstract class ConfigurationBase {
         #region Protected Instance Constructors
@@ -35,7 +37,7 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Gets the output directory.
         /// </summary>
-        public abstract string OutputDir {
+        public abstract DirectoryInfo OutputDir {
             get;
         }
 

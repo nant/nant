@@ -20,6 +20,7 @@
 using System;
 using System.Collections;
 using System.CodeDom.Compiler;
+using System.IO;
 using System.Xml;
 
 using NAnt.VSNet.Tasks;
@@ -34,7 +35,7 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
-        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, string outputDir) {
+        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, DirectoryInfo outputDir) {
             _solutionTask = solutionTask;
             _tempFiles = tempFiles;
             _outputDir = outputDir;
@@ -86,7 +87,7 @@ namespace NAnt.VSNet {
             get { return _tempFiles; }
         }
 
-        protected string OutputDir {
+        protected DirectoryInfo OutputDir {
             get { return _outputDir; }
         }
 
@@ -132,7 +133,7 @@ namespace NAnt.VSNet {
 
         private SolutionTask _solutionTask;
         private TempFileCollection _tempFiles;
-        private string _outputDir;
+        private DirectoryInfo _outputDir;
 
         #endregion Private Instance Fields
     }

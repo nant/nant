@@ -250,7 +250,7 @@ namespace Tests.NAnt.Core {
             Directory.CreateDirectory(_folder3);
 
             _scanner = new DirectoryScanner();
-            _scanner.BaseDirectory = _tempDir;
+            _scanner.BaseDirectory = new DirectoryInfo(_tempDir);
         }
 
         [TearDown]

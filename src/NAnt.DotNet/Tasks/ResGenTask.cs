@@ -71,11 +71,11 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private string _arguments = null;
-        private string _input = null; 
-        private string _output = null;
+        private FileInfo _inputFile; 
+        private FileInfo _outputFile;
         private ResourceFileSet _resources = new ResourceFileSet();
         private string _targetExt = "resources";
-        private string _toDir = null;
+        private DirectoryInfo _toDir;
 
         #endregion Private Instance Fields
 
@@ -88,18 +88,18 @@ namespace NAnt.DotNet.Tasks {
         /// The full path to the input file.
         /// </value>
         [TaskAttribute("input", Required=false)]
-        public string Input {
-            get { return (_input != null) ? Project.GetFullPath(_input) : null; }
-            set { _input = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo InputFile {
+            get { return _inputFile; }
+            set { _inputFile = value; }
         }
 
         /// <summary>
-        /// Name of the resource file to output.
+        /// The resource file to output.
         /// </summary>
         [TaskAttribute("output", Required=false)]
-        public string Output {
-            get { return _output; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -115,9 +115,9 @@ namespace NAnt.DotNet.Tasks {
         /// The directory to which outputs will be stored.
         /// </summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDirectory {
-            get { return (_toDir != null) ? Project.GetFullPath(_toDir) : null; }
-            set { _toDir = StringUtils.ConvertEmptyToNull(value); }
+        public DirectoryInfo ToDirectory {
+            get { return _toDir; }
+            set { _toDir = value; }
         }
        
         /// <summary>
@@ -149,13 +149,14 @@ namespace NAnt.DotNet.Tasks {
         protected override void ExecuteTask() {
             _arguments = "";
             if (Resources.FileNames.Count > 0 ) {
-                if (Output != null) {
-                    throw new BuildException("Output attribute is incompatible with fileset use.", Location);
+                if (OutputFile != null) {
+                    throw new BuildException("'output' attribute is incompatible with fileset use.", Location);
                 }
                 foreach (string filename in Resources.FileNames ) {
-                    string outputFile = GetOutputFile(filename, Resources.Prefix );
+                    FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
+                        Resources.Prefix);
 
-                    if (NeedsCompiling(filename, outputFile)) {
+                    if (NeedsCompiling(new FileInfo(filename), outputFile)) {
                         if (StringUtils.IsNullOrEmpty(_arguments)) {
                             AppendArgument ("/compile");
                         }
@@ -165,16 +166,15 @@ namespace NAnt.DotNet.Tasks {
                 }
             } else {
                 // Single file situation
-                if (Input == null) {
+                if (InputFile == null) {
                     throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
                 }
 
-                string inputFile = Path.GetFullPath(Path.Combine(
-                    BaseDirectory.FullName, Input));
-                string outputFile = GetOutputFile(inputFile, null);
+                FileInfo outputFile = GetOutputFile(InputFile, null);
 
-                if (NeedsCompiling(inputFile, outputFile)) {
-                    AppendArgument(string.Format(CultureInfo.InvariantCulture, "\"{0}\" \"{1}\"", inputFile, outputFile));
+                if (NeedsCompiling(InputFile, outputFile)) {
+                    AppendArgument(string.Format(CultureInfo.InvariantCulture, 
+                        "\"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
                 }
             }
 
@@ -193,18 +193,17 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         public void RemoveOutputs() {
             foreach (string filename in Resources.FileNames) {
-                string outputFile = GetOutputFile(filename, Resources.Prefix );
-                if (filename != outputFile) {
-                    File.Delete(outputFile);
+                FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
+                    Resources.Prefix);
+                if (filename != outputFile.FullName) {
+                    outputFile.Delete();
                 }
             }
-            if (Input != null) {
-                string inputFile = Path.GetFullPath(Path.Combine(
-                    BaseDirectory.FullName, Input));
-                string outputFile = GetOutputFile(inputFile, null);
+            if (InputFile != null) {
+                FileInfo outputFile = GetOutputFile(InputFile, null);
                 
-                if (inputFile != outputFile) {
-                    File.Delete(outputFile);
+                if (InputFile.FullName != outputFile.FullName) {
+                    outputFile.Delete();
                 }
             }
         }
@@ -216,24 +215,22 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Determines whether the specified input file needs to be compiled.
         /// </summary>
-        /// <param name="input">The input file.</param>
-        /// <param name="output">The output file.</param>
+        /// <param name="inputFile">The input file.</param>
+        /// <param name="outputFile">The output file.</param>
         /// <returns>
         /// <see langword="true" /> if the input file need to be compiled; 
         /// otherwise <see langword="false" />.
         /// </returns>
-        protected virtual bool NeedsCompiling(string input, string output) {
-              FileInfo outputFileInfo = new FileInfo(output);
-              if (!outputFileInfo.Exists) {
+        protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
+              if (!outputFile.Exists) {
                   return true;
               }
   
-              FileInfo inputFileInfo = new FileInfo(input);
-              if (!inputFileInfo.Exists) {
+              if (!inputFile.Exists) {
                   return true;
               }
   
-              if (outputFileInfo.LastWriteTime < inputFileInfo.LastWriteTime) {
+              if (outputFile.LastWriteTime < inputFile.LastWriteTime) {
                   return true;
               }
               return false;
@@ -255,30 +252,28 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Determines the full path and extension for the output file.
         /// </summary>
-        /// <param name="filename">The output file for which the full path and extension should be determined.</param>
+        /// <param name="file">The output file for which the full path and extension should be determined.</param>
         /// <param name="prefix">prefix to prepend to the output .resources file</param>
-        /// <returns>The full path (with extensions) for the specified file.</returns>
-        private string GetOutputFile(string filename, string prefix ) {
-            FileInfo fileInfo = new FileInfo(filename);
-            string outputFile = "";
+        /// <returns>
+        /// The full path (with extensions) for the specified file.
+        /// </returns>
+        private FileInfo GetOutputFile(FileInfo file, string prefix) {
+            FileInfo outputFile;
             
             // If output is empty just change the extension 
-            if (Output == null) {
+            if (OutputFile == null) {
                 if (ToDirectory == null) {
-                    outputFile = filename;
+                    outputFile = file;
                 } else {
-                    outputFile = Path.Combine(ToDirectory, fileInfo.Name);
+                    outputFile = new FileInfo(Path.Combine(ToDirectory.FullName, file.Name));
                 }
                 if (!StringUtils.IsNullOrEmpty(prefix)) {
-                    outputFile = outputFile.Replace(fileInfo.Name, prefix + "." + fileInfo.Name );
+                    outputFile = new FileInfo(outputFile.FullName.Replace(
+                        file.Name, prefix + "." + file.Name));
                 }
-                outputFile = Path.ChangeExtension(outputFile, TargetExt);
+                outputFile = new FileInfo(Path.ChangeExtension(outputFile.Extension, TargetExt));
             } else {
-                if (ToDirectory == null) {
-                    outputFile = Path.Combine(Project.BaseDirectory, Output);
-                } else {
-                    outputFile = Path.Combine(ToDirectory, Output);
-                }
+                outputFile = OutputFile;
             }
             return outputFile;
         }

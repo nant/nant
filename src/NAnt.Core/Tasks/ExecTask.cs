@@ -45,7 +45,7 @@ namespace NAnt.Core.Tasks {
         private string _commandline;
         private DirectoryInfo _baseDirectory;
         private DirectoryInfo _workingDirectory;
-        private FileInfo _outputFile;
+        private FileInfo _output;
         private bool _outputAppend;
         private OptionCollection _environment = new OptionCollection();
         private bool _useRuntimeEngine;
@@ -199,9 +199,9 @@ namespace NAnt.Core.Tasks {
         /// By default, the standard output is redirected to the console.
         /// </remarks>
         [TaskAttribute("output", Required=false)]
-        public override FileInfo OutputFile {
-            get { return _outputFile; }
-            set { _outputFile = value; }
+        public override FileInfo Output {
+            get { return _output; }
+            set { _output = value; }
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace NAnt.Core.Tasks {
         /// to the output file. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if output should be appended to the <see cref="OutputFile" />; 
+        /// <see langword="true" /> if output should be appended to the <see cref="Output" />; 
         /// otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("append", Required=false)]

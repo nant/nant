@@ -36,7 +36,7 @@ namespace NAnt.VSNet {
     public class Reference {
         #region Public Instance Constructors
 
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, SolutionTask solutionTask, string outputDir) {
+        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, SolutionTask solutionTask, DirectoryInfo outputDir) {
             _projectSettings = ps;
             _solutionTask = solutionTask;
             _referenceTimeStamp = DateTime.MinValue;
@@ -145,7 +145,7 @@ namespace NAnt.VSNet {
                 string systemAssembly = Path.Combine(frameworkDirectory.FullName, _referenceFile);
                 if (File.Exists(systemAssembly)) {
                     // this file is a system assembly
-                    _baseDirectory = frameworkDirectory.FullName;
+                    _baseDirectory = frameworkDirectory;
                     _copyLocal = _privateSpecified ? _isPrivate : false;
                     _referenceFile = systemAssembly;
                     _isSystem = true;
@@ -155,7 +155,7 @@ namespace NAnt.VSNet {
                     //if ( !fiRef.Exists )
                     //    throw new Exception( "Couldn't find referenced assembly: " + _strReferenceFile );
 
-                    _baseDirectory = fiRef.DirectoryName;
+                    _baseDirectory = fiRef.Directory;
                     _referenceFile = fiRef.FullName;
                     _copyLocal = _privateSpecified ? _isPrivate : true;
                 }
@@ -184,7 +184,7 @@ namespace NAnt.VSNet {
             get { return _referenceFile; }
             set { 
                 _referenceFile = value; 
-                _baseDirectory = new FileInfo(_referenceFile).DirectoryName;
+                _baseDirectory = new FileInfo(_referenceFile).Directory;
                 _referenceTimeStamp = GetTimestamp(_referenceFile);
             }
         }
@@ -225,7 +225,8 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void GetCreationCommand(ConfigurationSettings cs, out string program, out string commandLine) {
-            _referenceFile = new FileInfo(Path.Combine(cs.OutputDir, _interopFile)).FullName;
+            _referenceFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
+                _interopFile)).FullName;
 
             commandLine = @"""" + _typelibFile + @""" /silent /out:""" + _referenceFile + @"""";
             if (_importTool == "tlbimp") {
@@ -241,7 +242,7 @@ namespace NAnt.VSNet {
             program = _importTool + ".exe";
         }
 
-        public string GetBaseDirectory(ConfigurationSettings configurationSettings) {
+        public DirectoryInfo GetBaseDirectory(ConfigurationSettings configurationSettings) {
             if (Project != null) {
                 return Project.GetConfiguration(configurationSettings.Name).OutputDir;
             }
@@ -330,7 +331,7 @@ namespace NAnt.VSNet {
 
                 if (fiRef.Exists) {
                     _referenceFile = fiRef.FullName;
-                    _baseDirectory = fiRef.DirectoryName;
+                    _baseDirectory = fiRef.Directory;
                     return true;
                 }
             }
@@ -366,7 +367,7 @@ namespace NAnt.VSNet {
                     _referenceFile = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
                     Assembly asmRef = Assembly.Load(_referenceFile);
                     _referenceFile = new Uri(asmRef.CodeBase).LocalPath;
-                    _baseDirectory = Path.GetDirectoryName(_referenceFile);
+                    _baseDirectory = new DirectoryInfo(Path.GetDirectoryName(_referenceFile));
                     _copyLocal = _privateSpecified ? _isPrivate : false;
                     _referenceTimeStamp = GetTimestamp(_referenceFile);
 
@@ -402,7 +403,7 @@ namespace NAnt.VSNet {
 
         private string _name;
         private string _referenceFile;
-        private string _baseDirectory;
+        private DirectoryInfo _baseDirectory;
         private string _namespace;
         private string _interopFile;
         private string _typelibFile;

@@ -130,6 +130,12 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             DateTime touchDateTime = DateTime.Now;
 
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (TouchFileSet.BaseDirectory == null) {
+                TouchFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (Millis != null) {
                 touchDateTime = GetDateTime(Convert.ToInt32(Millis, CultureInfo.InvariantCulture));
             } else if (Datetime != null) {

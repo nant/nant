@@ -243,6 +243,12 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <exception cref="BuildException">A file that has to be copied does not exist or could not be copied.</exception>
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (CopyFileSet.BaseDirectory == null) {
+                CopyFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             // NOTE: when working with file and directory names its useful to 
             // use the FileInfo an DirectoryInfo classes to normalize paths like:
             // c:\work\nant\extras\buildserver\..\..\..\bin
@@ -276,7 +282,7 @@ namespace NAnt.Core.Tasks {
                 }
             } else { // copy file set contents.
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
-                DirectoryInfo srcBaseInfo = new DirectoryInfo(CopyFileSet.BaseDirectory);
+                DirectoryInfo srcBaseInfo = CopyFileSet.BaseDirectory;
                 
                 // if source file not specified use fileset
                 foreach (string pathname in CopyFileSet.FileNames) {
@@ -331,7 +337,7 @@ namespace NAnt.Core.Tasks {
                         // The full filepath to copy to.
                         string destinationDirectory = Path.Combine(ToDirectory.FullName, dstRelPath);
                         if (!Directory.Exists(destinationDirectory)) {
-                            Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
+                            Log(Level.Verbose, LogPrefix + "Created directory '{0}'.", destinationDirectory);
                             Directory.CreateDirectory(destinationDirectory);
                         }
                     }
@@ -353,9 +359,9 @@ namespace NAnt.Core.Tasks {
             int fileCount = FileCopyMap.Keys.Count;
             if (fileCount > 0 || Verbose) {
                 if (ToFile != null) {
-                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
+                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
                 } else {
-                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
                 }
 
                 // loop thru our file list
@@ -366,25 +372,25 @@ namespace NAnt.Core.Tasks {
                             Path.GetFileName(destinationFile));
                     }
                     if (sourceFile == destinationFile) {
-                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}.", sourceFile);
+                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of '{0}'.", sourceFile);
                         continue;
                     }
 
                     try {
-                        Log(Level.Verbose, LogPrefix + "Copying {0} to {1}.", sourceFile, destinationFile);
+                        Log(Level.Verbose, LogPrefix + "Copying '{0}' to '{1}'.", sourceFile, destinationFile);
                         
                         // create directory if not present
                         string destinationDirectory = Path.GetDirectoryName(destinationFile);
                         if (!Directory.Exists(destinationDirectory)) {
                             Directory.CreateDirectory(destinationDirectory);
-                            Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
+                            Log(Level.Verbose, LogPrefix + "Created directory '{0}'.", destinationDirectory);
                         }
 
                         // actually copy the file
                         File.Copy(sourceFile, destinationFile, true);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot copy {0} to {1}.", sourceFile, destinationFile), 
+                            "Cannot copy '{0}' to '{1}'.", sourceFile, destinationFile), 
                             Location, ex);
                     }
                 }

@@ -244,6 +244,21 @@ namespace NAnt.VisualCpp.Tasks {
         /// Compiles the sources.
         /// </summary>
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Sources.BaseDirectory == null) {
+                Sources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (IncludeDirs.BaseDirectory == null) {
+                IncludeDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (MetaDataIncludeDirs.BaseDirectory == null) {
+                MetaDataIncludeDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (ForcedUsingFiles.BaseDirectory == null) {
+                ForcedUsingFiles.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (NeedsCompiling()) {
                 Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", 
                     Sources.FileNames.Count, Path.Combine(BaseDirectory.FullName, 

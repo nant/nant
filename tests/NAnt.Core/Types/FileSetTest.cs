@@ -39,7 +39,7 @@ namespace Tests.NAnt.Core {
 
             // create the file set
             _fileSet = new FileSet();
-            _fileSet.BaseDirectory = TempDirName;
+            _fileSet.BaseDirectory = TempDirectory;
 
             // create some test files to match against
             TempFile.CreateWithContents( 
@@ -177,7 +177,7 @@ reefer.maddness",
 
         void AssertMatch(string fileName, bool prefixBaseDir) {
             if (prefixBaseDir && !Path.IsPathRooted(fileName)) {
-                fileName = Path.Combine(_fileSet.BaseDirectory, fileName);
+                fileName = Path.Combine(_fileSet.BaseDirectory.FullName, fileName);
             }
             Assertion.Assert(fileName + " should have been in file set.", _fileSet.FileNames.IndexOf(fileName) != -1);
         }

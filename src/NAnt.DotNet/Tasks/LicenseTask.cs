@@ -59,8 +59,8 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private FileSet _assemblies = new FileSet();
-        private string _input;
-        private string _output;
+        private FileInfo _inputFile;
+        private FileInfo _outputFile;
         private string _target;
 
         #endregion Private Instance Fields
@@ -70,7 +70,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseTask" /> class.
         /// </summary>
-        public LicenseTask(){
+        public LicenseTask() {
             _assemblies = new FileSet();
         }
 
@@ -82,19 +82,18 @@ namespace NAnt.DotNet.Tasks {
         /// Input file to process.
         /// </summary>
         [TaskAttribute("input", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Input {
-            get { return (_input != null) ? Project.GetFullPath(_input) : null; }
-            set { _input = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo InputFile {
+            get { return _inputFile; }
+            set { _inputFile = value; }
         }
 
         /// <summary>
         /// Name of the license file to output.
         /// </summary>
         [TaskAttribute("output", Required=false)]
-        public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -125,9 +124,10 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
         protected override void InitializeTask(XmlNode taskNode) {
-            if (!File.Exists(Input)) {
+            if (!InputFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Input file '{0}' does not exist.", Input), Location);
+                    "Input file '{0}' does not exist.", InputFile.FullName), 
+                    Location);
             }
         }
 
@@ -138,12 +138,18 @@ namespace NAnt.DotNet.Tasks {
         protected override void ExecuteTask(){
             string resourceFilename = null;
 
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Assemblies.BaseDirectory == null) {
+                Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             // fix references to system assemblies
             if (Project.CurrentFramework != null) {
                 foreach (string pattern in Assemblies.Includes) {
                     if (Path.GetFileName(pattern) == pattern) {
                         string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
-                        string localPath = Path.Combine(Assemblies.BaseDirectory, pattern);
+                        string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
                         string fullPath = Path.Combine(frameworkDir, pattern);
 
                         if (!File.Exists(localPath) && File.Exists(fullPath)) {
@@ -156,22 +162,22 @@ namespace NAnt.DotNet.Tasks {
 
             try {
                 // get the output .licenses file
-                if (Output == null) {
+                if (OutputFile == null) {
                     resourceFilename = Project.GetFullPath(Target + ".licenses");
                 } else {
-                    resourceFilename = Project.GetFullPath(Output);
+                    resourceFilename = OutputFile.FullName;
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Could not determine path from output file {0} and target {1}.", 
-                    Output, Target), Location, ex);
+                    "Could not determine path from output file '{0}' and target '{1}'.", 
+                    OutputFile.FullName, Target), Location, ex);
             }
 
             // make sure the directory for the .licenses file exists
             Directory.CreateDirectory(Path.GetDirectoryName(resourceFilename));
 
-            Log(Level.Verbose, LogPrefix + "Compiling license file {0} to {1}" 
-                + " using target {2}.", Input, resourceFilename, Target);
+            Log(Level.Verbose, LogPrefix + "Compiling license file '{0}' to '{1}'" 
+                + " using target '{2}'.", InputFile.FullName, resourceFilename, Target);
 
             // create new domain
             AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
@@ -263,7 +269,7 @@ namespace NAnt.DotNet.Tasks {
                     LicenseManager.CurrentContext = dlc;
 
                     // read the input file
-                    using (StreamReader sr = new StreamReader(licenseTask.Input)) {
+                    using (StreamReader sr = new StreamReader(licenseTask.InputFile.FullName)) {
                         Hashtable licenseTypes = new Hashtable();
 
                         licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + 

@@ -36,7 +36,7 @@ namespace NAnt.VSNet {
     public class Resource {
         #region Public Instance Constructors
 
-        public Resource(Project project, string resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask) {
+        public Resource(Project project, FileInfo resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask) {
             _project = project;
             _resourceSourceFile = resourceSourceFile;
             _resourceSourceFileRelativePath = resourceSourceFileRelativePath;
@@ -49,10 +49,10 @@ namespace NAnt.VSNet {
         #region Public Instance Properties
 
         public string Setting {
-            get { return @"/res:""" + _resourceFile + @""""; }
+            get { return @"/res:""" + _compiledResourceFile + @""""; }
         }
 
-        public string InputFile {
+        public FileInfo InputFile {
             get { return _resourceSourceFile; }
         }
 
@@ -65,17 +65,15 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void Compile(ConfigurationSettings configurationSettings, bool showCommands) {
-            FileInfo fiResource = new FileInfo(_resourceSourceFile);
-
-            switch (fiResource.Extension.ToLower()) {
+            switch (InputFile.Extension.ToLower()) {
                 case ".resx":
-                    _resourceFile = CompileResx();
+                    _compiledResourceFile = CompileResx();
                     break;
                 case ".licx":
-                    _resourceFile = CompileLicx();
+                    _compiledResourceFile = CompileLicx();
                     break;
                 default:
-                    _resourceFile = CompileResource();
+                    _compiledResourceFile = CompileResource();
                     break;
             }
         }
@@ -102,7 +100,8 @@ namespace NAnt.VSNet {
             // defer to the resource management code in CscTask
             CscTask csc = new CscTask();      
             csc.Project = _solutionTask.Project;
-            return csc.GetManifestResourceName(new ResourceFileSet(), _resourceSourceFile, dependentFile );                                 
+            return csc.GetManifestResourceName(new ResourceFileSet(), 
+                InputFile.FullName, dependentFile);
         }
 
         private string GetDependentResourceNameVB(string dependentFile) {
@@ -111,7 +110,7 @@ namespace NAnt.VSNet {
             vbc.Project = _solutionTask.Project;
             vbc.RootNamespace = Project.ProjectSettings.RootNamespace;
             return vbc.GetManifestResourceName(new ResourceFileSet(), 
-                _resourceSourceFile, dependentFile);
+                InputFile.FullName, dependentFile);
         }
 
         private string CompileResource() {
@@ -124,7 +123,7 @@ namespace NAnt.VSNet {
                 File.Delete(outputFile);
             }
 
-            File.Copy(_resourceSourceFile, outputFile);
+            InputFile.CopyTo(outputFile);
             return outputFile;
         }
 
@@ -153,8 +152,8 @@ namespace NAnt.VSNet {
             lt.Assemblies.Project = lt.Project;
 
             // set task properties
-            lt.Input = _resourceSourceFile;
-            lt.Output = Project.ProjectSettings.GetTemporaryFilename(outputFileName + ".licenses");
+            lt.InputFile = InputFile;
+            lt.OutputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(outputFileName + ".licenses"));
             lt.Target = Path.GetFileName(outputFileName);
 
             foreach (Reference reference in Project.References) {
@@ -166,11 +165,10 @@ namespace NAnt.VSNet {
             lt.Execute();
             lt.Project.Unindent();
 
-            return lt.Output;
+            return lt.OutputFile.FullName;
         }
 
         private string CompileResx() {
-            string inFile = _resourceSourceFile;
             string outFile;
             
             if (!StringUtils.IsNullOrEmpty(_dependentFile)) {
@@ -181,15 +179,22 @@ namespace NAnt.VSNet {
                     sb.Append(Project.ProjectSettings.RootNamespace);
                 }
                 if (!StringUtils.IsNullOrEmpty(Path.GetDirectoryName(_resourceSourceFileRelativePath))) {
-                    sb.AppendFormat(".{0}", Path.GetDirectoryName(_resourceSourceFileRelativePath).Replace("\\", "."));
+                    if (sb.Length > 0) {
+                        sb.Append('.');
+                    }
+                    sb.AppendFormat("{0}", Path.GetDirectoryName(_resourceSourceFileRelativePath).Replace("\\", "."));
                 }
-                if (!StringUtils.IsNullOrEmpty(_resourceSourceFile)) {
-                    sb.AppendFormat(".{0}", Path.GetFileNameWithoutExtension(_resourceSourceFile));
+
+                if (sb.Length > 0) {
+                    sb.Append('.');
                 }
+                sb.AppendFormat("{0}", Path.GetFileNameWithoutExtension(InputFile.Name));
+
                 sb.Append(".resources");
                 outFile = sb.ToString();
             }
-            outFile = Project.ProjectSettings.GetTemporaryFilename(outFile);
+            
+            FileInfo outputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(outFile));
 
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
@@ -207,25 +212,23 @@ namespace NAnt.VSNet {
             rt.InitializeTaskConfiguration();
 
             // set task properties
-            rt.Input = inFile;
-            rt.Output = Path.GetFileName(outFile);
-            rt.ToDirectory = Path.GetDirectoryName(outFile);
-            rt.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(inFile));
+            rt.InputFile = InputFile;
+            rt.OutputFile = outputFile;
 
             // execute task
             rt.Project.Indent();
             rt.Execute();
             rt.Project.Unindent();
 
-            return outFile;
+            return outputFile.FullName;
         }
 
         #endregion Private Instance Methods
 
         #region Private Instance Fields
 
-        private string _resourceFile;
-        private string _resourceSourceFile;
+        private string _compiledResourceFile;
+        private FileInfo _resourceSourceFile;
         private string _dependentFile;
         private string _resourceSourceFileRelativePath;
         private Project _project;

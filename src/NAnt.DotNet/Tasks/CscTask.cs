@@ -47,7 +47,7 @@ namespace NAnt.DotNet.Tasks {
     public class CscTask : CompilerBase {
         #region Private Instance Fields
        
-        private string _doc = null;
+        private FileInfo _docFile;
         private bool _nostdlib = false;
         private bool _noconfig = false;
         private bool _checked = false;
@@ -77,9 +77,9 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("doc")]
-        public string Doc {
-            get { return (_doc != null) ? Project.GetFullPath(_doc) : null; }
-            set { _doc = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo DocFile {
+            get { return _docFile; }
+            set { _docFile = value; }
         }
 
         /// <summary>
@@ -237,8 +237,8 @@ namespace NAnt.DotNet.Tasks {
             // an error was found
             WriteOption(writer, "fullpaths");
 
-            if (Doc != null) {
-                WriteOption(writer, "doc", this.Doc);
+            if (DocFile != null) {
+                WriteOption(writer, "doc", DocFile.FullName);
             }
 
             if (Debug) {

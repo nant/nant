@@ -61,7 +61,7 @@ namespace Tests.NAnt.Zip.Tasks {
             //do the build
             //yep
             string result = RunBuild(projectXML);
-            Assertion.Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName,"test.zip")));
+            Assertion.Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName, "test.zip")));
         }
     }
 }

@@ -31,35 +31,35 @@ namespace NAnt.VSNet {
     public class ConfigurationSettings : ConfigurationBase {
         #region Public Instance Constructors
 
-        public ConfigurationSettings(Project project, XmlElement elemConfig, SolutionTask solutionTask, string outputDir) {
+        public ConfigurationSettings(Project project, XmlElement elemConfig, SolutionTask solutionTask, DirectoryInfo outputDir) {
             _project = project;
             _settings = new ArrayList();
             _solutionTask = solutionTask;
-            if (StringUtils.IsNullOrEmpty(outputDir)) {
+            if (outputDir == null) {
                 _relativeOutputDir = elemConfig.Attributes["OutputPath"].Value;
                 if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                     _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
-                _outputDir = new DirectoryInfo(Path.Combine(Project.ProjectSettings.RootDirectory, _relativeOutputDir)).FullName;
+                _outputDir = new DirectoryInfo(Path.Combine(Project.ProjectSettings.RootDirectory, _relativeOutputDir));
             } else {
-                _relativeOutputDir = outputDir;
+                _relativeOutputDir = outputDir.FullName;
                 if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                     _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
-                _outputDir = Path.GetFullPath(outputDir);
+                _outputDir = outputDir;
             }
 
             _name = elemConfig.GetAttribute("Name").ToLower(CultureInfo.InvariantCulture);
 
             if (!StringUtils.IsNullOrEmpty(elemConfig.GetAttribute("DocumentationFile"))) {
-                if (StringUtils.IsNullOrEmpty(outputDir)) {
+                if (outputDir == null) {
                     // combine project root directory with (relative) path for 
                     // documentation file
                     _docFilename = Path.GetFullPath(Path.Combine(
                         Project.ProjectSettings.RootDirectory, elemConfig.GetAttribute("DocumentationFile")));
                 } else {
                     // combine output directory and filename of document file (do not use path information)
-                    _docFilename = Path.GetFullPath(Path.Combine(outputDir,
+                    _docFilename = Path.GetFullPath(Path.Combine(outputDir.FullName,
                         Path.GetFileName(elemConfig.GetAttribute("DocumentationFile"))));
                 }
                 _settings.Add(@"/doc:""" + _docFilename + @"""");
@@ -69,7 +69,7 @@ namespace NAnt.VSNet {
             }
 
             _solutionTask.Log(Level.Debug, _solutionTask.LogPrefix + "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
-                Project.Name, _relativeOutputDir, _outputDir, _docFilename);
+                Project.Name, _relativeOutputDir, _outputDir.FullName, _docFilename);
 
             Hashtable htStringSettings = new Hashtable();
             Hashtable htBooleanSettings = new Hashtable();
@@ -133,12 +133,12 @@ namespace NAnt.VSNet {
             get { return _relativeOutputDir; }
         }
 
-        public override string OutputDir {
+        public override DirectoryInfo OutputDir {
             get { return _outputDir; }
         }
 
         public override string OutputPath {
-            get { return Path.Combine(OutputDir, Project.ProjectSettings.OutputFileName); }
+            get { return Path.Combine(OutputDir.FullName, Project.ProjectSettings.OutputFileName); }
         }
 
         public string[] Settings {
@@ -157,7 +157,7 @@ namespace NAnt.VSNet {
         private ArrayList _settings;
         private string _docFilename;
         private string _relativeOutputDir;
-        private string _outputDir;
+        private DirectoryInfo _outputDir;
         private string _name;
         private SolutionTask _solutionTask;
 

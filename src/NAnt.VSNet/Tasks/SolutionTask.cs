@@ -34,7 +34,8 @@ using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet.Tasks {
     /// <summary>
-    /// Compiles VS.NET solutions (or sets of projects), automatically determining project dependencies from inter-project references.
+    /// Compiles VS.NET solutions (or sets of projects), automatically determining 
+    /// project dependencies from inter-project references.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -193,15 +194,9 @@ namespace NAnt.VSNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("solutionfile", Required=false)]
-        public string SolutionFile {
-            get { return (_solutionFile != null) ? Project.GetFullPath(_solutionFile) : null; }
-            set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    _solutionFile = value.ToLower();
-                } else {
-                    _solutionFile = null;
-                }
-            }
+        public FileInfo SolutionFile {
+            get { return _solutionFile; }
+            set { _solutionFile = value; }
         }
 
         /// <summary>
@@ -224,9 +219,9 @@ namespace NAnt.VSNet.Tasks {
         /// overrides path settings contained in the solution/project.
         /// </summary>
         [TaskAttribute("outputdir", Required=false)]
-        public string OutputDir {
-            get { return (_outputDir != null) ? Project.GetFullPath(_outputDir) : null; }
-            set { _outputDir = StringUtils.ConvertEmptyToNull(value); }
+        public DirectoryInfo OutputDir {
+            get { return _outputDir; }
+            set { _outputDir = value; }
         }
 
         /// <summary>
@@ -278,9 +273,9 @@ namespace NAnt.VSNet.Tasks {
         /// </remarks>
         [TaskAttribute("enablewebdav", Required = false)]
         [BooleanValidator()]
-        public bool EnableWebDAV {
-            get { return _enableWebDAV; }
-            set { _enableWebDAV = value; }
+        public bool EnableWebDav {
+            get { return _enableWebDav; }
+            set { _enableWebDav = value; }
         }
 
         /// <summary>
@@ -333,7 +328,8 @@ namespace NAnt.VSNet.Tasks {
                             this, WebMaps, ExcludeProjects, OutputDir);
                     } else {
                         sln = new Solution(SolutionFile, new ArrayList(Projects.FileNames), 
-                            new ArrayList(ReferenceProjects.FileNames), tfc, this, WebMaps, ExcludeProjects, OutputDir);
+                            new ArrayList(ReferenceProjects.FileNames), tfc, this, 
+                            WebMaps, ExcludeProjects, OutputDir);
                     }
 
                     if (!sln.Compile(Configuration, new ArrayList(), null, Verbose, false)) {
@@ -361,13 +357,14 @@ namespace NAnt.VSNet.Tasks {
 
         protected override void InitializeTask(XmlNode taskNode) {
             if (SolutionFile != null) {
-                if (!File.Exists(SolutionFile)) {
+                if (!SolutionFile.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Couldn't find solution file '{0}'.", SolutionFile), Location);
+                        "Couldn't find solution file '{0}'.", SolutionFile.FullName), 
+                        Location);
                 }
             }
 
-            base.InitializeTask (taskNode);
+            base.InitializeTask(taskNode);
         }
 
         #endregion Override implementation of Task
@@ -409,16 +406,16 @@ namespace NAnt.VSNet.Tasks {
 
         #region Private Instance Fields
 
-        private string _solutionFile;
+        private FileInfo _solutionFile;
         private string _configuration;
-        private string _outputDir;
+        private DirectoryInfo _outputDir;
         private FileSet _projects;
         private FileSet _referenceProjects;
         private FileSet _excludeProjects;
         private FileSet _assemblyFolders;
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
-        private bool _enableWebDAV = false;
+        private bool _enableWebDav = false;
 
         #endregion Private Instance Fields
 

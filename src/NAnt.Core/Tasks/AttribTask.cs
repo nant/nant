@@ -158,6 +158,12 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (AttribFileSet.BaseDirectory == null) {
+                AttribFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             // add the shortcut filename to the file set
             if (File != null) {
                 AttribFileSet.Includes.Add(File.FullName);

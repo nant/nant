@@ -121,7 +121,7 @@ namespace NAnt.NUnit2.Types {
                         foreach (string pattern in Assemblies.Includes) {
                             if (Path.GetFileName(pattern) == pattern) {
                                 string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
-                                string localPath = Path.Combine(Assemblies.BaseDirectory, pattern);
+                                string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
                                 string fullPath = Path.Combine(frameworkDir, pattern);
 
                                 if (!File.Exists(localPath) && File.Exists(fullPath)) {

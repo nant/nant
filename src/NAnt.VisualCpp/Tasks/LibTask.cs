@@ -51,7 +51,7 @@ namespace NAnt.VisualCpp.Tasks {
         #region Private Instance Fields
 
         private string _responseFileName;
-        private string _output = null;
+        private FileInfo _outputFile;
         private FileSet _sources = new FileSet();
         private FileSet _libdirs = new FileSet();
         private string _options = null;
@@ -70,13 +70,12 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
-        /// The output file name.
+        /// The output file.
         /// </summary>
         [TaskAttribute("output", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Output {
-            get { return _output; }
-            set { _output = value; }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -127,9 +126,17 @@ namespace NAnt.VisualCpp.Tasks {
         /// Creates the library.
         /// </summary>
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "Combining {0} files to {1}.", 
-                Sources.FileNames.Count, Path.Combine(BaseDirectory.FullName, 
-                Output));
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Sources.BaseDirectory == null) {
+                Sources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (LibDirs.BaseDirectory == null) {
+                LibDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
+            Log(Level.Info, LogPrefix + "Combining {0} files to '{1}'.", 
+                Sources.FileNames.Count, OutputFile.FullName);
 
             // Create temp response file to hold compiler options
             _responseFileName = Path.GetTempFileName();
@@ -137,12 +144,11 @@ namespace NAnt.VisualCpp.Tasks {
 
             try {
                 // specify the output file
-                writer.WriteLine("/OUT:\"{0}\"", Path.Combine(BaseDirectory.FullName, 
-                    Output));
+                writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
 
                 // write user provided options
-                if (_options != null) {
-                    writer.WriteLine(_options);
+                if (Options != null) {
+                    writer.WriteLine(Options);
                 }
 
                 // write each of the filenames

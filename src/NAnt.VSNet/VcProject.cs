@@ -39,7 +39,7 @@ namespace NAnt.VSNet {
     public class VcProject: ProjectBase {
         #region Public Instance Constructors
         
-        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) : base(solutionTask, tfc, outputDir) {
+        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, DirectoryInfo outputDir) : base(solutionTask, tfc, outputDir) {
             _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -150,7 +150,7 @@ namespace NAnt.VSNet {
             return config.OutputPath;
         }
 
-        public string GetProjectDir(string configuration) {
+        public DirectoryInfo GetProjectDir(string configuration) {
             VcConfiguration config = (VcConfiguration) _htConfigurations[configuration];
             if (config == null) {
                 return null;
@@ -354,7 +354,7 @@ namespace NAnt.VSNet {
 
             // set task properties
             string outFile = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
-            libTask.Output = Path.Combine(_projectDirectory, outFile);
+            libTask.OutputFile = new FileInfo(Path.Combine(_projectDirectory, outFile));
 
             foreach (string objFile in _objFiles) {
                 libTask.Sources.FileNames.Add(objFile);
@@ -393,21 +393,23 @@ namespace NAnt.VSNet {
             // set task properties
             string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");
             string pdbFile = baseConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
-            if (!StringUtils.IsNullOrEmpty(OutputDir)) {
-                linkTask.Output = Path.Combine(OutputDir, Path.GetFileName(outFile));
+            if (OutputDir != null) {
+                linkTask.OutputFile = new FileInfo(Path.Combine(OutputDir.FullName, 
+                    Path.GetFileName(outFile)));
                 if (!StringUtils.IsNullOrEmpty(pdbFile)) {
-                    pdbFile = Path.Combine(OutputDir, Path.GetFileName(pdbFile));
+                    pdbFile = Path.Combine(OutputDir.FullName, Path.GetFileName(pdbFile));
                 }
             }
             else {
-                linkTask.Output = Path.Combine(_projectDirectory, outFile);
+                linkTask.OutputFile = new FileInfo(Path.Combine(_projectDirectory, outFile));
                 if (!StringUtils.IsNullOrEmpty(pdbFile)) {
                     pdbFile = Path.Combine(_projectDirectory, pdbFile);
                 }
             }
 
             if (!StringUtils.IsNullOrEmpty(pdbFile)) {
-                linkTask.Arguments.Add(new Argument("/PDB:" + pdbFile));
+                linkTask.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture, 
+                    "/PDB:\"{0}\"", pdbFile)));
             }
 
             if (IsOutputDll(baseConfig)) {

@@ -124,6 +124,8 @@ namespace Tests.NAnt.Core.Tasks {
                 RunBuild(string.Format(CultureInfo.InvariantCulture, 
                     _projectXml, xmlPokeTaskAttributes, xmlPeekTaskAttributes,
                     "${configuration.server}"));
+                // have the test fail
+                Assertion.Fail("Build should have failed.");
             } catch (TestBuildException ex) {
                 // assert that a BuildException was the cause of the TestBuildException
                 Assertion.Assert((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));

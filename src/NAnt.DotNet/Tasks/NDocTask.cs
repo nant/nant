@@ -157,12 +157,21 @@ namespace NAnt.DotNet.Tasks {
         /// Generates an NDoc project and builds the documentation.
         /// </summary>
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Assemblies.BaseDirectory == null) {
+                Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (Summaries.BaseDirectory == null) {
+                Summaries.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             // fix references to system assemblies
             if (Project.CurrentFramework != null) {
                 foreach (string pattern in Assemblies.Includes) {
                     if (Path.GetFileName(pattern) == pattern) {
                         string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
-                        string localPath = Path.Combine(Assemblies.BaseDirectory, pattern);
+                        string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
                         string fullPath = Path.Combine(frameworkDir, pattern);
 
                         if (!File.Exists(localPath) && File.Exists(fullPath)) {

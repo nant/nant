@@ -119,6 +119,12 @@ namespace NAnt.DotNet.Tasks {
             bool containerAvail = KeyContainer != null;
             string keyname = containerAvail ? KeyContainer : KeyFile;
 
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Targets.BaseDirectory == null) {
+                Targets.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if ((keyAvail && containerAvail) || (! keyAvail && ! containerAvail)) {
                 throw new BuildException("Either 'keyfile' or 'keycontainer' must be specified.",
                     Location);

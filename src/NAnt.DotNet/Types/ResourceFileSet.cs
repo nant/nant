@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean ( ian_maclean@another.com )
 
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -128,11 +129,19 @@ namespace NAnt.DotNet.Types {
             StringBuilder prefix = new StringBuilder(Prefix);
 
             if (DynamicPrefix) {
-                string basedir = Path.GetDirectoryName(BaseDirectory + Path.DirectorySeparatorChar);
+                string basedir = BaseDirectory.FullName;
+                // ensure basedir ends with directory separator character
+                if (!basedir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                    basedir += Path.DirectorySeparatorChar;
+                }
+                // ensure filedir ends with directory separator character
                 string filedir = Path.GetDirectoryName(fileName);
+                if (!filedir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
+                    filedir += Path.DirectorySeparatorChar;
+                }
                 string filePathRelativeToBaseDir = string.Empty;
                 if (filedir != basedir) {
-                    filePathRelativeToBaseDir = filedir.Substring(basedir.Length + 1);
+                    filePathRelativeToBaseDir = filedir.Substring(basedir.Length);
                 }
                 string relativePrefix = filePathRelativeToBaseDir.Replace(Path.DirectorySeparatorChar, '.').Replace(Path.AltDirectorySeparatorChar, '.');
                 if (prefix.Length > 0) {

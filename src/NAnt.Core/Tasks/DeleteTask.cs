@@ -141,6 +141,12 @@ namespace NAnt.Core.Tasks {
         }
 
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (DeleteFileSet.BaseDirectory == null) {
+                DeleteFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (File != null) { // delete a single file
                 // delete the file in verbose mode
                 DeleteFile(File.FullName, true);

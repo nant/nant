@@ -193,7 +193,7 @@ namespace NAnt.Core.Types {
         private bool _hasScanned;
         private bool _defaultExcludes = true;
         private bool _failOnEmpty;
-        private string _baseDirectory;
+        private DirectoryInfo _baseDirectory;
         private DirectoryScanner _scanner = new DirectoryScanner();
         private StringCollection _asis = new StringCollection();
         private PathScanner _pathFiles = new PathScanner();
@@ -264,9 +264,14 @@ namespace NAnt.Core.Types {
         /// base directory.
         /// </summary>
         [TaskAttribute("basedir")]
-        public string BaseDirectory {
-            get { return (Project == null) ? _baseDirectory : Project.GetFullPath(_baseDirectory); }
-            set { _baseDirectory = StringUtils.ConvertEmptyToNull(value); }
+        public DirectoryInfo BaseDirectory {
+            get { 
+                if (_baseDirectory == null && Project != null) {
+                    return new DirectoryInfo(Project.BaseDirectory);
+                }
+                return _baseDirectory; 
+            }
+            set { _baseDirectory = value; }
         }
 
         /// <summary>
@@ -390,7 +395,6 @@ namespace NAnt.Core.Types {
             }
         }
 
-
         /// <summary>
         /// Determines the most recently modified file in the fileset (by LastWriteTime of the <see cref="FileInfo"/>).
         /// </summary>
@@ -418,6 +422,7 @@ namespace NAnt.Core.Types {
                 return newestFile;
             }
         }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Element
@@ -653,13 +658,13 @@ namespace NAnt.Core.Types {
     
         public override string ToString() {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            if(!_hasScanned){
-                sb.AppendFormat("Base path: {0}", _baseDirectory);
+            if (!_hasScanned){
+                sb.AppendFormat("Base path: {0}", BaseDirectory);
                 sb.Append(Environment.NewLine);
                 
                 sb.Append("AsIs:");
                 sb.Append(Environment.NewLine);
-                sb.Append(_asis.ToString());
+                sb.Append(AsIs.ToString());
                 sb.Append(Environment.NewLine);
 
                 sb.Append("Files:");
@@ -671,17 +676,16 @@ namespace NAnt.Core.Types {
                 sb.Append(Environment.NewLine);
                 sb.Append(_pathFiles.ToString());
                 sb.Append(Environment.NewLine);
-
             } else {
                 sb.Append("Files:");
                 sb.Append(Environment.NewLine);
-                foreach(string file in this.FileNames) {
+                foreach (string file in this.FileNames) {
                     sb.Append(file);
                     sb.Append(Environment.NewLine);
                 }
                 sb.Append("Dirs:");
                 sb.Append(Environment.NewLine);
-                foreach(string dir in this.DirectoryNames) {
+                foreach (string dir in this.DirectoryNames) {
                     sb.Append(dir);
                     sb.Append(Environment.NewLine);
                 }

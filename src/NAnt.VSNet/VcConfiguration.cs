@@ -37,18 +37,19 @@ namespace NAnt.VSNet {
     public class VcConfiguration : ConfigurationBase {
         #region Internal Instance Constructors
 
-        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, string outputDir): this(elem, parentProject, parentSln, null, outputDir) {
+        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, DirectoryInfo outputDir) : this(elem, parentProject, parentSln, null, outputDir) {
         }
 
-        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, VcConfiguration parent, string outputDir) {
-            string projectDir = Path.GetDirectoryName(parentSln.GetProjectFileFromGuid(parentProject.Guid));
+        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, VcConfiguration parent, DirectoryInfo outputDir) {
+            DirectoryInfo projectDir = new DirectoryInfo(Path.GetDirectoryName(
+                parentSln.GetProjectFileFromGuid(parentProject.Guid)));
 
             _parent = parent;
             _name = elem.GetAttribute("Name");
 
-            if (StringUtils.IsNullOrEmpty(outputDir)) {
-                _outputDir = elem.GetAttribute("OutputDirectory");
-                _outputDir = new DirectoryInfo(Path.Combine(projectDir, elem.GetAttribute("OutputDirectory"))).FullName;
+            if (outputDir == null) {
+                _outputDir = new DirectoryInfo(Path.Combine(projectDir.FullName, 
+                    elem.GetAttribute("OutputDirectory")));
             } else {
                 _outputDir = outputDir;
             }
@@ -65,14 +66,14 @@ namespace NAnt.VSNet {
             } 
 
             _htMacros = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htMacros ["OutDir"] = OutputDir;
-            _htMacros ["IntDir"] = _intermediateDir;
-            _htMacros ["ConfigurationName"] = Name;
-            _htMacros ["PlatformName"] = PlatformName;
-            _htMacros ["SolutionDir"] = Path.GetDirectoryName(parentSln.FileName);
-            _htMacros ["SolutionPath"] = parentSln.FileName;
-            _htMacros ["SolutionExt"] = Path.GetExtension(parentSln.FileName);
-            _htMacros ["ProjectDir"] = projectDir;
+            _htMacros["OutDir"] = OutputDir.FullName;
+            _htMacros["IntDir"] = _intermediateDir;
+            _htMacros["ConfigurationName"] = Name;
+            _htMacros["PlatformName"] = PlatformName;
+            _htMacros["SolutionDir"] = parentSln.File.DirectoryName;
+            _htMacros["SolutionPath"] = parentSln.File.FullName;
+            _htMacros["SolutionExt"] = parentSln.File.Extension;
+            _htMacros["ProjectDir"] = projectDir.FullName;
   
             _rxMacro = new Regex(@"\$\((\w+)\)");
 
@@ -82,15 +83,15 @@ namespace NAnt.VSNet {
             foreach(XmlElement toolElem in tools) {
                 string toolName = toolElem.GetAttribute("Name");
                 Hashtable htToolSettings = CollectionsUtil.CreateCaseInsensitiveHashtable();
-                foreach(XmlAttribute attr in toolElem.Attributes) {                    if (attr.Name != "Name") {                        htToolSettings [attr.Name] = attr.Value;                    }                }                _htTools [toolName] = htToolSettings;            }            _targetPath = ExpandMacros(GetToolSetting("VCLinkerTool", "OutputFile"));            _htMacros ["TargetPath"] = _targetPath;            _htMacros ["TargetName"] = Path.GetFileNameWithoutExtension(Path.GetFileName(_targetPath));
+                foreach(XmlAttribute attr in toolElem.Attributes) {                    if (attr.Name != "Name") {                        htToolSettings[attr.Name] = attr.Value;                    }                }                _htTools[toolName] = htToolSettings;            }            _targetPath = ExpandMacros(GetToolSetting("VCLinkerTool", "OutputFile"));            _htMacros ["TargetPath"] = _targetPath;            _htMacros ["TargetName"] = Path.GetFileNameWithoutExtension(Path.GetFileName(_targetPath));
             _htMacros ["TargetExt"] = Path.GetExtension(_targetPath);
 
             // create the output path if it doesn't already exist
-            Directory.CreateDirectory(OutputDir);
+            OutputDir.Create();
         }
 
         #endregion Internal Instance Constructors
-        #region Override implementation of ConfigurationBase        public override string OutputDir {
+        #region Override implementation of ConfigurationBase        public override DirectoryInfo OutputDir {
             get { return _outputDir; }
         }
 
@@ -98,14 +99,14 @@ namespace NAnt.VSNet {
             get { 
                 string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
-                    return Path.Combine(OutputDir, linkOutput);
+                    return Path.Combine(OutputDir.FullName, linkOutput);
                 }
             
-                return Path.Combine(OutputDir, GetToolSetting("VCLibrarianTool", "OutputFile"));
+                return Path.Combine(OutputDir.FullName, GetToolSetting("VCLibrarianTool", "OutputFile"));
             }
         }
-        #endregion Override implementation of ConfigurationBase        #region Public Instance Properties        public string ProjectDir {
-            get { return (string) _htMacros["ProjectDir"]; }
+        #endregion Override implementation of ConfigurationBase        #region Public Instance Properties        public DirectoryInfo ProjectDir {
+            get { return new DirectoryInfo((string) _htMacros["ProjectDir"]); }
         }
         /// <summary>
         /// Gets a value indicating whether Managed Extensions for C++ are 
@@ -151,7 +152,7 @@ namespace NAnt.VSNet {
 
         #endregion Private Instance Methods
         #region Private Instance Fields
-        private string _name;        private VcConfiguration _parent;        private Hashtable _htTools;        private string _outputDir;        private string _intermediateDir;        private string _targetPath;        private Hashtable _htMacros;        private Regex _rxMacro;        private bool _wholeProgramOptimization = false;
+        private string _name;        private VcConfiguration _parent;        private Hashtable _htTools;        private DirectoryInfo _outputDir;        private string _intermediateDir;        private string _targetPath;        private Hashtable _htMacros;        private Regex _rxMacro;        private bool _wholeProgramOptimization = false;
         private bool _managedExtensions = false;
         #endregion Private Instance Fields
     }

@@ -54,10 +54,10 @@ namespace NAnt.VisualCpp.Tasks {
     public class McTask : ExternalProgramBase {
         #region Private Instance Fields
         
-        private string _headerpath = null;
-        private string _rcpath = null;
-        private string _options = null;
-        private string _mcfile = null;
+        private DirectoryInfo _headerPath;
+        private DirectoryInfo _rcPath;
+        private string _options;
+        private FileInfo _mcFile;
 
         #endregion Private Instance Fields
         
@@ -73,30 +73,40 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
-        /// Path to store Header file.
+        /// Path to store header file. The default is the project base directory.
         /// </summary>
         [TaskAttribute("headerpath")]
-        public string HeaderPath {
-            get { return _headerpath; }
-            set { _headerpath = value; }
+        public DirectoryInfo HeaderPath {
+            get { 
+                if (_headerPath == null) {
+                    return new DirectoryInfo(Project.BaseDirectory);
+                }
+                return _headerPath; 
+            }
+            set { _headerPath = value; }
         }
 
         /// <summary>
-        /// Path to store RC file.
+        /// Path to store RC file. The default is the project base directory.
         /// </summary>
         [TaskAttribute("rcpath")]
-        public string RCPath {
-            get { return _rcpath; }
-            set { _rcpath = value; }
+        public DirectoryInfo RCPath {
+            get { 
+                if (_rcPath == null) {
+                    return new DirectoryInfo(Project.BaseDirectory);
+                }
+                return _rcPath; 
+            }
+            set { _rcPath = value; }
         }
 
         /// <summary>
         /// Input filename.
         /// </summary>
         [TaskAttribute("mcfile", Required=true)]
-        public string McFile {
-            get { return _mcfile; }
-            set { _mcfile = value; }
+        public FileInfo McFile {
+            get { return _mcFile; }
+            set { _mcFile = value; }
         }
 
         #endregion Public Instance Properties
@@ -127,19 +137,22 @@ namespace NAnt.VisualCpp.Tasks {
                     str += "/v ";
                 }
 
-                if (_headerpath != null) {
-                    str += string.Format(CultureInfo.InvariantCulture, "-h \"{0}\" ", HeaderPath);
+                if (HeaderPath != null) {
+                    str += string.Format(CultureInfo.InvariantCulture, 
+                        "-h \"{0}\" ", HeaderPath.FullName);
                 }
 
-                if (_rcpath != null) {
-                    str += string.Format(CultureInfo.InvariantCulture, "-r \"{0}\" ", RCPath);
+                if (RCPath != null) {
+                    str += string.Format(CultureInfo.InvariantCulture, 
+                        "-r \"{0}\" ", RCPath.FullName);
                 }
 
-                if (_options != null) {
-                    str += string.Format(CultureInfo.InvariantCulture, "{0} ", _options);
+                if (Options != null) {
+                    str += string.Format(CultureInfo.InvariantCulture, 
+                        "{0} ", Options);
                 }
 
-                str += _mcfile;
+                str += McFile.FullName;
 
                 return str.ToString();
             }
@@ -153,17 +166,17 @@ namespace NAnt.VisualCpp.Tasks {
         /// Compiles the sources.
         /// </summary>
         protected override void ExecuteTask() {
-            string header = Path.Combine(HeaderPath, Path.GetFileNameWithoutExtension(McFile)) + ".h";
-            string rc = Path.Combine(HeaderPath, Path.GetFileNameWithoutExtension(McFile)) + ".rc";
+            string header = Path.Combine(HeaderPath.FullName, Path.GetFileNameWithoutExtension(McFile.FullName)) + ".h";
+            string rc = Path.Combine(RCPath.FullName, Path.GetFileNameWithoutExtension(McFile.FullName)) + ".rc";
             if (!NeedsCompiling(header) && !NeedsCompiling(rc)) {
-                Log(Level.Info, LogPrefix + "Target(s) up-to-date, not compiling: {0}", McFile);
+                Log(Level.Info, LogPrefix + "Target(s) up-to-date, not compiling '{0}'.", McFile.FullName);
             } else {
-                Log(Level.Info, LogPrefix + "Target out of date compiling {0}", McFile);
+                Log(Level.Info, LogPrefix + "Target out of date, compiling '{0}'.", McFile.FullName);
                 if (HeaderPath != null) {
-                    Log(Level.Info, LogPrefix + "Header file to {0}", HeaderPath);
+                    Log(Level.Info, LogPrefix + "Header file to '{0}'.", HeaderPath.FullName);
                 }
                 if (RCPath != null) {
-                    Log(Level.Info, LogPrefix + "RC file to {0}", RCPath);
+                    Log(Level.Info, LogPrefix + "RC file to '{0}'.", RCPath.FullName);
                 }
                 Log(Level.Info, "");
                 base.ExecuteTask();
@@ -177,20 +190,17 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// Determine if source files need re-building.
         /// </summary>
-        private bool NeedsCompiling(string DestinationFile) {
-            FileInfo srcInfo = new FileInfo(Project.GetFullPath(McFile));
-            if (srcInfo.Exists) {
-                string dstFile = DestinationFile;
-
-                FileInfo dstInfo = new FileInfo(Project.GetFullPath(dstFile));
-                if ((!dstInfo.Exists) || (srcInfo.LastWriteTime > dstInfo.LastWriteTime)) {
+        private bool NeedsCompiling(string destinationFile) {
+            if (McFile.Exists) {
+                FileInfo dstInfo = new FileInfo(Project.GetFullPath(destinationFile));
+                if ((!dstInfo.Exists) || (McFile.LastWriteTime > dstInfo.LastWriteTime)) {
                     return true;
                 } else {
                     return false;
                 }
             } else {
                 // if the source file doesn't exist, let the compiler throw the error
-                Log(Level.Info, LogPrefix + "Source file doesn't exist!  Compiler may whine: {0}", srcInfo.FullName);
+                Log(Level.Info, LogPrefix + "Source file '{0}' doesn't exist!", McFile.FullName);
                 return true;
             }
         }

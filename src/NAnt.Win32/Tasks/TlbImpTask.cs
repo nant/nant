@@ -55,19 +55,19 @@ namespace NAnt.Win32.Tasks {
     public class TlbImpTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private string _output = null;
+        private FileInfo _outputFile;
         private string _namespace = null;
         private string _asmVersion = null; 
         private bool _delaySign = false;
         private bool _primary = false;
-        private string _publicKey = null;
-        private string _keyFile = null;
+        private FileInfo _publicKeyFile;
+        private FileInfo _keyFile;
         private string _keyContainer = null;
         private FileSet _references = new FileSet();
         private bool _strictref = false;
         private bool _sysarray = false;
         private bool _unsafe = false;
-        private string _typelib = null;
+        private FileInfo _typelib;
         private StringBuilder _argumentBuilder = null;
 
         #endregion Private Instance Fields
@@ -82,9 +82,9 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("output", Required=true)]
-        public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
         }
 
         /// <summary>
@@ -162,9 +162,9 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("publickey")]
-        public string PublicKey {
-            get { return (_publicKey != null) ? Project.GetFullPath(_publicKey) : null; }
-            set { _publicKey = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo PublicKeyFile {
+            get { return _publicKeyFile; }
+            set { _publicKeyFile = value; }
         }
 
         /// <summary>
@@ -176,9 +176,9 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("keyfile")]
-        public string KeyFile {
-            get { return (_keyFile != null) ? Project.GetFullPath(_keyFile) : null; }
-            set { _keyFile = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo KeyFile {
+            get { return _keyFile; }
+            set { _keyFile = value; }
         }
 
         /// <summary>
@@ -256,9 +256,9 @@ namespace NAnt.Win32.Tasks {
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("typelib", Required=true)]
-        public string TypeLib {
-            get { return (_typelib != null) ? Project.GetFullPath(_typelib) : null; }
-            set { _typelib = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo TypeLib {
+            get { return _typelib; }
+            set { _typelib = value; }
         }
 
         /// <summary>
@@ -301,17 +301,39 @@ namespace NAnt.Win32.Tasks {
         /// Imports the type library to a .NET assembly.
         /// </summary>
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (References.BaseDirectory == null) {
+                References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
+            // fix references to system assemblies
+            if (Project.CurrentFramework != null) {
+                foreach (string pattern in References.Includes) {
+                    if (Path.GetFileName(pattern) == pattern) {
+                        string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                        string localPath = Path.Combine(References.BaseDirectory.FullName, pattern);
+                        string fullPath = Path.Combine(frameworkDir, pattern);
+
+                        if (!File.Exists(localPath) && File.Exists(fullPath)) {
+                            // found a system reference
+                            References.FileNames.Add(fullPath);
+                        }
+                    }
+                }
+            }
+
             // check to see if any of the underlying interop dlls or the typelibs have changed
             // otherwise, it's not necessary to reimport.
             if (NeedsCompiling()) {
                 // using a stringbuilder vs. StreamWriter since this program will not accept response files.
                 _argumentBuilder = new StringBuilder();
 
-                _argumentBuilder.Append("\"" + TypeLib + "\"");
+                _argumentBuilder.Append("\"" + TypeLib.FullName + "\"");
 
                 // any option that specifies a file name must be wrapped in quotes
                 // to handle cases with spaces in the path.
-                _argumentBuilder.AppendFormat(" /out:\"{0}\"", Output);
+                _argumentBuilder.AppendFormat(" /out:\"{0}\"", OutputFile.FullName);
 
                 // suppresses the Microsoft startup banner display
                 _argumentBuilder.Append(" /nologo");
@@ -336,12 +358,12 @@ namespace NAnt.Win32.Tasks {
                     _argumentBuilder.Append(" /delaysign");
                 }
 
-                if (PublicKey != null) {
-                    _argumentBuilder.AppendFormat(" /publickey:\"{0}\"", PublicKey);
+                if (PublicKeyFile != null) {
+                    _argumentBuilder.AppendFormat(" /publickey:\"{0}\"", PublicKeyFile.FullName);
                 }
 
                 if (KeyFile != null) {
-                    _argumentBuilder.AppendFormat(" /keyfile:\"{0}\"", KeyFile);
+                    _argumentBuilder.AppendFormat(" /keyfile:\"{0}\"", KeyFile.FullName);
                 }
 
                 if (KeyContainer != null) {
@@ -386,20 +408,19 @@ namespace NAnt.Win32.Tasks {
         /// </returns>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
-            FileInfo outputFileInfo = new FileInfo(Output);
-            if (!outputFileInfo.Exists) {
+            if (!OutputFile.Exists) {
                 return true;
             }
 
             // check if the type library was updated since the interop assembly was generated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(TypeLib, outputFileInfo.LastWriteTime);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(TypeLib.FullName, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;
             }
 
             // check if the reference assemblies were updated since the interop assembly was generated
-            fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, outputFileInfo.LastWriteTime);
+            fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
                 return true;

@@ -211,6 +211,12 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             CompilerInfo compilerInfo = _compilerMap[Language] as CompilerInfo;
 
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (References.BaseDirectory == null) {
+                References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (compilerInfo == null) {
                 throw new BuildException("Unknown language '" + _language + "'.", Location);
             }
@@ -230,10 +236,6 @@ namespace NAnt.Core.Tasks {
                 } catch (NotSupportedException) {
                     // Ignore - this error is sometimes thrown by asm.Location for certain dynamic assemblies
                 }
-            }
-
-            if (References.BaseDirectory == null) {
-                References.BaseDirectory = Project.BaseDirectory;
             }
 
             foreach (string assemblyName in References.Includes) {

@@ -116,6 +116,12 @@ namespace NAnt.Core.Tasks {
         /// <exception cref="BuildException">Specified assembly or path does not exist.</exception>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (TaskFileSet.BaseDirectory == null) {
+                TaskFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             if (AssemblyPath != null) { // single file case
                 if (!AssemblyPath.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 

@@ -235,6 +235,15 @@ namespace NAnt.Core.Tasks {
             mailMessage.Subject = this.Subject;
             mailMessage.BodyFormat = this.Format;
 
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Files.BaseDirectory == null) {
+                Files.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (Attachments.BaseDirectory == null) {
+                Attachments.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             // begin build message body
             StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
             
