@@ -259,36 +259,51 @@ namespace NDoc.Documenter.NAnt {
             // Process all sub-elements and generate docs for them. :)
             // Just look for properties with attributes to narrow down the foreach loop. 
             // (This is a restriction of NAnt.Core.Attributes.BuildElementAttribute)
-            foreach (XmlNode propNode in typeNode.SelectNodes("property[attribute]")) {
+            foreach (XmlNode propertyNode in typeNode.SelectNodes("property[attribute]")) {
                 //get the xml element
-                string eleName = NAntXsltUtilities.GetElementNameForProperty(propNode);
-                if (eleName != null) {
+                string elementName = NAntXsltUtilities.GetElementNameForProperty(propertyNode);
+                if (elementName != null) {
                     // try to get attribute info if it is an array/collection.
                     // strip the array brakets "[]" to get the type
-                    string elementType = "T:" + propNode.Attributes["type"].Value.Replace("[]","");
+                    string elementType = "T:" + propertyNode.Attributes["type"].Value.Replace("[]","");
 
-                    //select the item type in the collection
-                    XmlNode childNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']/method[@name='Add']/parameter/@type");
-                    
-                    // if it contains a ElementType attribute then it is an array or collection
-                    // if it is a collection, then we care about the child type.
-                    XmlNode childType = propNode.SelectSingleNode("attribute/property[@ElementType]");
-                    if (childType != null) {
-                        //this will get me the collection type
-                        elementType = childType.Attributes["value"].Value.Replace("+","."); //ndocs is inconsistent about how classes are named.
-                        if(childNode != null){
-                            elementType = "T:" + childNode.Value;
-                            Console.WriteLine("Documenting Child Type " + childNode.Value);
+                    // check whether property is an element array
+                    XmlNode nestedElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementArrayAttribute).FullName + "']");
+                    if (nestedElementNode == null) {
+                        // check whether property is an element collection
+                        nestedElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementCollectionAttribute).FullName + "']");
+                    }
+
+                    // if property is either array or collection type element
+                    if (nestedElementNode != null) {
+                        // select the item type in the collection
+                        XmlAttribute elementTypeAttribute = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']/method[@name='Add']/parameter/@type") as XmlAttribute;
+                        if (elementTypeAttribute != null) {
+                            // HACK : make sure the collection class is documented too
+                            XmlNode collectionNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
+                            if (collectionNode != null) {
+                                DocumentType(collectionNode, ElementDocType.Element);
+                            }
+
+                            // get type of collection elements
+                            elementType = "T:" + elementTypeAttribute.Value;
+                        }
+
+                        // if it contains a ElementType attribute then it is an array or collection
+                        // if it is a collection, then we care about the child type.
+                        XmlNode explicitElementType = propertyNode.SelectSingleNode("attribute/property[@ElementType]");
+                        if (explicitElementType != null) {
+                            // ndoc is inconsistent about how classes are named.
+                            elementType = explicitElementType.Attributes["value"].Value.Replace("+","."); 
                         }
                     }
 
                     //ElementDocType type = _elementNames[elementType] == null ? ElementDocType.DataTypeElement : ElementDocType.Element;
-                    ElementDocType type = ElementDocType.Element;
                     XmlNode elementNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
                     if (elementNode == null) {
                         //Console.WriteLine(elementType + " not found in document");
                     } else {
-                        DocumentType(elementNode, type);
+                        DocumentType(elementNode, ElementDocType.Element);
                     }
                 }
             }
