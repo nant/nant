@@ -99,7 +99,7 @@ namespace NAnt.NUnit2.Tasks {
     ///     <formatter type="Xml" usefile="true" extension=".xml" outputdir="${build.dir}/results" />
     ///     <test>
     ///         <assemblies>
-    ///             <includesList name="tests.txt" />
+    ///             <includesfile name="tests.txt" />
     ///         </assemblies>
     ///     </test>
     /// </nunit2>
