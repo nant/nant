@@ -311,6 +311,21 @@ namespace NAnt.Core.Tasks {
             //required to allow redirects
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.WorkingDirectory = BaseDirectory;
+
+            // set framework-specific environment variables if executing the 
+            // external process using the runtime engine of the currently
+            // active framework
+            if (Project.CurrentFramework != null && UseRuntimeEngine) {
+                foreach (EnvironmentVariable environmentVariable in Project.CurrentFramework.EnvironmentVariables) {
+                    if (environmentVariable.IfDefined && !environmentVariable.UnlessDefined) {
+                        if (environmentVariable.Value == null) {
+                            process.StartInfo.EnvironmentVariables[environmentVariable.VariableName] = "";
+                        } else {
+                            process.StartInfo.EnvironmentVariables[environmentVariable.VariableName] = environmentVariable.Value;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
