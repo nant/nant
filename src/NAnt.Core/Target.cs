@@ -26,23 +26,26 @@ using System.Globalization;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     public sealed class Target : Element, ICloneable {
         #region Private Instance Fields
 
         private string _name = null;
-        private string _desc = null;
+        private string _description = null;
+        private string _ifCondition = null;
+        private string _unlessCondition = null;
         private bool _hasExecuted = false;
-        private bool _ifDefined = true;
-        private bool _unlessDefined = false;
         private StringCollection _dependencies = new StringCollection();
 
         #endregion Private Instance Fields
 
         #region Public Instance Constructors
 
-        /// <summary> Public Constructor </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Target" /> class.
+        /// </summary>
         public Target() {
         }
 
@@ -50,12 +53,12 @@ namespace NAnt.Core {
 
         #region Private Instance Constructors
 
-        private Target(Target t) : base((Element)t) {
+        private Target(Target t) : base((Element) t) {
             this._name = t._name;
-            this._desc = t._desc;
+            this._description = t._description;
             this._dependencies = t._dependencies;
-            this._ifDefined = t._ifDefined;
-            this._unlessDefined = t._unlessDefined;
+            this._ifCondition = t._ifCondition;
+            this._unlessCondition = t._unlessCondition;
             this._hasExecuted = false;
         }
 
@@ -65,10 +68,15 @@ namespace NAnt.Core {
         /// The name of the target.
         /// </summary>
         /// <remarks>
-        ///   <para>Hides <see cref="Element.Name"/> to have <see cref="Target" /> return the name of target, not the name of Xml element - which would always be <c>target</c>.</para>
-        ///   <para>Note: Properties are not allowed in the name.</para>
+        ///   <para>
+        ///   Hides <see cref="Element.Name"/> to have <see cref="Target" /> 
+        ///   return the name of target, not the name of XML element - which 
+        ///   would always be <c>target</c>.
+        ///   </para>
+        ///   <para>
+        ///   Note: Properties are not allowed in the name.
+        ///   </para>
         /// </remarks>
-        ///
         [TaskAttribute("name", Required=true, ExpandProperties=false)]
         public new string Name {
             get { return _name; }
@@ -79,31 +87,86 @@ namespace NAnt.Core {
         /// If <see langword="true" /> then the target will be executed; 
         /// otherwise, skipped. The default is <see langword="true" />.
         /// </summary>
-        [TaskAttribute("if")]
-        [BooleanValidator()]
+        [TaskAttribute("if", ExpandProperties=false)]
+        public string IfCondition {
+            get { return _ifCondition; }
+            set { _ifCondition = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the target should be executed.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the target should be executed; otherwise, 
+        /// <see langword="false" />.
+        /// </value>
         public bool IfDefined {
-            get { return _ifDefined; }
-            set { _ifDefined = value; }
+            get {
+                // expand properties in condition
+                string expandedCondition = Project.Properties.ExpandProperties(IfCondition, Location);
+
+                // if a condition is supplied, it should evaluate to a bool
+                if (!StringUtils.IsNullOrEmpty(expandedCondition)) {
+                    try {
+                        return Convert.ToBoolean(expandedCondition, CultureInfo.InvariantCulture);
+                    } catch (FormatException) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Cannot resolve expanded value '{0}' of 'if' attribute" +
+                            " to a Boolean value.", expandedCondition), Location);
+                    }
+                }
+
+                // no condition is supplied
+                return true;
+            }
         }
 
         /// <summary>
         /// Opposite of if. If <see langword="false" /> then the target will be 
         /// executed; otherwise, skipped. The default is <see langword="false" />.
         /// </summary>
-        [TaskAttribute("unless")]
-        [BooleanValidator()]
+        [TaskAttribute("unless", ExpandProperties=false)]
+        public string UnlessCondition {
+            get { return _unlessCondition; }
+            set { _unlessCondition = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the target should NOT be executed.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the target should NOT be executed;
+        /// otherwise, <see langword="false" />.
+        /// </value>
         public bool UnlessDefined {
-            get { return _unlessDefined; }
-            set { _unlessDefined = value; }
+            get {
+                // expand properties in condition
+                string expandedCondition = Project.Properties.ExpandProperties(UnlessCondition, Location);
+
+                // if a condition is supplied, it should evaluate to a bool
+                if (!StringUtils.IsNullOrEmpty(expandedCondition)) {
+                    try {
+                        return Convert.ToBoolean(expandedCondition, CultureInfo.InvariantCulture);
+                    } catch (FormatException) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Cannot resolve expanded value '{0}' of 'unless'" +
+                            " attribute to a Boolean value.", expandedCondition), 
+                            Location);
+                    }
+                }
+
+                // no condition is supplied
+                return false;
+            }
         }
 
         /// <summary>
         /// The description of the target.
         /// </summary>
         [TaskAttribute("description")]
-        public string Desc {
-            set { _desc = value;}
-            get { return _desc; }
+        public string Description {
+            set { _description = value;}
+            get { return _description; }
         }
 
         /// <summary>
@@ -112,7 +175,7 @@ namespace NAnt.Core {
         [TaskAttribute("depends")]
         public string DependsListString {
             set {
-                foreach (string str in value.Split(new char[] {' ', ','})) { // TODO: change this to just ' '
+                foreach (string str in value.Split(new char[] {' ', ','})) {
                     string dependency = str.Trim();
                     if (dependency.Length > 0) {
                         Dependencies.Add(dependency);
@@ -149,7 +212,9 @@ namespace NAnt.Core {
                 foreach (string targetName in Dependencies) {
                     Target target = Project.Targets.Find(targetName);
                     if (target == null) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Unknown dependent target '{0}' of target '{1}'", targetName, Name), Location);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Unknown dependent target '{0}' of target '{1}'.", 
+                            targetName, Name), Location);
                     }
                     target.Execute();
                 }
@@ -159,22 +224,23 @@ namespace NAnt.Core {
                 
                     // select all the task nodes and execute them
                     foreach (XmlNode childNode in XmlNode) {
-                        if(childNode.Name.StartsWith("#")) continue;
+                        if (childNode.Name.StartsWith("#")) {
+                            continue;
+                        }
                         
-                           if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
-                                Task task = Project.CreateTask(childNode, this);
-                                if (task != null) {
-                                    task.Execute();
-                                }
-                           } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
-                                DataTypeBase dataType = Project.CreateDataTypeBase(childNode);
-                                Project.Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-                                Project.DataTypeReferences.Add(dataType.ID, dataType);                     
-                           } else {
-                                string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
-                                throw new BuildException(message, Project.LocationMap.GetLocation(childNode) );
-                           }
-
+                        if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+                            Task task = Project.CreateTask(childNode, this);
+                            if (task != null) {
+                                task.Execute();
+                            }
+                        } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
+                            DataTypeBase dataType = Project.CreateDataTypeBase(childNode);
+                            Project.Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
+                            Project.DataTypeReferences.Add(dataType.ID, dataType);                     
+                        } else {
+                            string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
+                            throw new BuildException(message, Project.LocationMap.GetLocation(childNode) );
+                        }
                     }
                 } finally {
                     Project.OnTargetFinished(this, new BuildEventArgs(this));
