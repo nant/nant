@@ -19,7 +19,6 @@
 // Ian MacLean (ian_maclean@another.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
-
 using System;
 using System.Collections;
 using System.Collections.Specialized;
@@ -27,10 +26,9 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Xml;
-
 using Microsoft.Win32;
-
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -61,19 +59,29 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         /// <summary>
         /// Holds a value indicating whether a scan for tasks has already been 
         /// performed on the configured task path.
         /// </summary>
         private static bool ScannedTaskPath = false;
-
         // XML element and attribute names that are not defined in metadata
         private const string RootXml = "project";
         private const string ProjectNameAttribute = "name";
         private const string ProjectDefaultAttribte = "default";
         private const string ProjectBaseDirAttribute = "basedir";
         private const string TargetXml = "target";
+
+        /// <summary>
+        /// Constant for the "visiting" state, used when traversing a DFS of target 
+        /// dependencies.
+        /// </summary>
+        private const string Visiting = "VISITING";
+
+        /// <summary>
+        /// Constant for the "visited" state, used when traversing a DFS of target 
+        /// dependencies.
+        /// </summary>
+        private const String Visited = "VISITED";
 
         #endregion Private Static Fields
 
@@ -108,10 +116,8 @@ namespace NAnt.Core {
 
         private string _projectName = "";
         private string _defaultTargetName = null;
-
         private int _indentationSize = 4;
         private int _indentationLevel = 0;
-
         private BuildListenerCollection _buildListeners = new BuildListenerCollection();
         private StringCollection _buildTargets = new StringCollection();
         private TargetCollection _targets = new TargetCollection();
@@ -121,12 +127,10 @@ namespace NAnt.Core {
         private XmlDocument _doc = null; // set in ctorHelper
         private XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         private DataTypeBaseDictionary _dataTypeReferences = new DataTypeBaseDictionary();
-        
         // info about frameworks
         private FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
         private FrameworkInfo _defaultFramework;
         private FrameworkInfo _currentFramework;
-
         /// <summary>
         /// Holds the default threshold for build loggers.
         /// </summary>
@@ -187,21 +191,22 @@ namespace NAnt.Core {
         /// </remarks>
         public Project(string uriOrFilePath, Level threshold, int indentLevel) {
             string path = uriOrFilePath;
+
             //if the source is not a valid uri, pass it thru.
             //if the source is a file uri, pass the localpath of it thru.
             try {
                 Uri testURI = new Uri(uriOrFilePath);
-                if(testURI.IsFile) {
+
+                if (testURI.IsFile) {
                     path = testURI.LocalPath;
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 logger.Debug("Error creating URI in project constructor. Moving on... ", ex);
             } finally {
                 if (path == null) {
                     path = uriOrFilePath;
                 }
             }
-
             CtorHelper(LoadBuildFile(path), threshold, indentLevel);
         }
 
@@ -282,7 +287,7 @@ namespace NAnt.Core {
                     throw new BuildException("BaseDirectory must be rooted! " + basedir);
                 }
 
-                return basedir; 
+                return basedir;
             }
             set {
                 if (!Path.IsPathRooted(value)) {
@@ -293,7 +298,7 @@ namespace NAnt.Core {
             }
         }
 
-        public XmlNamespaceManager NamespaceManager{
+        public XmlNamespaceManager NamespaceManager {
             get { return _nm; }
         }
 
@@ -313,22 +318,22 @@ namespace NAnt.Core {
                 }
             }
         }
-        
+
         /// <summary>
         /// Table of framework info - accessible by tasks and others
         /// </summary>
         public FrameworkInfoDictionary FrameworkInfoDictionary {
             get { return _frameworkInfoDictionary; }
         }
-        
+
         /// <summary>
-        /// This is the framework we will normally use unless the nant.settings.currentframework 
-        /// has been set to somthing else.
+        /// This is the framework we will normally use unless the 
+        /// <see cref="CurrentFramework" /> has been set.
         /// </summary>
         public FrameworkInfo DefaultFramework {
             get { return _defaultFramework; }
             set {
-                _defaultFramework = value; 
+                _defaultFramework = value;
                 UpdateDefaultFrameworkProperties();
             }
         }
@@ -345,12 +350,12 @@ namespace NAnt.Core {
         /// </remarks>
         public FrameworkInfo CurrentFramework {
             get { return _currentFramework; }
-            set { 
-                _currentFramework = value; 
+            set {
+                _currentFramework = value;
                 UpdateCurrentFrameworkProperties();
             }
         }
-             
+
         /// <summary>
         /// Gets the path to the build file.
         /// </summary>
@@ -399,7 +404,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// The list of targets to built.
+        /// The list of targets to build.
         /// </summary>
         /// <remarks>
         /// Targets are built in the order they appear in the collection.  If 
@@ -464,7 +469,7 @@ namespace NAnt.Core {
         public DataTypeBaseDictionary DataTypeReferences {
             get { return _dataTypeReferences; }
         }
-        
+
         /// <summary>
         /// Gets the targets defined in this project.
         /// </summary>
@@ -544,7 +549,6 @@ namespace NAnt.Core {
                 TargetFinished(sender, e);
             }
         }
-
         /// <summary>
         /// Dispatches a <see cref="TaskStarted" /> event to the build listeners 
         /// for this <see cref="Project" />.
@@ -576,7 +580,7 @@ namespace NAnt.Core {
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
         public void OnMessageLogged(BuildEventArgs e) {
             if (MessageLogged != null) {
-                MessageLogged(this , e);
+                MessageLogged(this, e);
             }
         }
 
@@ -588,9 +592,9 @@ namespace NAnt.Core {
         /// <param name="message">The message to log.</param>
         public void Log(Level messageLevel, string message) {
             BuildEventArgs eventArgs = new BuildEventArgs(this);
+
             eventArgs.Message = message;
             eventArgs.MessageLevel = messageLevel;
-
             OnMessageLogged(eventArgs);
         }
 
@@ -603,9 +607,9 @@ namespace NAnt.Core {
         /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
         public void Log(Level messageLevel, string message, params object[] args) {
             BuildEventArgs eventArgs = new BuildEventArgs(this);
+
             eventArgs.Message = string.Format(CultureInfo.InvariantCulture, message, args);
             eventArgs.MessageLevel = messageLevel;
-
             OnMessageLogged(eventArgs);
         }
 
@@ -618,13 +622,12 @@ namespace NAnt.Core {
         /// <param name="message">The message to log.</param>
         public void Log(Task task, Level messageLevel, string message) {
             BuildEventArgs eventArgs = new BuildEventArgs(task);
+
             eventArgs.Message = message;
             eventArgs.MessageLevel = messageLevel;
-
             OnMessageLogged(eventArgs);
         }
-        
-        
+
         /// <summary>
         /// Writes a <see cref="Target" /> level message to the build log with 
         /// the given <see cref="Level" />.
@@ -634,9 +637,9 @@ namespace NAnt.Core {
         /// <param name="message">The message to log.</param>
         public void Log(Target target, Level messageLevel, string message) {
             BuildEventArgs eventArgs = new BuildEventArgs(target);
+
             eventArgs.Message = message;
             eventArgs.MessageLevel = messageLevel;
-
             OnMessageLogged(eventArgs);
         }
 
@@ -650,7 +653,6 @@ namespace NAnt.Core {
         public virtual void Execute() {
             // initialize the list of Targets, and execute any global tasks.
             InitializeProjectDocument(Document);
-
             if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
                 BuildTargets.Add(DefaultTargetName);
             }
@@ -665,19 +667,26 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Executes a specific target, and only that target.
+        /// Executes a specific target, and its dependencies.
         /// </summary>
-        /// <param name="targetName">target name to execute.</param>
+        /// <param name="targetName">The name of the target to execute.</param>
         /// <remarks>
-        /// Only the target is executed. Global tasks are not executed.
+        /// Global tasks are not executed.
         /// </remarks>
         public void Execute(string targetName) {
-            Target target = Targets.Find(targetName);
-            if (target == null) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unknown target '{0}'.", targetName));
-            }
-            target.Execute();
+            // Sort the dependency tree, and run everything from the
+            // beginning until we hit our targetName.
+            // Sorting checks if all the targets (and dependencies)
+            // exist, and if there is any cycle in the dependency
+            // graph.
+            TargetCollection sortedTargets = TopologicalTargetSort(targetName, Targets);
+            int currentIndex = 0;
+            Target currentTarget;
+
+            do {
+                currentTarget = (Target) sortedTargets[currentIndex++];
+                currentTarget.Execute();
+            } while (!currentTarget.Name.Equals(targetName));
         }
 
         /// <summary>
@@ -694,7 +703,6 @@ namespace NAnt.Core {
 
             try {
                 OnBuildStarted(this, new BuildEventArgs(this));
-
                 Log(Level.Info, "Buildfile: {0}", BuildFileUri);
 
                 // Write verbose project information after Initialize to make sure
@@ -728,7 +736,8 @@ namespace NAnt.Core {
                 return false;
             } finally {
                 string endTarget;
-                if(error == null) {
+
+                if (error == null) {
                     endTarget = Properties[NAntPropertyOnSuccess];
                 } else {
                     endTarget = Properties[NAntPropertyOnFailure];
@@ -736,9 +745,10 @@ namespace NAnt.Core {
 
                 // TO-DO : remove this after release of NAnt 0.8.4 or so
                 string deprecatedFailureTarget = Properties["nant.failure"];
+
                 if (!StringUtils.IsNullOrEmpty(deprecatedFailureTarget)) {
-                    Log(Level.Warning, "The 'nant.failure' property has been deprecated." +
-                        " You should use '{0}' to designate the target that should be" +
+                    Log(Level.Warning, "The 'nant.failure' property has been deprecated." + 
+                        " You should use '{0}' to designate the target that should be" + 
                         " executed when the build fails.\n", Project.NAntPropertyOnFailure);
                     if (error != null) {
                         Execute(deprecatedFailureTarget);
@@ -751,6 +761,7 @@ namespace NAnt.Core {
 
                 // fire BuildFinished event with details of build outcome
                 BuildEventArgs buildFinishedArgs = new BuildEventArgs(this);
+
                 buildFinishedArgs.Exception = error;
                 OnBuildFinished(this, buildFinishedArgs);
             }
@@ -758,6 +769,7 @@ namespace NAnt.Core {
 
         public DataTypeBase CreateDataTypeBase(XmlNode elementNode) {
             DataTypeBase type = TypeFactory.CreateDataType(elementNode, this);
+
             type.Project = this;
             type.Parent = this;
             type.Initialize(elementNode);
@@ -782,6 +794,7 @@ namespace NAnt.Core {
         /// <returns>The new <see cref="Task" /> instance.</returns>
         public Task CreateTask(XmlNode taskNode, Target target) {
             Task task = TypeFactory.CreateTask(taskNode, this);
+
             task.Project = this;
             task.Parent = target;
             task.Initialize(taskNode);
@@ -795,7 +808,7 @@ namespace NAnt.Core {
         /// <param name="location">The location in the build file. Used to throw more accurate exceptions.</param>
         /// <returns>The expanded and replaced <see cref="string" />.</returns>
         public string ExpandProperties(string input, Location location) {
-            return Properties.ExpandProperties(input, location );
+            return Properties.ExpandProperties(input, location);
         }
 
         /// <summary>
@@ -813,8 +826,9 @@ namespace NAnt.Core {
             }
 
             if (!Path.IsPathRooted(path)) {
-                path = Path.GetFullPath(Path.Combine(BaseDirectory, path)); 
+                path = Path.GetFullPath(Path.Combine(BaseDirectory, path));
             }
+
             return path;
         }
 
@@ -847,7 +861,6 @@ namespace NAnt.Core {
         public void Indent() {
             _indentationLevel++;
         }
-
         /// <summary>
         /// Decreases the <see cref="IndentationLevel" /> of the <see cref="Project" />.
         /// </summary>
@@ -868,11 +881,11 @@ namespace NAnt.Core {
                 TaskStarted -= new BuildEventHandler(listener.TaskStarted);
                 TaskFinished -= new BuildEventHandler(listener.TaskFinished);
                 MessageLogged -= new BuildEventHandler(listener.MessageLogged);
-
                 if (typeof(IBuildLogger).IsAssignableFrom(listener.GetType())) {
-                    ((IBuildLogger) listener).Flush();
+                    ((IBuildLogger)listener).Flush();
                 }
             }
+
             BuildListeners.Clear();
         }
 
@@ -888,7 +901,6 @@ namespace NAnt.Core {
         public void AttachBuildListeners(BuildListenerCollection listeners) {
             // detach currently attached build listeners
             DetachBuildListeners();
-
             foreach (IBuildListener listener in listeners) {
                 // hook up listener to project build events
                 BuildStarted += new BuildEventHandler(listener.BuildStarted);
@@ -952,24 +964,26 @@ namespace NAnt.Core {
             //fill the namespace manager up. So we can make qualified xpath expressions.
             if (StringUtils.IsNullOrEmpty(doc.DocumentElement.NamespaceURI)) {
                 string defURI;
+
                 if (doc.DocumentElement.Attributes["xmlns", "nant"] == null) {
                     defURI = @"http://none";
                 } else {
                     defURI = doc.DocumentElement.Attributes["xmlns", "nant"].Value;
                 }
+
                 XmlAttribute attr = doc.CreateAttribute("xmlns");
-                attr.Value= defURI;
+
+                attr.Value = defURI;
                 doc.DocumentElement.Attributes.Append(attr);
-                
                 //if(!defURI.Equals(doc.DocumentElement.NamespaceURI))
                 //    throw new BuildException(string.Format("Default namespace is bad! {0}!={1}", defURI, doc.DocumentElement.NamespaceURI));
             }
-            
+
             _nm.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
 
             //check to make sure that the root element in named correctly
             if (!doc.DocumentElement.Name.Equals(RootXml)) {
-                throw new ApplicationException(string.Format(CultureInfo.InvariantCulture,
+                throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
                     "Root element in '{0}' must be named '{1}'.", doc.BaseURI, RootXml));
             }
 
@@ -977,11 +991,13 @@ namespace NAnt.Core {
             if (doc.DocumentElement.HasAttribute(ProjectNameAttribute)) {
                 _projectName = doc.DocumentElement.GetAttribute(ProjectNameAttribute);
             }
+
             if (doc.DocumentElement.HasAttribute(ProjectBaseDirAttribute)) {
                 newBaseDir = doc.DocumentElement.GetAttribute(ProjectBaseDirAttribute);
             }
+
             if (doc.DocumentElement.HasAttribute(ProjectDefaultAttribte)) {
-                _defaultTargetName  = doc.DocumentElement.GetAttribute(ProjectDefaultAttribte);
+                _defaultTargetName = doc.DocumentElement.GetAttribute(ProjectDefaultAttribte);
             }
 
             // give the project a meaningful base directory
@@ -994,7 +1010,7 @@ namespace NAnt.Core {
             } else {
                 // if basedir attribute is set to a relative path, then resolve 
                 // it relative to the build file path
-                if (!StringUtils.IsNullOrEmpty(BuildFileLocalName) && !Path.IsPathRooted(newBaseDir)) { 
+                if (!StringUtils.IsNullOrEmpty(BuildFileLocalName) && !Path.IsPathRooted(newBaseDir)) {
                     newBaseDir = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(BuildFileLocalName), newBaseDir));
                 }
             }
@@ -1003,55 +1019,36 @@ namespace NAnt.Core {
 
             // base directory must be rooted.
             BaseDirectory = newBaseDir;
-            
+
             // load settings out of settings file
             XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
             ProcessSettings(nantNode);
 
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
-            
+
             Properties.AddReadOnly(NAntPropertyFileName, ass.CodeBase);
-            Properties.AddReadOnly(NAntPropertyVersion,  ass.GetName().Version.ToString());
+            Properties.AddReadOnly(NAntPropertyVersion, ass.GetName().Version.ToString());
             Properties.AddReadOnly(NAntPropertyLocation, AppDomain.CurrentDomain.BaseDirectory);
             Properties.AddReadOnly(NAntPropertyProjectName, ProjectName);
-
             if (BuildFileUri != null) {
                 Properties.AddReadOnly(NAntPropertyProjectBuildFile, BuildFileUri.ToString());
             }
 
             Properties.AddReadOnly(NAntPropertyProjectDefault, DefaultTargetName);
 
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}={1}", 
-                NAntPropertyFileName, 
-                Properties[NAntPropertyFileName]));
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}={1}", 
-                NAntPropertyVersion, 
-                Properties[NAntPropertyVersion]));
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}={1}", 
-                NAntPropertyLocation, 
-                Properties[NAntPropertyLocation]));
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}={1}", 
-                NAntPropertyProjectName, 
-                Properties[NAntPropertyProjectName]));
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}={1}", 
-                NAntPropertyProjectBuildFile, 
-                Properties[NAntPropertyProjectBuildFile]));
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}={1}", 
-                NAntPropertyProjectDefault, 
-                Properties[NAntPropertyProjectDefault]));
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                "{0}={1}", NAntPropertyFileName, Properties[NAntPropertyFileName]));
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                "{0}={1}", NAntPropertyVersion, Properties[NAntPropertyVersion]));
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                "{0}={1}", NAntPropertyLocation, Properties[NAntPropertyLocation]));
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                "{0}={1}", NAntPropertyProjectName, Properties[NAntPropertyProjectName]));
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                "{0}={1}", NAntPropertyProjectBuildFile, Properties[NAntPropertyProjectBuildFile]));
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                "{0}={1}", NAntPropertyProjectDefault, Properties[NAntPropertyProjectDefault]));
         }
 
         #endregion Protected Instance Methods
@@ -1070,6 +1067,7 @@ namespace NAnt.Core {
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
                 if (childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Target target = new Target();
+
                     target.Project = this;
                     target.Parent = this;
                     target.Initialize(childNode);
@@ -1083,6 +1081,7 @@ namespace NAnt.Core {
                     if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
                         // create task instance
                         Task task = CreateTask(childNode);
+
                         task.Parent = this;
 
                         // execute task
@@ -1090,10 +1089,11 @@ namespace NAnt.Core {
                     } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
                         // we are an datatype declaration
                         DataTypeBase dataType = CreateDataTypeBase(childNode);
+
                         Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
                         DataTypeReferences.Add(dataType.ID, dataType);
                     } else {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
                             LocationMap.GetLocation(childNode));
                     }
@@ -1116,15 +1116,18 @@ namespace NAnt.Core {
         /// </returns>
         private XmlDocument LoadBuildFile(string source) {
             XmlDocument doc = new XmlDocument();
+
             //Uri srcURI = new Uri(source);
             try {
                 doc.Load(source);
                 // TODO: validate against xsd schema
             } catch (XmlException ex) {
                 Location location = new Location(source, ex.LineNumber, ex.LinePosition);
+
                 throw new BuildException("Error loading buildfile.", location, ex);
             } catch (Exception ex) {
                 Location location = new Location(source);
+
                 throw new BuildException("Error loading buildfile.", location, ex);
             }
             return doc;
@@ -1135,23 +1138,24 @@ namespace NAnt.Core {
         /// is set.
         /// </summary>
         private void UpdateDefaultFrameworkProperties() {
-            Properties["nant.settings.defaultframework"] = DefaultFramework.Name;    
+            Properties["nant.settings.defaultframework"] = DefaultFramework.Name;
             Properties["nant.settings.defaultframework.version"] = DefaultFramework.Version;
             Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;
-            Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
+            Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName;
             if (DefaultFramework.SdkDirectory != null) {
-                Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
+                Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName;
             } else {
                 Properties["nant.settings.defaultframework.sdkdirectory"] = null;
             }
-            Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName; 
+
+            Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName;
             if (DefaultFramework.RuntimeEngine != null) {
-                Properties["nant.settings.defaultframework.runtimeengine"] = DefaultFramework.RuntimeEngine.Name; 
+                Properties["nant.settings.defaultframework.runtimeengine"] = DefaultFramework.RuntimeEngine.Name;
             } else {
                 Properties["nant.settings.defaultframework.runtimeengine"] = null;
             }
         }
-        
+
         /// <summary>
         /// Updates dependent properties when the <see cref="CurrentFramework" /> 
         /// is set.
@@ -1162,13 +1166,14 @@ namespace NAnt.Core {
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description;
             Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName;
             if (CurrentFramework.SdkDirectory != null) {
-                Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
+                Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName;
             } else {
                 Properties["nant.settings.currentframework.sdkdirectory"] = null;
             }
+
             Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName;
             if (CurrentFramework.RuntimeEngine != null) {
-                Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name; 
+                Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name;
             } else {
                 Properties["nant.settings.currentframework.runtimeengine"] = null;
             }
@@ -1187,8 +1192,8 @@ namespace NAnt.Core {
             foreach (XmlNode propertyNode in propertyNodes) {
                 string propertyName = GetXmlAttributeValue(propertyNode, "name");
                 string propertyValue = GetXmlAttributeValue(propertyNode, "value");
-
                 string propertyReadonly = GetXmlAttributeValue(propertyNode, "readonly");
+
                 if (propertyReadonly != null && propertyReadonly == "true") {
                     Properties.AddReadOnly(propertyName, propertyValue);
                 } else {
@@ -1203,10 +1208,10 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing framework-neutral properties.</param>
         private void ProcessFrameworkNeutralProperties(XmlNodeList propertyNodes) {
-            foreach (XmlNode propertyNode in propertyNodes){
+            foreach (XmlNode propertyNode in propertyNodes) {
                 string propertyName = GetXmlAttributeValue(propertyNode, "name");
                 string propertyValue = GetXmlAttributeValue(propertyNode, "value");
-                
+
                 if (propertyName == null) {
                     throw new ArgumentException("A framework-neutral property should at least have a name.");
                 }
@@ -1235,11 +1240,12 @@ namespace NAnt.Core {
                     frameworkProperties = new PropertyDictionary();
 
                     // inject framework-neutral properties
-                    frameworkProperties.Inherit(FrameworkNeutralProperties, (StringCollection) null);
+                    frameworkProperties.Inherit(FrameworkNeutralProperties, (StringCollection)null);
 
                     // get framework attributes
                     name = GetXmlAttributeValue(frameworkNode, "name");
-                    string description =  GetXmlAttributeValue(frameworkNode, "description");
+
+                    string description = GetXmlAttributeValue(frameworkNode, "description");
                     string version = GetXmlAttributeValue(frameworkNode, "version");
                     string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
                     string frameworkDir = GetXmlAttributeValue(frameworkNode, "frameworkdirectory");
@@ -1248,16 +1254,18 @@ namespace NAnt.Core {
 
                     // get framework-specific properties
                     XmlNodeList propertyNodes = frameworkNode.SelectNodes("properties/property");
+
                     foreach (XmlNode propertyNode in propertyNodes) {
                         string propertyName = GetXmlAttributeValue(propertyNode, "name");
                         string propertyValue = null;
-                
+
                         if (propertyName == null) {
                             throw new ArgumentException("A framework property should at least have a name.");
                         }
 
                         if (GetXmlAttributeValue(propertyNode, "useregistry") == "true") {
                             string regKey = GetXmlAttributeValue(propertyNode, "regkey");
+
                             if (regKey == null) {
                                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regkey attribute set.", propertyName));
                             } else {
@@ -1266,6 +1274,7 @@ namespace NAnt.Core {
                             }
 
                             string regValue = GetXmlAttributeValue(propertyNode, "regvalue");
+
                             if (regValue == null) {
                                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regvalue attribute set.", propertyName));
                             } else {
@@ -1274,6 +1283,7 @@ namespace NAnt.Core {
                             }
 
                             RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
+
                             if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
                                 propertyValue = sdkKey.GetValue(regValue).ToString();
                             }
@@ -1293,21 +1303,24 @@ namespace NAnt.Core {
                     // create new FrameworkInfo instance, this will throw an
                     // an exception if the framework is not valid
                     FrameworkInfo info = new FrameworkInfo(name, 
-                        description,
-                        version,
+                        description, 
+                        version, 
                         frameworkDir, 
                         sdkDir, 
                         frameworkAssemblyDir, 
-                        runtimeEngine,
+                        runtimeEngine, 
                         frameworkProperties);
 
                     // framework is valid, so add it for framework dictionary
                     FrameworkInfoDictionary.Add(info.Name, info);
                 } catch (Exception ex) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "Framework {0} is invalid and has not been loaded : {1}", name, ex.Message); 
+                    string msg = string.Format(CultureInfo.InvariantCulture, 
+                        "Framework {0} is invalid and has not been loaded : {1}", 
+                        name, ex.Message);
+
                     Log(Level.Verbose, msg);
                     logger.Info(msg, ex);
-                } 
+                }
             }
         }
 
@@ -1324,7 +1337,8 @@ namespace NAnt.Core {
             string attributeValue = null;
 
             if (xmlNode != null) {
-                XmlAttribute xmlAttribute = (XmlAttribute) xmlNode.Attributes.GetNamedItem(attributeName);
+                XmlAttribute xmlAttribute = (XmlAttribute)xmlNode.Attributes.GetNamedItem(attributeName);
+
                 if (xmlAttribute != null) {
                     attributeValue = StringUtils.ConvertEmptyToNull(xmlAttribute.Value);
                 }
@@ -1332,7 +1346,7 @@ namespace NAnt.Core {
 
             return attributeValue;
         }
-                
+
         /// <summary>
         /// Loads and processes settings from the specified XmlNode.
         /// </summary>
@@ -1353,26 +1367,31 @@ namespace NAnt.Core {
             ProcessFrameworks(nantNode.SelectNodes("frameworks/framework"));
 
             // get taskpath setting to load external tasks and types from
-            string taskPath = GetXmlAttributeValue(nantNode, "taskpath"); 
-            if (taskPath != null && ScannedTaskPath == false) { 
-                string[] paths = taskPath.Split(';'); 
-                foreach (string path in paths) { 
-                    string fullpath = path; 
-                    if (!Directory.Exists(path)) { 
+            string taskPath = GetXmlAttributeValue(nantNode, "taskpath");
+
+            if (taskPath != null && ScannedTaskPath == false) {
+                string[] paths = taskPath.Split(';');
+
+                foreach (string path in paths) {
+                    string fullpath = path;
+
+                    if (!Directory.Exists(path)) {
                         // try relative path 
-                        fullpath = Path.GetFullPath(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path)); 
-                    } 
-                    TypeFactory.ScanDir(fullpath); 
-                } 
+                        fullpath = Path.GetFullPath(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path));
+                    }
+
+                    TypeFactory.ScanDir(fullpath);
+                }
+
                 ScannedTaskPath = true; // so we only load tasks once 
-            } 
+            }
 
             // determine default framework
             string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode("frameworks"), "default");
+
             if (defaultFramework != null && _frameworkInfoDictionary.ContainsKey(defaultFramework)) {
                 Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
                 Properties.Add("nant.settings.currentframework", defaultFramework);
-                
                 DefaultFramework = _frameworkInfoDictionary[defaultFramework];
                 CurrentFramework = _defaultFramework;
             } else {
@@ -1384,5 +1403,153 @@ namespace NAnt.Core {
         }
 
         #endregion Settings file Load routines
+
+        /// <summary>
+        /// Topologically sorts a set of targets.
+        /// </summary>
+        /// <param name="root">The name of the root target. The sort is created in such a way that the sequence of targets up to the root target is the minimum possible such sequence. Must not be <see langword="null" />.</param>
+        /// <param name="targets">A collection of <see cref="Target" /> instances.</param>
+        /// <returns>
+        /// A collection of <see cref="Target" /> instances in sorted order.
+        /// </returns>
+        /// <exception cref="BuildException">There is a cyclic dependecy among the targets, or a named target does not exist.</exception>
+        public TargetCollection TopologicalTargetSort(string root, TargetCollection targets) {
+            TargetCollection executeTargets = new TargetCollection();
+            Hashtable state = new Hashtable();
+            Stack visiting = new Stack();
+
+            // We first run a DFS based sort using the root as the starting node.
+            // This creates the minimum sequence of Targets to the root node.
+            // We then do a sort on any remaining unVISITED targets.
+            // This is unnecessary for doing our build, but it catches
+            // circular dependencies or missing Targets on the entire
+            // dependency tree, not just on the Targets that depend on the
+            // build Target.
+            TopologicalTargetSort(root, targets, state, visiting, executeTargets);
+            Log(Level.Verbose, "Build sequence for target `" + root + "' is " + executeTargets);
+            foreach (Target target in targets) {
+                string st = (string) state[target.Name];
+
+                if (st == null) {
+                    TopologicalTargetSort(target.Name, targets, state, visiting, executeTargets);
+                } else if (st == Project.Visiting) {
+                    throw new Exception("Unexpected node in visiting state: " + target.Name);
+                }
+            }
+
+            Log(Level.Verbose, "Complete build sequence is " + executeTargets);
+            return executeTargets;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Performs a single step in a recursive depth-first-search traversal 
+        /// of the target dependency tree.
+        /// </para>
+        /// <para>
+        /// The current target is first set to the "visiting" state, and pushed
+        /// onto the "visiting" stack.
+        /// </para>
+        /// <para>
+        /// An exception is then thrown if any child of the current node is in 
+        /// the visiting state, as that implies a circular dependency. The 
+        /// exception contains details of the cycle, using elements of the 
+        /// "visiting" stack.
+        /// </para>
+        /// <para>
+        /// If any child has not already been "visited", this method is called
+        /// recursively on it.
+        /// </para>
+        /// <para>
+        /// The current target is then added to the ordered list of targets. 
+        /// Note that this is performed after the children have been visited in 
+        /// order to get the correct order. The current target is set to the 
+        /// "visited" state.
+        /// </para>
+        /// <para>
+        /// By the time this method returns, the ordered list contains the 
+        /// sequence of targets up to and including the current target.
+        /// </para>
+        /// </summary>
+        /// <param name="root">The current target to inspect. Must not be <see langword="null" />.</param>
+        /// <param name="targets">A collection of <see cref="Target" /> instances.</param>
+        /// <param name="state">A mapping from targets to states The states in question are "VISITING" and "VISITED". Must not be <see langword="null" />.</param>
+        /// <param name="visiting">A stack of targets which are currently being visited. Must not be <see langword="null" />.</param>
+        /// <param name="executeTargets">The list to add target names to. This will end up containing the complete list of depenencies in dependency order. Must not be <see langword="null" />.</param>
+        /// <exception cref="BuildException">
+        ///   <para>A non-existent target is specified</para>
+        ///   <para>-or-</para>
+        ///   <para>A circular dependency is detected.</para>
+        /// </exception>
+        private void TopologicalTargetSort(string root, TargetCollection targets, Hashtable state, Stack visiting, TargetCollection executeTargets) {
+            state[root] = Project.Visiting;
+            visiting.Push(root);
+
+            Target target = (Target) targets.Find(root);
+
+            // Make sure the target exists
+            if (target == null) {
+                StringBuilder sb = new StringBuilder("Target '");
+                sb.Append(root);
+                sb.Append("' does not exist in this project.");
+
+                visiting.Pop();
+                if (visiting.Count > 0) {
+                    string parent = (string) visiting.Peek();
+                    sb.Append(" ");
+                    sb.Append("It is used from target '");
+                    sb.Append(parent);
+                    sb.Append("'.");
+                }
+
+                throw new BuildException(sb.ToString());
+            }
+
+            foreach (string dependency in target.Dependencies) {
+                string m = (string) state[dependency];
+
+                if (m == null) {
+                    // Not been visited
+                    TopologicalTargetSort(dependency, targets, state, visiting, executeTargets);
+                } else if (m == Project.Visiting) {
+                    // Currently visiting this node, so have a cycle
+                    throw CreateCircularException(dependency, visiting);
+                }
+            }
+
+            string p = (string) visiting.Pop();
+
+            if (root != p) {
+                throw new Exception("Unexpected internal error: expected to pop " + root + " but got " + p);
+            }
+
+            state[root] = Project.Visited;
+            executeTargets.Add(target);
+        }
+
+        /// <summary>
+        ///  Builds an appropriate exception detailing a specified circular
+        ///  dependency.
+        /// </summary>
+        /// <param name="end">The dependency to stop at. Must not be <see langword="null" />.</param>
+        /// <param name="stack">A stack of dependencies. Must not be <see langword="null" />.</param>
+        /// <returns>
+        /// A <see cref="BuildException" /> detailing the specified circular 
+        /// dependency.
+        /// </returns>
+        private static BuildException CreateCircularException(string end, Stack stack) {
+            StringBuilder sb = new StringBuilder("Circular dependency: ");
+            sb.Append(end);
+
+            string c;
+
+            do {
+                c = (string) stack.Pop();
+                sb.Append(" <- ");
+                sb.Append(c);
+            } while (!c.Equals(end));
+
+            return new BuildException(sb.ToString());
+        }
     }
 }
