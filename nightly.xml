@@ -91,33 +91,41 @@
             <arg value="chgrp nant ${sf.net.web.path}/${nightly.builds.path}/${project.name}.xsd" />
         </exec>
     </target>
-    <!-- copy help to sourceforge -->
-    <target name="deploy-help-sf" depends="set-net-1.0-framework-configuration, package">
+    <!-- copy online docs (manual & sdk) to sourceforge -->
+    <target name="deploy-doc-sf" depends="set-net-1.0-framework-configuration, package-doc">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/${nightly.builds.path}" />
         </exec>
-        <!-- copy the gzipped tar help distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.gzip-path.help)}" program="scp">
-            <arg value="${path::get-file-name(project.gzip-path.help)}" />
-            <arg value="${serverpart}/${nightly.builds.path}/help.tar.gz" />
+        <!-- copy the gzipped tar doc distribution to sourceforge -->
+        <exec workingdir="${path::get-directory-name(project.gzip-path.doc)}" program="scp">
+            <arg value="${path::get-file-name(project.gzip-path.doc)}" />
+            <arg value="${serverpart}/${nightly.builds.path}/doc.tar.gz" />
         </exec>
-        <!-- extract the help distribution on sourceforge -->
+        <!-- extract the doc distribution on sourceforge -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="cd ${sf.net.web.path}/${nightly.builds.path} &amp;&amp; tar -xzf help.tar.gz &amp;&amp; rm --force help.tar.gz" />
+            <arg value="cd ${sf.net.web.path}/${nightly.builds.path} &amp;&amp; tar -xzf doc.tar.gz &amp;&amp; rm --force doc.tar.gz" />
         </exec>
-        <echo message="Copied help over to SF.Net" />
+        <echo message="Copied online docs over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod -R 775 ${sf.net.web.path}/${nightly.builds.path}/help" />
         </exec>
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod -R 775 ${sf.net.web.path}/${nightly.builds.path}/sdk" />
+        </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chgrp -R nant ${sf.net.web.path}/${nightly.builds.path}/help" />
+        </exec>
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp -R nant ${sf.net.web.path}/${nightly.builds.path}/sdk" />
         </exec>
     </target>
     <!-- copy website to sourceforge -->

@@ -520,18 +520,21 @@
         <property name="project.zip.prefix" value="${project.name}-${project.version.full}" />
     </target>
 
-    <target name="package-help" depends="package-common">
-        <!-- determine name of help distribution -->
-        <property name="project.gzip-path.help" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-help.tar.gz" />
+    <!-- creates tar for distributing the user manual and SDK to SourceForge -->
+    <target name="package-doc" depends="package-common">
+        <!-- determine name of temporary doc distribution -->
+        <property name="project.gzip-path.doc" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-doc.tar.gz" />
         <!-- remove package gzip file if it already exists -->
-        <delete file="${project.gzip-path.help}" if="${file::exists(project.gzip-path.help)}" />
+        <delete file="${project.gzip-path.doc}" if="${file::exists(project.gzip-path.doc)}" />
         <!-- create package gzip file -->
-        <tar destfile="${project.gzip-path.help}" compression="GZip">
+        <tar destfile="${project.gzip-path.doc}" compression="GZip">
             <fileset basedir="${build.dir}/doc">
                 <include name="help/**/*" />
+                <include name="sdk/*" />
+                <exclude name="sdk/NAnt-SDK.chm" />
             </fileset>
         </tar>
-        <echo message="Created '${project.config}' help package at file://${project::get-base-directory()}/build/" />
+        <echo message="Created '${project.config}' doc package at file://${project::get-base-directory()}/build/" />
     </target>
 
     <target name="package-src" depends="package-common">
@@ -557,12 +560,10 @@
                 <!-- third party assemblies -->
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
-                <!-- NAnt web site -->
+                <!-- NAnt license & release notes -->
                 <include name="doc/*" />
-                <!-- NAnt user manual -->
+                <!-- NAnt user manual (no SDK) -->
                 <include name="doc/help/**" />
-                <!-- NAnt SDK doc (in HTML Help format) -->
-                <include name="doc/sdk/NAnt-SDK.chm" />
                 <!-- NAnt examples -->
                 <include name="examples/**/*" />
                 <!-- NAnt sources -->
@@ -593,13 +594,10 @@
                 <!-- third party assemblies -->
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
-                <!-- NAnt web site -->
+                <!-- NAnt license & release notes -->
                 <include name="doc/*" />
-                <!-- NAnt user manual -->
+                <!-- NAnt user manual (no SDK) -->
                 <include name="doc/help/**" />
-                <!-- NAnt SDK doc (in HTML format) -->
-                <include name="doc/sdk/*" />
-                <exclude name="doc/sdk/NAnt-SDK.chm" />
                 <!-- NAnt examples -->
                 <include name="examples/**/*" />
                 <!-- NAnt sources -->
@@ -622,11 +620,16 @@
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
                 <include name="bin/**/*" />
-                <include name="doc/**/*" />
+                <!-- NAnt license & release notes -->
+                <include name="doc/*" />
+                <!-- NAnt user manual -->
+                <include name="doc/help/**" />
+                <!-- NAnt SDK (in HTML Help format) -->
+                <include name="doc/sdk/NAnt-SDK.chm" />
+                <!-- examples -->
                 <include name="examples/**/*" />
+                <!-- XML Schema -->
                 <include name="schema/**/*" />
-                <!-- exclude SDK docs -->
-                <exclude name="doc/sdk/**" />
             </fileset>
         </zip>
         <!-- determine name of binary gzipped tar distribution -->
@@ -639,17 +642,23 @@
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
                 <include name="bin/**/*" />
-                <include name="doc/**/*" />
+                <!-- NAnt license & release notes -->
+                <include name="doc/*" />
+                <!-- NAnt user manual -->
+                <include name="doc/help/**" />
+                <!-- NAnt SDK (in plain HTML format) -->
+                <include name="doc/sdk/*" />
+                <exclude name="doc/sdk/NAnt-SDK.chm" />
+                <!-- examples -->
                 <include name="examples/**/*" />
+                <!-- XML Schema -->
                 <include name="schema/**/*" />
-                <!-- exclude SDK docs -->
-                <exclude name="doc/sdk/**" />
             </fileset>
         </tar>
         <echo message="Created '${project.config}' binary packages at file://${project.zip-path.bin}" />
     </target>
 
-    <target name="package" depends="package-help, package-src, package-bin" description="Creates a binary and source distribution package." />
+    <target name="package" depends="package-doc, package-src, package-bin" description="Creates a binary and source distribution package." />
     
     <!-- Copies files to the bin folder. -->
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
