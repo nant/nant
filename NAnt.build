@@ -95,11 +95,11 @@
         </asminfo>
     </target>
     <target name="clean" depends="init" description="Deletes current build configuration">
-        <delete dir="${build.dir}" failonerror="false" />
+        <delete dir="${build.dir}" if="${directory::exists(build.dir)}" />
     </target>
     <target name="cleanall" description="Deletes every build configuration">
         <echo message="Deleting all builds from all configurations" />
-        <delete dir="build" failonerror="false" />
+        <delete dir="build" if="${directory::exists('build')}" />
     </target>
     <target name="build" depends="init, create-common-assemblyinfo" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
@@ -266,7 +266,7 @@
             </ndoc>
         </if>
         <!-- copy doc files from source-->
-        <copy todir="${build.dir}" failonerror="false">
+        <copy todir="${build.dir}">
             <fileset>
                 <include name="doc/**" />
                 <exclude name="**/obj/**" />
@@ -389,17 +389,6 @@
                 <include name="*.Tests.*" />
             </fileset>
         </delete>
-        <!-- filter-copy static html pages -->
-        <copy todir="${build.dir}">
-            <fileset>
-                <include name="doc/**/*.html" />
-            </fileset>
-            <filterchain encoding="utf-8">
-                <replacetokens>
-                    <token key="PRODUCT_VERSION" value="${project.version}" />
-                </replacetokens>
-            </filterchain>
-        </copy>
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
@@ -421,6 +410,17 @@
                 <exclude name="**/bin/**" />
                 <exclude name="**/obj/**" />
             </fileset>
+        </copy>
+        <!-- filter-copy static html pages -->
+        <copy todir="${build.dir}" overwrite="true">
+            <fileset>
+                <include name="doc/**/*.html" />
+            </fileset>
+            <filterchain encoding="utf-8">
+                <replacetokens>
+                    <token key="PRODUCT_VERSION" value="${project.version}" />
+                </replacetokens>
+            </filterchain>
         </copy>
         <!-- determine name of package zip file -->
         <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
