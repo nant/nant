@@ -21,9 +21,7 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing.Design;
 using System.Globalization;
-using System.Windows.Forms.Design;
 using System.Xml;
 
 using NDoc.Core;
@@ -72,10 +70,7 @@ namespace NDoc.Documenter.NAnt {
         /// <value>The output directory.</value>
         [
             Category("Output"),
-            Description("The path to the Output Directory where the generated doc will be placed."),
-#if (!BuildWithVSNet)
-         Editor(typeof(FileNameEditor), typeof(UITypeEditor))
-#endif
+            Description("The path to the Output Directory where the generated doc will be placed.")
         ]
         public string OutputDirectory {
             get { return _outputDirectory; }
