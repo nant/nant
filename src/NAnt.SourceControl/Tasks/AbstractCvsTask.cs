@@ -52,6 +52,11 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected const String PATH = "PATH";
 		/// <summary>
+		/// An environment variable that holds path information about where
+		///		cvs is located.
+		/// </summary>
+		protected const string CVS_HOME = "CVS_HOME";
+		/// <summary>
 		/// Name of the password file that cvs stores pserver 
 		///		cvsroot/ password pairings.
 		/// </summary>
@@ -95,6 +100,7 @@ namespace NAnt.SourceControl.Tasks {
         private string _password;
         private string _passFile;
         private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
+		private bool _isUseSharpCvsLibSet = false;
 
 		private string _commandName = null;
 		private string _commandLine = null;
@@ -121,7 +127,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Initializes a new instance of the <see cref="AbstractCvsTask" /> 
         /// class.
         /// </summary>
-        protected AbstractCvsTask () {
+        protected AbstractCvsTask () : base() {
 			this._sharpcvslibExeName = 
 				Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
         }
@@ -139,7 +145,7 @@ namespace NAnt.SourceControl.Tasks {
 				if (this.UseSharpCvsLib) {
 					_exeNameTemp = this._sharpcvslibExeName;
 				} else {
-					_exeNameTemp = this.GetCvsFromPath();
+					_exeNameTemp = this.GetCvsFromEnvironment();
 				}
 				Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
 				Logger.Debug("_exeNameTemp: " + _exeNameTemp);
@@ -351,6 +357,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     You may also specify an override value for all cvs tasks instead
         ///     of specifying a value for each.  To do this set the property
         ///     <code>sourcecontrol.usesharpcvslib</code> to <code>false</code>.
+        ///     
         ///     <warn>If you choose not to use SharpCvsLib to checkout from 
         ///         cvs you will need to include a cvs.exe binary in your
         ///         path.</warn>
@@ -360,24 +367,21 @@ namespace NAnt.SourceControl.Tasks {
         ///			the property:
         ///		&gt;property name="sourcecontrol.usesharpcvslib" value="false"&lt;
         ///		
-        ///		The default settings is to use sharpcvslib.
+        ///		The default settings is to use sharpcvslib and the setting closest
+        ///		to the task execution is used to determine which value is used
+        ///		to execute the process.
+        ///		
+		///		For instance if the attribute usesharpcvslib was set to false 
+		///		and the global property was set to true, the usesharpcvslib is 
+		///		closes to the point of execution and would be used and is false. 
+		///		Therefore the sharpcvslib binary would NOT be used.
         /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public bool UseSharpCvsLib {
 			get {return this._useSharpCvsLib;}
-            set {
-				if (null == Properties[USE_SHARPCVSLIB]) {
-					Logger.Debug(String.Format("{0} was null.", 
-						USE_SHARPCVSLIB));
-					this._useSharpCvsLib = value;
-				} else {
-					try {
-						this._useSharpCvsLib =
-							System.Convert.ToBoolean(Properties[USE_SHARPCVSLIB]);
-					} catch (Exception) {
-						throw new BuildException (USE_SHARPCVSLIB + " must be convertable to a boolean.");
-					}
-				}
+			set {
+				this._isUseSharpCvsLibSet = true;
+				this._useSharpCvsLib = value;
 			}
         }
 
@@ -430,6 +434,22 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		/// <param name="process">The process to prepare.</param>
 		protected override void PrepareProcess (Process process) {
+			// Although a global property can be set, take the property closest
+			//	to the task execution, which is the attribute on the task itself.
+			if (!this._isUseSharpCvsLibSet &&
+				(null == Properties || null == Properties[USE_SHARPCVSLIB])) {
+				// if not set and the global property is null then use the default
+				this._useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
+			} else if (!this._isUseSharpCvsLibSet &&
+				null != Properties[USE_SHARPCVSLIB]){
+				try {
+					this._useSharpCvsLib =
+						System.Convert.ToBoolean(Properties[USE_SHARPCVSLIB]);
+				} catch (Exception) {
+					throw new BuildException (USE_SHARPCVSLIB + " must be convertable to a boolean.");
+				}
+			}
+
 			Logger.Debug("number of arguments: " + Arguments.Count);
 			if (null == this.Arguments || 0 == this.Arguments.Count) {
 				if (IsModuleNeeded) {
@@ -469,6 +489,14 @@ namespace NAnt.SourceControl.Tasks {
 			Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
 			Logger.Debug("executable: " + process.StartInfo.FileName);
 			Logger.Debug("arguments: " + process.StartInfo.Arguments);
+
+			Log(Level.Info, String.Format("{0} working directory: {1}", 
+				LogPrefix, process.StartInfo.WorkingDirectory));
+			Log(Level.Info, String.Format("{0} executable: {1}", 
+				LogPrefix, process.StartInfo.FileName));
+			Log(Level.Info, String.Format("{0} arguments: {1}", 
+				LogPrefix, process.StartInfo.Arguments));
+
 		}
 
 		#endregion
@@ -603,10 +631,17 @@ namespace NAnt.SourceControl.Tasks {
 			}
 		}
 
-		private String GetCvsFromPath () {
-			String fileName = null;
+		private string GetCvsFromEnvironment () {
+			string cvsPath =
+				this.GetCvsFromPath(Environment.GetEnvironmentVariable(CVS_HOME));
+			if (null == cvsPath || String.Empty == cvsPath) {
+				cvsPath = this.GetCvsFromPath(Environment.GetEnvironmentVariable(PATH));
+			}
+			return cvsPath;
+		}
 
-			String path = Environment.GetEnvironmentVariable(PATH);
+		private string GetCvsFromPath (String path) {
+			String fileName = null;
 			String[] pathElements = path.Split(';');
 			foreach (String pathElement in pathElements) {
 				try {
