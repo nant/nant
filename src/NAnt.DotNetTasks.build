@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
 <project name="nant" default="test">
-
     <!--
         Required properties:
         * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
         * build.debug   - (true|false) debug build?
     -->
-
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.dll" doc="${build.dir}/bin/NAnt.DotNetTasks.xml">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.dll" doc="${build.dir}/bin/NAnt.DotNetTasks.xml">
             <sources basedir="NAnt.DotNetTasks">
                 <includes name="**/*.cs"/>
             </sources>
@@ -19,9 +17,8 @@
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
-
         <!-- build test assembly -->
-        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll">
             <sources basedir="NAnt.DotNetTasks.Tests">
                 <includes name="**/*.cs"/>
                 
@@ -39,7 +36,6 @@
             <arg value="/nowarn:1591"/>
         </csc>
     </target>
-
     <target name="test" depends="build">
          <nunit2>
             <test assemblyname="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" type="Plain" appconfig="${nant.location}nant.exe.config"/>
