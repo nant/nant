@@ -77,7 +77,7 @@ namespace SourceForge.NAnt.Tasks {
                                 Directory.CreateDirectory( Path.GetDirectoryName(destinationPath) );
                             }
 
-                            Log.WriteLine(LogPrefix + "Moving {0} to {1}", sourcePath, destinationPath);
+                            Log.WriteLineIf(Verbose, LogPrefix + "Moving {0} to {1}", sourcePath, destinationPath);
                             // IM look into how Ant does this for directories
                             File.Move(sourcePath, destinationPath);
                         }
@@ -87,6 +87,7 @@ namespace SourceForge.NAnt.Tasks {
                         throw new BuildException(msg, Location);
                     }
                 }
+                Log.WriteLine(LogPrefix + " " + FileCopyMap.Count + " files moved.");
             }
         }
     }

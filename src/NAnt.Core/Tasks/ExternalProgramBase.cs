@@ -26,7 +26,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-using System.Globalization;
 using System.Threading;
 
 using SourceForge.NAnt.Attributes;
