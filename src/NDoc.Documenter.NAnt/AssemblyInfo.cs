@@ -18,12 +18,7 @@
 // Ian MaceLean (ian@maclean.ms)
 // Gert Driesen (gert.driesen@ardatis.com)
 
-using System;
 using System.Reflection;
-
-// DO NOT mark NDoc.Documenter.NAnt CLS compliant
-// because NDoc is not CLS-compliant
-[assembly: CLSCompliant(false)]
 
 // This will not compile with Visual Studio.  If you want to build a signed
 // executable use the NAnt build file.  To build under Visual Studio just

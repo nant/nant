@@ -527,7 +527,7 @@ namespace NAnt.Core {
                     // check if property is deprecated
                     ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
 
-                    // emit warning or error if attribute is deprecated                        
+                    // emit warning or error if attribute is deprecated
                     if (obsoleteAttribute != null) {
                         if (obsoleteAttribute.IsError) {
                             logger.Error(string.Format(CultureInfo.InvariantCulture,

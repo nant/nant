@@ -26,6 +26,9 @@ using System.Runtime.InteropServices;
 // Make assembly as NOT visible to COM
 [assembly: ComVisible(false)]
 
+// Mark assembly CLS compliant
+[assembly: CLSCompliant(true)]
+
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
 [assembly: AssemblyConfiguration("")]
