@@ -42,11 +42,13 @@ namespace NAnt.Zip.Tasks {
 	///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Tar/Zip/GZip library written entirely in C#.</para>
 	/// </remarks>
 	/// <example>
-	///   <para>Tar all files in the subdirectory <c>build</c> to <c>backup.tar</c>.</para>
+	///   <para>
+	///   Tar all files in the subdirectory &quot;build&quot; to &quot;backup.tar&quot;.
+	///   </para>
 	///   <code>
 	///     <![CDATA[
 	/// <tar destfile="backup.tar">
-	///     <tarfileset basedir="build">
+	///     <fileset basedir="build">
 	///         <include name="*.*" />
 	///     </fileset>
 	/// </tar>
@@ -90,7 +92,7 @@ namespace NAnt.Zip.Tasks {
 		/// <summary>
 		/// The set of files to be included in the archive.
 		/// </summary>
-		[BuildElement("tarfileset")]
+		[BuildElement("fileset")]
 		public TarFileSet TarFileSet {
 			get { return _fileset; }
 			set { _fileset = value; }
