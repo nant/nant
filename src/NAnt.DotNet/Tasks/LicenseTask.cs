@@ -292,6 +292,11 @@ namespace NAnt.DotNet.Tasks {
                 // using assemblies stored in the same directory
                 _programFileName = Path.Combine(BaseDirectory.FullName, 
                     Path.GetFileName(base.ProgramFileName));
+            } else {
+                foreach (string assembly in Assemblies.FileNames) {
+                    Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                        "/i:\"{0}\"", assembly)));
+                }
             }
 
             // further delegate preparation to base class
@@ -354,13 +359,17 @@ namespace NAnt.DotNet.Tasks {
                 Target);
 
             if (HasCommandLineCompiler) {
+                // determine working directory
+                BaseDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), 
+                    Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture)));
+
                 try {
-                    // determine working directory
-                    BaseDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), 
-                        Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture)));
-                    // create working directory if it doesn't exist
+                    // check if working directory exists
                     if (!BaseDirectory.Exists) {
+                        // create working directory
                         BaseDirectory.Create();
+                        // refresh filesystem info
+                        BaseDirectory.Refresh();
                     }
                     // set target assembly for generated licenses file (in
                     // uppercase, to match VS.NET)
