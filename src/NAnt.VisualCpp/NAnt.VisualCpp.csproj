@@ -81,11 +81,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\ClTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
                     SubType = "Code"
@@ -96,12 +91,32 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "Tasks\ClTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\LibTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Tasks\LinkTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\McTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\MidlTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\RcTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
