@@ -451,8 +451,18 @@ namespace NAnt.Core {
                         Element childElement = (Element) Activator.CreateInstance(elementType); 
                         
                         childElement.Project = Project;
-						childElement.Parent = this;
+                        childElement.Parent = this;
                         childElement.Initialize(childNode);
+                        // if subtype of DataTypeBase
+                        DataTypeBase dataType = childElement as DataTypeBase;
+                        if ( dataType != null && dataType.RefID != null && dataType.RefID.Length != 0  ) {
+
+                            // we have a datatype reference
+                            childElement = InitDataTypeBase(dataType );                          
+                            childElement.Project = Project;
+                            childElement.Parent = this;
+                        }
+                        
                         list.SetValue(childElement, arrayIndex);
                         arrayIndex ++;
                     }
