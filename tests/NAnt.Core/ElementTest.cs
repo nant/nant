@@ -73,10 +73,10 @@ namespace Tests.NAnt.Core {
 
             try {
                 string result = RunBuild(build);
-                Assertion.Fail("Null property value allowed.\n" + result);
+                Assertion.Fail("Null property value allowed." + Environment.NewLine + result);
             } catch (TestBuildException e) {
                 if (!(e.InnerException is BuildException)) {
-                    Assertion.Fail("Unexpected exception thrown.\n" + e.ToString());
+                    Assertion.Fail("Unexpected exception thrown." + Environment.NewLine + e.ToString());
                 }
             }
         }

@@ -42,13 +42,13 @@ namespace Tests.NAnt.Core.Tasks {
 		[Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, ""));
-            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
+            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sysinfo]") != -1);
         }
 
 		[Test]
         public void Test_Verbose() {
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "verbose='true'"));
-            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
+            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sysinfo]") != -1);
         }
 
 
@@ -67,7 +67,7 @@ namespace Tests.NAnt.Core.Tasks {
               string result = RunBuild(xml);
 
            } catch(BuildException e) {
-              Assertion.Fail("Duplicate sysinfo tasks should've worked\n" + e.ToString());
+              Assertion.Fail("Duplicate sysinfo tasks should've worked" + Environment.NewLine + e.ToString());
            }
         }
     
@@ -87,7 +87,7 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(xml);
             string expression = @"test.clr.version = 44.32.23";
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("SysInfo property should've been modified!\n" + result, match.Success);
+            Assertion.Assert("SysInfo property should've been modified!" + Environment.NewLine + result, match.Success);
         }
  
     }

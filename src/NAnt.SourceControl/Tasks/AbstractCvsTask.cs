@@ -290,10 +290,10 @@ namespace NAnt.SourceControl.Tasks {
                         break;
                     default:
                         StringBuilder msg = new StringBuilder ();
-                        msg.Append("\nUnsupported argument.");
-                        msg.Append("\n\tname=[").Append (option.OptionName).Append ("]");
-                        msg.Append("\n\tvalue=[").Append(option.Value).Append ("]");
-                        throw new NotSupportedException (msg.ToString ());
+                        msg.Append(Environment.NewLine + "Unsupported argument.");
+                        msg.Append(Environment.NewLine + "\tname=[").Append(option.OptionName).Append ("]");
+                        msg.Append(Environment.NewLine + "\tvalue=[").Append(option.Value).Append ("]");
+                        throw new NotSupportedException(msg.ToString());
                 }
             }
         }

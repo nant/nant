@@ -113,7 +113,7 @@ namespace NAnt.Core.Util {
                     }
                 }
 
-                logoBanner.Append('\n');
+                logoBanner.Append(Environment.NewLine);
 
                 // Add company information to logo banner
 
@@ -122,7 +122,7 @@ namespace NAnt.Core.Util {
                     AssemblyCompanyAttribute companyAttribute = (AssemblyCompanyAttribute) companyAttributes[0];
                     if (!StringUtils.IsNullOrEmpty(companyAttribute.Company)) {
                         logoBanner.Append(companyAttribute.Company);
-                        logoBanner.Append('\n');
+                        logoBanner.Append(Environment.NewLine);
                     }
                 }
 
@@ -145,7 +145,7 @@ namespace NAnt.Core.Util {
                 // Add usage instructions to helptext
 
                 if (helpText.Length > 0) {
-                    helpText.Append('\n');
+                    helpText.Append(Environment.NewLine);
                 }
 
                 helpText.Append("Usage : " + assembly.GetName().Name + " [options]");
@@ -158,13 +158,13 @@ namespace NAnt.Core.Util {
                     }
                 }
 
-                helpText.Append('\n');
+                helpText.Append(Environment.NewLine);
 
                 // Add options to helptext
 
                 helpText.Append("Options : ");
-                helpText.Append('\n');
-                helpText.Append('\n');
+                helpText.Append(Environment.NewLine);
+                helpText.Append(Environment.NewLine);
 
                 foreach (CommandLineArgument argument in _argumentCollection) {
                     string valType = "";
@@ -195,7 +195,7 @@ namespace NAnt.Core.Util {
                     } else {
                         helpText.AppendFormat(CultureInfo.InvariantCulture, "  -{0,-30}{1}", optionName + valType, argument.Description);
                     }
-                    helpText.Append('\n');
+                    helpText.Append(Environment.NewLine);
                 }
 
                 return helpText.ToString();

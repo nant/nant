@@ -249,7 +249,7 @@ namespace Tests.NAnt.Console {
             // regular expression to look for expected output
             string expression = @"project.name = MyCompany.MyProject";
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Property 'project.name' appears to have been overridden by <property> task.\n" + result, match.Success);
+            Assertion.Assert("Property 'project.name' appears to have been overridden by <property> task." + Environment.NewLine + result, match.Success);
 
             // delete the build file
             File.Delete(buildFileName);
@@ -325,7 +325,7 @@ namespace Tests.NAnt.Console {
                 Assertion.AssertEquals("test", match.Groups["main3"].Value);
                 Assertion.AssertEquals("init", match.Groups["subtarget1"].Value);
             } else {
-                Assertion.Fail("Project help text does not appear to be valid, see results for details:\n" + result);
+                Assertion.Fail("Project help text does not appear to be valid, see results for details:" + Environment.NewLine + result);
             }
 
             // delete the build file

@@ -71,24 +71,24 @@ namespace Tests.NAnt.Core.Tasks {
 		[Test]		
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(""));
-            Assertion.Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
-            Assertion.Assert("External target should not have executed.\n" + result, result.IndexOf("External target executed") == -1);
+            Assertion.Assert("External build should have executed." + Environment.NewLine + result, result.IndexOf("External build file executed") != -1);
+            Assertion.Assert("External target should not have executed." + Environment.NewLine + result, result.IndexOf("External target executed") == -1);
         }
 
 		[Test]
         public void Test_SingleTarget() {
             string result = RunBuild(FormatBuildFile("target='test'"));
-            Assertion.Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
-            Assertion.Assert("External target should have executed.\n" + result, result.IndexOf("External target executed") != -1);
+            Assertion.Assert("External build should have executed." + Environment.NewLine + result, result.IndexOf("External build file executed") != -1);
+            Assertion.Assert("External target should have executed." + Environment.NewLine + result, result.IndexOf("External target executed") != -1);
         }
 
 		[Test]
         public void Test_MultipleTargets() {
             string result = RunBuild(FormatBuildFile("target='test t2 t3'"));
-            Assertion.Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
-            Assertion.Assert("External target should have executed.\n" + result, result.IndexOf("External target executed") != -1);
-            Assertion.Assert("Second target should have executed.\n" + result, result.IndexOf("Second target executed") != -1);
-            Assertion.Assert("Third target should have executed.\n" + result, result.IndexOf("Third target executed") != -1);
+            Assertion.Assert("External build should have executed." + Environment.NewLine + result, result.IndexOf("External build file executed") != -1);
+            Assertion.Assert("External target should have executed." + Environment.NewLine + result, result.IndexOf("External target executed") != -1);
+            Assertion.Assert("Second target should have executed." + Environment.NewLine + result, result.IndexOf("Second target executed") != -1);
+            Assertion.Assert("Third target should have executed." + Environment.NewLine + result, result.IndexOf("Third target executed") != -1);
         }
 
 		[Test]
@@ -104,15 +104,15 @@ namespace Tests.NAnt.Core.Tasks {
             
             //check inheritance.
             result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _externalBuildFileName, "inheritall='true'","${test}"));
-            Assertion.Assert("Property should be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") != -1);
-            Assertion.Assert("Property should be inherited, and updatable.\n" + result, result.IndexOf("testprop=2nd") != -1);
-            Assertion.Assert("Property should not be changed by inherited nant project.\n" + result, result.IndexOf("after=1st") != -1);
+            Assertion.Assert("Property should be inherited into nant project." + Environment.NewLine + result, result.IndexOf("testprop=1st") != -1);
+            Assertion.Assert("Property should be inherited, and updatable." + Environment.NewLine + result, result.IndexOf("testprop=2nd") != -1);
+            Assertion.Assert("Property should not be changed by inherited nant project." + Environment.NewLine + result, result.IndexOf("after=1st") != -1);
 
             //check to make sure inheritance isn't working.
             result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _externalBuildFileName, "inheritall='false'","${test}"));
-            Assertion.Assert("Property should not be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") == -1);
-            Assertion.Assert("Property is definable.\n" + result, result.IndexOf("testprop=2nd") != -1);
-            Assertion.Assert("Property defined in called project should not affect the caller.\n" + result, result.IndexOf("after=1st") != -1);
+            Assertion.Assert("Property should not be inherited into nant project." + Environment.NewLine + result, result.IndexOf("testprop=1st") == -1);
+            Assertion.Assert("Property is definable." + Environment.NewLine + result, result.IndexOf("testprop=2nd") != -1);
+            Assertion.Assert("Property defined in called project should not affect the caller." + Environment.NewLine + result, result.IndexOf("after=1st") != -1);
             
 
         }

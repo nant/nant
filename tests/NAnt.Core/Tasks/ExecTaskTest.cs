@@ -52,8 +52,8 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_ReadLargeAmountFromStdout() {
 
             // create a text file with A LOT of data
-            string line = "01234567890123456789012345678901234567890123456789012345678901234567890123456789\n";
-            StringBuilder contents = new StringBuilder("You can delete this file\n");
+            string line = "01234567890123456789012345678901234567890123456789012345678901234567890123456789" + Environment.NewLine;
+            StringBuilder contents = new StringBuilder("You can delete this file" + Environment.NewLine);
             for (int i = 0; i < 250; i++) {
                 contents.Append(line);
             }

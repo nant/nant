@@ -136,7 +136,7 @@ namespace NAnt.Core {
                 }
                 
                 if (!StringUtils.IsNullOrEmpty(locationString)) {
-                    message = locationString + "\n " + message;
+                    message = locationString + Environment.NewLine + message;
                 }
                 return message; 
             }

@@ -448,7 +448,7 @@ namespace NAnt.Core {
             if (_buildTimes.Count > 0) {
                 TimeSpan buildTime = DateTime.Now - (DateTime) _buildTimes.Pop();
                 OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture, 
-                    "Total time: {0} seconds.\n", Math.Round(buildTime.TotalSeconds, 1)), indentationLevel);
+                    "Total time: {0} seconds." + Environment.NewLine, Math.Round(buildTime.TotalSeconds, 1)), indentationLevel);
             }
 
             // make sure all messages are written to the underlying storage

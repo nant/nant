@@ -58,9 +58,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "false", "true", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should not have executed.\n" + result, listener.GetTargetExecutionCount("Target2") == 0);
-            Assertion.Assert("Target3 should not have executed.\n" + result, listener.GetTargetExecutionCount("Target3") == 0);
+            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
+            Assertion.Assert("Target2 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 0);
+            Assertion.Assert("Target3 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 0);
         }
 
         [Test]
@@ -71,9 +71,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "true", "true", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target2") == 1);
-            Assertion.Assert("Target3 should not have executed.\n" + result, listener.GetTargetExecutionCount("Target3") == 0);
+            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
+            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
+            Assertion.Assert("Target3 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 0);
         }
 
         [Test]
@@ -84,9 +84,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "false", "false", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should not have executed.\n" + result, listener.GetTargetExecutionCount("Target2") == 0);
-            Assertion.Assert("Target3 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target3") == 1);
+            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
+            Assertion.Assert("Target2 should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 0);
+            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
         }
 
         [Test]
@@ -97,9 +97,9 @@ namespace Tests.NAnt.Core {
             // run the build
             string result = RunBuild(FormatBuildFile("Target1", "true", "false", string.Empty), listener);
 
-            Assertion.Assert("Target1 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target2") == 1);
-            Assertion.Assert("Target3 should have executed once.\n" + result, listener.GetTargetExecutionCount("Target3") == 1);
+            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
+            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
+            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
         }
 
         [Test]

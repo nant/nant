@@ -433,9 +433,9 @@ namespace NAnt.Core.Tasks {
                     programLocationAttribute.LocationType == LocationType.FrameworkSdkDir) &&
                     (Project.CurrentFramework == null)){
                         throw new BuildException(
-                            string.Format(CultureInfo.InvariantCulture, 
-                            "The {0} task cannot be executed, as it relies on an active framework.\n", 
-                            Name));
+                            string.Format(CultureInfo.InvariantCulture, "The {0}" 
+                            + " task cannot be executed, as it relies on an" 
+                            + " active framework." + Environment.NewLine, Name));
                 }
 
                 switch (programLocationAttribute.LocationType) {

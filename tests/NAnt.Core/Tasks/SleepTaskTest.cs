@@ -34,13 +34,13 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(_format, " milliseconds='20'"));
-            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sleep]") != -1);
+            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sleep]") != -1);
         }
 
         [Test]
         public void Test_NoDurationSpecified() {
             string result = RunBuild(String.Format(_format, ""));
-            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sleep]") != -1);
+            Assertion.Assert("Task should have executed." + Environment.NewLine + result, result.IndexOf("[sleep]") != -1);
         }
 
         [Test]

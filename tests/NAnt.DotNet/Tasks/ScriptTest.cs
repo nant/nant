@@ -45,7 +45,7 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
 
             string result = RunBuild(_xml);
-            Assertion.Assert("VB script should have updated prop.\n" + result, result.IndexOf("CSFoo=1") != -1);
+            Assertion.Assert("VB script should have updated prop." + Environment.NewLine + result, result.IndexOf("CSFoo=1") != -1);
         }
 
         [Test]
@@ -66,8 +66,8 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
 
             string result = RunBuild(_xml);
-            Assertion.Assert("CSharp script should written something.\n" + result, result.IndexOf("Hello") != -1);
-            Assertion.Assert("CSharp script should have updated prop.\n" + result, result.IndexOf("script.me") != -1);
+            Assertion.Assert("CSharp script should written something." + Environment.NewLine + result, result.IndexOf("Hello") != -1);
+            Assertion.Assert("CSharp script should have updated prop." + Environment.NewLine + result, result.IndexOf("script.me") != -1);
         }
         [Test]
         public void Test_2ScriptsInOneProject() {

@@ -37,10 +37,9 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             try {
                 string result = RunBuild(_xml);
-                Assertion.Assert("Fail message missing:\n" + result, result.IndexOf("productID=;") == -1);
-            }
-            catch (TestBuildException be) {
-                Assertion.Fail("\n" + be.ToString());
+                Assertion.Assert("Fail message missing:" + Environment.NewLine + result, result.IndexOf("productID=;") == -1);
+            } catch (TestBuildException be) {
+                Assertion.Fail(Environment.NewLine + be.ToString());
             }
         }
         /// <summary>
@@ -60,7 +59,7 @@ namespace Tests.NAnt.Core.Tasks {
             catch (TestBuildException be) {
                 //no op, good.
                 if(be.InnerException.ToString().IndexOf("missing") != -1)
-                    Assertion.Fail("Wrong type of exception; does not contain word 'missing'!\n" + be.ToString());
+                    Assertion.Fail("Wrong type of exception; does not contain word 'missing'!" + Environment.NewLine + be.ToString());
             }
             catch {
                 Assertion.Fail("Other exception!");

@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 
 using NUnit.Framework;
@@ -50,7 +51,7 @@ namespace Tests.NAnt.Core.Util {
 
         [Test]
         public void Test_Create_WithContents() {
-            string expected = "Line 1\nLine Two\n\nLine Three";
+            string expected = string.Format(CultureInfo.InvariantCulture, "Line 1{0}Line Two{0}{0}Line Three", Environment.NewLine);
             string fileName = TempFile.CreateWithContents(expected);
             string actual = TempFile.Read(fileName);
             Assertion.AssertEquals(expected, actual);

@@ -226,7 +226,8 @@ namespace NAnt.NUnit2.Tasks {
                                         reader.ReadLine();
                                         StringBuilder builder = new StringBuilder();
                                         while (reader.Peek() > -1) {
-                                            builder.Append(reader.ReadLine().Trim()).Append("\n");
+                                            builder.Append(reader.ReadLine().Trim()).Append(
+                                                Environment.NewLine);
                                         }
                                         Log(Level.Info, LogPrefix + builder.ToString());
                                     }

@@ -57,7 +57,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
             catch(TestBuildException be) { 
                 if( be.InnerException.Message.IndexOf("'does not exist") != -1) {
-                    Assertion.Fail("Wrong type of exception; does not contain words 'does not exist'!\n " + be.ToString()); 
+                    Assertion.Fail("Wrong type of exception; does not contain words 'does not exist'! " + Environment.NewLine + be.ToString()); 
                 }
             }
             catch {

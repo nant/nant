@@ -31,7 +31,7 @@ namespace Tests.NAnt.Core.Util {
         }
 
         public static string Create(string fileName) {
-            string contents = "You can delete this file.\n";
+            string contents = "You can delete this file." + Environment.NewLine;
             return CreateWithContents(contents, fileName);
         }
 

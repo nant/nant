@@ -157,7 +157,7 @@ namespace NAnt.Core {
 
                             Exception nestedException = ex.InnerException;
                             while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                                msg = (msg != null) ? "\n " : string.Empty;
+                                msg = (msg != null) ? Environment.NewLine : string.Empty;
                                 msg += nestedException.Message;
                                 nestedException = nestedException.InnerException;
                             }

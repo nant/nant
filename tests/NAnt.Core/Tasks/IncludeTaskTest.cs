@@ -58,8 +58,8 @@ namespace Tests.NAnt.Core.Tasks {
 		[Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(_format));
-            Assertion.Assert("Global task should have executed.\n" + result, result.IndexOf("Task executed") != -1);
-            Assertion.Assert("Target should have executed.\n" + result, result.IndexOf("Target executed") != -1);
+            Assertion.Assert("Global task should have executed." + Environment.NewLine + result, result.IndexOf("Task executed") != -1);
+            Assertion.Assert("Target should have executed." + Environment.NewLine + result, result.IndexOf("Target executed") != -1);
         }
 
 		[Test]
@@ -75,7 +75,7 @@ namespace Tests.NAnt.Core.Tasks {
                 RunBuild(formatNestedTask);
                 Assertion.Fail("Task appears in target element but BuildException not thrown.");
             } catch (TestBuildException e) {
-                Assertion.Assert("Build exception should have been because of a nested task.\n" + e.ToString(), e.InnerException.Message.IndexOf("Task not allowed in targets.") != -1);
+                Assertion.Assert("Build exception should have been because of a nested task." + Environment.NewLine + e.ToString(), e.InnerException.Message.IndexOf("Task not allowed in targets.") != -1);
             }
         }
 
@@ -90,7 +90,7 @@ namespace Tests.NAnt.Core.Tasks {
                 RunBuild(FormatBuildFile(_format));
                 Assertion.Fail("Task appears in target element but BuildException not thrown.");
             } catch (TestBuildException e) {
-                Assertion.Assert("Build exception should have been because of a recursive include.\n" + e.ToString(), e.InnerException.Message.IndexOf("Recursive includes are not allowed.") != -1);
+                Assertion.Assert("Build exception should have been because of a recursive include." + Environment.NewLine + e.ToString(), e.InnerException.Message.IndexOf("Recursive includes are not allowed.") != -1);
             }
         }
 

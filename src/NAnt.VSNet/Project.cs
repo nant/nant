@@ -723,10 +723,10 @@ namespace NAnt.VSNet {
                     // Find the beginning of the next macro if any
                     startPosition = commands.IndexOf("$(", stopPosition);
                 }
-                Log(Level.Debug, LogPrefix + "Replaced command lines: \n {0}.", commandsExpanded);
+                Log(Level.Debug, LogPrefix + "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
                 return commandsExpanded;
             } else { // No macro to replace
-                Log(Level.Debug, LogPrefix + "Replaced command lines: \n {0}.", commandsExpanded);
+                Log(Level.Debug, LogPrefix + "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
                 return commandsExpanded;
             }
         }

@@ -256,9 +256,9 @@ namespace NAnt.Core.Tasks {
 
             Assembly compiled = null;
             if (results.Errors.Count > 0) {
-                string errors = "Compilation failed:\n";
+                string errors = "Compilation failed:" + Environment.NewLine;
                 foreach (CompilerError err in results.Errors) {
-                    errors += err.ToString() + "\n";
+                    errors += err.ToString() + Environment.NewLine;
                 }
                 throw new BuildException(errors, Location);
             } else {
@@ -375,7 +375,8 @@ namespace NAnt.Core.Tasks {
                     declEnd = "End";
                 }
                 int i = decl.LastIndexOf(declEnd);
-                return CodePrologue + extraImports + decl.Substring(0, i-1) + codeBody + "\n" + decl.Substring(i);
+                return CodePrologue + extraImports + decl.Substring(0, i-1) 
+                    + codeBody + Environment.NewLine + decl.Substring(i);
             }
         }
     }

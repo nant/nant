@@ -107,10 +107,10 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert(testFileName + " should have ReadOnly file attribute.", (File.GetAttributes(testFileName) & FileAttributes.ReadOnly) != 0);
 
             // check for valid output
-            Assertion.Assert("Build output should include names of all files changed.\n" + result, result.IndexOf("myfile8.txt") != 0);
-            Assertion.Assert("Build output should include count of all files changed.\n" + result, result.IndexOf("11 files") != 0);
-            Assertion.Assert("Build output should include file attributes set.\n" + result, result.IndexOf("ReadOnly") != 0);
-            Assertion.Assert("Build output should name specified in file attribute.\n" + result, result.IndexOf("myfile.txt") != 0);
+            Assertion.Assert("Build output should include names of all files changed." + Environment.NewLine + result, result.IndexOf("myfile8.txt") != 0);
+            Assertion.Assert("Build output should include count of all files changed." + Environment.NewLine + result, result.IndexOf("11 files") != 0);
+            Assertion.Assert("Build output should include file attributes set." + Environment.NewLine + result, result.IndexOf("ReadOnly") != 0);
+            Assertion.Assert("Build output should name specified in file attribute." + Environment.NewLine + result, result.IndexOf("myfile.txt") != 0);
         }
 
         private string FormatBuildFile(string attributes) {

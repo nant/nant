@@ -281,9 +281,12 @@ namespace NAnt.Core.Tasks {
                 SmtpMail.Send(mailMessage);
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
-                msg.Append(LogPrefix + "Error enountered while sending mail message.\n");
-                msg.Append(LogPrefix + "Make sure that mailhost=" + this.Mailhost + " is valid\n");
-                throw new BuildException("Error sending mail:\n " + msg.ToString(), Location, ex);
+                msg.Append(LogPrefix + "Error enountered while sending mail message." 
+                    + Environment.NewLine);
+                msg.Append(LogPrefix + "Make sure that mailhost=" + this.Mailhost 
+                    + " is valid" + Environment.NewLine);
+                throw new BuildException("Error sending mail:" + Environment.NewLine 
+                    + msg.ToString(), Location, ex);
             }
         }
 

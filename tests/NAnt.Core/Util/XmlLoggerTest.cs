@@ -74,7 +74,7 @@ namespace Tests.NAnt.Core.Util {
 
         [Test]
         public void Test_StripFormattingMultiline() {
-            string baseMessage = "this is a typical message.\nMultiline message that is.";
+            string baseMessage = "this is a typical message." + Environment.NewLine + "Multiline message that is.";
             string formattedMessage = "[foo] " + baseMessage;
 
             Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
