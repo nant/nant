@@ -18,6 +18,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 // Scott Hernandez ScottHernandez_At_hOtmail.d.o.t.com
 
+using System.Collections;
 using System.Collections.Specialized;
 using System.Xml;
 using System.Xml.XPath;
@@ -36,7 +37,7 @@ namespace NDoc.Documenter.NAnt {
         private string _sdkDocExt; 
         private StringDictionary _elementNames = new StringDictionary();
         private XmlDocument _doc;
-        private NAntTaskDocumenterConfig _config;
+        private NAntDocumenterConfig _config;
 
         #endregion Private Instance Fields
 
@@ -49,7 +50,7 @@ namespace NDoc.Documenter.NAnt {
         private const string MsdnOnlineSdkPageExt = ".asp";
         private const string SystemPrefix = "System.";
         
-        private static System.Collections.ArrayList Instances = new System.Collections.ArrayList(3);
+        private static ArrayList Instances = new ArrayList(3);
 
         #endregion Private Static Fields
 
@@ -59,7 +60,7 @@ namespace NDoc.Documenter.NAnt {
         /// Initializes a new instance of the <see cref="NAntXsltUtilities" />
         /// class.
         /// </summary>
-        private NAntXsltUtilities(XmlDocument doc, NAntTaskDocumenterConfig config) {
+        private NAntXsltUtilities(XmlDocument doc, NAntDocumenterConfig config) {
             _doc = doc;
             _config = config;
 
@@ -140,7 +141,7 @@ namespace NDoc.Documenter.NAnt {
             get { return _doc; }
         }
 
-        private NAntTaskDocumenterConfig Config {
+        private NAntDocumenterConfig Config {
             get { return _config; }
         }
 
@@ -516,7 +517,7 @@ namespace NDoc.Documenter.NAnt {
             return "functions/" + name + ".html";
         }
         
-        internal static NAntXsltUtilities CreateInstance(XmlDocument doc, NAntTaskDocumenterConfig config){
+        internal static NAntXsltUtilities CreateInstance(XmlDocument doc, NAntDocumenterConfig config){
             //just in case... but we should never see this happen.
             lock (Instances) {
                 foreach (NAntXsltUtilities util in Instances) {

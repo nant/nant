@@ -28,9 +28,9 @@ using NDoc.Core;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
-    /// NDoc configuration class for <see cref="NAntTaskDocumenter" />.
+    /// NDoc configuration class for <see cref="NAntDocumenter" />.
     /// </summary>
-    public class NAntTaskDocumenterConfig : BaseDocumenterConfig {
+    public class NAntDocumenterConfig : BaseDocumenterConfig {
         #region Private Instance Fields
 
         private string _outputDirectory = @"doc/help/tasks";
@@ -43,14 +43,14 @@ namespace NDoc.Documenter.NAnt {
 
         #region Public Instance Constructors
 
-        protected NAntTaskDocumenterConfig(string name) : base(name){
+        protected NAntDocumenterConfig(string name) : base(name){
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="NAntTaskDocumenterConfig" /> 
+        /// Initializes a new instance of the <see cref="NAntDocumenterConfig" /> 
         /// class.
         /// </summary>
-        public NAntTaskDocumenterConfig() : base("NAntTask") {
+        public NAntDocumenterConfig() : base("NAnt") {
             // set reasonable ndoc defaults so we don't have to do this in the build file
             CopyrightText = String.Format(CultureInfo.InvariantCulture, "Copyright (C) 2001-{0} Gerry Shaw", DateTime.Now.Year);
             CopyrightHref = "http://nant.sourceforge.net/";

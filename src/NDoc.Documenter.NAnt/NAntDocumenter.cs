@@ -24,6 +24,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
@@ -37,7 +38,7 @@ namespace NDoc.Documenter.NAnt {
     /// <summary>
     /// NDoc Documenter for building custom NAnt User documentation.
     /// </summary>
-    public class NAntTaskDocumenter : BaseDocumenter {
+    public class NAntDocumenter : BaseDocumenter {
         #region Private Instance Fields
 
         private XslTransform _xsltTaskIndex;
@@ -54,9 +55,9 @@ namespace NDoc.Documenter.NAnt {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NAntTaskDocumenter" /> class.
+        /// Initializes a new instance of the <see cref="NAntDocumenter" /> class.
         /// </summary>
-        public NAntTaskDocumenter() : base("NAnt") {
+        public NAntDocumenter() : base("NAnt") {
             Clear();
         }
 
@@ -72,7 +73,7 @@ namespace NDoc.Documenter.NAnt {
         /// </value>
         public string OutputDirectory { 
             get {
-                return ((NAntTaskDocumenterConfig) Config).OutputDirectory;
+                return ((NAntDocumenterConfig) Config).OutputDirectory;
             } 
         }
 
@@ -86,7 +87,7 @@ namespace NDoc.Documenter.NAnt {
         /// </value>
         public SdkDocVersion LinkToSdkDocVersion {
             get {
-                return ((NAntTaskDocumenterConfig) Config).LinkToSdkDocVersion;
+                return ((NAntDocumenterConfig) Config).LinkToSdkDocVersion;
             } 
         }
 
@@ -99,7 +100,7 @@ namespace NDoc.Documenter.NAnt {
         /// </value>
         public string NamespaceFilter { 
             get {
-                return ((NAntTaskDocumenterConfig) Config).NamespaceFilter;
+                return ((NAntDocumenterConfig) Config).NamespaceFilter;
             }
         }
 
@@ -121,7 +122,7 @@ namespace NDoc.Documenter.NAnt {
         /// Resets the documenter to a clean state.
         /// </summary>
         public override void Clear() {
-            Config = new NAntTaskDocumenterConfig();
+            Config = new NAntDocumenterConfig();
         }
 
         /// <summary>
@@ -131,14 +132,17 @@ namespace NDoc.Documenter.NAnt {
             int buildStepProgress = 0;
             OnDocBuildingStep(buildStepProgress, "Initializing...");
 
-            _resourceDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NDoc\\NAntTasks\\";
+            _resourceDirectory = Path.Combine(Path.Combine(Environment.GetFolderPath(
+                Environment.SpecialFolder.ApplicationData), "NDoc"), "NAnt");
 
-            System.Reflection.Assembly assembly = this.GetType().Module.Assembly;
-            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.css", _resourceDirectory + "css\\");
-            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.xslt", _resourceDirectory + "xslt\\");
-            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.html", _resourceDirectory + "html\\");
+            // get assembly in which documenter is defined
+            Assembly assembly = this.GetType().Module.Assembly;
 
-            // create the html output directory.
+            // write xslt files to resource directory
+            EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.xslt", 
+                Path.Combine(_resourceDirectory, "xslt"));
+
+            // create the html output directories
             try {
                 Directory.CreateDirectory(OutputDirectory);
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "functions"));
@@ -173,7 +177,7 @@ namespace NDoc.Documenter.NAnt {
 
             // add extension object for NAnt utilities
             NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
+                _xmlDocumentation, (NAntDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
@@ -275,7 +279,7 @@ namespace NDoc.Documenter.NAnt {
 
             // add extension object for NAnt utilities
             NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
+                _xmlDocumentation, (NAntDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -363,7 +367,7 @@ namespace NDoc.Documenter.NAnt {
 
             // add extension object for NAnt utilities
             NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
+                _xmlDocumentation, (NAntDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -394,7 +398,8 @@ namespace NDoc.Documenter.NAnt {
 
 
         private void MakeTransform(XslTransform transform, string fileName) {
-            transform.Load(_resourceDirectory + "xslt/" + fileName);
+            transform.Load(Path.Combine(Path.Combine(_resourceDirectory, "xslt"), 
+                fileName));
         }
 
         private void TransformAndWriteResult(XslTransform transform, string filename) {
@@ -402,7 +407,7 @@ namespace NDoc.Documenter.NAnt {
 
             // add extension object for NAnt utilities
             NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntTaskDocumenterConfig) Config);
+                _xmlDocumentation, (NAntDocumenterConfig) Config);
 
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
