@@ -35,55 +35,115 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
 
         /// <summary>
-        /// Gets the value of the major component of a given version string.
+        /// Gets the value of the major component of a given version.
         /// </summary>
-        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
+        /// <param name="version">A version.</param>
         /// <returns>
         /// The major version number.
         /// </returns>
         [Function("get-major")]
-        public static int GetMajor(string version) {
-            Version aVersion = new Version(version);
-            return aVersion.Major;
+        public static int GetMajor(Version version) {
+            return version.Major;
         }
 
         /// <summary>
-        /// Gets the value of the minor component of a given version string.
+        /// Gets the value of the minor component of a given version.
         /// </summary>
-        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
+        /// <param name="version">A version.</param>
         /// <returns>
         /// The minor version number.
         /// </returns>
         [Function("get-minor")]
-        public static int GetMinor(string version) {
-            Version aVersion = new Version(version);
-            return aVersion.Minor;
+        public static int GetMinor(Version version) {
+            return version.Minor;
         }
 
         /// <summary>
-        /// Gets the value of the build component of a given version string.
+        /// Gets the value of the build component of a given version.
         /// </summary>
-        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
+        /// <param name="version">A version.</param>
         /// <returns>
         /// The build number, or -1 if the build number is undefined.
         /// </returns>
         [Function("get-build")]
-        public static int GetBuild(string version) {
-            Version aVersion = new Version(version);
-            return aVersion.Build;
+        public static int GetBuild(Version version) {
+            return version.Build;
         }
 
         /// <summary>
-        /// Gets the value of the revision component of a given version string.
+        /// Gets the value of the revision component of a given version.
         /// </summary>
-        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
+        /// <param name="version">A version.</param>
         /// <returns>
         /// The revision number, or -1 if the revision number is undefined.
         /// </returns>
         [Function("get-revision")]
-        public static int GetRevision(string version) {
-            Version aVersion = new Version(version);
-            return aVersion.Revision;
+        public static int GetRevision(Version version) {
+            return version.Revision;
+        }
+
+        /*
+        /// <summary>
+        /// Initializes a new <see cref="Version" /> instance using the value 
+        /// represented by the specified <see cref="string" />.
+        /// </summary>
+        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
+        /// <returns>
+        /// A <see cref="Version" /> instance representing the specified 
+        /// <see cref="string" />.
+        /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="version" /> has fewer than two components or more than four components.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A major, minor, build, or revision component is less than zero.</exception>
+        /// <exception cref="FormatException">At least one component of <paramref name="version" /> does not parse to a decimal integer.</exception>
+        [Function("init")]
+        public static Version Init(string version) {
+            return new Version(version);
+        }
+        */
+
+        #endregion Public Static Methods
+    }
+
+    [FunctionSet("version", "Conversion")]
+    public class VersionConversionFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public VersionConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Static Methods
+
+        /// <summary>
+        /// Converts the specified string representation of a version to 
+        /// its <see cref="Version" /> equivalent.
+        /// </summary>
+        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
+        /// <returns>
+        /// A <see cref="Version" /> instance representing the specified 
+        /// <see cref="string" />.
+        /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="version" /> has fewer than two components or more than four components.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">A major, minor, build, or revision component is less than zero.</exception>
+        /// <exception cref="FormatException">At least one component of <paramref name="version" /> does not parse to a decimal integer.</exception>
+        [Function("parse")]
+        public static Version Parse(string version) {
+            return new Version(version);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="Version" /> to its equivalent
+        /// string representation.
+        /// </summary>
+        /// <param name="value">A <see cref="Version" /> to convert.</param>
+        /// <returns>
+        /// The string representation of the values of the major, minor, build, 
+        /// and revision components of the specified <see cref="Version" />.
+        /// </returns>
+        [Function("to-string")]
+        public static string ToString(Version value) {
+            return value.ToString();
         }
 
         #endregion Public Static Methods

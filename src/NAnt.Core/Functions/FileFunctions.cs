@@ -89,46 +89,6 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Gets the file version of the given file.
-        /// </summary>
-        /// <param name="fileName">The file to get file version info for.</param>
-        /// <returns>
-        /// The file version of the given file.
-        /// </returns>
-        /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
-        [Function("get-file-version")]
-        public string GetFileVersion(string fileName) {
-            string fullPath = Project.GetFullPath(fileName);
-            if (!File.Exists(fullPath)) {
-                throw new FileNotFoundException(string.Format(CultureInfo.InvariantCulture, 
-                    "Could not find file '{0}'.", fullPath));
-            }
-
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fullPath);
-            return fileVersionInfo.FileVersion;
-        }
-
-        /// <summary>
-        /// Gets the product version of the given file.
-        /// </summary>
-        /// <param name="fileName">The file to get product version info for.</param>
-        /// <returns>
-        /// The product version of the given file.
-        /// </returns>
-        /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
-        [Function("get-product-version")]
-        public string GetProductVersion(string fileName) {
-            string fullPath = Project.GetFullPath(fileName);
-            if (!File.Exists(fullPath)) {
-                throw new FileNotFoundException(string.Format(CultureInfo.InvariantCulture, 
-                    "Could not find file '{0}'.", fullPath));
-            }
-
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fullPath);
-            return fileVersionInfo.ProductVersion;
-        }
-
-        /// <summary>
         /// Determines whether the specified file exists.
         /// </summary>
         /// <param name="file">The file to check.</param>
@@ -185,7 +145,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <exception cref="FileNotFoundException">The file specified cannot be found.</exception>
         [Function("get-length")]
-        public long Length(string file) {
+        public long GetLength(string file) {
             FileInfo fi = new FileInfo(Project.GetFullPath(file));
             return fi.Length;
         }

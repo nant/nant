@@ -43,65 +43,57 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
         
         /// <summary>
-        /// Gets the version of the given assembly file.
-        /// </summary>
-        /// <param name="assemblyFile">The file name of the assembly to get version info for.</param>
-        /// <returns>
-        /// The full version of the given assembly file.
-        /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
-        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
-        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
-        [Function("get-version")]
-        public static string GetVersion(string assemblyFile) {
-            return AssemblyName.GetAssemblyName(assemblyFile).Version.ToString(); 
-        }
-        
-        /// <summary>
         /// Gets the full name of the assembly, also known as the display name.
         /// </summary>
-        /// <param name="assemblyFile">The file name of the assembly to get the full name for.</param>
+        /// <param name="assembly">The assembly to get the full name for.</param>
         /// <returns>
         /// The full name of the assembly, also known as the display name.
         /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
-        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
-        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
         [Function("get-full-name")]
-        public static string GetFullName(string assemblyFile) {
-            return AssemblyName.GetAssemblyName(assemblyFile).FullName;
+        public static string GetFullName(Assembly assembly) {
+            return assembly.FullName;
         }
         
         /// <summary>
-        /// Gets the simple, unencrypted name of the assembly.
+        /// Gets an <see cref="AssemblyName" /> for the specified assembly.
         /// </summary>
-        /// <param name="assemblyFile">The file name of the assembly to get the name for.</param>
+        /// <param name="assembly">The assembly to get an <see cref="AssemblyName" /> for.</param>
         /// <returns>
-        /// The simple, unencrypted name of the assembly.
+        /// An <see cref="AssemblyName" /> for the specified assembly.
         /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
-        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
-        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
         [Function("get-name")]
-        public static string GetName(string assemblyFile) {
-            return AssemblyName.GetAssemblyName(assemblyFile).Name;
-        }
-        
-        /// <summary>
-        /// Gets the culture supported by the assembly.
-        /// </summary>
-        /// <param name="assemblyFile">The file name of the assembly to get the culture for.</param>
-        /// <returns>
-        /// Display name of the assembly's culture.
-        /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
-        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> does not exist.</exception>
-        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
-        [Function("get-culture")]
-        public static string GetCulture(string assemblyFile) {
-            return AssemblyName.GetAssemblyName(assemblyFile).CultureInfo.DisplayName;
+        public static AssemblyName GetName(Assembly assembly) {
+            return assembly.GetName(false);
         }
 
+        /// <summary>
+        /// Gets the physical location, in codebase format, of the loaded file 
+        /// that contains the manifest.
+        /// </summary>
+        /// <param name="assembly">The assembly to get the location for.</param>
+        /// <returns>
+        /// The location of the specified assembly.
+        /// </returns>
+        public static string GetLocation(Assembly assembly) {
+            return assembly.Location;
+        }
+
+        /// <summary>
+        /// Loads an assembly given its file name or path.
+        /// </summary>
+        /// <param name="assemblyFile">The name or path of the file that contains the manifest of the assembly.</param>
+        /// <returns>
+        /// The loaded assembly.
+        /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> is not found, or the module you are trying to load does not specify a filename extension.</exception>
+        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
+        /// <exception cref="PathTooLongException">An assembly or module was loaded twice with two different evidences, or the assembly name is longer than MAX_PATH characters.</exception>
+        [Function("load-from-file")]
+        public static Assembly LoadFromFile(string assemblyFile) {
+            return Assembly.LoadFrom(assemblyFile);
+        }
+        
         #endregion Public Static Methods
     }
 }

@@ -51,18 +51,6 @@ namespace NAnt.Core.Functions {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the full path to the <c>NAnt</c> assembly.
-        /// </summary>
-        /// <returns>
-        /// The full path to the <c>NAnt</c> assembly.
-        /// </returns>
-        [Function("get-location")]
-        public string GetLocation() {
-            Assembly assembly = GetNAntAssembly();
-            return assembly.Location;
-        }
-
-        /// <summary>
         /// Gets the base directory of the appdomain in which NAnt is running.
         /// </summary>
         /// <returns>
@@ -73,11 +61,14 @@ namespace NAnt.Core.Functions {
             return AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        #endregion Public Instance Methods
-
-        #region Private Instance Methods
-
-        private Assembly GetNAntAssembly() {
+        /// <summary>
+        /// Gets the NAnt assembly.
+        /// </summary>
+        /// <returns>
+        /// The NAnt assembly.
+        /// </returns>
+        [Function("get-assembly")]
+        public Assembly GetAssembly() {
             Assembly assembly = Assembly.GetEntryAssembly();
             // check if NAnt was launched as a console application
             if (assembly.GetName().Name != "NAnt") {
@@ -88,7 +79,7 @@ namespace NAnt.Core.Functions {
             return assembly;
         }
 
-        #endregion Private Instance Methods
+        #endregion Public Instance Methods
     }
 
     [FunctionSet("project", "NAnt")]
@@ -615,51 +606,5 @@ namespace NAnt.Core.Functions {
         }
         
         #endregion Public Static Methods
-    }
-
-    [FunctionSet("environment", "NAnt")]
-    public class EnvironmentFunctions : FunctionSetBase {
-        #region Public Instance Constructors
-
-        public EnvironmentFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
-        }
-
-        #endregion Public Instance Constructors
-
-        #region Public Instance Methods
-
-        /// <summary>
-        /// Returns the value of the specified environment variable.
-        /// </summary>
-        /// <param name="name">The environment variable of which the value should be returned.</param>
-        /// <returns>
-        /// The value of the specified environment variable.
-        /// </returns>
-        /// <exception cref="ArgumentException">Environment variable <paramref name="name" /> does not exist.</exception>
-        [Function("get-variable")]
-        public static string GetVariable(string name) {
-            if (!VariableExists(name)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Environment variable \"{0}\" does not exist.", name));
-            }
-
-            return Environment.GetEnvironmentVariable(name);
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the specified environment variable
-        /// exists.
-        /// </summary>
-        /// <param name="name">The environment variable that should be checked.</param>
-        /// <returns>
-        /// <see langword="true" /> if the environment variable exists; otherwise,
-        /// <see langword="false" />.
-        /// </returns>
-        [Function("variable-exists")]
-        public static bool VariableExists(string name) {
-            return (Environment.GetEnvironmentVariable(name) != null);
-        }
-
-        #endregion Public Instance Methods
     }
 }
