@@ -32,7 +32,7 @@
                 <includes name="NAnt.NUnitFormatters.dll"/>
             </references>
         </csc>
-        <csc target="library" warnaserror="true" nowarn="1591;0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
+        <csc target="library" warnaserror="true" nowarn="1591,0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
             <sources>
                 <includes name="NAnt.NUnitTasks/NUnit2/*.cs"/>
                 <!-- common assembly-level attributes -->

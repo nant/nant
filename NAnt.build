@@ -77,7 +77,7 @@
             </fileset>
         </copy>
         <!-- build NAnt.Core -->
-        <csc target="library" warnaserror="true" nowarn="1591;0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
+        <csc target="library" warnaserror="true" nowarn="1591,0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
             <sources failonempty="true">
                 <includes name="src/NAnt.Core/**/*.cs" />
                 <!-- common assembly-level attributes -->
