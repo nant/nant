@@ -21,6 +21,7 @@ using System;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
+using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -49,7 +50,6 @@ namespace NAnt.SourceControl.Tasks {
     public class CvsPass : AbstractCvsTask {
         #region Private Instance Fields
 
-        private FileInfo _passwordFile;
         private string _password;
 
         #endregion Private Instance Fields
@@ -61,8 +61,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("password", Required=true)]
         public new string Password {
-            get { return this._password; }
-            set { this._password = value; }
+            get { return _password; }
+            set { _password = value; }
         }
 
         /// <summary>
@@ -70,9 +70,14 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <value></value>
         [TaskAttribute("passfile", Required=false)]
-        public FileInfo PasswordFile {
-            get { return this._passwordFile; }
-            set { this._passwordFile = value; }
+        public override FileInfo PassFile {
+            get { 
+                // TODO: if passfile is not explicitly set by the user, try to discover 
+                // the .cvspass file using either CVS_PASSFILE environment variable or
+                // HOME (or USERPROFILE)/.cvspass.
+                return base.PassFile; 
+            }
+            set { base.PassFile = value; }
         }
 
         #endregion Public Instance Properties
@@ -98,17 +103,27 @@ namespace NAnt.SourceControl.Tasks {
         #region Override implementation of Task
 
         /// <summary>
+        /// Ensures all information is available to execute the <see cref="Task" />.
+        /// </summary>
+        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the <see cref="Task" />.</param>
+        protected override void InitializeTask(XmlNode taskNode) {
+            // ensure passfile was either set by user or could be discovered from
+            // environment or located in HOME directory
+            if (PassFile == null) {
+                throw new BuildException("'passfile' was not explicitly specified"
+                    + " and could not be determined from environment, or found in"
+                    + " home directory.", Location);
+            }
+        }
+
+        /// <summary>
         /// Update the .cvspass file with the given password.
         /// </summary>
         protected override void ExecuteTask () {
-            if (null == this.PassFile) {
-                throw new BuildException ("Passfile cannot be null.");
-            }
-
             ICSharpCode.SharpCvsLib.FileSystem.Manager manager = 
                 new ICSharpCode.SharpCvsLib.FileSystem.Manager(this.DestinationDirectory);
 
-            Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.PasswordFile.FullName);
+            Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.PassFile.FullName);
 
             manager.UpdatePassFile(this.Password, 
                 new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root), this.PassFile);
