@@ -174,9 +174,10 @@ namespace SourceForge.NAnt.Tasks {
             foreach (string summaryPath in Summaries.FileNames) {
                 // write out the namespace summary nodes
                 try {
-                    StreamReader sr = File.OpenText(summaryPath);
-                    sb.Append(sr.ReadToEnd());
-                    sr.Close();
+                    XmlTextReader tr = new XmlTextReader(summaryPath);
+                    tr.MoveToContent();   // skip XmlDeclaration  and Processing Instructions                                               
+                    sb.Append(tr.ReadOuterXml());
+                    tr.Close();
                 } catch (IOException e) {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}.", summaryPath);
                     throw new BuildException(msg, Location, e);

@@ -125,6 +125,22 @@ namespace SourceForge.NAnt {
                 project.Properties.AddReadOnly(Project.NAntPropertyVersion,  ass.GetName().Version.ToString());
                 project.Properties.AddReadOnly(Project.NAntPropertyLocation, Path.GetDirectoryName(ass.Location));
 
+                if (cmdlineOptions.DefaultFramework != null) {
+                    FrameworkInfo frameworkInfo = project.FrameworkInfoDictionary[cmdlineOptions.DefaultFramework];
+
+                    if (frameworkInfo != null) {
+                        project.CurrentFramework = project.DefaultFramework = frameworkInfo; 
+                    } else {
+                        logger.Fatal("Invalid framework name specified: '" + cmdlineOptions.DefaultFramework + "'");
+                        Console.WriteLine("Invalid framework specified: '" + cmdlineOptions.DefaultFramework + "'. Possible values include:");
+                        Console.WriteLine();
+                        foreach (string s in project.FrameworkInfoDictionary.Keys) {
+                            Console.WriteLine("  {0} ({1})", s, project.FrameworkInfoDictionary[s].Description);
+                        }
+                        return 1;
+                    }
+                }
+
                 if (cmdlineOptions.ShowProjectHelp) {
                     ConsoleDriver.ShowProjectHelp(project.Document);
                 } else {

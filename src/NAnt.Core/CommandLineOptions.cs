@@ -31,6 +31,21 @@ namespace SourceForge.NAnt {
         #region Public Instance Properties
 
         /// <summary>
+        /// Gets or sets the default framework to use (overrides 
+        /// NAnt.exe.config settings)
+        /// </summary>
+        /// <value>The framework that should be used.</value>
+        /// <remarks>
+        /// For a list of possible frameworks, see NAnt.exe.config, possible
+        /// values include "net-1.0", "net-1.1", etc.
+        /// </remarks>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="defaultframework", ShortName="k",  Description="use given framework as default")]
+        public string DefaultFramework {
+            get { return _defaultFramework; }
+            set { _defaultFramework = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the buildfile that should be executed.
         /// </summary>
         /// <value>The buildfile that should be executed.</value>
@@ -217,6 +232,7 @@ namespace SourceForge.NAnt {
 
         #region Private Instance Fields
 
+        private string _defaultFramework;
         private string _buildFile;
         private bool _noLogo;
         private bool _showHelp;
