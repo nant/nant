@@ -46,6 +46,7 @@ namespace NAnt.Core.Functions {
         /// <param name="value">value to be converted</param>
         /// <returns><paramref name="value" /> converted to integer. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-int")]
+        [Obsolete("Use type-specific conversion functions instead.", false)]
         public static int ToInt(int value) {
             return value; // conversion is done at the invocation level
         }
@@ -56,6 +57,7 @@ namespace NAnt.Core.Functions {
         /// <param name="value">The value to be converted.</param>
         /// <returns><paramref name="value" /> converted to double. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-double")]
+        [Obsolete("Use type-specific conversion functions instead.", false)]
         public static double ToDouble(double value) {
             return value; // conversion is done at the invocation level
         }
@@ -73,6 +75,7 @@ namespace NAnt.Core.Functions {
         /// CLS compliance.
         /// </remarks>
         [Function("to-string")]
+        [Obsolete("Use type-specific conversion functions instead.", false)]
         public static string ConvertToString(string value) {
             return value; // conversion is done at the invocation level
         }
@@ -83,6 +86,7 @@ namespace NAnt.Core.Functions {
         /// <param name="value">value to be converted</param>
         /// <returns><paramref name="value" /> converted to datetime. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-datetime")]
+        [Obsolete("Use type-specific conversion functions instead.", false)]
         public static DateTime ToDateTime(DateTime value) {
             return value; // conversion is done at the invocation level
         }
@@ -96,6 +100,7 @@ namespace NAnt.Core.Functions {
         /// with an exception when the conversion is not possible.
         /// </returns>
         [Function("to-boolean")]
+        [Obsolete("Use type-specific conversion functions instead.", false)]
         public static bool ToBoolean(bool value) {
             return value; // conversion is done at the invocation level
         }

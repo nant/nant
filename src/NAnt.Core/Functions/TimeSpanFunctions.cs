@@ -269,6 +269,20 @@ namespace NAnt.Core.Functions {
             return TimeSpan.FromTicks(value);
         }
 
+        #endregion Public Static Methods
+    }
+
+    [FunctionSet("timespan", "Conversion")]
+    public class TimeSpanConversionFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public TimeSpanConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Static Methods
+
         /// <summary>
         /// Constructs a <see cref="TimeSpan" /> from a time indicated by a 
         /// specified string.

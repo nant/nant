@@ -30,10 +30,10 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
     [FunctionSet("datetime", "Date/Time")]
-    public class DateFunctions : FunctionSetBase {
+    public class DateTimeFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public DateFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
+        public DateTimeFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
         #endregion Public Instance Constructors
@@ -156,7 +156,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The day of the week, ranging from zero, indicating Sunday, to six, 
         /// indicating Saturday.
-         /// </returns>
+        /// </returns>
         [Function("get-day-of-week")]
         public static int GetDayOfWeek(DateTime date) {
             return (int) date.DayOfWeek;
@@ -203,7 +203,20 @@ namespace NAnt.Core.Functions {
             return DateTime.IsLeapYear(year);
         }
 
-        /*
+        #endregion Public Static Methods
+    }
+
+    [FunctionSet("datetime", "Conversion")]
+    public class DateTimeConversionFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public DateTimeConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Static Methods
+
         /// <summary>
         /// Converts the specified string representation of a date and time to 
         /// its <see cref="DateTime" /> equivalent.
@@ -214,9 +227,13 @@ namespace NAnt.Core.Functions {
         /// in <paramref name="s" />.
         /// </returns>
         /// <exception cref="FormatException"><paramref name="s" /> does not contain a valid string representation of a date and time.</exception>
+        /// <remarks>
+        /// The <see cref="DateTimeFormatInfo" /> for the invariant culture is 
+        /// used to supply formatting information about <paramref name="s" />.
+        /// </remarks>
         [Function("parse")]
         public static DateTime Parse(string s) {
-            return DateTime.Parse(s);
+            return DateTime.Parse(s, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -228,11 +245,14 @@ namespace NAnt.Core.Functions {
         /// A string representation of <paramref name="value" /> formatted using
         /// the general format specifier ("G").
         /// </returns>
+        /// <remarks>
+        /// <paramref name="value" /> is formatted with the 
+        /// <see cref="DateTimeFormatInfo" /> for the invariant culture.
+        /// </remarks>
         [Function("to-string")]
         public static string ToString(DateTime value) {
-            return value.ToString();
+            return value.ToString(CultureInfo.InvariantCulture);
         }
-        */
 
         #endregion Public Static Methods
     }
