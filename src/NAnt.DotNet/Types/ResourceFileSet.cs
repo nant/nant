@@ -38,6 +38,14 @@ namespace NAnt.DotNet.Types {
         /// </summary>
         public ResourceFileSet() : base() {
         }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceFileSet" /> class from
+        /// the specified <see cref="FileSet" />.
+        /// </summary>
+        /// <param name="source">The <see cref="FileSet" /> that should be used to create a new instance of the <see cref="ResourceFileSet" /> class.</param>
+        public ResourceFileSet(FileSet source) : base(source) {           
+        }
 
         #endregion Public Instance Constructors
 

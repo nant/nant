@@ -47,7 +47,6 @@ namespace NAnt.DotNet.Tasks {
         private bool _warnAsError = false;
         private string _mainType = null;
         private FileSet _references = new FileSet();
-        private ResourceFileSet _resources = new ResourceFileSet();
         private FileSet _modules = new FileSet();
         private FileSet _sources = new FileSet();
         private ResGenTask _resgenTask = null;
@@ -296,7 +295,21 @@ namespace NAnt.DotNet.Tasks {
                     if (this.WarnAsError) {
                         WriteOption(writer, "warnaserror");
                     }
-
+                    if ( Project.CurrentFramework != null ) {
+                        // check for framework references
+                        foreach ( string pattern in References.Includes ) {
+                            if ( Path.GetFileName( pattern ) == pattern ) {
+                                string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                                string localPath = Path.Combine( References.BaseDirectory, pattern);
+                                string fullPath = Path.Combine(frameworkDir, pattern);
+                                
+                                if (! File.Exists( localPath ) && File.Exists(  fullPath )) {
+                                    // found a system reference
+                                    References.FileNames.Add( fullPath );
+                                }
+                            }
+                        }
+                    }
                     foreach (string fileName in References.FileNames) {
                         WriteOption(writer, "reference", fileName);
                     }
@@ -540,7 +553,7 @@ namespace NAnt.DotNet.Tasks {
             resgen.InitializeTaskConfiguration();
 
             // set the fileset
-            resgen.Resources = resourceFileSet; 
+            resgen.Resources = new ResourceFileSet(resourceFileSet); 
             // inherit Verbose setting from current task
             resgen.Verbose = this.Verbose; 
 

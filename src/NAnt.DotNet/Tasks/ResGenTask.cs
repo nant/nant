@@ -28,6 +28,7 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -72,7 +73,7 @@ namespace NAnt.DotNet.Tasks {
         private string _arguments = null;
         private string _input = null; 
         private string _output = null;
-        private FileSet _resources = new FileSet();
+        private ResourceFileSet _resources = new ResourceFileSet();
         private string _targetExt = "resources";
         private string _toDir = null;
 
@@ -120,10 +121,10 @@ namespace NAnt.DotNet.Tasks {
         }
        
         /// <summary>
-        /// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.
+        /// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.      
         /// </summary>
         [FileSet("resources")]
-        public FileSet Resources {
+        public ResourceFileSet Resources {
             get { return _resources; }
             set { _resources = value; }
         }
@@ -147,12 +148,12 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             _arguments = "";
-            if (Resources.FileNames.Count > 0) {
+            if (Resources.FileNames.Count > 0 ) {
                 if (Output != null) {
                     throw new BuildException("Output attribute is incompatible with fileset use.", Location);
                 }
-                foreach (string filename in Resources.FileNames) {
-                    string outputFile = GetOutputFile(filename);
+                foreach (string filename in Resources.FileNames ) {
+                    string outputFile = GetOutputFile(filename, Resources.Prefix );
 
                     if (NeedsCompiling(filename, outputFile)) {
                         if (StringUtils.IsNullOrEmpty(_arguments)) {
@@ -169,7 +170,7 @@ namespace NAnt.DotNet.Tasks {
                 }
 
                 string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
-                string outputFile = GetOutputFile(inputFile);
+                string outputFile = GetOutputFile(inputFile, null);
 
                 if (NeedsCompiling(inputFile, outputFile)) {
                     AppendArgument(string.Format(CultureInfo.InvariantCulture, "\"{0}\" \"{1}\"", inputFile, outputFile));
@@ -191,15 +192,17 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         public void RemoveOutputs() {
             foreach (string filename in Resources.FileNames) {
-                string outputFile = Path.ChangeExtension(filename, TargetExt);
+                string outputFile = GetOutputFile(filename, Resources.Prefix );
                 if (filename != outputFile) {
                     File.Delete (outputFile);
                 }
-                if (Input != null) {
-                    outputFile = Path.ChangeExtension(Input, TargetExt);
-                    if (Input != outputFile) {
-                        File.Delete (outputFile);
-                    }
+            }
+            if (Input != null) {
+                string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
+                string outputFile = GetOutputFile(inputFile, null);
+                
+                if (inputFile != outputFile) {
+                    File.Delete (outputFile);
                 }
             }
         }
@@ -231,7 +234,6 @@ namespace NAnt.DotNet.Tasks {
               if (outputFileInfo.LastWriteTime < inputFileInfo.LastWriteTime) {
                   return true;
               }
-  
               return false;
         }
 
@@ -252,8 +254,9 @@ namespace NAnt.DotNet.Tasks {
         /// Determines the full path and extension for the output file.
         /// </summary>
         /// <param name="filename">The output file for which the full path and extension should be determined.</param>
+        /// <param name="prefix">prefix to prepend to the output .resources file</param>
         /// <returns>The full path (with extensions) for the specified file.</returns>
-        private string GetOutputFile(string filename) {
+        private string GetOutputFile(string filename, string prefix ) {
             FileInfo fileInfo = new FileInfo(filename);
             string outputFile = "";
             
@@ -263,6 +266,9 @@ namespace NAnt.DotNet.Tasks {
                     outputFile = filename;
                 } else {
                     outputFile = Path.Combine(ToDirectory, fileInfo.Name);
+                }
+                if (!StringUtils.IsNullOrEmpty(prefix)) {
+                    outputFile = outputFile.Replace(fileInfo.Name, prefix + "." + fileInfo.Name );
                 }
                 outputFile = Path.ChangeExtension(outputFile, TargetExt);
             } else {
