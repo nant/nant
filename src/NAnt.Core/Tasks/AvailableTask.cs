@@ -109,42 +109,66 @@ namespace SourceForge.NAnt.Tasks {
         protected virtual bool Evaluate() {
             bool resourceAvailable = false;
 
-            try {
-                switch ( Type ){
-                    case ResourceType.File:
-                        FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
-                        if (fileInfo.Exists) {
-                            resourceAvailable = true;
-                        } else {
-                            Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
-                            resourceAvailable = false;
-                        }
-                        break;
-                    case ResourceType.Directory:
-                        // check if specified directory is available on filesystem
-                        DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
-                        if (dirInfo.Exists) {
-                            resourceAvailable = true;
-                        } else {
-                            Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
-                            resourceAvailable = false;
-                        }
-                        break;
-                }
-                return resourceAvailable;
-            } catch (Exception e) {
-                string message = string.Format(CultureInfo.InvariantCulture, "Unable to check if {0} resource {1} is available.", Type, Resource);
-                throw new BuildException(message, Location, e);
+            switch(Type) {
+                case ResourceType.File:
+                    resourceAvailable = CheckFile();
+                    break;
+                case ResourceType.Directory:
+                    resourceAvailable = CheckDirectory();
+                    break;
+                default:
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, "No resource check is implemented for {0}", Type));
             }
+            return resourceAvailable;
         }
 
         #endregion Protected Instance Methods
 
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Checks if the file specified in the <see cref="Resource" /> property is 
+        /// available on the filesystem.
+        /// </summary>
+        /// <returns><c>true</c> when the file exists, <c>false</c> otherwise.</returns>
+        private bool CheckFile() {
+            bool fileAvailable = false;
+
+            FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
+            if (fileInfo.Exists) {
+                fileAvailable = true;
+            } else {
+                Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
+                fileAvailable = false;
+            }
+            return fileAvailable;
+        }
+
+        /// <summary>
+        /// Checks if the directory  specified in the <see cref="Resouce" /> property
+        /// is available on the filesystem.
+        /// </summary>
+        /// <returns><c>true</c> when the directory exists, <c>false</c> otherwise.</returns>
+        private bool CheckDirectory() {
+            bool directoryAvailable = false;
+
+            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
+            if (dirInfo.Exists) {
+                directoryAvailable = true;
+            } else {
+                Log.WriteIf(Verbose, "Unable to find " + Type + " " + Resource);
+                directoryAvailable = false;
+            }       
+            return directoryAvailable;
+        }
+
+        #endregion Private Instance Methods
+
         #region Private Instance Fields
 
-        ResourceType _resourceType;
-        string _resource = null;
-        string _propertyName = null;
+        private ResourceType _resourceType;
+        private string _resource = null;
+        private string _propertyName = null;
 
         #endregion
     }
