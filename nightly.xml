@@ -16,15 +16,20 @@
     
     <include buildfile="nant.build"/>
     
-    <target name="nightly" depends="package UpdateRunningNAnt" description="Perform a 'nightly' package, and updates the version of NAnt that is executing.">
+    <target name="nightly" depends="package" description="Perform a 'nightly' package, and updates the version of NAnt that is executing.">
 		
 		<!-- copy the build up to sourceforge -->
 		<scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
 		
+		<!-- copy docs -->
+		<scp file="${build.dir}/doc" server="${sf.net.ssh.server}" path="${sf.net.build.path}">
+			<arg value="-r"/>
+		</scp>		
+		
 		<!-- make sure files are readable -->
 		<exec program="ssh">
 			<arg value="${sf.net.ssh.server}"/>
-			<arg value="chmod a+r ${sf.net.build.path}/*"/>
+			<arg value="chmod -R 755 ${sf.net.build.path}/*"/>
 		</exec>
 		
     </target>
