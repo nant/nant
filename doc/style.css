@@ -1,6 +1,7 @@
-body { 
-	background: white; 
-	color: black 
+body {
+	font-family: Georgia, "Times New Roman", Times, "New York", serif;
+	background: white;
+	color: black
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -42,10 +43,10 @@ a:link img, a:visited img, a:active img {
 */
 
 /* have list items flush left against lists in a side bar use this style */
-ul.FlushLeft { 
-	margin-left: 1.25em; 
+ul.FlushLeft {
+	margin-left: 1.25em;
 	list-style-position: outside
-}	
+}
 
 .NavBar {
 	background-color: #dfff80;
@@ -64,22 +65,6 @@ ul.FlushLeft {
 	font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
 	padding: 8px;
 }
-
-/*
-
-body {
-	font-family: Georgia, "Times New Roman", Times, "New York", serif;
-	background: white; 
-	color: black; 
-}
-
-.NavBar {
-	font-family: Verdana;
-	font-size: 80%;
-	background-color: #dfff80
-}
-
-*/
 
 /* color scheme */
 .N			{ color: #99cc00; }
