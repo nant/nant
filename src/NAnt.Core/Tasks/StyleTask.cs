@@ -290,6 +290,17 @@ namespace NAnt.Core.Tasks {
                             Directory.SetCurrentDirectory(originalCurrentDirectory);
                         }
 
+                        // initialize xslt parameters
+                        XsltArgumentList xsltArgs = new XsltArgumentList();
+
+                        // set the xslt parameters
+                        foreach (XsltParameter parameter in Parameters) {
+                            if (IfDefined && !UnlessDefined) {
+                                xsltArgs.AddParam(parameter.ParameterName, 
+                                    parameter.NamespaceUri, parameter.Value);
+                            }
+                        }
+
                         // initialize XSLT transform
                         XslTransform xslt = new XslTransform();
 
@@ -304,29 +315,18 @@ namespace NAnt.Core.Tasks {
                                 XsltFile.FullName);
                             xslReader = CreateXmlReader(XsltFile.FullName);
                             xslt.Load(xslReader);
+
+                            // create writer for the destination xml
+                            writer = CreateWriter(destInfo.FullName);
+
+                            // do the actual transformation 
+                            Log(Level.Info, "Processing '{0}' to '{1}'.", 
+                                srcInfo.FullName, destInfo.FullName);
+                            xslt.Transform(xml, xsltArgs, writer);
                         } finally {
                             // restore original current directory
                             Directory.SetCurrentDirectory(originalCurrentDirectory);
                         }
-
-                        // initialize xslt parameters
-                        XsltArgumentList xsltArgs = new XsltArgumentList();
-
-                        // set the xslt parameters
-                        foreach (XsltParameter parameter in Parameters) {
-                            if (IfDefined && !UnlessDefined) {
-                                xsltArgs.AddParam(parameter.ParameterName, 
-                                    parameter.NamespaceUri, parameter.Value);
-                            }
-                        }
-    
-                        // create writer for the destination xml
-                        writer = CreateWriter(destInfo.FullName);
-
-                        // do the actual transformation 
-                        Log(Level.Info, "Processing '{0}' to '{1}'.", 
-                            srcInfo.FullName, destInfo.FullName);
-                        xslt.Transform(xml, xsltArgs, writer);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             "Could not perform XSLT transformation of '{0}' using" 
