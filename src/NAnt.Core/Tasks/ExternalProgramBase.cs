@@ -209,11 +209,18 @@ namespace NAnt.Core.Tasks {
                 process.WaitForExit(TimeOut);
 
                 // Wait for the threads to terminate
-                outputThread.Join();
-                errorThread.Join();
+                outputThread.Join(2000);
+                errorThread.Join(2000);
                 _htThreadStream.Clear();
 
                 if (!process.HasExited) {
+                    try {
+                        process.Kill();
+                    } catch {
+                        // ignore possible exceptions that are thrown when the
+                        // process is terminated
+                    }
+
                     throw new BuildException(
                         String.Format(CultureInfo.InvariantCulture, 
                         "External Program {0} did not finish within {1} milliseconds.", 
