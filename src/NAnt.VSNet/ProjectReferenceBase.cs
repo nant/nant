@@ -193,5 +193,34 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
+
+        #region Protected Instance Methods
+
+        protected ProjectBase LoadProject(SolutionBase solution, TempFileCollection tfc, GacCache gacCache, DirectoryInfo outputDir, string projectFile) {
+            if (ProjectStack.Contains(projectFile)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Circular reference to \"{0}\" detected in project \"{1}\".", 
+                    Path.GetFileNameWithoutExtension(projectFile), Parent.Name), 
+                    Location.UnknownLocation);
+            }
+
+            try {
+                ProjectStack.Push(projectFile);
+
+                Log(Level.Verbose, "Loading referenced project '{0}'.", projectFile);
+                return ProjectFactory.LoadProject(solution, SolutionTask, tfc, 
+                    gacCache, ReferencesResolver, outputDir, projectFile);
+            } finally {
+                ProjectStack.Pop();
+            }
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Static Fields
+
+        private static readonly Stack ProjectStack = new Stack();
+
+        #endregion Private Static Fields
     }
 }

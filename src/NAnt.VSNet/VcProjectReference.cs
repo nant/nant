@@ -52,9 +52,7 @@ namespace NAnt.VSNet {
                 xmlDefinition.GetAttribute("ReferencedProjectIdentifier"));
 
             // load referenced project
-            Log(Level.Verbose, "Loading referenced project '{0}'.", projectFile);
-            _project = ProjectFactory.LoadProject(solution, SolutionTask, tfc, 
-                gacCache, ReferencesResolver, outputDir, projectFile);
+            _project = LoadProject(solution, tfc, gacCache, outputDir, projectFile);
         }
 
         public VcProjectReference(ProjectBase project, ProjectBase parent, bool isPrivateSpecified, bool isPrivate) : base(project.ReferencesResolver, parent) {
