@@ -40,7 +40,6 @@ namespace NAnt.Core.Tasks {
         string _commandline = null;
         string _baseDirectory = null;
         string _workingDirectory = null;
-        int _timeout = Int32.MaxValue;
         string _outputFile = null;
         bool _outputAppend = false;
         OptionCollection _environment = new OptionCollection();
@@ -154,17 +153,6 @@ namespace NAnt.Core.Tasks {
         public override bool OutputAppend {
             get { return _outputAppend; }
             set { _outputAppend = value; }
-        }
-
-        /// <summary>
-        /// Stop the build if the command does not finish within the specified time. 
-        /// Specified in milliseconds. Default is no time out.
-        /// </summary>
-        [TaskAttribute("timeout")]
-        [Int32Validator()]
-        public override int TimeOut {
-            get { return _timeout; }
-            set { _timeout = value; }
         }
 
         protected override void ExecuteTask() {

@@ -41,6 +41,7 @@ namespace NAnt.Core.Tasks {
 
         private Hashtable _htThreadStream = new Hashtable();
         private ArgumentCollection _arguments = new ArgumentCollection();
+        private int _timeout = Int32.MaxValue;
 
         #endregion Private Instance Fields
 
@@ -111,9 +112,11 @@ namespace NAnt.Core.Tasks {
         /// The maximum amount of time the application is allowed to execute, 
         /// expressed in milliseconds.  Defaults to no time-out.
         /// </summary>
-        public virtual int TimeOut {
-            get { return Int32.MaxValue; }
-            set {}
+        [TaskAttribute("timeout")]
+        [Int32Validator()]
+        public int TimeOut {
+            get { return _timeout; }
+            set { _timeout = value; }
         }
 
         /// <summary>
@@ -182,10 +185,20 @@ namespace NAnt.Core.Tasks {
 
                 // Wait for the process to terminate
                 process.WaitForExit(TimeOut);
+
                 // Wait for the threads to terminate
                 outputThread.Join();
                 errorThread.Join();
                 _htThreadStream.Clear();
+
+                if (!process.HasExited) {
+                    throw new BuildException(
+                        String.Format(CultureInfo.InvariantCulture, 
+                        "External Program {0} did not finish within {1} milliseconds.", 
+                        ProgramFileName, 
+                        TimeOut), 
+                        Location);
+                }
 
                 if (process.ExitCode != 0){
                     throw new BuildException(
