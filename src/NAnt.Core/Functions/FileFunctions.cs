@@ -126,11 +126,6 @@ namespace NAnt.Core.Functions {
             string srcPath = Project.GetFullPath(srcFile);
             string targetPath = Project.GetFullPath(targetFile);
 
-            if (!File.Exists(srcPath)) {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Source file '{0}' does not exist.", srcPath));
-            }
-
             if (!File.Exists(targetPath)) {
                 // if targetFile does not exist, we consider it out-of-date
                 return false;
