@@ -177,6 +177,8 @@ namespace NAnt.Core.Tasks {
             get { return _xsltParameters; }
         }
 
+        #endregion Public Instance Properties
+
         #region Override implementation of Task
 
         protected override void InitializeTask(XmlNode taskNode) {
@@ -216,7 +218,7 @@ namespace NAnt.Core.Tasks {
 
             if (srcFiles == null || srcFiles.Count == 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "No source files indicates; use \"in\" or \"infiles\"."), 
+                    "No source files indicated; use \"in\" or \"infiles\"."), 
                     Location);
             }
 
@@ -317,8 +319,6 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Override implementation of Task
-
-        #endregion Public Instance Properties
 
         #region Protected Instance Methods
 
