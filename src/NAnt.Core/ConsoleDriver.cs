@@ -150,6 +150,7 @@ namespace NAnt.Core {
                                 Console.WriteLine(" {0} ({1})", s, project.FrameworkInfoDictionary[s].Description);
                             }
                         }
+                        // signal error
                         return 1;
                     }
                 }
@@ -161,30 +162,38 @@ namespace NAnt.Core {
                         return 1;
                     }
                 }
+                // signal success
                 return 0;
             } catch (CommandLineArgumentException ex) {
                 // Log exception to internal log
                 logger.Warn("Invalid command line specified.", ex);
-
                 // Write logo banner to conole if parser was created successfully
                 if (commandLineParser != null) {
                     Console.WriteLine(commandLineParser.LogoBanner);
                 }
-
                 // Write message of exception to console
                 Console.WriteLine(ex.Message);
+                // insert empty line
+                Console.WriteLine();
+                // instruct users to check the usage instructions
+                Console.WriteLine("Try 'nant -help' for more information");
+                // signal error
                 return 1;
             } catch (ApplicationException ex) {
+                Console.WriteLine("BUILD FAILED");
+                // insert empty line
+                Console.WriteLine();
+                // output message of exception
                 Console.WriteLine(ex.Message);
-
+                // output message of nested exception
                 Exception nestedException = ex.InnerException;
                 while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
                     Console.WriteLine(" " + nestedException.Message);
                     nestedException = nestedException.InnerException;
                 }
-
+                // insert empty line
                 Console.WriteLine();
-
+                // check if warning messages will be logged to the internal log
                 if (logger.IsWarnEnabled) {
                     logger.Warn("NAnt Build Failure", ex);
                     Console.WriteLine("Consult the log4net output for more information.");
@@ -193,16 +202,22 @@ namespace NAnt.Core {
                         "build failure, enable log4net using the instructions in NAnt.exe.config and " +
                         "run the build again.");
                 }
-
+                // insert empty line
                 Console.WriteLine();
+                // instruct users to check the usage instructions
                 Console.WriteLine("Try 'nant -help' for more information");
+                // signal error
                 return 1;
             } catch (Exception ex) {
                 // all other exceptions should have been caught
                 Console.WriteLine("INTERNAL ERROR");
-                Console.WriteLine(ex.Message);
-
+                // insert empty line
                 Console.WriteLine();
+                // output message of exception
+                Console.WriteLine(ex.Message);
+                // insert empty line
+                Console.WriteLine();
+                // check if fatal messages will be logged to the internal log
                 if (logger.IsFatalEnabled) {
                     logger.Fatal("Internal Nant Error", ex);
                     Console.WriteLine("Consult the log4net output for more information.");
@@ -211,8 +226,9 @@ namespace NAnt.Core {
                         "build failure, enable log4net using the instructions in NAnt.exe.config and " +
                         "run the build again.");
                 }
-
+                // insert empty line
                 Console.WriteLine();
+                // instruct users to report this problem
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
                 return 2;
             } finally {
