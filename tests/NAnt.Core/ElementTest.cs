@@ -37,7 +37,7 @@ namespace Tests.NAnt.Core {
     class ElementTest1Task : Task {
         #region Public Instance Properties
 
-        [FileSet("fileset")]
+        [BuildElement("fileset")]
         public FileSet FileSet {
             get { return null; } // we'll test for null later!
         }
