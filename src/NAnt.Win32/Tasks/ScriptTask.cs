@@ -155,7 +155,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The namespaces to import.
         /// </summary>
-        [BuildElementCollection("imports")]
+        [BuildElementCollection("imports", "import", typeof(NamespaceImport))]
         public NamespaceImportCollection Imports {
             get { return _imports; }
         }

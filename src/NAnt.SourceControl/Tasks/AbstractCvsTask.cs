@@ -124,7 +124,7 @@ namespace NAnt.SourceControl.Tasks {
         ///             <code>sticky-tag</code>
         ///             <code>override-directory</code>
         /// </summary>
-        [BuildElementCollection("options")]
+        [BuildElementCollection("options", "option", typeof(Option))]
         public OptionCollection Options {
             get {return _options;}
         }

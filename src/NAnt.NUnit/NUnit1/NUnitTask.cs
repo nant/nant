@@ -118,7 +118,7 @@ namespace NAnt.NUnit1.Tasks {
         /// <summary>
         /// Tests to run.
         /// </summary>
-        [BuildElementArray("test")]
+        [BuildElementArray("test", typeof(NUnitTest))]
         public NUnitTestCollection Tests {
             get { return _tests; }
         }
@@ -126,7 +126,7 @@ namespace NAnt.NUnit1.Tasks {
         /// <summary>
         /// Formatters to output results of unit tests.
         /// </summary>
-        [BuildElementArray("formatter")]
+        [BuildElementArray("formatter", typeof(FormatterElement))]
         public FormatterElementCollection FormatterElements {
             get { return _formatterElements; }
         }
