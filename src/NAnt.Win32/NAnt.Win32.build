@@ -20,8 +20,8 @@
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="NDoc.Core.dll" />
-                <includes name="Microsoft.JScript.dll" asis="true" />
-                <includes name="System.ServiceProcess.dll" asis="true" />
+                <includes name="Microsoft.JScript.dll" />
+                <includes name="System.ServiceProcess.dll" />
             </references>
         </csc>
     </target>
