@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Scott Hernandez (ScottHernandez@hotmail.com)
+// Copyright (C) 2002-2003 Scott Hernandez
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
@@ -28,21 +28,74 @@ namespace Tests.NAnt.Core.Tasks {
     /// </summary>
     [TestFixture]
     public class FailTest : BuildTestBase {
-        
-
 		[Test]
-        public void Test_Fail() {
+        public void Test_FailMessage() {
             string _xml = @"
                     <project>
                         <fail message='Death Sucks!'/>
                     </project>";
             try {
                 string result = RunBuild(_xml);            
-                Assertion.Assert("Fail message missing:" + result, result.IndexOf("Death Sucks!") != -1);
+                Assertion.Fail("Project should have failed:" + result);
+            } catch (TestBuildException be) {
+                Assertion.Assert("Project did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+            }
+        }
+
+        [Test]
+        public void Test_FailMessageMacro() {
+            string _xml = @"
+                    <project>
+                        <property name='prop' value='Death' />
+                        <fail message='${prop} Sucks!'/>
+                    </project>";
+            try {
+                string result = RunBuild(_xml);            
+                Assertion.Fail("Project should have failed:" + result);
+            } catch (TestBuildException be) {
+                Assertion.Assert("Macro should have expanded!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+            }
+        }
+
+        [Test]
+        public void Test_FailContent() {
+            string _xml = @"
+                    <project>
+                        <fail>Death Sucks!</fail>
+                    </project>";
+            try {
+                string result = RunBuild(_xml);            
+                Assertion.Fail("Project should have failed:" + result);
             }
             catch (TestBuildException be) {
-                Assertion.Assert("Did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+                Assertion.Assert("Project did not fail from Test!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
             }
+        }
+
+        [Test]
+        public void Test_FailContentMacro() {
+            string _xml = @"
+                    <project>
+                        <property name='prop' value='Death' />
+                        <fail>${prop} Sucks!</fail>
+                    </project>";
+            try {
+                string result = RunBuild(_xml);            
+                Assertion.Fail("Project should have failed:" + result);
+            }
+            catch (TestBuildException be) {
+                Assertion.Assert("Macro should have expanded!", be.InnerException.ToString().IndexOf("Death Sucks!") != -1);
+            }
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_FailMessageAndInlineContent() {
+            string _xml = @"
+                    <project>
+                        <fail message='Death Sucks!'>Death Sucks!</fail>
+                    </project>";
+            string result = RunBuild(_xml);
         }
     }
 }

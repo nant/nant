@@ -46,6 +46,17 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
+        public void Test_EchoDefaultProjectInfoMacro() {
+            string _xml = @"
+                    <project>
+                        <property name='prop' value='Go' />
+                        <echo message='${prop} Away!'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Macro should have expanded:" + result, result.IndexOf("Go Away!") != -1);
+        }
+
+        [Test]
         public void Test_EchoDebugProjectInfo() {
             string _xml = @"
                     <project>
@@ -63,6 +74,17 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml, Level.Info);
             Assertion.Assert("Warning echo should be output when Project level is Info.", result.IndexOf("Go Away!") != -1);
+        }
+
+        [Test]
+        public void Test_EchoWarningProjectInfoMacro() {
+            string _xml = @"
+                    <project>
+                        <property name='prop' value='Go' />
+                        <echo level='Warning'>${prop} Away!</echo>
+                    </project>";
+            string result = RunBuild(_xml, Level.Info);
+            Assertion.Assert("Macro should have expanded:" + result, result.IndexOf("Go Away!") != -1);
         }
 
         [Test]
