@@ -167,7 +167,7 @@
             <arg value="-c -o onecmd '${commandline}'"/>
         </exec>
 
-        <copy todir="${build.dir}">
+        <copy todir="${build.dir}" flatten="true">
             <fileset basedir="${rpm.base}/RPMS">
                 <include name="**/*.rpm"/>
             </fileset>   
