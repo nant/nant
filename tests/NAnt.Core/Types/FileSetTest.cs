@@ -47,6 +47,8 @@ namespace SourceForge.NAnt.Tests {
             string sub1Path = Path.Combine(TempDirName, "sub1");
             Directory.CreateDirectory(sub1Path);
             TempFile.Create(Path.Combine(sub1Path, "sub.one"));
+            string sub2Path = Path.Combine(TempDirName, "sub2");
+            Directory.CreateDirectory(sub2Path);
         }
 
         [Test]
@@ -76,8 +78,10 @@ namespace SourceForge.NAnt.Tests {
             AssertMatch("world.war");
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
-            // Expect 6 - includng directory
-            Assertion.AssertEquals(6, _fileSet.FileNames.Count);
+            // Expect 5 - not including directory
+            Assertion.AssertEquals(5, _fileSet.FileNames.Count);
+            // Two directories, including one empty one
+            Assertion.AssertEquals(2, _fileSet.DirectoryNames.Count);
         }
 
         [Test]
@@ -103,7 +107,14 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(1, _fileSet.FileNames.Count);
         }
 
-        void AssertMatch(string fileName) {
+        [Test]
+        public void Test_Includes_Sub2() {
+            _fileSet.Includes.Add("sub2/**/*");
+            Assertion.AssertEquals(0, _fileSet.FileNames.Count);
+        }
+
+        void AssertMatch(string fileName) 
+        {
             AssertMatch(fileName, true);
         }
 

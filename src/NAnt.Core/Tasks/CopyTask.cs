@@ -103,9 +103,9 @@ namespace SourceForge.NAnt.Tasks {
             int fileCount = FileCopyMap.Keys.Count;
             if (fileCount > 0 || Verbose) {
                 if (ToDirectory != null) {
-                    Log.WriteLine(LogPrefix + "Copying {0} files to {1}", fileCount, Project.GetFullPath(ToDirectory));
+                    Log.WriteLine(LogPrefix + "Copying {0} file{1} to {2}", fileCount, ( fileCount != 1 ) ? "s" : "", Project.GetFullPath(ToDirectory));
                 } else {
-                    Log.WriteLine(LogPrefix + "Copying {0} files", fileCount);
+                    Log.WriteLine(LogPrefix + "Copying {0} file{1}", fileCount, ( fileCount != 1 ) ? "s" : "" );
                 }
 
                 // loop thru our file list
@@ -168,6 +168,8 @@ namespace SourceForge.NAnt.Tasks {
                     if (Overwrite || outdated) {
                         // add to a copy map of absolute verified paths
                         FileCopyMap.Add(srcInfo.FullName, dstInfo.FullName);
+                        if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) 
+                            File.SetAttributes( dstInfo.FullName, FileAttributes.Normal );
                     }
                 } else {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file {0} to copy.", srcInfo.FullName);
@@ -189,7 +191,7 @@ namespace SourceForge.NAnt.Tasks {
                         // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then dstRelFilePath=f3\file1
                         string dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
 
-                        if(dstRelFilePath.StartsWith("\\")) {
+                        if( dstRelFilePath[0] == Path.DirectorySeparatorChar ) {
                             dstRelFilePath = dstRelFilePath.Substring(1);
                         }
                         
@@ -202,10 +204,28 @@ namespace SourceForge.NAnt.Tasks {
 
                         if (Overwrite || outdated) {
                             FileCopyMap.Add(srcInfo.FullName, dstFilePath);
+                            if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) 
+                                File.SetAttributes( dstInfo.FullName, FileAttributes.Normal );
                         }
                     } else {
                         string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file {0} to copy.", srcInfo.FullName);
                         throw new BuildException(msg, Location);
+                    }
+                }
+
+                // Create any specified directories that weren't created during the copy (ie: empty directories)
+                foreach (string pathname in CopyFileSet.DirectoryNames) {
+                    DirectoryInfo srcInfo = new DirectoryInfo(pathname);
+                    string dstRelPath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
+                    if(dstRelPath[0] == Path.DirectorySeparatorChar ) {
+                        dstRelPath = dstRelPath.Substring(1);
+                    }
+
+                    // The full filepath to copy to.
+                    string dstPath = Path.Combine(dstBaseInfo.FullName, dstRelPath);
+                    if (!Directory.Exists(dstPath)) {
+                        Log.WriteLineIf(Verbose, LogPrefix + "Created directory {0}", dstPath);
+                        Directory.CreateDirectory(dstPath);
                     }
                 }
             }

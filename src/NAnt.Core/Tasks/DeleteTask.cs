@@ -101,37 +101,74 @@ namespace SourceForge.NAnt.Tasks {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", DirectoryName);
                     throw new BuildException(msg, Location, e);
                 }
-                DeleteDirectory(path);
-
+                if (!Directory.Exists(path))
+                    throw new DirectoryNotFoundException();
+                Log.WriteLine(LogPrefix + "Deleting directory {0}", path);
+                RecursiveDeleteDirectory(path);
             } else {
                 // delete files in fileset
-                Log.WriteLine(LogPrefix + "Deleting {0} files", DeleteFileSet.FileNames.Count);
+                if ( DeleteFileSet.DirectoryNames.Count == 0 )
+                    Log.WriteLine(LogPrefix + "Deleting {0} files", DeleteFileSet.FileNames.Count);
+                else if ( DeleteFileSet.FileNames.Count == 0 )
+                    Log.WriteLine(LogPrefix + "Deleting {0} directories", DeleteFileSet.DirectoryNames.Count);
+                else
+                    Log.WriteLine(LogPrefix + "Deleting {0} files and {1} directories", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
+
                 foreach (string path in DeleteFileSet.FileNames) {
                     DeleteFile(path, Verbose);
+                }
+                foreach (string path in DeleteFileSet.DirectoryNames) {
+                    if (Directory.Exists(path))
+                        RecursiveDeleteDirectory(path);
                 }
             }
         }
 
-        void DeleteDirectory(string path) {
+        void RecursiveDeleteDirectory(string path) {
             try {
-                if (Directory.Exists(path)) {
-                    Log.WriteLine(LogPrefix + "Deleting directory {0}", path);
-                    Directory.Delete(path, true);
-                } else {
-                    throw new DirectoryNotFoundException();
+                // First, recursively delete all directories in the directory
+                string[] dirs = Directory.GetDirectories(path);
+                foreach (string dir in dirs)
+                    RecursiveDeleteDirectory(dir);
+
+                // Next, delete all files in the directory
+                string[] files = Directory.GetFiles(path);
+                foreach (string file in files) {
+                    try {
+                        File.SetAttributes(file, FileAttributes.Normal);
+                        Log.WriteLineIf(Verbose, LogPrefix + "Deleting file {0}", file);
+                        File.Delete(file);
+                    }
+                    catch (Exception e) {
+                        if (FailOnError) {
+                            string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}", file);
+                            throw new BuildException(msg, Location, e);
+                        }
+                        Log.WriteLineIf(Verbose, LogPrefix + "Error while deleting file {0}", file);
+                    }
                 }
+
+                // Finally, delete the directory
+                File.SetAttributes(path, FileAttributes.Normal);
+                Log.WriteLineIf(Verbose, LogPrefix + "Deleting directory {0}", path);
+                Directory.Delete(path);
             } catch (Exception e) {
                 if (FailOnError) {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}", path);
                     throw new BuildException(msg, Location, e);
                 }
+                Log.WriteLineIf(Verbose, LogPrefix + "Error while deleting directory {0}", path);
             }
         }
 
         void DeleteFile(string path, bool verbose) {
             try {
-                if (File.Exists(path)) {
+                FileInfo deleteInfo = new FileInfo( path );
+                if (deleteInfo.Exists)  {
                     Log.WriteLineIf(verbose, LogPrefix + "Deleting file {0}", path);
+                    if ( deleteInfo.Attributes != FileAttributes.Normal ) {
+                        File.SetAttributes( deleteInfo.FullName, FileAttributes.Normal );
+                    }
                     File.Delete(path);
                 } else {
                     throw new FileNotFoundException();
