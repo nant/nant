@@ -19,6 +19,7 @@
 // Mike Krueger (mike@icsharpcode.net)
 // Ian MacLean (ian_maclean@another.com)
 
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -63,9 +64,28 @@ namespace NAnt.DotNet.Tasks {
         /// code-behind will use the "namespace+classname" algorithm.
         /// </summary>
         protected static string[] CodebehindExtensions = {".aspx", ".asax", ".ascx", ".asmx"};
+        
+        /// <summary>
+        /// List of valid culture names for this platform
+        /// </summary>
+        protected static StringCollection cultureNames = new StringCollection();
 
+        #region Class Constructor
+        
+        /// <summary>
+        /// Class constructor. Is called when the type is first loded by the runtime
+        /// </summary>
+        static CompilerBase() {
+            // fill the culture list
+            foreach ( CultureInfo ci in CultureInfo.GetCultures( CultureTypes.AllCultures  ) ) {		       
+                cultureNames.Add( ci.Name  );
+            }
+        }
+        
+        #endregion
         #endregion Protected Static Fields
 
+    
         #region Public Instance Properties
 
         /// <summary>
@@ -278,6 +298,8 @@ namespace NAnt.DotNet.Tasks {
                 StreamWriter writer = new StreamWriter(_responseFileName);
 
                 try {
+                    Hashtable cultureResources = new Hashtable();
+                    
                     if (References.BaseDirectory == null) {
                         References.BaseDirectory = BaseDirectory;
                     }
@@ -385,13 +407,45 @@ namespace NAnt.DotNet.Tasks {
                             if (resourceLinkage == null) {
                                 manifestResourceName = resources.GetManifestResourceName(fileName);
                             }
+                            
+                            // Check for internationalised resource files.
+                            string culture = "";
+                            if ( ContainsCulture( fileName, ref culture )) {
+                                if (! cultureResources.ContainsKey( culture ) )  {
+                                    cultureResources.Add( culture, new StringCollection() );
+                                }    
+                                // store resulting .resoures file for later linking 
+                                ((StringCollection)cultureResources[culture]).Add( tmpResourcePath );
+                            } else {
+                                
+                                // regular embedded resources
+                                string resourceoption = tmpResourcePath + "," + manifestResourceName;
 
-                            string resourceoption = tmpResourcePath + "," + manifestResourceName;
-
-                            // write resource option to response file
-                            WriteOption(writer, "resource", resourceoption);
+                                // write resource option to response file
+                                WriteOption(writer, "resource", resourceoption );
+                            }
                         }
+                        // new localised resource dll for each culture name
+                        foreach (string culture in cultureResources.Keys ) {
+                
+                            string culturedir =  Path.GetDirectoryName( Output )  + Path.DirectorySeparatorChar +  culture;
+                            Directory.CreateDirectory(culturedir );
+                            // defer to the assembly linker task
+                            AssemblyLinkerTask alink = new AssemblyLinkerTask();
+                            alink.Project = this.Project;
+                            alink.Parent = this.Parent;
+                            alink.InitializeTaskConfiguration();
 
+                            alink.Output = Path.Combine( culturedir, Path.GetFileNameWithoutExtension(Output) + ".resources.dll");
+                            alink.Culture = culture;
+                            alink.OutputTarget = "lib";
+                            StringCollection localisedResources = (StringCollection)cultureResources[culture];
+                            foreach( string resource in localisedResources ) {
+                                alink.Sources.FileNames.Add(resource );
+                            }
+                            alink.Execute();
+                        }
+                        
                         // other resources
                         foreach (string fileName in resources.NonResxFiles.FileNames) {
                             string resourceoption = fileName + "," + resources.GetManifestResourceName(fileName);
@@ -523,6 +577,26 @@ namespace NAnt.DotNet.Tasks {
             return false;
         }
 
+        /// <summary>
+        /// Determines if a given file is a localised resource file.
+        /// </summary>
+        /// <param name="resXFile">The resx file path to check for culture info</param>   
+        /// <param name="foundCulture">The name of the culture that was located</param>
+        /// <returns>true if we found a culture name otherwise false</returns>
+        protected bool ContainsCulture( string resXFile, ref string foundCulture ) {
+            
+            string noextpath = Path.GetFileNameWithoutExtension( resXFile );
+            int index = noextpath.LastIndexOf( '.' );
+            if ( index >= 0 && index <= noextpath.Length ) {
+                string possibleculture = noextpath.Substring( index +1, noextpath.Length - (index +1) );
+                // check that its in our list of culture names
+                if ( cultureNames.Contains(possibleculture) ) {
+                    foundCulture = possibleculture;
+                    return true;
+                }
+            }
+            return false;
+        }
         /// <summary>
         /// An abstract method that must be overridden in each compiler.  It is 
         /// responable for extracting and returning the associated namespace/classname 
@@ -675,7 +749,7 @@ namespace NAnt.DotNet.Tasks {
             /// Returns the resource linkage as a string.
             /// </summary>
             /// <returns>
-            /// A string representatio of the resource linkage.
+            /// A string representation of the resource linkage.
             /// </returns>
             public override string ToString() {
                 if (!IsValid) {
