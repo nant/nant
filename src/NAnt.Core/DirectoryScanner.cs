@@ -18,6 +18,10 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Kevin Dente (kevindente@yahoo.com)
 
+// This is useful for debugging where filesets are scanned from - scanning is one
+// of the most intensive activities for NAnt
+//#define DEBUG_REGEXES
+
 /*
 Examples:
 "**\*.class" matches all .class files/dirs in a directory tree.
@@ -108,8 +112,8 @@ namespace NAnt.Core {
         private StringCollectionWithGoodToString  _excludes = new StringCollectionWithGoodToString();
 
         // holds the nant patterns converted to regular expression patterns (absolute canonized paths)
-        private StringCollectionWithGoodToString  _includePatterns;
-        private StringCollectionWithGoodToString  _excludePatterns;
+        private ArrayList  _includePatterns;
+        private ArrayList  _excludePatterns;
 
         // holds the nant patterns converted to non-regex names (absolute canonized paths)
         private StringCollectionWithGoodToString  _includeNames;
@@ -152,7 +156,7 @@ namespace NAnt.Core {
                     _directoryNames.Clone();
             }
             if (_excludePatterns != null) {
-                clone._excludePatterns = (StringCollectionWithGoodToString) 
+                clone._excludePatterns = (ArrayList) 
                     _excludePatterns.Clone();
             }
             if (_excludeNames != null) {
@@ -165,7 +169,7 @@ namespace NAnt.Core {
                     _fileNames.Clone();
             }
             if (_includePatterns != null) {
-                clone._includePatterns = (StringCollectionWithGoodToString) 
+                clone._includePatterns = (ArrayList) 
                     _includePatterns.Clone();
             }
             if (_includeNames != null) {
@@ -269,9 +273,9 @@ namespace NAnt.Core {
         ///     <change date="20020221" author="Ari Hännikäinen">Changed it again because of performance reasons</change>
         /// </history>
         public void Scan() {
-            _includePatterns = new StringCollectionWithGoodToString ();
+            _includePatterns = new ArrayList();
             _includeNames = new StringCollectionWithGoodToString ();
-            _excludePatterns = new StringCollectionWithGoodToString ();
+            _excludePatterns = new ArrayList();
             _excludeNames = new StringCollectionWithGoodToString ();
             _fileNames = new StringCollectionWithGoodToString ();
             _directoryNames = new DirScannerStringCollection();
@@ -286,12 +290,15 @@ namespace NAnt.Core {
             Console.WriteLine(new System.Diagnostics.StackTrace().ToString());
 
 
+            Console.WriteLine("Base Directory: " + BaseDirectory.FullName);
             Console.WriteLine("Includes:");
             foreach (string strPattern in _includes)
                 Console.WriteLine(strPattern);
             Console.WriteLine("Excludes:");
             foreach (string strPattern in _excludes)
                 Console.WriteLine(strPattern);
+
+            Console.WriteLine("--- Starting Scan ---");
 #endif
 
             // convert given NAnt patterns to regex patterns with absolute paths
@@ -323,21 +330,27 @@ namespace NAnt.Core {
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>
-        private void ConvertPatterns(StringCollection nantPatterns, StringCollection regexPatterns, StringCollection nonRegexFiles, bool addSearchDirectories) {
+        private void ConvertPatterns(StringCollection nantPatterns, ArrayList regexPatterns, StringCollection nonRegexFiles, bool addSearchDirectories) {
             string searchDirectory;
             string regexPattern;
             bool isRecursive;
             bool isRegex;
 
             foreach (string nantPattern in nantPatterns) {
-                ParseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out isRecursive, out isRegex, out regexPattern);
+                ParseSearchDirectoryAndPattern(addSearchDirectories, nantPattern, out searchDirectory, out isRecursive, out isRegex, out regexPattern);
                 if (isRegex) {
-                    if (!regexPatterns.Contains(regexPattern)) {
-                        regexPatterns.Add(regexPattern);
-                    } 
+                    RegexEntry entry = new RegexEntry();
+                    entry.IsRecursive = isRecursive;
+                    entry.BaseDirectory = searchDirectory;
+                    entry.Pattern = regexPattern;
+                    if (regexPattern.EndsWith(@"**/*") || regexPattern.EndsWith(@"**\*"))
+                        logger.Warn( "**/* pattern may not produce desired results" );
+
+                    regexPatterns.Add(entry);
                 } else {
-                    if (!nonRegexFiles.Contains(regexPattern)) {
-                        nonRegexFiles.Add(regexPattern);
+                    string exactName = Path.Combine(searchDirectory, regexPattern);
+                    if (!nonRegexFiles.Contains(exactName)) {
+                        nonRegexFiles.Add(exactName);
                     } 
                 }
                 
@@ -366,6 +379,7 @@ namespace NAnt.Core {
         /// Given a NAnt search pattern returns a search directory and an regex 
         /// search pattern.
         /// </summary>
+        /// <param name="isInclude">Whether this pattern is an include or exclude pattern</param>
         /// <param name="originalNAntPattern">NAnt searh pattern (relative to the Basedirectory OR absolute, relative paths refering to parent directories ( ../ ) also supported)</param>
         /// <param name="searchDirectory">Out. Absolute canonical path to the directory to be searched</param>
         /// <param name="recursive">Out. Whether the pattern is potentially recursive or not</param>
@@ -380,7 +394,7 @@ namespace NAnt.Core {
         ///     "/foo/bar/fudge/nugget".  (pattern = "fudge/nugget" would still be treated as relative to basedir)
         ///     </change>
         /// </history>
-        private void ParseSearchDirectoryAndPattern(string originalNAntPattern, out string searchDirectory, out bool recursive, out bool isRegex, out string regexPattern) {
+        private void ParseSearchDirectoryAndPattern(bool isInclude, string originalNAntPattern, out string searchDirectory, out bool recursive, out bool isRegex, out string regexPattern) {
             string s = originalNAntPattern;
             s = s.Replace('\\', Path.DirectorySeparatorChar);
             s = s.Replace('/', Path.DirectorySeparatorChar);
@@ -427,29 +441,31 @@ namespace NAnt.Core {
                 searchDirectory = new DirectoryInfo(s).FullName;
             } else {
                 //We also (correctly) get to this branch of code when s.Length == 0
-                searchDirectory = new DirectoryInfo(Path.Combine(
-                    BaseDirectory.FullName, s)).FullName;
+                if (isInclude || indexOfFirstWildcard == -1)
+                    searchDirectory = new DirectoryInfo(Path.Combine(
+                        BaseDirectory.FullName, s)).FullName;
+                else
+                    searchDirectory = String.Empty;
             }
             
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
-            bool caseInsensitiveFS = !IsCaseSensitiveFileSystem(searchDirectory);
             
             // if it's not a wildcard, just return
             if (indexOfFirstWildcard == -1) {
-                regexPattern = CleanPath(searchDirectory, modifiedNAntPattern);
+                regexPattern = CleanPath(BaseDirectory.FullName, originalNAntPattern);
                 isRegex = false;
+#if DEBUG_REGEXES
+                Console.WriteLine( "Convert name: {0} -> {1}", originalNAntPattern, regexPattern );
+#endif
                 return;
             }
 
             //if the fs in case insensitive, make all the regex directories lowercase.
-            regexPattern = ToRegexPattern(
-                caseInsensitiveFS ? searchDirectory.ToLower(CultureInfo.InvariantCulture) : searchDirectory, 
-                modifiedNAntPattern);
+            regexPattern = ToRegexPattern(modifiedNAntPattern);
 
-            // specify pattern as case-insensitive if appropriate to this file system.
-            if (caseInsensitiveFS) {
-                regexPattern = "(?i)" + regexPattern;
-            }
+#if DEBUG_REGEXES
+            Console.WriteLine( "Convert pattern: {0} -> [{1}]{2}", originalNAntPattern, searchDirectory, regexPattern );
+#endif
             
             isRegex = true;
         }
@@ -487,14 +503,47 @@ namespace NAnt.Core {
 
             // check whether directory is on case-sensitive volume
             bool caseSensitive = IsCaseSensitiveFileSystem(path);
+            string pathCompare = path;
+            if (!caseSensitive)
+                pathCompare = pathCompare.ToLower();
 
-            foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
+            CompareOptions compareOptions = CompareOptions.None;
+            CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
+            
+            if (!caseSensitive)
+                compareOptions |= CompareOptions.IgnoreCase;
+
+            ArrayList includedPatterns = new ArrayList();
+            ArrayList excludedPatterns = new ArrayList();
+
+            // Only include the valid patterns for this path
+            foreach (RegexEntry entry in _includePatterns) {
+                string baseDirectory = ( caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower() ); 
+                
+                if (compare.Compare(path, baseDirectory, compareOptions) == 0
+                    || (entry.IsRecursive && pathCompare.StartsWith( baseDirectory + Path.DirectorySeparatorChar ))) {
+                    includedPatterns.Add(entry);
+                }
+            }
+
+            foreach (RegexEntry entry in _excludePatterns) {
+                string baseDirectory = ( caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower() ); 
+                
+                if (entry.BaseDirectory.Length == 0 
+                    || compare.Compare(path, baseDirectory, compareOptions) == 0
+                    || (entry.IsRecursive && pathCompare.StartsWith( baseDirectory + Path.DirectorySeparatorChar ))) {
+                    excludedPatterns.Add(entry);
+                }
+            }
+
+            foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) 
+            {
                 if (recursive) {
                     // scan subfolders if we are running recursively
                     ScanDirectory(directoryInfo.FullName, true);
                 } else {
                     // otherwise just test to see if the subdirectories are included
-                    if (IsPathIncluded(directoryInfo.FullName, caseSensitive)) {
+                    if (IsPathIncluded(directoryInfo.FullName, caseSensitive, includedPatterns, excludedPatterns)) {
                         _directoryNames.Add(directoryInfo.FullName);
                     }
                 }
@@ -503,8 +552,10 @@ namespace NAnt.Core {
             // scan files
             foreach (FileInfo fileInfo in currentDirectoryInfo.GetFiles()) {
                 string filename = Path.Combine(path, fileInfo.Name);
-                if (IsPathIncluded(filename, caseSensitive)) {
-                    _fileNames.Add(filename);
+                if (!caseSensitive)
+                    filename = filename.ToLower();
+                if (IsPathIncluded(filename, caseSensitive, includedPatterns, excludedPatterns)) {
+                    _fileNames.Add(Path.Combine(path, fileInfo.Name));
                 }
             }
 
@@ -512,14 +563,14 @@ namespace NAnt.Core {
             // delete empty directories.  This may *seem* like a special case
             // but it is more like formalizing something in a way that makes
             // writing the delete task easier :)
-            if (IsPathIncluded(path, caseSensitive)) {
+            if (IsPathIncluded(path, caseSensitive, includedPatterns, excludedPatterns)) {
                 _directoryNames.Add(path);
             }
         }
         
-        private bool TestRegex(string path, string pattern, bool caseSensitive) {
+        private bool TestRegex(string path, RegexEntry entry, bool caseSensitive) {
             Hashtable regexCache = caseSensitive ? cachedCaseSensitiveRegexes : cachedCaseInsensitiveRegexes;
-            Regex r = (Regex)regexCache[pattern];
+            Regex r = (Regex)regexCache[entry.Pattern];
             
             if (r == null) {
                 RegexOptions regexOptions = RegexOptions.Compiled;
@@ -527,13 +578,17 @@ namespace NAnt.Core {
                 if (!caseSensitive)
                     regexOptions |= RegexOptions.IgnoreCase;
                     
-                regexCache[pattern] = r = new Regex(pattern, regexOptions);
+                regexCache[entry.Pattern] = r = new Regex(entry.Pattern, regexOptions);
             }
             
-            return r.IsMatch(path);
+            // Check to see if the empty string matches the pattern
+            if (path.Length == entry.BaseDirectory.Length)
+                return r.IsMatch(String.Empty);
+
+            return r.IsMatch(path.Substring(entry.BaseDirectory.Length + 1));
         }
 
-        private bool IsPathIncluded(string path, bool caseSensitive) {
+        private bool IsPathIncluded(string path, bool caseSensitive, ArrayList includedPatterns, ArrayList excludedPatterns) {
             bool included = false;
             
             CompareOptions compareOptions = CompareOptions.None;
@@ -542,20 +597,38 @@ namespace NAnt.Core {
             if (!caseSensitive)
                 compareOptions |= CompareOptions.IgnoreCase;
             
-
+#if DEBUG_REGEXES
+            Console.WriteLine("Test: {0}", path);
+#endif
+ 
             // check path against include names
-            foreach (string name in _includeNames) {
-                if (compare.Compare(name, path, compareOptions) == 0) {
+            foreach (string name in _includeNames) 
+            {
+#if DEBUG_REGEXES
+                Console.WriteLine("Test include name: '{0}'", name);
+#endif
+                if (compare.Compare(name, path, compareOptions) == 0) 
+                {
                     included = true;
+#if DEBUG_REGEXES
+                    Console.WriteLine("Included by name: {0}", name);
+#endif
                     break;
                 }
             }
 
             // check path against include regexes
             if (!included) {
-                foreach (string pattern in _includePatterns) {
-                    if (TestRegex(path, pattern, caseSensitive)) {
+                foreach (RegexEntry entry in includedPatterns) {
+#if DEBUG_REGEXES
+                    Console.WriteLine("Test include pattern: {0} ({1})", entry.Pattern, path.Substring(entry.BaseDirectory.Length));
+#endif
+                    if (TestRegex(path, entry, caseSensitive)) 
+                    {
                         included = true;
+#if DEBUG_REGEXES
+                        Console.WriteLine("Included by pattern: {0}", entry.Pattern);
+#endif
                         break;
                     }
                 }
@@ -564,8 +637,15 @@ namespace NAnt.Core {
             // check path against exclude names
             if (included) {
                 foreach (string name in _excludeNames) {
-                    if (compare.Compare(name, path, compareOptions) == 0) {
+#if DEBUG_REGEXES
+                    Console.WriteLine("Test exclude name: '{0}'", name);
+#endif
+                    if (compare.Compare(name, path, compareOptions) == 0) 
+                    {
                         included = false;
+#if DEBUG_REGEXES
+                        Console.WriteLine("Excluded by name: {0}", name);
+#endif
                         break;
                     }
                 }
@@ -573,48 +653,58 @@ namespace NAnt.Core {
             
             // check path against exclude regexes
             if (included) {
-                foreach (string pattern in _excludePatterns) {
-                    if (TestRegex(path, pattern, caseSensitive)) {
+                foreach (RegexEntry entry in excludedPatterns) {
+#if DEBUG_REGEXES
+                    Console.WriteLine("Test exclude pattern: {0} ({1})", entry.Pattern, path.Substring(entry.BaseDirectory.Length));
+#endif
+                    if (TestRegex(path, entry, caseSensitive)) 
+                    {
                         included = false;
+#if DEBUG_REGEXES
+                        Console.WriteLine("Excluded by pattern: {0}", entry.Pattern);
+#endif
                         break;
                     }
                 }
             }
 
-            return included;
+ #if DEBUG_REGEXES
+             Console.WriteLine("Result: {0}", included);
+ #endif
+           return included;
         }
 
         #endregion Private Instance Methods
 
         #region Private Static Methods
 
-        private static string CleanPath(string baseDir, string nantPath) {
-            StringBuilder path = new StringBuilder(nantPath);
+        private static StringBuilder CleanPath(string nantPath) 
+        {
+            StringBuilder pathBuilder = new StringBuilder(nantPath);
 
             // NAnt patterns can use either / \ as a directory seperator.
             // We must replace both of these characters with Path.DirectorySeperatorChar
-            path.Replace('/',  Path.DirectorySeparatorChar);
-            path.Replace('\\', Path.DirectorySeparatorChar);
+            pathBuilder.Replace('/',  Path.DirectorySeparatorChar);
+            pathBuilder.Replace('\\', Path.DirectorySeparatorChar);
+            
+            return pathBuilder;
+        }
 
-            // Patterns MUST be full paths.
-            if (!Path.IsPathRooted(path.ToString())) {
-                path = new StringBuilder(Path.Combine(baseDir, path.ToString()));
-            }
-
-            return path.ToString();
+        private static string CleanPath(string baseDirectory, string nantPath) 
+        {
+            return Path.Combine(baseDirectory, CleanPath(nantPath).ToString());
         }
 
         /// <summary>
         /// Converts search pattern to a regular expression pattern.
         /// </summary>
-        /// <param name="baseDir">Base directory for the search.</param>
         /// <param name="nantPattern">Search pattern relative to the search directory.</param>
-        /// <returns>Regular expresssion (absolute path) for searching matching file/directory names.</returns>
+        /// <returns>Regular expresssion</returns>
         /// <history>
         ///     <change date="20020220" author="Ari Hännikäinen">Added parameter baseDir, using  it instead of class member variable</change>
         /// </history>
-        private static string ToRegexPattern(string baseDir, string nantPattern) {
-            StringBuilder pattern = new StringBuilder(CleanPath(baseDir, nantPattern));
+        private static string ToRegexPattern(string nantPattern) {
+            StringBuilder pattern = CleanPath(nantPattern);
 
             // The '\' character is a special character in regular expressions
             // and must be escaped before doing anything else.
@@ -641,26 +731,43 @@ namespace NAnt.Core {
 
             // Convert NAnt pattern characters to regular expression patterns.
 
+            // Start with ? - it's used below            
+            pattern.Replace("?", "[^" + seperator + "]?");
+            
             // SPECIAL CASE: to match subdirectory OR current directory.  If
             // we don't do this then we can write something like 'src/**/*.cs'
             // to match all the files ending in .cs in the src directory OR
             // subdirectories of src.
-            pattern.Replace(seperator + "**", "(" + seperator + ".|)|");
+            pattern.Replace("**" + seperator, ".|" + seperator + "?");
 
             // | is a place holder for * to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
             pattern.Replace("*", "[^" + seperator + "]*");
-            pattern.Replace("?", "[^" + seperator + "]?");
             pattern.Replace('|', '*'); // replace place holder string
 
             // Help speed up the search
-            pattern.Insert(0, '^'); // start of line
-            pattern.Append('$'); // end of line
+            if (pattern.Length > 0) {
+                pattern.Insert(0, '^'); // start of line
+                pattern.Append('$'); // end of line
+            }
 
-            return pattern.ToString();
+            string patternText = pattern.ToString();
+
+            if (patternText.StartsWith("^.*"))
+                patternText = patternText.Substring(3);
+            if (patternText.EndsWith(".*$"))
+                patternText = patternText.Substring(0, pattern.Length-3);
+
+            return patternText.ToString();
         }
 
         #endregion Private Static Methods
+
+        private class RegexEntry {
+            public bool        IsRecursive;
+            public string    BaseDirectory;
+            public string    Pattern;
+        }
     }
 
     [Serializable()]
@@ -691,7 +798,8 @@ namespace NAnt.Core {
         /// <returns>
         /// A string that represents the contents.
         /// </returns>
-        public override string ToString() {            StringBuilder sb = new StringBuilder(base.ToString());
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder(base.ToString());
             sb.Append(":" + Environment.NewLine);
             foreach (string s in this) {
                 sb.Append(s);

@@ -34,7 +34,11 @@ namespace Tests.NAnt.Core {
         private string _folder1;
         private string _folder2;
         private string _folder3;
-        private DirectoryScanner _scanner;
+		private string _folder4;
+		private string _folder5;
+		private string _folder6;
+		private string _folder7;
+		private DirectoryScanner _scanner;
 
         #endregion Private Instance Fields
 
@@ -302,7 +306,90 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
-        #endregion Public Instance Methods
+        /// <summary>Test excluding files.</summary>
+        /// <remarks>
+		///   This is a test for setting the base directory in a directory that would normally be excluded
+		///   (set to ".../CVS/" for ".../CVS/some_other_files").
+		///   
+		///   Even though one of the default include patterns is **/CVS/**, we won't see it since it is part
+		///   of the base directory.
+		/// </remarks>
+        [Test]
+        public void Test_Rooted_Patterns() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_folder4, "Foo2.bar"),
+                                                          Path.Combine(_folder4, "Foo3.bar"),
+                                                          Path.Combine(_folder4, "Foo4.bar"),
+                                                          Path.Combine(_folder4, "XYZ.txt"),
+                                                          Path.Combine(_folder4, "XYZ.bak")
+                                                      };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_folder4, "XYZzzz.txt")
+                                                      };
+
+            // Change the base directory for this test
+            _scanner.BaseDirectory = new DirectoryInfo(_folder4);
+            _scanner.Includes.Add(@"**");
+            _scanner.Excludes.Add(Path.Combine(_folder4, "XYZzzz.txt"));
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+		/// <summary>Test excluding files.</summary>
+		/// <remarks>
+		///   This is a test for setting the base directory in a directory that would normally be excluded
+		///   (set to ".../CVS/" for ".../CVS/some_other_files").
+		///   
+		///   Even though one of the default include patterns is **/CVS/**, we won't see it since it is part
+		///   of the base directory.
+		/// </remarks>
+		[Test]
+		public void Test_Rooted_Patterns_2() 
+		{
+			string[] includedFileNames = new string[] {
+														  Path.Combine(_folder5, "Foo2.bar"),
+														  Path.Combine(_folder5, "Foo3.bar"),
+														  Path.Combine(_folder5, "Foo4.bar"),
+														  Path.Combine(_folder5, "XYZ.txt"),
+														  Path.Combine(_folder5, "XYZ.bak")
+													  };
+			string[] excludedFileNames = new string[] {
+														  Path.Combine(_folder5, "XYZzzz.txt")
+													  };
+
+			// Change the base directory for this test
+			_scanner.BaseDirectory = new DirectoryInfo(_folder5);
+			_scanner.Includes.Add(@"**");
+			_scanner.Excludes.Add(@"**\XYZzzz.txt");
+			CheckScan(includedFileNames, excludedFileNames);
+		}
+
+		/// <summary>Test excluding files.</summary>
+		/// <remarks>
+		///   We include the default-excluded directory now, but it will be ignored since it matches the 
+		///   default **/CVS/** pattern.
+		/// </remarks>
+		[Test]
+		public void Test_Rooted_Patterns_3() 
+		{
+			string[] includedFileNames = new string[] {
+													  };
+			string[] excludedFileNames = new string[] {
+														  Path.Combine(_folder5, "Foo2.bar"),
+														  Path.Combine(_folder5, "Foo3.bar"),
+														  Path.Combine(_folder5, "Foo4.bar"),
+														  Path.Combine(_folder5, "XYZ.txt"),
+														  Path.Combine(_folder5, "XYZ.bak"),
+														  Path.Combine(_folder5, "XYZzzz.txt")
+													  };
+
+			// Change the base directory for this test
+			_scanner.BaseDirectory = new DirectoryInfo(_folder1);
+			_scanner.Includes.Add(_folder4 + @"\**");
+			_scanner.Excludes.Add(@"**/CVS/**");
+			CheckScan(includedFileNames, excludedFileNames);
+		}
+		
+		#endregion Public Instance Methods
 
         #region Protected Instance Methods
 
@@ -313,9 +400,17 @@ namespace Tests.NAnt.Core {
             _folder1 = Path.Combine(_tempDir, "folder1");
             _folder2 = Path.Combine(_tempDir, "folder2");
             _folder3 = Path.Combine(_folder2, "folder3");
+            _folder4 = Path.Combine(_tempDir, "cvs");
+            _folder5 = Path.Combine(_folder4, "nested1");
+            _folder6 = Path.Combine(_folder5, "nested2");
+            _folder7 = Path.Combine(_folder5, "nested3");
             Directory.CreateDirectory(_folder1);
             Directory.CreateDirectory(_folder2);
             Directory.CreateDirectory(_folder3);
+            Directory.CreateDirectory(_folder4);
+            Directory.CreateDirectory(_folder5);
+            Directory.CreateDirectory(_folder6);
+            Directory.CreateDirectory(_folder7);
 
             _scanner = new DirectoryScanner();
             _scanner.BaseDirectory = new DirectoryInfo(_tempDir);
