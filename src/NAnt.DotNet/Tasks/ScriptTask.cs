@@ -299,9 +299,10 @@ namespace NAnt.Core.Tasks {
             }
             // scan the new assembly for tasks, types and functions
             // Its unlikely that tasks will be defined in buildfiles though.
-            int functionSetCount = TypeFactory.AddFunctionSets( compiled );
-            TypeFactory.AddDataTypes( compiled );
-            TypeFactory.AddTasks( compiled );
+            int functionSetCount = TypeFactory.AddFunctionSets(compiled);
+            TypeFactory.AddDataTypes(compiled);
+            TypeFactory.AddTasks(compiled);
+            TypeFactory.AddFilters(compiled);
             
             string mainClass = _rootClassName;
             if (!StringUtils.IsNullOrEmpty(MainClass)) {
