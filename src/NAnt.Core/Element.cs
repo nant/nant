@@ -144,7 +144,8 @@ namespace SourceForge.NAnt {
                         string attrValue = attributeNode.Value;
                         if (buildAttribute.ExpandProperties) {
                             // expand attribute properites
-                            attrValue = Project.ExpandProperties(attrValue);
+                            attrValue = Project.ExpandProperties(attrValue, this.Location );
+                            
                         }
 
                         logger.Debug(string.Format(

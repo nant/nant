@@ -120,7 +120,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="input">The string with replacement tokens</param>
         /// <returns>The expanded and replaced string</returns>
-        public string ExpandProperties(string input) {
+        public string ExpandProperties(string input, Location location) {
             // Moved from Project.cs by Tomas Restrepo
             string output = input;
             if (input != null) {
@@ -136,7 +136,7 @@ namespace SourceForge.NAnt {
                             output = output.Replace(token, propertyValue);
                         }
                         else {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Property '{0}' has not been set!", propertyName));
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Property '{0}' has not been set!", propertyName), location);
                         }
                     }
                 }

@@ -75,7 +75,7 @@ namespace SourceForge.NAnt.Tests {
 
             CheckCommon(p);
 
-            Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}."));
+            Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
         }
 
 		[Test]
@@ -93,7 +93,7 @@ namespace SourceForge.NAnt.Tests {
 
             CheckCommon(p);
 
-            Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}."));
+            Assertion.AssertEquals("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
         }
         
         

@@ -81,7 +81,7 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-            Contents = Project.ExpandProperties(taskNode.InnerText);
+            Contents = Project.ExpandProperties(taskNode.InnerText, Location);
         }
     }
 }

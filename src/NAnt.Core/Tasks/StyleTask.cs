@@ -125,8 +125,8 @@ namespace SourceForge.NAnt.Tasks {
             // Load parameters
             foreach (XmlNode node in taskNode) {
                 if(node.Name.Equals("param")) {
-                    string paramname = Project.ExpandProperties(node.Attributes["name"].Value);
-                    string paramval = Project.ExpandProperties(node.Attributes["expression"].Value);
+                    string paramname = Project.ExpandProperties(node.Attributes["name"].Value, Location );
+                    string paramval = Project.ExpandProperties(node.Attributes["expression"].Value, Location);
                     _params[paramname] = paramval;
                 }
             }

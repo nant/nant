@@ -603,9 +603,10 @@ namespace SourceForge.NAnt {
         /// Expands a string from known properties
         /// </summary>
         /// <param name="input">The string with replacement tokens</param>
+         /// <param name="location">The location in the build file. Used to throw more accurate exceptions</param>
         /// <returns>The expanded and replaced string</returns>
-        public string ExpandProperties(string input) {
-            return _properties.ExpandProperties(input);
+        public string ExpandProperties(string input, Location location) {
+            return _properties.ExpandProperties(input, location );
         }
 
         /// <summary>Combine with project's <see cref="BaseDirectory"/> to form a full path to file or directory.</summary>
@@ -788,12 +789,19 @@ namespace SourceForge.NAnt {
             object testobj = ConfigurationSettings.GetConfig("nantsettings");
             XmlNode node = testobj as XmlNode;
             
-            //Log.WriteLine("Project: AppDom Config File: {0}", AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-
-            if (null == node){
-                // todo pull a settings file out of the assembly resource and copy to that location                          
-                Log.WriteLine("Settings not found. Using none!");
-                return;
+            Log.WriteLine("Project: AppDom Config File: {0}", AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            node=null;
+            if ( node == null){
+                XmlDocument doc = new XmlDocument();
+                doc.Load( AppDomain.CurrentDomain.SetupInformation.ConfigurationFile );
+                node = doc.SelectSingleNode("//nantsettings" );
+                // if still equal to null..
+                if ( node == null) { 
+                    // todo pull a settings file out of the assembly resource and copy to that location                          
+                    Log.WriteLine("Settings not found. Using none!");
+                    return;
+                }
+                Log.WriteLine("we've got a settings file !! ");               
             }
 
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)

@@ -234,7 +234,7 @@ namespace SourceForge.NAnt.Tasks {
             foreach(XmlNode node in nodes ) {
                 ExpandPropertiesInNodes(node.ChildNodes);
                 foreach( XmlAttribute attr in node.Attributes ) {
-                    attr.Value = Project.ExpandProperties(attr.Value);
+                    attr.Value = Project.ExpandProperties(attr.Value, Location);
                 }
             }
         }
