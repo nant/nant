@@ -225,7 +225,6 @@ namespace NAnt.Core.Tasks {
             string xsltPath = Path.GetFullPath(Path.Combine(basedirPath, StyleSheet));
             FileInfo xsltInfo = new FileInfo(xsltPath);
             if (!xsltInfo.Exists) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "Unable to find stylesheet file {0}", xsltPath);
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "Unable to find stylesheet file {0}.", xsltPath), Location);
             }
@@ -265,33 +264,44 @@ namespace NAnt.Core.Tasks {
                     TextWriter writer = null;
     
                     try {
+                        // load the xml that needs to be transformed
+                        Log(Level.Verbose, LogPrefix + "Loading xml {0}.", 
+                            srcPath);
                         xmlReader = CreateXmlReader(srcPath);
-                        xslReader = CreateXmlReader(xsltPath);
-                        writer = CreateWriter(destPath);
-    
-                        Log(Level.Verbose, LogPrefix + "Transforming into {0}.", destdirPath);
-    
-                        XslTransform xslt = new XslTransform();
                         XPathDocument xml = new XPathDocument(xmlReader);
-                        XsltArgumentList scriptargs = new XsltArgumentList();
     
-                        Log(Level.Verbose, LogPrefix + "Loading stylesheet {0}.", Path.GetFullPath(xsltPath));
-    
+                        // load the stylesheet
+                        Log(Level.Verbose, LogPrefix + "Loading stylesheet {0}.", 
+                            xsltPath);
+                        xslReader = CreateXmlReader(xsltPath);
+                        XslTransform xslt = new XslTransform();
                         xslt.Load(xslReader);
-    
+
+                        // initialize xslt parameters
+                        XsltArgumentList xsltArgs = new XsltArgumentList();
+
+                        // set the xslt parameters
                         foreach (XsltParameter parameter in Parameters) {
                             if (IfDefined && !UnlessDefined) {
-                                scriptargs.AddParam(parameter.ParameterName, 
+                                xsltArgs.AddParam(parameter.ParameterName, 
                                     parameter.NamespaceUri, parameter.Value);
                             }
                         }
     
-                        Log(Level.Info, LogPrefix + "Processing {0} to {1}.", Path.GetFullPath(srcPath), Path.GetFullPath(destPath));
-                        xslt.Transform(xml, scriptargs, writer);
+                        // create writer for the destination xml
+                        writer = CreateWriter(destPath);
+
+                        // do the actual transformation 
+                        Log(Level.Info, LogPrefix + "Processing {0} to {1}.", 
+                            srcPath, destPath);
+                        xslt.Transform(xml, xsltArgs, writer);
                     } catch (Exception ex) {
-                        throw new BuildException("Could not perform XSLT transformation.", Location, ex);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Could not perform XSLT transformation of {0} using" 
+                            + " stylesheet {1}.", srcPath, xsltPath), Location, 
+                            ex);
                     } finally {
-                        // Ensure file handles are closed
+                        // ensure file handles are closed
                         if (xmlReader != null) {
                             xmlReader.Close();
                         }
