@@ -81,16 +81,16 @@
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
-                        <xsl:value-of select="$name" /> <xsl:value-of select="$refType"/>
-                    </td>                       
+                        <xsl:value-of select="$name" /> <xsl:value-of select="$refType" />
+                    </td>
                     <td class="NavBar-Cell" align="right">
-                        <xsl:value-of select="ancestor::assembly/@name" />(<xsl:value-of select="ancestor::assembly/@version" />)
+                        <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
                     </td>
                 </tr>
             </table>
     
-            <h1><xsl:value-of select="$name" /> <xsl:value-of select="$refType"/></h1>
-            <xsl:apply-templates select="."/>            
+            <h1><xsl:value-of select="$name" /> <xsl:value-of select="$refType" /></h1>
+            <xsl:apply-templates select="." />
         </body>
     </xsl:template>
 
