@@ -188,19 +188,26 @@ namespace Tests.NAnt.Console {
             }
 
             // using a regular expression look for a plausible version number and valid copyright date
-            string expression = @"^NAnt version (?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+).(?<revision>[0-9]+) Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
+            string expression = @"^NAnt (?<infoMajor>[0-9]+).(?<infoMinor>[0-9]+) " 
+                + @"\(Build (?<buildMajor>[0-9]+).(?<buildMinor>[0-9]+).(?<buildBuild>[0-9]+).(?<buildRevision>[0-9]+); " 
+                + @"(?<framework>.*); (?<configuration>.*); (?<releasedate>.*)\)"
+                + ".*\n" + @"Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
 
             Match match = Regex.Match(result, expression);
             Assertion.Assert("Help text does not appear to be valid.", match.Success);
-            int major = Int32.Parse(match.Groups["major"].Value);
-            int minor = Int32.Parse(match.Groups["minor"].Value);
-            int build = Int32.Parse(match.Groups["build"].Value);
-            int revision = Int32.Parse(match.Groups["revision"].Value);
+            int infoMajor = Int32.Parse(match.Groups["infoMajor"].Value);
+            int infoMinor = Int32.Parse(match.Groups["infoMinor"].Value);
+            int buildMajor = Int32.Parse(match.Groups["buildMajor"].Value);
+            int buildMinor = Int32.Parse(match.Groups["buildMinor"].Value);
+            int buildBuild = Int32.Parse(match.Groups["buildBuild"].Value);
+            int buildRevision = Int32.Parse(match.Groups["buildRevision"].Value);
             int year  = Int32.Parse(match.Groups["year"].Value);
-            Assertion.Assert("Version numbers must be positive.", major >= 0);
-            Assertion.Assert("Version numbers must be positive.", minor >= 0);
-            Assertion.Assert("Version numbers must be positive.", build >= 0);
-            Assertion.Assert("Version numbers must be positive.", revision >= 0);
+            Assertion.Assert("Version numbers must be positive.", infoMajor >= 0);
+            Assertion.Assert("Version numbers must be positive.", infoMinor >= 0);
+            Assertion.Assert("Version numbers must be positive.", buildMajor >= 0);
+            Assertion.Assert("Version numbers must be positive.", buildMinor >= 0);
+            Assertion.Assert("Version numbers must be positive.", buildBuild >= 0);
+            Assertion.Assert("Version numbers must be positive.", buildRevision >= 0);
             Assertion.AssertEquals(DateTime.Now.Year, year);
         }
 

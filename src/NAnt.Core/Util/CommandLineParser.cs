@@ -69,61 +69,89 @@ namespace NAnt.Core.Util {
         /// <see cref="Assembly.GetEntryAssembly()" /> or the 
         /// <see cref="Assembly.GetCallingAssembly()" />.
         /// </summary>
-        /// <value>A logo banner.</value>
+        /// <value>
+        /// A logo banner.
+        /// </value>
         public virtual string LogoBanner {
             get {
-                StringBuilder logoBanner = new StringBuilder();
+                string productName;
+                string informationalVersion;
+                Version assemblyVersion;
+                string configurationInformation = null;
+                string copyrightInformation = null;
+                string companyInformation = null;
+                DateTime releaseDate;
+
                 Assembly assembly = Assembly.GetEntryAssembly();
                 if (assembly == null) {
                     assembly = Assembly.GetCallingAssembly();
                 }
 
-                // Add description to logo banner
-
+                // get product name
                 object[] productAttributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false);
                 if (productAttributes.Length > 0) {
                     AssemblyProductAttribute productAttribute = (AssemblyProductAttribute) productAttributes[0];
-                    if (!StringUtils.IsNullOrEmpty(productAttribute.Product)) {
-                        logoBanner.Append(productAttribute.Product);
-                    }
+                    productName = productAttribute.Product;
                 } else {
-                    logoBanner.Append(assembly.GetName().Name);
+                    productName = assembly.GetName().Name;
                 }
 
-                // Add version information to logo banner
-
+                // get informational version
                 object[] informationalVersionAttributes = assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
                 if (informationalVersionAttributes.Length > 0) {
-                    AssemblyInformationalVersionAttribute versionAttribute = (AssemblyInformationalVersionAttribute) informationalVersionAttributes[0];
-                    if (!StringUtils.IsNullOrEmpty(versionAttribute.InformationalVersion)) {
-                        logoBanner.Append(" version " + versionAttribute.InformationalVersion);
-                    }
+                    AssemblyInformationalVersionAttribute informationalVersionAttribute = (AssemblyInformationalVersionAttribute) informationalVersionAttributes[0];
+                    informationalVersion = informationalVersionAttribute.InformationalVersion;
                 } else {
                     FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
-                    logoBanner.Append(" version " + info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart + "." + info.FilePrivatePart);
+                    informationalVersion = info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart + "." + info.FilePrivatePart;
                 }
 
-                // Add copyright information to logo banner
+                // get assembly version 
+                assemblyVersion = assembly.GetName().Version;
 
+                // determine release date using build number of assembly 
+                // version (specified as number of days passed since 1/1/2000)
+                releaseDate = new DateTime(2000, 1, 1).AddDays(assemblyVersion.Build);
+
+                // get configuration information
+                object[] configurationAttributes = assembly.GetCustomAttributes(typeof(AssemblyConfigurationAttribute), false);
+                if (configurationAttributes.Length > 0) {
+                    AssemblyConfigurationAttribute configurationAttribute = (AssemblyConfigurationAttribute) configurationAttributes[0];
+                    configurationInformation = configurationAttribute.Configuration;
+                }
+                
+                // get copyright information
                 object[] copyrightAttributes = assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
                 if (copyrightAttributes.Length > 0) {
                     AssemblyCopyrightAttribute copyrightAttribute = (AssemblyCopyrightAttribute) copyrightAttributes[0];
-                    if (!StringUtils.IsNullOrEmpty(copyrightAttribute.Copyright)) {
-                        logoBanner.Append(" " + copyrightAttribute.Copyright);
-                    }
+                    copyrightInformation = copyrightAttribute.Copyright;
                 }
 
-                logoBanner.Append(Environment.NewLine);
-
-                // Add company information to logo banner
-
+                // get company information
                 object[] companyAttributes = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
                 if (companyAttributes.Length > 0) {
                     AssemblyCompanyAttribute companyAttribute = (AssemblyCompanyAttribute) companyAttributes[0];
-                    if (!StringUtils.IsNullOrEmpty(companyAttribute.Company)) {
-                        logoBanner.Append(companyAttribute.Company);
-                        logoBanner.Append(Environment.NewLine);
-                    }
+                    companyInformation = companyAttribute.Company;
+                }
+
+                StringBuilder logoBanner = new StringBuilder();
+
+                logoBanner.AppendFormat(CultureInfo.InvariantCulture,
+                    "{0} {1} (Build {2}; {3}; {4})", productName, 
+                    informationalVersion, assemblyVersion.ToString(4),
+                    configurationInformation, releaseDate.ToShortDateString()); 
+                logoBanner.Append(Environment.NewLine);
+
+                // output copyright information
+                if (!StringUtils.IsNullOrEmpty(copyrightInformation)) {
+                    logoBanner.Append(copyrightInformation);
+                    logoBanner.Append(Environment.NewLine);
+                }
+
+                // output company information
+                if (!StringUtils.IsNullOrEmpty(companyInformation)) {
+                    logoBanner.Append(companyInformation);
+                    logoBanner.Append(Environment.NewLine);
                 }
 
                 return logoBanner.ToString();

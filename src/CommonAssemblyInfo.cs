@@ -31,13 +31,13 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyConfiguration("net-1.0.win32; nightly")]
 [assembly: AssemblyCompany("http://nant.sourceforge.net")]
 [assembly: AssemblyProduct("NAnt")]
 [assembly: AssemblyCopyright("Copyright (C) 2001-2003 Gerry Shaw")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-// fixed version number, with revision number in format YMMDD
-[assembly: AssemblyVersion("0.8.4.31114")]
-[assembly: AssemblyInformationalVersion("0.8.4.0")]
+// build number expressed in number of days since 1/1/2000
+[assembly: AssemblyVersion("0.84.1432.0")]
+[assembly: AssemblyInformationalVersion("0.84")]
