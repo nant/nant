@@ -282,7 +282,7 @@ namespace NAnt.Core {
             PropertyDictionary frameworkProperties = null;
 
             // initialize framework-specific properties
-            frameworkProperties = new PropertyDictionary();
+            frameworkProperties = new PropertyDictionary(Project);
 
             // inject framework-neutral properties
             frameworkProperties.Inherit(Project.FrameworkNeutralProperties, (StringCollection)null);

@@ -29,16 +29,19 @@ using System.Text.RegularExpressions;
 namespace NAnt.Core {
     [Serializable()]
     public class PropertyDictionary : DictionaryBase {
-        #region public Constructors
-        
-        public PropertyDictionary() {
-        }
+        #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyDictionary" />
+        /// class holding properties for the given <see cref="Project" /> 
+        /// instance.
+        /// </summary>
+        /// <param name="project">The project for which the dictionary will hold properties.</param>
         public PropertyDictionary(Project project){
             _project = project;
         }
 
-        #endregion public Constructors
+        #endregion Public Instance Constructors
 
         #region Public Instance Properties
         
@@ -66,6 +69,16 @@ namespace NAnt.Core {
                                 }
                 */
             }
+        }
+
+        /// <summary>
+        /// Gets the project for which the dictionary holds properties.
+        /// </summary>
+        /// <value>
+        /// The project for which the dictionary holds properties.
+        /// </value>
+        public Project Project {
+            get { return _project; }
         }
 
         #endregion Public Instance Properties
@@ -323,7 +336,7 @@ namespace NAnt.Core {
                 StringBuilder output = new StringBuilder(input.Length);
 
                 ExpressionTokenizer tokenizer = new ExpressionTokenizer();
-                ExpressionEvaluator eval = new ExpressionEvaluator(_project, this, location, state, visiting);
+                ExpressionEvaluator eval = new ExpressionEvaluator(Project, this, location, state, visiting);
 
                 tokenizer.IgnoreWhitespace = false;
                 tokenizer.SingleCharacterMode = true;
@@ -439,7 +452,10 @@ namespace NAnt.Core {
         /// </summary>
         private StringCollection _dynamicProperties = new StringCollection();
 
-        Project _project = null;
+        /// <summary>
+        /// The project for which the dictionary holds properties.
+        /// </summary>
+        private readonly Project _project;
 
         #endregion Private Instance Fields
 
