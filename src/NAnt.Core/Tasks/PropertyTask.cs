@@ -157,7 +157,7 @@ namespace NAnt.Core.Tasks {
                             "Valid values are: {0}.", string.Join(", ", (string[]) validvalues.ToArray(typeof(string))));
                     }
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Error setting current Framework. '{0}' is not a valid framework identifier. {1}", 
+                        "Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}", 
                         propertyValue, validvaluesare), Location);
                 }
             }
@@ -175,7 +175,9 @@ namespace NAnt.Core.Tasks {
             } else {
                 if (Overwrite) {
                     if (Project.Properties.IsReadOnlyProperty(PropertyName)) {
-                        Log(Level.Verbose, "Read-only property '{0}' cannot be overwritten.", PropertyName);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Read-only property \"{0}\" cannot be overwritten.", 
+                            PropertyName), Location);
                     } else {
                         Properties[PropertyName] = propertyValue;
 
@@ -184,7 +186,7 @@ namespace NAnt.Core.Tasks {
                         }
                     }
                 } else {
-                    Log(Level.Verbose, "Property '{0}' already exists, and overwrite is set to false.", PropertyName);
+                    Log(Level.Verbose, "Property \"{0}\" already exists, and \"overwrite\" is set to false.", PropertyName);
                 }
             }
         }
