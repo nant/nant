@@ -68,7 +68,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <value>
         /// The name of the executable that should be used to launch the external
-        /// program, or a null reference if no name is specified.
+        /// program, or <see langword="null" /> if no name is specified.
         /// </value>
         /// <remarks>
         /// If available, the configured value in the NAnt configuration
@@ -76,9 +76,7 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [FrameworkConfigurable("exename")]
         public virtual string ExeName {
-            get { 
-                return (_exeName != null) ? _exeName : Name;
-            }
+            get { return (_exeName != null) ? _exeName : Name; }
             set { _exeName = value; }
         }
 
@@ -103,8 +101,15 @@ namespace NAnt.Core.Tasks {
         /// Gets the file to which the standard output should be redirected.
         /// </summary>
         /// <value>
-        /// The file to which the standard output should be redirected.
+        /// The file to which the standard output should be redirected, or 
+        /// <see langword="null" /> if the standard output should not be
+        /// redirected.
         /// </value>
+        /// <remarks>
+        /// The default implementation will never allow the standard output
+        /// to be redirected to a file.  Deriving classes should override this 
+        /// property to change this behaviour.
+        /// </remarks>
         public virtual string OutputFile {
             get { return null; } 
             set {} //so that it can be overriden.
@@ -159,11 +164,6 @@ namespace NAnt.Core.Tasks {
             get { return _arguments; }
         }
 
-        #endregion Public Instance Properties
-
-        #region Protected Instance Properties
-
-
         /// <summary>
         /// Gets or sets a value indicating whether the external program should 
         /// be executed using a runtime engine, if configured.
@@ -178,7 +178,7 @@ namespace NAnt.Core.Tasks {
             set { _useRuntimeEngine = value; }
         }
 
-        #endregion Protected Instance Properties
+        #endregion Public Instance Properties
 
         #region Override implementation of Task
 
@@ -277,9 +277,10 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Sets the StartInfo Options and returns a new Process that can be run.
+        /// Updates the <see cref="ProcessStartInfo" /> of the specified 
+        /// <see cref="Process"/>.
         /// </summary>
-        /// <returns>new Process with information about programs to run, etc.</returns>
+        /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
         protected virtual void PrepareProcess(Process process){
             // create process (redirect standard output to temp buffer)
             if (Project.CurrentFramework != null && UseRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
@@ -296,7 +297,10 @@ namespace NAnt.Core.Tasks {
             process.StartInfo.WorkingDirectory = BaseDirectory;
         }
 
-        //Starts the process and handles errors.
+        /// <summary>
+        /// Starts the process and handles errors.
+        /// </summary>
+        /// <returns>The <see cref="Process" /> that was started.</returns>
         protected virtual Process StartProcess() {
             Process p = new Process();
             PrepareProcess(p);
@@ -312,12 +316,12 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Verbose, msg);
 
                 p.Start();
+                return p;
             } catch (Exception e) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "<{0} task>{1} failed to start.", Name, p.StartInfo.FileName);
+                string msg = String.Format(CultureInfo.InvariantCulture, "[{0}] {1} failed to start.", Name, p.StartInfo.FileName);
                 logger.Error(msg, e);
                 throw new BuildException(msg, Location, e);
             }
-            return p;
         }
 
         #endregion Protected Instance Methods
@@ -328,10 +332,13 @@ namespace NAnt.Core.Tasks {
         private void StreamReaderThread_Output() {
             StreamReader reader = (StreamReader) _htThreadStream[Thread.CurrentThread.Name];
             bool doAppend = OutputAppend;
+
             while (true) {
                 string strLogContents = reader.ReadLine();
-                if (strLogContents == null)
+                if (strLogContents == null) {
                     break;
+                }
+
                 // Ensure only one thread writes to the log at any time
                 lock (_htThreadStream) {
                     logger.Info(strLogContents);
@@ -350,10 +357,13 @@ namespace NAnt.Core.Tasks {
         /// <summary>        /// Reads from the stream until the external program is ended.        /// </summary>
         private void StreamReaderThread_Error() {
             StreamReader reader = (StreamReader) _htThreadStream[Thread.CurrentThread.Name];
+
             while (true) {
                 string strLogContents = reader.ReadLine();
-                if (strLogContents == null)
+                if (strLogContents == null) {
                     break;
+                }
+
                 // Ensure only one thread writes to the log at any time
                 lock (_htThreadStream) {
                     logger.Error(strLogContents);
@@ -370,52 +380,49 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Determines the path of the external program that should be executed.
         /// </summary>
         /// <returns>A fully qualifies pathname including the program name.</returns>
         /// <exception cref="BuildException">The task is not available or not configured for the current framework.</exception>
         private string DetermineFilePath() {
             string fullPath = "";
             
-            // if the Exename is already specified as a full path then just use that. 
-            if ( ExeName != null && Path.IsPathRooted( ExeName ) ) {
+            // if the Exename is already specified as a full path then just use that.
+            if (ExeName != null && Path.IsPathRooted(ExeName)) {
                 return ExeName;
             }
+
             // get the ProgramLocation attribute
-            Type currentType = this.GetType();
-            ProgramLocationAttribute programLocationAttribute = (ProgramLocationAttribute)Attribute.GetCustomAttribute( currentType, 
-                    typeof(ProgramLocationAttribute) );
-            
+            ProgramLocationAttribute programLocationAttribute = (ProgramLocationAttribute) Attribute.GetCustomAttribute(this.GetType(), 
+                typeof(ProgramLocationAttribute));
+
             if (programLocationAttribute != null) {
-                
                 // ensure we have a valid framework set.
-                if ( (programLocationAttribute.LocationType == LocationType.FrameworkDir ||  
-                        programLocationAttribute.LocationType == LocationType.FrameworkSdkDir ) &&
-                        (Project.CurrentFramework == null ) ) {
+                if ((programLocationAttribute.LocationType == LocationType.FrameworkDir || 
+                    programLocationAttribute.LocationType == LocationType.FrameworkSdkDir) &&
+                    (Project.CurrentFramework == null)){
                         throw new BuildException(
                             string.Format(CultureInfo.InvariantCulture, 
-                            "The {0} task is not available or not configured for the {1} framework.", 
-                            Name, Project.CurrentFramework.Name));
+                            "The {0} task cannot be executed, as it relies on an active framework.\n", 
+                            Name));
                 }
-                
-                switch ( programLocationAttribute.LocationType ){
-                    
-                    case LocationType.FrameworkDir :
-                        if ( Project.CurrentFramework.FrameworkDirectory != null) {
-                            string FrameworkDir = "";
-                            FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                            fullPath =  Path.Combine(FrameworkDir, ExeName + ".exe");                               
-                        }     else {                           
+
+                switch (programLocationAttribute.LocationType) {
+                    case LocationType.FrameworkDir:
+                        if (Project.CurrentFramework.FrameworkDirectory != null) {
+                            string frameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                            fullPath = Path.Combine(frameworkDir, ExeName + ".exe");
+                        } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
                                  "The framework directory for the {0} framework is not available or not configured.", 
                                  Project.CurrentFramework.Name));
-                        }          
+                        }
                         break;
-                    
-                    case LocationType.FrameworkSdkDir :
+                    case LocationType.FrameworkSdkDir:
                         if (Project.CurrentFramework.SdkDirectory != null) {
-                            string SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName;
-                            fullPath =  Path.Combine(SdkDirectory, ExeName +  ".exe" );
+                            string sdkDirectory = Project.CurrentFramework.SdkDirectory.FullName;
+                            fullPath = Path.Combine(sdkDirectory, ExeName + ".exe");
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
@@ -424,13 +431,13 @@ namespace NAnt.Core.Tasks {
                         }
                         break;
                 }
-            }
-            else {
+            } else {
                 // rely on it being on the path.
                 fullPath = ExeName;
             }
             return fullPath;
         }
+
         #endregion Private Instance Methods
     }
 }
