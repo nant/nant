@@ -9,7 +9,7 @@
 			<includes name="UserTask.cs"/>
 		</sources>
 		<references>
-			<includes name="..\..\build\NAnt.exe"/>
+			<includes name="..\..\bin\NAnt.exe"/>
 		</references>
 	</csc>
 

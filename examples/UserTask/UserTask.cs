@@ -1,6 +1,6 @@
-namespace OrganicBit.NAnt.SampleTask {
+namespace SourceForge.NAnt.SampleTask {
 
-    using OrganicBit.NAnt;
+    using SourceForge.NAnt;
 
     [TaskName("usertask")]
     public class TestTask : Task {
