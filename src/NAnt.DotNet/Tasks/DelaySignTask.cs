@@ -111,15 +111,6 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Override the ExeName paramater for sn.exe
-        /// </summary>
-        [FrameworkConfigurable("exename")]
-        public override string ExeName {
-            get { return _exeName; }
-            set { _exeName = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
         /// Converts a single file or group of files.
         /// </summary>
         protected override void ExecuteTask() {
@@ -128,12 +119,15 @@ namespace NAnt.DotNet.Tasks {
             string keyname = containerAvail ? KeyContainer : KeyFile;
 
             if ((keyAvail && containerAvail) || (! keyAvail && ! containerAvail)) {
-                throw new BuildException("Either 'keyfile' or 'keycontainer' must be specified.");
+                throw new BuildException("Either 'keyfile' or 'keycontainer' must be specified.",
+                    Location);
             }
+
+            Log(Level.Info, "Delay-signing {0} assemblies.", Targets.FileNames.Count);
 
             foreach (string filename in Targets.FileNames) {
                 // Try to guess the buffer length
-                // Add 12 for "-R", maybe 'c' and "-q", and spaces/ quotes.
+                // Add 12 for "-R", maybe 'c' and "-q", and spaces/quotes.
                 _argumentBuilder = new StringBuilder(9 + filename.Length + keyname.Length);
 
                 if (!Verbose) {
