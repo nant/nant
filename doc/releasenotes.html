@@ -138,6 +138,9 @@
         <h5>&lt;csc&gt;</h5>
         <ul>
             <li>
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
+            </li>
+            <li>
                 "nowarn" attribute has been deprecated in favor of the <code>&lt;nowarn&gt;</code>
                 child element.
             </li>
@@ -166,6 +169,7 @@
             <li>
                 Documentation updates.
             </li>
+            <li>Added "passfile" attribute</li>
         </ul>
         <h5>&lt;exec&gt;</h5>
         <ul>
@@ -188,6 +192,9 @@
         <ul>
             <li>
                 Added support for package references. [Mono]
+            </li>
+            <li>
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
             </li>
         </ul>
         <h5>&lt;license&gt;</h5>
@@ -260,7 +267,13 @@
         <h5>&lt;solution&gt;</h5>
         <ul>
             <li>
-                A few unit tests added to reduce the likelyhood of regressions.
+                WebMaps are now case-insensitive (and added attribute to enable case-sensitivity).
+            </li>
+            <li>
+                Added "enablewebdav" attribute to allow WebDAV access for web projects.
+            </li>
+            <li>
+                Added a few unit tests to reduce the likelyhood of regressions.
             </li>
             <li>
                 Fixed some minor issues with regards to Visual C++ support.
@@ -284,7 +297,7 @@
                 Added support for satellite assemblies.
             </li>
             <li>
-                Project build order is now respected.
+                Respect project build order set in VS.NET.
             </li>
             <li>
                 VB.NET specific settings are now processed.
@@ -338,6 +351,9 @@
                 Added support for package references. [Mono]
             </li>
             <li>
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
+            </li>
+            <li>
                 Added <code>&lt;imports&gt;</code> child element, and deprecated "imports" 
                 attribute.
             </li>
@@ -356,6 +372,9 @@
             <li>
                 <code>&lt;lib&gt;</code> element is obsolete, in favor of <code>&lt;lib&gt;</code>
                 child element on <code>&lt;references&gt;</code> element.
+            </li>
+            <li>
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
             </li>
             <li>
                 Added support for /baseaddress compiler option.
