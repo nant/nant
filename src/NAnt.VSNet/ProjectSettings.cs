@@ -133,9 +133,12 @@ namespace NAnt.VSNet {
             get { return (string[]) _settings.ToArray(typeof(string)); }
         }
 
-        public string RootDirectory {
-            get { return _rootDirectory; }
-            set { _rootDirectory = value; }
+        /// <summary>
+        /// Gets or set the directory in which the project file is located.
+        /// </summary>
+        public DirectoryInfo ProjectDirectory {
+            get { return _projectDirectory; }
+            set { _projectDirectory = value; }
         }
 
         public string AssemblyName {
@@ -222,7 +225,7 @@ namespace NAnt.VSNet {
         private ArrayList _settings;
         private string _assemblyName;
         private string _assemblyOriginatorKeyFile;
-        private string _rootDirectory;
+        private DirectoryInfo _projectDirectory;
         private string _outputExtension;
         private string _rootNamespace;
         private string _guid;

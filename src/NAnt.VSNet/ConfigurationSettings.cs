@@ -40,7 +40,9 @@ namespace NAnt.VSNet {
                 if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                     _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
-                _outputDir = new DirectoryInfo(Path.Combine(Project.ProjectSettings.RootDirectory, _relativeOutputDir));
+                _outputDir = new DirectoryInfo(Path.Combine(
+                    Project.ProjectSettings.ProjectDirectory.FullName, 
+                    _relativeOutputDir));
             } else {
                 _relativeOutputDir = outputDir.FullName;
                 if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
@@ -56,7 +58,8 @@ namespace NAnt.VSNet {
                     // combine project root directory with (relative) path for 
                     // documentation file
                     _docFilename = Path.GetFullPath(Path.Combine(
-                        Project.ProjectSettings.RootDirectory, elemConfig.GetAttribute("DocumentationFile")));
+                        Project.ProjectSettings.ProjectDirectory.FullName, 
+                        elemConfig.GetAttribute("DocumentationFile")));
                 } else {
                     // combine output directory and filename of document file (do not use path information)
                     _docFilename = Path.GetFullPath(Path.Combine(outputDir.FullName,
