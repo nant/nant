@@ -114,11 +114,6 @@ namespace SourceForge.NAnt.Tasks {
         void DeleteDirectory(string path) {
             try {
                 if (Directory.Exists(path)) {
-                    // TODO: remove this once this task is fully tested and NAnt is at 1.0
-                    if (path.Length <= 10) {
-                        throw new NotImplementedException("Path is too close to root to delete.");
-                    }
-
                     Log.WriteLine(LogPrefix + "Deleting directory {0}", path);
                     Directory.Delete(path, true);
                 } else {
