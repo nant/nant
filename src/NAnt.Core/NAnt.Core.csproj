@@ -418,6 +418,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\AssemblyNameFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\BooleanFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -443,7 +448,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\EnvironmentFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\FileFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\FileVersionInfoFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
