@@ -39,4 +39,4 @@ windows-nant:
 	echo Windows-based make is not yet supported; exit 1;\
 
 clean:
-	rm bin/*.* -f
+	rm -f bin/*.*
