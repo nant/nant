@@ -80,7 +80,8 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-file-version")]
         public static Version GetFileVersion(FileVersionInfo fileVersionInfo) {
-            return new Version(fileVersionInfo.FileVersion);
+            return new Version(fileVersionInfo.FileMajorPart, fileVersionInfo.FileMinorPart,
+                fileVersionInfo.FileBuildPart, fileVersionInfo.FilePrivatePart);
         }
 
         /// <summary>
@@ -104,7 +105,8 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-product-version")]
         public static Version GetProductVersion(FileVersionInfo fileVersionInfo) {
-            return new Version(fileVersionInfo.ProductVersion);
+            return new Version(fileVersionInfo.ProductMajorPart, fileVersionInfo.ProductMinorPart,
+                fileVersionInfo.ProductBuildPart, fileVersionInfo.ProductPrivatePart);
         }
 
         #endregion Public Static Methods
