@@ -37,7 +37,9 @@ namespace NAnt.Core.Filters {
     /// This filter replaces all token surrounded by a beginning and ending
     /// token. The default beginning and ending tokens both default to '@'. The 
     /// optional <see cref="BeginToken" /> and <see cref="EndToken" /> attributes
-    /// can be specified to change either token.
+	/// can be specified to change either token. By default string 
+	/// comparisons are case sensitive but this can be changed by setting the 
+	/// optional <see cref="IgnoreCase"/> attribute to <see langword="true" />.
     /// </para>
     /// <para>
     /// Tokens are specified by using the <see cref="Token" /> element. It is 
@@ -95,6 +97,7 @@ namespace NAnt.Core.Filters {
         private int _bufferPosition = 0;
         private bool _unknownToken = true;
         private bool _tokenNotFound = true;
+		private bool _ignoreCase = false;
 
         //Methods used for Read and Peek
         private AcquireCharDelegate ReadChar = null;
@@ -132,6 +135,17 @@ namespace NAnt.Core.Filters {
             get { return _tokens; }
             set { _tokens = value; }
         }
+
+		/// <summary>
+		/// Determines if case will be ignored.
+		/// The default is <see langword="false" />.
+		/// </summary>
+		[TaskAttribute("ignorecase", Required=false)]
+		[BooleanValidator()]
+		public bool IgnoreCase 	{
+			get { return _ignoreCase; }
+			set { _ignoreCase = value; }
+		}
 
         #endregion Public Instance Properties
 
@@ -238,10 +252,10 @@ namespace NAnt.Core.Filters {
                     return _tokenString.ToString();
                 }
 
-                if ((currentChar == _endToken)) {
+                if (CompareCharacters(currentChar, _endToken)) {
                     tokenFound = true;
                     break;
-                } else if ((currentChar == _beginToken) && (_endToken != _beginToken)) {
+                } else if (CompareCharacters(currentChar, _beginToken) && (!CompareCharacters(_endToken, _beginToken))) {
                     //Only happens if the beginning and ending tokens are not the same
                     //Add end char and break
                     tokenNotFound = true;
@@ -342,7 +356,7 @@ namespace NAnt.Core.Filters {
             }
 
             //Process beginning token
-            if (ch == _beginToken) {
+            if (CompareCharacters(ch, _beginToken)) {
                 //Look for a token after _beginToken and return either the replacement token
                 //or the charactors that were read.
                 _outputBuffer = FindTokenContents(out _tokenNotFound, out _unknownToken, out _endStreamAfterBuffer);
@@ -361,6 +375,24 @@ namespace NAnt.Core.Filters {
                 return ch;
             }
         }
+
+
+		/// <summary>
+		/// Compares to characters taking into account the _ignoreCase flag.
+		/// </summary>
+		/// <param name="char1"></param>
+		/// <param name="char2"></param>
+		/// <returns></returns>
+		private bool CompareCharacters(int char1, int char2) {
+			//Compare chars with or without case
+			if (_ignoreCase == true) {
+                    
+				return (char.ToUpper((char)char1) == char.ToUpper((char)char2));
+			}
+			else {
+				return char1 == char2;
+			}
+		}
 
         #endregion Private Instance Methods
     }
