@@ -25,6 +25,7 @@ using System.Text;
 
 using ICSharpCode.SharpCvsLib.Client;
 using ICSharpCode.SharpCvsLib.Commands;
+using ICSharpCode.SharpCvsLib.Messages;
 using ICSharpCode.SharpCvsLib.Misc;
 using ICSharpCode.SharpCvsLib.FileSystem;
 
@@ -273,6 +274,9 @@ namespace NAnt.SourceControl.Tasks {
             Logger.Debug ("this.WorkingDirectory.Revision=[" + this.WorkingDirectory.Revision + "]");
 
             this.Connection = new CVSServerConnection();
+            this.Connection.MessageEvent.MessageEvent +=
+                new EncodedMessage.MessageHandler(LogCvsMessage);
+
             this.Command = this.CreateCommand();
 
             this.Validate ();
@@ -371,6 +375,10 @@ namespace NAnt.SourceControl.Tasks {
                         throw new NotSupportedException(msg.ToString());
                 }
             }
+        }
+
+        private void LogCvsMessage (String message) {
+            Log(Level.Info, LogPrefix + message);
         }
 
         #endregion Private Instance Methods

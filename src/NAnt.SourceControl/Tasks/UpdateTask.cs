@@ -126,8 +126,14 @@ namespace NAnt.SourceControl.Tasks {
                 workingDirectory.WorkingDirectoryName));
 
             Manager manager = new Manager(workingDirectory.WorkingPath);
-            workingDirectory.FoldersToUpdate = manager.FetchFilesToUpdate(
-                Path.Combine(this.Destination, this.Module));
+            try {
+                workingDirectory.FoldersToUpdate = manager.FetchFilesToUpdate(
+                    workingDirectory.WorkingPath);
+            } catch (CvsFileNotFoundException e) {
+                System.Console.WriteLine(workingDirectory.WorkingPath);
+                System.Console.WriteLine(e.ToString());
+                throw e;
+            }
         }
 
         #endregion Private Instance Methods
