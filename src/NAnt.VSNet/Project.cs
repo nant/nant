@@ -230,309 +230,330 @@ namespace NAnt.VSNet {
         protected override bool Build(ConfigurationBase configurationSettings) {
             bool bSuccess = true;
  			bool haveCultureSpecificResources = false;
+            string tempFile = null;
 
-            ConfigurationSettings cs = (ConfigurationSettings) configurationSettings;
+            try {
+                ConfigurationSettings cs = (ConfigurationSettings) configurationSettings;
 
-            // perform prebuild actions (for VS.NET 2003)
-            if (ProjectSettings.RunPostBuildEvent != null) {
-                bSuccess = PreBuild(cs);
-            }
+                // perform prebuild actions (for VS.NET 2003)
+                if (ProjectSettings.RunPostBuildEvent != null) {
+                    bSuccess = PreBuild(cs);
+                }
 
-            // ensure the temp dir exists
-            Directory.CreateDirectory(TempFiles.BasePath);
+                // ensure the temp dir exists
+                Directory.CreateDirectory(TempFiles.BasePath);
 
-            string tempResponseFile = Path.Combine(TempFiles.BasePath, Project.CommandFile);
+                string tempResponseFile = Path.Combine(TempFiles.BasePath, Project.CommandFile);
 
-            using (StreamWriter sw = File.CreateText(tempResponseFile)) {
-                if (CheckUpToDate(cs)) {
-                    Log(Level.Verbose, LogPrefix + "Project is up-to-date.");
-                    if (ProjectSettings.RunPostBuildEvent != null) {
-                        PostBuild(cs, true, false);
+                using (StreamWriter sw = File.CreateText(tempResponseFile)) {
+                    if (CheckUpToDate(cs)) {
+                        Log(Level.Verbose, LogPrefix + "Project is up-to-date.");
+                        if (ProjectSettings.RunPostBuildEvent != null) {
+                            PostBuild(cs, true, false);
+                        }
+                        return true;
                     }
-                    return true;
+
+                    foreach (string setting in ProjectSettings.Settings) {
+                        sw.WriteLine(setting);
+                    }
+
+                    foreach (string setting in cs.Settings) {
+                        sw.WriteLine(setting);
+                    }
+
+                    if (_projectSettings.Type == ProjectType.VBNet) {
+                        sw.WriteLine(_imports);
+                    }
+
+                    Log(Level.Verbose, LogPrefix + "Copying references:");
+                    foreach (Reference reference in _htReferences.Values) {
+                        Log(Level.Verbose, LogPrefix + " - " + reference.Name);
+
+                        if (reference.CopyLocal) {
+                            if (reference.IsCreated) {
+                                string program, commandLine;
+                                reference.GetCreationCommand(cs, out program, out commandLine);
+
+                                Log(Level.Verbose, LogPrefix + program + " " + commandLine);
+                                ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
+                                psiRef.UseShellExecute = false;
+                                psiRef.WorkingDirectory = cs.OutputDir.FullName;
+
+                                try {
+                                    Process pRef = Process.Start(psiRef);
+                                    pRef.WaitForExit();
+                                } catch (Win32Exception ex) {
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "Unable to start process '{0}' with commandline '{1}'.", 
+                                        program, commandLine), Location.UnknownLocation, ex);
+                                }
+                            } else {
+                                StringCollection fromFilenames = reference.GetReferenceFiles(cs);
+
+                                // create instance of Copy task
+                                CopyTask ct = new CopyTask();
+
+                                // inherit project from solution task
+                                ct.Project = SolutionTask.Project;
+
+                                // inherit parent from solution task
+                                ct.Parent = SolutionTask.Parent;
+
+                                // inherit verbose setting from solution task
+                                ct.Verbose = SolutionTask.Verbose;
+
+                                // make sure framework specific information is set
+                                ct.InitializeTaskConfiguration();
+
+                                // set parent of child elements
+                                ct.CopyFileSet.Parent = ct;
+
+                                // inherit project from solution task for child elements
+                                ct.CopyFileSet.Project = SolutionTask.Project;
+
+                                // set base directory of fileset
+                                ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
+
+                                // add files to copy
+                                foreach (string file in fromFilenames) {
+                                    ct.CopyFileSet.Includes.Add(file);
+                                }
+
+                                // set destination directory
+                                ct.ToDirectory = cs.OutputDir;
+
+                                // increment indentation level
+                                ct.Project.Indent();
+                                try {
+                                    // execute task
+                                    ct.Execute();
+                                } finally {
+                                    // restore indentation level
+                                    ct.Project.Unindent();
+                                }
+                            }
+                        }
+                        sw.WriteLine(reference.Setting);
+                    }
+
+                    if (_htResources.Count > 0) {
+                        Log(Level.Verbose, LogPrefix + "Compiling resources:");
+                        foreach (Resource resource in _htResources.Values) {
+                            // ignore resource files associated with a culture
+                            if (resource.Culture != null) {
+                                haveCultureSpecificResources = true;
+                                continue;
+                            }
+
+                            Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
+                            resource.Compile(cs);
+
+                            sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                                "/res:\"{0}\",\"{1}\"", resource.CompiledResourceFile, 
+                                resource.ManifestResourceName)); 
+                        }
+                    }
+
+                    // check if project does not contain any sources
+                    if (_htFiles.Count == 0) {
+                        // create temp file
+                        tempFile = Path.GetTempFileName();
+
+                        // add temp file to collection of sources to compile 
+                        // as command line compilers require a least one source
+                        // file to be specified, but VS.NET supports empty
+                        // projects
+                        _htFiles[tempFile] = null;
+                    }
+
+                    // add the files to compile
+                    foreach (string file in _htFiles.Keys) {
+                        sw.WriteLine(@"""" + file + @"""");
+                    }
                 }
 
-                foreach (string setting in ProjectSettings.Settings) {
-                    sw.WriteLine(setting);
+                Log(Level.Verbose, LogPrefix + "Starting compiler...");
+
+                if (SolutionTask.Verbose) {
+                    using (StreamReader sr = new StreamReader(tempResponseFile)) {
+                        Log(Level.Verbose, LogPrefix + "Commands:");
+
+                        // increment indentation level
+                        SolutionTask.Project.Indent();
+                        try {
+                            while (true) {
+                                // read line
+                                string line = sr.ReadLine();
+                                if (line == null) {
+                                    break;
+                                }
+                                // display line
+                                Log(Level.Verbose, LogPrefix + "    "  + line);
+                            }
+                        } finally {
+                            // restore indentation level
+                            SolutionTask.Project.Unindent();
+                        }
+                    }
                 }
 
-                foreach (string setting in cs.Settings) {
-                    sw.WriteLine(setting);
+                ProcessStartInfo psi = null;
+                if (_projectSettings.Type == ProjectType.CSharp) {
+                    psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
                 }
 
                 if (_projectSettings.Type == ProjectType.VBNet) {
-                    sw.WriteLine(_imports);
+                    psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
                 }
 
-                Log(Level.Verbose, LogPrefix + "Copying references:");
-                foreach (Reference reference in _htReferences.Values) {
-                    Log(Level.Verbose, LogPrefix + " - " + reference.Name);
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.WorkingDirectory = _projectDirectory;
 
-                    if (reference.CopyLocal) {
-                        if (reference.IsCreated) {
-                            string program, commandLine;
-                            reference.GetCreationCommand(cs, out program, out commandLine);
+                Process p = Process.Start(psi);
 
-                            Log(Level.Verbose, LogPrefix + program + " " + commandLine);
-                            ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
-                            psiRef.UseShellExecute = false;
-                            psiRef.WorkingDirectory = cs.OutputDir.FullName;
-
-                            try {
-                                Process pRef = Process.Start(psiRef);
-                                pRef.WaitForExit();
-                            } catch (Win32Exception ex) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "Unable to start process '{0}' with commandline '{1}'.", 
-                                    program, commandLine), Location.UnknownLocation, ex);
-                            }
-                        } else {
-                            StringCollection fromFilenames = reference.GetReferenceFiles(cs);
-
-                            // create instance of Copy task
-                            CopyTask ct = new CopyTask();
-
-                            // inherit project from solution task
-                            ct.Project = SolutionTask.Project;
-
-                            // inherit parent from solution task
-                            ct.Parent = SolutionTask.Parent;
-
-                            // inherit verbose setting from solution task
-                            ct.Verbose = SolutionTask.Verbose;
-
-                            // make sure framework specific information is set
-                            ct.InitializeTaskConfiguration();
-
-                            // set parent of child elements
-                            ct.CopyFileSet.Parent = ct;
-
-                            // inherit project from solution task for child elements
-                            ct.CopyFileSet.Project = SolutionTask.Project;
-
-                            // set base directory of fileset
-                            ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
-
-                            // add files to copy
-                            foreach (string file in fromFilenames) {
-                                ct.CopyFileSet.Includes.Add(file);
-                            }
-
-                            // set destination directory
-                            ct.ToDirectory = cs.OutputDir;
-
-                            // increment indentation level
-                            ct.Project.Indent();
-                            try {
-                                // execute task
-                                ct.Execute();
-                            } finally {
-                                // restore indentation level
-                                ct.Project.Unindent();
-                            }
+                // increment indentation level
+                SolutionTask.Project.Indent();
+                try {
+                    while (true) {
+                        // read line
+                        string line = p.StandardOutput.ReadLine();
+                        if (line == null) {
+                            break;
                         }
+                        // display line
+                        Log(Level.Info, "[compile] " + line);
                     }
-                    sw.WriteLine(reference.Setting);
+                } finally {
+                    // restore indentation level
+                    SolutionTask.Project.Unindent();
                 }
 
-                if (_htResources.Count > 0) {
-                    Log(Level.Verbose, LogPrefix + "Compiling resources:");
-                    foreach (Resource resource in _htResources.Values) {
- 						// ignore resource files associated with a culture
- 						if (resource.Culture != null) {
- 							haveCultureSpecificResources = true;
- 							continue;
- 						}
+                p.WaitForExit();
 
-                        Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
-                        resource.Compile(cs);
+                int exitCode = p.ExitCode;
+                Log(Level.Verbose, LogPrefix + "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
 
-                        sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                            "/res:\"{0}\",\"{1}\"", resource.CompiledResourceFile, 
-                            resource.ManifestResourceName)); 
-                    }
-                }
-
-                // add the files to compile
-                foreach (string file in _htFiles.Keys) {
-                    sw.WriteLine(@"""" + file + @"""");
-                }
-            }
-
-            Log(Level.Verbose, LogPrefix + "Starting compiler...");
-
-            if (SolutionTask.Verbose) {
-                using (StreamReader sr = new StreamReader(tempResponseFile)) {
-                    Log(Level.Verbose, LogPrefix + "Commands:");
-
-                    // increment indentation level
-                    SolutionTask.Project.Indent();
-                    try {
-                        while (true) {
-                            // read line
-                            string line = sr.ReadLine();
-                            if (line == null) {
-                                break;
-                            }
-                            // display line
-                            Log(Level.Verbose, LogPrefix + "    "  + line);
-                        }
-                    } finally {
-                        // restore indentation level
-                        SolutionTask.Project.Unindent();
-                    }
-                }
-            }
-
-            ProcessStartInfo psi = null;
-            if (_projectSettings.Type == ProjectType.CSharp) {
-                psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
-            }
-
-            if (_projectSettings.Type == ProjectType.VBNet) {
-                psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
-            }
-
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.WorkingDirectory = _projectDirectory;
-
-            Process p = Process.Start(psi);
-
-            // increment indentation level
-            SolutionTask.Project.Indent();
-            try {
-                while (true) {
-                    // read line
-                    string line = p.StandardOutput.ReadLine();
-                    if (line == null) {
-                        break;
-                    }
-                    // display line
-                    Log(Level.Info, "[compile] " + line);
-                }
-            } finally {
-                // restore indentation level
-                SolutionTask.Project.Unindent();
-            }
-
-            p.WaitForExit();
-
-            int exitCode = p.ExitCode;
-            Log(Level.Verbose, LogPrefix + "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
-
-            if (exitCode > 0) {
-                bSuccess = false;
-            } else {
-                if (_isWebProject) {
-                    Log(Level.Verbose, LogPrefix + "Uploading output files...");
-                    WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                    //wdc.DeleteFile( cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _ps.OutputFile );
-                    wdc.UploadFile(cs.OutputPath, cs.RelativeOutputDir.Replace(@"\", "/") + _projectSettings.OutputFileName);
-                }
-
-                // Copy any extra files over
-                foreach (string extraOutputFile in cs.ExtraOutputFiles) {
-                    FileInfo sourceFile = new FileInfo(extraOutputFile);
-                    if (_isWebProject) {
-                        WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                        wdc.UploadFile(extraOutputFile, cs.RelativeOutputDir.Replace(@"\", "/") + sourceFile.Name);
-                    } else {
-                        FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
-                            sourceFile.Name));
-
-                        if (destFile.Exists) {
-                            // only copy the file if the source file is more 
-                            // recent than the destination file
-                            if (FileSet.FindMoreRecentLastWriteTime(sourceFile.FullName, destFile.LastWriteTime) == null) {
-                                continue; 
-                            }
-
-                            // make sure the destination file is writable
-                            destFile.Attributes = FileAttributes.Normal;
-                        }
-
-                        // copy the file and overwrite the destination file
-                        // if it already exists
-                        sourceFile.CopyTo(destFile.FullName, true);
-                    }
-                }
-            }
-
- 			#region Process culture-specific resource files
-
- 			if (bSuccess && haveCultureSpecificResources) {
- 				Log(Level.Verbose, LogPrefix + "Compiling satellite resources:");
- 				Hashtable cultures = new Hashtable();
- 				foreach (Resource resource in _htResources.Values) {
- 					// ignore resource files NOT associated with a culture
- 					if (resource.Culture == null) {
- 						continue;
- 					}
- 					ArrayList resFiles = null;
- 					if (!cultures.ContainsKey(resource.Culture)) {
- 						resFiles = new ArrayList();
- 						cultures.Add(resource.Culture, resFiles);
- 					} else {
- 						resFiles = (ArrayList) cultures[resource.Culture];
- 					}
- 					resFiles.Add(resource);
- 				}
-
- 				foreach (DictionaryEntry de in cultures) {
- 					string culture = ((CultureInfo) de.Key).Name;
- 					ArrayList resFiles = (ArrayList) de.Value;
-
- 					AssemblyLinkerTask al = new AssemblyLinkerTask();
- 					al.Project = this.SolutionTask.Project;
- 					al.Parent = this.SolutionTask.Parent;
- 					al.BaseDirectory = cs.OutputDir;
- 					al.InitializeTaskConfiguration();
-
- 					string satellitePath = cs.OutputDir.FullName;
- 					satellitePath = Path.Combine (satellitePath, culture);
- 					Directory.CreateDirectory(satellitePath);
- 					satellitePath = Path.Combine(satellitePath, string.Format(
-                        CultureInfo.InvariantCulture, "{0}.resources.dll", 
-                        _projectSettings.AssemblyName));
- 					al.OutputFile = new FileInfo(satellitePath);
- 					al.OutputTarget = "lib";
- 					al.Culture = culture;
- 					al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, _projectSettings.OutputFileName));
- 					foreach (Resource resource in resFiles) {
- 						resource.Compile(cs);
-                        // add resources to embed 
-                        Argument arg = new Argument();
-                        arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",\"{1}\"", resource.CompiledResourceFile, resource.ManifestResourceName);
-                        al.Arguments.Add(arg);
- 					}
-
-                    // increment indentation level
- 					SolutionTask.Project.Indent();
-                    try {
-                        Log(Level.Verbose, LogPrefix + " - {0}", culture);
-                        // run assembly linker
-                        al.Execute();
-                    } finally {
-                        // restore indentation level
-                        SolutionTask.Project.Unindent();
-                    }
- 				}
- 			}
-
- 			#endregion Process culture-specific resource files
-
-            if (ProjectSettings.RunPostBuildEvent != null) {
-                if (!PostBuild(cs, (exitCode == 0) ? true : false, (exitCode == 0) ? true : false)) {
+                if (exitCode > 0) {
                     bSuccess = false;
+                } else {
+                    if (_isWebProject) {
+                        Log(Level.Verbose, LogPrefix + "Uploading output files...");
+                        WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
+                        //wdc.DeleteFile( cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _ps.OutputFile );
+                        wdc.UploadFile(cs.OutputPath, cs.RelativeOutputDir.Replace(@"\", "/") + _projectSettings.OutputFileName);
+                    }
+
+                    // Copy any extra files over
+                    foreach (string extraOutputFile in cs.ExtraOutputFiles) {
+                        FileInfo sourceFile = new FileInfo(extraOutputFile);
+                        if (_isWebProject) {
+                            WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
+                            wdc.UploadFile(extraOutputFile, cs.RelativeOutputDir.Replace(@"\", "/") + sourceFile.Name);
+                        } else {
+                            FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
+                                sourceFile.Name));
+
+                            if (destFile.Exists) {
+                                // only copy the file if the source file is more 
+                                // recent than the destination file
+                                if (FileSet.FindMoreRecentLastWriteTime(sourceFile.FullName, destFile.LastWriteTime) == null) {
+                                    continue; 
+                                }
+
+                                // make sure the destination file is writable
+                                destFile.Attributes = FileAttributes.Normal;
+                            }
+
+                            // copy the file and overwrite the destination file
+                            // if it already exists
+                            sourceFile.CopyTo(destFile.FullName, true);
+                        }
+                    }
+                }
+
+                #region Process culture-specific resource files
+
+                if (bSuccess && haveCultureSpecificResources) {
+                    Log(Level.Verbose, LogPrefix + "Compiling satellite resources:");
+                    Hashtable cultures = new Hashtable();
+                    foreach (Resource resource in _htResources.Values) {
+                        // ignore resource files NOT associated with a culture
+                        if (resource.Culture == null) {
+                            continue;
+                        }
+                        ArrayList resFiles = null;
+                        if (!cultures.ContainsKey(resource.Culture)) {
+                            resFiles = new ArrayList();
+                            cultures.Add(resource.Culture, resFiles);
+                        } else {
+                            resFiles = (ArrayList) cultures[resource.Culture];
+                        }
+                        resFiles.Add(resource);
+                    }
+
+                    foreach (DictionaryEntry de in cultures) {
+                        string culture = ((CultureInfo) de.Key).Name;
+                        ArrayList resFiles = (ArrayList) de.Value;
+
+                        AssemblyLinkerTask al = new AssemblyLinkerTask();
+                        al.Project = this.SolutionTask.Project;
+                        al.Parent = this.SolutionTask.Parent;
+                        al.BaseDirectory = cs.OutputDir;
+                        al.InitializeTaskConfiguration();
+
+                        string satellitePath = cs.OutputDir.FullName;
+                        satellitePath = Path.Combine (satellitePath, culture);
+                        Directory.CreateDirectory(satellitePath);
+                        satellitePath = Path.Combine(satellitePath, string.Format(
+                            CultureInfo.InvariantCulture, "{0}.resources.dll", 
+                            _projectSettings.AssemblyName));
+                        al.OutputFile = new FileInfo(satellitePath);
+                        al.OutputTarget = "lib";
+                        al.Culture = culture;
+                        al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, _projectSettings.OutputFileName));
+                        foreach (Resource resource in resFiles) {
+                            resource.Compile(cs);
+                            // add resources to embed 
+                            Argument arg = new Argument();
+                            arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",\"{1}\"", resource.CompiledResourceFile, resource.ManifestResourceName);
+                            al.Arguments.Add(arg);
+                        }
+
+                        // increment indentation level
+                        SolutionTask.Project.Indent();
+                        try {
+                            Log(Level.Verbose, LogPrefix + " - {0}", culture);
+                            // run assembly linker
+                            al.Execute();
+                        } finally {
+                            // restore indentation level
+                            SolutionTask.Project.Unindent();
+                        }
+                    }
+                }
+
+                #endregion Process culture-specific resource files
+
+                if (ProjectSettings.RunPostBuildEvent != null) {
+                    if (!PostBuild(cs, (exitCode == 0) ? true : false, (exitCode == 0) ? true : false)) {
+                        bSuccess = false;
+                    }
+                }
+
+                if (!bSuccess ) {
+                    Log(Level.Error, LogPrefix + "Build failed.");
+                }
+
+                return bSuccess;
+            } finally {
+                // check if temporary file was created to support empty projects
+                if (tempFile != null) {
+                    // ensure temp file is deleted
+                    File.Delete(tempFile);
                 }
             }
-
-            if (!bSuccess ) {
-                Log(Level.Error, LogPrefix + "Build failed.");
-            }
-
-            return bSuccess;
         }
 
         #endregion Public Instance Methods
