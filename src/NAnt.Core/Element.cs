@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Xml;
 
@@ -55,6 +56,8 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private static Hashtable AttributeSetters = new Hashtable();
 
         #endregion Private Static Fields
 
@@ -404,37 +407,11 @@ namespace NAnt.Core {
                                 attributeValue, attributeNode.Name, this.Name), Location, ve);
                         }
 
-                        // holds the attribute value converted to the property type
-                        object propertyValue = null;
+                        // create an attribute setter for the type of the property
+                        IAttributeSetter attributeSetter = CreateAttributeSetter(propertyType);
 
-                        // check if the object is an emum
-                        if (propertyType.IsEnum) {
-                            try {
-                                propertyValue = Enum.Parse(propertyType, attributeValue);
-                            } catch (ArgumentException) {
-                                string message = string.Format(CultureInfo.InvariantCulture, 
-                                    "'{0}' is not a valid value for attribute" +
-                                    " '{1}' of <{2} ... />. Valid values are: ", 
-                                    attributeValue, attributeNode.Name, this.Name);
-                                foreach (object value in Enum.GetValues(propertyType)) {
-                                    message += value.ToString() + ", ";
-                                }
-                                // strip last ,
-                                message = message.Substring(0, message.Length - 2);
-                                throw new BuildException(message, Location);
-                            }
-                        } else {
-                            try {
-                                propertyValue = Convert.ChangeType(attributeValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
-                            } catch (Exception ex) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                    "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
-                                    attributeValue, attributeNode.Name, this.Name), Location, ex);
-                            }
-                        }
-
-                        // set value
-                        propertyInfo.SetValue(this, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                        // set the property value
+                        attributeSetter.Set(attributeNode, this, propertyInfo, attributeValue);
                     }
                 }
 
@@ -591,7 +568,7 @@ namespace NAnt.Core {
                                 
                                 // throw error wrong type definition
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                            "Attempting to use a <{0}> reference where a <{1}> is required", elementTypeAttr.Name, childElemAttr.Name ), Location);
+                                    "Attempting to use a <{0}> reference where a <{1}> is required", elementTypeAttr.Name, childElemAttr.Name ), Location);
                             }
                             childElement.Location = Project.LocationMap.GetLocation(elementNode);
                         } else {
@@ -802,7 +779,7 @@ namespace NAnt.Core {
             } else {
                 childElement.Initialize(xml);
             }
-            
+           
 
             // call the set method if we created the object
             if (setter != null && getter == null) {
@@ -832,6 +809,46 @@ namespace NAnt.Core {
                     reference.Location);
             }
             return refType;
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IAttributeSetter" /> for the given 
+        /// <see cref="Type" />.
+        /// </summary>
+        /// <param name="attributeType">The <see cref="Type" /> for which an <see cref="IAttributeSetter" /> should be created.</param>
+        /// <returns>
+        /// An <see cref="IAttributeSetter" /> for the given <see cref="Type" />.
+        /// </returns>
+        private IAttributeSetter CreateAttributeSetter(Type attributeType) {
+            if (AttributeSetters.ContainsKey(attributeType)) {
+                return (IAttributeSetter) AttributeSetters[attributeType];
+            }
+
+            IAttributeSetter attributeSetter = null;
+
+            if (attributeType.IsEnum) {
+                attributeSetter = new EnumAttributeSetter();
+            } else if (attributeType == typeof(FileInfo)) {
+                attributeSetter = new FileAttributeSetter();
+            } else if (attributeType == typeof(DirectoryInfo)) {
+                attributeSetter = new DirectoryAttributeSetter();
+            } else {
+                attributeSetter = new ConvertableAttributeSetter();
+            }
+
+            // TO-DO
+            /*
+            if (attributeType == typeof(Path)) {
+                return PathAttributeSetter();
+            }
+            */
+
+
+            if (attributeSetter != null) {
+                AttributeSetters.Add(attributeType, attributeSetter);
+            }
+
+            return attributeSetter;
         }
 
         #endregion Private Instance Methods
@@ -931,7 +948,7 @@ namespace NAnt.Core {
 
                 if (Project.CurrentFramework != null) {
                     // locate framework node for current framework
-                     XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:platform[@name=\"" + Project.PlatformName + "\"]/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
+                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:platform[@name=\"" + Project.PlatformName + "\"]/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
 
                     if (frameworkNode != null) {
                         // locate framework-specific configuration node
@@ -960,5 +977,79 @@ namespace NAnt.Core {
         }
 
         #endregion Private Static Methods
+
+        private class EnumAttributeSetter : IAttributeSetter {
+            public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                try {
+                    object propertyValue = Enum.Parse(property.PropertyType, value);
+                    property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                } catch (ArgumentException) {
+                    string message = string.Format(CultureInfo.InvariantCulture, 
+                        "'{0}' is not a valid value for attribute" +
+                        " '{1}' of <{2} ... />. Valid values are: ", 
+                        value, attributeNode.Name, parent.Name);
+
+                    foreach (object field in Enum.GetValues(property.PropertyType)) {
+                        message += field.ToString() + ", ";
+                    }
+
+                    // strip last ,
+                    message = message.Substring(0, message.Length - 2);
+                    throw new BuildException(message, parent.Location);
+                }
+            }
+        }
+
+        private class FileAttributeSetter : IAttributeSetter {
+            public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                try {
+                    object propertyValue = new FileInfo(parent.Project.GetFullPath(value));
+                    property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                        value, attributeNode.Name, parent.Name), parent.Location, ex);
+                }
+            }
+        }
+
+        private class DirectoryAttributeSetter : IAttributeSetter {
+            public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                try {
+                    object propertyValue = new DirectoryInfo(parent.Project.GetFullPath(value));
+                    property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                        value, attributeNode.Name, parent.Name), parent.Location, ex);
+                }
+            }
+        }
+
+        private class PathAttributeSetter : IAttributeSetter {
+            public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class ConvertableAttributeSetter : IAttributeSetter {
+            public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                try {
+                    object propertyValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
+                    property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                        value, attributeNode.Name, parent.Name), parent.Location, ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal interface used for setting element attributes. 
+        /// </summary>
+        private interface IAttributeSetter {
+            void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value);
+        }
     }
 }
