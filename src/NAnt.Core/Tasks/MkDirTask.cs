@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,28 +29,50 @@ namespace NAnt.Core.Tasks {
     /// Creates a directory and any non-existent parent directories if necessary.
     /// </summary>
     /// <example>
-    ///     <para>Create the directory &quot;build&quot;.</para>
-    ///     <code><![CDATA[<mkdir dir="build"/>]]></code>
-    ///     <para>Create the directory tree &quot;one/two/three&quot;.</para>
-    ///     <code><![CDATA[<mkdir dir="one/two/three"/>]]></code>
+    ///   <para>Create the directory &quot;build&quot;.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mkdir dir="build" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Create the directory tree &quot;one/two/three&quot;.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mkdir dir="one/two/three" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("mkdir")]
     public class MkDirTask : Task {
+        #region Private Instance Fields
 
-        string _dir = null; // the directory to create
-        
-        /// <summary>The directory to create.</summary>
+        private string _dir = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The directory to create.
+        /// </summary>
         [TaskAttribute("dir", Required=true)]
-        public string Dir { get { return _dir; } set { _dir = value; } }
+        public string Dir {
+            get { return Project.GetFullPath(_dir); }
+            set { _dir = SetStringValue(value); }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             try {
-                string directory = Project.GetFullPath(_dir);
+                string directory = Dir;
                 if (!Directory.Exists(directory)) {
                     Log(Level.Info, LogPrefix + "Creating directory {0}.", directory);
                     DirectoryInfo result = Directory.CreateDirectory(directory);
                     if (result == null) {
-                        string msg = String.Format(CultureInfo.InvariantCulture, "Unknown error creating directory '{0}'", directory);
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Unknown error creating directory '{0}'.", directory);
                         throw new BuildException(msg, Location);
                     }
                 }
@@ -58,5 +80,7 @@ namespace NAnt.Core.Tasks {
                 throw new BuildException(LogPrefix + "Failed", Location, e);
             }
         }
+
+        #endregion Override implementation of Task
     }
 }
