@@ -35,6 +35,7 @@ namespace SourceForge.NAnt.Tasks {
     /// Provides the abstract base class for tasks that execute external applications.
     /// </summary>
     public abstract class ExternalProgramBase : Task {
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>Gets the application to start.</summary>
         public abstract string ProgramFileName { get; }
@@ -139,20 +140,29 @@ namespace SourceForge.NAnt.Tasks {
             Process p = new Process();
             PrepareProcess(ref p);
             try {
-                Log.WriteLineIf(
-                    Verbose, 
+                string msg = string.Format(
+                    CultureInfo.InvariantCulture, 
                     LogPrefix + "Starting '{1} ({2})' in '{0}'", 
                     p.StartInfo.WorkingDirectory, 
                     p.StartInfo.FileName, 
                     p.StartInfo.Arguments);
+
+                logger.Info(msg);
+                Log.WriteLineIf(Verbose, msg);
+
                 p.Start();
             } catch (Exception e) {
-                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "<{0} task>{1} failed to start.", Name ,p.StartInfo.FileName), Location, e);
+                string msg = String.Format(CultureInfo.InvariantCulture, "<{0} task>{1} failed to start.", Name, p.StartInfo.FileName);
+                throw new BuildException(msg, Location, e);
+                logger.Error(msg, e);
             }
             return p;
         }
 
-        private void StreamReaderThread() {
+        /// <summary>
+        /// Read from the stream until the external program is ended
+        /// </summary>
+        private void StreamReaderThread_Output() {
             StreamReader reader = ( StreamReader )_htThreadStream[ Thread.CurrentThread.Name ];
             while ( true ) {                        
                 string strLogContents = reader.ReadLine();
@@ -160,7 +170,34 @@ namespace SourceForge.NAnt.Tasks {
                     break;
                 // Ensure only one thread writes to the log at any time
                 lock ( _htThreadStream ) {
-                    Log.WriteLine( LogPrefix + strLogContents );
+                    
+                    logger.Info(strLogContents);
+                    //do not print LogPrefix, just pad that length...
+                    Log.WriteLine(new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
+
+                    if (OutputFile != null && OutputFile != "") {
+                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
+                        writer.Write(strLogContents);
+                        writer.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Read from the stream until the external program is ended
+        /// </summary>
+        private void StreamReaderThread_Error() {
+            StreamReader reader = ( StreamReader )_htThreadStream[ Thread.CurrentThread.Name ];
+            while ( true ) {                        
+                string strLogContents = reader.ReadLine();
+                if ( strLogContents == null )
+                    break;
+                // Ensure only one thread writes to the log at any time
+                lock ( _htThreadStream ) {
+                    
+                    logger.Error(strLogContents);
+
                     if (OutputFile != null && OutputFile != "") {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
                         writer.Write(strLogContents);
@@ -174,9 +211,9 @@ namespace SourceForge.NAnt.Tasks {
             try {
                 // Start the external process
                 Process process = StartProcess();
-                Thread outputThread = new Thread( new ThreadStart( StreamReaderThread ) );
+                Thread outputThread = new Thread( new ThreadStart( StreamReaderThread_Output ) );
                 outputThread.Name = "Output";
-                Thread errorThread = new Thread( new ThreadStart( StreamReaderThread ) );
+                Thread errorThread = new Thread( new ThreadStart( StreamReaderThread_Error ) );
                 errorThread.Name = "Error";
                 _htThreadStream[ outputThread.Name ] = process.StandardOutput;
                 _htThreadStream[ errorThread.Name ] = process.StandardError;
@@ -203,11 +240,14 @@ namespace SourceForge.NAnt.Tasks {
                 if (FailOnError) {
                     throw;
                 } else {
-                    Log.WriteLine(e.ToString(), "error");
+                    logger.Error("Execution Error", e);
+                    Log.WriteLine(e.Message);
                 }
             } catch (Exception e) {
+                logger.Error("Execution Error", e);
+                
                 throw new BuildException(
-                    String.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors.\n", GetType().ToString(), ProgramFileName), 
+                    String.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors. Please see log4net log.", GetType().ToString(), ProgramFileName), 
                     Location, 
                     e);
             }
