@@ -29,6 +29,8 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.SourceControl.Types;
+
 using ICSharpCode.SharpCvsLib.FileSystem;
 using ICSharpCode.SharpCvsLib.Exceptions;
 
@@ -38,6 +40,9 @@ namespace NAnt.SourceControl.Tasks {
     /// CVS repository.
     /// </summary>
     public abstract class AbstractCvsTask : AbstractSourceControlTask {
+        #region Private Static Fields
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #endregion Private Static Fields
 
         #region Protected Static Fields
 
@@ -102,7 +107,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         protected const string UseSharpCvsLibProp = "sourcecontrol.usesharpcvslib";
 
-        #endregion
+        #endregion "Protected Static Fields
 
         #region Private Instance Fields
 
@@ -112,16 +117,11 @@ namespace NAnt.SourceControl.Tasks {
         private FileInfo _cvsFullPath;
         private string _sharpcvslibExeName;
 
+        private CvsFileSet _cvsFileSet = new CvsFileSet();
+
         #endregion Private Instance Fields
 
-        #region Private Static Fields
-
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        #endregion Private Static Fields
-
-        #region Protected Instance Constructors
-
+        #region Protected Instance Contructors
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractCvsTask" /> 
         /// class.
@@ -187,6 +187,23 @@ namespace NAnt.SourceControl.Tasks {
         #endregion
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// Used to specify the version control system (VCS) files that are going
+        /// to be acted on.
+        /// </summary>
+        [BuildElement("fileset")]
+        public CvsFileSet CvsFileSet {
+            get { return this._cvsFileSet; }
+            set { this._cvsFileSet = value; }
+        }
+
+        /// <summary>
+        /// Get the cvs file set.
+        /// </summary>
+        public override FileSet VcsFileSet{
+            get { return this.CvsFileSet; }
+        }
 
         /// <summary>
         /// The name of the cvs executable.
