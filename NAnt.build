@@ -114,7 +114,7 @@
         </copy>
         <copy todir="${build.dir}/bin">
             <fileset basedir="bin">
-                <includes name="cvs.exe" />
+                <includes name="scvs.exe" />
             </fileset>
         </copy>
         <!-- copy framework-specific libraries -->
