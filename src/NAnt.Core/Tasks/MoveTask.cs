@@ -32,14 +32,15 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   Files are only moved if the source file is newer than the destination 
-    ///   file, or if the destination file does not exist.  However, you can 
-    ///   explicitly overwrite files with the <see cref="CopyTask.Overwrite" /> attribute.
+    ///   Files are only moved if the source file is newer than the destination
+    ///   file, or if the destination file does not exist.  However, you can
+    ///   explicitly overwrite files with the <see cref="CopyTask.Overwrite" /> 
+    ///   attribute.
     ///   </para>
     ///   <para>
-    ///   A <see cref="FileSet" /> can be used to select files to move. To use 
-    ///   a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" /> attribute 
-    ///   must be set.
+    ///   A <see cref="FileSet" /> can be used to select files to move. To use
+    ///   a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" /> 
+    ///   attribute must be set.
     ///   </para>
     /// </remarks>
     /// <example>
@@ -92,7 +93,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Used to select the files to move. To use a <see cref="FileSet" />, 
+        /// Used to select the files to move. To use a <see cref="FileSet" />,
         /// the <see cref="ToDirectory" /> attribute must be set.
         /// </summary>
         [BuildElement("fileset")]
@@ -101,8 +102,8 @@ namespace NAnt.Core.Tasks {
             set { base.CopyFileSet = value; }
         }
         /// <summary>
-        /// Ignore directory structure of source directory, move all files into 
-        /// a single directory, specified by the <see cref="ToDirectory" /> 
+        /// Ignore directory structure of source directory, move all files into
+        /// a single directory, specified by the <see cref="ToDirectory" />
         /// attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("flatten")]
@@ -113,7 +114,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Actually does the file (and possibly empty directory) moves.
+        /// Actually does the file moves.
         /// </summary>
         protected override void DoFileOperations() {
             if (FileCopyMap.Count > 0) {
@@ -121,7 +122,7 @@ namespace NAnt.Core.Tasks {
                 foreach (string sourcePath in FileCopyMap.Keys) {
                     string destinationPath = (string) FileCopyMap[sourcePath];
                     if (Flatten) {
-                        destinationPath = Path.Combine(ToDirectory.FullName, 
+                        destinationPath = Path.Combine(ToDirectory.FullName,
                             Path.GetFileName(destinationPath));
                     }
                     if (sourcePath == destinationPath) {
@@ -132,23 +133,30 @@ namespace NAnt.Core.Tasks {
                     try {
                         // check if directory exists
                         if (Directory.Exists(sourcePath)) {
-                            Log(Level.Verbose, LogPrefix + "Moving directory {0} to {1}.", sourcePath, destinationPath);
+                            Log(Level.Verbose, LogPrefix + "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
                             Directory.Move(sourcePath, destinationPath);
-                        }
-                        else {
+                        } else {
                             DirectoryInfo todir = new DirectoryInfo(destinationPath);
                             if (!todir.Exists) {
                                 Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
                             }
 
-                            Log(Level.Verbose, LogPrefix + "Moving {0} to {1}.", sourcePath, destinationPath);
-                            // IM look into how Ant does this for directories
+                            Log(Level.Verbose, LogPrefix + "Moving '{0}' to '{1}'.", sourcePath, destinationPath);
+
+                            if (Overwrite) {
+                                // if destination file exists, remove it first if
+                                // in overwrite mode
+                                if (File.Exists(destinationPath)) {
+                                    Log(Level.Verbose, LogPrefix + "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
+                                    File.Delete(destinationPath);
+                                }
+                            }
 
                             // move the file
                             File.Move(sourcePath, destinationPath);
                         }
                     } catch (IOException ex) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             "Failed to move {0} to {1}.", sourcePath, destinationPath),
                             Location, ex);
                     }
@@ -160,3 +168,4 @@ namespace NAnt.Core.Tasks {
         #endregion Override implementation of CopyTask
     }
 }
+
