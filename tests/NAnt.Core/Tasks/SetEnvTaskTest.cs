@@ -45,51 +45,50 @@ namespace Tests.NAnt.Core.Tasks {
                 "Environment variable Foo should have been set to 'Some Value'" );
         }
         
-		[Test]
-        public void Test_SetMultipleEnvVars() {           
-			string _xml = @"
+        [Test]
+        public void Test_SetMultipleEnvVars() {
+            string _xml = @"
                     <project>
                         <setenv >
                             <environment>
                                 <option name='var1' value='value1' />
-                                <option name='var2' value='value2' />                                
+                                <option name='var2' value='value2' />
                             </environment>
                         </setenv>
                     </project>";
             RunBuild(_xml);
-			Assert.IsTrue( Environment.GetEnvironmentVariable("var1") != null, 
+            Assert.IsTrue( Environment.GetEnvironmentVariable("var1") != null, 
                 "Environment variable var1 should have been set" );
             Assert.IsTrue( Environment.GetEnvironmentVariable("var1") == "value1", 
                 "Environment variable var1 should have been set to 'Some Value'" );
-			Assert.IsTrue( Environment.GetEnvironmentVariable("var2") != null, 
+            Assert.IsTrue( Environment.GetEnvironmentVariable("var2") != null, 
                 "Environment variable var2 should have been set" );
             Assert.IsTrue( Environment.GetEnvironmentVariable("var2") == "value2", 
                 "Environment variable var2 should have been set to 'value2'" );
-									
         }
 
-		[Test]
+        [Test]
         public void Test_ExpandEnvStrings() {
-			string platformSpecVarPart = "";
-			if ( PlatformHelper.IsWin32 ) {
-				platformSpecVarPart = "%var2%";
-			} else {
-				platformSpecVarPart = "$var2";
-			}
-			string _xml = string.Format(@"
+            string platformSpecVarPart = "";
+            if ( PlatformHelper.IsWin32 ) {
+                platformSpecVarPart = "%var2%";
+            } else {
+                platformSpecVarPart = "$var2";
+            }
+            string _xml = string.Format(@"
                     <project>
                         <setenv >
-                            <environment>                                
+                            <environment>
                                 <option name='var2' value='value2' />
                                 <option name='var3' value='value3:{0}' />
                             </environment>
                         </setenv>
                     </project>", platformSpecVarPart);
-            RunBuild(_xml);			
+            RunBuild(_xml);
             Assert.IsTrue( Environment.GetEnvironmentVariable("var3") != null, 
                 "Environment variable var3 should have been set" );
-			Assert.IsTrue( Environment.GetEnvironmentVariable("var3") == "value3:value2", 
+            Assert.IsTrue( Environment.GetEnvironmentVariable("var3") == "value3:value2", 
                 "Environment variable var3 should have been set to 'value3:value2'" );
-		}
+        }
     }
 }

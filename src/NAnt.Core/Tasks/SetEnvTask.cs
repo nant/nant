@@ -74,8 +74,10 @@ namespace NAnt.Core.Tasks {
     public class SetEnvTask : Task {
         
         #region Protected Static Fields
+        
         static string _matchEnvRegex = @"\$[a-zA-Z][a-zA-Z0-9_]+";
         static string _matchEnvRegexWin = @"%[a-zA-Z][a-zA-Z0-9_]+%"; 
+        
         #endregion Protected Static Fields
 
         #region Private Instance Fields
@@ -116,13 +118,13 @@ namespace NAnt.Core.Tasks {
 
         #endregion Public Instance Properties
         
-		#region DllImports
-		/// <summary>
+        #region DllImports
+        /// <summary>
         /// Win32 DllImport for the SetEnvironmentVariable function.
         /// </summary>
         /// <param name="lpName"></param>
         /// <param name="lpValue"></param>
-        /// <returns></returns>		
+        /// <returns></returns>
         [DllImport("kernel32.dll", SetLastError=true)]
         static extern bool SetEnvironmentVariable(string lpName, string lpValue);
                 
@@ -133,7 +135,7 @@ namespace NAnt.Core.Tasks {
         /// <param name="value"></param>
         /// <param name="overwrite"></param>
         /// <returns></returns>
-		[DllImport("libc")]
+        [DllImport("libc")]
         static extern int setenv(string name, string value, int overwrite);
         
         #endregion DllImports
@@ -144,13 +146,13 @@ namespace NAnt.Core.Tasks {
         /// Checks whether the task is initialized with valid attributes.
         /// </summary>
         /// <param name="taskNode"></param>
-		protected override void InitializeTask(XmlNode taskNode) {
-			if ( EnvName == null && EnvironmentCollection.Count == 0) {
-				throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-					"Either the name attribute or at least one nested <option> element is required."), Location );
-			}
-		}
-		/// <summary>
+        protected override void InitializeTask(XmlNode taskNode) {
+            if ( EnvName == null && EnvironmentCollection.Count == 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Either the name attribute or at least one nested <option> element is required."), Location );
+            }
+        }
+        /// <summary>
         /// Set the environment variables
         /// </summary>
         protected override void ExecuteTask() {
@@ -179,7 +181,7 @@ namespace NAnt.Core.Tasks {
             Log(Level.Verbose, "Setting env var {0} to {1}", name, value);
             bool result;
             
-			// expand any env vars in value
+            // expand any env vars in value
             string expandedValue = ExpandEnvironmentStrings ( value);
             if ( PlatformHelper.IsWin32 ) {
                 result = SetEnvironmentVariable(name, expandedValue);
