@@ -41,20 +41,9 @@ namespace NAnt.VSNet {
     public class VcProject: ProjectBase {
         #region Public Instance Constructors
         
-        public VcProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, refResolver, outputDir) {
-            // ensure the specified project is actually supported by this class
-            if (!IsSupported(xmlDefinition)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Project '{0}' is not a valid Visual C++ project.", ProjectPath),
-                    Location.UnknownLocation);
-            }
-
+        public VcProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
             if (projectPath == null) {
                 throw new ArgumentNullException("projectPath");
-            }
-
-            if (xmlDefinition == null) {
-                throw new ArgumentNullException("xmlDefinition");
             }
 
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -173,6 +162,42 @@ namespace NAnt.VSNet {
         public override ProjectReferenceBase CreateProjectReference(ProjectBase project, bool isPrivateSpecified, bool isPrivate) {
             return new VcProjectReference(project, this, isPrivateSpecified, 
                 isPrivate);
+        }
+
+        /// <summary>
+        /// Verifies whether the specified XML fragment represents a valid project
+        /// that is supported by this <see cref="ProjectBase" />.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project file.</param>
+        /// <exception cref="BuildException">
+        ///   <para>The XML fragment is not supported by this <see cref="ProjectBase" />.</para>
+        ///   <para>-or-</para>
+        ///   <para>The XML fragment does not represent a valid project (for this <see cref="ProjectBase" />).</para>
+        /// </exception>
+        protected override void VerifyProjectXml(XmlElement docElement) {
+            if (!IsSupported(docElement)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project '{0}' is not a valid Visual C++ project.", 
+                    ProjectPath), Location.UnknownLocation);
+            }
+        }
+
+        /// <summary>
+        /// Returns the Visual Studio product version of the specified project
+        /// XML fragment.
+        /// </summary>
+        /// <param name="docElement">The document element of the project.</param>
+        /// <returns>
+        /// The Visual Studio product version of the specified project XML 
+        /// fragment.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The product version could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The product version is not supported.</para>
+        /// </exception>
+        protected override ProductVersion DetermineProductVersion(XmlElement docElement) {
+            return GetProductVersion(docElement);
         }
 
         protected override bool Build(ConfigurationBase config) {
@@ -810,6 +835,7 @@ namespace NAnt.VSNet {
         ///   <![CDATA[
         /// <VisualStudioProject
         ///     ProjectType="Visual C++"
+        ///     Version="..."
         ///     ...
         ///     >
         /// </VisualStudioProject>
@@ -830,8 +856,15 @@ namespace NAnt.VSNet {
                 return false;
             }
 
-            // TODO: add Version check once we add more specific implementation 
-            // classes
+            try {
+                ProductVersion productVersion = GetProductVersion(docElement);
+                // no need to perform version check here as this is done in 
+                // GetProductVersion
+            } catch {
+                // product version could not be determined or is not supported
+                return false;
+            }
+
             return true;
         }
 
@@ -848,20 +881,71 @@ namespace NAnt.VSNet {
             return cleanedPath.TrimEnd('\"');
         }
 
+        /// <summary>
+        /// Returns the Visual Studio product version of the specified project
+        /// XML fragment.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project to check.</param>
+        /// <returns>
+        /// The Visual Studio product version of the specified project XML 
+        /// fragment.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The product version could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The product version is not supported.</para>
+        /// </exception>
+        private static ProductVersion GetProductVersion(XmlElement docElement) {
+            if (docElement == null) {
+                throw new ArgumentNullException("docElement");
+            }
+
+            XmlAttribute productVersionAttribute = docElement.Attributes["Version"];
+            if (productVersionAttribute == null) {
+                throw new BuildException("The \"Version\" attribute is"
+                    + " missing from the <VisualStudioProject> node.",
+                    Location.UnknownLocation);
+            }
+
+            // check if we're dealing with a valid version number
+            Version productVersion = null;
+            try {
+                productVersion = new Version(productVersionAttribute.Value);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "The value of the \"Version\" attribute ({0}) is not a valid"
+                    + " version string.", productVersionAttribute.Value),
+                    Location.UnknownLocation, ex);
+            }
+
+            if (productVersion.Major == 7) {
+                switch (productVersion.Minor) {
+                    case 0:
+                        return ProductVersion.Rainier;
+                    case 10:
+                        return ProductVersion.Everett;
+                }
+            } 
+
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Visual Studio version \"{0\" is not supported.",
+                productVersion.ToString()), Location.UnknownLocation);
+        }
+
         #endregion Private Static Methods
 
         #region Private Instance Fields
 
-        private string _name;
-        private string _projectPath;
+        private readonly string _name;
+        private readonly string _projectPath;
         private string _guid;
-        private string _rootNamespace;
-        private ArrayList _references;
-        private Hashtable _htPlatformConfigurations;
-        private Hashtable _htFiles;
-        private ArrayList _objFiles;
-        private VcArgumentMap _clArgMap;
-        private VcArgumentMap _linkerArgMap;
+        private readonly string _rootNamespace;
+        private readonly ArrayList _references;
+        private readonly Hashtable _htPlatformConfigurations;
+        private readonly Hashtable _htFiles;
+        private readonly ArrayList _objFiles;
+        private readonly VcArgumentMap _clArgMap;
+        private readonly VcArgumentMap _linkerArgMap;
 
         #endregion Private Instance Fields
 

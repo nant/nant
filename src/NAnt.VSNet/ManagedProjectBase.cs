@@ -41,7 +41,7 @@ namespace NAnt.VSNet {
     public abstract class ManagedProjectBase : ProjectBase {
         #region Public Instance Constructors
 
-        protected ManagedProjectBase(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, refResolver, outputDir) {
+        protected ManagedProjectBase(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
             if (projectPath == null) {
                 throw new ArgumentNullException("projectPath");
             }
@@ -54,7 +54,6 @@ namespace NAnt.VSNet {
             _resources = new ArrayList();
             _sourceFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _projectPath = projectPath;
-            _xmlDefinition = xmlDefinition;
 
             if (!IsWebProject) {
                 _projectDirectory = new FileInfo(projectPath).Directory;
@@ -74,22 +73,22 @@ namespace NAnt.VSNet {
                 _webProjectBaseUrl = projectPath.Substring(0, projectPath.LastIndexOf("/"));
             }
 
-            _projectSettings = new ProjectSettings(XmlDefinition, (XmlElement) 
-                XmlDefinition.SelectSingleNode("//Build/Settings"), this);
+            _projectSettings = new ProjectSettings(xmlDefinition, (XmlElement) 
+                xmlDefinition.SelectSingleNode("//Build/Settings"), this);
 
-            XmlNodeList nlConfigurations = XmlDefinition.SelectNodes("//Config");
+            XmlNodeList nlConfigurations = xmlDefinition.SelectNodes("//Config");
             foreach (XmlElement elemConfig in nlConfigurations) {
                 ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, OutputDir);
                 ProjectConfigurations[elemConfig.Attributes["Name"].Value] = cs;
             }
 
-            XmlNodeList nlReferences = XmlDefinition.SelectNodes("//References/Reference");
+            XmlNodeList nlReferences = xmlDefinition.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
                 ReferenceBase reference = CreateReference(solution, elemReference);
                 _references.Add(reference);
             }
 
-            XmlNodeList nlFiles = XmlDefinition.SelectNodes("//Files/Include/File");
+            XmlNodeList nlFiles = xmlDefinition.SelectNodes("//Files/Include/File");
             foreach (XmlElement elemFile in nlFiles) {
                 string buildAction = elemFile.Attributes["BuildAction"].Value;
                 string sourceFile;
@@ -159,17 +158,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
-
-        #region Protected Instance Properties
-
-        /// <summary>
-        /// Gets the XML definition of the project. 
-        /// </summary>
-        protected XmlElement XmlDefinition {
-            get { return _xmlDefinition; }
-        }
-
-        #endregion Protected Instance Properties
 
         #region Private Instance Properties
 
@@ -825,6 +813,61 @@ namespace NAnt.VSNet {
 
         #endregion Public Static Methods
 
+        #region Protected Static Methods
+
+        /// <summary>
+        /// Returns the Visual Studio product version of the specified project
+        /// XML fragment.
+        /// </summary>
+        /// <param name="projectNode">XML fragment representing the project to check.</param>
+        /// <returns>
+        /// The Visual Studio product version of the specified project XML 
+        /// fragment.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The product version could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The product version is not supported.</para>
+        /// </exception>
+        protected static ProductVersion GetProductVersion(XmlNode projectNode) {
+            if (projectNode == null) {
+                throw new ArgumentNullException("projectNode");
+            }
+
+            XmlAttribute productVersionAttribute = projectNode.Attributes["ProductVersion"];
+            if (productVersionAttribute == null) {
+                throw new BuildException("The \"ProductVersion\" attribute is"
+                    + " missing from the <VisualStudioProject> node.",
+                    Location.UnknownLocation);
+            }
+
+            // check if we're dealing with a valid version number
+            Version productVersion = null;
+            try {
+                productVersion = new Version(productVersionAttribute.Value);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "The value of the \"Version\" attribute ({0}) is not a valid"
+                    + " version string.", productVersionAttribute.Value),
+                    Location.UnknownLocation, ex);
+            }
+
+            if (productVersion.Major == 7) {
+                switch (productVersion.Minor) {
+                    case 0:
+                        return ProductVersion.Rainier;
+                    case 10:
+                        return ProductVersion.Everett;
+                }
+            } 
+
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Visual Studio version \"{0\" is not supported.",
+                productVersion.ToString()), Location.UnknownLocation);
+        }
+
+        #endregion Protected Static Methods
+
         #region Private Instance Fields
 
         private ArrayList _references;
@@ -837,11 +880,6 @@ namespace NAnt.VSNet {
         /// source file and the value is <see langword="null" />.
         /// </remarks>
         private readonly Hashtable _sourceFiles;
-
-        /// <summary>
-        /// Holds the XML definition of the project. 
-        /// </summary>
-        private readonly XmlElement _xmlDefinition;
 
         private readonly ArrayList _resources;
         private readonly string _projectPath;

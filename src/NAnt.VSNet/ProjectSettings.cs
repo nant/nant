@@ -32,7 +32,6 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
 
         public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, ManagedProjectBase project) {
-            _elemSettings = elemSettings;
             _project = project;
             _settings = new ArrayList();
 
@@ -292,7 +291,6 @@ namespace NAnt.VSNet {
         private string _runPostBuildEvent;
         private string _preBuildEvent;
         private string _postBuildEvent;
-        private XmlElement _elemSettings;
 
         #endregion Private Instance Fields
     }

@@ -194,12 +194,6 @@ namespace NAnt.VSNet {
                         ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture));
                 case "platformname": // .NET, does this value ever change?
                     return PlatformName;
-                case "devenvdir": // VS installation directory with \Common7\IDE appended
-                    // TO-DO
-                    // DevEnvDir is avaliable from the key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir"
-                    // But would require Microsoft.Win32 to be included. Don't want that for mono etc. ?
-                    throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture,
-                        "\"{0}\" macro is not yet implemented.", macro));
             }
 
             // expand using solution level macro's

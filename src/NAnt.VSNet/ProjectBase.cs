@@ -21,9 +21,12 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.CodeDom.Compiler;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+
+using Microsoft.Win32;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
@@ -41,20 +44,51 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
-        protected ProjectBase(SolutionTask solutionTask, TempFileCollection temporaryFiles, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) {
+        protected ProjectBase(XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection temporaryFiles, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir) {
+            if (xmlDefinition == null) {
+                throw new ArgumentNullException("xmlDefinition");
+            }
+            if (solutionTask == null) {
+                throw new ArgumentNullException("solutionTask");
+            }
+            if (temporaryFiles == null) {
+                throw new ArgumentNullException("temporaryFiles");
+            }
+            if (gacCache == null) {
+                throw new ArgumentNullException("gacCache");
+            }
+            if (referencesResolver == null) {
+                throw new ArgumentNullException("referencesResolver");
+            }
+
             _projectConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _buildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _extraOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+            // ensure the specified project is actually supported by this project
+            VerifyProjectXml(xmlDefinition);
+
             _solutionTask = solutionTask;
             _temporaryFiles = temporaryFiles;
             _outputDir = outputDir;
             _gacCache = gacCache;
-            _refResolver = refResolver;
+            _refResolver = referencesResolver;
+            _productVersion = DetermineProductVersion(xmlDefinition);
         }
 
         #endregion Protected Instance Constructors
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// Gets the Visual Studio product version of the project.
+        /// </summary>
+        /// <value>
+        /// The Visual Studio product version of the project.
+        /// </value>
+        public ProductVersion ProductVersion {
+            get { return _productVersion; }
+        }
 
         /// <summary>
         /// Gets the name of the VS.NET project.
@@ -191,7 +225,50 @@ namespace NAnt.VSNet {
             get { return _refResolver; }
         }
 
+        protected virtual string DevEnvDir {
+            get {
+                string vs7CommonDirKeyName = @"SOFTWARE\Microsoft\VisualStudio\" 
+                    + ProductVersionNumber + @"\Setup\VS";
+                RegistryKey vs7CommonDirKey = Registry.LocalMachine.OpenSubKey(
+                    vs7CommonDirKeyName);
+                if (vs7CommonDirKey == null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Registry key \"{0}\" could not be found.", vs7CommonDirKeyName),
+                        Location.UnknownLocation);
+                }
+
+                string vs7CommonDir = vs7CommonDirKey.GetValue("VS7CommonDir") as string;
+                if (vs7CommonDir == null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Value \"VS7CommonDir\" does not exist in registry key"
+                        + " \"{0}\".", vs7CommonDirKeyName), Location.UnknownLocation);
+                }
+                return Path.Combine(vs7CommonDir, @"IDE\");
+            }
+        }
+
         #endregion Protected Instance Properties
+
+        #region Private Instance Properties
+
+        /// <summary>
+        /// TODO: refactor this !!!
+        /// </summary>
+        private Version ProductVersionNumber {
+            get {
+                switch (ProductVersion) {
+                    case ProductVersion.Rainier:
+                        return new Version(7, 0);
+                    case ProductVersion.Everett:
+                        return new Version(7, 1);
+                    default:
+                        throw new Exception("Invalid product version \"" 
+                            + ProductVersion + "\".");
+                }
+            }
+        }
+
+        #endregion Private Instance Properties
 
         #region Public Instance Methods
 
@@ -359,6 +436,8 @@ namespace NAnt.VSNet {
                 case "projectdir": // ProjectPath without ProjectFileName at the end
                     return Path.GetDirectoryName(ProjectPath) 
                         + Path.DirectorySeparatorChar;
+                case "devenvdir":
+                    return DevEnvDir;
                 default:
                     return null;
             }
@@ -367,6 +446,34 @@ namespace NAnt.VSNet {
         #endregion Protected Internal Instance Methods
 
         #region Protected Instance Methods
+
+        /// <summary>
+        /// Returns the Visual Studio product version of the specified project
+        /// XML fragment.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project file.</param>
+        /// <returns>
+        /// The Visual Studio product version of the specified project XML 
+        /// file.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The product version could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The product version is not supported.</para>
+        /// </exception>
+        protected abstract ProductVersion DetermineProductVersion(XmlElement docElement);
+
+        /// <summary>
+        /// Verifies whether the specified XML fragment represents a valid project
+        /// that is supported by this <see cref="ProjectBase" />.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project file.</param>
+        /// <exception cref="BuildException">
+        ///   <para>The XML fragment is not supported by this <see cref="ProjectBase" />.</para>
+        ///   <para>-or-</para>
+        ///   <para>The XML fragment does not represent a valid project (for this <see cref="ProjectBase" />).</para>
+        /// </exception>
+        protected abstract void VerifyProjectXml(XmlElement docElement);
 
         /// <summary>
         /// Prepares the project for being built.
@@ -541,6 +648,7 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
+        private ProductVersion _productVersion;
         private SolutionTask _solutionTask;
         private TempFileCollection _temporaryFiles;
         private DirectoryInfo _outputDir;
@@ -576,5 +684,17 @@ namespace NAnt.VSNet {
         /// A Visual J# project.
         /// </summary>
         JSharp = 3
+    }
+
+    public enum ProductVersion {
+        /// <summary>
+        /// Visual Studio.NET 2002
+        /// </summary>
+        Rainier = 1,
+
+        /// <summary>
+        /// Visual Studio.NET 2003
+        /// </summary>
+        Everett = 2,
     }
 }

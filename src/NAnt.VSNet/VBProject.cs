@@ -35,13 +35,6 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
 
         public VBProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solution, projectPath, xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
-            // ensure the specified project is actually supported by this class
-            if (!IsSupported(xmlDefinition)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Project '{0}' is not a valid VB project.", ProjectPath),
-                    Location.UnknownLocation);
-            }
-
             _imports = new NamespaceImportCollection();
 
             // process namespace imports
@@ -79,6 +72,50 @@ namespace NAnt.VSNet {
         /// </value>
         public override ProjectType Type {
             get { return ProjectType.VB; }
+        }
+
+        /// <summary>
+        /// Verifies whether the specified XML fragment represents a valid project
+        /// that is supported by this <see cref="ProjectBase" />.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project file.</param>
+        /// <exception cref="BuildException">
+        ///   <para>The XML fragment is not supported by this <see cref="ProjectBase" />.</para>
+        ///   <para>-or-</para>
+        ///   <para>The XML fragment does not represent a valid project (for this <see cref="ProjectBase" />).</para>
+        /// </exception>
+        protected override void VerifyProjectXml(XmlElement docElement) {
+            if (!IsSupported(docElement)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project '{0}' is not a valid VB.NET project.", ProjectPath),
+                    Location.UnknownLocation);
+            }
+        }
+
+        /// <summary>
+        /// Returns the Visual Studio product version of the specified project
+        /// XML fragment.
+        /// </summary>
+        /// <param name="docElement">The document element of the project.</param>
+        /// <returns>
+        /// The Visual Studio product version of the specified project XML 
+        /// fragment.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The product version could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The product version is not supported.</para>
+        /// </exception>
+        /// <remarks>
+        /// This method is called from the <see cref="ProjectBase" /> ctor, and
+        /// at that time we're not sure the XML that is passed in, is indeed a
+        /// valid Visual Basic project.
+        /// </remarks>
+        protected override ProductVersion DetermineProductVersion(XmlElement docElement) {
+            if (docElement == null) {
+                throw new ArgumentNullException("docElement");
+            }
+            return GetProductVersion(docElement.SelectSingleNode("./VisualBasic"));
         }
 
         #endregion Override implementation of ProjectBase
@@ -134,7 +171,12 @@ namespace NAnt.VSNet {
         /// <code>
         ///   <![CDATA[
         /// <VisualStudioProject>
-        ///     <VisualBasic ... />
+        ///     <VisualBasic
+        ///         ProductVersion="..."
+        ///         ....
+        ///     >
+        ///         ...
+        ///     </VisualBasic>
         /// </VisualStudioProject>
         ///   ]]>
         /// </code>
@@ -153,8 +195,15 @@ namespace NAnt.VSNet {
                 return false;
             }
 
-            // TODO: add ProductVersion (and SchemaVersion) check once we add 
-            // more specific implementation classes
+            try {
+                ProductVersion productVersion = GetProductVersion(projectNode);
+                // no need to perform version check here as this is done in 
+                // GetProductVersion
+            } catch {
+                // product version could not be determined or is not supported
+                return false;
+            }
+
             return true;
         }
 
