@@ -21,10 +21,16 @@ using System.IO;
 
 namespace NAnt.Core.Filters {
     /// <summary>
-    /// Represents an physical TextReader.  That is a reader based on a stream.
-    /// Used by  <see cref="NAnt.Core.Filters.ChainableReader"/> to represent a ChainableReader based on a TextReader in the chain.
+    /// Represents a physical <see cref="TextReader" />.  That is a reader based 
+    /// on a stream.
     /// </summary>
+    /// <remarks>
+    /// Used by <see cref="ChainableReader"/> to represent a <see cref="Filter" />
+    /// based on a <see cref="TextReader" /> in the chain.
+    /// </remarks>
     internal class PhysicalTextReader : Filter {
-        public PhysicalTextReader(TextReader textReader) : base(textReader) {}
+        public PhysicalTextReader(TextReader textReader) {
+            base.Chain(textReader);
+        }
     }
 }
