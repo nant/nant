@@ -29,10 +29,9 @@ namespace NAnt.NUnit.Types {
     public class FormatterData {
         #region Private Instance Fields
 
-        string _classname = null;
-        string _extension = null;
-        bool _usefile = true;
-        FormatterType _formatterType = FormatterType.Plain;
+        private string _extension = null;
+        private bool _usefile = false;
+        private FormatterType _formatterType = FormatterType.Plain;
 
         #endregion Private Instance Fields
 
@@ -48,21 +47,12 @@ namespace NAnt.NUnit.Types {
         }
 
         /// <summary>
-        /// Gets or sets the name of a custom formatter class.
-        /// </summary>
-        /// <value>The name of a custom formatter class.</value>
-        public string ClassName {
-            get { return _classname; }
-            set { _classname = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether output should be persisted
-        /// to a file.
+        /// Gets or sets a value indicating whether output should be persisted 
+        /// to a file. 
         /// </summary>
         /// <value>
         /// <c>true</c> if output should be written to a file; otherwise,
-        /// <c>false</c>.
+        /// <c>false</c>. Default is <c>false</c>.
         /// </value>
         public bool UseFile {
             get { return _usefile; }
