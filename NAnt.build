@@ -41,6 +41,7 @@
 				<includes name="build/DocNet.Msdn.dll"/>
 			</references>
 			<arg value="/nowarn:1591"/>
+			<arg value="/reference:Microsoft.JScript.dll"/>
 		</csc>
 	</target>
 
