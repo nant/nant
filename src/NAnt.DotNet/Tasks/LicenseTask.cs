@@ -17,6 +17,7 @@
 //
 // Matthew Mastracci (mmastrac@canada.com)
 // Sascha Andres (sa@programmers-world.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Collections;
@@ -26,6 +27,8 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
 
 using NAnt.Core;
@@ -345,9 +348,20 @@ namespace NAnt.DotNet.Tasks {
                             try {
                                 LicenseManager.CreateWithContext(tp, dlc);
                             } catch (Exception ex) {
+                                if (IsSerializable(ex)) {
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "Failed to create license for type '{0}'.", tp.FullName), 
+                                        licenseTask.Location, ex);
+                                }
+
+                                // do not directly pass the exception as inner 
+                                // exception to BuildException as the exception
+                                // is not serializable, so construct a new 
+                                // exception with message set to message of 
+                                // original exception
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "Failed to create license for type {0}.", tp), 
-                                    licenseTask.Location, ex);
+                                    "Failed to create license for type '{0}'.", tp.FullName), 
+                                    licenseTask.Location, new Exception(ex.Message));
                             }
                         }
                     }
@@ -368,9 +382,50 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     dlc = null;
+                } catch (BuildException) {
+                    // re-throw exception
+                    throw;
+                } catch (Exception ex) {
+                    if (IsSerializable(ex)) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Failed to create license file for '{0}'.", licenseTask.InputFile.FullName), 
+                            licenseTask.Location, ex);
+                    } else {
+                        // do not directly pass the exception as inner exception to 
+                        // BuildException as the exception might not be serializable, 
+                        // so construct a
+                        // new exception with message set to message of
+                        // original exception
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Failed to create license file for '{0}'.", licenseTask.InputFile.FullName), 
+                            licenseTask.Location, new Exception(ex.Message));
+                    }
                 } finally {
                     // detach assembly resolver from the current domain
                     assemblyResolver.Detach();
+                }
+            }
+
+            /// <summary>
+            /// Determines whether the given object is serializable in binary
+            /// format.
+            /// </summary>
+            /// <param name="value">The object to check.</param>
+            /// <returns>
+            /// <see langword="true" /> if <paramref name="value" /> is 
+            /// serializable in binary format; otherwise, <see langword="false" />.
+            /// </returns>
+            private bool IsSerializable(object value) {
+                BinaryFormatter formatter = new BinaryFormatter();
+                MemoryStream stream = new MemoryStream();
+
+                try {
+                    formatter.Serialize(stream, value);
+                    return true;
+                } catch (SerializationException) {
+                    return false;
+                } finally {
+                    stream.Close();
                 }
             }
         }
