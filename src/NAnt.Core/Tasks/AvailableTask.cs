@@ -23,6 +23,7 @@ using System.IO;
 using System.Globalization;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -108,7 +109,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("resource", Required=true)]
         public string Resource {
             get { return _resource; }
-            set { _resource = SetStringValue(value); }
+            set { _resource = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -134,7 +135,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("property", Required=true)]
         public string PropertyName {
             get { return _propertyName; }
-            set { _propertyName = SetStringValue(value); }
+            set { _propertyName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

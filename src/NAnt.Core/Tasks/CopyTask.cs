@@ -28,6 +28,7 @@ using System.Text;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -84,7 +85,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("file")]
         public virtual string SourceFile {
             get { return (_sourceFile != null) ? Project.GetFullPath(_sourceFile) : null; }
-            set { _sourceFile = SetStringValue(value); }
+            set { _sourceFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("tofile")]
         public virtual string ToFile {
             get { return (_toFile != null) ? Project.GetFullPath(_toFile) : null; }
-            set { _toFile = SetStringValue(value); }
+            set { _toFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("todir")]
         public virtual string ToDirectory {
             get { return Project.GetFullPath(_toDirectory); }
-            set { _toDirectory = SetStringValue(value); }
+            set { _toDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -112,7 +113,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("overwrite")]
         [BooleanValidator()]
         public bool Overwrite {
-            get { return (_overwrite); }
+            get { return _overwrite; }
             set { _overwrite = value; }
         }
 
@@ -123,7 +124,7 @@ namespace NAnt.Core.Tasks {
         [FileSet("fileset")]
         public virtual FileSet CopyFileSet {
             get { return _fileset; }
-            set {_fileset = value; }
+            set { _fileset = value; }
         }
 
         #endregion Public Instance Properties

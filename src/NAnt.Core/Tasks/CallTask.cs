@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -64,7 +65,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("target", Required=true)]
         public string TargetName {
             get { return _target; }
-            set { _target = SetStringValue(value); }
+            set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>

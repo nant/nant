@@ -25,6 +25,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -89,7 +90,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("file")]
         public string FileName {
             get { return _fileName != null ? Project.GetFullPath(_fileName) : null; }
-            set { _fileName = SetStringValue(value); }
+            set { _fileName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
