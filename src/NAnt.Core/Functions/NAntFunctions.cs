@@ -49,14 +49,14 @@ namespace NAnt.Core.Functions {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the full path to the <c>NAnt.Core</c> assembly.
+        /// Gets the full path to the <c>NAnt</c> assembly.
         /// </summary>
         /// <returns>
-        /// The full path to the <c>NAnt.Core</c> assembly.
+        /// The full path to the <c>NAnt</c> assembly.
         /// </returns>
         [Function("get-location")]
         public string GetLocation() {
-            Assembly assembly = Assembly.GetExecutingAssembly();
+            Assembly assembly = GetNAntAssembly();
             return assembly.Location;
         }
 
@@ -72,6 +72,21 @@ namespace NAnt.Core.Functions {
         }
 
         #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private Assembly GetNAntAssembly() {
+            Assembly assembly = Assembly.GetEntryAssembly();
+            // check if NAnt was launched as a console application
+            if (assembly.GetName().Name != "NAnt") {
+                // NAnt is being used as a class library, so return the 
+                // NAnt.Core assembly
+                assembly = Assembly.GetExecutingAssembly();
+            }
+            return assembly;
+        }
+
+        #endregion Private Instance Methods
     }
 
     [FunctionSet("project", "NAnt")]
