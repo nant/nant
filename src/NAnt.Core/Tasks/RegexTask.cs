@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 using System.Text.RegularExpressions;
-using SourceForge.NAnt;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {

@@ -19,23 +19,21 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.Collections;
+using System.Globalization;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Xsl;
+using System.Xml.XPath;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Collections;
-    using System.Globalization;
-    using System.IO;
-    using System.Text.RegularExpressions;
-    using System.Xml;
-    using System.Xml.Xsl;
-    using System.Xml.XPath;
-
-    using SourceForge.NAnt.Attributes;
-
-
     /// <summary>
     /// <para>
-    ///     Process a document via XSLT.</para>
+    ///     Processes a document via XSLT.</para>
     /// <para>
     ///     This is useful for building views of XML based documentation, or in generating code.</para>
     /// <para>

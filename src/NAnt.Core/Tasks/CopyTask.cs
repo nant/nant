@@ -19,18 +19,19 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
-using System.IO;
-using System.Xml;
-using System.Text;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
+using System.Xml;
+using System.Text;
 
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Copies a file or fileset to a new file or directory.</summary>
+    /// <summary>
+    /// Copies a file or fileset to a new file or directory.
+    /// </summary>
     /// <remarks>
     ///   <para>Files are only copied if the source file is newer than the destination file, or if the destination file does not exist. However, you can explicitly overwrite files with the overwrite attribute.</para>
     ///   <para>Filesets are used to select files to copy. To use a fileset, the todir attribute must be set.</para>

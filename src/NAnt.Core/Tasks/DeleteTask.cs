@@ -24,8 +24,9 @@ using System.Globalization;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Deletes a file, fileset or directory.</summary>
+    /// <summary>
+    /// Deletes a file, fileset or directory.
+    /// </summary>
     /// <remarks>
     ///   <para>Deletes either a single file, all files in a specified directory and its sub-directories, or a set of files specified by one or more filesets.</para>
     ///   <note>If the file attribute is set then the fileset contents will be ignored.  To delete the files in the file set ommit the file attribute in the delete element.</note>

@@ -18,11 +18,13 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>An empty task that allows a build file to contain a description.</summary>
+    /// <summary>
+    /// An empty task that allows a build file to contain a description.
+    /// </summary>
     /// <example>
     ///   <para>Set a description.</para>
     ///   <code><![CDATA[<description>This is a description.</description>]]></code>

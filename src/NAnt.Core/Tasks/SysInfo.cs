@@ -17,17 +17,18 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.Collections;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Collections;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-
-    using SourceForge.NAnt.Attributes;
- 
-    /// <summary>Set properties with system information.</summary>
+    /// <summary>
+    /// Sets properties with system information.
+    /// </summary>
     /// <remarks>
     ///   <para>Sets a number of properties with information about the system environment.  The intent of this task is for nightly build logs to have a record of system information so that the build was performed on.</para>
     ///   <list type="table">

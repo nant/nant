@@ -19,14 +19,15 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
-using System.IO;
-using SourceForge.NAnt.Attributes;
 using System.Globalization;
+using System.IO;
+
+using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-
-    /// <summary>Creates a directory and any non-existent parent directories if necessary.</summary>
+    /// <summary>
+    /// Creates a directory and any non-existent parent directories if necessary.
+    /// </summary>
     /// <example>
     ///     <para>Create the directory &quot;build&quot;.</para>
     ///     <code><![CDATA[<mkdir dir="build"/>]]></code>

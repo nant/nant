@@ -22,6 +22,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {

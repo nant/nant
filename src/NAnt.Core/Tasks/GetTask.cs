@@ -18,16 +18,17 @@
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.Globalization;
+using System.IO;
+using System.Net;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Net;
-
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Get a particular file from a URL source.</summary>
+    /// <summary>
+    /// Get a particular file from a URL source.
+    /// </summary>
     /// <remarks>
     ///   <para>Options include verbose reporting, timestamp based fetches and controlling actions on failures.</para>
     ///   <para>Currently, only HTTP and UNC protocols are supported. FTP support may be added when more pluggable protocols are added to the System.Net assembly.</para>

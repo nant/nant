@@ -18,23 +18,24 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Xml;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Collections.Specialized;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Text;
-    using System.Xml;
-    using System.Globalization;
-
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Provides the abstract base class for tasks that execute external applications.</summary>
+    /// <summary>
+    /// Provides the abstract base class for tasks that execute external applications.
+    /// </summary>
     public abstract class ExternalProgramBase : Task {
 
         /// <summary>Gets the application to start.</summary>
-        public abstract string ProgramFileName { get; }                
+        public abstract string ProgramFileName { get; }
 
         /// <summary>Gets the command line arguments for the application.</summary>
         public abstract string ProgramArguments { get; }

@@ -19,15 +19,17 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
-using System.IO;
-using System.Xml;
 using System.Collections;
 using System.Collections.Specialized;
+using System.IO;
+using System.Xml;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Include an external build file.</summary>
+    /// <summary>
+    /// Includes an external build file.
+    /// </summary>
     /// <remarks>
     ///   <para>This task is used to break your build file into smaller chunks.  You can load a partial build file and have it included into the build file.</para>
     ///   <note>Any global (project level) tasks in the included build file are executed when this task is executed.  Tasks in target elements are only executed if that target is executed.</note>

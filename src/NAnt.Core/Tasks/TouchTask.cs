@@ -18,16 +18,15 @@
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.IO;
+using System.Globalization;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.IO;
-    using System.Globalization;
-
-    using SourceForge.NAnt.Attributes;
-
     /// <summary>
-    /// Touch a file and/or fileset(s) -- corresponds to the Unix touch command.
+    /// Touches a file and/or fileset(s) -- corresponds to the Unix touch command.
     /// </summary>
     /// <example>
     ///   <para>Touch the <c>Main.cs</c> file.  The current time is used.</para>

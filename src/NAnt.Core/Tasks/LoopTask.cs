@@ -19,11 +19,13 @@
 
 using System;
 using System.IO;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Loops over a set of Items</summary>
+    /// <summary>
+    /// Loops over a set of Items.
+    /// </summary>
     /// <remarks>
     ///   <para>Loop over items in a set. Can loop over files in directory, lines in a file, etc.</para>
     ///   <para>The Property value is stored before the loop is done, and restored when the loop is finished. 

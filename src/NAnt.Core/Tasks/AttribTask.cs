@@ -42,8 +42,9 @@ using System.Globalization;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Changes the file attributes of a file or set of files.</summary>
+    /// <summary>
+    /// Changes the file attributes of a file or set of files.
+    /// </summary>
     /// <remarks>
     ///   <para>The <c>attrib</c> task does not have the concept of turning file attributes off.  Instead you specify all the attributes that you want turned on and the rest are turned off by default.</para>
     ///   <para>Refer to the <a href="ms-help://MS.NETFrameworkSDK/cpref/html/frlrfSystemIOFileAttributesClassTopic.htm">FileAttributes</a> enumeration in the .NET SDK for more information about file attributes.</para>

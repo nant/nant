@@ -19,13 +19,15 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
-using System.IO;
-using SourceForge.NAnt.Attributes;
 using System.Globalization;
+using System.IO;
+
+using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Moves a file or fileset to a new file or directory.</summary>
+    /// <summary>
+    /// Moves a file or fileset to a new file or directory.
+    /// </summary>
     /// <remarks>
     ///   <para>Moves a file or fileset to a new file or directory. Files are only moved if the source file is newer than the destination file, or if the destination file does not exist.</para>
     ///   <note>You can explicitly overwrite files with the overwrite attribute.</note>

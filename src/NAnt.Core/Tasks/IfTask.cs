@@ -17,16 +17,18 @@
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.Collections;
+using System.Collections.Specialized;
+using System.Globalization;
+using System.IO;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.IO;
-    using System.Collections;
-    using System.Collections.Specialized;
-    using SourceForge.NAnt.Attributes;
-    using System.Globalization;
-
-    /// <summary>Checks the conditional attributes and executes the children if true.</summary>
+    /// <summary>
+    /// Checks the conditional attributes and executes the children if true.
+    /// </summary>
     /// <remarks>
     ///     <para>If no conditions are checked, all child tasks are executed. 
     ///     True is the default condition result (with no conditions specified).</para>

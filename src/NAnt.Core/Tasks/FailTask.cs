@@ -18,11 +18,13 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Exit the current build.</summary>
+    /// <summary>
+    /// Exits the current build.
+    /// </summary>
     /// <remarks>
     ///   <para>Exits the current build by throwing a BuildException, optionally printing additional information.</para>
     /// </remarks>

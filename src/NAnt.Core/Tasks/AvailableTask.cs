@@ -25,7 +25,6 @@ using System.Globalization;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
     /// <summary>
     /// Checks if a resource is available at runtime.
     /// </summary>

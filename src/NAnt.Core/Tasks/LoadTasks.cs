@@ -18,18 +18,19 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
 
+using System;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Xml;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Text;
-    using System.Xml;
-
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Tell Nant to load a tasks form a given assembly or all assemblies in given directories.</summary>
+    /// <summary>
+    /// Tells Nant to load a tasks form a given assembly or all assemblies in given directories.
+    /// </summary>
     /// <remarks></remarks>
      /// <example>
     ///   <para>

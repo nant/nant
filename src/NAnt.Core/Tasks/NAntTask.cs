@@ -27,8 +27,9 @@ using System.Xml;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Runs NAnt on a supplied build file. This can be used to build subprojects.</summary>
+    /// <summary>
+    /// Runs NAnt on a supplied build file. This can be used to build subprojects.
+    /// </summary>
     /// <example>
     ///   <para>Build the BuildServer project located in a different directory but only if the <c>debug</c> property is not true.</para>
     ///   <code><![CDATA[<nant unless="${debug}" buildfile="${src.dir}/Extras/BuildServer/BuildServer.build"/>]]></code>

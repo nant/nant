@@ -17,13 +17,15 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.IO;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.IO;
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Executes a system command.</summary>
+    /// <summary>
+    /// Executes a system command.
+    /// </summary>
     /// <example>
     ///   <para>Ping nant.sourceforge.net.</para>
     ///   <code><![CDATA[<exec program="ping" commandline="nant.sourceforge.net"/>]]></code>

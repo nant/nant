@@ -19,12 +19,14 @@
 // Brian Deacon (bdeacon@vidya.com)
 
 using System;
-using SourceForge.NAnt.Attributes;
 using System.Xml;
 
-namespace SourceForge.NAnt.Tasks {
+using SourceForge.NAnt.Attributes;
 
-    /// <summary>Writes a message to the build log.</summary>
+namespace SourceForge.NAnt.Tasks {
+    /// <summary>
+    /// Writes a message to the build log.
+    /// </summary>
     /// <remarks>
     ///   <para>Macros in the message will be expanded.</para>
     /// </remarks>

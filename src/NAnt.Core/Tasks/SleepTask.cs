@@ -17,13 +17,12 @@
 //
 // Ian MacLean (ian@maclean.ms)
 
+using System;
+using System.Xml;
+using System.Threading;
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Xml;
-    using System.Threading;
-    using SourceForge.NAnt.Attributes;
-
     /// <summary>
     /// A task for sleeping a specified period of time, useful when a build or deployment process
     /// requires an interval between tasks.

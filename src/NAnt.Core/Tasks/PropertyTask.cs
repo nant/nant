@@ -18,14 +18,15 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.Globalization;
+
+using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.Globalization;
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Sets a property in the current project.</summary>
+    /// <summary>
+    /// Sets a property in the current project.
+    /// </summary>
     /// <remarks>
     ///   <note>NAnt uses a number of predefined properties.</note>
     /// </remarks>

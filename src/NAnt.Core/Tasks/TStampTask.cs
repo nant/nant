@@ -26,8 +26,9 @@ using System.Xml;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Sets properties with the current date and time.</summary>
+    /// <summary>
+    /// Sets properties with the current date and time.
+    /// </summary>
     /// <remarks>
     ///   <para>By default tstamp displays the current date and time and sets the following properties:</para>
     ///   <list type="bullet">
