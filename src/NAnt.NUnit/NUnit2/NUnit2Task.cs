@@ -134,7 +134,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                 if (results == null || results.Length == 0)
                     continue;
 
-                StringCollection assemblies = test.GetTestAssemblies();
+                StringCollection assemblies = test.TestAssemblies;
                 for (int i = 0; i < results.Length; i++) {
                     string assemblyFile = assemblies[i];
                     TestResult result = results[i];
@@ -181,7 +181,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         #region Private Instance Methods
 
         private TestResult[] RunRemoteTest(NUnit2Test test, EventListener listener) {
-            StringCollection assemblies = test.GetTestAssemblies();
+            StringCollection assemblies = test.TestAssemblies;
             ArrayList results = new ArrayList();
 
             foreach (string assembly in assemblies) {

@@ -18,22 +18,25 @@
 // Mike Two (2@thoughtworks.com or mike2@nunit.org)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-
-using System;
-using System.Collections;
 using System.Collections.Specialized;
-using System.Xml;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
     [ElementName("test")]
-    public class NUnit2Test : Element {                  
-        private string _assemblyName = null;               
+    public class NUnit2Test : Element {
+        #region Private Instance Fields
+
+        private string _assemblyName = null;
         private string _testname = null;
         private bool _haltOnFailure = true;
         private string _transformFile;
         private FileSet _assemblies = new FileSet();
-        string _appConfigFile = null;
+        private string _appConfigFile = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>Name of the assembly to search for tests.</summary>
         [TaskAttribute("assemblyname")]
@@ -47,12 +50,12 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         [FileSet("assemblies")]
         public FileSet Assemblies { get { return _assemblies; } set {_assemblies = value;} }
 
-        /// <summary>Build fails on failure</summary>
+        /// <summary>Build fails on failure.</summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
         public bool HaltOnFailure { get { return _haltOnFailure; } set { _haltOnFailure = value; } }
 
-        /// <summary>XSLT transform file to use when using the Xml formatter</summary>
+        /// <summary>XSLT transform file to use when using the Xml formatter.</summary>
         [TaskAttribute("transformfile")]
         public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
 
@@ -63,20 +66,25 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         }
 
         /// <summary>
-        /// Gets all assemblies specified for these tests
+        /// Gets all assemblies specified for these tests.
         /// </summary>
-        /// <returns></returns>
-        public StringCollection GetTestAssemblies() {
-            StringCollection files = new StringCollection();
+        /// <returns>
+        /// All assemblies specified for these tests.
+        /// </returns>
+        public StringCollection TestAssemblies {
+            get {
+                StringCollection files = new StringCollection();
 
-            if ( AssemblyName != null )
-                files.Add(AssemblyName);
-            else
-                files = Assemblies.FileNames;
+                if (AssemblyName != null) {
+                    files.Add(AssemblyName);
+                } else {
+                    files = Assemblies.FileNames;
+                }
 
-            return files;
+                return files;
+            }
         }
-             
 
+        #endregion Public Instance Properties
     }
 }

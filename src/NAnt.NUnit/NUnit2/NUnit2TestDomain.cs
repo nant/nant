@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,42 +17,39 @@
 
 // Tomas Restrepo (tomasr@mvps.org)
 
-
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
-using System.Collections;
-using System.Collections.Specialized;
-using System.Xml;
-using NUnit.Framework;
+
 using NUnit.Core;
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
-
     /// <summary>
-    /// Custom TestDomain class, similar to the one
-    /// included with NUnit 2.0, in order to workaround
-    /// some limitations in it.
+    /// Custom TestDomain, similar to the one included with NUnit 2.0, in order 
+    /// to workaround some limitations in it.
     /// </summary>
     internal class NUnit2TestDomain {
-
-        private TextWriter _outStream;
-        private TextWriter _errorStream;
+        #region Public Instance Constructors
 
         public NUnit2TestDomain(TextWriter outStream, TextWriter errorStream) {
             _outStream = outStream;
             _errorStream = errorStream;
         }
 
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
         /// <summary>
-        /// Run a single testcase
+        /// Runs a single testcase.
         /// </summary>
-        /// <param name="testcase">The test to run, or null if running all tests</param>
+        /// <param name="testcase">The test to run, or null if running all tests.</param>
         /// <param name="assemblyFile"></param>
         /// <param name="configFilePath"></param>
         /// <param name="listener"></param>
-        /// <returns>The results of the test</returns>
+        /// <returns>The result of the test.</returns>
         public TestResult RunTest ( 
             string testcase, 
             string assemblyFile,
@@ -67,18 +64,22 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 
             try {
                 RemoteTestRunner runner = CreateTestRunner(domain);
-                if (testcase != null)
+                if (testcase != null) {
                     runner.Initialize(testcase, assemblyFile);
-                else
+                } else {
                     runner.Initialize(assemblyFile);
+                }
                 runner.BuildSuite(); 
                 return runner.Run(listener, _outStream, _errorStream);
-
             } finally {
                 Directory.SetCurrentDirectory(currentDir);
                 AppDomain.Unload(domain);
             }
         }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
 
         private AppDomain CreateDomain(string basedir, string configFilePath) {
             // spawn new domain in specified directory
@@ -98,15 +99,26 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             ObjectHandle oh;
             Type rtrType = typeof(RemoteTestRunner);
 
-            oh = domain.CreateInstance ( 
+            oh = domain.CreateInstance(
                 rtrType.Assembly.FullName,
-                rtrType.FullName
-                );
-            return (RemoteTestRunner)oh.Unwrap();
+                rtrType.FullName,
+                false, 
+                BindingFlags.Public | BindingFlags.Instance, 
+                null,
+                null,
+                CultureInfo.InvariantCulture,
+                null,
+                AppDomain.CurrentDomain.Evidence);
+            return (RemoteTestRunner) oh.Unwrap();
         }
 
+        #endregion Private Instance Methods
 
-      
-    } // class NUnit2TestDomain
-   
-} // namespace SourceForge.NAnt.Tasks.NUnit2 
+        #region Private Instance Fields
+
+        private TextWriter _outStream;
+        private TextWriter _errorStream;
+
+        #endregion Private Instance Fields
+    }
+}
