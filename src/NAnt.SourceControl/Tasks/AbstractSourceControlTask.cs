@@ -163,7 +163,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Destination directory for the local sandbox.
+        /// Destination directory for the local sandbox.  If destination is not specified
+        /// then the current directory is used.
         /// </summary>
         /// <value>
         /// Root path of the local sandbox.
@@ -173,10 +174,15 @@ namespace NAnt.SourceControl.Tasks {
         /// Root path of the local sandbox.
         /// </para>
         /// </remarks>
-        [TaskAttribute("destination", Required=true)]
-        public DirectoryInfo DestinationDirectory {
-            get { return _destinationDirectory; }
-            set { _destinationDirectory = value; }
+        [TaskAttribute("destination", Required=false)]
+        public virtual DirectoryInfo DestinationDirectory {
+            get { 
+                if (null == this._destinationDirectory) {
+                    this._destinationDirectory = new DirectoryInfo(Environment.CurrentDirectory);
+                }
+                return this._destinationDirectory;
+            }
+            set { this._destinationDirectory = value; }
         }
 
         /// <summary>
@@ -186,6 +192,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The password for logging in to the repository.
         /// </value>
         [TaskAttribute("password", Required=false)]
+        [Obsolete("Use <cvs-pass> task instead.", false)]
         public virtual string Password {
             get { return _password;}
             set { _password = StringUtils.ConvertEmptyToNull(value); }

@@ -29,6 +29,9 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using ICSharpCode.SharpCvsLib.FileSystem;
+using ICSharpCode.SharpCvsLib.Exceptions;
+
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
     /// A base class for creating tasks for executing CVS client commands on a 
@@ -249,10 +252,28 @@ namespace NAnt.SourceControl.Tasks {
         ///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant
         ///   </code>
         /// </example>
-        [TaskAttribute("cvsroot", Required=true)]
+        [TaskAttribute("cvsroot", Required=false)]
         [StringValidator(AllowEmpty=false)]
         public override string Root {
-            get { return base.Root; }
+            get { 
+                if (null == base.Root) {
+                    Manager manager = 
+                        new Manager(this.DestinationDirectory.FullName);
+                    try {
+                        Root root = manager.FetchRoot(this.DestinationDirectory.FullName);
+                        this.Root = root.FileContents;
+                    } catch (CvsFileNotFoundException) {
+                        try {
+                            Root root = manager.FetchRoot(Path.Combine(this.DestinationDirectory.FullName, "CVS"));
+                            this.Root = root.FileContents;
+                        } catch (CvsFileNotFoundException) {
+                            throw new BuildException (string.Format("Cvs/Root file not found in {0}, please perform a checkout.",
+                                this.DestinationDirectory.FullName));
+                        }
+                    }
+                }
+                return base.Root; 
+            }
             set { base.Root = StringUtils.ConvertEmptyToNull(value); }
         }
 
@@ -268,9 +289,27 @@ namespace NAnt.SourceControl.Tasks {
         ///   <code>nant</code>
         /// </example>
         [TaskAttribute("module", Required=false)]
-        [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Module {
-            get { return _module; }
+            get { 
+                if (null == _module) {
+                    Manager manager = 
+                        new Manager(this.DestinationDirectory.FullName);
+                    try {
+                        Repository repository = manager.FetchRepository(this.DestinationDirectory.FullName);
+                        this._module = repository.ModuleName;
+                    } catch (CvsFileNotFoundException) {
+                        try {
+                            Repository repository = manager.FetchRepository(Path.Combine(this.DestinationDirectory.FullName, "CVS"));
+                            this._module = repository.ModuleName;
+                        } catch (CvsFileNotFoundException) {
+                            throw new BuildException (string.Format("Cvs/Repository file not found in {0}, please perform a checkout.",
+                                this.DestinationDirectory.FullName));
+                        }
+                    }
+                }
+                return _module; 
+            }
             set { _module = StringUtils.ConvertEmptyToNull(value); }
         }
 
@@ -305,7 +344,7 @@ namespace NAnt.SourceControl.Tasks {
         ///     Therefore the sharpcvslib binary would NOT be used.
         /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
-        public bool UseSharpCvsLib {
+        public virtual bool UseSharpCvsLib {
             get {return _useSharpCvsLib;}
             set {
                 _isUseSharpCvsLibSet = true;

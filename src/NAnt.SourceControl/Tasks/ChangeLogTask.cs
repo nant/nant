@@ -79,6 +79,14 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
+        /// Override use of sharpcvslib, needs to be true.
+        /// </summary>
+        public override bool UseSharpCvsLib {
+            get {return true;}
+            set {/* can only use sharpcvslib for changelog */}
+        }
+
+        /// <summary>
         /// Name of the xml file that will contain the cvs log information.
         /// </summary>
         [TaskAttribute("xmlfile", Required=true)]
