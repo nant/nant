@@ -137,7 +137,7 @@ namespace SourceForge.NAnt.Tasks {
                 process.StartInfo.Arguments = GetCommandLine();
             }
             process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = false;
+            process.StartInfo.RedirectStandardError = true;
             //required to allow redirects
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.WorkingDirectory = BaseDirectory;
@@ -167,8 +167,7 @@ namespace SourceForge.NAnt.Tasks {
                 // display standard output
                 StreamReader stdOut = process.StandardOutput;
                 string output = stdOut.ReadToEnd();
-
-                /*
+                
                 // display standard error -- needs to implemented in separate stream
                 StreamReader stdErr = process.StandardError;
                 string errors = stdErr.ReadToEnd();
@@ -177,12 +176,19 @@ namespace SourceForge.NAnt.Tasks {
                     Log.IndentLevel = 0;
                     Log.WriteLine(errors);
                     Log.IndentLevel = indentLevel;
-                }
-                */
-
+                } 
+                
                 // wait for program to exit
                 process.WaitForExit(TimeOut);
-
+                if (process.ExitCode != 0){
+                    throw new BuildException(
+                                String.Format(CultureInfo.InvariantCulture, 
+                                    "External Program Failed: {0} return {1}\nOutput:\n{2}", 
+                                    ProgramFileName, 
+                                    process.ExitCode, 
+                                    output), 
+                                Location);
+                }
                 if (output.Length > 0) {
                     if (OutputFile == null) {
                         int indentLevel = Log.IndentLevel;
@@ -190,15 +196,7 @@ namespace SourceForge.NAnt.Tasks {
                         
                         if (process.ExitCode == 0) {
                             Log.WriteLine(output);
-                        } else {
-                            throw new BuildException(
-                                String.Format(CultureInfo.InvariantCulture, 
-                                    "External Program Failed: {0} return {1}\nOutput:\n{2}", 
-                                    ProgramFileName, 
-                                    process.ExitCode, 
-                                    output), 
-                                Location);
-                        }
+                        } 
                         Log.IndentLevel = indentLevel;
                     } else if (OutputFile != "") {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
