@@ -166,7 +166,8 @@
                 Improved localization support.
             </li>
             <li>
-                Added support for <code>/lib</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
+                Added support for additional search directories to resolve assembly references through
+                a nested <code>&lt;lib&gt;</code> element.
             </li>
         </ul>
         <h5>&lt;cl&gt;</h5>
@@ -244,7 +245,8 @@
                 Improved localization support.
             </li>
             <li>
-                Added support for <code>/lib</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
+                Added support for additional search directories to resolve assembly references through
+                a nested <code>&lt;lib&gt;</code> element.
             </li>
         </ul>
         <h5>&lt;mail&gt;</h5>
@@ -319,8 +321,29 @@
         <h5>&lt;solution&gt;</h5>
         <ul>
             <li>
-                The solution task has been significantly improved due to user feedback. A large
-                number of defect fixes and performance improvements have been applied.
+                Added nested <code>&lt;assemblyfolders&gt;</code> fileset element that allows a
+                set of folders to be set, that should be searched to resolve assembly references.
+            </li>
+            <li>
+                By default, the Visual Studio.NET assembly folders will be searched to resolve assembly
+                references. An <code>includevsfolders</code> attribute was added to control whether
+                these folders should be searched for assembly references.
+            </li>
+            <li>
+                Added <code>&lt;excludeprojects&gt;</code> fileset that allows a set of projects
+                to be excluded.
+            </li>
+            <li>
+                An <code>outputdir</code> attribute can now be specified, which overrides the directory
+                where compiled targets will be placed.
+            </li>
+            <li>
+                A nested <code>&lt;webmap&gt;</code> element was added that maps URL's of web projects
+                to local path, thereby removing the need to configure the web server to allow access
+                to these project files.
+            </li>
+            <li>
+                A large number of defect fixes and performance improvements have been applied.
             </li>
         </ul>
         <h5>&lt;style&gt;</h5>
@@ -342,7 +365,8 @@
                 Improved localization support.
             </li>
             <li>
-                Added support for <code>/libpath</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
+                Added support for additional search directories to resolve assembly references through
+                a nested <code>&lt;lib&gt;</code> element.
             </li>
         </ul>
         <h5>&lt;vjc&gt;</h5>
@@ -351,22 +375,26 @@
                 Improved localization support.
             </li>
             <li>
-                Added support for <code>/libpath</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
+                Added support for additional search directories to resolve assembly references through
+                a nested <code>&lt;lib&gt;</code> element.
             </li>
         </ul>
         <h5>&lt;zip&gt;</h5>
         <ul>
             <li>
-                Fixed issue when files were included that were not located beneath the basedir of the fileset.
+                Fixed issue when files were included that were not located beneath the basedir of
+                the fileset.
             </li>
             <li>
-                Added <code>includeemptydirs</code> attribute to control whether empty directories should be included in the generated zip file.
+                Added <code>includeemptydirs</code> attribute to control whether empty directories
+                should be included in the generated zip file.
             </li>
             <li>
                 Fixed failure when no <code>basedir</code> for fileset was specified.
             </li>
             <li>
-                Fixed failure when <code>basedir</code> of fileset is set to the root directory of a drive in Windows.
+                Fixed failure when <code>basedir</code> of fileset is set to the root directory
+                of a drive in Windows.
             </li>
         </ul>
         <h4>API changes</h4>
