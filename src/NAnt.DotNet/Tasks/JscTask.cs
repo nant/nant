@@ -45,6 +45,16 @@ namespace SourceForge.NAnt.Tasks {
             get { return Project.CurrentFramework.JScriptCompilerName; }
         }
 
+        protected override bool UsesRuntimeEngine { 
+            get {
+                // find better way of doing this
+                if (Project.CurrentFramework.Name.IndexOf("sscli", 0 ) != -1 ) {
+                    return true;
+                }
+                return false;
+            }
+        }
+
         #endregion Override implementation of ExternalProgramBase
 
         #region Override implementation of CompilerBase
