@@ -189,6 +189,32 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Contains a collection of <see cref="NamespaceImport" /> items.
     /// </summary>
+    /// <example>
+    ///   <para>Define a reference with name &quot;system.imports&quot;.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <namespaceimports id="system.imports">
+    ///     <import namespace="System" />
+    ///     <import namespace="System.Data" />
+    /// </namespaceimports>
+    ///     ]]>
+    ///   </code>
+    ///   <para>Use the predefined set of imports to compile a VB.NET assembly.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <vbc target="exe" output="HelloWorld.exe" rootnamespace="HelloWorld">
+    ///     <imports refid="system.imports" />
+    ///     <sources>
+    ///         <include name="**/*.vb" />
+    ///     </sources>
+    ///     <references>
+    ///         <include name="System.dll" />
+    ///         <include name="System.Data.dll" />
+    ///     </references>
+    /// </vbc>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [Serializable()]
     [ElementName("namespaceimports")]
     public class NamespaceImportCollection : DataTypeCollectionBase, IList {
