@@ -172,25 +172,33 @@ namespace SourceForge.NAnt.Tasks {
 
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = new DirectoryInfo(CopyFileSet.BaseDirectory);
+                
                 DirectoryInfo dstBaseInfo = new DirectoryInfo(Project.GetFullPath(ToDirectory));
 
                 // if source file not specified use fileset
                 foreach (string pathname in CopyFileSet.FileNames) {
                     FileInfo srcInfo = new FileInfo(pathname);
                     if (srcInfo.Exists) {
-                        // replace the fileset path with the destination path
-                        // NOTE: big problems could occur if the file set base dir is rooted on a different drive
-                        string dstPath = pathname.Replace(srcBaseInfo.FullName, dstBaseInfo.FullName);
+                        // Gets the relative path and file info from the full source filepath
+                        // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then dstRelFilePath=f3\file1
+                        string dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
 
+                        if(dstRelFilePath.StartsWith("\\")) {
+                            dstRelFilePath = dstRelFilePath.Substring(1);     
+                        }
+                        
+                        // The full filepath to copy to.
+                        string dstFilePath = Path.Combine(dstBaseInfo.FullName, dstRelFilePath);
+                        
                         // do the outdated check
-                        FileInfo dstInfo = new FileInfo(dstPath);
+                        FileInfo dstInfo = new FileInfo(dstFilePath);
                         bool outdated = (!dstInfo.Exists) || (srcInfo.LastWriteTime > dstInfo.LastWriteTime);
 
                         if (Overwrite || outdated) {
-                            FileCopyMap.Add(pathname, dstPath);
+                            FileCopyMap.Add(srcInfo.FullName, dstFilePath);
                         }
                     } else {
-                        Log.WriteLine(LogPrefix + "Could not find file {0} to copy.", pathname);
+                        Log.WriteLine(LogPrefix + "Could not find file {0} to copy.", srcInfo.FullName);
                     }
                 }
             }

@@ -30,7 +30,8 @@ using System.Text.RegularExpressions;
 
 namespace SourceForge.NAnt {
 
-    public class NAnt {
+    [Serializable()]
+    public class ConsoleDriver : MarshalByRefObject {
 
         public static int Main(string[] args) {
             StreamWriter logFileStream = null;
@@ -228,11 +229,15 @@ namespace SourceForge.NAnt {
 
         public static void ShowProjectHelp(XmlDocument buildDoc) {
 
-            string resourceDirectory =
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NAnt";
+            //string resourceDirectory =
+            //    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NAnt";
 
             // load our transform file out of the embedded resources
             Stream xsltStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProjectHelp.xslt");
+
+            if(xsltStream == null) {
+                throw new ApplicationException("Missing 'ProjectHelp.xslt' Resource Stream");
+            }
 
             XslTransform transform = new XslTransform();
             XmlTextReader reader = new XmlTextReader( xsltStream, XmlNodeType.Document, null );

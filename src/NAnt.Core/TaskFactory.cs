@@ -63,7 +63,7 @@ namespace SourceForge.NAnt {
             scanner.Includes.Add("*Test.dll");
 
             foreach(string assemblyFile in scanner.FileNames) {
-                //Log.WriteLine("Add Tasks from:" + assemblyFile);
+                Log.WriteLine("Add Tasks from:" + assemblyFile);
                 AddTasks(Assembly.LoadFrom(assemblyFile));
             }
 		

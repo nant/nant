@@ -95,12 +95,6 @@
                     Name = "System.Web"
                     AssemblyName = "System.Web"
                 />
-                <Reference
-                    Name = "NAnt.Core"
-                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                    Private = "False"
-                />
             </References>
         </Build>
         <Files>
@@ -111,13 +105,13 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ConsoleRunner.cs"
+                    RelPath = "ConsoleStub.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Resources\ProjectHelp.xslt"
-                    BuildAction = "Content"
+                    RelPath = "NAnt.Console.exe.config"
+                    BuildAction = "None"
                 />
             </Include>
         </Files>

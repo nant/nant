@@ -46,13 +46,13 @@ namespace SourceForge.NAnt.Tests {
                 bool errors = false;
                 try {
                     //check filename only, should be resolvable via currentdirectory
-                    Assertion.Assert("Using filepath failed", 0 == NAnt.Main(new string[] {"-buildfile:" + filename}));
+                    Assertion.Assert("Using filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + filename}));
                     //check absolute
-                    Assertion.Assert("Using absolute filepath failed", 0 == NAnt.Main(new string[] {@"-buildfile:" + build1FileName}));
+                    Assertion.Assert("Using absolute filepath failed", 0 == ConsoleDriver.Main(new string[] {@"-buildfile:" + build1FileName}));
                     //check relative path, should be resolvable via currentdirectory
-                    Assertion.Assert("Using relative filepath failed", 0 == NAnt.Main(new string[] {"-buildfile:.\\" + filename}));
+                    Assertion.Assert("Using relative filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:.\\" + filename}));
                     //check relative path, should be resolvable via currentdirectory
-                    Assertion.Assert("Using relative filepath failed", 0 == NAnt.Main(new string[] {"-buildfile:..\\foo\\" + filename}));
+                    Assertion.Assert("Using relative filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:..\\foo\\" + filename}));
                 }
                 catch (Exception e) {
                     e.ToString();
@@ -80,10 +80,10 @@ namespace SourceForge.NAnt.Tests {
                 try {
 
                     //check that error message is not generated always.
-                    Assertion.Assert("Using filepath failed", 0 == NAnt.Main(new string[] {"-buildfile:" + build1FileName}));
+                    Assertion.Assert("Using filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName}));
 
                     //check absolute
-                    Assertion.Assert("Using absolute filepath failed", 0 == NAnt.Main(new string[] {"-buildfile:" + build1FileName +" -buildfile:" + build2FileName}));
+                    Assertion.Assert("Using absolute filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName +" -buildfile:" + build2FileName}));
                 }
                 catch (Exception e) {
                     e.ToString();
@@ -101,7 +101,7 @@ namespace SourceForge.NAnt.Tests {
  		[Test]
         public void Test_GetBuildFileName() {
             try {
-                NAnt.GetBuildFileName(null, null, false);
+                ConsoleDriver.GetBuildFileName(null, null, false);
                 Assertion.Fail("Exception not thrown.");
             } catch {
             }
@@ -111,21 +111,21 @@ namespace SourceForge.NAnt.Tests {
             string build2FileName = Path.Combine(baseDirectory, "file2.build");
 
             try {
-                NAnt.GetBuildFileName(baseDirectory, null, false);
+                ConsoleDriver.GetBuildFileName(baseDirectory, null, false);
                 Assertion.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
 
             TempFile.Create(build1FileName);
 
-            Assertion.AssertEquals(build1FileName, NAnt.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false));
+            Assertion.AssertEquals(build1FileName, ConsoleDriver.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false));
 
             // create a second build file in same directory
             TempFile.Create(build2FileName);
             Assertion.AssertEquals(Path.GetDirectoryName(build1FileName), Path.GetDirectoryName(build2FileName));
 
             try {
-                NAnt.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false);
+                ConsoleDriver.GetBuildFileName(Path.GetDirectoryName(build1FileName), null, false);
                 Assertion.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
@@ -141,7 +141,7 @@ namespace SourceForge.NAnt.Tests {
             TempFile.Create(buildFileName);
 
             // find the build file from the sub directory
-            Assertion.AssertEquals(buildFileName, NAnt.GetBuildFileName(subDirectory, null, true));
+            Assertion.AssertEquals(buildFileName, ConsoleDriver.GetBuildFileName(subDirectory, null, true));
 
             // create a second build file
             string secondBuildFileName = Path.Combine(baseDirectory, "file2.build");
@@ -150,7 +150,7 @@ namespace SourceForge.NAnt.Tests {
             // try to find build file in sub directory
             // expect an exception - multiple *.build files found
             try {
-                NAnt.GetBuildFileName(subDirectory, null, true);
+                ConsoleDriver.GetBuildFileName(subDirectory, null, true);
                 Assertion.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
@@ -158,7 +158,7 @@ namespace SourceForge.NAnt.Tests {
             // try to find a build file that doesn't exist
             // expect an exception - build file not found
             try {
-                NAnt.GetBuildFileName(subDirectory, "foobar.xml", true);
+                ConsoleDriver.GetBuildFileName(subDirectory, "foobar.xml", true);
                 Assertion.Fail("ApplicationException not thrown.");
             } catch (ApplicationException) {
             }
@@ -166,13 +166,13 @@ namespace SourceForge.NAnt.Tests {
             // try to find a build file with a bad pattern
             try {
                 // buildFileName has a full path while GetBuildFileName will only accept a filename/pattern or null.
-                NAnt.GetBuildFileName(subDirectory, buildFileName, true);
+                ConsoleDriver.GetBuildFileName(subDirectory, buildFileName, true);
                 Assertion.Fail("Exception not thrown.");
             } catch {
             }
 
             // try to find specific build file in sub directory (expect success)
-            Assertion.AssertEquals(buildFileName, NAnt.GetBuildFileName(subDirectory, Path.GetFileName(buildFileName), true));
+            Assertion.AssertEquals(buildFileName, ConsoleDriver.GetBuildFileName(subDirectory, Path.GetFileName(buildFileName), true));
         }
         
         [Test]
@@ -181,7 +181,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.NAnt.Main(args);
+                SourceForge.NAnt.ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -206,7 +206,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.NAnt.Main(args);
+                SourceForge.NAnt.ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -238,7 +238,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.NAnt.Main(args);
+                SourceForge.NAnt.ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -288,7 +288,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.NAnt.Main(args);
+                SourceForge.NAnt.ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -338,21 +338,21 @@ namespace SourceForge.NAnt.Tests {
 
             LogListener logger;
 
-            logger = NAnt.CreateLogger(xmlLogger);
+            logger = ConsoleDriver.CreateLogger(xmlLogger);
             Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
 
-            logger = NAnt.CreateLogger(consoleLogger);
+            logger = ConsoleDriver.CreateLogger(consoleLogger);
             Assertion.AssertEquals(typeof(ConsoleLogger), logger.GetType());
 
             try {
-                logger = NAnt.CreateLogger(badLogger);
+                logger = ConsoleDriver.CreateLogger(badLogger);
                 Assertion.Fail("Test_CreateLogger did not throw an exception.");
             } catch(Exception e) {
                 Assertion.AssertEquals(typeof(TypeLoadException), e.GetType());
             }
 
             try {
-                logger = NAnt.CreateLogger(notLogger);
+                logger = ConsoleDriver.CreateLogger(notLogger);
                 Assertion.Fail("Test_CreateLogger did not throw an exception.");
             } catch(Exception e) {
                 Assertion.AssertEquals(typeof(MemberAccessException), e.GetType());
@@ -370,11 +370,11 @@ namespace SourceForge.NAnt.Tests {
             StreamWriter instanceFileStream = new StreamWriter(File.OpenWrite(streamFileName));
 
             try {
-                logger = NAnt.CreateLogger(xmlLogger, instanceFileStream);
+                logger = ConsoleDriver.CreateLogger(xmlLogger, instanceFileStream);
                 Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
 
                 try {
-                    logger = NAnt.CreateLogger(consoleLogger, instanceFileStream);
+                    logger = ConsoleDriver.CreateLogger(consoleLogger, instanceFileStream);
                     Assertion.Fail("ConsoleLogger should have choked on stream, but didn't.");
                 } catch(Exception e) {
                     Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());

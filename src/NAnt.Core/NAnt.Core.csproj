@@ -97,6 +97,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ConsoleDriver.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "DirectoryListScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -265,6 +270,10 @@
                     RelPath = "Attributes\ValidatorAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Resources\ProjectHelp.xslt"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "Tasks\AttribTask.cs"

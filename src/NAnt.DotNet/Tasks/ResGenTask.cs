@@ -42,7 +42,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("resgen")]
-    public class ResGenTask : ExternalProgramBase {
+    public class ResGenTask : MsftFXSDKExternalProgramBase {
 
         string _arguments;
         string _input = null; 
@@ -69,7 +69,7 @@ namespace SourceForge.NAnt.Tasks {
        
         /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
         [FileSet("resources")]
-		public FileSet Resources { get { return _resources; } set { _resources = value; } }
+        public FileSet Resources { get { return _resources; } set { _resources = value; } }
                            
         public override string ProgramFileName { get { return Name; } }
 

@@ -17,6 +17,7 @@
 //
 // Serge (serge@wildwestsoftware.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
 using System.IO;
@@ -95,12 +96,13 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("out", Required=false)]
         public string OutputFile               { get { return _outputFile; } set { _outputFile = value; } }
 
-        XmlReader CreateXmlReader(string file) {
-            XmlTextReader xmlReader = new XmlTextReader(new FileStream(file, FileMode.Open));
+
+        protected virtual XmlReader CreateXmlReader(string file) {
+            XmlTextReader xmlReader = new XmlTextReader(new FileStream(file, FileMode.Open, FileAccess.Read));
             return xmlReader;
         }
 
-        TextWriter CreateWriter(string filepath) {
+        protected virtual TextWriter CreateWriter(string filepath) {
             string xmlPath = filepath;
             TextWriter writer = null;
 

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDoc.Documenter.NAnt", "NDo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Core", "NAnt.Core\NAnt.Core.csproj", "{8F5F8375-4097-4952-B860-784EB9961ABE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnitTasks", "NAnt.NUnitTasks\NAnt.NUnitTasks.csproj", "{2E8E7A58-7C27-4680-9702-9A223A440A9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -61,6 +63,12 @@ Global
 		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug Main NAnt BuildFile.Build.0 = Debug|.NET
 		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug NAnt Tests.ActiveCfg = Debug|.NET
 		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug NAnt Tests.Build.0 = Debug|.NET
+		{2E8E7A58-7C27-4680-9702-9A223A440A9D}.Debug.ActiveCfg = Debug|.NET
+		{2E8E7A58-7C27-4680-9702-9A223A440A9D}.Debug.Build.0 = Debug|.NET
+		{2E8E7A58-7C27-4680-9702-9A223A440A9D}.Debug Main NAnt BuildFile.ActiveCfg = Debug|.NET
+		{2E8E7A58-7C27-4680-9702-9A223A440A9D}.Debug Main NAnt BuildFile.Build.0 = Debug|.NET
+		{2E8E7A58-7C27-4680-9702-9A223A440A9D}.Debug NAnt Tests.ActiveCfg = Debug|.NET
+		{2E8E7A58-7C27-4680-9702-9A223A440A9D}.Debug NAnt Tests.Build.0 = Debug|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

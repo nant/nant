@@ -243,7 +243,10 @@ namespace SourceForge.NAnt.Tasks {
                             manifestResourceName = manifestResourceName.Replace( ".asax", "" );
                             actualFileName = actualFileName.Replace( ".asax", "" );
                         }
-                        
+                        else if (manifestResourceName.IndexOf(".ascx") > -1) {
+                            manifestResourceName = manifestResourceName.Replace(".ascx", "");
+                            actualFileName = actualFileName.Replace(".ascx", "");
+                        }                        
                         if(prefix != ""){
                             //manifestResourceName = prefix + "." + manifestResourceName; 
                             manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName );          
