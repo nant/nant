@@ -20,13 +20,8 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Filters {
     /// <summary>
-    /// Base class for filters.
+    /// Allows a file's content to be modified while performing an operation.
     /// </summary>
-    /// <remarks>
-    /// Base class for filters. All NAnt filters must be derived from this class. Filter provides
-    /// support for parameters and provides a reference to the project. Filter's base class
-    /// ChainableReader allows filters to be chained together.
-    /// </remarks>
     public abstract class Filter : ChainableReader {
         #region Private Instance Fields
 
