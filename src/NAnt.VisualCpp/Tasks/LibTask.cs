@@ -110,8 +110,8 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 // write each of the filenames
-                foreach(string filename in Sources.FileNames) {
-                    writer.WriteLine(filename);
+                foreach(string filename in Sources.FileNames) {                  
+                    writer.WriteLine("\"{0}\"", filename);
                 }
 
                 // write each of the libdirs
