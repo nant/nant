@@ -191,14 +191,27 @@ namespace NAnt.VSNet {
             doc.Load(fileName);
 
             foreach (XmlNode node in doc.SelectNodes("//Reference")) {
-                string subProjectFilename = node.SelectSingleNode("FILE").InnerText;
-                string guid = node.SelectSingleNode("GUIDPROJECTID").InnerText;
+                XmlNode projectGuidNode = node.SelectSingleNode("GUIDPROJECTID");
+                XmlNode fileNode = node.SelectSingleNode("FILE");
 
-                string fullPath = Path.Combine(Path.GetDirectoryName(fileName), subProjectFilename);
-                if (Project.IsEnterpriseTemplateProject(fullPath)) {
-                    RecursiveLoadTemplateProject(fullPath);
+                if (fileNode == null) {
+                    Log(Level.Warning, LogPrefix + "Reference with missing <FILE> node. Skipping.");
+                    continue;
+                }
+
+                // check if we're dealing with project or assembly reference
+                if (projectGuidNode != null) {
+                    string subProjectFilename = node.SelectSingleNode("FILE").InnerText;
+                    string fullPath = Path.Combine(Path.GetDirectoryName(fileName), 
+                        subProjectFilename);
+                    if (Project.IsEnterpriseTemplateProject(fullPath)) {
+                        RecursiveLoadTemplateProject(fullPath);
+                    } else {
+                        _htProjectFiles[projectGuidNode.InnerText] = fullPath;
+                    }
                 } else {
-                    _htProjectFiles[guid] = fullPath;
+                    Log(Level.Verbose, LogPrefix + "Skipping file reference '{0}'.", 
+                        fileNode.InnerText);
                 }
             }
         }
