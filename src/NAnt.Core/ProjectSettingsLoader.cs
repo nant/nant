@@ -115,6 +115,20 @@ namespace NAnt.Core {
             // process the defined frameworks
             ProcessFrameworks(nantNode.SelectNodes("frameworks/platform[@name='" + Project.PlatformName + "']/framework"));
 
+            // determine default framework
+            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode(
+                "frameworks/platform[@name='" + Project.PlatformName + "']"), 
+                "default");
+
+            if (defaultFramework != null && Project.FrameworkInfoDictionary.ContainsKey(defaultFramework)) {
+                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
+                Properties.Add("nant.settings.currentframework", defaultFramework);
+                Project.DefaultFramework = Project.FrameworkInfoDictionary[defaultFramework];
+                Project.CurrentFramework = Project.DefaultFramework;
+            } else {
+                Project.Log(Level.Warning, "Framework '{0}' does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
+            }
+
             // get taskpath setting to load external tasks and types from
             string taskPath = GetXmlAttributeValue(nantNode, "taskpath");
 
@@ -133,20 +147,6 @@ namespace NAnt.Core {
                 }
 
                 ScannedTaskPath = true; // so we only load tasks once 
-            }
-
-            // determine default framework
-            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode(
-                "frameworks/platform[@name='" + Project.PlatformName + "']"), 
-                "default");
-
-            if (defaultFramework != null && Project.FrameworkInfoDictionary.ContainsKey(defaultFramework)) {
-                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
-                Properties.Add("nant.settings.currentframework", defaultFramework);
-                Project.DefaultFramework = Project.FrameworkInfoDictionary[defaultFramework];
-                Project.CurrentFramework = Project.DefaultFramework;
-            } else {
-                Project.Log(Level.Warning, "Framework '{0}' does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
             }
 
             // process global properties
@@ -260,6 +260,15 @@ namespace NAnt.Core {
                     // process framework environment nodes
                     info.EnvironmentVariables = ProcessFrameworkEnvironmentVariables(
                         environmentNodes, info);
+
+                    // process framework extensions
+                    info.Extensions.Project = Project;
+                    info.Extensions.Parent = Project; // avoid warnings by setting the parent of the fileset
+                    info.Extensions.ID = "extensions"; // avoid warnings by assigning an id
+                    XmlNode extensionsNode = frameworkNode.SelectSingleNode("extensions");
+                    if (extensionsNode != null) {
+                        info.Extensions.Initialize(extensionsNode, info.Properties, info);
+                    }
 
                     // framework is valid, so add it to framework dictionary
                     Project.FrameworkInfoDictionary.Add(info.Name, info);

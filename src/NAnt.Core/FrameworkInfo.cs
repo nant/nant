@@ -42,6 +42,7 @@ namespace NAnt.Core {
         private readonly FileInfo _runtimEngine;
         private readonly PropertyDictionary _properties;
         private EnvironmentVariableCollection _environmentVariables;
+        private FileSet _extensions;
 
         #endregion Private Instance Fields
 
@@ -63,6 +64,9 @@ namespace NAnt.Core {
         public FrameworkInfo(string name, string description, string version, 
             string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
             string runtimeEngine, PropertyDictionary properties) {
+
+            _extensions = new FileSet();
+            _extensions.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 
             if (name == null) {
                 throw new ArgumentNullException("name", "Framework name not configured.");
@@ -234,6 +238,18 @@ namespace NAnt.Core {
         public EnvironmentVariableCollection EnvironmentVariables {
             get { return _environmentVariables; }
             set { _environmentVariables = value; }
+        }
+
+        /// <summary>
+        /// Gets the set of assemblies and directories that should scanned for
+        /// NAnt extension classes.
+        /// </summary>
+        /// <value>
+        /// The set of assemblies and directories that should be scanned for 
+        /// NAnt extension classes.
+        /// </value>
+        public FileSet Extensions {
+            get { return _extensions; }
         }
 
         #endregion Public Instance Properties
