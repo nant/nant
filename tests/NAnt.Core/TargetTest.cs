@@ -45,9 +45,9 @@ namespace Tests.NAnt.Core {
 
         private const string BuildFragment2 = @"
             <project>
-                <target name='Target1' depends='Target2 Target3'/>
-                <target name='Target2' />
-                <target name='Target3' depends='Target2'/>
+                <target name='Init' />
+                <target name='Release' depends='Init'/>
+                <target name='Build' depends='Release'/>
             </project>";
 
         #endregion Private Static Fields
@@ -124,22 +124,22 @@ namespace Tests.NAnt.Core {
             // create new listener that allows us to track build events
             TestBuildListener listener = new TestBuildListener();
 
-            Project project = CreateFilebasedProject(FormatBuildFile(string.Empty, "true", "false", "Target2"));
+            Project project = CreateFilebasedProject(BuildFragment2);
 
             //use Project.AttachBuildListeners to attach.
             IBuildListener[] listners = {listener};
             project.AttachBuildListeners(new BuildListenerCollection(listners));
              
             //add targets like they are added from the command line.
-            project.BuildTargets.Add("Target1");
+            project.BuildTargets.Add("Release");
+            project.BuildTargets.Add("Build");
 
             string result = ExecuteProject(project);
 
-            Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
-            Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
-            Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+            Assertion.Assert("'Init' target should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Init") == 1);
+            Assertion.Assert("'Release' target should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Release") == 1);
+            Assertion.Assert("'Build' target should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Build") == 1);
         }
-
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
