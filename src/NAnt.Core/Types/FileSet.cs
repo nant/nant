@@ -758,8 +758,8 @@ namespace NAnt.Core.Types {
                 if (Path.IsPathRooted(fileName)) {
                     FileInfo fileInfo = new FileInfo(fileName);
                     if (!fileInfo.Exists) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is not newer than {1})", fileName, targetLastWriteTime));
-                        return fileName;
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is therefor not newer than {1})", fileName, targetLastWriteTime));
+                        continue;
                     }
                     if (fileInfo.LastWriteTime > targetLastWriteTime) {
                         logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, targetLastWriteTime));
