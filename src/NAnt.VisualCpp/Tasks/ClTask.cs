@@ -198,7 +198,8 @@ namespace NAnt.VisualCpp.Tasks {
             // if pch file declared, but doesn't exist, it must be stale
             FileInfo pchFileInfo = new FileInfo(PchFile);
             if (!pchFileInfo.Exists) {
-                Log(Level.Verbose, LogPrefix + "{0} does not exist, recompiling.", pchFileInfo.FullName);
+                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                    pchFileInfo.FullName);
                 return false;
             }
 
@@ -206,7 +207,8 @@ namespace NAnt.VisualCpp.Tasks {
             // if sources fresher than pch file,
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix  + "{0} is newer than pch file, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' is newer than pch file, recompiling.", 
+                    fileName);
                 return false;
             }
 +*/
@@ -219,14 +221,16 @@ namespace NAnt.VisualCpp.Tasks {
                 Path.GetFileName(srcFileName)), ".obj");
             FileInfo objFileInfo = new FileInfo(objFileName);
             if (!objFileInfo.Exists) {
-                Log(Level.Verbose, LogPrefix  + "'{0}' does not exist, recompiling.", objFileName);
+                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                    objFileName);
                 return false;
             }
 
             // if obj file is older the source file, it is stale
             string fileName = FileSet.FindMoreRecentLastWriteTime(srcFileName, objFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' is out of date, recompiling.", objFileName);
+                Log(Level.Verbose, "'{0}' is out of date, recompiling.", 
+                    fileName);
                 return false;
             }
 
@@ -281,7 +285,7 @@ namespace NAnt.VisualCpp.Tasks {
             }
 
             if (NeedsCompiling()) {
-                Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.", 
+                Log(Level.Info, "Compiling {0} files to '{1}'.", 
                     Sources.FileNames.Count, OutputDir.FullName);
  
                 // create temp response file to hold compiler options
@@ -352,7 +356,7 @@ namespace NAnt.VisualCpp.Tasks {
 
                     if (Verbose) {
                         // display response file contents
-                        Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
+                        Log(Level.Info, "Contents of {0}.", _responseFileName);
                         StreamReader reader = File.OpenText(_responseFileName);
                         Log(Level.Info, reader.ReadToEnd());
                         reader.Close();

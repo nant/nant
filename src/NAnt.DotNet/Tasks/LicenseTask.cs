@@ -337,7 +337,7 @@ namespace NAnt.DotNet.Tasks {
                 return;
             }
 
-            Log(Level.Verbose, LogPrefix + "Compiling license file '{0}' to '{1}'" 
+            Log(Level.Verbose, "Compiling license file '{0}' to '{1}'" 
                 + " using target '{2}'.", InputFile.FullName, licensesFile.FullName, 
                 Target);
 
@@ -424,7 +424,7 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         private bool NeedsCompiling(FileInfo licensesFile) {
             if (!licensesFile.Exists) {
-                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, recompiling.", 
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
                     licensesFile.FullName);
                 return true;
             }
@@ -432,7 +432,8 @@ namespace NAnt.DotNet.Tasks {
             // check if assembly references were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, licensesFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
                 return true;
             }
 
@@ -440,7 +441,8 @@ namespace NAnt.DotNet.Tasks {
             if (InputFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(InputFile.FullName, licensesFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
                     return true;
                 }
             }
@@ -494,8 +496,7 @@ namespace NAnt.DotNet.Tasks {
                 // attach assembly resolver to the current domain
                 assemblyResolver.Attach();
 
-                licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                    + "Loading assemblies ...");
+                licenseTask.Log(Level.Verbose, "Loading assemblies ...");
 
                 try {
                     // first, load all the assemblies so that we can search for the 
@@ -504,8 +505,8 @@ namespace NAnt.DotNet.Tasks {
                         Assembly assembly = Assembly.LoadFrom(assemblyFileName);
                         if (assembly != null) {
                             // output assembly filename to build log
-                            licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                                + "{0} (loaded)", assemblyFileName);
+                            licenseTask.Log(Level.Verbose, "{0} (loaded)", 
+                                assemblyFileName);
                             // add assembly to list of loaded assemblies
                             assemblies.Add(assembly);
                         }
@@ -518,8 +519,7 @@ namespace NAnt.DotNet.Tasks {
                     using (StreamReader sr = new StreamReader(licenseTask.InputFile.FullName)) {
                         Hashtable licenseTypes = new Hashtable();
 
-                        licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + 
-                            "Creating licenses ...");
+                        licenseTask.Log(Level.Verbose, "Creating licenses ...");
 
                         while (true) {
                             string line = sr.ReadLine();
@@ -534,8 +534,7 @@ namespace NAnt.DotNet.Tasks {
                                 continue;
                             }
 
-                            licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                                + line + ": ");
+                            licenseTask.Log(Level.Verbose, line + ": ");
 
                             // Strip off the assembly name, if it exists
                             string typeName;
@@ -577,12 +576,11 @@ namespace NAnt.DotNet.Tasks {
                                 // add license type to list of processed license types
                                 licenseTypes[line] = tp;
                                 // output assembly from which license type was loaded
-                                licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                                    + ((Type) licenseTypes[line]).Assembly.CodeBase);
+                                licenseTask.Log(Level.Verbose, ((Type) licenseTypes[line]).Assembly.CodeBase);
 
                                 // TO-DO REMOVE DEBUG CODE
-                                licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
-                                    + "License type: '{0}'.", tp.AssemblyQualifiedName);
+                                licenseTask.Log(Level.Debug, "License type: '{0}'.", 
+                                    tp.AssemblyQualifiedName);
                                 // END REMOVE DEBUG CODE
                             }
 
@@ -626,8 +624,8 @@ namespace NAnt.DotNet.Tasks {
                     using (FileStream fs = new FileStream(licensesFile, FileMode.Create)) {
                         // note the ToUpper() - this is the behaviour of VisualStudio
                         DesigntimeLicenseContextSerializer.Serialize(fs, Path.GetFileName(licenseTask.Target.ToUpper(CultureInfo.InvariantCulture)), dlc);
-                        licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                            + "Created new license file {0}.", licensesFile);
+                        licenseTask.Log(Level.Verbose, "Created new license file {0}.", 
+                            licensesFile);
                     }
 
                     dlc = null;

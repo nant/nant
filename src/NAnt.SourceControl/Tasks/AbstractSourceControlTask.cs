@@ -298,15 +298,9 @@ namespace NAnt.SourceControl.Tasks {
         ///     appended to the commandline, otherwise <code>false</code>.</param>
         protected void SetGlobalOption (String name, String value, bool on) {
             Option option;
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
-                "{0} name: {1}",
-                LogPrefix, name));
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
-                "{0} value: {1}",
-                LogPrefix, value));
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
-                "{0} on: {1}",
-                LogPrefix, on));
+            Log(Level.Debug, "Name: {0}", name);
+            Log(Level.Debug, "Value: {0}",value);
+            Log(Level.Debug, "On: {0}", on);
 
             if (GlobalOptions.Contains(name)) {
                 option = (Option)GlobalOptions[name];
@@ -436,19 +430,17 @@ namespace NAnt.SourceControl.Tasks {
             string environmentValue = StringUtils.ConvertEmptyToNull(
                 System.Environment.GetEnvironmentVariable(environmentVar));
 
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} Environment variable: {1}",
-                LogPrefix, environmentVar));
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} Environment value: {1}",
-                LogPrefix, environmentValue));
+            Log(Level.Debug, "Environment variable: {0}", environmentVar);
+            Log(Level.Debug, "Environment value: {0}", environmentValue);
 
             if (environmentValue != null) {
 				string[] environmentPaths = environmentValue.Split(Path.PathSeparator);
                 foreach (string environmentPath in environmentPaths) {
                     if (null != environmentPath) {
                         string fileFullName = Path.Combine(environmentPath, fileName);
-                        Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} environmentPath: {1}", LogPrefix, environmentPath));
-                        Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} fileName: {1}", LogPrefix, fileName));
-                        Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,"{0} fileFullName: {1}", LogPrefix, fileFullName));
+                        Log(Level.Debug, "Environment Path: {0}", environmentPath);
+                        Log(Level.Debug, "FileName: {0}", fileName);
+                        Log(Level.Debug, "FileFullName: {0}", fileFullName);
                         if (environmentPath.IndexOf(fileName) > -1 &&
                             File.Exists(fileName)) {
                             if (!(Path.GetDirectoryName(fileName).IndexOf(

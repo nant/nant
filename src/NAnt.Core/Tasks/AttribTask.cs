@@ -183,7 +183,7 @@ namespace NAnt.Core.Tasks {
                 FileAttributes fileAttributes = GetFileAttributes();
 
                 // display build log message
-                Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", 
+                Log(Level.Info, "Setting file attributes for {0} files to {1}.", 
                     AttribFileSet.FileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
 
                 // perform operation on files
@@ -197,7 +197,7 @@ namespace NAnt.Core.Tasks {
                 FileAttributes directoryAttributes = GetDirectoryAttributes();
 
                 // display build log message
-                Log(Level.Info, LogPrefix + "Setting attributes for {0} directories to {1}.", 
+                Log(Level.Info, "Setting attributes for {0} directories to {1}.", 
                     AttribFileSet.DirectoryNames.Count, directoryAttributes.ToString(CultureInfo.InvariantCulture));
 
                 // perform operation on directories
@@ -245,7 +245,7 @@ namespace NAnt.Core.Tasks {
         private void SetFileAttributes(string path, FileAttributes fileAttributes) {
             try {
                 if (System.IO.File.Exists(path)) {
-                    Log(Level.Verbose, LogPrefix + path);
+                    Log(Level.Verbose, path);
                     System.IO.File.SetAttributes(path, fileAttributes);
                 } else {
                     throw new FileNotFoundException();
@@ -256,7 +256,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {
-                    Log(Level.Verbose, LogPrefix + msg);
+                    Log(Level.Verbose, msg);
                 }
             }
         }
@@ -285,7 +285,7 @@ namespace NAnt.Core.Tasks {
         private void SetDirectoryAttributes(string path, FileAttributes fileAttributes) {
             try {
                 if (System.IO.Directory.Exists(path)) {
-                    Log(Level.Verbose, LogPrefix + path);
+                    Log(Level.Verbose, path);
                     System.IO.File.SetAttributes(path, fileAttributes);
                 } else {
                     throw new DirectoryNotFoundException();
@@ -296,7 +296,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {
-                    Log(Level.Verbose, LogPrefix + msg);
+                    Log(Level.Verbose, msg);
                 }
             }
         }

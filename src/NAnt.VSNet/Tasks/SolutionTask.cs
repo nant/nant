@@ -332,21 +332,21 @@ namespace NAnt.VSNet.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "Starting solution build.");
+            Log(Level.Info, "Starting solution build.");
 
             Solution sln;
 
             if (Projects.FileNames.Count > 0) {
-                Log(Level.Verbose, LogPrefix + "Included projects:" );
+                Log(Level.Verbose, "Included projects:" );
                 foreach (string projectFile in Projects.FileNames) {
-                    Log(Level.Verbose, LogPrefix + " - " + projectFile);
+                    Log(Level.Verbose, " - " + projectFile);
                 }
             }
 
             if (ReferenceProjects.FileNames.Count > 0) {
-                Log(Level.Verbose, LogPrefix + "Reference projects:");
+                Log(Level.Verbose, "Reference projects:");
                 foreach (string projectFile in ReferenceProjects.FileNames) {
-                    Log(Level.Verbose, LogPrefix + " - " + projectFile);
+                    Log(Level.Verbose, " - " + projectFile);
                 }
             }
             
@@ -388,13 +388,13 @@ namespace NAnt.VSNet.Tasks {
                 }
             } finally {
                 if (basePath != null && Directory.Exists(basePath)) {
-                    Log(Level.Debug, LogPrefix + "Cleaning up temp folder {0}.", basePath); 
+                    Log(Level.Debug, "Cleaning up temp folder '{0}'.", basePath); 
 
                     // force all files to have normal attributes to allow deletion
                     DirectoryInfo di = new DirectoryInfo(basePath);
                     foreach (FileInfo info in di.GetFiles()) {
                         if (info.Attributes != FileAttributes.Normal) {
-                            Log(Level.Debug, LogPrefix + "File {0} has other than normal attributes.  Fixing.", info.FullName);
+                            Log(Level.Debug, "File {0} has other than normal attributes.  Fixing.", info.FullName);
                             File.SetAttributes(info.FullName, FileAttributes.Normal);
                         }
                     }

@@ -349,7 +349,7 @@ namespace NAnt.Core.Tasks {
                         // The full filepath to copy to.
                         string destinationDirectory = Path.Combine(ToDirectory.FullName, dstRelPath);
                         if (!Directory.Exists(destinationDirectory)) {
-                            Log(Level.Verbose, LogPrefix + "Created directory '{0}'.", destinationDirectory);
+                            Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
                             Directory.CreateDirectory(destinationDirectory);
                         }
                     }
@@ -371,9 +371,9 @@ namespace NAnt.Core.Tasks {
             int fileCount = FileCopyMap.Keys.Count;
             if (fileCount > 0 || Verbose) {
                 if (ToFile != null) {
-                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
+                    Log(Level.Info, "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
                 } else {
-                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+                    Log(Level.Info, "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
                 }
 
                 // loop thru our file list
@@ -384,18 +384,18 @@ namespace NAnt.Core.Tasks {
                             Path.GetFileName(destinationFile));
                     }
                     if (sourceFile == destinationFile) {
-                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of '{0}'.", sourceFile);
+                        Log(Level.Verbose, "Skipping self-copy of '{0}'.", sourceFile);
                         continue;
                     }
 
                     try {
-                        Log(Level.Verbose, LogPrefix + "Copying '{0}' to '{1}'.", sourceFile, destinationFile);
+                        Log(Level.Verbose, "Copying '{0}' to '{1}'.", sourceFile, destinationFile);
                         
                         // create directory if not present
                         string destinationDirectory = Path.GetDirectoryName(destinationFile);
                         if (!Directory.Exists(destinationDirectory)) {
                             Directory.CreateDirectory(destinationDirectory);
-                            Log(Level.Verbose, LogPrefix + "Created directory '{0}'.", destinationDirectory);
+                            Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
                         }
 
                         //Copy with filters

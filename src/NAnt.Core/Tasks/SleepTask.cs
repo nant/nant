@@ -112,7 +112,7 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             int sleepTime = GetSleepTime();
-            Log(Level.Info, LogPrefix + "Sleeping for {0} milliseconds.", sleepTime);
+            Log(Level.Info, "Sleeping for {0} milliseconds.", sleepTime);
             DoSleep(sleepTime);
         }
 

@@ -261,8 +261,9 @@ namespace NAnt.Core.Tasks {
                         bodyWriter.WriteLine(string.Empty);
                     }
                 } catch (Exception ex) {
-                    Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
-                        "File '{0}' NOT added to message body. {1}", fileName, ex.Message));
+                    Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
+                        "File '{0}' NOT added to message body. {1}", fileName, 
+                        ex.Message));
                 }
             }
 
@@ -278,21 +279,22 @@ namespace NAnt.Core.Tasks {
                     MailAttachment attachment = new MailAttachment(fileName);
                     mailMessage.Attachments.Add(attachment);
                 } catch (Exception ex) {
-                    Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
-                        "File '{0}' NOT attached to message. {1}", fileName, ex.Message));
+                    Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
+                        "File '{0}' NOT attached to message. {1}", fileName, 
+                        ex.Message));
                 }
             }
 
             // send message
             try {
-                Log(Level.Info, LogPrefix + "Sending mail to {0}.", mailMessage.To);
+                Log(Level.Info, "Sending mail to {0}.", mailMessage.To);
                 SmtpMail.SmtpServer = this.Mailhost;
                 SmtpMail.Send(mailMessage);
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
-                msg.Append(LogPrefix + "Error enountered while sending mail message." 
+                msg.Append("Error enountered while sending mail message." 
                     + Environment.NewLine);
-                msg.Append(LogPrefix + "Make sure that mailhost=" + this.Mailhost 
+                msg.Append("Make sure that mailhost=" + this.Mailhost 
                     + " is valid" + Environment.NewLine);
                 throw new BuildException("Error sending mail:" + Environment.NewLine 
                     + msg.ToString(), Location, ex);

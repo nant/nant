@@ -148,7 +148,7 @@ namespace NAnt.Zip.Tasks {
                 ZipFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            Log(Level.Info, LogPrefix + "Zipping {0} files to '{1}'.", 
+            Log(Level.Info, "Zipping {0} files to '{1}'.", 
                 ZipFileSet.FileNames.Count, ZipFile.FullName);
 
             basePath = ZipFileSet.BaseDirectory.FullName;
@@ -216,7 +216,7 @@ namespace NAnt.Zip.Tasks {
                             entry.DateTime = File.GetLastWriteTime(file);
                         }
 
-                        Log(Level.Verbose, LogPrefix + "Adding {0}.", entryName);
+                        Log(Level.Verbose, "Adding {0}.", entryName);
                         
                         if (ZipLevel == 0) {
                             entry.Size = fileSize;

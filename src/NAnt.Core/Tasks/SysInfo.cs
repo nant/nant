@@ -130,7 +130,7 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "Setting system information properties under " + Prefix + "*");
+            Log(Level.Info, "Setting system information properties under " + Prefix + "*");
 
             // set properties
             Properties[Prefix + "clr.version"] = Environment.Version.ToString();
@@ -153,11 +153,10 @@ namespace NAnt.Core.Tasks {
 
             // display the properties
             if (Verbose) {
-                Log(Level.Info, LogPrefix + "nant.version = " + Properties["nant.version"]);
                 foreach (DictionaryEntry entry in Properties) {
                     string name = (string) entry.Key;
                     if (name.StartsWith(Prefix) && !name.StartsWith(Prefix + "env.")) {
-                        Log(Level.Info, LogPrefix + name + " = " + entry.Value.ToString());
+                        Log(Level.Info, name + " = " + entry.Value.ToString());
                     }
                 }
             }

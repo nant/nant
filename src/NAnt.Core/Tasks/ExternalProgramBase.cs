@@ -196,9 +196,8 @@ namespace NAnt.Core.Tasks {
         public virtual TextWriter OutputWriter {
             get { 
                 if (_outputWriter == null) {
-                    //do not print LogPrefix, just pad that length.
-                    _outputWriter = new LogWriter(this, Level.Info, new string(char.Parse(" "), 
-                        LogPrefix.Length), CultureInfo.InvariantCulture);
+                    _outputWriter = new LogWriter(this, Level.Info, 
+                        CultureInfo.InvariantCulture);
                 }
                 return _outputWriter;
             }
@@ -220,9 +219,8 @@ namespace NAnt.Core.Tasks {
         public virtual TextWriter ErrorWriter {
             get { 
                 if (_errorWriter == null) {
-                    //do not print LogPrefix, just pad that length.
-                    _errorWriter = new LogWriter(this, Level.Warning, new string(char.Parse(" "), 
-                        LogPrefix.Length), CultureInfo.InvariantCulture);
+                    _errorWriter = new LogWriter(this, Level.Warning, 
+                        CultureInfo.InvariantCulture);
                 }
                 return _errorWriter;
             }
@@ -388,7 +386,7 @@ namespace NAnt.Core.Tasks {
             try {
                 string msg = string.Format(
                     CultureInfo.InvariantCulture, 
-                    LogPrefix + "Starting '{1} ({2})' in '{0}'", 
+                    "Starting '{1} ({2})' in '{0}'", 
                     p.StartInfo.WorkingDirectory, 
                     p.StartInfo.FileName, 
                     p.StartInfo.Arguments);
@@ -398,10 +396,9 @@ namespace NAnt.Core.Tasks {
 
                 p.Start();
                 return p;
-            } catch (Exception e) {
-                string msg = string.Format(CultureInfo.InvariantCulture, "[{0}] {1} failed to start.", Name, p.StartInfo.FileName);
-                logger.Error(msg, e);
-                throw new BuildException(msg, Location, e);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "'{0}' failed to start.", p.StartInfo.FileName), Location, ex);
             }
         }
 

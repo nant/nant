@@ -226,9 +226,9 @@ namespace NAnt.DotNet.Tasks {
                             generatedAsmInfoStream.Close();
                         }
 
-                        Log(Level.Info, LogPrefix + "Generated file '{0}'.", Output.FullName);
+                        Log(Level.Info, "Generated file '{0}'.", Output.FullName);
                     } else {
-                        Log(Level.Verbose, LogPrefix + "File '{0}' is up-to-date.", Output.FullName);
+                        Log(Level.Verbose, "File '{0}' is up-to-date.", Output.FullName);
                     }
                 }
             } catch (Exception ex) {
@@ -256,7 +256,7 @@ namespace NAnt.DotNet.Tasks {
             // if output file doesn't exist, the stream will always need to be
             // persisted to the filesystem.
             if (!Output.Exists) {
-                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, rebuilding.", 
+                Log(Level.Verbose, "Output file '{0}' does not exist, rebuilding.", 
                     Output.FullName);
                 return true;
             }
@@ -280,7 +280,7 @@ namespace NAnt.DotNet.Tasks {
 
             //compare hash of generated source with of existing source
             if (Convert.ToBase64String(generatedAssemblyInfoHash) != Convert.ToBase64String(existingAssemblyInfoHash)) {
-                Log(Level.Verbose, LogPrefix + "Output file '{0}' is not up-to-date, rebuilding.", 
+                Log(Level.Verbose, "Output file '{0}' is not up-to-date, rebuilding.", 
                     Output.FullName);
                 return true;
             } else {

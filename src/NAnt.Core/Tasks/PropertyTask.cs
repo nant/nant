@@ -176,7 +176,7 @@ namespace NAnt.Core.Tasks {
             } else {
                 if (Overwrite) {
                     if (Project.Properties.IsReadOnlyProperty(PropertyName)) {
-                        Log(Level.Verbose, LogPrefix + "Read-only property '{0}' cannot be overwritten.", PropertyName);
+                        Log(Level.Verbose, "Read-only property '{0}' cannot be overwritten.", PropertyName);
                     } else {
                         Properties[PropertyName] = propertyValue;
 
@@ -185,7 +185,7 @@ namespace NAnt.Core.Tasks {
                         }
                     }
                 } else {
-                    Log(Level.Verbose, LogPrefix + "Property '{0}' already exists, and overwrite is set to false.", PropertyName);
+                    Log(Level.Verbose, "Property '{0}' already exists, and overwrite is set to false.", PropertyName);
                 }
             }
         }

@@ -308,12 +308,12 @@ namespace NAnt.Core.Tasks {
                     FileInfo primaryFile = UpToDateFiles.MostRecentLastWriteTimeFile;
                     if (primaryFile == null || !primaryFile.Exists) {
                         ret = false;
-                        Log(Level.Verbose, LogPrefix + "Uptodatefile(s) do(es) not exist.");
+                        Log(Level.Verbose, "Uptodatefile(s) do(es) not exist.");
                     } else {
                         string newerFile = FileSet.FindMoreRecentLastWriteTime(_compareFiles.FileNames, primaryFile.LastWriteTime);
                         bool needsAnUpdate = (newerFile != null);
                         if (needsAnUpdate) {
-                            Log(Level.Verbose, LogPrefix + "{0} is newer than {1}.", newerFile, primaryFile.Name);
+                            Log(Level.Verbose, "{0} is newer than {1}.", newerFile, primaryFile.Name);
                         }
                         ret = ret && !needsAnUpdate;
                     }
@@ -343,8 +343,8 @@ namespace NAnt.Core.Tasks {
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             base.InitializeTask (taskNode);
             //check that we have something to do.
-            if((UpToDateFiles == null || CompareFiles == null) && Test == null && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {
-                throw new BuildException(LogPrefix + " at least one if condition" +
+            if ((UpToDateFiles == null || CompareFiles == null) && Test == null && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {
+                throw new BuildException("At least one if condition" +
                         " must be set (test, propertytrue, targetexists, etc...):", Location);
             }
         }

@@ -195,7 +195,7 @@ namespace NAnt.Core.Tasks {
             }
 
             if (!resourceAvailable) {
-                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
+                Log(Level.Verbose, "Unable to find {0} {1}.", Type, Resource);
             }
 
             return resourceAvailable;

@@ -155,7 +155,7 @@ namespace NAnt.Core.Tasks {
             for (int i = 1; i < match.Groups.Count; i++) {
                 string groupName = regex.GroupNameFromNumber(i);
 
-                Log(Level.Verbose, LogPrefix + "Setting property '{0}' to '{1}'.", 
+                Log(Level.Verbose, "Setting property '{0}' to '{1}'.", 
                     groupName, match.Groups[groupName].Value);
                 Properties[groupName] = match.Groups[groupName].Value;
             }

@@ -390,7 +390,7 @@ namespace NAnt.DotNet.Tasks {
                     References.Scan();
                     Modules.Scan();
                     
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.",
+                    Log(Level.Info, "Compiling {0} files to '{1}'.",
                         Sources.FileNames.Count, OutputFile.FullName);
 
                     // specific compiler options
@@ -505,7 +505,7 @@ namespace NAnt.DotNet.Tasks {
 
                     if (Verbose) {
                         // display response file contents
-                        Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
+                        Log(Level.Info, "Contents of {0}.", _responseFileName);
                         StreamReader reader = File.OpenText(_responseFileName);
                         Log(Level.Info, reader.ReadToEnd());
                         reader.Close();
@@ -776,7 +776,7 @@ namespace NAnt.DotNet.Tasks {
                 // write package references to the TextWriter
                 WriteOption(writer, "pkg", StringUtils.Join(",", packages));
             } else {
-                Log(Level.Warning, LogPrefix + "The compiler for {0} does not support"
+                Log(Level.Warning, "The compiler for {0} does not support"
                     + " package references.", Project.TargetFramework.Description);
             }
         }
@@ -825,12 +825,12 @@ namespace NAnt.DotNet.Tasks {
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
             if (ForceRebuild) {
-                Log(Level.Verbose, LogPrefix + "'rebuild' attribute set to true, recompiling.");
+                Log(Level.Verbose, "'rebuild' attribute set to true, recompiling.");
                 return true;
             }
 
             if (!OutputFile.Exists) {
-                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, recompiling.", 
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
                     OutputFile.FullName);
                 return true;
             }
@@ -838,21 +838,21 @@ namespace NAnt.DotNet.Tasks {
             // check if sources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
             // check if reference assemblies were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
             // check if modules were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
@@ -860,7 +860,7 @@ namespace NAnt.DotNet.Tasks {
             foreach (ResourceFileSet resources in ResourcesList) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                     return true;
                 }
             }
@@ -869,7 +869,7 @@ namespace NAnt.DotNet.Tasks {
             if (Win32Icon != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(Win32Icon.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                     return true;
                 }
             }
@@ -897,7 +897,7 @@ namespace NAnt.DotNet.Tasks {
 
             fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
@@ -936,7 +936,7 @@ namespace NAnt.DotNet.Tasks {
                 // set resource culture
                 resourceLinkage.Culture = resourceCulture;
             } catch (FileNotFoundException) { // if no matching file, dump out
-                Log(Level.Debug, LogPrefix + "Did not find dependent file {0}.", dependentFile);
+                Log(Level.Debug, "Did not find dependent file {0}.", dependentFile);
                 return null;
             } finally {
                 if (sr != null) {
@@ -946,9 +946,9 @@ namespace NAnt.DotNet.Tasks {
 
             // output some debug information about resource linkage found...
             if (resourceLinkage.IsValid) {
-                Log(Level.Debug, LogPrefix + "Found resource linkage '{0}' in dependent file '{1}'.", resourceLinkage.ToString(), dependentFile);
+                Log(Level.Debug, "Found resource linkage '{0}' in dependent file '{1}'.", resourceLinkage.ToString(), dependentFile);
             } else {
-                Log(Level.Debug, LogPrefix + "Could not find any resource linkage in dependent file '{0}'.", dependentFile);
+                Log(Level.Debug, "Could not find any resource linkage in dependent file '{0}'.", dependentFile);
             }
 
             return resourceLinkage;

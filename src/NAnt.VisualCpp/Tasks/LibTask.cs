@@ -135,7 +135,7 @@ namespace NAnt.VisualCpp.Tasks {
                 LibDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            Log(Level.Info, LogPrefix + "Combining {0} files to '{1}'.", 
+            Log(Level.Info, "Combining {0} files to '{1}'.", 
                 Sources.FileNames.Count, OutputFile.FullName);
 
             // Create temp response file to hold compiler options
@@ -168,7 +168,7 @@ namespace NAnt.VisualCpp.Tasks {
 
                 if (Verbose) {
                     // display response file contents
-                    Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
+                    Log(Level.Info, "Contents of {0}.", _responseFileName);
                     StreamReader reader = File.OpenText(_responseFileName);
                     Log(Level.Info, reader.ReadToEnd());
                     reader.Close();

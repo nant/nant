@@ -173,8 +173,7 @@ namespace NAnt.Core.Tasks {
         }
 
         private void RunBuild(FileInfo buildFile) {
-            Log(Level.Info, LogPrefix + "{0} {1}", buildFile.FullName, DefaultTarget);
-            Log(Level.Info, string.Empty);
+            Log(Level.Info, "{0} {1}", buildFile.FullName, DefaultTarget);
 
             // create new project with same threshold as current project and 
             // increased indentation level, and initialize it using the same

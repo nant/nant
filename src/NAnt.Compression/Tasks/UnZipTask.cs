@@ -84,7 +84,9 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             ZipInputStream s = new ZipInputStream(ZipFile.OpenRead());
-            Log(Level.Info, LogPrefix + "Unzipping '{0}' to '{1}' ({2} bytes).", ZipFile.FullName, ToDirectory.FullName, s.Length);
+            Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
+                ZipFile.FullName, ToDirectory.FullName, s.Length);
+
             ZipEntry theEntry;
             while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName = Path.GetFileName(theEntry.Name);
                 Log(Level.Verbose, "Extracting '{0}' to '{1}'.", theEntry.Name,                     ToDirectory.FullName);

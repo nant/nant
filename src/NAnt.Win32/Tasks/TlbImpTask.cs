@@ -409,20 +409,24 @@ namespace NAnt.Win32.Tasks {
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
             if (!OutputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                    OutputFile.FullName);
                 return true;
             }
 
             // check if the type library was updated since the interop assembly was generated
             string fileName = FileSet.FindMoreRecentLastWriteTime(TypeLib.FullName, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Info, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Info, "'{0}' has been updated, recompiling.", 
+                    fileName);
                 return true;
             }
 
             // check if the reference assemblies were updated since the interop assembly was generated
             fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Info, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Info, "'{0}' has been updated, recompiling.", 
+                    fileName);
                 return true;
             }
 

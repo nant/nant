@@ -171,11 +171,11 @@ namespace NAnt.NUnit2.Tasks {
                 defaultFormatter.UseFile = false;
                 FormatterElements.Add(defaultFormatter);
 
-                Log(Level.Warning, LogPrefix + "No <formatter .../> element was specified." +
+                Log(Level.Warning, "No <formatter .../> element was specified." +
                     " A plain-text formatter was added to prevent loosing output of the" +
                     " test results.");
 
-                Log(Level.Warning, LogPrefix + "Add a <formatter .../> element to the" +
+                Log(Level.Warning, "Add a <formatter .../> element to the" +
                     " <nunit2> task to prevent this warning from being output and" +
                     " to ensure forward compatibility with future revisions of NAnt.");
             }
@@ -233,7 +233,7 @@ namespace NAnt.NUnit2.Tasks {
                                             builder.Append(reader.ReadLine().Trim()).Append(
                                                 Environment.NewLine);
                                         }
-                                        Log(Level.Info, LogPrefix + builder.ToString());
+                                        Log(Level.Info, builder.ToString());
                                     }
                                 }
                             } else if (formatter.Type == FormatterType.Plain) {
@@ -255,7 +255,7 @@ namespace NAnt.NUnit2.Tasks {
 
                                     writer = new StreamWriter(outputFile);
                                 } else {
-                                    writer = new LogWriter(this, Level.Info, LogPrefix, CultureInfo.InvariantCulture);
+                                    writer = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
                                 }
                                 CreateSummaryDocument(xmlResultFile, writer, test);
                                 writer.Close();
@@ -297,8 +297,7 @@ namespace NAnt.NUnit2.Tasks {
 
         private TestResult RunSingleRemoteTest(NUnit2Test test, FileInfo testAssembly, EventListener listener) {
             try {
-                LogWriter writer = new LogWriter(this, Level.Info, LogPrefix, 
-                    CultureInfo.InvariantCulture);
+                LogWriter writer = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
                 return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, 
                     listener);
@@ -306,7 +305,7 @@ namespace NAnt.NUnit2.Tasks {
                 if (HaltOnError) {
                     throw new BuildException("NUnit error.", Location, ex);
                 }
-                Log(Level.Error, LogPrefix + "NUnit error :" + ex.ToString());
+                Log(Level.Error, "NUnit error :" + ex.ToString());
                 return null;
             }
         }

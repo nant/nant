@@ -157,16 +157,16 @@ namespace NAnt.Core.Tasks {
                         Directory.FullName), Location);
                 }
                 
-                Log(Level.Info, LogPrefix + "Deleting directory '{0}'.", 
+                Log(Level.Info, "Deleting directory '{0}'.", 
                     Directory.FullName);
                 RecursiveDeleteDirectory(Directory.FullName);
             } else { // delete files or directories in fileset
                 if (DeleteFileSet.DirectoryNames.Count == 0) {
-                    Log(Level.Info, LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
+                    Log(Level.Info, "Deleting {0} files.", DeleteFileSet.FileNames.Count);
                 } else if (DeleteFileSet.FileNames.Count == 0) {
-                    Log(Level.Info, LogPrefix + "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
+                    Log(Level.Info, "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
                 } else {
-                    Log(Level.Info, LogPrefix + "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
+                    Log(Level.Info, "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
                 }
 
                 foreach (string path in DeleteFileSet.FileNames) {
@@ -201,7 +201,7 @@ namespace NAnt.Core.Tasks {
                 foreach (string file in files) {
                     try {
                         System.IO.File.SetAttributes(file, FileAttributes.Normal);
-                        Log(Level.Verbose, LogPrefix + "Deleting file '{0}'.", file);
+                        Log(Level.Verbose, "Deleting file '{0}'.", file);
                         System.IO.File.Delete(file);
                     } catch (Exception ex) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
@@ -209,14 +209,14 @@ namespace NAnt.Core.Tasks {
                         if (FailOnError) {
                             throw new BuildException(msg, Location, ex);
                         }
-                        Log(Level.Verbose, LogPrefix + msg);
+                        Log(Level.Verbose, msg);
                     }
                 }
 
                 // ensure path is not read-only
                 System.IO.File.SetAttributes(path, FileAttributes.Normal);
                 // write output to build log
-                Log(Level.Verbose, LogPrefix + "Deleting directory '{0}'.", path);
+                Log(Level.Verbose, "Deleting directory '{0}'.", path);
                 // finally, delete the directory
                 System.IO.Directory.Delete(path);
             } catch (BuildException ex) {
@@ -227,7 +227,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Verbose, LogPrefix + msg);
+                Log(Level.Verbose, msg);
             }
         }
 
@@ -236,7 +236,7 @@ namespace NAnt.Core.Tasks {
                 FileInfo deleteInfo = new FileInfo(path);
                 if (deleteInfo.Exists) {
                     if (verbose) {
-                        Log(Level.Info, LogPrefix + "Deleting file {0}.", path);
+                        Log(Level.Info, "Deleting file {0}.", path);
                     }
                     if (deleteInfo.Attributes != FileAttributes.Normal) {
                         System.IO.File.SetAttributes(deleteInfo.FullName, 
@@ -252,7 +252,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Verbose, LogPrefix + msg + " " + ex.Message);
+                Log(Level.Verbose, msg + " " + ex.Message);
             }
         }
 

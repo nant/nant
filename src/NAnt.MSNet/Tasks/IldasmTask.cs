@@ -508,7 +508,7 @@ namespace NAnt.MSNet.Tasks {
         /// </summary>
         private void BaseExecuteTask() {
             if (NeedsDisassembling()) {
-                Log(Level.Info, LogPrefix + "Disassembling '{0}' to '{1}'.",
+                Log(Level.Info, "Disassembling '{0}' to '{1}'.",
                     InputFile.FullName, OutputFile.FullName);
 
                 //
@@ -685,8 +685,7 @@ namespace NAnt.MSNet.Tasks {
         /// </returns>
         private bool NeedsDisassembling() {
             if (ForceRebuild) {
-                Log(Level.Verbose, LogPrefix +
-                    "'rebuild' attribute set to true, disassembling.");
+                Log(Level.Verbose, "'rebuild' attribute set to true, disassembling.");
 
                 return true;
             }
@@ -705,8 +704,8 @@ namespace NAnt.MSNet.Tasks {
                 InputFile.FullName, OutputFile.LastWriteTime);
 
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix +
-                    "'{0}' has been updated, disassembling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, disassembling.", 
+                    fileName);
 
                 return true;
             }

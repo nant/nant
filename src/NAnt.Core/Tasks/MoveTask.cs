@@ -144,7 +144,7 @@ namespace NAnt.Core.Tasks {
                     try {
                         // check if directory exists
                         if (Directory.Exists(sourcePath)) {
-                            Log(Level.Verbose, LogPrefix + "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
+                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
                             Directory.Move(sourcePath, destinationPath);
                         } else {
                             DirectoryInfo todir = new DirectoryInfo(destinationPath);
@@ -152,13 +152,13 @@ namespace NAnt.Core.Tasks {
                                 Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
                             }
 
-                            Log(Level.Verbose, LogPrefix + "Moving '{0}' to '{1}'.", sourcePath, destinationPath);
+                            Log(Level.Verbose, "Moving '{0}' to '{1}'.", sourcePath, destinationPath);
 
                             if (Overwrite) {
                                 // if destination file exists, remove it first if
                                 // in overwrite mode
                                 if (File.Exists(destinationPath)) {
-                                    Log(Level.Verbose, LogPrefix + "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
+                                    Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
                                     File.Delete(destinationPath);
                                 }
                             }
@@ -172,7 +172,7 @@ namespace NAnt.Core.Tasks {
                             Location, ex);
                     }
                 }
-                Log(Level.Info, LogPrefix + "{0} files moved.", FileCopyMap.Count);
+                Log(Level.Info, "{0} files moved.", FileCopyMap.Count);
             }
         }
 

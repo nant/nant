@@ -172,13 +172,16 @@ namespace NAnt.Win32.Tasks {
             // return true as soon as we know we need to compile
 
             if (!OutputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                    OutputFile.FullName);
                 return true;
             }
 
             // check if the assembly was changed since the typelib was generated
             string fileName = FileSet.FindMoreRecentLastWriteTime(AssemblyFile.FullName, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
                 return true;
             }
 
@@ -186,7 +189,8 @@ namespace NAnt.Win32.Tasks {
             if (NamesFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(NamesFile.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
                     return true;
                 }
             }

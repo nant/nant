@@ -179,13 +179,13 @@ namespace NAnt.Core.Tasks {
             XmlDocument document = null;
 
             try {
-                Log(Level.Verbose, LogPrefix + "Attempting to load XML document" 
+                Log(Level.Verbose, "Attempting to load XML document" 
                     + " in file '{0}'.", fileName);
 
                 document = new XmlDocument();
                 document.Load(fileName);
 
-                Log(Level.Verbose, LogPrefix + "XML document in file '{0}' loaded" 
+                Log(Level.Verbose, "XML document in file '{0}' loaded" 
                     + " successfully.", fileName);
                 return document;
             } catch (Exception ex) {
@@ -217,7 +217,7 @@ namespace NAnt.Core.Tasks {
             XmlNodeList nodes = null;
 
             try {
-                Log(Level.Verbose, LogPrefix + "Selecting nodes with XPath" 
+                Log(Level.Verbose, "Selecting nodes with XPath" 
                     + " expression '{0}'.", xpath);
 
                 nodes = document.SelectNodes(xpath, nsMgr);
@@ -225,10 +225,10 @@ namespace NAnt.Core.Tasks {
                 // report back how many we found if any. If not then
                 // log a message saying we didn't find any.
                 if (nodes.Count != 0) {
-                    Log(Level.Info, LogPrefix + "Found '{0}' nodes matching" 
+                    Log(Level.Info, "Found '{0}' nodes matching" 
                         + " XPath expression '{1}'.", nodes.Count, xpath);
                 } else {
-                    Log(Level.Warning, LogPrefix + "No matching nodes were found" 
+                    Log(Level.Warning, "No matching nodes were found" 
                         + " with XPath expression '{0}'.", xpath);
                 }
                 return nodes;
@@ -249,17 +249,17 @@ namespace NAnt.Core.Tasks {
         /// The text to replace the contents with.
         /// </param>
         private void UpdateNodes(XmlNodeList nodes, string value) {
-            Log(Level.Verbose, LogPrefix + "Updating nodes with value '{0}'.",
+            Log(Level.Verbose, "Updating nodes with value '{0}'.",
                 value);
                 
             int index = 0;
             foreach (XmlNode node in nodes) {
-                Log(Level.Verbose, LogPrefix + "Updating node '{0}'.", index);
+                Log(Level.Verbose, "Updating node '{0}'.", index);
                 node.InnerXml = value;
                 index ++;
             }
 
-            Log( Level.Verbose, LogPrefix + "Updated all nodes successfully.",
+            Log( Level.Verbose, "Updated all nodes successfully.",
                 value);
         }
         
@@ -270,12 +270,12 @@ namespace NAnt.Core.Tasks {
         /// <param name="fileName">The file name to save the XML document under.</param>
         private void SaveDocument(XmlDocument document, string fileName) {
             try {
-                Log(Level.Verbose, LogPrefix + "Attempting to save XML document" 
+                Log(Level.Verbose, "Attempting to save XML document" 
                     + " to '{0}'.", fileName);
 
                 document.Save(fileName);
                 
-                Log(Level.Verbose, LogPrefix + "XML document successfully saved" 
+                Log(Level.Verbose, "XML document successfully saved" 
                     + " to '{0}'.", fileName);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,

@@ -261,7 +261,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="writer">The <see cref="TextWriter" /> to which the package references should be written.</param>
         protected override void WritePackageReferences(TextWriter writer) {
             if (Packages.Count > 0) {
-                Log(Level.Warning, LogPrefix + "The Visual J# compiler does not" 
+                Log(Level.Warning, "The Visual J# compiler does not" 
                     + " support package references.");
             }
         }
@@ -284,7 +284,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
         protected override void WriteModuleReferences(TextWriter writer) {
             if (Modules.FileNames.Count > 0) {
-                Log(Level.Warning, LogPrefix + "The Visual J# compiler does not" 
+                Log(Level.Warning, "The Visual J# compiler does not" 
                     + " support linking modules.");
             }
         }

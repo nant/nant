@@ -53,20 +53,6 @@ namespace NAnt.Core.Util {
 
         #endregion Public Instance Constructors
 
-        #region Private Instance Properties
-
-        private string LogPrefix {
-            get { 
-                if (_task != null) {
-                    return _task.LogPrefix;
-                }
-
-                return string.Empty;
-            }
-        }
-    
-        #endregion Private Instance Properties
-
         #region Public Instance Methods
 
         /// <summary> 
@@ -116,14 +102,14 @@ namespace NAnt.Core.Util {
                 if (isFullName) {
                     if (assembly.FullName == args.Name) {
                         // output debug message
-                        Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from" 
+                        Log(Level.Debug, "Resolved assembly '{0}' from" 
                             + " loaded assemblies using full name.", args.Name);
                         // return assembly from AppDomain
                         return assembly;
                     }
                 } else if (assembly.GetName(false).Name == args.Name) {
                     // output debug message
-                    Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from" 
+                    Log(Level.Debug, "Resolved assembly '{0}' from" 
                         + " loaded assemblies using name.", args.Name);
                     // return assembly from AppDomain
                     return assembly;
@@ -134,7 +120,7 @@ namespace NAnt.Core.Util {
             if (isFullName) {
                 if (_assemblyCache.Contains(args.Name)) {
                     // output debug message
-                    Log(Level.Debug, LogPrefix + "Resolved assembly '{0}' from"
+                    Log(Level.Debug, "Resolved assembly '{0}' from"
                         + " cache using full name.", args.Name);
                     // return assembly from cache
                     return (Assembly) _assemblyCache[args.Name];
@@ -143,7 +129,7 @@ namespace NAnt.Core.Util {
                 foreach (Assembly assembly in _assemblyCache.Values) {
                     if (assembly.GetName(false).Name == args.Name) {
                         // output debug message
-                        Log(Level.Debug, LogPrefix + "Resolved assembly '{0}'"
+                        Log(Level.Debug, "Resolved assembly '{0}'"
                             + " from cache using name.", args.Name);
                         // return assembly from cache
                         return assembly;
@@ -152,7 +138,7 @@ namespace NAnt.Core.Util {
             }
 
             // output debug message
-            Log(Level.Debug, LogPrefix + "Assembly '{0}' could not be located.", 
+            Log(Level.Debug, "Assembly '{0}' could not be located.", 
                 args.Name);
 
             return null;
@@ -168,7 +154,7 @@ namespace NAnt.Core.Util {
             // store assembly in cache
             _assemblyCache[args.LoadedAssembly.FullName] = args.LoadedAssembly;
             // output debug message
-            Log(Level.Debug, LogPrefix + "Added assembly '{0}' to assembly cache.", 
+            Log(Level.Debug, "Added assembly '{0}' to assembly cache.", 
                 args.LoadedAssembly.FullName);
         }
 

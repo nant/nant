@@ -216,7 +216,7 @@ namespace NAnt.DotNet.Tasks {
 
             // write documenter project settings to temp file
             string projectFileName = Path.GetTempFileName(); //@"c:\work\nant\nant.xdp";
-            Log(Level.Verbose, LogPrefix + "Writing project settings to '{0}'.", projectFileName);
+            Log(Level.Verbose, "Writing project settings to '{0}'.", projectFileName);
 
             XmlTextWriter writer = new XmlTextWriter(projectFileName, Encoding.UTF8);
             writer.Formatting = Formatting.Indented;
@@ -286,7 +286,7 @@ namespace NAnt.DotNet.Tasks {
                 try {
                     documenter.Build(project);
                 } catch (Exception ex) {
-                    throw new BuildException(LogPrefix + "Error building documentation.", Location, ex);
+                    throw new BuildException("Error building documentation.", Location, ex);
                 }
             }
         }
@@ -302,7 +302,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
         private void OnDocBuildingStep(object sender, ProgressArgs e) {
-            Log(Level.Info, LogPrefix + e.Status);
+            Log(Level.Info, e.Status);
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
         private void OnDocBuildingProgress(object sender, ProgressArgs e) {
-            Log(Level.Verbose, LogPrefix + e.Progress + "% complete");
+            Log(Level.Verbose, e.Progress + "% complete");
         }
 
         /// <summary>        /// Returns the documenter for the given project.        /// </summary>        /// <exception cref="BuildException">Documenter <paramref name="documenterName" /> is not found.</exception>        /// <exception cref="ArgumentNullException"><paramref name="project" /> is <see langword="null" />.</exception>        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){

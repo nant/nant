@@ -240,20 +240,6 @@ namespace NAnt.VSNet {
 
         #endregion Protected Instance Properties
 
-        #region Private Instance Properties
-
-        private string LogPrefix {
-            get { 
-                if (_solutionTask != null) {
-                    return _solutionTask.LogPrefix;
-                }
-
-                return string.Empty;
-            }
-        }
-
-        #endregion Private Instance Properties
-
         #region Public Instance Methods
 
         public void GetCreationCommand(ConfigurationSettings cs, out string program, out string commandLine) {
@@ -606,10 +592,10 @@ namespace NAnt.VSNet {
                         }
                     }
                 } catch (Exception ex) {
-                    Log(Level.Verbose, LogPrefix + "Error resolve reference to '{0}' using"
+                    Log(Level.Verbose, "Error resolve reference to '{0}' using"
                         + " AssemblyFolderKey '{1}'.", _referenceFile,
                         assemblyFolderKey);
-                    Log(Level.Debug, LogPrefix + ex.ToString());
+                    Log(Level.Debug, ex.ToString());
                 }
             }
 
@@ -714,7 +700,7 @@ namespace NAnt.VSNet {
                             // if tlbimp is defined as import tool, but a primary
                             // interop assembly is available, then output a 
                             // warning
-                            Log(Level.Warning, LogPrefix + "The reference component"
+                            Log(Level.Warning, "The reference component"
                                 + " '{0}' has an updated custom wrapper available.", 
                                 referenceName);
                             break;

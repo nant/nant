@@ -103,13 +103,13 @@ namespace NAnt.Core.Tasks {
             FileInfo primaryFile = _targetFiles.MostRecentLastWriteTimeFile;
             if (primaryFile == null || !primaryFile.Exists) {
                 value = false;
-                Log(Level.Verbose, LogPrefix + "Destination file(s) do(es) not exist.");
+                Log(Level.Verbose, "Destination file(s) do(es) not exist.");
             } else {
                 string newerFile = FileSet.FindMoreRecentLastWriteTime(_sourceFiles.FileNames, primaryFile.LastWriteTime);
                 bool needsAnUpdate = (newerFile != null);
                 if (needsAnUpdate) {
                     value = false;
-                    Log(Level.Verbose, LogPrefix + "{0} is newer than {1}.", newerFile, primaryFile.Name);
+                    Log(Level.Verbose, "{0} is newer than {1}.", newerFile, primaryFile.Name);
                 }
             }
             Project.Properties[PropertyName] = Convert.ToString(value, CultureInfo.InvariantCulture);

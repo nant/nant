@@ -162,10 +162,10 @@ namespace NAnt.Core.Tasks {
         private void TouchFile(string path, DateTime touchDateTime) {
             try {
                 if (System.IO.File.Exists(path)) {
-                    Log(Level.Verbose, LogPrefix + "Touching file '{0}' with '{1}'.", 
+                    Log(Level.Verbose, "Touching file '{0}' with '{1}'.", 
                         path, touchDateTime.ToString(CultureInfo.InvariantCulture));
                 } else {
-                    Log(Level.Verbose, LogPrefix + "Creating file '{0}' with '{1}'.", 
+                    Log(Level.Verbose, "Creating file '{0}' with '{1}'.", 
                         path, touchDateTime.ToString(CultureInfo.InvariantCulture));
                     // create the file (and ensure stream is closed)
                     using (FileStream fs = System.IO.File.Create(path)) {
@@ -181,7 +181,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // swallow any errors and move on
-                Log(Level.Verbose, LogPrefix + msg + " " + ex.Message);
+                Log(Level.Verbose, msg + " " + ex.Message);
             }
         }
 

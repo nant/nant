@@ -211,7 +211,7 @@ namespace NAnt.VSNet {
                     } else if (buildAction == "EmbeddedResource") {
                         FileInfo fi = new FileInfo(sourceFile);
                         if (fi.Exists && fi.Length == 0) {
-                            Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resource '{0}'.", 
+                            Log(Level.Verbose, "Skipping zero-byte embedded resource '{0}'.", 
                                 fi.FullName);
                         } else {
                             string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
@@ -227,7 +227,7 @@ namespace NAnt.VSNet {
                         case "EmbeddedResource":
                             FileInfo resourceFile = new FileInfo(sourceFile);
                             if (resourceFile.Exists && resourceFile.Extension.ToLower(CultureInfo.InvariantCulture) == ".resx" && resourceFile.Length == 0) {
-                                Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resx '{0}'.", 
+                                Log(Level.Verbose, "Skipping zero-byte embedded resx '{0}'.", 
                                     resourceFile.FullName);
                             } else {
                                 string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
@@ -265,7 +265,7 @@ namespace NAnt.VSNet {
 
                 using (StreamWriter sw = File.CreateText(tempResponseFile)) {
                     if (CheckUpToDate(cs)) {
-                        Log(Level.Verbose, LogPrefix + "Project is up-to-date.");
+                        Log(Level.Verbose, "Project is up-to-date.");
                         if (ProjectSettings.RunPostBuildEvent != null) {
                             PostBuild(cs, true, false);
                         }
@@ -289,11 +289,11 @@ namespace NAnt.VSNet {
                         sw.WriteLine(_imports);
                     }
 
-                    Log(Level.Verbose, LogPrefix + "Copying references:");
+                    Log(Level.Verbose, "Copying references:");
 
                     foreach (Reference reference in _htReferences.Values) {
                         if (reference.CopyLocal) {
-                            Log(Level.Verbose, LogPrefix + " - " + reference.Name);
+                            Log(Level.Verbose, " - " + reference.Name);
 
                             if (reference.IsCreated) {
                                 string program, commandLine;
@@ -309,7 +309,7 @@ namespace NAnt.VSNet {
 
                                 // append the correct SDK directory to the program
                                 program = Path.Combine(SolutionTask.Project.TargetFramework.SdkDirectory.FullName, program);
-                                Log(Level.Verbose, LogPrefix + program + " " + commandLine);
+                                Log(Level.Verbose, program + " " + commandLine);
 
                                 ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
                                 psiRef.UseShellExecute = false;
@@ -379,7 +379,7 @@ namespace NAnt.VSNet {
                     }
 
                     if (_htResources.Count > 0) {
-                        Log(Level.Verbose, LogPrefix + "Compiling resources:");
+                        Log(Level.Verbose, "Compiling resources:");
                         foreach (Resource resource in _htResources.Values) {
                             // ignore resource files associated with a culture
                             if (resource.Culture != null) {
@@ -387,7 +387,7 @@ namespace NAnt.VSNet {
                                 continue;
                             }
 
-                            Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
+                            Log(Level.Verbose, " - {0}", resource.InputFile);
                             resource.Compile(cs);
 
                             sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
@@ -414,11 +414,11 @@ namespace NAnt.VSNet {
                     }
                 }
 
-                Log(Level.Verbose, LogPrefix + "Starting compiler...");
+                Log(Level.Verbose, "Starting compiler...");
 
                 if (SolutionTask.Verbose) {
                     using (StreamReader sr = new StreamReader(tempResponseFile)) {
-                        Log(Level.Verbose, LogPrefix + "Commands:");
+                        Log(Level.Verbose, "Commands:");
 
                         // increment indentation level
                         SolutionTask.Project.Indent();
@@ -430,7 +430,7 @@ namespace NAnt.VSNet {
                                     break;
                                 }
                                 // display line
-                                Log(Level.Verbose, LogPrefix + "    "  + line);
+                                Log(Level.Verbose, "    "  + line);
                             }
                         } finally {
                             // restore indentation level
@@ -499,13 +499,13 @@ namespace NAnt.VSNet {
                 p.WaitForExit();
 
                 int exitCode = p.ExitCode;
-                Log(Level.Verbose, LogPrefix + "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
+                Log(Level.Verbose, "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
 
                 if (exitCode > 0) {
                     bSuccess = false;
                 } else {
                     if (_isWebProject) {
-                        Log(Level.Verbose, LogPrefix + "Uploading output files...");
+                        Log(Level.Verbose, "Uploading output files...");
                         WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                         wdc.UploadFile(cs.OutputPath, cs.RelativeOutputDir.Replace(@"\", "/") 
                             + ProjectSettings.OutputFileName);
@@ -513,7 +513,7 @@ namespace NAnt.VSNet {
 
                     // copy any extra files over
                     foreach (string extraOutputFile in cs.ExtraOutputFiles) {
-                        Log(Level.Verbose, LogPrefix + "Deploying extra output files...");
+                        Log(Level.Verbose, "Deploying extra output files...");
 
                         FileInfo sourceFile = new FileInfo(extraOutputFile);
                         if (_isWebProject) {
@@ -543,7 +543,7 @@ namespace NAnt.VSNet {
 
                     // deploy the application configuration file, if available
                     if (_appConfigFile != null) {
-                        Log(Level.Verbose, LogPrefix + "Deploying application configuration file...");
+                        Log(Level.Verbose, "Deploying application configuration file...");
 
                         if (_isWebProject) {
                             WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
@@ -576,7 +576,7 @@ namespace NAnt.VSNet {
                 #region Process culture-specific resource files
 
                 if (bSuccess && haveCultureSpecificResources) {
-                    Log(Level.Verbose, LogPrefix + "Compiling satellite assemblies:");
+                    Log(Level.Verbose, "Compiling satellite assemblies:");
                     Hashtable cultures = new Hashtable();
                     foreach (Resource resource in _htResources.Values) {
                         // ignore resource files NOT associated with a culture
@@ -625,7 +625,7 @@ namespace NAnt.VSNet {
                         // increment indentation level
                         SolutionTask.Project.Indent();
                         try {
-                            Log(Level.Verbose, LogPrefix + " - {0}", culture);
+                            Log(Level.Verbose, " - {0}", culture);
                             // run assembly linker
                             al.Execute();
                         } finally {
@@ -644,7 +644,7 @@ namespace NAnt.VSNet {
                 }
 
                 if (!bSuccess ) {
-                    Log(Level.Error, LogPrefix + "Build failed.");
+                    Log(Level.Error, "Build failed.");
                 }
 
                 return bSuccess;
@@ -663,7 +663,7 @@ namespace NAnt.VSNet {
 
         private bool PreBuild(ConfigurationSettings cs) {
             string buildCommandLine = ProjectSettings.PreBuildEvent;
-            Log(Level.Debug, LogPrefix + "PreBuild commandline: {0}", buildCommandLine);
+            Log(Level.Debug, "PreBuild commandline: {0}", buildCommandLine);
             // check if there are pre build commands to be run
             if (buildCommandLine != null) {
                 // create a batch file for this, mirroring the behavior of VS.NET
@@ -692,7 +692,7 @@ namespace NAnt.VSNet {
 
         private bool PostBuild(ConfigurationSettings cs, bool bCompileSuccess, bool bOutputUpdated) {
             string buildCommandLine = ProjectSettings.PostBuildEvent;
-            Log(Level.Debug, LogPrefix + "PostBuild commandline: {0}", buildCommandLine);
+            Log(Level.Debug, "PostBuild commandline: {0}", buildCommandLine);
             // check if there are post build commands to be run
             if (buildCommandLine != null) {
                 // Create a batch file for this. This mirrors VS behavior. Also this
@@ -719,18 +719,18 @@ namespace NAnt.VSNet {
                         // the event will even run for a project that is up-to-date, 
                         // as long as the build succeeds
                         if (bCompileSuccess) {
-                            Log(Level.Debug, LogPrefix + "PostBuild+OnBuildSuccess+bCompileSuccess");
+                            Log(Level.Debug, "PostBuild+OnBuildSuccess+bCompileSuccess");
                             bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
                                 cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
                         } else {
-                            Log(Level.Debug, LogPrefix + "PostBuild+OnBuildSuccess");
+                            Log(Level.Debug, "PostBuild+OnBuildSuccess");
                             bBuildEventSuccess = true;
                         }
                         break;
                     case "Always":
                         // post-build event will run regardless of whether the 
                         // build succeeded
-                        Log(Level.Debug, LogPrefix + "PostBuild+Always");
+                        Log(Level.Debug, "PostBuild+Always");
                         bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
                             cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
                         break;
@@ -740,11 +740,11 @@ namespace NAnt.VSNet {
                         // previous compiler output file. Thus, a post-build 
                         // event will not run if a project is up-to-date
                         if (bOutputUpdated) {
-                            Log(Level.Debug, LogPrefix + "PostBuild+OnOutputUpdated+bOutputUpdated");
+                            Log(Level.Debug, "PostBuild+OnOutputUpdated+bOutputUpdated");
                             bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
                                 cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
                         } else {
-                            Log(Level.Debug, LogPrefix + "PostBuild+OnOutputUpdated");
+                            Log(Level.Debug, "PostBuild+OnOutputUpdated");
                             bBuildEventSuccess = true;
                         }
                         break;
@@ -782,9 +782,9 @@ namespace NAnt.VSNet {
             // returned errors
             int exitCode = batchEvent.ExitCode;
             if (exitCode == 0) {
-                Log(Level.Verbose, LogPrefix + "{0} succeeded (exit code = 0)", buildEvent);
+                Log(Level.Verbose, "{0} succeeded (exit code = 0)", buildEvent);
             } else {
-                Log(Level.Error, LogPrefix + "{0} failed with exit code = {1}", buildEvent, exitCode);
+                Log(Level.Error, "{0} failed with exit code = {1}", buildEvent, exitCode);
             }
             return (exitCode == 0) ? true : false;
         }
@@ -858,35 +858,35 @@ namespace NAnt.VSNet {
                             if (solutionPath != null) {
                                 commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(solutionPath));
                             } else {
-                                Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
+                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
                         case "$(solutionpath)": // Absolute path for SolutionFileName
                             if (solutionPath != null) {
                                 commandsExpanded = commandsExpanded.Replace(macro, solutionPath);
                             } else {
-                               Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
+                               Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
                         case "$(solutiondir)": // SolutionPath without SolutionFileName appended
                             if (solutionPath != null) {
                                 commandsExpanded = commandsExpanded.Replace(macro, Path.GetDirectoryName(solutionPath) + Path.DirectorySeparatorChar);
                             } else {
-                                Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
+                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
                         case "$(solutionname)": // E.g. WindowsApplication1
                             if (solutionPath != null) {
                                 commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileNameWithoutExtension(solutionPath));
                             } else {
-                                Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
+                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
                         case "$(solutionext)": // Is this ever anything but .sln?
                             if (solutionPath != null) {
                                 commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(solutionPath));
                             } else {
-                                Log(Level.Error, LogPrefix + "Pre/post event macro {0} can not be set, no solution file specified.", macro);
+                                Log(Level.Error, "Pre/post event macro {0} can not be set, no solution file specified.", macro);
                             }
                             break;
                         case "$(platformname)": // .NET, does this value ever change?
@@ -900,16 +900,16 @@ namespace NAnt.VSNet {
                            break; */
                         default:
                             // Signal errors for macros that do not exist
-                            Log(Level.Error, LogPrefix + "Pre/post event macro {0} not implemented.", macro);
+                            Log(Level.Error, "Pre/post event macro {0} not implemented.", macro);
                             break;
                     }
                     // Find the beginning of the next macro if any
                     startPosition = commands.IndexOf("$(", stopPosition);
                 }
-                Log(Level.Debug, LogPrefix + "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
+                Log(Level.Debug, "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
                 return commandsExpanded;
             } else { // No macro to replace
-                Log(Level.Debug, LogPrefix + "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
+                Log(Level.Debug, "Replaced command lines:{0} {1}.", Environment.NewLine, commandsExpanded);
                 return commandsExpanded;
             }
         }

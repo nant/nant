@@ -170,14 +170,16 @@ namespace NAnt.VisualCpp.Tasks {
             string header = Path.Combine(HeaderPath.FullName, Path.GetFileNameWithoutExtension(McFile.FullName)) + ".h";
             string rc = Path.Combine(RCPath.FullName, Path.GetFileNameWithoutExtension(McFile.FullName)) + ".rc";
             if (!NeedsCompiling(header) && !NeedsCompiling(rc)) {
-                Log(Level.Info, LogPrefix + "Target(s) up-to-date, not compiling '{0}'.", McFile.FullName);
+                Log(Level.Info, "Target(s) up-to-date, not compiling '{0}'.", 
+                    McFile.FullName);
             } else {
-                Log(Level.Info, LogPrefix + "Target out of date, compiling '{0}'.", McFile.FullName);
+                Log(Level.Info, "Target out of date, compiling '{0}'.", 
+                    McFile.FullName);
                 if (HeaderPath != null) {
-                    Log(Level.Info, LogPrefix + "Header file to '{0}'.", HeaderPath.FullName);
+                    Log(Level.Info, "Header file to '{0}'.", HeaderPath.FullName);
                 }
                 if (RCPath != null) {
-                    Log(Level.Info, LogPrefix + "RC file to '{0}'.", RCPath.FullName);
+                    Log(Level.Info, "RC file to '{0}'.", RCPath.FullName);
                 }
                 Log(Level.Info, "");
                 base.ExecuteTask();
@@ -201,7 +203,7 @@ namespace NAnt.VisualCpp.Tasks {
                 }
             } else {
                 // if the source file doesn't exist, let the compiler throw the error
-                Log(Level.Info, LogPrefix + "Source file '{0}' doesn't exist!", McFile.FullName);
+                Log(Level.Info, "Source file '{0}' doesn't exist!", McFile.FullName);
                 return true;
             }
         }

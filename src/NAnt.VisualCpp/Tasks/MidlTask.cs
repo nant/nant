@@ -310,7 +310,7 @@ namespace NAnt.VisualCpp.Tasks {
 
                     if (Verbose) {
                         // display response file contents
-                        Log(Level.Info, LogPrefix + "Contents of " + _responseFileName);
+                        Log(Level.Info, "Contents of " + _responseFileName);
                         StreamReader reader = File.OpenText(_responseFileName);
                         Log(Level.Info, reader.ReadToEnd());
                         reader.Close();
@@ -365,13 +365,15 @@ namespace NAnt.VisualCpp.Tasks {
                 BaseDirectory.FullName, outputFile));
             FileInfo outputFileInfo = new FileInfo(fullpath);
             if (!outputFileInfo.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                    outputFileInfo.FullName);
                 return true;
             }
             StringCollection sources = new StringCollection();
             sources.Add(Path.GetFullPath(Path.Combine(BaseDirectory.FullName, Filename )));
             string fileName = FileSet.FindMoreRecentLastWriteTime(sources, outputFileInfo.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Info, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' is out of date, recompiling.", fileName);
                 return true;
             }
             return false;

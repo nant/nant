@@ -131,16 +131,6 @@ namespace NAnt.VSNet {
             get { return _outputDir; }
         }
 
-        protected string LogPrefix {
-            get { 
-                if (SolutionTask != null) {
-                    return SolutionTask.LogPrefix;
-                }
-
-                return string.Empty;
-            }
-        }
-
         protected GacCache GacCache {
             get { return _gacCache; }
         }
@@ -156,16 +146,16 @@ namespace NAnt.VSNet {
         public bool Compile(string configuration) {
             ConfigurationBase configurationSettings = (ConfigurationBase) ProjectConfigurations[configuration];
             if (configurationSettings == null) {
-                Log(Level.Info, LogPrefix + "Configuration '{0}' does not exist. Skipping.", configuration);
+                Log(Level.Info, "Configuration '{0}' does not exist. Skipping.", configuration);
                 return true;
             }
 
             if (!BuildConfigurations.ContainsKey(configuration)) {
-                Log(Level.Info, LogPrefix + "Skipping '{0}' [{1}]...", Name, configuration);
+                Log(Level.Info, "Skipping '{0}' [{1}]...", Name, configuration);
                 return true;
             }
 
-            Log(Level.Info, LogPrefix + "Building '{0}' [{1}]...", Name, configuration);
+            Log(Level.Info, "Building '{0}' [{1}]...", Name, configuration);
 
             // ensure output directory exists
             configurationSettings.OutputDir.Create();

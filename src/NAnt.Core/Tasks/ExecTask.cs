@@ -260,7 +260,6 @@ namespace NAnt.Core.Tasks {
         /// Executes the external program.
         /// </summary>
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "{0} {1}", ProgramFileName, CommandLine);
             base.ExecuteTask();
             if (ResultProperty != null) {
                 Properties[ResultProperty] = base.ExitCode.ToString(

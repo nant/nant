@@ -175,7 +175,7 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             // get and print current date
             DateTime now = DateTime.Now;
-            Log(Level.Info, LogPrefix + "{0} {1}.", now.ToLongDateString(), now.ToLongTimeString());
+            Log(Level.Info, "{0} {1}.", now.ToLongDateString(), now.ToLongTimeString());
 
             // set default properties
             Properties["tstamp.date"] = now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
@@ -185,14 +185,14 @@ namespace NAnt.Core.Tasks {
             // set custom property
             if (_property != null && _pattern != null) {
                 Properties[_property] = now.ToString(_pattern, CultureInfo.InvariantCulture);
-                Log(Level.Verbose, LogPrefix + "{0} = {1}.", _property, Properties[_property].ToString(CultureInfo.InvariantCulture));
+                Log(Level.Verbose, "{0} = {1}.", _property, Properties[_property].ToString(CultureInfo.InvariantCulture));
             }
 
             // set properties set in formatters nested elements
             foreach (Formatter f in Formatters) {
                 if (IfDefined && !UnlessDefined) {
                     Properties[f.Property] = now.ToString(f.Pattern, CultureInfo.InvariantCulture);
-                    Log(Level.Verbose, LogPrefix + "{0} = {1}.", f.Property, Properties[f.Property].ToString(CultureInfo.InvariantCulture));
+                    Log(Level.Verbose, "{0} = {1}.", f.Property, Properties[f.Property].ToString(CultureInfo.InvariantCulture));
                 }
             }
         }

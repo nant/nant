@@ -402,7 +402,7 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
             if (!outputFile.Exists) {
-                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, recompiling.",
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.",
                     outputFile.FullName);
                 return true;
             }
@@ -410,14 +410,14 @@ namespace NAnt.DotNet.Tasks {
             // check if input file was updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(inputFile.FullName, outputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
             // check if reference assemblies were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, outputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 

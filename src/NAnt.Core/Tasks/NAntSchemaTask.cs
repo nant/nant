@@ -129,7 +129,7 @@ namespace NAnt.Core.Tasks {
                 file.Close();
             }
 
-            Log(Level.Info, LogPrefix + "Wrote schema to '{0}'.", OutputFile.FullName);
+            Log(Level.Info, "Wrote schema to '{0}'.", OutputFile.FullName);
         }
 
         #endregion Override implementation of Task

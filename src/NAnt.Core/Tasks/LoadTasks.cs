@@ -139,13 +139,13 @@ namespace NAnt.Core.Tasks {
             }
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
-                Log(Level.Info, LogPrefix + "Loading tasks from assembly '{0}'.", 
+                Log(Level.Info, "Loading tasks from assembly '{0}'.", 
                     assemblyPath);
                 TypeFactory.ScanAssembly(assemblyPath);
             }
             // now the filenames
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
-                Log(Level.Info, LogPrefix + "Scanning directory '{0}' for extension assemblies.", scanPath);
+                Log(Level.Info, "Scanning directory '{0}' for extension assemblies.", scanPath);
                 TypeFactory.ScanDir(scanPath);
             }
         }

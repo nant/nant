@@ -392,7 +392,7 @@ namespace NAnt.DotNet.Tasks {
                     Sources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
                 }
 
-                Log(Level.Info, LogPrefix + "Compiling {0} files to '{1}'.",
+                Log(Level.Info, "Compiling {0} files to '{1}'.",
                     Sources.FileNames.Count, OutputFile.FullName);
 
                 //
@@ -542,16 +542,14 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         private bool NeedsCompiling() {
             if (ForceRebuild) {
-                Log(Level.Verbose, LogPrefix +
-                    "'rebuild' attribute set to true, recompiling.");
+                Log(Level.Verbose, "'rebuild' attribute set to true, recompiling.");
 
                 return true;
             }
 
             // check if output file exists
             if (!OutputFile.Exists) {
-                Log(Level.Verbose, LogPrefix + 
-                    "Output file '{0}' does not exist, recompiling.", 
+                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
                     OutputFile.FullName);
 
                 return true;
@@ -562,8 +560,8 @@ namespace NAnt.DotNet.Tasks {
                 Sources.FileNames, OutputFile.LastWriteTime);
 
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix +
-                    "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
 
                 return true;
             }
@@ -574,8 +572,8 @@ namespace NAnt.DotNet.Tasks {
                     ResourceFile.FullName, OutputFile.LastWriteTime);
 
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix +
-                        "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
 
                     return true;
                 }
@@ -587,8 +585,8 @@ namespace NAnt.DotNet.Tasks {
                     KeyFile.FullName, OutputFile.LastWriteTime);
 
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix +
-                        "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
 
                     return true;
                 }

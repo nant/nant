@@ -217,7 +217,7 @@ namespace NAnt.Core.Tasks {
 
                 if (UseTimeStamp && DestinationFile.Exists) {
                     fileTimeStamp = DestinationFile.LastWriteTime;
-                    Log(Level.Verbose, LogPrefix + "Local file time stamp is {0}.", 
+                    Log(Level.Verbose, "Local file time stamp is {0}.", 
                         fileTimeStamp.ToString(CultureInfo.InvariantCulture));
                 }
 
@@ -241,7 +241,7 @@ namespace NAnt.Core.Tasks {
                                 "Unable to download '{0}' to '{1}'.", Source, 
                                 DestinationFile.FullName), Location);
                         } else {
-                            Log(Level.Warning, LogPrefix + "Unable to open connection to '{0}' (try {1} of 3): " + ex.Message, Source, tryCount);
+                            Log(Level.Warning, "Unable to open connection to '{0}' (try {1} of 3): " + ex.Message, Source, tryCount);
                         }
                     }
                 
@@ -253,7 +253,7 @@ namespace NAnt.Core.Tasks {
                 BinaryWriter destWriter = new BinaryWriter(new FileStream(
                     DestinationFile.FullName, FileMode.Create));
                 
-                Log(Level.Info, LogPrefix + "Retrieving '{0}' to '{1}'.", 
+                Log(Level.Info, "Retrieving '{0}' to '{1}'.", 
                     Source, DestinationFile.FullName);
 
                 // Read in stream from URL and write data in chunks
@@ -288,7 +288,7 @@ namespace NAnt.Core.Tasks {
                 if (totalBytesReadFromStream > bufferSize) {
                     Log(Level.Verbose, "");
                 }
-                Log(Level.Verbose, LogPrefix + "Number of bytes read: {0}.", 
+                Log(Level.Verbose, "Number of bytes read: {0}.", 
                     totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
 
                 // clean up response streams
@@ -315,7 +315,7 @@ namespace NAnt.Core.Tasks {
                         // get timestamp of remote file
                         DateTime remoteTimestamp = httpResponse.LastModified;
 
-                        Log(Level.Verbose, LogPrefix + "'{0}' last modified on {1}.", 
+                        Log(Level.Verbose, "'{0}' last modified on {1}.", 
                             Source, remoteTimestamp.ToString(CultureInfo.InvariantCulture));
 
                         // update timestamp of local file to match that of the 
@@ -339,7 +339,7 @@ namespace NAnt.Core.Tasks {
                         //and trace out something so the user doesn't think that the
                         //download happened when it didn't
 
-                        Log(Level.Verbose, LogPrefix + "'{0}' not downloaded.  Not modified since {1}.", 
+                        Log(Level.Verbose, "'{0}' not downloaded.  Not modified since {1}.", 
                             Source, httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
                         return;
                     } else {
@@ -369,7 +369,7 @@ namespace NAnt.Core.Tasks {
         protected void TouchFile(FileInfo file, DateTime touchDateTime) {
             try {
                 if (file.Exists) {
-                    Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", 
+                    Log(Level.Verbose, "Touching file {0} with {1}.", 
                         file.FullName, touchDateTime.ToString(CultureInfo.InvariantCulture));
                     file.LastWriteTime = touchDateTime;
                 } else {
@@ -377,7 +377,7 @@ namespace NAnt.Core.Tasks {
                 }
             } catch (Exception e) {
                 // swallow any errors and move on
-                Log(Level.Verbose, LogPrefix + "Error: {0}.", e.ToString());
+                Log(Level.Verbose, "Error: {0}.", e.ToString());
             }
         }
 

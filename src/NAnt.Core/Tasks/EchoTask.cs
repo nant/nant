@@ -207,11 +207,11 @@ namespace NAnt.Core.Tasks {
                 }
             } else { // output to build log
                 if (!StringUtils.IsNullOrEmpty(Message)) {
-                    Log(MessageLevel, LogPrefix + Message);
+                    Log(MessageLevel, Message);
                 } else if (!StringUtils.IsNullOrEmpty(Contents)) {
-                    Log(MessageLevel, LogPrefix + Contents);
+                    Log(MessageLevel, Contents);
                 } else {
-                    Log(MessageLevel, LogPrefix);
+                    Log(MessageLevel, string.Empty);
                 }
             }
         }                        protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }

@@ -141,13 +141,13 @@ namespace NAnt.Core.Tasks {
             
             //if we aren't supported to fail if the file is missing, then we should finish up now.
             if (!FailOnMissingFile && !File.Exists(includedFileName)) {
-                Log(Level.Verbose, LogPrefix + "Include file not found {0}({1})", includedFileName, BuildFileName);
+                Log(Level.Verbose, "Include file not found {0}({1})", includedFileName, BuildFileName);
                 return;
             }
            
             // has this file already been mapped ?
             if (Project.LocationMap.FileIsMapped(includedFileName)) {
-                Log(Level.Verbose, LogPrefix + "Duplicate include of file {0}.", includedFileName);
+                Log(Level.Verbose, "Duplicate include of file {0}.", includedFileName);
                 return;
             }
             
@@ -157,7 +157,7 @@ namespace NAnt.Core.Tasks {
             // increment the nesting level
             _nestinglevel ++;
             
-            Log(Level.Verbose, LogPrefix + "Including file {0}.", includedFileName);
+            Log(Level.Verbose, "Including file {0}.", includedFileName);
 
             // store original base directory
             string oldBaseDir = _currentBasedir;

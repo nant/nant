@@ -218,9 +218,9 @@ namespace NAnt.NUnit1.Tasks {
                 null, null, null
                 );
             RemoteNUnitTestRunner runner = (RemoteNUnitTestRunner)(oh.Unwrap());
-            Log(Level.Info, LogPrefix + "Running '{0}'.", test.Class);
+            Log(Level.Info, "Running '{0}'.", test.Class);
 
-            runner.Run(LogPrefix, Verbose);
+            runner.Run(string.Empty, Verbose);
             return runner.ResultCode;
         }
 
@@ -229,10 +229,10 @@ namespace NAnt.NUnit1.Tasks {
                 NUnitTestRunner runner = new NUnitTestRunner(test);
 
                 if (runner.NeedsRunning()) {
-                    Log(Level.Info, LogPrefix + "Running '{0}'.", test.Class);
-                    runner.Run(LogPrefix, Verbose);
+                    Log(Level.Info, "Running '{0}'.", test.Class);
+                    runner.Run(string.Empty, Verbose);
                 } else {
-                    Log(Level.Info, LogPrefix + "Skipping '{0}' because tests haven't changed.", test.Class);
+                    Log(Level.Info, "Skipping '{0}' because tests haven't changed.", test.Class);
                 }
                 return runner.ResultCode;
             } catch (Exception ex) {

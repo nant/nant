@@ -140,18 +140,17 @@ namespace NAnt.Core.Util {
                     "{0} {1} (Build {2}; {3}; {4})", productName, 
                     informationalVersion, assemblyVersion.ToString(4),
                     configurationInformation, releaseDate.ToShortDateString()); 
-                logoBanner.Append(Environment.NewLine);
 
                 // output copyright information
                 if (!StringUtils.IsNullOrEmpty(copyrightInformation)) {
-                    logoBanner.Append(copyrightInformation);
                     logoBanner.Append(Environment.NewLine);
+                    logoBanner.Append(copyrightInformation);
                 }
 
                 // output company information
                 if (!StringUtils.IsNullOrEmpty(companyInformation)) {
-                    logoBanner.Append(companyInformation);
                     logoBanner.Append(Environment.NewLine);
+                    logoBanner.Append(companyInformation);
                 }
 
                 return logoBanner.ToString();

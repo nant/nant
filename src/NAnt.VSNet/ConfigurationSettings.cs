@@ -71,7 +71,7 @@ namespace NAnt.VSNet {
                 Directory.CreateDirectory(Path.GetDirectoryName(_docFilename));
             }
 
-            _solutionTask.Log(Level.Debug, _solutionTask.LogPrefix + "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
+            _solutionTask.Log(Level.Debug, "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
                 Project.Name, _relativeOutputDir, _outputDir.FullName, _docFilename);
 
             Hashtable htStringSettings = new Hashtable();

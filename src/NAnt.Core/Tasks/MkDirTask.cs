@@ -73,12 +73,13 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             try {
                 if (!Dir.Exists) {
-                    Log(Level.Info, LogPrefix + "Creating directory '{0}'.", Dir.FullName);
+                    Log(Level.Info, "Creating directory '{0}'.", Dir.FullName);
                     Dir.Create();
                 }
             } catch (Exception ex) {
-                throw new BuildException(LogPrefix + string.Format(CultureInfo.InvariantCulture, 
-                    "Directory '{0}' could not be created.", Dir.FullName), Location, ex);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Directory '{0}' could not be created.", Dir.FullName), 
+                    Location, ex);
             }
         }
 

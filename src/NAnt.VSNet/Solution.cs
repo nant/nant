@@ -57,7 +57,7 @@ namespace NAnt.VSNet {
                 // translate URLs to physical paths if using a webmap
                 string map = _webMaps.FindBestMatch(project);
                 if (map != null) {
-                    Log(Level.Debug, LogPrefix + "Found webmap match '{0}' for '{1}.", 
+                    Log(Level.Debug, "Found webmap match '{0}' for '{1}.", 
                         map, project);
                     project = map;
                 }
@@ -87,7 +87,7 @@ namespace NAnt.VSNet {
                     // only C#, VB.NET and C++ projects are supported at this moment
                     if (!ProjectFactory.IsSupportedProjectType(project)) {
                         // output a warning message in the build log
-                        Log(Level.Warning, LogPrefix + "Only C#, VB.NET and C++ projects" +
+                        Log(Level.Warning, "Only C#, VB.NET and C++ projects" +
                             " are supported.  Skipping project '{0}'.", project);
                         // skip the project
                         continue;
@@ -172,20 +172,6 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Properties
 
-        #region Private Instance Properties
-
-        private string LogPrefix {
-            get { 
-                if (_solutionTask != null) {
-                    return _solutionTask.LogPrefix;
-                }
-
-                return string.Empty;
-            }
-        }
-
-        #endregion Private Instance Properties
-
         #region Public Instance Methods
 
         public void RecursiveLoadTemplateProject(string fileName) {
@@ -197,7 +183,7 @@ namespace NAnt.VSNet {
                 XmlNode fileNode = node.SelectSingleNode("FILE");
 
                 if (fileNode == null) {
-                    Log(Level.Warning, LogPrefix + "Reference with missing <FILE> node. Skipping.");
+                    Log(Level.Warning, "Reference with missing <FILE> node. Skipping.");
                     continue;
                 }
 
@@ -209,7 +195,7 @@ namespace NAnt.VSNet {
                     // translate URLs to physical paths if using a webmap
                     string map = _webMaps.FindBestMatch(subProjectFilename);
                     if (map != null) {
-                        Log(Level.Debug, LogPrefix + "Found webmap match '{0}' for '{1}.", 
+                        Log(Level.Debug, "Found webmap match '{0}' for '{1}.", 
                             map, subProjectFilename);
                         subProjectFilename = map;
                     }
@@ -239,7 +225,7 @@ namespace NAnt.VSNet {
                         _htProjectFiles[projectGuidNode.InnerText] = fullPath;
                     }
                 } else {
-                    Log(Level.Verbose, LogPrefix + "Skipping file reference '{0}'.", 
+                    Log(Level.Verbose, "Skipping file reference '{0}'.", 
                         fileNode.InnerText);
                 }
             }
@@ -294,7 +280,7 @@ namespace NAnt.VSNet {
 
                         if (!failed) {
                             // Fixup references
-                            Log(Level.Verbose, LogPrefix + "Fixing up references...");
+                            Log(Level.Verbose, "Fixing up references...");
 
                             foreach (Reference reference in p.References) {
                                 // store original reference filename
@@ -340,7 +326,7 @@ namespace NAnt.VSNet {
 
                                 // only output message when reference has actually been fixed up
                                 if (originalReference != reference.Filename) {
-                                    Log(Level.Verbose, LogPrefix + "Fixed reference '{0}': {1} -> {2}.", 
+                                    Log(Level.Verbose, "Fixed reference '{0}': {1} -> {2}.", 
                                         reference.Name, originalReference, reference.Filename);
                                 }
                             }
@@ -349,8 +335,8 @@ namespace NAnt.VSNet {
                         try {
                             if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration))) {
                                 if (!failed) {
-                                    Log(Level.Error, LogPrefix + "Project '{0}' failed!", p.Name);
-                                    Log(Level.Error, LogPrefix + "Continuing build with non-dependent projects.");
+                                    Log(Level.Error, "Project '{0}' failed!", p.Name);
+                                    Log(Level.Error, "Continuing build with non-dependent projects.");
                                     failedProjects.Add( p.Name );
                                 }
 
@@ -390,10 +376,10 @@ namespace NAnt.VSNet {
             }
 
             if (failedProjects.Count > 0) {
-                Log(Level.Error, LogPrefix);
-                Log(Level.Error, LogPrefix + "Solution failed to build!  Failed projects were:" );
+                Log(Level.Error, string.Empty);
+                Log(Level.Error, "Solution failed to build!  Failed projects were:" );
                 foreach (string projectName in failedProjects)
-                    Log(Level.Error, LogPrefix + "  - " + projectName );
+                    Log(Level.Error, "  - " + projectName );
             }
 
             return success;
@@ -521,7 +507,7 @@ namespace NAnt.VSNet {
         /// <param name="refResolver"><see cref="ReferencesResolver" /> instance to use to determine location and references of assemblies.</param>
         /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
         private void LoadProjects(GacCache gacCache, ReferencesResolver refResolver) {
-            Log(Level.Verbose, LogPrefix + "Loading projects...");
+            Log(Level.Verbose, "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;
 
@@ -540,7 +526,7 @@ namespace NAnt.VSNet {
                 // check whether project should be excluded from build
                 foreach (string excludedProjectFile in excludes.FileNames) {
                     if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
-                        Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
+                        Log(Level.Verbose, "Excluding project '{0}'.", 
                             projectPath);
                         // do not load project
                         skipProject = true;
@@ -554,7 +540,7 @@ namespace NAnt.VSNet {
                     continue;
                 }
 
-                Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
+                Log(Level.Verbose, "Loading project '{0}'.", projectPath);
                 ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, refResolver, _outputDir, projectPath);
                 if (p.Guid == null || p.Guid == string.Empty) {
                     p.Guid = FindGuidFromPath(projectPath);
@@ -592,7 +578,7 @@ namespace NAnt.VSNet {
         }
 
         private void GetDependenciesFromProjects() {
-            Log(Level.Verbose, LogPrefix + "Gathering additional dependencies...");
+            Log(Level.Verbose, "Gathering additional dependencies...");
 
             // first get all of the output files
             foreach (DictionaryEntry de in _htProjects) {

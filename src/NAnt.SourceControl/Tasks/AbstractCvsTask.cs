@@ -390,12 +390,9 @@ namespace NAnt.SourceControl.Tasks {
 
             AppendCommandOptions();
 
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
-                "{0} commandline args are null: {1}", 
-                LogPrefix, ((null == CommandLineArguments) ? "yes" : "no")));
-            Log(Level.Debug, String.Format(CultureInfo.InvariantCulture,
-                "{0} commandline: {1}", 
-                LogPrefix, CommandLineArguments));
+            Log(Level.Debug, "Commandline args are null: {0}", 
+                ((null == CommandLineArguments) ? "yes" : "no"));
+            Log(Level.Debug, "Commandline: {0}", CommandLineArguments);
             if (null != CommandLineArguments) {
                 Arguments.Add(new Argument(CommandLineArguments));
             }
@@ -411,16 +408,11 @@ namespace NAnt.SourceControl.Tasks {
             base.PrepareProcess(process);
             process.StartInfo.FileName = ExeName;
 
-            process.StartInfo.WorkingDirectory = 
-                DestinationDirectory.FullName;
+            process.StartInfo.WorkingDirectory = DestinationDirectory.FullName;
 
-            Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} working directory: {1}", 
-                LogPrefix, process.StartInfo.WorkingDirectory));
-            Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} executable: {1}", 
-                LogPrefix, process.StartInfo.FileName));
-            Log(Level.Info, String.Format(CultureInfo.InvariantCulture,"{0} arguments: {1}", 
-                LogPrefix, process.StartInfo.Arguments));
-
+            Log(Level.Verbose, "Working directory: {0}", process.StartInfo.WorkingDirectory);
+            Log(Level.Verbose, "Executable: {0}", process.StartInfo.FileName);
+            Log(Level.Verbose, "Arguments: {0}", process.StartInfo.Arguments);
         }
 
         #endregion
@@ -429,8 +421,7 @@ namespace NAnt.SourceControl.Tasks {
 
         private void AppendGlobalOptions () {
             foreach (Option option in GlobalOptions.Values) {
-                //              Log(Level.Verbose, 
-                //                  String.Format(CultureInfo.InvariantCulture,"{0} Type '{1}'.", LogPrefix, optionte.GetType()));
+                // Log(Level.Verbose, "Type '{0}'.", optionte.GetType());
                 if (!option.IfDefined || option.UnlessDefined) {
                     // skip option
                     continue;

@@ -132,13 +132,15 @@ namespace NAnt.VisualCpp.Tasks {
             // return true as soon as we know we need to compile
 
             if (!OutputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
+                    OutputFile.FullName);
                 return true;
             }
 
-            //Sources Updated?
+            // check if sources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date, relinking.", fileName);
+                Log(Level.Verbose, "'{0}' is out of date, relinking.", fileName);
                 return true;
             }
 
@@ -160,7 +162,7 @@ namespace NAnt.VisualCpp.Tasks {
             }
 
             if (NeedsLinking()) {
-               Log(Level.Info, LogPrefix + "Linking {0} files to '{1}'.", 
+               Log(Level.Info, "Linking {0} files to '{1}'.", 
                    Sources.FileNames.Count, OutputFile.FullName);
   
                // create temp response file to hold compiler options
@@ -194,7 +196,7 @@ namespace NAnt.VisualCpp.Tasks {
   
                    if (Verbose) {
                        // display response file contents
-                       Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
+                       Log(Level.Info, "Contents of {0}.", _responseFileName);
                        StreamReader reader = File.OpenText(_responseFileName);
                        Log(Level.Info, reader.ReadToEnd());
                        reader.Close();

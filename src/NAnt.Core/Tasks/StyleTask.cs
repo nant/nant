@@ -281,7 +281,7 @@ namespace NAnt.Core.Tasks {
                             Directory.SetCurrentDirectory(srcInfo.DirectoryName);
 
                             // load the xml that needs to be transformed
-                            Log(Level.Verbose, LogPrefix + "Loading XML file '{0}'.", 
+                            Log(Level.Verbose, "Loading XML file '{0}'.", 
                                 srcInfo.FullName);
                             xmlReader = CreateXmlReader(srcInfo.FullName);
                             xml = new XPathDocument(xmlReader);
@@ -300,7 +300,7 @@ namespace NAnt.Core.Tasks {
                             Directory.SetCurrentDirectory(XsltFile.DirectoryName);
 
                             // load the stylesheet
-                            Log(Level.Verbose, LogPrefix + "Loading stylesheet '{0}'.", 
+                            Log(Level.Verbose, "Loading stylesheet '{0}'.", 
                                 XsltFile.FullName);
                             xslReader = CreateXmlReader(XsltFile.FullName);
                             xslt.Load(xslReader);
@@ -324,7 +324,7 @@ namespace NAnt.Core.Tasks {
                         writer = CreateWriter(destInfo.FullName);
 
                         // do the actual transformation 
-                        Log(Level.Info, LogPrefix + "Processing '{0}' to '{1}'.", 
+                        Log(Level.Info, "Processing '{0}' to '{1}'.", 
                             srcInfo.FullName, destInfo.FullName);
                         xslt.Transform(xml, xsltArgs, writer);
                     } catch (Exception ex) {
