@@ -274,6 +274,19 @@ namespace NAnt.VSNet {
                     tlbImp.SysArray = true;
 
                     // use other imported type libraries to resolve references
+                    //
+                    // there's one serious limitation in the current implementation:
+                    //
+                    // if type library A references type library B, then we should 
+                    // first import type library B and use a reference to that 
+                    // imported type library when we import type library A.
+                    // 
+                    // however, we  have no way to find out in which order the type
+                    // libraries should be imported. So only if type library B is 
+                    // first listed in the project file, it will work fine.
+                    //
+                    // we should find a way to analyse a type library to determine
+                    //dependencies on other type libraries
                     foreach (ReferenceBase reference in Parent.References) {
                         // we're only interested in imported type libraries
                         WrapperReference wrapper = reference as WrapperReference;
