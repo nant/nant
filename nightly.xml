@@ -45,6 +45,16 @@
             <arg value="${path::get-file-name(project.gzip-path.bin)}" />
             <arg value="${serverpart}/${nightly.builds.path}/${project.name}-bin.tar.gz" />
         </exec>
+        <!-- copy the gzipped tar help distribution to sourceforge -->
+        <exec workingdir="${path::get-directory-name(project.gzip-path.help)}" program="scp">
+            <arg value="${path::get-file-name(project.gzip-path.help)}" />
+            <arg value="${serverpart}/${nightly.builds.path}/help.tar.gz" />
+        </exec>
+        <!-- extract the help distribution on sourceforge -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="cd ${sf.net.web.path}/${nightly.builds.path} && tar -xzf help.tar.gz && rm help.tar.gz -f" />
+        </exec>
         <echo message="Copied nightly build over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">

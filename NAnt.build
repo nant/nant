@@ -279,6 +279,7 @@
                         <!-- set the name and version of the product for which docs are generated -->
                         <property name="ProductName" value="NAnt" />
                         <property name="ProductVersion" value="${project.version}" />
+                        <property name="ProductUrl" value="http://nant.sourceforge.net" />                        
                         <property name="Preliminary" value="${not(project.release.type == 'release')}" />
                         <property name="DocumentAttributes" value="True" />
                         <property name="IncludeAssemblyVersion" value="True" />
@@ -501,6 +502,20 @@
         <if test="${not(project.release.type == 'release')}">
             <property name="project.zip.prefix" value="${project.name}-${project.version}-${project.release.type}" />
         </if>
+    </target>
+
+    <target name="package-help" depends="package-common">
+        <!-- determine name of help distribution -->
+        <property name="project.gzip-path.help" value="${project::get-base-directory()}/build/${project.name}-${project.version}-help.tar.gz" />
+        <!-- remove package gzip file if it already exists -->
+        <delete file="${project.gzip-path.help}" if="${file::exists(project.gzip-path.help)}" />
+        <!-- create package gzip file -->
+        <tar destfile="${project.gzip-path.help}" compression="GZip">
+            <fileset basedir="${build.dir}/doc">
+                <include name="help/**/*" />
+            </fileset>
+        </tar>
+        <echo message="Created '${project.config}' help package at file://${project::get-base-directory()}/build/" />
     </target>
 
     <target name="package-src" depends="package-common">
