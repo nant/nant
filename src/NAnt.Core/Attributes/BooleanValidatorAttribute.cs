@@ -43,7 +43,8 @@ namespace NAnt.Core.Attributes {
         /// </summary>
         /// <param name="value">The value to be checked.</param>
         /// <returns>
-        /// <c>true</c> if the value can be converted to a <see cref="bool" />; otherwise, <c>false</c>.
+        /// <c>true</c> if the value can be converted to a <see cref="bool" />;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public override bool Validate(object value) {
             try {
