@@ -101,7 +101,7 @@
                 <File
                     RelPath = "NAnt.Console\NAnt.Console.build"
                     SubType = "Content"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Console\NAntTest.cs"
@@ -111,7 +111,7 @@
                 <File
                     RelPath = "NAnt.Core\NAnt.Core.build"
                     SubType = "Content"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Core\BuildTestBase.cs"
@@ -316,7 +316,7 @@
                 <File
                     RelPath = "NAnt.DotNet\NAnt.DotNet.build"
                     SubType = "Content"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.DotNet\Tasks\CscTaskTest.cs"
@@ -341,7 +341,7 @@
                 <File
                     RelPath = "NAnt.VisualCpp\NAnt.VisualCpp.build"
                     SubType = "Content"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.VisualCpp\Tasks\ClTaskTest.cs"
@@ -361,12 +361,12 @@
                 <File
                     RelPath = "NAnt.Win32\NAnt.Win32.build"
                     SubType = "Content"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Zip\NAnt.Zip.build"
                     SubType = "Content"
-                    BuildAction = "Compile"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAnt.Zip\Tasks\ZipTaskTest.cs"
