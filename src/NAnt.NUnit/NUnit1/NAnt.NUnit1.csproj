@@ -68,7 +68,7 @@
                 <Reference
                     Name = "NUnitCore"
                     AssemblyName = "NUnitCore"
-                    HintPath = "..\..\..\bin\NUnitCore.dll"
+                    HintPath = "..\..\..\lib\NUnitCore.dll"
                 />
             </References>
         </Build>
