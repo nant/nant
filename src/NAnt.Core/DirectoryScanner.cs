@@ -171,7 +171,7 @@ namespace SourceForge.NAnt {
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
             convertPatterns(_includes, _includePatterns, true);
-            convertPatterns(_excludes, _excludePatterns, false);
+            convertPatterns(_excludes, _excludePatterns, true);
             
             for (int index = 0; index < _searchDirectories.Count; index++) {
                 ScanDirectory(_searchDirectories[index], (bool)_searchDirIsRecursive[index]);
