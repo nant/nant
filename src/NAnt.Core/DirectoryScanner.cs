@@ -786,6 +786,14 @@ namespace NAnt.Core {
                 seperator = @"\\";
             }
 
+            // workaround for mono bug #72166
+            string replacementSeparator = null;
+            if (PlatformHelper.IsMono && seperator == @"\\") {
+                replacementSeparator = "MONOBUG72166";
+            } else {
+                replacementSeparator = seperator;
+            }
+
             // Convert NAnt pattern characters to regular expression patterns.
 
             // Start with ? - it's used below
@@ -794,25 +802,29 @@ namespace NAnt.Core {
             // SPECIAL CASE: any *'s directory between slashes or at the end of the
             // path are replaced with a 1..n pattern instead of 0..n: (?<=\\)\*(?=($|\\))
             // This ensures that C:\*foo* matches C:\foo and C:\* won't match C:.
-            pattern = new StringBuilder(Regex.Replace(pattern.ToString(), "(?<=" + seperator + ")\\*(?=($|" + seperator + "))", "[^" + seperator + "]+"));
+            pattern = new StringBuilder(Regex.Replace(pattern.ToString(), "(?<=" + seperator + ")\\*(?=($|" + seperator + "))", "[^" + replacementSeparator + "]+"));
             
             // SPECIAL CASE: to match subdirectory OR current directory, If
             // we do this then we can write something like 'src/**/*.cs'
             // to match all the files ending in .cs in the src directory OR
             // subdirectories of src.
-            pattern.Replace(seperator + "**" + seperator, seperator + "(.|?" + seperator + ")?" );
-            pattern.Replace("**" + seperator, ".|(?<=^|" + seperator + ")" );
-            pattern.Replace(seperator + "**", "(?=$|" + seperator + ").|" );
+            pattern.Replace(seperator + "**" + seperator, replacementSeparator + "(.|?" + replacementSeparator + ")?" );
+            pattern.Replace("**" + seperator, ".|(?<=^|" + replacementSeparator + ")" );
+            pattern.Replace(seperator + "**", "(?=$|" + replacementSeparator + ").|" );
 
             // .| is a place holder for .* to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
-            pattern.Replace("*", "[^" + seperator + "]*");
+            pattern.Replace("*", "[^" + replacementSeparator + "]*");
             pattern.Replace(".|", ".*"); // replace place holder string
 
             // Help speed up the search
             if (pattern.Length > 0) {
                 pattern.Insert(0, '^'); // start of line
                 pattern.Append('$'); // end of line
+            }
+
+            if (PlatformHelper.IsMono && seperator == @"\\") {
+                pattern.Replace("MONOBUG72166", seperator);
             }
 
             string patternText = pattern.ToString();
