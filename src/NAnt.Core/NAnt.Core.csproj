@@ -291,6 +291,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\AvailableTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\CallTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
