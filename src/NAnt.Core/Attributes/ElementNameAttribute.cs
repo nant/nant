@@ -65,7 +65,6 @@ namespace NAnt.Core.Attributes {
         public string Name {
             get { return _name; }
             set { 
-
                 _name = value.Trim(); 
             }
         }

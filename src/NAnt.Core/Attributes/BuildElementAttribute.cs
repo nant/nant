@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2003 Gerry Shaw
+// Copyright (C) 2001-2004 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -96,13 +96,24 @@ namespace NAnt.Core.Attributes {
             get { return _required; }
             set { _required = value; }
         }
-
+        /// <summary>
+        /// Used to specify how this element will be handled as the xml is parsed and given to the element.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if xml should be processed; otherwise 
+        /// <see langword="false" />. The default is <see langword="true" />.
+        /// </value>
+        public bool ProcessXML {
+            get { return _processXML; }
+            set { _processXML = value; }
+        }
         #endregion Public Instance Properties
 
         #region Private Instance Fields
 
         private string _name;
-        private bool _required;
+        private bool _required = false;
+        private bool _processXML = true;
 
         #endregion Private Instance Fields
 

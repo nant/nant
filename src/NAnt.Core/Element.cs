@@ -532,11 +532,25 @@ namespace NAnt.Core {
                         Attribute.GetCustomAttribute(propertyInfo, typeof(BuildAttributeAttribute));
 
                     if (buildAttribute != null) {
+                        
+                        //if we don't process the xml then skip on..
+                        if(!buildAttribute.ProcessXML) {
+                            logger.Debug(string.Format(
+                                CultureInfo.InvariantCulture,
+                                "Skipping {0} <attribute> for {1}", 
+                                buildAttribute.Name, 
+                                propertyInfo.DeclaringType.FullName));
+                        
+                            //skip this one.
+                            continue;
+                        }
+
                         logger.Debug(string.Format(
                             CultureInfo.InvariantCulture,
                             "Found {0} <attribute> for {1}", 
                             buildAttribute.Name, 
                             propertyInfo.DeclaringType.FullName));
+                        
 
                         // locate attribute in build file
                         attributeNode = XmlNode.Attributes[buildAttribute.Name];
@@ -646,8 +660,17 @@ namespace NAnt.Core {
                                 Name), Location);
                         }
                     
+                        
                         Type elementType = null;
-
+                        if (buildElementArrayAttribute != null) {
+                            if(!buildElementArrayAttribute.ProcessXML) {
+                                continue;
+                            }
+                        } else {
+                            if(!buildElementCollectionAttribute.ProcessXML) {
+                                continue;
+                            }
+                        }
                         // determine type of child elements
                         if (buildElementArrayAttribute != null) {
                             elementType = buildElementArrayAttribute.ElementType;
@@ -885,6 +908,9 @@ namespace NAnt.Core {
                         Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute));
 
                     if (buildElementAttribute != null && buildElementArrayAttribute == null && buildElementCollectionAttribute == null) { // if we're not an array element either
+                        if(!buildElementAttribute.ProcessXML){
+                            continue;
+                        }
                         // get value from XML node
                         XmlNode nestedElementNode = elementNode[buildElementAttribute.Name, elementNode.OwnerDocument.DocumentElement.NamespaceURI]; 
 
@@ -921,17 +947,20 @@ namespace NAnt.Core {
                 if(!(currentType.Equals(typeof(Target)) || currentType.IsSubclassOf(typeof(Target)))) {
                     #region Check Tracking Collections for Attribute and Element use
 
+                    //find all the unused attributes
                     foreach (string attr in attribs) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
                             "{2}:Did not use {0} of <{1} ... />?", attr, 
                             currentType.Name, Location);
-                        logger.Info(msg);
+                        logger.Warn(msg);
                     }
+                    
+                    //find all the unused elements
                     foreach (string element in childElementsRemaining) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
                             "Did not use <{0} ... /> under <{1} />?", element, 
                             currentType.Name);
-                        logger.Info(msg);
+                        logger.Warn(msg);
                     }
 
                     #endregion Check Tracking Collections for Attribute and Element use
