@@ -309,13 +309,6 @@
             <arg value="${project.config}" />
             <arg value="self-sdkdoc" />
         </exec>
-        <!-- delete everything but the .chm -->
-        <delete>
-            <fileset basedir="${build.dir}/doc/sdk">
-                <include name="**/*" />
-                <exclude name="NAnt-SDK.chm" />
-            </fileset>
-        </delete>
     </target>
     <target name="self-sdkdoc" depends="init">
         <!-- use ndoc to build sdk doc if they are not uptodate-->
@@ -341,7 +334,7 @@
                 <documenters>
                     <documenter name="MSDN">
                         <property name="OutputDirectory" value="${build.dir}/doc/sdk" />
-                        <property name="OutputTarget" value="HtmlHelp" />
+                        <property name="OutputTarget" value="HtmlHelpAndWeb" />
                         <property name="SdkDocVersion" value="${link.sdkdoc.version}" />
                         <property name="SdkLinksOnWeb" value="${link.sdkdoc.web}" />
                         <property name="HtmlHelpName" value="NAnt-SDK" />
@@ -370,6 +363,17 @@
                 </documenters>
             </ndoc>
         </if>
+       <!-- delete all intermediate build output -->
+        <delete>
+            <fileset basedir="${build.dir}/doc/sdk">
+                <include name="NAnt-SDK.hhc" />
+                <include name="NAnt-SDK.hhk" />
+                <include name="NAnt-SDK.hhp" />
+                <include name="NAnt-SDK.log" />
+                <!-- temporary directory -->
+                <include name="ndoc_msdn_temp" />
+            </fileset>
+        </delete>        
     </target>
     
     <target name="self-schema" depends="init">
@@ -505,25 +509,34 @@
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.src}" if="${file::exists(project.zip-path.src)}" />
         <!-- create package zip file -->
-        <zip zipfile="${project.zip-path.src}">
+        <zip zipfile="${project.zip-path.src}" ziplevel="9">
             <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
                 <include name="Makefile" />
                 <include name="NAnt.build" />
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
-                
+                <!-- NAnt assemblies necessary for bootstrap -->
                 <include name="bin/NAnt.exe" />
                 <include name="bin/NAnt.exe.config" />
                 <include name="bin/NAnt.Core.dll" />
                 <include name="bin/NAnt.DotNetTasks.dll" />
                 <include name="bin/NAnt.Win32Tasks.dll" />
                 <include name="bin/NAnt.CompressionTasks.dll" />
+                <!-- third party assemblies -->
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
-                <include name="doc/**/*" />
+                <!-- NAnt web site -->
+                <include name="doc/*" />
+                <!-- NAnt user manual -->
+                <include name="doc/help/**" />
+                <!-- NAnt SDK doc (in HTML Help format) -->
+                <include name="doc/sdk/NAnt-SDK.chm" />
+                <!-- NAnt examples -->
                 <include name="examples/**/*" />
+                <!-- NAnt sources -->
                 <include name="src/**/*" />
+                <!-- NAnt unit tests -->
                 <include name="tests/**/*" />
             </fileset>
         </zip>
@@ -539,18 +552,28 @@
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
-                
+                <!-- NAnt assemblies necessary for bootstrap -->
                 <include name="bin/NAnt.exe" />
                 <include name="bin/NAnt.exe.config" />
                 <include name="bin/NAnt.Core.dll" />
                 <include name="bin/NAnt.DotNetTasks.dll" />
                 <include name="bin/NAnt.Win32Tasks.dll" />
                 <include name="bin/NAnt.CompressionTasks.dll" />
+                <!-- third party assemblies -->
                 <include name="bin/log4net.dll" />
                 <include name="bin/lib/**/*" />
-                <include name="doc/**/*" />
+                <!-- NAnt web site -->
+                <include name="doc/*" />
+                <!-- NAnt user manual -->
+                <include name="doc/help/**" />
+                <!-- NAnt SDK doc (in HTML format) -->
+                <include name="doc/sdk/*" />
+                <exclude name="doc/sdk/NAnt-SDK.chm" />
+                <!-- NAnt examples -->
                 <include name="examples/**/*" />
+                <!-- NAnt sources -->
                 <include name="src/**/*" />
+                <!-- NAnt unit tests -->
                 <include name="tests/**/*" />
             </fileset>
         </tar>
@@ -563,7 +586,7 @@
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.bin}" if="${file::exists(project.zip-path.bin)}" />
         <!-- create package zip file -->
-        <zip zipfile="${project.zip-path.bin}">
+        <zip zipfile="${project.zip-path.bin}" ziplevel="9">
             <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
@@ -571,6 +594,8 @@
                 <include name="doc/**/*" />
                 <include name="examples/**/*" />
                 <include name="schema/**/*" />
+                <!-- exclude SDK docs -->
+                <exclude name="doc/sdk/**" />
             </fileset>
         </zip>
         <!-- determine name of binary gzipped tar distribution -->
@@ -586,6 +611,8 @@
                 <include name="doc/**/*" />
                 <include name="examples/**/*" />
                 <include name="schema/**/*" />
+                <!-- exclude SDK docs -->
+                <exclude name="doc/sdk/**" />
             </fileset>
         </tar>
         <echo message="Created '${project.config}' binary packages at file://${project.zip-path.bin}" />
@@ -621,13 +648,13 @@
         <property name="nant.settings.currentframework" value="net-1.0" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
-        <property name="link.sdkdoc.web" value="false" />
+        <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-net-1.1-framework-configuration">
         <property name="nant.settings.currentframework" value="net-1.1" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_1" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
-        <property name="link.sdkdoc.web" value="false" />
+        <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-net-2.0-framework-configuration">
         <property name="nant.settings.currentframework" value="net-2.0" />
@@ -639,7 +666,7 @@
         <property name="nant.settings.currentframework" value="netcf-1.0" />
         <property name="current.build.defines" value="${build.defines}NETCF,NETCF_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
-        <property name="link.sdkdoc.web" value="false" />
+        <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-mono-1.0-framework-configuration">
         <property name="nant.settings.currentframework" value="mono-1.0" />
