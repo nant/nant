@@ -136,8 +136,11 @@ namespace NAnt.VSNet {
                             break;
                         case "None":
                             if (elemFile.GetAttribute("RelPath") == "App.config") {
-                                ExtraOutputFiles[sourceFile] = ProjectSettings.OutputFileName
-                                    + ".config";
+                                // App.config is only an output file for executable projects
+                                if (ProjectSettings.OutputType == ManagedOutputType.Executable || ProjectSettings.OutputType == ManagedOutputType.WindowsExecutable) {
+                                    ExtraOutputFiles[sourceFile] = ProjectSettings.OutputFileName
+                                        + ".config";
+                                }
                             }
                             break;
                     }
@@ -894,5 +897,28 @@ namespace NAnt.VSNet {
         private const string CommandFile = "compile-commands.txt";
 
         #endregion Private Static Fields
+    }
+
+    /// <summary>
+    /// Indentifies the different output types of a managed project.
+    /// </summary>
+    /// <remarks>
+    /// Visual Studio .NET does not support modules.
+    /// </remarks>
+    public enum ManagedOutputType {
+        /// <summary>
+        /// A class library. 
+        /// </summary>
+        Library = 1,
+
+        /// <summary>
+        /// A console application.
+        /// </summary>
+        Executable = 2,
+
+        /// <summary>
+        /// A Windows program.
+        /// </summary>
+        WindowsExecutable = 3
     }
 }

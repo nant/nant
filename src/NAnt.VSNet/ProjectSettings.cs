@@ -47,28 +47,26 @@ namespace NAnt.VSNet {
             _guid = ProjectSettings.GetProjectGuid(project.ProjectPath,
                 elemRoot);
 
+            // determine output type of this project
+            _outputType = GetOutputType(elemSettings);
+
             // initialize hashtable for holding string settings
             Hashtable htStringSettings = new Hashtable();
 
-            switch (elemSettings.Attributes["OutputType"].Value.ToLower(CultureInfo.InvariantCulture)) {
-                case "library":
+            switch (_outputType) {
+                case ManagedOutputType.Library:
                     _settings.Add("/target:library");
-                    _outputExtension = ".dll";
                     break;
-                case "exe":
+                case ManagedOutputType.Executable:
                     _settings.Add("/target:exe");
-                    _outputExtension = ".exe";
                     // startup object only makes sense for executable assemblies
                     htStringSettings["StartupObject"] = @"/main:""{0}""";
                     break;
-                case "winexe":
+                case ManagedOutputType.WindowsExecutable:
                     _settings.Add("/target:winexe");
-                    _outputExtension = ".exe";
                     // startup object only makes sense for executable assemblies
                     htStringSettings["StartupObject"] = @"/main:""{0}""";
                     break;
-                default:
-                    throw new ApplicationException(string.Format("Unknown output type: {0}.", elemSettings.Attributes["OutputType"].Value));
             }
 
             // suppresses display of Microsoft startup banner
@@ -194,8 +192,24 @@ namespace NAnt.VSNet {
             get { return string.Concat(AssemblyName, OutputExtension); }
         }
 
+        /// <summary>
+        /// Gets the output type of this project.
+        /// </summary>
+        public ManagedOutputType OutputType {
+            get { return _outputType; }
+        }
+
         public string OutputExtension {
-            get { return _outputExtension; }
+            get { 
+                switch (OutputType) {
+                    case ManagedOutputType.Library:
+                        return ".dll";
+                    case ManagedOutputType.Executable:
+                    case ManagedOutputType.WindowsExecutable:
+                    default:
+                        return ".exe";
+                }
+            }
         }
 
         public string RootNamespace {
@@ -245,6 +259,49 @@ namespace NAnt.VSNet {
 
         #endregion Private Instance Properties
 
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Determines the output type of the project from its XML definition.
+        /// </summary>
+        /// <param name="settingsXml">The XML definition of the project settings.</param>
+        /// <returns>
+        /// The output type of the project.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>
+        ///   The output type of the project is not set in the specified XML 
+        ///   definition.
+        ///   </para>
+        ///   <para>-or-</para>
+        ///   <para>
+        ///   The output type of the project is not supported.
+        ///   </para>
+        /// </exception>
+        protected virtual ManagedOutputType GetOutputType(XmlElement settingsXml) {
+            XmlAttribute outputTypeAttribute = settingsXml.Attributes["OutputType"];
+            if (outputTypeAttribute == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project \"{0}\" is invalid: the output type is not set.",
+                    Project.Name), Location.UnknownLocation);
+            }
+
+            switch (outputTypeAttribute.Value.ToLower(CultureInfo.InvariantCulture)) {
+                case "library":
+                    return ManagedOutputType.Library;
+                case "exe":
+                    return ManagedOutputType.Executable;
+                case "winexe":
+                    return ManagedOutputType.WindowsExecutable;
+                default:
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Output type \"{0}\" of project \"{1}\" is not supported.", 
+                        outputTypeAttribute.Value, Project.Name), Location.UnknownLocation);
+            }
+        }
+
+        #endregion Protected Instance Methods
+
         #region Public Static Methods
 
         /// <summary>
@@ -280,17 +337,17 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private ArrayList _settings;
-        private FileInfo _applicationIcon;
-        private ManagedProjectBase _project;
-        private string _assemblyName;
-        private string _assemblyOriginatorKeyFile;
-        private string _outputExtension;
-        private string _rootNamespace;
-        private string _guid;
-        private string _runPostBuildEvent;
-        private string _preBuildEvent;
-        private string _postBuildEvent;
+        private readonly ArrayList _settings;
+        private readonly FileInfo _applicationIcon;
+        private readonly ManagedProjectBase _project;
+        private readonly string _assemblyName;
+        private readonly string _assemblyOriginatorKeyFile;
+        private readonly string _rootNamespace;
+        private readonly string _guid;
+        private readonly string _runPostBuildEvent;
+        private readonly string _preBuildEvent;
+        private readonly string _postBuildEvent;
+        private readonly ManagedOutputType _outputType;
 
         #endregion Private Instance Fields
     }
