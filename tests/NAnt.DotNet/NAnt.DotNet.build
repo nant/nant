@@ -18,11 +18,11 @@
                 <!-- exclude these tests if no j# compiler present -->
                 <excludes name="Tasks/VjcTaskTest.cs" unless="${vjc.present}" />
             </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll"/>
-                <includes name="NAnt.Core.Tests.dll"/>
-                <includes name="${nant.project.name}Tasks.dll"/>
-                <includes name="nunit.framework.dll"/>
+            <references>
+                <includes name="${build.dir}/bin/NAnt.Core.dll"/>
+                <includes name="${build.dir}/bin/NAnt.Core.Tests.dll"/>
+                <includes name="${build.dir}/bin/${nant.project.name}Tasks.dll"/>
+                <includes name="${lib.framework.dir}/nunit.framework.dll"/>
             </references>
         </csc>
     </target>

@@ -14,9 +14,9 @@
                 <!-- common assembly-level attributes -->
                 <includes name="../CommonAssemblyInfo.cs" />
             </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-                <includes name="ICSharpCode.SharpZipLib.dll" />
+            <references>
+                <includes name="${build.dir}/bin/NAnt.Core.dll" />
+                <includes name="${lib.dir}/ICSharpCode.SharpZipLib.dll" />
             </references>
         </csc> 
     </target>

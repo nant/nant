@@ -17,10 +17,10 @@
                 <excludes name="/**/GetTaskTest.cs" />
                 <excludes name="/**/MailTaskTest.cs" />
             </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-                <includes name="nunit.framework.dll" />
-                <includes name="log4net.dll"/>
+            <references>
+                <includes name="${build.dir}/bin/NAnt.Core.dll" />
+                <includes name="${lib.framework.dir}/nunit.framework.dll" />
+                <includes name="${lib.framework.dir}/log4net.dll"/>
             </references>
             <resources failonempty="true" basedir="Resources" dynamicprefix="true" prefix="XML:">
                 <includes name="**/*.xml"/>
