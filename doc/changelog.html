@@ -49,11 +49,37 @@
         <h4>Fixed bugs</h4>
         <ul>
             <li>
+                <b>TO-DO</b> resourcefileset issues fixed by IAn (details ???)
+            </li>
+            <li>
                 <b>TO-DO</b>
             </li>
         </ul>
         <h4>Other changes</h4>
         <ul>
+            <li>
+                <b>TO-DO</b> Added support for prefix (and dynamixprefix ??) to <code>&lt;resgen&gt;</code>
+                task.
+            </li>
+            <li>
+                <code>&lt;nunit2&gt;</code> task : in previous versions of NAnt, the <code>Plain</code>
+                formatter was implicitly added. In NAnt 0.8.4, the <code>Plain</code> formatter 
+                will only implicitly be added if no other formatters are specified. In this 
+                case, a warning message will be output to the build log encouraging build 
+                authors to explicitly add this formatter for forward compatibility. In future 
+                versions of NAnt, the <code>Plain</code> formatter will no longer implicitly be 
+                added.
+            </li>
+            <li>
+                <code>&lt;nunit2&gt;</code> task : added <code>outputdir</code> attribute for <code>
+                    &lt;formatter&gt;</code> element to control the directory where the test 
+                result file will be stored (if the <code>usefile</code> attribute is "true").
+            </li>
+            <li>
+                Added support for dynamic properties (by setting the <code>dynamic</code> attribute 
+                to "true" on the <code>&lt;property&gt;</code> task), meaning properties of 
+                which references to other properties are not expanded when the value is set.
+            </li>
             <li>
                 <b>TO-DO</b> solution task improvements.
             </li>
