@@ -22,7 +22,7 @@ using System.Collections;
 
 namespace NAnt.Core.Types {
     /// <summary>
-    /// Contains a strongly typed collection of <see cref="Argument"/> objects.
+    /// Contains a collection of <see cref="Option"/> elements.
     /// </summary>
     [Serializable()]
     public class OptionCollection : CollectionBase {

@@ -22,8 +22,7 @@ using System.Collections;
 
 namespace NAnt.Core.Types {
     /// <summary>
-    /// Contains a strongly typed collection of <see cref="XsltParameter" /> 
-    /// instances.
+    /// Contains a collection of <see cref="XsltParameter" /> elements.
     /// </summary>
     [Serializable()]
     public class XsltParameterCollection : CollectionBase {
