@@ -198,16 +198,14 @@ namespace SourceForge.NAnt.Tasks {
                         writer = CreateWriter(destPath);
     
                         if (Verbose) {
-                            Log.WriteLine(LogPrefix + "Transforming into " + destdirPath );
+                            Log(Level.Info, LogPrefix + "Transforming into {0}.", destdirPath);
                         }
     
                         XslTransform xslt = new XslTransform();
                         XPathDocument xml = new XPathDocument(xmlReader);
                         XsltArgumentList scriptargs = new XsltArgumentList();
     
-                        if (Verbose) {
-                            Log.WriteLine(LogPrefix + "Loading stylesheet " + Path.GetFullPath(xsltPath));
-                        }
+                        Log(Level.Verbose, LogPrefix + "Loading stylesheet {0}.", Path.GetFullPath(xsltPath));
     
                         xslt.Load(xslReader);
     
@@ -216,7 +214,7 @@ namespace SourceForge.NAnt.Tasks {
                             scriptargs.AddParam(key, "", (string) _params[key]);
                         }
     
-                        Log.WriteLine(LogPrefix + "Processing " + Path.GetFullPath(srcPath) + " to " + Path.GetFullPath(destPath));
+                        Log(Level.Info, LogPrefix + "Processing {0} to {1}.", Path.GetFullPath(srcPath), Path.GetFullPath(destPath));
                         xslt.Transform(xml, scriptargs, writer);
     
                     } catch (Exception e) {

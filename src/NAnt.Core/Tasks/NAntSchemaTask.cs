@@ -103,7 +103,7 @@ namespace SourceForge.NAnt.Tasks {
             file.Flush();
             file.Close();
 
-            Log.WriteLine("Wrote Schema to: {0} ", _file);
+            Log(Level.Info, "Wrote schema to: {0}.", _file);
         }
 
         #endregion Override implementation of Task

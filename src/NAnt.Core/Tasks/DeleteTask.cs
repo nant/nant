@@ -108,16 +108,16 @@ namespace SourceForge.NAnt.Tasks {
                     throw new BuildException(msg, Location);
                 }
                 
-                Log.WriteLine( LogPrefix + "Deleting directory {0}.", path);
+                Log(Level.Info, LogPrefix + "Deleting directory {0}.", path);
                 RecursiveDeleteDirectory(path);
             } else {
                 // delete files in fileset
-                if ( DeleteFileSet.DirectoryNames.Count == 0 )
-                    Log.WriteLine(LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
+                if (DeleteFileSet.DirectoryNames.Count == 0)
+                    Log(Level.Info, LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
                 else if ( DeleteFileSet.FileNames.Count == 0 )
-                    Log.WriteLine(LogPrefix + "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
+                    Log(Level.Info, LogPrefix + "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
                 else
-                    Log.WriteLine(LogPrefix + "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
+                    Log(Level.Info, LogPrefix + "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
 
                 foreach (string path in DeleteFileSet.FileNames) {
                     DeleteFile(path, Verbose);
@@ -143,7 +143,7 @@ namespace SourceForge.NAnt.Tasks {
                         #if ! mono  
                             File.SetAttributes(file, FileAttributes.Normal);
                         #endif
-                        Log.WriteLineIf(Verbose, LogPrefix + "Deleting file {0}.", file);
+                        Log(Level.Verbose, LogPrefix + "Deleting file {0}.", file);
                         File.Delete(file);
                     }
                     catch (Exception e) {
@@ -151,7 +151,7 @@ namespace SourceForge.NAnt.Tasks {
                         if (FailOnError) {
                             throw new BuildException(msg, Location, e);
                         }
-                        Log.WriteLineIf(Verbose, LogPrefix + msg);
+                        Log(Level.Verbose, LogPrefix + msg);
                     }
                 }
 
@@ -159,7 +159,7 @@ namespace SourceForge.NAnt.Tasks {
                 #if ! mono  
                     File.SetAttributes(path, FileAttributes.Normal);
                 #endif
-                Log.WriteLineIf(Verbose, LogPrefix + "Deleting directory {0}.", path);
+                Log(Level.Verbose, LogPrefix + "Deleting directory {0}.", path);
                 Directory.Delete(path);
             } catch (BuildException e) {
                 throw e;
@@ -168,7 +168,7 @@ namespace SourceForge.NAnt.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, e);
                 }
-                Log.WriteLineIf(Verbose, LogPrefix + msg);
+                Log(Level.Verbose, LogPrefix + msg);
             }
         }
 
@@ -176,7 +176,9 @@ namespace SourceForge.NAnt.Tasks {
             try {
                 FileInfo deleteInfo = new FileInfo( path );
                 if (deleteInfo.Exists)  {
-                    Log.WriteLineIf(verbose, LogPrefix + "Deleting file {0}.", path);
+                    if (verbose) {
+                        Log(Level.Info, LogPrefix + "Deleting file {0}.", path);
+                    }
                     if ( deleteInfo.Attributes != FileAttributes.Normal ) {
                         #if ! mono  
                             File.SetAttributes( deleteInfo.FullName, FileAttributes.Normal );
@@ -191,7 +193,7 @@ namespace SourceForge.NAnt.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, e);
                 }
-                Log.WriteLineIf(Verbose, LogPrefix + msg);
+                Log(Level.Verbose, LogPrefix + msg);
             }
         }
     }

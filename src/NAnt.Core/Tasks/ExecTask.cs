@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 
 using SourceForge.NAnt.Attributes;
@@ -167,7 +168,7 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
-            Log.WriteLine(LogPrefix + "{0} {1}", ProgramFileName, CommandLine);
+            Log(Level.Info, LogPrefix + "{0} {1}", ProgramFileName, CommandLine);
             base.ExecuteTask();
         }
 

@@ -60,14 +60,14 @@ namespace SourceForge.NAnt.Tasks {
                 foreach (string sourcePath in FileCopyMap.Keys) {
                     string destinationPath = (string)FileCopyMap[sourcePath];
                     if (sourcePath == destinationPath) {
-                        Log.WriteLine(LogPrefix + "Skipping self-move of {0}" + sourcePath);
+                        Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
                         continue;
                     }
 
                     try {
                         // check if directory exists
                         if (Directory.Exists(sourcePath)) {
-                            Log.WriteLine(LogPrefix + "moving directory {0} to {1}", sourcePath, destinationPath);
+                            Log(Level.Verbose, LogPrefix + "Moving directory {0} to {1}.", sourcePath, destinationPath);
                             Directory.Move(sourcePath, destinationPath);
                         }
                         else {
@@ -77,7 +77,7 @@ namespace SourceForge.NAnt.Tasks {
                                 Directory.CreateDirectory( Path.GetDirectoryName(destinationPath) );
                             }
 
-                            Log.WriteLineIf(Verbose, LogPrefix + "Moving {0} to {1}", sourcePath, destinationPath);
+                            Log(Level.Verbose, LogPrefix + "Moving {0} to {1}.", sourcePath, destinationPath);
                             // IM look into how Ant does this for directories
                             File.Move(sourcePath, destinationPath);
                         }
@@ -87,7 +87,7 @@ namespace SourceForge.NAnt.Tasks {
                         throw new BuildException(msg, Location);
                     }
                 }
-                Log.WriteLine(LogPrefix + " " + FileCopyMap.Count + " files moved.");
+                Log(Level.Info, LogPrefix + "{0} files moved.", FileCopyMap.Count);
             }
         }
     }

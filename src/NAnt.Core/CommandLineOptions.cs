@@ -57,6 +57,32 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether debug information should be
+        /// displayed during the build process.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if debug information should be displayed; otherwise, <c>false</c>.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "debug", Description = "displays debug information during build process")]
+        public bool Debug {
+            get { return _debug; }
+            set { _debug = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether only error and debug debug messages should be
+        /// displayed during the build process.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if only error or warning messages should be displayed; otherwise, <c>false</c>.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "quiet", Description = "displays only error or warning messages during build process")]
+        public bool Quiet {
+            get { return _quiet; }
+            set { _quiet = value; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether parent directories should be searched
         /// for a buildfile.
         /// </summary>
@@ -71,16 +97,15 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets the number of characters that build output should be
-        /// indented.
+        /// Gets or sets the indentation level of the build output.
         /// </summary>
         /// <value>
-        /// The number of characters that the build output should be indented.
+        /// The indentation level of the build output.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "number of characters to indent build output")]
-        public int Indent {
-            get { return _indent; }
-            set { _indent = value; }
+        public int IndentationLevel {
+            get { return _indentationLevel; }
+            set { _indentationLevel = value; }
         }
 
         /// <summary>
@@ -103,7 +128,7 @@ namespace SourceForge.NAnt {
         /// listeners.
         /// </value>
         /// <remarks>
-        /// The <see cref="LoggerType" /> should derive from <see cref="LogListener" />.
+        /// The <see cref="LoggerType" /> should derive from <see cref="IBuildLogger" />.
         /// </remarks>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logger", Description="use given type as logger")]
         public string LoggerType {
@@ -180,8 +205,10 @@ namespace SourceForge.NAnt {
         private string _buildFile;
         private bool _noLogo;
         private bool _showHelp;
+        private bool _quiet;
         private bool _verbose;
-        private int _indent;
+        private bool _debug;
+        private int _indentationLevel;
         private bool _findInParent;
         private StringCollection _properties = new StringCollection();
         private string _loggerType;

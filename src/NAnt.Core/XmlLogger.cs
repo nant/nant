@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -26,11 +28,12 @@ namespace SourceForge.NAnt {
     /// <summary>
     /// Used to wrap log messages in xml &lt;message/&gt; elements.
     /// </summary>
-    public class XmlLogger : LogListener, IBuildEventConsumer {
+    public class XmlLogger : IBuildLogger {
         #region Private Instance Fields
 
         private TextWriter _writer = Console.Out;
         private XmlTextWriter _xmlWriter = new XmlTextWriter(Console.Out);
+        private Level _threshold = Level.Info;
 
         #endregion Private Instance Fields
 
@@ -42,56 +45,7 @@ namespace SourceForge.NAnt {
         public XmlLogger() {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XmlLogger" /> class
-        /// with the specified <see cref="TextWriter" />.
-        /// </summary>
-        /// <param name="writer">The <see cref="TextWriter" /> to which the build output should be written.</param>
-        public XmlLogger(TextWriter writer) {
-            _writer = writer;
-            _xmlWriter = new XmlTextWriter(_writer);
-            _xmlWriter.Formatting = Formatting.Indented;
-        }
-
         #endregion Public Instance Constructors
-
-        #region Override implementation of LogListener
-
-        public override void Write(string formattedMessage) {
-            WriteLine(formattedMessage, null);
-        }
-
-        public override void WriteLine(string message) {
-            WriteLine(message, null);
-        }
-        
-        public override void WriteLine(string message, string messageType) {
-            string rawMessage = StripFormatting(message.Trim());
-            if (IsJustWhiteSpace(rawMessage)) {
-                return;
-            }
-            
-            _xmlWriter.WriteStartElement(Elements.Message);
-
-            if (messageType != null && messageType.Length != 0) {
-                _xmlWriter.WriteAttributeString(Attributes.MessageType, messageType);
-            }
-            
-            if (IsValidXml(rawMessage)) {
-                rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", string.Empty);
-                _xmlWriter.WriteRaw(rawMessage);
-            } else {
-                _xmlWriter.WriteCData(StripCData(rawMessage));
-            }
-            _xmlWriter.WriteEndElement();
-            _xmlWriter.Flush();
-        }
-
-        public override void Flush() {
-            _writer.Flush();
-        }
-
-        #endregion Override implementation of LogListener
 
         #region Override implementation of Object
 
@@ -104,40 +58,151 @@ namespace SourceForge.NAnt {
 
         #endregion Override implementation of Object
 
-        #region Implementation of IBuildEventConsumer
+        #region Implementation of IBuildListener
 
-        public void BuildStarted(object obj, BuildEventArgs args) {
+        /// <summary>
+        /// Signals that a build has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event is fired before any targets have started.
+        /// </remarks>
+        public void BuildStarted(object sender, BuildEventArgs e) {
             _xmlWriter.WriteStartElement(Elements.BuildResults);
-            _xmlWriter.WriteAttributeString(Attributes.Project, args.Name);
+            _xmlWriter.WriteAttributeString(Attributes.Project, e.Project.ProjectName);
         }
 
-        public void BuildFinished(object obj, BuildEventArgs args) {
+        /// <summary>
+        /// Signals that the last target has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
+        public void BuildFinished(object sender, BuildEventArgs e) {
             _xmlWriter.WriteEndElement();
         }
 
-        public void TargetStarted(object obj, BuildEventArgs args) {
+        /// <summary>
+        /// Signals that a target has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        public void TargetStarted(object sender, BuildEventArgs e) {
             _xmlWriter.WriteStartElement(Elements.Target);
-            WriteNameAttribute(args.Name);
+            WriteNameAttribute(e.Target.Name);
             _xmlWriter.Flush();
         }
 
-        public void TargetFinished(object obj, BuildEventArgs args) {
+        /// <summary>
+        /// Signals that a target has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
+        public void TargetFinished(object sender, BuildEventArgs e) {
             _xmlWriter.WriteEndElement();
             _xmlWriter.Flush();
         }
 
-        public void TaskStarted(object obj, BuildEventArgs args) {
+        /// <summary>
+        /// Signals that a task has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        public void TaskStarted(object sender, BuildEventArgs e) {
             _xmlWriter.WriteStartElement(Elements.Task);
-            WriteNameAttribute(args.Name);
+            WriteNameAttribute(e.Task.Name);
             _xmlWriter.Flush();
         }
 
-        public void TaskFinished(object obj, BuildEventArgs args) {
+        /// <summary>
+        /// Signals that a task has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
+        public void TaskFinished(object sender, BuildEventArgs e) {
             _xmlWriter.WriteEndElement();
             _xmlWriter.Flush();
         }
 
-        #endregion Implementation of IBuildEventConsumer
+        /// <summary>
+        /// Signals that a message has been logged.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// Only messages with a priority higher or equal to the threshold of 
+        /// the logger will actually be output in the build log.
+        /// </remarks>
+        public void MessageLogged(object sender, BuildEventArgs e) {
+            if (e.MessageLevel >= Threshold) {
+                string rawMessage = StripFormatting(e.Message.Trim());
+                if (IsJustWhiteSpace(rawMessage)) {
+                    return;
+                }
+                
+                _xmlWriter.WriteStartElement(Elements.Message);
+                // TO-DO : uncomment next line and update unit tests
+                // _xmlWriter.WriteAttributeString(Attributes.MessageType, e.Level.ToString(CultureInfo.InvariantCulture));
+                
+                if (IsValidXml(rawMessage)) {
+                    rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", string.Empty);
+                    _xmlWriter.WriteRaw(rawMessage);
+                } else {
+                    _xmlWriter.WriteCData(StripCData(rawMessage));
+                }
+                _xmlWriter.WriteEndElement();
+                _xmlWriter.Flush();
+            }
+        }
+
+        #endregion Implementation of IBuildListener
+
+        #region Implementation of IBuildLogger
+
+        /// <summary>
+        /// Gets or sets the highest level of message this logger should respond 
+        /// to.
+        /// </summary>
+        /// <value>The highest level of message this logger should respond to.</value>
+        /// <remarks>
+        /// Only messages with a message level higher than or equal to the given 
+        /// level should be written to the log.
+        /// </remarks>
+        public Level Threshold {
+            get { return _threshold; }
+            set { _threshold = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="TextWriter" /> to which the logger is 
+        /// to send its output.
+        /// </summary>
+        public TextWriter OutputWriter {
+            get { return _writer; }
+            set { 
+                _writer = value;
+                _xmlWriter = new XmlTextWriter(value);
+                _xmlWriter.Formatting = Formatting.Indented;
+            }
+        }
+
+        /// <summary>
+        /// Flushes buffered build events or messages to the underlying storage.
+        /// </summary>
+        public void Flush() {
+            _xmlWriter.Flush();
+        }
+
+        #endregion Implementation of IBuildLogger
 
         #region Public Instance Methods
 

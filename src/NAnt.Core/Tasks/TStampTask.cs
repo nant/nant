@@ -157,7 +157,7 @@ namespace SourceForge.NAnt.Tasks {
         protected override void ExecuteTask() {
             // get and print current date
             DateTime now = DateTime.Now;
-            Log.WriteLine(LogPrefix + now.ToLongDateString() + " " + now.ToLongTimeString());
+            Log(Level.Info, LogPrefix + "{0} {1}.", now.ToLongDateString(), now.ToLongTimeString());
 
             // set default properties
             Properties["tstamp.date"] = now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
@@ -167,13 +167,13 @@ namespace SourceForge.NAnt.Tasks {
             // set custom property
             if (_property != null && _pattern != null) {
                 Properties[_property] = now.ToString(_pattern, CultureInfo.InvariantCulture);
-                Log.WriteLineIf(Verbose, LogPrefix + _property + " = " + Properties[_property].ToString(CultureInfo.InvariantCulture));
+                Log(Level.Verbose, LogPrefix + "{0} = {1}.", _property, Properties[_property].ToString(CultureInfo.InvariantCulture));
             }
 
             // set properties set in formatters nested elements
             foreach (Formatter f in Formatters) {
                 Properties[f.Property] = now.ToString(f.Pattern, CultureInfo.InvariantCulture);
-                Log.WriteLineIf(Verbose, LogPrefix + f.Property + " = " + Properties[f.Property].ToString(CultureInfo.InvariantCulture));
+                Log(Level.Verbose, LogPrefix + "{0} = {1}.", f.Property, Properties[f.Property].ToString(CultureInfo.InvariantCulture));
             }
         }
 

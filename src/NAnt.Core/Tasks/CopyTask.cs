@@ -104,32 +104,32 @@ namespace SourceForge.NAnt.Tasks {
             int fileCount = FileCopyMap.Keys.Count;
             if (fileCount > 0 || Verbose) {
                 if (ToDirectory != null) {
-                    Log.WriteLine(LogPrefix + "Copying {0} file{1} to {2}", fileCount, ( fileCount != 1 ) ? "s" : "", Project.GetFullPath(ToDirectory));
+                    Log(Level.Info, LogPrefix + "Copying {0} file{1} to {2}.", fileCount, ( fileCount != 1 ) ? "s" : "", Project.GetFullPath(ToDirectory));
                 } else {
-                    Log.WriteLine(LogPrefix + "Copying {0} file{1}", fileCount, ( fileCount != 1 ) ? "s" : "" );
+                    Log(Level.Info, LogPrefix + "Copying {0} file{1}.", fileCount, ( fileCount != 1 ) ? "s" : "");
                 }
 
                 // loop thru our file list
                 foreach (string sourcePath in FileCopyMap.Keys) {
                     string dstPath = (string)FileCopyMap[sourcePath];
                     if (sourcePath == dstPath) {
-                        Log.WriteLineIf(Verbose, LogPrefix + "Skipping self-copy of {0}" + sourcePath);
+                        Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}." + sourcePath);
                         continue;
                     }
 
                     try {
-                        Log.WriteLineIf(Verbose, LogPrefix + "Copying {0} to {1}", sourcePath, dstPath);
+                        Log(Level.Verbose, LogPrefix + "Copying {0} to {1}.", sourcePath, dstPath);
 
                         // create directory if not present
                         string dstDirectory = Path.GetDirectoryName(dstPath);
                         if (!Directory.Exists(dstDirectory)) {
                             Directory.CreateDirectory(dstDirectory);
-                            Log.WriteLineIf(Verbose, LogPrefix + "Created directory {0}", dstDirectory);
+                            Log(Level.Verbose, LogPrefix + "Created directory {0}.", dstDirectory);
                         }
 
                         File.Copy(sourcePath, dstPath, true);
                     } catch (Exception e) {
-                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot copy {0} to {1}", sourcePath, dstPath);
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot copy {0} to {1}.", sourcePath, dstPath);
                         throw new BuildException(msg, Location, e);
                     }
                 }
@@ -236,7 +236,7 @@ namespace SourceForge.NAnt.Tasks {
                     // The full filepath to copy to.
                     string dstPath = Path.Combine(dstBaseInfo.FullName, dstRelPath);
                     if (!Directory.Exists(dstPath)) {
-                        Log.WriteLineIf(Verbose, LogPrefix + "Created directory {0}", dstPath);
+                        Log(Level.Verbose, LogPrefix + "Created directory {0}.", dstPath);
                         Directory.CreateDirectory(dstPath);
                     }
                 }

@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,8 +42,13 @@ namespace SourceForge.NAnt {
         private Project _project = null;
         private XmlNode _xmlNode = null;
         private object _parent = null;
-        #endregion Private Instance Fields        #region Private Static Fields
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         #endregion Private Static Fields
 
         #region Protected Instance Constructors
@@ -163,10 +168,8 @@ namespace SourceForge.NAnt {
             // Save position in buildfile for reporting useful error messages.
             try {
                 _location = Project.LocationMap.GetLocation(elementNode);
-            }
-            catch(ArgumentException ae) {
-                Log.WriteLineIf(Project.Verbose, ae.ToString());
-                //ignore
+            } catch (ArgumentException ex) {
+                logger.Warn("Location of Element node could be located.", ex);
             }
 
             InitializeXml(elementNode);
@@ -174,6 +177,42 @@ namespace SourceForge.NAnt {
             // Allow inherited classes a chance to do some custom initialization.
             InitializeElement(elementNode);
         }
+
+        /*
+         * TO-DO : Uncomment these methods when bug with parameter arrays and 
+         * inheritance is resolved in Mono
+         */
+
+        /*
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the project.
+        /// </remarks>
+        public virtual void Log(Level messageLevel, string message) {
+            if (Project != null) {
+                Project.Log(messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the project.
+        /// </remarks>
+        public virtual void Log(Level messageLevel, string message, params object[] args) {
+            if (Project != null) {
+                Project.Log(messageLevel, message, args);
+            }
+        }
+        */
 
         #endregion Public Instance Methods
 
@@ -494,7 +533,12 @@ namespace SourceForge.NAnt {
 
         }
 
-        /// <summary>        /// Creates a child <see cref="Element" /> using property set/get methods.        /// </summary>        /// <param name="propInf">The <see cref="PropertyInfo" /> instance that represents the property of the current class.</param>        /// <param name="xml">The <see cref="XmlNode" /> used to initialize the new <see cref="Element" /> instance.</param>        /// <returns>The <see cref="Element" /> child.</returns>
+        /// <summary>
+        /// Creates a child <see cref="Element" /> using property set/get methods.
+        /// </summary>
+        /// <param name="propInf">The <see cref="PropertyInfo" /> instance that represents the property of the current class.</param>
+        /// <param name="xml">The <see cref="XmlNode" /> used to initialize the new <see cref="Element" /> instance.</param>
+        /// <returns>The <see cref="Element" /> child.</returns>
         private Element CreateChildBuildElement(PropertyInfo propInf, XmlNode xml) {
             MethodInfo getter = null;
             MethodInfo setter = null;

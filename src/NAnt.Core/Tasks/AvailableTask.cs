@@ -157,7 +157,7 @@ namespace SourceForge.NAnt.Tasks {
             if (fileInfo.Exists) {
                 fileAvailable = true;
             } else {
-                Log.WriteLineIf(Verbose, LogPrefix + "Unable to find " + Type + " " + Resource);
+                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
                 fileAvailable = false;
             }
             return fileAvailable;
@@ -175,7 +175,7 @@ namespace SourceForge.NAnt.Tasks {
             if (dirInfo.Exists) {
                 directoryAvailable = true;
             } else {
-                Log.WriteLineIf(Verbose, LogPrefix + "Unable to find " + Type + " " + Resource);
+                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
                 directoryAvailable = false;
             }       
             return directoryAvailable;
@@ -192,7 +192,7 @@ namespace SourceForge.NAnt.Tasks {
             if (Project.FrameworkInfoDictionary.Contains(Resource)) {
                 frameworkAvailable = true;
             } else {
-                Log.WriteLineIf(Verbose, LogPrefix + "Unable to find " + Type + " " + Resource);
+                Log(Level.Verbose, LogPrefix + "Unable to find {0} {1}.", Type, Resource);
                 frameworkAvailable = false;
             }
             return frameworkAvailable;

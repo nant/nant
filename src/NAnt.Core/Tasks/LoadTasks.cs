@@ -115,12 +115,12 @@ namespace SourceForge.NAnt.Tasks {
             }
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
-                Log.WriteLine(LogPrefix + "Loading Tasks from Assembly {0}", assemblyPath);
+                Log(Level.Info, LogPrefix + "Loading tasks from assembly {0}.", assemblyPath);
                 TaskFactory.AddTasks(Assembly.LoadFrom(assemblyPath));
             }
             // now the filenames
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
-                Log.WriteLine(LogPrefix + "Scanning directory {0} for task assemblies", scanPath);
+                Log(Level.Info, LogPrefix + "Scanning directory {0} for task assemblies.", scanPath);
                 TaskFactory.ScanDir(scanPath);
             }
         }

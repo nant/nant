@@ -73,12 +73,11 @@ namespace SourceForge.NAnt.Tasks {
         
         protected override void ExecuteTask() {
             if (Message != null) {
-                Log.WriteLine(LogPrefix + Message);
+                Log(Level.Info, LogPrefix + Message);
             } else if (Contents != null) {
-                Log.WriteLine(LogPrefix + Contents);
+                Log(Level.Info, LogPrefix + Contents);
             } else {
-                //IMHO, <echo/> should be valid.
-                Log.WriteLine(LogPrefix);
+                Log(Level.Info, LogPrefix);
             }
         }
 

@@ -68,7 +68,7 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
-            Log.WriteLine(LogPrefix + "Setting system information properties under " + Prefix + "*");
+            Log(Level.Info, LogPrefix + "Setting system information properties under " + Prefix + "*");
 
             // set properties
             Properties[Prefix + "clr.version"] = Environment.Version.ToString();
@@ -91,11 +91,11 @@ namespace SourceForge.NAnt.Tasks {
 
             // display the properties
             if (Verbose) {
-                Log.WriteLine(LogPrefix + "nant.version = " + Properties["nant.version"]);
+                Log(Level.Info, LogPrefix + "nant.version = " + Properties["nant.version"]);
                 foreach (DictionaryEntry entry in Properties) {
                     string name = (string) entry.Key;
                     if (name.StartsWith(Prefix) && !name.StartsWith(Prefix + "env.")) {
-                        Log.WriteLine(LogPrefix + name + " = " + entry.Value.ToString());
+                        Log(Level.Info, LogPrefix + name + " = " + entry.Value.ToString());
                     }
                 }
             }

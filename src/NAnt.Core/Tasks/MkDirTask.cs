@@ -47,7 +47,7 @@ namespace SourceForge.NAnt.Tasks {
             try {
                 string directory = Project.GetFullPath(_dir);
                 if (!Directory.Exists(directory)) {
-                    Log.WriteLine(LogPrefix + "Creating directory {0}", directory);
+                    Log(Level.Info, LogPrefix + "Creating directory {0}.", directory);
                     DirectoryInfo result = Directory.CreateDirectory(directory);
                     if (result == null) {
                         string msg = String.Format(CultureInfo.InvariantCulture, "Unknown error creating directory '{0}'", directory);

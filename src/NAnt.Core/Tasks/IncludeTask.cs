@@ -21,6 +21,7 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 
@@ -103,7 +104,7 @@ namespace SourceForge.NAnt.Tasks {
             _includedFileNames.Push(includedFileName);
             _nestinglevel ++;
             
-            Log.WriteLineIf(Verbose, LogPrefix + "Including file {0}", includedFileName);
+            Log(Level.Verbose, LogPrefix + "Including file {0}.", includedFileName);
             string oldBaseDir = Project.BaseDirectory;
             
             // set basedir to be used by the nested calls (if any)

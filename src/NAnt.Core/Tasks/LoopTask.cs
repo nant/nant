@@ -133,11 +133,9 @@ namespace SourceForge.NAnt.Tasks {
             get { return _prop; } 
             set {
                 _prop = value;
-                _props = _prop.Split( ',' );
-                foreach ( string prop in _props )
-                {
-                    if(Properties.IsReadOnlyProperty(prop)) 
-                    {
+                _props = _prop.Split(',');
+                foreach (string prop in _props) {
+                    if(Properties.IsReadOnlyProperty(prop)) {
                         throw new BuildException("Property is readonly! :" + prop, Location); 
                     }
                 }
@@ -196,63 +194,69 @@ namespace SourceForge.NAnt.Tasks {
                     case LoopItem.None:
                         throw new BuildException("Invalid itemtype", Location);
                     case LoopItem.File:
-                        if(_inAttribute == null && _inElement == null)
+                        if (_inAttribute == null && _inElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
+                        }
 
                         if(_inAttribute != null) {
-                        
-                            if(!Directory.Exists(Project.GetFullPath(_inAttribute)))
+                            if(!Directory.Exists(Project.GetFullPath(_inAttribute))) {
                                 throw new BuildException("Invalid Source: " + _inAttribute, Location);
+                            }
                         
-                            if(_props.Length != 1)
+                            if(_props.Length != 1) {
                                 throw new BuildException(@"Only one property is valid for item=""File""");
+                            }
                         
                             DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
                             FileInfo[] files = dirInfo.GetFiles();
                         
-                            foreach(FileInfo file in files) {
+                            foreach (FileInfo file in files) {
                                 DoWork(file.FullName);
                             }
                         } else {
-                            if(_doStuff == null)
+                            if(_doStuff == null) {
                                 throw new BuildException("Must use <do> with <in>.",Location );
+                            }
 
-                            foreach(string file in _inElement.Items.FileNames) {
+                            foreach (string file in _inElement.Items.FileNames) {
                                 DoWork(file);
                             }
                         }
-                        
                         break;
                     case LoopItem.Folder:
-                        if(_inAttribute == null && _inElement == null)
+                        if (_inAttribute == null && _inElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
+                        }
 
-                        if(_inAttribute != null) {
-                            
-                            if(!Directory.Exists(Project.GetFullPath(_inAttribute)))
+                        if (_inAttribute != null) {
+                            if(!Directory.Exists(Project.GetFullPath(_inAttribute))) {
                                 throw new BuildException("Invalid Source: " + _inAttribute, Location);
-                            if(_props.Length != 1)
+                            }
+                            if(_props.Length != 1) {
                                 throw new BuildException(@"Only one property is valid for item=""Folder""");
+                            }
                             DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
                             DirectoryInfo[] dirs = dirInfo.GetDirectories();
-                            foreach(DirectoryInfo dir in dirs) {
+                            foreach (DirectoryInfo dir in dirs) {
                                 DoWork(dir.FullName);
                             } 
-                        }else {
-                            if(_doStuff == null)
+                        } else {
+                            if (_doStuff == null) {
                                 throw new BuildException("Must use <do> with <in>.", Location);
+                            }
 
-                            foreach(string dir in _inElement.Items.DirectoryNames) {
+                            foreach (string dir in _inElement.Items.DirectoryNames) {
                                 DoWork(dir);
                             }
                         }
-
                         break;
                     case LoopItem.Line:
-                        if(!File.Exists(Project.GetFullPath(_inAttribute)))
+                        if(!File.Exists(Project.GetFullPath(_inAttribute))) {
                             throw new BuildException("Invalid Source: " + _inAttribute, Location);
-                        if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0 ) )
+                        }
+                        if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0)) {
                             throw new BuildException("Delimiter(s) must be specified if multiple properties are specified");
+                        }
 
                         StreamReader sr = File.OpenText(Project.GetFullPath(_inAttribute));
                         while(true) {
@@ -267,12 +271,14 @@ namespace SourceForge.NAnt.Tasks {
                         sr.Close();
                         break;
                     case LoopItem.String:
-                        if(_props.Length > 1)
+                        if(_props.Length > 1) {
                             throw new BuildException(@"Only one property may be specified for item=""String""");
-                        if(Delimiter == null || Delimiter.Length == 0)
+                        }
+                        if(Delimiter == null || Delimiter.Length == 0) {
                             throw new BuildException(@"Delimiter must be specified for item=""String""");
+                        }
                         string[] items = _inAttribute.Split(Delimiter.ToCharArray());
-                        foreach(string s in items)
+                        foreach (string s in items)
                             DoWork(s);
                         break;
                 }
@@ -285,7 +291,7 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteChildTasks() {
-            if(_doStuff == null) {
+            if (_doStuff == null) {
                 base.ExecuteChildTasks();
             } else {
                 _doStuff.Execute();
@@ -299,8 +305,9 @@ namespace SourceForge.NAnt.Tasks {
         protected virtual void DoWork(params string[] propVals) {
             for (int nIndex = 0; nIndex < propVals.Length; nIndex++) {
                 string propValue = propVals[nIndex];
-                if (nIndex >= _props.Length)
+                if (nIndex >= _props.Length) {
                     throw new BuildException("Too many items on line");
+                }
                 switch (TrimType) {
                     case LoopTrim.Both:
                         propValue = propValue.Trim();
@@ -312,7 +319,7 @@ namespace SourceForge.NAnt.Tasks {
                         propValue = propValue.TrimEnd();
                         break;
                 }
-                Properties[_props[ nIndex ]] = propValue;
+                Properties[_props[nIndex]] = propValue;
             }
             base.ExecuteTask();
         }

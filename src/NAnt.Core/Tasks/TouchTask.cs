@@ -123,14 +123,14 @@ namespace SourceForge.NAnt.Tasks {
         private void TouchFile(string path, DateTime touchDateTime) {
             try {
                 if (File.Exists(path)) {
-                    Log.WriteLineIf(Verbose, LogPrefix + "Touching file {0} with {1}", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                    Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
                     File.SetLastWriteTime(path, touchDateTime);
                 } else {
                     throw new FileNotFoundException();
                 }
             } catch (Exception e) {
                 // swallow any errors and move on
-                Log.WriteLineIf(Verbose, LogPrefix + "Error: {0}", e.ToString());
+                Log(Level.Verbose, LogPrefix + "Error: {0}.", e.ToString());
             }
         }
 

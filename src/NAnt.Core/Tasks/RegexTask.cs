@@ -101,7 +101,7 @@ namespace SourceForge.NAnt.Tasks {
             for (int i=1; i < match.Groups.Count; i++) {
                 string groupName = regex.GroupNameFromNumber(i);
 
-                Log.WriteLineIf(Verbose, "{2}Setting property {0} to {1}", groupName, match.Groups[groupName].Value, LogPrefix);
+                Log(Level.Verbose, "{2}Setting property {0} to {1}.", groupName, match.Groups[groupName].Value, LogPrefix);
                 Properties [ groupName ] = match.Groups[groupName].Value;
             }
         }

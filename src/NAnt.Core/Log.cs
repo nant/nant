@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // John R. Hicks (angryjohn69@nc.rr.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
-
+// Gert Driesen (gert.driesen@ardatis.com)
+//
 // Some of this class was based on code from the Mono class library.
 // Copyright (C) 2002 John R. Hicks <angryjohn69@nc.rr.com>
-
+//
 // The events described in this file are based on the comments and
 // structure of Ant.
 // Copyright (C) Copyright (c) 2000,2002 The Apache Software Foundation.
@@ -29,246 +30,726 @@
 
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
 namespace SourceForge.NAnt {
+    /// <summary>
+    /// Defines the set of levels recognised by the NAnt logging system.
+    /// </summary>
+    public enum Level : int {
+        /// <summary>
+        /// The <see cref="Debug" /> level designates fine-grained informational 
+        /// events that are most useful to debug a build process.
+        /// </summary>
+        Debug = 1000,
 
+        /// <summary>
+        /// The <see cref="Verbose" /> level designates events that offer a more
+        /// detailed view of the build process.
+        /// </summary>
+        Verbose = 2000,
+
+        /// <summary>
+        /// The <see cref="Info" /> level designates informational events that
+        /// are useful for getting a high-level view of the build process.
+        /// </summary>
+        Info = 3000,
+
+        /// <summary>
+        /// The <see cref="Warning" /> level designates potentionally harmful 
+        /// events.
+        /// </summary>
+        Warning = 4000,
+
+        /// <summary>
+        /// The <see cref="Error" /> level designates error events.
+        /// </summary>
+        Error = 5000
+    }
+
+    /// <summary>
+    /// Class representing an event occurring during a build.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// An event is built by specifying either a project, a task or a target.
+    /// </para>
+    /// <para>
+    /// A project level event will only have a project reference.
+    /// </para>
+    /// <para>
+    /// A target level event will have project and target references.
+    /// </para>
+    /// <para>
+    /// A task level event will have project, target and task references.
+    /// </para>
+    /// </remarks>
     public class BuildEventArgs : EventArgs {
-        private string _name = "";
+        #region Public Instance Constructors
 
-        public BuildEventArgs(string name) {
-            _name = name;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildEventArgs" />
+        /// class for a project level event.
+        /// </summary>
+        /// <param name="project">The project that emitted the event.</param>
+        public BuildEventArgs(Project project) {
+            _project = project;
+            _target = null;
+            _task = null;
+        }
+    
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildEventArgs" />
+        /// class for a target level event.
+        /// </summary>
+        /// <param name="target">The target that emitted the event.</param>
+        public BuildEventArgs(Target target) {
+            _project = target.Project;
+            _target = target;
+            _task = null;
+        }
+    
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildEventArgs" />
+        /// class for a task level event.
+        /// </summary>
+        /// <param name="task">The task that emitted the event.</param>
+        public BuildEventArgs(Task task) {
+            _project = task.Project;
+            // TO-DO find a way to get the Target that contains the task (if not a top-level task)
+            _target = null;
+            _task = task;
         }
 
-        public string Name {
-            get {
-                return _name;
-            }
+        #endregion Public Instance Constructors
 
-            set {
-                _name = value;
-            }
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the message associated with this event.
+        /// </summary>
+        /// <value>The message associated with this event.</value>
+        public string Message {
+            get { return _message; }
+            set { _message = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the priority level associated with this event.
+        /// </summary>
+        /// <value>The priority level associated with this event.</value>
+        public Level MessageLevel {
+            get { return _messageLevel; }
+            set { _messageLevel = value; }
+        }
+    
+        /// <summary>
+        /// Gets or sets the <see cref="Exception" /> associated with this event.
+        /// </summary>
+        public Exception Exception {
+            get { return _exception; }
+            set { _exception = value; }
+        }
+
+        /// <summary>
+        /// Gets the project that fired this event.
+        /// </summary>
+        /// <value>The project that fired this event.</value>
+        public Project Project {
+            get { return _project; }
+        }
+
+        /// <summary>
+        /// Gets the target that fired this event.
+        /// </summary>
+        /// <value>
+        /// The target that fired this event, or a null reference if this is a
+        /// project level event.
+        /// </value>
+        public Target Target {
+            get { return _target; }
+        }
+
+        /// <summary>
+        /// Gets the task that fired this event.
+        /// </summary>
+        /// <value>
+        /// The task that fired this event, or a null reference if this is a
+        /// project or target level event.
+        /// </value>
+        public Task Task {
+            get { return _task; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private Project _project;
+        private Target _target;
+        private Task _task;
+        private string _message;
+        private Level _messageLevel = Level.Verbose;
+        private Exception _exception;
+
+        #endregion Private Instance Fields
     }
 
     /// <summary>Delegate to handle Build events</summary>
     public delegate void BuildEventHandler(object sender, BuildEventArgs e);
 
-    public interface IBuildEventConsumer {
-        /// <summary>Signals that a build has started. This event is fired before any targets have started.</summary>
+    /// <summary>
+    /// Instances of classes that implement this interface can register to be 
+    /// notified when things happen during a build.
+    /// </summary>
+    public interface IBuildListener {
+        /// <summary>
+        /// Signals that a build has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event is fired before any targets have started.
+        /// </remarks>
         void BuildStarted(object sender, BuildEventArgs e);
 
-        /// <summary>Signals that the last target has finished. This event will still be fired if an error occurred during the build.</summary>
+        /// <summary>
+        /// Signals that the last target has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
         void BuildFinished(object sender, BuildEventArgs e);
 
-        /// <summary>Signals that a target has started.</summary>
+        /// <summary>
+        /// Signals that a target has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         void TargetStarted(object sender, BuildEventArgs e);
 
-        /// <summary>Signals that a target has finished. This event will still be fired if an error occurred during the build.</summary>
+        /// <summary>
+        /// Signals that a target has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
         void TargetFinished(object sender, BuildEventArgs e);
 
-        /// <summary>Signals that a task has started.</summary>
+        /// <summary>
+        /// Signals that a task has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         void TaskStarted(object sender, BuildEventArgs e);
 
-        /// <summary>Signals that a task has finished. This event will still be fired if an error occurred during the build.</summary>
+        /// <summary>
+        /// Signals that a task has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
         void TaskFinished(object sender, BuildEventArgs e);
+
+        /// <summary>
+        /// Signals that a message has been logged.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        void MessageLogged(object sender, BuildEventArgs e);
     }
 
-    public abstract class LogListener {
-        public abstract void Write(string message);
-        public abstract void WriteLine(string message);
-        public virtual void WriteLine(string message, string messageType) {
-            WriteLine(message);
+    /// <summary>
+    /// Interface used by NAnt to log the build output. 
+    /// </summary>
+    /// <remarks>
+    /// Depending on the supplied command-line arguments, NAnt will set the
+    /// <see cref="OutputWriter" /> to <see cref="Console.Out" /> or a
+    /// <see cref="StreamWriter" />  with a file as backend store.
+    /// </remarks>
+    public interface IBuildLogger : IBuildListener {
+        /// <summary>
+        /// Gets or sets the highest level of message this logger should respond 
+        /// to.
+        /// </summary>
+        /// <value>The highest level of message this logger should respond to.</value>
+        /// <remarks>
+        /// Only messages with a message level higher than or equal to the given 
+        /// level should actually be written to the log.
+        /// </remarks>
+        Level Threshold {
+            get;
+            set;
         }
 
-        public virtual void Flush() {
-        }
-    }
-    
-    /// <summary>The standard logger that will suffice for any command-line based nant runner.</summary>
-    public class ConsoleLogger : LogListener {
-        public override void Write(string message) {
-            Console.Write(message);
-        }
-
-        public override void WriteLine(string message) {
-            Console.WriteLine(message);
-        }
-    }
-
-    /// <summary>Used for test classes to check output.</summary>
-    public class StringLogger : LogListener {
-        private StringWriter _writer = new StringWriter();
-
-        public override void Write(string message) {
-            _writer.Write(message);
+        /// <summary>
+        /// Gets or sets the <see cref="TextWriter" /> to which the logger is 
+        /// to send its output.
+        /// </summary>
+        TextWriter OutputWriter {
+            get;
+            set;
         }
 
-        public override void WriteLine(string message) {
-            _writer.WriteLine(message);
-        }
-
-        /// <summary>Returns the contents of log captured.</summary>
-        public override string ToString() {
-            return _writer.ToString();
-        }
+        /// <summary>
+        /// Flushes buffered build events or messages to the underlying storage.
+        /// </summary>
+        void Flush();
     }
 
-    public sealed class LogListenerCollection : ArrayList {
-    }
+    public class DefaultLogger : IBuildLogger {
+        #region Public Instance Constructors
 
-    /// <summary>Provides a set of methods and properties that log the execution of the build process.  This class cannot be inherited.</summary>
-    public sealed class Log {
-        private static bool _autoFlush;
-        private static int _indentLevel;
-        private static int _indentSize;
-        private static bool _needIndent; // true if the output should be indented; otherwise, false
-        private static LogListenerCollection _listeners;
-
-        static Log() {
-            _autoFlush = false;
-            _indentLevel = 0;
-            _indentSize = 4;
-            _needIndent = true;
-            _listeners = new LogListenerCollection();
-            _listeners.Add(new ConsoleLogger());
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultLogger" /> 
+        /// class.
+        /// </summary>
+        public DefaultLogger() {
         }
 
-        /// <summary>Gets or sets whether Flush should be called on the Listeners after every write.</summary>
-        public static bool AutoFlush {
-            get { return _autoFlush; }
-            set { _autoFlush = value; }
+        #endregion Public Instance Constructors
+
+        #region Implementation of IBuildLogger
+
+        /// <summary>
+        /// Gets or sets the highest level of message this logger should respond 
+        /// to.
+        /// </summary>
+        /// <value>The highest level of message this logger should respond to.</value>
+        /// <remarks>
+        /// Only messages with a message level higher than or equal to the given 
+        /// level should be written to the log.
+        /// </remarks>
+        public virtual Level Threshold {
+            get { return _threshold; }
+            set { _threshold = value; }
         }
 
-        /// <summary>Gets or sets the indent level.  Default is zero.</summary>
-        public static int IndentLevel {
-            get { return _indentLevel; }
-            set { _indentLevel = value; }
+        /// <summary>
+        /// Gets or sets the <see cref="TextWriter" /> to which the logger is 
+        /// to send its output.
+        /// </summary>
+        public virtual TextWriter OutputWriter {
+            get { return _outputWriter; }
+            set { _outputWriter = value; }
         }
 
-        /// <summary>Gets or sets the number of spaces in an indent.  Default is four.</summary>
-        public static int IndentSize {
-            get { return _indentSize; }
-            set { _indentSize = value; }
-        }
-
-        /// <summary>Gets the collection of listeners that is monitoring the log output.</summary>
-        public static LogListenerCollection Listeners {
-            get { return _listeners; }
-        }
-
-        /// <summary>Flushes the output buffer, and causes buffered data to be written to the Listeners.</summary>
-        public static void Flush() {
-            foreach (LogListener l in _listeners) {
-                l.Flush();
+        /// <summary>
+        /// Flushes buffered build events or messages to the underlying storage.
+        /// </summary>
+        void IBuildLogger.Flush() {
+            if (OutputWriter != null) {
+                OutputWriter.Flush();
             }
         }
 
-        /// <summary>Increases the current IndentLevel by one.</summary>
-        public static void Indent() {
-            _indentLevel++;
+        #endregion Implementation of IBuildLogger
+
+        #region Implementation of IBuildListener
+
+        /// <summary>
+        /// Signals that a build has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event is fired before any targets have started.
+        /// </remarks>
+        public virtual void BuildStarted(object sender, BuildEventArgs e) {
         }
 
-        /// <summary>Decreases the current IndentLevel by one.</summary>
-        public static void Unindent() {
-            if (_indentLevel > 0) {
-                _indentLevel--;
+        /// <summary>
+        /// Signals that the last target has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
+        public virtual void BuildFinished(object sender, BuildEventArgs e) {
+            Exception error = e.Exception;
+            int indentationLevel = 0;
+
+            if (e.Project != null) {
+                indentationLevel = e.Project.IndentationLevel * e.Project.IndentationSize;
             }
-        }
 
-        /// <summary>Indents the message if needed.</summary>
-        private static string FormatMessage(string message) {
-            // if we are starting a new line then first indent the string
-            if (_needIndent) {
-                if (IndentLevel > 0) {
-                    StringBuilder sb = new StringBuilder(message);
-                    sb.Insert(0, " ", IndentLevel * IndentSize);
-                    message = sb.ToString();
+            if (error == null) {
+                OutputMessage(Level.Info, "", indentationLevel);
+                OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
+                OutputMessage(Level.Info, "", indentationLevel);
+            } else {
+                OutputMessage(Level.Error, "", indentationLevel);
+                OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
+                OutputMessage(Level.Error, "", indentationLevel);
+
+                if (error is BuildException) {
+                    if (Threshold <= Level.Verbose) {
+                        OutputMessage(Level.Error, error.ToString(), indentationLevel);
+                    } else {
+                        if (error.Message != null) {
+                            OutputMessage(Level.Error, error.Message, indentationLevel);
+                        }
+                        if (error.InnerException != null && error.InnerException.Message != null) {
+                            OutputMessage(Level.Error, error.InnerException.Message, indentationLevel);
+                        } 
+                    }
+                } else {
+                    OutputMessage(Level.Error, "INTERNAL ERROR", indentationLevel);
+                    OutputMessage(Level.Error, "", indentationLevel);
+                    OutputMessage(Level.Error, error.ToString(), indentationLevel);
+                    OutputMessage(Level.Error, "", indentationLevel);
+                    OutputMessage(Level.Error, "Please send bug report to nant-developers@lists.sourceforge.net.", indentationLevel);
                 }
-                _needIndent = false;
-            }
-            return message;
-        }
 
-        /// <summary>Writes the given message to the log.</summary>
-        public static void Write(string message) {
-            message = FormatMessage(message);
-            foreach (LogListener l in _listeners) {
-                l.Write(message);
-            }
-
-            if (AutoFlush) {
-                Flush();
+                OutputMessage(Level.Info, "", indentationLevel);
             }
         }
 
-        /// <summary>Writes the given message to the log.</summary>
-        public static void Write(string format, params object[] arg) {
-            Write(String.Format(CultureInfo.InvariantCulture, format, arg));
-        }
+        /// <summary>
+        /// Signals that a target has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        public virtual void TargetStarted(object sender, BuildEventArgs e) {
+            int indentationLevel = 0;
 
-        /// <summary>Writes the given message to the log if condition is true.</summary>
-        public static void WriteIf(bool condition, string message) {
-            if (condition) {
-                Write(message);
+            if (e.Project != null) {
+                indentationLevel = e.Project.IndentationLevel * e.Project.IndentationSize;
+            }
+
+            if (e.Target != null) {
+                OutputMessage(Level.Info, string.Empty, indentationLevel);
+                OutputMessage(
+                    Level.Info, 
+                    string.Format(CultureInfo.InvariantCulture, "{0}:", e.Target.Name), 
+                    indentationLevel);
+                OutputMessage(Level.Info, string.Empty, indentationLevel);
             }
         }
 
-        /// <summary>Writes the given message to the log if condition is true.</summary>
-        public static void WriteIf(bool condition, string format, params object[] arg) {
-            if (condition) {
-                Write(String.Format(CultureInfo.InvariantCulture, format, arg));
+        /// <summary>
+        /// Signals that a task has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
+        public virtual void TargetFinished(object sender, BuildEventArgs e) {
+        }
+
+        /// <summary>
+        /// Signals that a task has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        public virtual void TaskStarted(object sender, BuildEventArgs e) {
+        }
+
+        /// <summary>
+        /// Signals that a task has finished.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event will still be fired if an error occurred during the build.
+        /// </remarks>
+        public virtual void TaskFinished(object sender, BuildEventArgs e) {
+        }
+
+        /// <summary>
+        /// Signals that a message has been logged.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// Only messages with a priority higher or equal to the threshold of 
+        /// the logger will actually be output in the build log.
+        /// </remarks>
+        public virtual void MessageLogged(object sender, BuildEventArgs e) {
+            int indentationLength = 0;
+
+            // calculate indentation length from Project
+            if (e.Project != null) {
+                indentationLength = e.Project.IndentationLevel * e.Project.IndentationSize;
+            }
+
+            // output the message
+            OutputMessage(e.MessageLevel, e.Message, indentationLength);
+        }
+
+        #endregion Implementation of IBuildListener
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Empty implementation which allows derived classes to receive the
+        /// output that is generated in this logger.
+        /// </summary>
+        /// <param name="message">The message being logged.</param>
+        protected virtual void Log(string message) {
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Outputs an indented message to the build log if its priority is 
+        /// greather than or equal to the <see cref="Threshold" /> of the 
+        /// logger.
+        /// </summary>
+        /// <param name="mesageLevel">The priority of the message to output.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="indentationLength">The number of characters that the message should be indented.</param>
+        private void OutputMessage(Level mesageLevel, string message, int indentationLength) {
+            string indentedMessage = null;
+
+            if (mesageLevel >= Threshold) {
+                if (indentationLength > 0) {
+                    StringBuilder sb = new StringBuilder(message);
+                    sb.Insert(0, " ", indentationLength);
+                    indentedMessage = sb.ToString();
+                } else {
+                    indentedMessage = message;
+                }
+
+                // output the message to the console
+                Console.Out.WriteLine(indentedMessage);
+
+                // if an OutputWriter was set, write the message to it
+                if (OutputWriter != null) {
+                    OutputWriter.WriteLine(indentedMessage);
+                }
+
+                Log(indentedMessage);
             }
         }
 
-        /// <summary>Writes the given message to the log.</summary>
-        public static void WriteLine(string message) {
-            Write(message + Environment.NewLine);
-            _needIndent = true;
-        }
+        #endregion Private Instance Methods
 
-        /// <summary>Writes the given message to the log.</summary>
-        public static void WriteLine() {
-            WriteLine(String.Empty);
-        }
+        #region Private Instance Fields
 
-        /// <summary>Writes the given message to the log.</summary>
-        public static void WriteLine(string format, params object[] arg) {
-            WriteLine(String.Format(CultureInfo.InvariantCulture, format, arg));
-        }
+        private Level _threshold = Level.Info;
+        private TextWriter _outputWriter = null;
 
-        public static void WriteMessage(string message, string messageType) {
-            message = FormatMessage(message);
-            foreach (LogListener l in _listeners) {
-                l.WriteLine(message, messageType);
-            }
-
-            if (AutoFlush) {
-                Flush();
-            }
-        }
-        /// <summary>Writes the given message to the log if condition is true.</summary>
-        public static void WriteLineIf(bool condition, string message) {
-            if (condition) {
-                WriteLine(message);
-            }
-        }
-
-        /// <summary>Writes the given message to the log if condition is true.</summary>
-        public static void WriteLineIf(bool condition, string format, params object[] arg) {
-            if (condition) {
-                WriteLine(String.Format(CultureInfo.InvariantCulture, format, arg));
-            }
-        }
+        #endregion Private Instance Fields
     }
 
-    public class LogWriter : StringWriter {
-        public override void Close() {
-            Log.Write(GetStringBuilder().ToString());
-            base.Close();
+    /// <summary>
+    /// Contains a strongly typed collection of <see cref="IBuildListener"/> objects.
+    /// </summary>
+    [Serializable]
+    public class BuildListenerCollection : CollectionBase {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> class.
+        /// </summary>
+        public BuildListenerCollection() {
         }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> class
+        /// with the specified <see cref="BuildListenerCollection"/> instance.
+        /// </summary>
+        public BuildListenerCollection(BuildListenerCollection value) {
+            AddRange(value);
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildListenerCollection"/> class
+        /// with the specified array of <see cref="IBuildListener"/> instances.
+        /// </summary>
+        public BuildListenerCollection(IBuildListener[] value) {
+            AddRange(value);
+        }
+
+        #endregion Public Instance Constructors
+        
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the element to get or set.</param>
+        [System.Runtime.CompilerServices.IndexerName("Item")]
+        public IBuildListener this[int index] {
+            get {return ((IBuildListener)(base.List[index]));}
+            set {base.List[index] = value;}
+        }
+
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+        
+        /// <summary>
+        /// Adds a <see cref="IBuildListener"/> to the end of the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="IBuildListener"/> to be added to the end of the collection.</param> 
+        /// <returns>The position into which the new element was inserted.</returns>
+        public int Add(IBuildListener item) {
+            return base.List.Add(item);
+        }
+
+        /// <summary>
+        /// Adds the elements of a <see cref="IBuildListener"/> array to the end of the collection.
+        /// </summary>
+        /// <param name="items">The array of <see cref="IBuildListener"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(IBuildListener[] items) {
+            for (int i = 0; (i < items.Length); i = (i + 1)) {
+                Add(items[i]);
+            }
+        }
+
+        /// <summary>
+        /// Adds the elements of a <see cref="BuildListenerCollection"/> to the end of the collection.
+        /// </summary>
+        /// <param name="items">The <see cref="BuildListenerCollection"/> to be added to the end of the collection.</param> 
+        public void AddRange(BuildListenerCollection items) {
+            for (int i = 0; (i < items.Count); i = (i + 1)) {
+                Add(items[i]);
+            }
+        }
+        
+        /// <summary>
+        /// Determines whether a <see cref="IBuildListener"/> is in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="IBuildListener"/> to locate in the collection.</param> 
+        /// <returns>
+        /// <c>true</c> if <paramref name="item"/> is found in the collection;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(IBuildListener item) {
+            return base.List.Contains(item);
+        }
+        
+        /// <summary>
+        /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
+        /// </summary>
+        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
+        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+        public void CopyTo(IBuildListener[] array, int index) {
+            base.List.CopyTo(array, index);
+        }
+        
+        /// <summary>
+        /// Retrieves the index of a specified <see cref="IBuildListener"/> object in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="IBuildListener"/> object for which the index is returned.</param> 
+        /// <returns>
+        /// The index of the specified <see cref="IBuildListener"/>. If the <see cref="IBuildListener"/> is not currently a member of the collection, it returns -1.
+        /// </returns>
+        public int IndexOf(IBuildListener item) {
+            return base.List.IndexOf(item);
+        }
+        
+        /// <summary>
+        /// Inserts a <see cref="IBuildListener"/> into the collection at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="item">The <see cref="IBuildListener"/> to insert.</param>
+        public void Insert(int index, IBuildListener item) {
+            base.List.Insert(index, item);
+        }
+        
+        /// <summary>
+        /// Returns an enumerator that can iterate through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="BuildListenerEnumerator"/> for the entire collection.
+        /// </returns>
+        public new BuildListenerEnumerator GetEnumerator() {
+            return new BuildListenerEnumerator(this);
+        }
+        
+        /// <summary>
+        /// Removes a member from the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="IBuildListener"/> to remove from the collection.</param>
+        public void Remove(IBuildListener item) {
+            base.List.Remove(item);
+        }
+        
+        #endregion Public Instance Methods
+    }
+
+    /// <summary>
+    /// Enumerates the <see cref="IBuildListener"/> elements of a <see cref="BuildListenerCollection"/>.
+    /// </summary>
+    public class BuildListenerEnumerator : IEnumerator {
+        #region Internal Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildListenerEnumerator"/> class
+        /// with the specified <see cref="BuildListenerCollection"/>.
+        /// </summary>
+        /// <param name="arguments">The collection that should be enumerated.</param>
+        internal BuildListenerEnumerator(BuildListenerCollection arguments) {
+            IEnumerable temp = (IEnumerable) (arguments);
+            _baseEnumerator = temp.GetEnumerator();
+        }
+
+        #endregion Internal Instance Constructors
+
+        #region Implementation of IEnumerator
+            
+        /// <summary>
+        /// Gets the current element in the collection.
+        /// </summary>
+        /// <returns>
+        /// The current element in the collection.
+        /// </returns>
+        public IBuildListener Current {
+            get { return (IBuildListener) _baseEnumerator.Current; }
+        }
+
+        object IEnumerator.Current {
+            get { return _baseEnumerator.Current; }
+        }
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the enumerator was successfully advanced to the next element; 
+        /// <c>false</c> if the enumerator has passed the end of the collection.
+        /// </returns>
+        public bool MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+
+        bool IEnumerator.MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+            
+        /// <summary>
+        /// Sets the enumerator to its initial position, which is before the 
+        /// first element in the collection.
+        /// </summary>
+        public void Reset() {
+            _baseEnumerator.Reset();
+        }
+            
+        void IEnumerator.Reset() {
+            _baseEnumerator.Reset();
+        }
+
+        #endregion Implementation of IEnumerator
+
+        #region Private Instance Fields
+    
+        private IEnumerator _baseEnumerator;
+
+        #endregion Private Instance Fields
     }
 }

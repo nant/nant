@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 // Ian MacLean (ian_maclean@another.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Globalization;
@@ -50,7 +51,9 @@ namespace SourceForge.NAnt {
 
         #region Public Instance Properties
 
-        /// <summary>Determines if task failure stops the build, or is just reported. Default is "true".</summary>
+        /// <summary>
+        /// Determines if task failure stops the build, or is just reported. Default is "true".
+        /// </summary>
         [TaskAttribute("failonerror")]
         [BooleanValidator()]
         public bool FailOnError {
@@ -58,7 +61,9 @@ namespace SourceForge.NAnt {
             set { _failOnError = value; }
         }
 
-        /// <summary>Task reports detailed build log messages.  Default is "false".</summary>
+        /// <summary>
+        /// Task reports detailed build log messages.  Default is "false".
+        /// </summary>
         [TaskAttribute("verbose")]
         [BooleanValidator()]
         public bool Verbose {
@@ -66,7 +71,9 @@ namespace SourceForge.NAnt {
             set { _verbose = value; }
         }
 
-        /// <summary>If true then the task will be executed; otherwise skipped. Default is "true".</summary>
+        /// <summary>
+        /// If true then the task will be executed; otherwise skipped. Default is "true".
+        /// </summary>
         [TaskAttribute("if")]
         [BooleanValidator()]
         public bool IfDefined {
@@ -74,7 +81,9 @@ namespace SourceForge.NAnt {
             set { _ifDefined = value; }
         }
 
-        /// <summary>Opposite of if.  If false then the task will be executed; otherwise skipped. Default is "false".</summary>
+        /// <summary>
+        /// Opposite of if.  If false then the task will be executed; otherwise skipped. Default is "false".
+        /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]
         public bool UnlessDefined {
@@ -82,7 +91,9 @@ namespace SourceForge.NAnt {
             set { _unlessDefined = value; }
         }
 
-        /// <summary>The name of the task.</summary>
+        /// <summary>
+        /// The name of the task.
+        /// </summary>
         public override string Name {
             get {
                 string name = null;
@@ -94,11 +105,13 @@ namespace SourceForge.NAnt {
             }
         }
 
-        /// <summary>The prefix used when sending messages to the log.</summary>
+        /// <summary>
+        /// The prefix used when sending messages to the log.
+        /// </summary>
         public string LogPrefix {
             get {
                 string prefix = "[" + Name + "] ";
-                return prefix.PadLeft(Log.IndentSize);
+                return prefix.PadLeft(Project.IndentationSize);
             }
         }
 
@@ -106,7 +119,9 @@ namespace SourceForge.NAnt {
 
         #region Public Instance Methods
 
-        /// <summary>Executes the task unless it is skipped.</summary>
+        /// <summary>
+        /// Executes the task unless it is skipped.
+        /// </summary>
         public void Execute() {
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
@@ -115,7 +130,7 @@ namespace SourceForge.NAnt {
                 
             if (IfDefined && !UnlessDefined) {
                 try {
-                    Project.OnTaskStarted(this, new BuildEventArgs(Name));
+                    Project.OnTaskStarted(this, new BuildEventArgs(this));
                     ExecuteTask();
                 } catch (Exception e) {
                     logger.Error(string.Format(
@@ -127,14 +142,75 @@ namespace SourceForge.NAnt {
                         throw;
                     } else {
                         if (this.Verbose) {
-                            Log.WriteLine(LogPrefix + e.ToString());
+                            Log(Level.Error, LogPrefix + e.ToString());
                         } else {
-                            Log.WriteLine(LogPrefix + e.Message);
+                            Log(Level.Error, LogPrefix + e.Message);
                         }
                     }
                 } finally {
-                    Project.OnTaskFinished(this, new BuildEventArgs(Name));
+                    Project.OnTaskFinished(this, new BuildEventArgs(this));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// <para>
+        /// The actual logging is delegated to the project.
+        /// </para>
+        /// <para>
+        /// If the <see cref="Verbose" /> attribute is set on the task and a 
+        /// message is logged with level <see cref="Level.Verbose" />, the 
+        /// priority of the message will be increased to <see cref="Level.Info" />.
+        /// when the threshold of the build log is <see cref="Level.Info" />.
+        /// </para>
+        /// <para>
+        /// This will allow individual tasks to run in verbose mode while
+        /// the build log itself is still configured with threshold 
+        /// <see cref="Level.Info" />.
+        /// </para>
+        /// </remarks>
+        public void Log(Level messageLevel, string message) {
+            if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
+                Project.Log(this, Level.Info, message);
+            } else {
+                Project.Log(this, messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a formatted message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// <para>
+        /// The actual logging is delegated to the project.
+        /// </para>
+        /// <para>
+        /// If the <see cref="Verbose" /> attribute is set on the task and a 
+        /// message is logged with level <see cref="Level.Verbose" />, the 
+        /// priority of the message will be increased to <see cref="Level.Info" />.
+        /// when the threshold of the build log is <see cref="Level.Info" />.
+        /// </para>
+        /// <para>
+        /// This will allow individual tasks to run in verbose mode while
+        /// the build log itself is still configured with threshold 
+        /// <see cref="Level.Info" />.
+        /// </para>
+        /// </remarks>
+        public void Log(Level messageLevel, string message, params object[] args) {
+            string logMessage = string.Format(CultureInfo.InvariantCulture, message, args);
+
+            if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
+                Project.Log(this, Level.Info, logMessage);
+            } else {
+                Project.Log(this, messageLevel, logMessage);
             }
         }
 

@@ -134,12 +134,7 @@ namespace SourceForge.NAnt {
                 }
 
                 try {
-                    Project.OnTargetStarted(this, new BuildEventArgs(_name));
-
-                    //these two lines should be removed and replaced with implementing
-                    //OnTargetStarted in the ConsoleLogger
-                    Log.WriteLine();
-                    Log.WriteLine("{0}:", Name);
+                    Project.OnTargetStarted(this, new BuildEventArgs(this));
 
                     // select all the task nodes and execute them
                     foreach (XmlNode taskNode in XmlNode) {
@@ -151,7 +146,7 @@ namespace SourceForge.NAnt {
                         }
                     }
                 } finally {
-                    Project.OnTargetFinished(this, new BuildEventArgs(_name));
+                    Project.OnTargetFinished(this, new BuildEventArgs(this));
                 }
             }
         }

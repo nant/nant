@@ -50,9 +50,13 @@ namespace SourceForge.NAnt {
         /// <param name="args">Command Line args, or whatever you want to pass it. They will treated as Command Line args.</param>
         /// <returns>The exit code.</returns>
         public static int Main(string[] args) {
+            BuildListenerCollection buildListeners = new BuildListenerCollection();
             CommandLineParser commandLineParser = null;
-            StreamWriter logFileStream = null;
             Project project = null;
+            Level projectThreshold = Level.Info;
+            IBuildLogger buildLogger = null;
+
+            TextWriter outputWriter = Console.Out;
 
             try {
                 PropertyDictionary buildOptionProps = new PropertyDictionary();
@@ -71,15 +75,21 @@ namespace SourceForge.NAnt {
                     return 0;
                 }
 
-                if (cmdlineOptions.BuildFile != null) {
-                    if(project != null) {
-                        Log.WriteLine("Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileURI);
-                    }
-                    project = new Project(cmdlineOptions.BuildFile, cmdlineOptions.Verbose);
+                // determine the project message threshold
+                if (cmdlineOptions.Debug) {
+                    projectThreshold = Level.Debug;
+                } else if (cmdlineOptions.Verbose) {
+                    projectThreshold = Level.Verbose;
+                } else if (cmdlineOptions.Quiet) {
+                    projectThreshold = Level.Warning;
                 }
 
-                if (cmdlineOptions.Indent != 0) {
-                    Log.IndentLevel = cmdlineOptions.Indent;
+                if (cmdlineOptions.BuildFile != null) {
+                    if(project != null) {
+                        Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileURI));
+                    }
+
+                    project = new Project(cmdlineOptions.BuildFile, projectThreshold, cmdlineOptions.IndentationLevel);
                 }
 
                 foreach (string property in cmdlineOptions.Properties) {
@@ -91,40 +101,54 @@ namespace SourceForge.NAnt {
                     }
                 }
 
-                if (cmdlineOptions.LoggerType != null) {
-                    Log.Listeners.Clear();
-                    try {
-                        LogListener logListener;
-                        if(cmdlineOptions.LogFile != null) {
-                            logFileStream = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
-                            logListener = CreateLogger(cmdlineOptions.LoggerType, logFileStream);
-                        } else {
-                            logListener = CreateLogger(cmdlineOptions.LoggerType);
-                        }
-                        Log.Listeners.Add(logListener);
-                    } catch(Exception e) {
-                        logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}.", cmdlineOptions.LoggerType), e);
-                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}", cmdlineOptions.LoggerType));
-                    }
-                }
-
-                foreach (LogListener listener in Log.Listeners) {
-                    if (listener is IBuildEventConsumer) {
-                        IBuildEventConsumer i = (IBuildEventConsumer) listener;
-                        Project.BuildStarted += new BuildEventHandler(i.BuildStarted);
-                        Project.BuildFinished += new BuildEventHandler(i.BuildFinished);
-                        Project.TargetStarted += new BuildEventHandler(i.TargetStarted);
-                        Project.TargetFinished += new BuildEventHandler(i.TargetFinished);
-                        Project.TaskStarted += new BuildEventHandler(i.TaskStarted);
-                        Project.TaskFinished += new BuildEventHandler(i.TaskFinished);
-                    }
-                }
-
                 // Get build file name if the project has not been created.
                 // If a build file was not specified on the command line.
                 if(project == null) {
-                    project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), cmdlineOptions.Verbose);
+                    project = new Project(GetBuildFileName(Environment.CurrentDirectory, null, cmdlineOptions.FindInParent), projectThreshold, cmdlineOptions.IndentationLevel);
                 }
+
+                if(cmdlineOptions.LogFile != null) {
+                    try {
+                        outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
+                    } catch (Exception ex) {
+                        logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}.", cmdlineOptions.LogFile.FullName), ex);
+                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating output log file {0}: {1}", cmdlineOptions.LogFile.FullName, ex.Message));
+                    }
+                }
+
+                if (cmdlineOptions.LoggerType != null) {
+                    try {
+                        buildLogger = ConsoleDriver.CreateLogger(cmdlineOptions.LoggerType);
+                    } catch(Exception ex) {
+                        logger.Warn(string.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}.", cmdlineOptions.LoggerType), ex);
+                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type {0}: {1}", cmdlineOptions.LoggerType, ex.Message));
+                    }
+                }
+
+                // if no logger was specified on the commandline use the default logger.
+                if (buildLogger == null) {
+                    buildLogger = new DefaultLogger();
+
+                    // only set OutputWriter of DefaultLogger is logfile was 
+                    // specified on command-line, setting the OutputWriter of
+                    // the DefaultLogger to Console.Out would cause issues with
+                    // unit tests. 
+                    if (outputWriter is StreamWriter) {
+                        buildLogger.OutputWriter = outputWriter;
+                    }
+
+                } else {
+                    buildLogger.OutputWriter = outputWriter;
+                }
+
+                // set threshold of build logger equal to threshold of project
+                buildLogger.Threshold = project.Threshold;
+
+                // add logger to listeners collection
+                buildListeners.Add(buildLogger);
+
+                // attach listeners to project
+                project.AttachBuildListeners(buildListeners);
 
                 // copy cmd line targets
                 foreach (string target in cmdlineOptions.Targets) {
@@ -201,8 +225,8 @@ namespace SourceForge.NAnt {
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
                 return 2;
             } finally {
-                if(logFileStream != null) {
-                    logFileStream.Close();
+                if (buildLogger != null) {
+                    buildLogger.Flush();
                 }
             }
         }
@@ -285,35 +309,31 @@ namespace SourceForge.NAnt {
         /// Dynamically constructs an instance of the class specified.
         /// </summary>
         /// <remarks>
-        /// At this point, only looks in the assembly where <see cref="LogListener" /> 
+        /// <para>
+        /// At this point, only looks in the assembly where <see cref="IBuildLogger" /> 
         /// is defined.
+        /// </para>
         /// </remarks>
-        public static LogListener CreateLogger(string className) {
-            Assembly assembly = Assembly.GetAssembly(typeof(LogListener));
+        /// <param name="className">The fully qualified name of the logger that should be instantiated.</param>
+        /// <exception cref="ArgumentException"><paramref name="className" /> does not implement <see cref="IBuildLogger" />.</exception>
+        public static IBuildLogger CreateLogger(string className) {
+            Assembly assembly = Assembly.GetAssembly(typeof(IBuildLogger));
 
-            return (LogListener) Activator.CreateInstance(assembly.GetType(className, true));
-        }
+            object buildLogger = Activator.CreateInstance(assembly.GetType(className, true));
 
-        /// <summary>
-        /// Dynamically constructs an instance of the class specified using the 
-        /// passed <see cref="TextWriter" />.
-        /// </summary>
-        /// <remarks>
-        /// At this point, only looks in the assembly where <see cref="LogListener" /> 
-        /// is defined.
-        /// </remarks>
-        public static LogListener CreateLogger(string className, TextWriter writer) {
-            Assembly assembly = Assembly.GetAssembly(typeof(LogListener));
+            if (!typeof(IBuildLogger).IsAssignableFrom(buildLogger.GetType())) {
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture, "{0} does not implement {1}.",
+                    buildLogger.GetType().FullName, typeof(IBuildLogger).FullName));
+            }
 
-            object[] args = new object[1];
-            args[0] = writer;
-            return (LogListener) Activator.CreateInstance(assembly.GetType(className, true), BindingFlags.Public | BindingFlags.Instance, null, args, CultureInfo.InvariantCulture);
+            return (IBuildLogger) buildLogger;
         }
 
         #endregion Public Static Methods
 
         #region Private Static Methods
-
+        
         /// <summary>
         /// Spits out generic help info to the console.
         /// </summary>

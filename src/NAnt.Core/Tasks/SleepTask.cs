@@ -18,6 +18,7 @@
 // Ian MacLean (ian@maclean.ms)
 
 using System;
+using System.Globalization;
 using System.Xml;
 using System.Threading;
 using SourceForge.NAnt.Attributes;
@@ -84,7 +85,7 @@ namespace SourceForge.NAnt.Tasks {
 
         protected override void ExecuteTask() {
             int sleepTime = GetSleepTime();
-            Log.WriteLine(LogPrefix + "Sleeping for {0} milliseconds", sleepTime);
+            Log(Level.Info, LogPrefix + "Sleeping for {0} milliseconds.", sleepTime);
             DoSleep(sleepTime);
         }
     }

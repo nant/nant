@@ -19,6 +19,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System.Collections.Specialized;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -73,39 +74,44 @@ namespace SourceForge.NAnt.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            try {
-                Log.WriteLine(LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
-                Log.Indent();
-                Project project = new Project(Project.GetFullPath(BuildFileName), Verbose);
+            Log(Level.Verbose, LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
 
-                if (_inheritAll) {
-                    StringCollection excludes = new StringCollection();
-                    excludes.Add(Project.NANT_PROPERTY_FILENAME);
-                    excludes.Add(Project.NANT_PROPERTY_LOCATION);
-                    excludes.Add(Project.NANT_PROPERTY_ONSUCCESS);
-                    excludes.Add(Project.NANT_PROPERTY_ONFAILURE);
-                    excludes.Add(Project.NANT_PROPERTY_PROJECT_BASEDIR);
-                    excludes.Add(Project.NANT_PROPERTY_PROJECT_BUILDFILE);
-                    excludes.Add(Project.NANT_PROPERTY_PROJECT_DEFAULT);
-                    excludes.Add(Project.NANT_PROPERTY_PROJECT_NAME);
-                    excludes.Add(Project.NANT_PROPERTY_VERSION);
-                    project.Properties.Inherit(Properties, excludes);
-                }
+            // create new prjoect with same threshold as current project and increased indentation level
+            Project project = new Project(Project.GetFullPath(BuildFileName), Project.Threshold, Project.IndentationLevel + 1);
 
-                // handle multiple targets
-                if (DefaultTarget != null) {
-                    foreach (string t in DefaultTarget.Split(' ')) {
-                        string target = t.Trim();
-                        if (target.Length > 0) {
-                            project.BuildTargets.Add(target);
-                        }
+            // add listeners of current project to new project
+            project.AttachBuildListeners(Project.BuildListeners);
+
+            // have the new project inherit the framework from the current project 
+            if (Project.CurrentFramework != null && project.FrameworkInfoDictionary.Contains(Project.CurrentFramework.Name)) {
+                project.CurrentFramework = project.FrameworkInfoDictionary[Project.CurrentFramework.Name];
+            }
+
+            if (InheritAll) {
+                StringCollection excludes = new StringCollection();
+                excludes.Add(Project.NANT_PROPERTY_FILENAME);
+                excludes.Add(Project.NANT_PROPERTY_LOCATION);
+                excludes.Add(Project.NANT_PROPERTY_ONSUCCESS);
+                excludes.Add(Project.NANT_PROPERTY_ONFAILURE);
+                excludes.Add(Project.NANT_PROPERTY_PROJECT_BASEDIR);
+                excludes.Add(Project.NANT_PROPERTY_PROJECT_BUILDFILE);
+                excludes.Add(Project.NANT_PROPERTY_PROJECT_DEFAULT);
+                excludes.Add(Project.NANT_PROPERTY_PROJECT_NAME);
+                excludes.Add(Project.NANT_PROPERTY_VERSION);
+                project.Properties.Inherit(Properties, excludes);
+            }
+
+            // handle multiple targets
+            if (DefaultTarget != null) {
+                foreach (string t in DefaultTarget.Split(' ')) {
+                    string target = t.Trim();
+                    if (target.Length > 0) {
+                        project.BuildTargets.Add(target);
                     }
                 }
-                if (!project.Run()) {
-                    throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
-                }
-            } finally {
-                Log.Unindent();
+            }
+            if (!project.Run()) {
+                throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
             }
         }
 

@@ -133,12 +133,17 @@ namespace SourceForge.NAnt {
             }
         }       
         
-        #endregion Override implementation of ApplicationException        #region Override implementation of Object
+        #endregion Override implementation of ApplicationException
+        
+        #region Override implementation of Object
+
         /// <summary>
         /// Creates and returns a string representation of the current exception.
         /// </summary>
         /// <returns>A string representation of the current exception.</returns>
-        public override string ToString() {            return string.Format(CultureInfo.InvariantCulture,"{0}:{1}{2}", Message, Environment.NewLine, base.ToString());        }
+        public override string ToString() {
+            return string.Format(CultureInfo.InvariantCulture,"{0}:{1}{2}", Message, Environment.NewLine, base.ToString());
+        }
 
         #endregion Override implementation of Object
     }

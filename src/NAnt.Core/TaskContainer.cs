@@ -20,13 +20,25 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Reflection;
 using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {
-    /// <summary>    /// Executes embedded tasks. First inherit from TaskContainer, then call ExecuteChildTasks during Exec.    /// <note>    ///     <para>    ///         All BuildElements (like a FileSet or OptionSet) are automatically excluded from things that get executed.     ///         They are evaluted normally during xml task initialization.    ///     </para>    ///     <para>    ///         For an example, see <if/> or <foreach/>    ///     </para>    /// </note>    /// </summary>
+    /// <summary>
+    /// Executes embedded tasks. First inherit from TaskContainer, then call ExecuteChildTasks during Exec.
+    /// <note>
+    ///     <para>
+    ///         All BuildElements (like a FileSet or OptionSet) are automatically excluded from things that get executed. 
+    ///         They are evaluted normally during xml task initialization.
+    ///     </para>
+    ///     <para>
+    ///         For an example, see <if/> or <foreach/>
+    ///     </para>
+    /// </note>
+    /// </summary>
     public class TaskContainer : Task {
         private StringCollection _subXMLElements = null;
 
@@ -34,7 +46,7 @@ namespace SourceForge.NAnt {
             base.InitializeTask(taskNode);
 
             //Exclude any BuildElements (like FileSets, etc.) from our execution elements.
-             _subXMLElements = new StringCollection();
+            _subXMLElements = new StringCollection();
             foreach(MemberInfo memInfo in this.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                 if(memInfo.DeclaringType.Equals(typeof(object))) continue;
 
@@ -56,7 +68,7 @@ namespace SourceForge.NAnt {
         protected virtual void ExecuteChildTasks() {
             foreach(XmlNode childNode in XmlNode) {
                 if(childNode.Name.StartsWith("#") && 
-                   childNode.NamespaceURI.Equals(Project.Doc.DocumentElement.NamespaceURI)) {
+                    childNode.NamespaceURI.Equals(Project.Doc.DocumentElement.NamespaceURI)) {
                     continue;
                 }
 
@@ -76,7 +88,7 @@ namespace SourceForge.NAnt {
                 return Project.CreateTask(node);
             }
             catch(BuildException be) {
-                Log.WriteLine("{0} Failed to created Task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , be.ToString());
+                Log(Level.Error, "{0} Failed to created Task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , be.ToString());
             }
             return null;
         }

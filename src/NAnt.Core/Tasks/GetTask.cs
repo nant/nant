@@ -114,7 +114,7 @@ namespace SourceForge.NAnt.Tasks {
 
                 if (UseTimeStamp && File.Exists(Destination)) {
                     fileTimeStamp = File.GetLastWriteTime(Destination);
-                    Log.WriteLineIf(Verbose, LogPrefix + "Local file time stamp: " + fileTimeStamp.ToString(CultureInfo.InvariantCulture));
+                    Log(Level.Verbose, LogPrefix + "Local file time stamp: {0}.", fileTimeStamp.ToString(CultureInfo.InvariantCulture));
                 }
 
                 //set up the URL connection
@@ -129,20 +129,20 @@ namespace SourceForge.NAnt.Tasks {
                         responseStream = webResponse.GetResponseStream();
                         break;
                     } catch (IOException ex) {
-                        Log.WriteLine(LogPrefix + "Error opening connection: " + ex.Message);
+                        Log(Level.Error, LogPrefix + "Error opening connection: " + ex.Message);
                     }
                 }
 
                 if (responseStream == null) {
-                    Log.WriteLine(LogPrefix + "Cannot get " + Source + " to " + Destination);
+                    Log(Level.Warning, LogPrefix + "Cannot get {0} to {1}.", Source, Destination);
                     if (IgnoreErrors) {
                         return;
                     }
-                    throw new BuildException( "Cannot get " + Source + " to " + Destination, Location);
+                    throw new BuildException("Cannot get " + Source + " to " + Destination, Location);
                 }
 
                 // Open file for writing
-                Log.WriteLine(LogPrefix + Source);
+                Log(Level.Info, LogPrefix + Source);
                 BinaryWriter destWriter = new BinaryWriter(new FileStream(Destination, FileMode.Create));
 
                 // Read in stream from URL and write data in chunks
@@ -164,29 +164,29 @@ namespace SourceForge.NAnt.Tasks {
                         // display progress
                         if (Verbose && totalBytesReadSinceLastDot > bufferSize) {
                             if (totalBytesReadSinceLastDot == totalBytesReadFromStream) {
-                                Log.Write(LogPrefix);
+                                // TO-DO !!!!
+                                //Log.Write(LogPrefix);
                             }
-                            Log.Write(".");
+                            // TO-DO !!!
+                            //Log.Write(".");
                             totalBytesReadSinceLastDot = 0;
                         }
                     }
                 } while (totalReadCount != 0);
 
-                if (Verbose) {
-                    if (totalBytesReadFromStream > bufferSize) {
-                        Log.WriteLine();
-                    }
-                    Log.WriteLine(LogPrefix + "Number of bytes read: " + totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
+                if (totalBytesReadFromStream > bufferSize) {
+                    Log(Level.Verbose, "");
                 }
-
+                Log(Level.Verbose, LogPrefix + "Number of bytes read: {0}.", totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
 
                 // clean up response streams
                 destWriter.Close();
                 responseStream.Close();
 
                 //check to see if we actually have a file...
-                if(!File.Exists(Destination))
+                if(!File.Exists(Destination)) {
                     throw new BuildException("Unable to download file:" + Source, Location);
+                }
 
                 //if (and only if) the use file time option is set, then the
                 //saved file now has its timestamp set to that of the downloaded file
@@ -199,7 +199,7 @@ namespace SourceForge.NAnt.Tasks {
                         // get timestamp of remote file
                         DateTime remoteTimestamp = httpResponse.LastModified;
 
-                        Log.WriteLineIf(Verbose, LogPrefix + Destination + " last modified on " + remoteTimestamp.ToString(CultureInfo.InvariantCulture) );
+                        Log(Level.Verbose, LogPrefix + "{0} last modified on {1}.", Destination, remoteTimestamp.ToString(CultureInfo.InvariantCulture));
                         TouchFile(Destination, remoteTimestamp);
                     }
                 }
@@ -218,19 +218,18 @@ namespace SourceForge.NAnt.Tasks {
                         //and trace out something so the user doesn't think that the
                         //download happened when it didn't
 
-                        Log.WriteLineIf(Verbose, LogPrefix + Destination + " not downloaded.  Not modified since " + httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
+                        Log(Level.Verbose, LogPrefix + "{0} not downloaded.  Not modified since {1}.", Destination, httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
                         return;
                     } else {
-                        Log.WriteLine(LogPrefix + (int)httpResponse.StatusCode + ": " + httpResponse.StatusDescription);
+                        Log(Level.Info, LogPrefix + "{0}: {1}.", (int)httpResponse.StatusCode, httpResponse.StatusDescription);
                         return;
                     }
                 } else {
-                    Log.WriteLine(LogPrefix + webException.Status + ": " + webException.ToString());
+                    Log(Level.Info, LogPrefix + "{0}: {1}.", webException.Status, webException.ToString());
                     return;
                 }
             } catch (IOException e) {
                 string msg = "Error getting " + Source + " to " + Destination;
-                Log.WriteLine(LogPrefix + msg);
                 throw new BuildException(msg, Location, e);
             }
         }
@@ -243,14 +242,14 @@ namespace SourceForge.NAnt.Tasks {
         protected void TouchFile(string fileName, DateTime touchDateTime) {
             try {
                 if (File.Exists(fileName)) {
-                    Log.WriteLineIf(Verbose, LogPrefix + "Touching file {0} with {1}", fileName, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                    Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", fileName, touchDateTime.ToString(CultureInfo.InvariantCulture));
                     File.SetLastWriteTime(fileName, touchDateTime);
                 } else {
                     throw new FileNotFoundException();
                 }
             } catch (Exception e) {
                 // swallow any errors and move on
-                Log.WriteLineIf(Verbose, LogPrefix + "Error: {0}", e.ToString());
+                Log(Level.Verbose, LogPrefix + "Error: {0}.", e.ToString());
             }
         }
 
@@ -301,7 +300,7 @@ namespace SourceForge.NAnt.Tasks {
                     return webRequest;
                 } catch (Exception e) {
                     string msg = uri.Scheme + " protocol is not supported.";
-                    Log.WriteLine(LogPrefix + msg);
+                    Log(Level.Error, LogPrefix + msg);
                     throw new BuildException(msg, Location, e);
                 }
             }

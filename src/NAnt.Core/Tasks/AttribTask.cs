@@ -156,7 +156,7 @@ namespace SourceForge.NAnt.Tasks {
             FileAttributes fileAttributes = GetFileAttributes();
 
             // display build log message
-            Log.WriteLine(LogPrefix + "Setting file attributes for {0} files to {1}", fileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
+            Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", fileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
 
             // perform operation
             foreach (string path in fileNames) {
@@ -171,7 +171,7 @@ namespace SourceForge.NAnt.Tasks {
         private void SetFileAttributes(string path, FileAttributes fileAttributes) {
             try {
                 if (File.Exists(path)) {
-                    Log.WriteLineIf(Verbose, LogPrefix + path);
+                    Log(Level.Verbose, LogPrefix + path);
                     File.SetAttributes(path, fileAttributes);
                 } else {
                     throw new FileNotFoundException();
@@ -181,7 +181,7 @@ namespace SourceForge.NAnt.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, e);
                 } else {
-                    Log.WriteLineIf(Verbose, LogPrefix + msg);
+                    Log(Level.Verbose, LogPrefix + msg);
                 }
             }
         }

@@ -200,7 +200,7 @@ namespace SourceForge.NAnt.Tasks {
                     throw;
                 } else {
                     logger.Error("Execution Error", e);
-                    Log.WriteLine(e.Message);
+                    Log(Level.Error, e.Message);
                 }
             } catch (Exception e) {
                 logger.Error("Execution Error", e);
@@ -238,10 +238,7 @@ namespace SourceForge.NAnt.Tasks {
                                 arguments.Append(argValue);
                             }
                         } else {
-                            Log.WriteLine(
-                                string.Format(CultureInfo.InvariantCulture, 
-                                "{0} skipped arg element without value and file attribute.",
-                                Location));
+                            Log(Level.Warning, "{0} skipped arg element without value and file attribute.", Location);
                         }
                     }
                 }
@@ -286,7 +283,7 @@ namespace SourceForge.NAnt.Tasks {
                     p.StartInfo.Arguments);
 
                 logger.Info(msg);
-                Log.WriteLineIf(Verbose, msg);
+                Log(Level.Verbose, msg);
 
                 p.Start();
             } catch (Exception e) {
@@ -312,7 +309,7 @@ namespace SourceForge.NAnt.Tasks {
                 lock (_htThreadStream) {
                     logger.Info(strLogContents);
                     //do not print LogPrefix, just pad that length.
-                    Log.WriteLine(new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
+                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
                     if (OutputFile != null && OutputFile.Length != 0) {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
@@ -333,7 +330,7 @@ namespace SourceForge.NAnt.Tasks {
                 lock (_htThreadStream) {
                     logger.Error(strLogContents);
                     //do not print LogPrefix, just pad that length.
-                    Log.WriteLine(new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
+                    Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
                     if (OutputFile != null && OutputFile.Length != 0) {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
