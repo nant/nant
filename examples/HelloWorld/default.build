@@ -4,14 +4,20 @@
 	<property name="debug" value="true"/>
 	<target name="clean">
 		<delete file="${basename}-cs.exe" failonerror="false"/>
+		<delete file="${basename}-cs.pdb" failonerror="false"/>
 		<delete file="${basename}-js.exe" failonerror="false"/>
+		<delete file="${basename}-js.pdb" failonerror="false"/>
 		<delete file="${basename}-vb.exe" failonerror="false"/>
+		<delete file="${basename}-vb.pdb" failonerror="false"/>
 	</target>
 	<target name="build">
 		<csc target="exe" output="${basename}-cs.exe">
 			<sources>
 				<includes name="${basename}.cs"/>
 			</sources>
+			<references>
+				<includes name="System.XML.dll"/>
+			</references>
 		</csc>
 		<jsc target="exe" output="${basename}-js.exe">
 			<sources>
