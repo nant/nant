@@ -293,7 +293,7 @@ namespace NAnt.Core {
 
                 while (parentElement != null) {
                     if (parentElement is Task) {
-                        xpath += " and parent::nant:task[@name=\"" + parentElement.Name + "\""; 
+                        xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
                         level++;
                         break;
                     }
@@ -316,7 +316,7 @@ namespace NAnt.Core {
                     parentElement = parentElement.Parent as Element;
                 }
 
-                xpath = "descendant::nant:attribute[@name=\"" + attributeName + "\"" + xpath;
+                xpath = "descendant::attribute[@name=\"" + attributeName + "\"" + xpath;
 
                 for (int counter = 0; counter < level; counter++) {
                     xpath += "]";
@@ -330,8 +330,8 @@ namespace NAnt.Core {
 
                 if (framework != null) {
                     // locate framework node for current framework
-                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:platform[@name=\"" 
-                        + Project.PlatformName + "\"]/nant:framework[@name=\"" 
+                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("frameworks/platform[@name=\"" 
+                        + Project.PlatformName + "\"]/framework[@name=\"" 
                         + framework.Name + "\"]", 
                         Project.NamespaceManager);
 
@@ -348,7 +348,7 @@ namespace NAnt.Core {
 
                 if (attributeNode == null) {
                     // locate framework-neutral node
-                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:tasks", 
+                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode("frameworks/tasks", 
                         Project.NamespaceManager);
 
                     if (frameworkNeutralNode != null) {
