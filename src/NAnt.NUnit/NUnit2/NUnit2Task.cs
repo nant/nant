@@ -200,12 +200,10 @@ namespace NAnt.NUnit2.Tasks {
                             test = runner.Load(testAssembly);
                         }
 
-                        if (test == null) {
-                            if (runner.FrameworkVersion == null) {
-                                Log(Level.Warning, "Assembly \"{0}\" was not built"
-                                    + " with the NUnit framework and contains no tests.",
-                                    testAssembly);
-                            }
+                        if (test == null || runner.FrameworkVersion == null) {
+                            Log(Level.Warning, "Assembly \"{0}\" was not built"
+                                + " with the NUnit framework and/or contains no tests.",
+                                testAssembly);
                             continue;
                         }
 
