@@ -28,91 +28,85 @@ using System.Xml;
 using NUnit.Framework;
 using NUnit.Core;
 
-namespace SourceForge.NAnt.Tasks.NUnit2 
-{
+namespace SourceForge.NAnt.Tasks.NUnit2 {
 
-   /// <summary>
-   /// Custom TestDomain class, similar to the one
-   /// included with NUnit 2.0, in order to workaround
-   /// some limitations in it.
-   /// </summary>
-   internal class NUnit2TestDomain
-   {
+    /// <summary>
+    /// Custom TestDomain class, similar to the one
+    /// included with NUnit 2.0, in order to workaround
+    /// some limitations in it.
+    /// </summary>
+    internal class NUnit2TestDomain {
 
-      private TextWriter _outStream;
-      private TextWriter _errorStream;
+        private TextWriter _outStream;
+        private TextWriter _errorStream;
 
-      public NUnit2TestDomain(TextWriter outStream, TextWriter errorStream)
-      {
-         _outStream = outStream;
-         _errorStream = errorStream;
-      }
+        public NUnit2TestDomain(TextWriter outStream, TextWriter errorStream) {
+            _outStream = outStream;
+            _errorStream = errorStream;
+        }
 
-      /// <summary>
-      /// Run a single testcase
-      /// </summary>
-      /// <param name="testcase">The test to run, or null if running all tests</param>
-      /// <param name="assemblyFile"></param>
-      /// <param name="configFilePath"></param>
-      /// <param name="listener"></param>
-      /// <returns>The results of the test</returns>
-      public TestResult RunTest ( 
-                  string testcase, 
-                  string assemblyFile,
-                  string configFilePath, 
-                  EventListener listener
-               )
-      {
-         string assemblyDir = Path.GetFullPath( Path.GetDirectoryName(assemblyFile) );
-         AppDomain domain = CreateDomain(assemblyDir, configFilePath);
+        /// <summary>
+        /// Run a single testcase
+        /// </summary>
+        /// <param name="testcase">The test to run, or null if running all tests</param>
+        /// <param name="assemblyFile"></param>
+        /// <param name="configFilePath"></param>
+        /// <param name="listener"></param>
+        /// <returns>The results of the test</returns>
+        public TestResult RunTest ( 
+            string testcase, 
+            string assemblyFile,
+            string configFilePath, 
+            EventListener listener
+            ) {
+            string assemblyDir = Path.GetFullPath( Path.GetDirectoryName(assemblyFile) );
+            AppDomain domain = CreateDomain(assemblyDir, configFilePath);
 
-         string currentDir = Directory.GetCurrentDirectory();
-         Directory.SetCurrentDirectory(assemblyDir);
+            string currentDir = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(assemblyDir);
 
-         try {
-               RemoteTestRunner runner = CreateTestRunner(domain);
-               if (testcase != null)
-                  runner.Initialize(testcase, assemblyFile);
-               else
-                  runner.Initialize(assemblyFile);
-               runner.BuildSuite(); 
-               return runner.Run(listener, _outStream, _errorStream);
+            try {
+                RemoteTestRunner runner = CreateTestRunner(domain);
+                if (testcase != null)
+                    runner.Initialize(testcase, assemblyFile);
+                else
+                    runner.Initialize(assemblyFile);
+                runner.BuildSuite(); 
+                return runner.Run(listener, _outStream, _errorStream);
 
-         } finally {
-               Directory.SetCurrentDirectory(currentDir);
-               AppDomain.Unload(domain);
-         }
-      }
+            } finally {
+                Directory.SetCurrentDirectory(currentDir);
+                AppDomain.Unload(domain);
+            }
+        }
 
-      private AppDomain CreateDomain(string basedir, string configFilePath)
-      {
-         // spawn new domain in specified directory
-         AppDomainSetup domSetup = new AppDomainSetup();
-         domSetup.ApplicationBase = basedir;
-         domSetup.ConfigurationFile = configFilePath;
-         domSetup.ApplicationName = "NAnt NUnit2.0 Remote Domain";
+        private AppDomain CreateDomain(string basedir, string configFilePath) {
+            // spawn new domain in specified directory
+            AppDomainSetup domSetup = new AppDomainSetup();
+            domSetup.ApplicationBase = basedir;
+            domSetup.ConfigurationFile = configFilePath;
+            domSetup.ApplicationName = "NAnt NUnit2.0 Remote Domain";
          
-         return AppDomain.CreateDomain ( 
-                  domSetup.ApplicationName, 
-                  AppDomain.CurrentDomain.Evidence, 
-                  domSetup
-               );
-      }
+            return AppDomain.CreateDomain ( 
+                domSetup.ApplicationName, 
+                AppDomain.CurrentDomain.Evidence, 
+                domSetup
+                );
+        }
 
-      private RemoteTestRunner CreateTestRunner(AppDomain domain)
-      {
-         ObjectHandle oh;
-         Type rtrType = typeof(RemoteTestRunner);
+        private RemoteTestRunner CreateTestRunner(AppDomain domain) {
+            ObjectHandle oh;
+            Type rtrType = typeof(RemoteTestRunner);
 
-         oh = domain.CreateInstance ( 
-                  rtrType.Assembly.FullName,
-                  rtrType.FullName
-               );
-         return (RemoteTestRunner)oh.Unwrap();
-      }
+            oh = domain.CreateInstance ( 
+                rtrType.Assembly.FullName,
+                rtrType.FullName
+                );
+            return (RemoteTestRunner)oh.Unwrap();
+        }
 
 
       
-   } // class NUnit2TestDomain
+    } // class NUnit2TestDomain
    
 } // namespace SourceForge.NAnt.Tasks.NUnit2 

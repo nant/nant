@@ -25,61 +25,58 @@ using System.Collections.Specialized;
 using System.Xml;
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tasks.NUnit2 
-{
-   [ElementName("test")]
-   public class NUnit2Test : Element 
-   {                  
-      private string _assemblyName = null;               
-      private string _testname = null;
-      private bool _haltOnFailure = true;
-      private string _transformFile;
-      private FileSet _assemblies = new FileSet();
-      string _appConfigFile = null;
+namespace SourceForge.NAnt.Tasks.NUnit2 {
+    [ElementName("test")]
+    public class NUnit2Test : Element {                  
+        private string _assemblyName = null;               
+        private string _testname = null;
+        private bool _haltOnFailure = true;
+        private string _transformFile;
+        private FileSet _assemblies = new FileSet();
+        string _appConfigFile = null;
 
-      /// <summary>Name of the assembly to search for tests.</summary>
-      [TaskAttribute("assemblyname")]
-      public string AssemblyName { get { if (_assemblyName != null) return Project.GetFullPath(_assemblyName); else return null; } set {_assemblyName = value;} }
+        /// <summary>Name of the assembly to search for tests.</summary>
+        [TaskAttribute("assemblyname")]
+        public string AssemblyName { get { if (_assemblyName != null) return Project.GetFullPath(_assemblyName); else return null; } set {_assemblyName = value;} }
         
-      /// <summary>Name of a specific test to run. If Not specified then all tests in the assembly are run.</summary>
-      [TaskAttribute("testname")]
-      public string TestName { get { return _testname; } set {_testname = value;} }
+        /// <summary>Name of a specific test to run. If Not specified then all tests in the assembly are run.</summary>
+        [TaskAttribute("testname")]
+        public string TestName { get { return _testname; } set {_testname = value;} }
 
-      /// <summary>Assemblies to include in test.</summary>
-      [FileSet("assemblies")]
-      public FileSet Assemblies { get { return _assemblies; } set {_assemblies = value;} }
+        /// <summary>Assemblies to include in test.</summary>
+        [FileSet("assemblies")]
+        public FileSet Assemblies { get { return _assemblies; } set {_assemblies = value;} }
 
-      /// <summary>Build fails on failure</summary>
-      [TaskAttribute("haltonfailure")]
-      [BooleanValidator()]
-      public bool HaltOnFailure { get { return _haltOnFailure; } set { _haltOnFailure = value; } }
+        /// <summary>Build fails on failure</summary>
+        [TaskAttribute("haltonfailure")]
+        [BooleanValidator()]
+        public bool HaltOnFailure { get { return _haltOnFailure; } set { _haltOnFailure = value; } }
 
-      /// <summary>XSLT transform file to use when using the Xml formatter</summary>
-      [TaskAttribute("transformfile")]
-      public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
+        /// <summary>XSLT transform file to use when using the Xml formatter</summary>
+        [TaskAttribute("transformfile")]
+        public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
 
-      [TaskAttribute("appconfig")]
-      public string AppConfigFile {
-         get { return Project.GetFullPath(_appConfigFile); }
-         set { _appConfigFile = value; }
-      }
+        [TaskAttribute("appconfig")]
+        public string AppConfigFile {
+            get { return Project.GetFullPath(_appConfigFile); }
+            set { _appConfigFile = value; }
+        }
 
-      /// <summary>
-      /// Gets all assemblies specified for these tests
-      /// </summary>
-      /// <returns></returns>
-      public StringCollection GetTestAssemblies() 
-      {
-         StringCollection files = new StringCollection();
+        /// <summary>
+        /// Gets all assemblies specified for these tests
+        /// </summary>
+        /// <returns></returns>
+        public StringCollection GetTestAssemblies() {
+            StringCollection files = new StringCollection();
 
-         if ( AssemblyName != null )
-            files.Add(AssemblyName);
-         else
-            files = Assemblies.FileNames;
+            if ( AssemblyName != null )
+                files.Add(AssemblyName);
+            else
+                files = Assemblies.FileNames;
 
-         return files;
-      }
+            return files;
+        }
              
 
-   }
+    }
 }
