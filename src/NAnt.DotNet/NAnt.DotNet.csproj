@@ -109,11 +109,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\FXCompilerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Tasks\JscTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -139,11 +134,6 @@
                 />
                 <File
                     RelPath = "Types\ResourceFileSetCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tasks\SdkExternalProgramBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
