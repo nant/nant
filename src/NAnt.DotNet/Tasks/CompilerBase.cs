@@ -228,7 +228,10 @@ namespace SourceForge.NAnt.Tasks
                     
                     // Resx args
                     foreach (string fileName in Resources.ResxFiles.FileNames ) {
-                        string prefix = GetFormNamespace(fileName);
+                        string prefix = GetFormNamespace(fileName); // try and get it from matching form
+                        if (prefix = "")
+                            prefix = Resources.Prefix;
+                        
                         string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                         string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
                         string manifestResourceName = Path.GetFileName(tmpResourcePath).Replace(actualFileName, prefix + "." + actualFileName );          
@@ -301,12 +304,22 @@ namespace SourceForge.NAnt.Tasks
             while ( sr.Peek() > -1 ) {                               
                 string str = sr.ReadLine();
                 string matchnamespace =  @"namespace ((\w+.)*)";   		    		
+                string matchnamespaceCaps =  @"Namespace ((\w+.)*)";   	
                 Regex matchNamespaceRE = new Regex(matchnamespace);
+                Regex matchNamespaceCapsRE = new Regex(matchnamespaceCaps);
                 
                 if (matchNamespaceRE.Match(str).Success ){
                     Match namematch = matchNamespaceRE.Match(str);
                     retnamespace = namematch.Groups[1].Value; 
                     retnamespace = retnamespace.Replace( "{", "" );
+                    retnamespace = retnamespace.Trim();
+                    break;
+                }
+                else  if (matchNamespaceCapsRE.Match(str).Success )
+                {
+                    Match namematch = matchNamespaceCapsRE.Match(str);
+                    retnamespace = namematch.Groups[1].Value;                     
+                    retnamespace = retnamespace.Trim();
                     break;
                 }
             }
