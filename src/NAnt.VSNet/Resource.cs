@@ -79,16 +79,16 @@ namespace NAnt.VSNet {
         public void Compile(ConfigurationSettings configurationSettings) {
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
-                    _compiledResourceFile = CompileResx();
                     _manifestResourceName = GetManifestResourceName(configurationSettings);
+                    _compiledResourceFile = CompileResx(configurationSettings);
                     break;
                 case ".licx":
-                    _compiledResourceFile = CompileLicx();
                     _manifestResourceName = GetManifestResourceName(configurationSettings);
+                    _compiledResourceFile = CompileLicx(configurationSettings);
                     break;
                 default:
-                    _compiledResourceFile = CompileResource();
                     _manifestResourceName = GetManifestResourceName(configurationSettings);
+                    _compiledResourceFile = CompileResource();
                     break;
             }
         }
@@ -111,7 +111,7 @@ namespace NAnt.VSNet {
 
         private string GetManifestResourceNameCSharp(ConfigurationSettings configSetting, string dependentFile) {
             // defer to the resource management code in CscTask
-            CscTask csc = new CscTask();      
+            CscTask csc = new CscTask();
             csc.Project = _solutionTask.Project;
             csc.NamespaceManager = _solutionTask.NamespaceManager;
             csc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
@@ -156,7 +156,7 @@ namespace NAnt.VSNet {
             return InputFile.FullName;
         }
 
-        private string CompileLicx() {
+        private string CompileLicx(ConfigurationSettings configurationSettings) {
             string outputFileName = Project.ProjectSettings.OutputFileName;
 
             // create instance of License task
@@ -188,7 +188,8 @@ namespace NAnt.VSNet {
 
             // set task properties
             lt.InputFile = InputFile;
-            lt.OutputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(outputFileName + ".licenses"));
+            lt.OutputFile = new FileInfo(Path.Combine(configurationSettings.ObjectDir.FullName, 
+                outputFileName + ".licenses"));
             lt.Target = Path.GetFileName(outputFileName);
 
             foreach (Reference reference in Project.References) {
@@ -208,16 +209,9 @@ namespace NAnt.VSNet {
             return lt.OutputFile.FullName;
         }
 
-        private string CompileResx() {
-            FileInfo outputFile = new FileInfo(Project.ProjectSettings.GetTemporaryFilename(
-                Path.Combine(Project.Name, Path.Combine(Path.GetDirectoryName(
-                    _resourceSourceFileRelativePath), Path.GetFileNameWithoutExtension(
-                        InputFile.Name) + ".resources"))));
-
-            // ensure output directory exists
-            if (!outputFile.Directory.Exists) {
-                outputFile.Directory.Create();
-            }
+        private string CompileResx(ConfigurationSettings configurationSettings) {
+            FileInfo outputFile = new FileInfo(Path.Combine(
+                configurationSettings.ObjectDir.FullName, ManifestResourceName));
 
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
