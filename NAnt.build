@@ -212,19 +212,21 @@
             </assemblies>
             <documenters>
                 <documenter name="NAntTask">
-                    <property name="OutputDirectory" value="${build.dir}\docs\tasks" />
+                    <property name="OutputDirectory" value="${build.dir}\docs\tasks" />                                                            
                     <property name="ShowMissingSummaries" value="False" />
-                    <property name="ShowMissingRemarks" value="False" />
-                    <property name="ShowMissingParams" value="False" />
-                    <property name="ShowMissingReturns" value="False" />
+                    <property name="ShowMissingRemarks" value="True" />
+                    <property name="ShowMissingParams" value="True" />
+                    <property name="ShowMissingReturns" value="True" />
                     <property name="ShowMissingValues" value="False" />
                     <property name="DocumentInternals" value="True" />
                     <property name="DocumentProtected" value="True" />
                     <property name="DocumentPrivates" value="True" />
-                    <property name="DocumentEmptyNamespaces" value="False" />
+                    <property name="DocumentEmptyNamespaces" value="True" />
                     <property name="IncludeAssemblyVersion" value="False" />
                     <property name="CopyrightText" value="" />
                     <property name="CopyrightHref" value="" />
+                    <property name="SkipNamespacesWithoutSummaries" value="False" />
+                    
                 </documenter>
             </documenters> 
         </ndoc>
