@@ -89,7 +89,7 @@ namespace NAnt.SourceControl.Tasks {
                     this.DestinationDirectory = 
                         new DirectoryInfo(Path.GetDirectoryName(value));
                 }
-                SetCommandOption("destfile", string.Format(CultureInfo.InvariantCulture, "-oxml {0}", value), true);}
+                SetCommandOption("destfile", string.Format(CultureInfo.InvariantCulture, "\"-oxml\" \"{0}\"", value), true);}
         }
 
         /// <summary>
