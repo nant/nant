@@ -70,9 +70,9 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="e">The element that should be used to create a new instance of the <see cref="Element" /> class.</param>
         protected Element(Element e) : this() {
-            this._location = e._location;
-            this._project = e._project;
-            this._xmlNode = e._xmlNode;
+            _location = e._location;
+            _project = e._project;
+            _xmlNode = e._xmlNode;
         }
 
         #endregion Protected Instance Constructors
@@ -571,16 +571,30 @@ namespace NAnt.Core {
 
                         childElement.Project = Project;
                         childElement.Parent = this;
-                        childElement.Initialize(childNode);
+                        
                         // if subtype of DataTypeBase
                         DataTypeBase dataType = childElement as DataTypeBase;
-                        if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
-                            // we have a datatype reference
-                            childElement = InitDataTypeBase(dataType );
+                        
+                        if (dataType != null  && childNode.Attributes["refid"] != null ) {
+                            dataType.RefID = childNode.Attributes["refid"].Value;
+                            // we have a datatype reference 
                             childElement.Project = Project;
                             childElement.Parent = this;
+                            childElement = InitDataTypeBase(dataType );
+                            if( childElement.GetType() != (elementType)) {
+                                ElementNameAttribute childElemAttr = (ElementNameAttribute) 
+                                    Attribute.GetCustomAttribute(childElement.GetType(), typeof(ElementNameAttribute));
+                                ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
+                                    Attribute.GetCustomAttribute(elementType, typeof(ElementNameAttribute));
+                                
+                                // throw error wrong type definition
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                            "Attempting to use a <{0}> reference where a <{1}> is required", elementTypeAttr.Name, childElemAttr.Name ), Location);
+                            }
+                            childElement.Location = Project.LocationMap.GetLocation(elementNode);
+                        } else {
+                            childElement.Initialize(childNode);
                         }
-
                         list.SetValue(childElement, arrayIndex);
                         arrayIndex ++;
                     }
@@ -756,16 +770,37 @@ namespace NAnt.Core {
             // initialize the object with context
             childElement.Project = Project;
             childElement.Parent = this;
-            childElement.Initialize(xml);
-            
             DataTypeBase dataType = childElement as DataTypeBase;
-            if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
+            if (dataType != null  && xml.Attributes["refid"] != null ) {
+                
+                if (setter == null){
+                    string msg = string.Format(CultureInfo.InvariantCulture, "DataType child element {0} in class {1} must define a set method", propInf.Name, this.GetType().FullName);
+                    logger.Error(msg);
+                    throw new BuildException(msg, Location);
+                }
+                dataType.RefID = xml.Attributes["refid"].Value;           
                 // we have a datatype reference
                 childElement = InitDataTypeBase(dataType);
+                Type elemType = setter.GetParameters()[0].ParameterType;
+                
+                if( childElement.GetType() != (elemType ) ) {
+                    ElementNameAttribute childElemAttr = (ElementNameAttribute) 
+                        Attribute.GetCustomAttribute(childElement.GetType(), typeof(ElementNameAttribute));
+                    ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
+                        Attribute.GetCustomAttribute(elemType, typeof(ElementNameAttribute));
+                        
+                    // throw error wrong type definition
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Attempting to use a <{0}> reference where a <{1}> is required", elementTypeAttr.Name, childElemAttr.Name ), Location);
+                }
                 // re-set the getter
                 getter = null;
                 childElement.Project = Project;
+                childElement.Parent = this;
+            } else {
+                childElement.Initialize(xml);
             }
+            
 
             // call the set method if we created the object
             if (setter != null && getter == null) {
