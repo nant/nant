@@ -256,6 +256,12 @@ namespace NAnt.VSNet {
                 _interopFile)).FullName;
 
             commandLine = @"""" + _typelibFile + @""" /silent /out:""" + _referenceFile + @"""";
+            if (_importTool == "aximp" && _runtimeCallableWrapper != null) {
+                string rcwFile = Path.Combine(cs.OutputDir.FullName, _runtimeCallableWrapper);
+                if (File.Exists(rcwFile)) {
+                    commandLine += " /rcw:\"" + rcwFile + "\"";
+                }
+            }
             if (_importTool == "tlbimp") {
                 commandLine += " /namespace:" + _namespace;
             }
@@ -418,6 +424,7 @@ namespace NAnt.VSNet {
                 CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
             string minorVersion = (int.Parse(elemReference.Attributes["VersionMinor"].Value, 
                 CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
+            string referenceName = elemReference.Attributes["Name"].Value;
 
             string tlbVersionKey = string.Format(@"TYPELIB\{0}\{1}.{2}", 
                 elemReference.Attributes["Guid"].Value, majorVersion, minorVersion);
@@ -429,23 +436,43 @@ namespace NAnt.VSNet {
             // look for a primary interop assembly
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
                 if (registryKey != null && registryKey.GetValue("PrimaryInteropAssemblyName") != null) {
-                    _referenceFile = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
-                    Assembly asmRef = Assembly.Load(_referenceFile);
-                    _referenceFile = new Uri(asmRef.CodeBase).LocalPath;
-                    _baseDirectory = new DirectoryInfo(Path.GetDirectoryName(_referenceFile));
-                    _copyLocal = _privateSpecified ? _isPrivate : false;
-                    _referenceTimeStamp = GetTimestamp(_referenceFile);
+                    string primaryInteropAssemblyName = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
+                    try {
+                        // TO-DO : assembly should be loaded into separate appdomain
+                        Assembly asmRef = Assembly.Load(primaryInteropAssemblyName);
+                        _referenceFile = new Uri(asmRef.CodeBase).LocalPath;
+                        _baseDirectory = new DirectoryInfo(Path.GetDirectoryName(_referenceFile));
+                        _copyLocal = _privateSpecified ? _isPrivate : false;
+                        _referenceTimeStamp = GetTimestamp(_referenceFile);
+                    } catch (Exception ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Primary Interop Assembly '{0}' could not be loaded.", 
+                            primaryInteropAssemblyName), Location.UnknownLocation, 
+                            ex);
+                    }
 
-                    return;
+                    // if the import tool is aximp, we'll use the primary interop 
+                    // assembly as runtime callable wrapper
+                    if (_importTool == "aximp") {
+                        _runtimeCallableWrapper = _referenceFile;
+                    } else {
+                        return;
+                    }
+                }
+
+                if (_importTool == "primary") {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Couldn't find primary interop assembly '{0}' ({1}).", 
+                        referenceName, tlbRegistryKey), Location.UnknownLocation);
                 }
             }
 
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbRegistryKey)) {
-                if (registryKey == null)
+                if (registryKey == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Couldn't find reference to type library '{0}' ({1}).", 
-                        elemReference.Attributes["Name"].Value, tlbRegistryKey), 
-                        Location.UnknownLocation);
+                        referenceName, tlbRegistryKey), Location.UnknownLocation);
+                }
 
                 // check if the typelib actually exists
                 _typelibFile = (string) registryKey.GetValue(null);
@@ -456,9 +483,21 @@ namespace NAnt.VSNet {
                 }
 
                 _referenceTimeStamp = GetTimestamp(_typelibFile);
-                _interopFile = "Interop." + elemReference.Attributes["Name"].Value + ".dll";
+
+                if (_importTool == "aximp") {
+                    if (_runtimeCallableWrapper == null) {
+                        // if no primary interop assembly is provided for ActiveX control,
+                        // trust the fact that VS.NET uses Interop.<name of the tlbimp reference>.dll
+                        // for the imported typelibrary
+                        _runtimeCallableWrapper = "Interop." + referenceName.Substring(2, referenceName.Length - 2) + ".dll";
+                    }
+                    // eg. AxVisOcx will become AxInterop.VisOcx.dll 
+                    _interopFile = "AxInterop." + referenceName.Substring(2, referenceName.Length - 2) + ".dll";
+                } else {
+                    _interopFile = "Interop." + referenceName + ".dll";
+                }
                 _referenceFile = _interopFile;
-                _namespace = elemReference.Attributes["Name"].Value;
+                _namespace = referenceName;
                 _copyLocal = true;
                 _isCreated = true;
             }
@@ -470,6 +509,7 @@ namespace NAnt.VSNet {
 
         private string _name;
         private string _referenceFile;
+        private string _runtimeCallableWrapper;
         private DirectoryInfo _baseDirectory;
         private string _namespace;
         private string _interopFile;
