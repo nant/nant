@@ -41,7 +41,7 @@ namespace NAnt.VSNet {
     public class Reference {
         #region Public Instance Constructors
 
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, ReferenceGACCache gacCache, SolutionTask solutionTask, DirectoryInfo outputDir) {
+        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, ReferenceGacCache gacCache, SolutionTask solutionTask, DirectoryInfo outputDir) {
             _projectSettings = ps;
             _solutionTask = solutionTask;
             _referenceTimeStamp = DateTime.MinValue;
@@ -229,6 +229,14 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Properties
 
+        #region Protected Instance Properties
+
+        protected ReferenceGacCache GacCache {
+            get { return _gacCache; }
+        }
+
+        #endregion Protected Instance Properties
+
         #region Public Instance Methods
 
         public void GetCreationCommand(ConfigurationSettings cs, out string program, out string commandLine) {
@@ -249,7 +257,8 @@ namespace NAnt.VSNet {
             if (_importTool == "tlbimp" || _importTool == "aximp") {
                 // check if wrapper assembly should be strongly signed
                 if (_projectSettings.AssemblyOriginatorKeyFile != null) {
-                    commandLine += @" /keyfile:""" + Path.Combine(_projectSettings.RootDirectory, _projectSettings.AssemblyOriginatorKeyFile) + @"""";
+                    commandLine += @" /keyfile:""" + Path.Combine(_projectSettings.ProjectDirectory.FullName, 
+                        _projectSettings.AssemblyOriginatorKeyFile) + @"""";
                 }
             }
             program = _importTool + ".exe";
@@ -262,7 +271,7 @@ namespace NAnt.VSNet {
             return _baseDirectory;
         }
 
-        public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings, AppDomain temporaryDomain) {
+        public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings) {
             StringCollection referencedFiles = new StringCollection();
 
             // check if we're dealing with a project reference
@@ -287,11 +296,7 @@ namespace NAnt.VSNet {
                 _referenceFile = fi.FullName;
             }
 
-            string[] referencedModules = GetAllReferencedModules(temporaryDomain, _referenceFile);
-
-            ReferencesResolver referencesResolver =
-                ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                typeof(ReferencesResolver).FullName).Unwrap());
+            string[] referencedModules = GetAllReferencedModules(_referenceFile);
 
             // get a list of the references in the output directory
             foreach (string referenceFile in referencedModules) {
@@ -301,7 +306,7 @@ namespace NAnt.VSNet {
                     // skip referenced module if the assembly referenced by
                     // the project is a system reference or the module itself
                     // is installed in the GAC
-                    if (IsSystem || referencesResolver.IsAssemblyInGac(referenceFile)) {
+                    if (IsSystem || GacCache.IsAssemblyInGac(referenceFile)) {
                         continue;
                     }
                 }
@@ -334,12 +339,15 @@ namespace NAnt.VSNet {
 
         #region Private Instance Methods
 
-        private string[] GetAllReferencedModules(AppDomain temporaryDomain, string module) {
+        private string[] GetAllReferencedModules(string module) {
             string fullPathToModule = Path.GetFullPath(module);
             string moduleDirectory = Path.GetDirectoryName(fullPathToModule);
 
             Hashtable allReferences = new Hashtable();
             Hashtable unresolvedReferences = new Hashtable();
+
+            // create temporary domain
+            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
 
             try {
                 ReferencesResolver referencesResolver =
@@ -362,6 +370,8 @@ namespace NAnt.VSNet {
 
                 }
             } finally {
+                // unload temporary domain
+                AppDomain.Unload(temporaryDomain);
             }
 
             string[] result = new string[allReferences.Keys.Count];
@@ -534,7 +544,7 @@ namespace NAnt.VSNet {
         /// </returns>
         private bool ResolveFromHintPath(XmlElement referenceElement) {
             if (referenceElement.Attributes["HintPath"] != null) {
-                return ResolveFromPath(Path.Combine(_projectSettings.RootDirectory, 
+                return ResolveFromPath(Path.Combine(_projectSettings.ProjectDirectory.FullName, 
                     referenceElement.Attributes["HintPath"].Value));
             }
             return false;
@@ -604,7 +614,7 @@ namespace NAnt.VSNet {
                 if (!_privateSpecified) {
                     // assembly should only be copied locally if its not
                     // installed in the GAC
-                    _copyLocal = !IsAssemblyInGac(_referenceFile);
+                    _copyLocal = !GacCache.IsAssemblyInGac(_referenceFile);
                 } else {
                     _copyLocal = _isPrivate;
                 }
@@ -731,25 +741,6 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Determines whether the specified assembly is installed in the Global
-        /// Assembly Cache.
-        /// </summary>
-        /// <param name="assemblyFile">The assembly file to check.</param>
-        /// <returns>
-        /// <see langword="true" /> if <paramref name="assemblyFile" /> is 
-        /// installed in the Global Assembly Cache; otherwise, 
-        /// <see langword="false" />.
-        /// </returns>
-        /// <remarks>
-        /// To determine whether the specified assembly is installed in the 
-        /// Global Assembly Cache, the assembly is loaded into a separate
-        /// <see cref="AppDomain" />.
-        /// </remarks>
-        private bool IsAssemblyInGac(string assemblyFile) {
-            return _gacCache.IsAssemblyInGac(assemblyFile);
-        }
-
-        /// <summary>
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
@@ -800,7 +791,7 @@ namespace NAnt.VSNet {
         private ConfigurationSettings _configurationSettings;
         private ProjectBase _project;
         private SolutionTask _solutionTask;
-        private ReferenceGACCache _gacCache;
+        private ReferenceGacCache _gacCache;
 
         #endregion Private Instance Fields
     }
@@ -819,26 +810,6 @@ namespace NAnt.VSNet {
                     allReferences.Add(fullPathToReferencedAssembly, null);
                     unresolvedReferences.Add(fullPathToReferencedAssembly, null);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Determines whether the specified assembly is installed in the Global
-        /// Assembly Cache.
-        /// </summary>
-        /// <param name="assemblyFile">The assembly file to check.</param>
-        /// <returns>
-        /// <see langword="true" /> if <paramref name="assemblyFile" /> is 
-        /// installed in the Global Assembly Cache; otherwise, 
-        /// <see langword="false" />.
-        /// </returns>
-        public bool IsAssemblyInGac(string assemblyFile) {
-            try {
-                AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                Assembly assembly = Assembly.Load(assemblyName);
-                return assembly.GlobalAssemblyCache;
-            } catch {
-                return false;
             }
         }
 
