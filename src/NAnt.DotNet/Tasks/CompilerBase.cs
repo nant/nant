@@ -56,26 +56,73 @@ namespace NAnt.DotNet.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>Output directory for the compilation target.</summary>
+        /// <summary>
+        /// Output directory for the compilation target.
+        /// </summary>
         [TaskAttribute("output", Required=true)]
-        public string Output        { get { return _output; } set { _output = value; }}
+        public string Output {
+            get { return _output; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _output = Project.GetFullPath(value);
+                } else {
+                    _output = null;
+                }
+            }
+        }
 
         /// <summary>Output type (<c>library</c> or <c>exe</c>).</summary>
         [TaskAttribute("target", Required=true)]
-        public string OutputTarget  { get { return _target; } set { _target = value; }}
+        public string OutputTarget  {
+            get { return _target; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _target = value;
+                } else {
+                    _target = null;
+                }
+            }
+        }
 
-        /// <summary>Generate debug output (<c>true</c>/<c>false</c>).</summary>
+        /// <summary>
+        /// Generate debug output (<c>true</c>/<c>false</c>).
+        /// </summary>
         [BooleanValidator()]
         [TaskAttribute("debug")]
-        public bool Debug           { get { return _debug; } set { _debug = value; }}
+        public bool Debug {
+            get { return _debug; }
+            set { _debug = value; }
+        }
 
-        /// <summary>Define conditional compilation symbol(s). Corresponds to <c>/d[efine]:</c> flag.</summary>
+        /// <summary>
+        /// Define conditional compilation symbol(s). Corresponds to <c>/d[efine]:</c> flag.
+        /// </summary>
         [TaskAttribute("define")]
-        public string Define        { get { return _define; } set { _define = value; }}
+        public string Define {
+            get { return _define; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _define = value;
+                } else {
+                    _define = null;
+                }
+            }
+        }
 
-        /// <summary>Icon to associate with the application. Corresponds to <c>/win32icon:</c> flag.</summary>
+        /// <summary>
+        /// Icon to associate with the application. Corresponds to <c>/win32icon:</c> flag.
+        /// </summary>
         [TaskAttribute("win32icon")]
-        public string Win32Icon     { get { return _win32icon; } set { _win32icon = value; }}
+        public string Win32Icon {
+            get { return _win32icon; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _win32icon = Project.GetFullPath(value);
+                } else {
+                    _win32icon = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Instructs the compiler to treat all warnings as errors (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
@@ -90,7 +137,10 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [BooleanValidator()]
         [TaskAttribute("warnaserror")]
-        public bool WarnAsError     { get { return _warnAsError; } set { _warnAsError = value; }}
+        public bool WarnAsError {
+            get { return _warnAsError; }
+            set { _warnAsError = value; }
+        }
 
         /// <summary>
         /// Specifies which type contains the Main method that you want to use as the entry point into 
@@ -106,13 +156,29 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("main")]
-        public string MainType        { get { return _mainType; } set { _mainType = value; }}
+        public string MainType {
+            get { return _mainType; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _mainType = value;
+                } else {
+                    _mainType = null;
+                }
+            }
+        }
 
-        /// <summary>Reference metadata from the specified assembly files.</summary>
+        /// <summary>
+        /// Reference metadata from the specified assembly files.
+        /// </summary>
         [FileSet("references")]
-        public FileSet References   { get { return _references; } set { _references = value; }}
+        public FileSet References {
+            get { return _references; }
+            set { _references = value; }
+        }
 
-        /// <summary>Resources to embed.</summary>
+        /// <summary>
+        /// Resources to embed.
+        /// </summary>
         /// <remarks>
         /// <para>
         /// This can be a combination of resx files and file resources.
@@ -140,13 +206,23 @@ namespace NAnt.DotNet.Tasks {
             get { return _resourcesList; }
         }
 
-        /// <summary>Link the specified modules into this assembly.</summary>
+        /// <summary>
+        /// Link the specified modules into this assembly.
+        /// </summary>
         [FileSet("modules")]
-        public FileSet Modules      { get { return _modules; } set { _modules = value; }}
+        public FileSet Modules {
+            get { return _modules; }
+            set { _modules = value; }
+        }
 
-        /// <summary>The set of source files for compilation.</summary>
+        /// <summary>
+        /// The set of source files for compilation.
+        /// </summary>
         [FileSet("sources")]
-        public FileSet Sources { get { return _sources; } set { _sources = value; }}
+        public FileSet Sources {
+            get { return _sources; }
+            set { _sources = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -158,14 +234,6 @@ namespace NAnt.DotNet.Tasks {
         /// <value>The file extension required by the current compiler.</value>
         protected abstract string Extension {
             get;
-        }
-
-        /// <summary>
-        /// Gets the complete output path.
-        /// </summary>
-        /// <value>The complete output path.</value>
-        protected string OutputPath {
-            get { return Path.GetFullPath(Path.Combine(BaseDirectory, Output)); }
         }
 
         #endregion Protected Instance Properties
@@ -203,7 +271,7 @@ namespace NAnt.DotNet.Tasks {
                         Sources.BaseDirectory = BaseDirectory;
                     }
 
-                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, OutputPath);
+                    Log(Level.Info, LogPrefix + "Compiling {0} files to {1}.", Sources.FileNames.Count, Output);
 
                     // specific compiler options
                     WriteOptions(writer);
@@ -215,7 +283,8 @@ namespace NAnt.DotNet.Tasks {
                         WriteOption(writer, "define", Define);
                     }
 
-                    WriteOption(writer, "out", OutputPath);
+                    WriteOption(writer, "out", Output);
+
                     if (Win32Icon != null) {
                         WriteOption(writer, "win32icon", Win32Icon);
                     }
@@ -349,7 +418,7 @@ namespace NAnt.DotNet.Tasks {
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
 
-            FileInfo outputFileInfo = new FileInfo(OutputPath);
+            FileInfo outputFileInfo = new FileInfo(Output);
             if (!outputFileInfo.Exists) {
                 return true;
             }
@@ -411,12 +480,18 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Opens matching source file to find the correct namespace. This may 
-        /// need to be overidden by the particular compiler if the namespace 
-        /// syntax is different for that language.
+        /// Opens matching source file to find the correct namespace for the
+        /// specified rsource file.
         /// </summary>
         /// <param name="resxPath"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// The namespace of the source file matching the resource, or 
+        /// <see langword="null" /> if there's no matching source file.
+        /// </returns>
+        /// <remarks>
+        /// This behaviour may need to be overidden by a particular compiler 
+        /// if the namespace syntax is different for that language.
+        /// </remarks>
         protected virtual string GetFormNamespace(string resxPath){
             string retnamespace = "";
             StreamReader sr = null;
@@ -447,14 +522,15 @@ namespace NAnt.DotNet.Tasks {
                         break;
                     }
                 }
-            } catch (FileNotFoundException) { // if no matching file, dump out
-                return "";
+                return retnamespace;
+            } catch (FileNotFoundException) {
+                // if no matching file, dump out
+                return null;
             } finally {
                 if(sr != null) {
                     sr.Close();
                 }
             }
-            return retnamespace;
         }
 
         /// <summary>
