@@ -41,13 +41,17 @@ namespace NAnt.VSNet {
         }
 
         static ProjectFactory() {
-            _cachedProjects = new Hashtable();
-            _cachedProjectGuids = new Hashtable();
+            ClearCache();
         }
 
         #endregion Public Static Methods
 
         #region Public Static Methods
+
+        public static void ClearCache() {
+            _cachedProjects = new Hashtable();
+            _cachedProjectGuids = new Hashtable();
+        }
 
         public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, string outputDir, string path) {
             string projectName = Path.GetFullPath(path).ToLower(CultureInfo.InvariantCulture);

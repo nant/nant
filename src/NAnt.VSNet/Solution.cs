@@ -48,6 +48,7 @@ namespace NAnt.VSNet {
             _outputDir = outputDir;
             _excludesProjects = excludesProjects;
             _webMaps = webMappings;
+            ProjectFactory.ClearCache();
 
             string fileContents;
 
@@ -126,6 +127,7 @@ namespace NAnt.VSNet {
             _excludesProjects = excludesProjects;
             _webMaps = webMaps;
             _outputDir = outputDir;
+            ProjectFactory.ClearCache();
 
             LoadProjectGuids(projects, false);
             LoadProjectGuids(referenceProjects, true);
