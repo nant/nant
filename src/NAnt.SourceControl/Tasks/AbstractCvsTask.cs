@@ -40,16 +40,20 @@ namespace NAnt.SourceControl.Tasks {
     public abstract class AbstractCvsTask : Task {
         #region Private Instance Fields
 
+        private const bool DEFAULT_USE_SHARPCVSLIB = true;
         private string _cvsRoot;
         private string _module;
         private DirectoryInfo _destinationDirectory;
         private string _password;
+        private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
 
         private CvsRoot _root;
         private WorkingDirectory _workingDirectory;
         private CVSServerConnection _connection;
         private ICommand _command;
-        private OptionCollection _options = new OptionCollection();
+        private OptionCollection _commandOptions = new OptionCollection();
+        private OptionCollection _globalOptions = new OptionCollection();
+
 
         #endregion Private Instance Fields
 
@@ -217,22 +221,53 @@ namespace NAnt.SourceControl.Tasks {
         ///     </item>
         /// </list>
         /// </remarks>
+        [BuildElementCollection("commandoptions", "option")]
+        public OptionCollection CommandOptions {
+            get { return _commandOptions;}
+        }
+
+        /// <summary>
+        /// Use commandOptions.
+        /// </summary>
         [BuildElementCollection("options", "option")]
         public OptionCollection Options {
-            get { return _options;}
+            get {return _commandOptions;}
+        }
+
+        /// <summary>
+        /// Holds a collection of globally available cvs options.
+        /// </summary>
+        [BuildElementCollection("globaloptions", "option")]
+        public OptionCollection GlobalOptions {
+            get {return this._globalOptions;}
+        }
+
+        /// <summary>
+        /// <code>true</code> if the SharpCvsLib binaries that come bundled with 
+        ///     NAnt should be used to perform the cvs commands, <code>false</code>
+        ///     otherwise.  
+        ///     
+        ///     <warn>If you choose not to use SharpCvsLib to checkout from 
+        ///         cvs you will need to include a cvs.exe binary in your
+        ///         path.</warn>
+        /// </summary>
+        [TaskAttribute("usesharpcvslib", Required=false)]
+        public bool UseSharpCvsLib {
+            get {return _useSharpCvsLib;}
+            set {this._useSharpCvsLib = value;}
         }
 
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
 
-        /// <summary>
-        /// Gets or sets the root of the CVS repository.
-        /// </summary>
-        /// <value>
-        /// The root of the CVS repository.
-        /// </value>
-        protected CvsRoot Root {
+            /// <summary>
+            /// Gets or sets the root of the CVS repository.
+            /// </summary>
+            /// <value>
+            /// The root of the CVS repository.
+            /// </value>
+            protected CvsRoot Root {
             get { return this._root; }
             set { this._root = value; }
         }
@@ -288,7 +323,7 @@ namespace NAnt.SourceControl.Tasks {
             this.WorkingDirectory = new WorkingDirectory(this.Root, 
                 this.DestinationDirectory.FullName, this.Module);
 
-            this.SetOptions(this.WorkingDirectory);
+            this.SetCommandOptions(this.WorkingDirectory);
             Logger.Debug("this.WorkingDirectory.Revision=[" + this.WorkingDirectory.Revision + "]");
 
             this.Connection = new CVSServerConnection();
@@ -362,9 +397,9 @@ namespace NAnt.SourceControl.Tasks {
         /// Set the checkout/ update options.
         /// </summary>
         /// <param name="workingDirectory">Information about the cvs repository and local sandbox.</param>
-        private void SetOptions(WorkingDirectory workingDirectory) {
+        private void SetCommandOptions(WorkingDirectory workingDirectory) {
             Logger.Debug ("Setting options");
-            foreach (Option option in _options) {
+            foreach (Option option in _commandOptions) {
                 if (!IfDefined || UnlessDefined) {
                     // skip option
                     continue;
