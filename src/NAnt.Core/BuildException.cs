@@ -102,6 +102,34 @@ namespace NAnt.Core {
 
         #endregion Protected Instance Constructors
 
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets the raw message as specified when the exception was 
+        /// constructed.
+        /// </summary>
+        /// <value>
+        /// The raw message as specified when the exception was 
+        /// constructed.
+        /// </value>
+        public string RawMessage {
+            get { return base.Message; }
+        }
+
+        /// <summary>
+        /// Gets the location in the build file of the element from which the
+        /// exception originated.
+        /// </summary>
+        /// <value>
+        /// The location in the build file of the element from which the
+        /// exception originated.
+        /// </value>
+        public Location Location {
+            get { return _location; }
+        }
+
+        #endregion Public Instance Properties
+
         #region Override implementation of ISerializable
 
         /// <summary>
@@ -122,7 +150,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets a message that describes the current exception.
         /// </summary>
-        /// <value>The error message that explains the reason for the exception.</value>
+        /// <value>
+        /// The error message that explains the reason for the exception.
+        /// </value>
         /// <remarks>
         /// Adds location information to the message, if available.
         /// </remarks>
@@ -147,9 +177,12 @@ namespace NAnt.Core {
         #region Override implementation of Object
 
         /// <summary>
-        /// Creates and returns a string representation of the current exception.
+        /// Creates and returns a string representation of the current 
+        /// exception.
         /// </summary>
-        /// <returns>A string representation of the current exception.</returns>
+        /// <returns>
+        /// A string representation of the current exception.
+        /// </returns>
         public override string ToString() {
             return string.Format(CultureInfo.InvariantCulture, "{0}:{1}{2}", 
                 Message, Environment.NewLine, base.ToString());
