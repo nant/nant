@@ -654,7 +654,10 @@ namespace NAnt.DotNet.Tasks {
                     ResourceLinkage resourceLinkage = GetResourceLinkage(
                         dependentFile, resourceCulture);
 
-                    if (resourceLinkage == null) {
+                    if (resourceLinkage == null || !resourceLinkage.IsValid) {
+                        // no resource linkage could be determined (no dependent
+                        // file or dependent file does not exist) or dependent
+                        // file is no (valid) source file
                         manifestResourceName = Path.ChangeExtension(
                             resources.GetManifestResourceName(resourcePhysicalFile,
                             resourceLogicalFile), "resources");
@@ -685,7 +688,6 @@ namespace NAnt.DotNet.Tasks {
 
                             resourceLinkage.ClassName = className;
                         }
-
 
                         // ensure we have information necessary to determine the
                         // manifest resource name
