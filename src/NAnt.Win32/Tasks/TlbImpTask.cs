@@ -184,7 +184,7 @@ namespace NAnt.Win32.Tasks {
         /// <summary>
         /// Specifies the key container in which the public/private key pair 
         /// should be found that should be used to sign the resulting assembly
-        /// xith a strong name.
+        /// with a strong name.
         /// </summary>
         /// <value>
         /// The key container containing a public/private key pair that should
