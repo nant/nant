@@ -73,7 +73,7 @@ namespace NAnt.DotNet.Tasks {
         #region Class Constructor
         
         /// <summary>
-        /// Class constructor. Is called when the type is first loded by the runtime
+        /// Class constructor for CompilerBase. It is called when the type is first loaded by the runtime
         /// </summary>
         static CompilerBase() {
             // fill the culture list
