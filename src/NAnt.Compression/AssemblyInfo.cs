@@ -26,10 +26,10 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("http://nant.sourceforge.net")]
 [assembly: AssemblyProduct("NAnt")]
-[assembly: AssemblyCopyright("Copyright (C) 2001-2002 Gerry Shaw")]
+[assembly: AssemblyCopyright("Copyright (C) 2001-2003 Gerry Shaw")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.8.0.*")]
+[assembly: AssemblyVersion("0.8.01.*")]
 
 // This will not compile with Visual Studio.  If you want to build a signed
 // executable use the NAnt build file.  To build under Visual Studio just

@@ -104,11 +104,6 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "NAnt.Console.Tests\AllTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.Console.Tests\NAntTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -124,11 +119,6 @@
                 <File
                     RelPath = "NAnt.Console.Tests\CVS\Root"
                     BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\AllTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.Core.Tests\BuildTestBase.cs"
@@ -337,11 +327,6 @@
                     BuildAction = "None"
                 />
                 <File
-                    RelPath = "NAnt.DotNetTasks.Tests\AllTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.DotNetTasks.Tests\CscTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -379,11 +364,6 @@
                     BuildAction = "None"
                 />
                 <File
-                    RelPath = "NAnt.VisualCppTasks.Tests\AllTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.VisualCppTasks.Tests\CVS\Entries"
                     BuildAction = "None"
                 />
@@ -394,11 +374,6 @@
                 <File
                     RelPath = "NAnt.VisualCppTasks.Tests\CVS\Root"
                     BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.ZipTasks.Tests\AllTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
                 />
                 <File
                     RelPath = "NAnt.ZipTasks.Tests\ZipTaskTest.cs"
