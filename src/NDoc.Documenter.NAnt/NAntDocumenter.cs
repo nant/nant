@@ -390,6 +390,12 @@ namespace NDoc.Documenter.NAnt {
                 return fileSetNode.Value;
             }
 
+            // check whether property is an xml element
+            XmlAttribute buildElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (buildElementNode != null) {
+                return buildElementNode.Value;
+            }
+
             // check whether property is a Framework configurable attribute
             XmlAttribute frameworkConfigAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FrameworkConfigurableAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
             if (frameworkConfigAttributeNode != null) {
