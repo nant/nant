@@ -208,13 +208,6 @@ namespace NAnt.DotNet.Tasks {
                 throw new BuildException("Could not create NDoc Project.", Location, ex);
             }
 
-            // add additional directories to search for referenced assemblies
-            if (ReferencePaths.DirectoryNames.Count > 0) {
-                foreach (string directory in ReferencePaths.DirectoryNames) {
-                    project.ReferencePaths.Add(new ReferencePath(directory));
-                }
-            }
-
             // set-up probe path, meaning list of directories where NDoc searches
             // for documenters
             // by default, NDoc scans the startup path of the app, so we do not 
@@ -297,6 +290,13 @@ namespace NAnt.DotNet.Tasks {
                 // read NDoc project file
                 Log(Level.Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
                 project.Read(projectFileName);
+
+                // add additional directories to search for referenced assemblies
+                if (ReferencePaths.DirectoryNames.Count > 0) {
+                    foreach (string directory in ReferencePaths.DirectoryNames) {
+                        project.ReferencePaths.Add(new ReferencePath(directory));
+                    }
+                }
 
                 foreach (XmlNode node in _docNodes) {
                     //skip non-nant namespace elements and special elements like comments, pis, text, etc.
