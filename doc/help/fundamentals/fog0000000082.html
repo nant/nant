@@ -21,10 +21,45 @@
         </table>
         <h1>Properties</h1>
         <p>A project can have a set of properties.&nbsp; These might be set in the 
-            buildfile by the property task, or might be set outside NAnt.&nbsp; A property 
-            has a name and a value.&nbsp; Properties may be used in the value of task 
-            attributes.&nbsp; This is done by placing the property name between "<code>${</code>" 
-            and "<code>}</code>" in the attribute value.</p>
+            buildfile by the <a href="../tasks/property.html">&lt;property&gt;</a> task, or might be set outside NAnt.&nbsp; A property 
+            has a name and a value. Properties may be used in the value of task attributes. This is done by placing the property name between 
+            "<code>${</code>" and "<code>}</code>" in the attribute value. Properties may also be used in <a href="expressions.html">expressions</a>.</p>
+        <h3>Property Names</h3>
+        <p>Property name is a string of the following characters:</p>
+        <ul>
+            <li>letters (<code>A-Z</code>, <code>a-z</code>),</li>
+            <li>digits (<code>0-9</code>),</li>
+            <li>underscore characters (<code>_</code>),</li>
+            <li>dash characters (<code>-</code>),</li>
+            <li>dot characters (<code>.</code>),</li>
+        </ul>
+        <p>In addition, a valid property name must start with a letter or an underscore and must end with a letter, digit or an uderscore.</p>
+        <p>Examples of valid property names include:</p>
+        <ul>
+            <li><code>propertyname</code></li>
+            <li><code>property.name.with.dots</code></li>
+            <li><code>property-name-with-dashes</code></li>
+            <li><code>property.name-with.both-dots.and-dashes</code></li>
+            <li><code>__prop---3-erty__</code></li>
+            <li><code>__prop.1...erty__</code></li>
+            <li><code>property1</code></li>
+            <li><code>property1.0</code></li>
+            <li><code>property2.0.0</code></li>
+            <li><code>_property-2-1__</code></li>
+            <li><code>property-1-name_</code></li>
+            <li><code>property-1.0-name</code></li>
+        </ul>
+
+        <p>The following property names are not valid in NAnt:</p>
+
+        <ul>
+            <li><code>!@#!@$!@</code> (contains illegal characters)</li>
+            <li><code>.aaaaa</code> (starts with a dot)</li>
+            <li><code>-aaaaa</code> (starts with a dash)</li>
+            <li><code>1aaaaa</code> (starts with a digit)</li>
+            <li><code>aaaaa.aaa.a.a.a.a-</code> (ends with a dash)</li>
+            <li><code>aaaaa.aaa.a.a.a.a.</code> (ends with a dot)</li>
+        </ul>
         <h3>Built-in Properties</h3>
         <p>NAnt has these built-in properties:</p>
         <div class="table">
@@ -149,7 +184,7 @@
             </table>
         </div>
         <h3>Example</h3>
-        <p>The following build file:</p>
+        <p>The following build file demonstrates the use of property expansion:</p>
         <pre class="code">
     &lt;?xml version="1.0"?&gt;
     &lt;project name="Property Test" default="test" basedir="."&gt;
@@ -160,9 +195,24 @@
         &lt;/target&gt;
     &lt;/project&gt;
         </pre>
-        <p>Would display this as output:</p>
+        <p>The output of this build is:</p>
         <pre>
     [echo] Building PropertyTest-1.0.0
+        </pre>
+        <p>The following build file demonstrates the use of properties in <a href="expressions.html">expressions</a>. 
+        It evaluates the length of the property <code>project.name</code> and displays it.</p>
+        <pre class="code">
+    &lt;?xml version="1.0"?&gt;
+    &lt;project name="Expression Test" default="test" basedir="."&gt;
+        &lt;property name="project.name" value="Expression Test"/&gt;
+        &lt;target name="test"&gt;
+            &lt;echo message="Project name consists of ${string::get-length(project.name)} characters."/&gt;
+        &lt;/target&gt;
+    &lt;/project&gt;
+        </pre>
+        <p>The output of this build is:</p>
+        <pre>
+   [echo] Project name consists of 15 characters.
         </pre>
         <h3>See Also</h3>
         <ul>
