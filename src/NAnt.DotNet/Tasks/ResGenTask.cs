@@ -38,23 +38,23 @@ namespace NAnt.DotNet.Tasks {
     /// </note>
     /// </summary>
     /// <example>
-    ///   <para>Convert a resource file from the .resx to the .resources format</para>
+    ///   <para>Convert a resource file from the <c>.resx</c> to the <c>.resources</c> format.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <resgen input="translations.resx" output="translations.resources" />
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Convert a fileset of.resx files to the .resources </para>
+    ///   <para>Convert a fileset of <c>.resx</c> files to the <c>.resources</c> format.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <resgen todir="." >
     ///     <resources>
-    ///         <includes name="*.resx" />    
+    ///         <includes name="*.resx" />
     ///     </resources>
     /// </resgen>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("resgen")]
@@ -95,7 +95,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// The target type (usually resources).
+        /// The target type (usually <c>resources</c>).
         /// </summary>
         [TaskAttribute("target", Required=false)]
         public string TargetExt {
@@ -113,7 +113,7 @@ namespace NAnt.DotNet.Tasks {
         }
        
         /// <summary>
-        /// Takes a list of .resX or .txt files to convert to .resources files.
+        /// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.
         /// </summary>
         [FileSet("resources")]
         public FileSet Resources {

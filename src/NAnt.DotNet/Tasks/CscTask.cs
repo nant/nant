@@ -35,7 +35,7 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <csc target="exe" output="helloworld.exe" debug="true">
     ///     <sources>
-    ///         <includes name="helloworld.cs"/>
+    ///         <includes name="helloworld.cs" />
     ///     </sources>
     /// </csc>
     ///     ]]>

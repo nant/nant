@@ -41,9 +41,9 @@ namespace NAnt.DotNet.Tasks {
     ///   <para>Sign partially-signed <c>foo.dll</c> with <c>bar.snk</c></para>
     ///   <code>
     ///     <![CDATA[
-    /// <delay-sign keyfile="bar.snk" quiet='false'>
+    /// <delay-sign keyfile="bar.snk" quiet="false">
     ///   <targets>
-    ///     <includes name="foo.dll"/>
+    ///     <includes name="foo.dll" />
     ///   </targets>
     /// </delay-sign>
     ///     ]]>

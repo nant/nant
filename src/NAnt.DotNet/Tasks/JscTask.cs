@@ -28,12 +28,12 @@ namespace NAnt.DotNet.Tasks {
     /// Compiles JScript.NET programs.
     /// </summary>
     /// <example>
-    ///   <para>Compile helloworld.js to helloworld.exe.</para>
+    ///   <para>Compile <c>helloworld.js</c> to <c>helloworld.exe</c>.</para>
     ///   <code>
     ///     <![CDATA[
     /// <jsc target="exe" output="helloworld.exe" debug="true">
     ///     <sources>
-    ///         <includes name="helloworld.js"/>
+    ///         <includes name="helloworld.js" />
     ///     </sources>
     /// </jsc>
     ///     ]]>

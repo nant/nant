@@ -42,13 +42,13 @@ namespace NAnt.DotNet.Tasks {
     ///   Create a library containing all icon files in the current directory.
     ///   </para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <al output="MyIcons.dll" target="lib">
     ///     <sources>
-    ///         <includes name="*.ico"/>
+    ///         <includes name="*.ico" />
     ///     </sources>
     /// </al>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("al")]

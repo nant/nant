@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Gordon Weakliem
+// Copyright (C) 2002-2003 Gordon Weakliem
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ namespace NAnt.DotNet.Tasks {
     /// <example>
     ///   <para>Create a C# AssemblyInfo file containing the specified assembly-level attributes.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <asminfo output="AssemblyInfo.cs" language="CSharp">
     ///     <imports>
     ///         <import name="System" />
@@ -59,7 +59,7 @@ namespace NAnt.DotNet.Tasks {
     ///         <includes name="${nant.settings.currentframework.frameworkassemblydirectory}/System.EnterpriseServices.dll" />
     ///     </references>
     /// </asminfo>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("asminfo")]
@@ -90,8 +90,8 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// The code language in which the AssemblyInfo file should be 
-        /// generated - either <see cref="CodeLanguage.CSharp" />  or 
-        /// <see cref="CodeLanguage.VB" />..
+        /// generated - either <see cref="F:CodeLanguage.CSharp" />  or 
+        /// <see cref="F:CodeLanguage.VB" />.
         /// </summary>
         /// <value>
         /// The code language in which the AssemblyInfo file should be 

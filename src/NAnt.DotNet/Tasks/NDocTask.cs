@@ -44,11 +44,11 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <ndoc>
     ///     <assemblies basedir="${build.dir}">
-    ///         <includes name="NAnt.exe"/>
-    ///         <includes name="NAnt.Core.dll"/>
+    ///         <includes name="NAnt.exe" />
+    ///         <includes name="NAnt.Core.dll" />
     ///     </assemblies>
     ///     <summaries basedir="${build.dir}">
-    ///         <includes name="NamespaceSummary.xml"/>
+    ///         <includes name="NamespaceSummary.xml" />
     ///     </summaries>
     ///     <documenters>
     ///         <documenter name="MSDN">

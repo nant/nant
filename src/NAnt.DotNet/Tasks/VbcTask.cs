@@ -31,29 +31,31 @@ namespace NAnt.DotNet.Tasks {
     /// </summary>
     /// <example>
     ///   <para>Example build file using this task.</para>
-    ///   <code><![CDATA[
+    ///   <code>
+    ///     <![CDATA[
     ///<project name="Hello World" default="build" basedir=".">
-    ///   <property name="basename" value="HelloWorld"/>
-    ///   <property name="debug" value="true"/>
+    ///   <property name="basename" value="HelloWorld" />
+    ///   <property name="debug" value="true" />
     ///   <target name="clean">
-    ///      <delete file="${basename}-vb.exe" failonerror="false"/>
-    ///      <delete file="${basename}-vb.pdb" failonerror="false"/>
+    ///      <delete file="${basename}-vb.exe" failonerror="false" />
+    ///      <delete file="${basename}-vb.pdb" failonerror="false" />
     ///   </target>
     ///   <target name="build">
     ///      <vbc target="exe" output="${basename}-vb.exe">
     ///         <sources>
-    ///            <includes name="${basename}.vb"/>
+    ///            <includes name="${basename}.vb" />
     ///         </sources>
     ///      </vbc>
     ///   </target>
     ///   <target name="debug" depends="clean">
     ///      <vbc target="exe" output="${basename}-vb.exe" debug="${debug}">
     ///         <sources>
-    ///            <includes name="${basename}.vb"/>
+    ///            <includes name="${basename}.vb" />
     ///         </sources>
     ///      </vbc>
     ///   </target>
-    ///</project>]]>
+    ///</project>
+    ///    ]]>
     ///   </code>
     /// </example>
     [TaskName("vbc")]

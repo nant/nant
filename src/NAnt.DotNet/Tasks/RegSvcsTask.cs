@@ -132,8 +132,8 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Defines the action to take with the assembly. Supported actions are: 
-        /// <see cref="ActionType.FindOrCreate" /> (the default), <see cref="ActionType.Create" />, 
-        /// or <see cref="ActionType.Uninstall" />.
+        /// <see cref="F:ActionType.FindOrCreate" /> (the default), <see cref="F:ActionType.Create" />, 
+        /// or <see cref="F:ActionType.Uninstall" />.
         /// </summary>
         [TaskAttribute("action")]
         public ActionType Action {

@@ -32,7 +32,7 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     ///<vjc target="exe" output="helloworld.exe" debug="true">
     ///   <sources>
-    ///      <includes name="helloworld.jsl"/>
+    ///      <includes name="helloworld.jsl" />
     ///   </sources>
     ///</vjc>
     ///     ]]>
@@ -84,13 +84,19 @@ namespace NAnt.DotNet.Tasks {
        
         /// <summary>
         /// Specifies whether to disable language extensions.
-        /// <para>Corresponds to the <c>/x</c> flag.</para>
         /// </summary>
-        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfxdisablelanguageextensions.htm">See the Visual J# Reference for details.</a></remarks>
         /// <value>
-        /// <para>The value of this property must be either <c>all</c>, <c>net</c>, or an empty string.</para>
-        /// <para>Note: <c>net</c> disables only .NET Framework extensions while <c>all</c> also disables VJ++ 6.0 extensions.</para>
+        /// The value of this property must be either <c>all</c>, <c>net</c>, 
+        /// or an empty string.
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to the <c>/x</c> flag.
+        /// </para>
+        /// <para>
+        /// <a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfxdisablelanguageextensions.htm">See the Visual J# Reference for details.</a>
+        /// </para>
+        /// </remarks>
         /// <example>
         /// <para>To disable only the .NET Framework extensions:<c><![CDATA[
         /// <vjc x='net'/>
