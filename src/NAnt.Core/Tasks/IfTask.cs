@@ -21,6 +21,8 @@ namespace SourceForge.NAnt.Tasks {
 
     using System;
     using System.IO;
+    using System.Collections;
+    using System.Collections.Specialized;
     using SourceForge.NAnt.Attributes;
 
     /// <summary>Checks the conditional attributes and executes the children if true.</summary>
@@ -56,12 +58,60 @@ namespace SourceForge.NAnt.Tasks {
     ///   </if>
     ///   ]]></code>
     /// </example>
+    /// <example>
+    ///   <para>Checks file dates</para>
+    ///   <code>
+    ///   <![CDATA[
+    ///   <if uptodatefile="myfile.dll" comparefile="myfile.cs">
+    ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
+    ///   </if>
+    ///   ]]></code>
+    ///   or
+    ///   <code>
+    ///   <![CDATA[
+    ///   <if uptodatefile="myfile.dll" comparefile="myfile.cs">
+    ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
+    ///   </if>
+    ///   ]]></code>
+    /// </example>    /// 
     [TaskName("if")]
     public class IfTask : TaskContainer{
         
         protected string _propNameTrue = null;
         protected string _propNameExists = null;
         protected string _targetName = null;
+        protected string _uptodateFile = null;
+        protected FileSet _compareFiles = null;
+
+        /// <summary>
+        /// The file to compare if uptodate
+        /// </summary>
+        [TaskAttribute("uptodateFile")]
+        public string PrimaryFile {
+            set {_uptodateFile = Project.GetFullPath(value);}
+        }
+
+        /// <summary>
+        /// The file to check against for the uptodate file.
+        /// </summary>
+        [TaskAttribute("compareFile")]
+        public string CompareFile {
+            set {
+                //I'm really not sure this is the best way to do this!
+                FileSet fs = new FileSet();
+                fs.Parent = this;
+                fs.Project = this.Project;
+                fs.Includes.Add(value);
+                CompareFiles = fs;
+            }
+        }
+        /// <summary>
+        /// The FileSet that contains the comparison files for the uptodateFile.
+        /// </summary>
+        [FileSet("comparefiles")]
+        public FileSet CompareFiles {
+            set {_compareFiles = value;}
+        }
 
         /// <summary>
         /// Used to test whether a property is true.
@@ -116,6 +166,20 @@ namespace SourceForge.NAnt.Tasks {
                 //Check for Property existence
                 if(_propNameExists != null) {
                     ret = ret && (Properties[_propNameExists] != null);
+                }
+
+                //check for uptodate file
+                if(_uptodateFile != null) {
+                    FileInfo primaryFile = new FileInfo(_uptodateFile);
+                    if(primaryFile == null) {
+                        ret = true;
+                    }
+                    else {
+                        string newerFile = FileSet.FindMoreRecentLastWriteTime(_compareFiles.FileNames, primaryFile.LastWriteTime);
+                        bool bNeedsAnUpdate = (null == newerFile);
+                        Log.WriteLineIf(Project.Verbose && bNeedsAnUpdate, "{0) is newer than {1}" , newerFile, primaryFile.Name);
+                        ret = !bNeedsAnUpdate;
+                    }
                 }
 
                 return ret;

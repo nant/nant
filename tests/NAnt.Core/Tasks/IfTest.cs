@@ -29,10 +29,45 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
-	[TestFixture]
+    [TestFixture]
     public class IfTest : BuildTestBase {
+        [Test]
+        public void Test_IF_NewerFile() {
+            string olderFP = this.CreateTempFile("old.txt","I'm older");
+            string newerFP = this.CreateTempFile("new.txt","I'm younger");
+            string _xml = @"
+                    <project>
+                        <if uptodatefile='{0}' comparefile='{1}'>
+                            <echo message='{1} is newer than {0}'/>
+                        </if>
+                    </project>";
+            string result = RunBuild(string.Format(_xml, olderFP, newerFP));
+            Log.WriteLine(result);
+            Assertion.Assert(result.IndexOf("is newer than") != -1);
+        }
 
-		[Test]
+        /*
+         * Get this working, then add back.
+        [Test]
+        public void Test_IF_NewerFiles() {
+            string olderFP = this.CreateTempFile("1old.txt","I'm older");
+            string newerFP = this.CreateTempFile("2new.txt","I'm younger");
+            string _xml = @"
+                    <project>
+                        <if uptodatefile='{0}'>
+                            <comparefiles>
+                                <includes name='{1}'/>
+                            </comparefiles>
+                            <echo message='{1} is newer than {0}'/>
+                        </if>
+                    </project>";
+            string result = RunBuild(string.Format(_xml, olderFP, newerFP));
+            Log.WriteLine(result);
+            Assertion.Assert(result.IndexOf("is newer than") != -1);
+        }
+        */
+
+        [Test]
         public void Test_IF_PropExists_Positive() {
             string _xml = @"
                     <project>
@@ -46,7 +81,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(result.IndexOf("line=hi") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_IF_PropExists_Negative() {
             string _xml = @"
                     <project>
@@ -59,7 +94,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(result.IndexOf("line=") == -1);
         }
 
-		[Test]
+        [Test]
         public void Test_IF_PropTrue_Positive() {
             string _xml = @"
                     <project>
@@ -73,7 +108,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(result.IndexOf("Hello") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_IF_PropTrue_Negative() {
             string _xml = @"
                     <project>
@@ -103,7 +138,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(result.IndexOf("called") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_IF_Target_Negative() {
             string _xml = @"
                     <project>

@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using System.Configuration;
 
 using SourceForge.NAnt.Attributes;
 
@@ -45,6 +46,11 @@ namespace SourceForge.NAnt.Tasks {
         /// <param name="epb">The External Program to lookup info for.</param>
         /// <returns>A fully qualifies pathname including the program name. Null is returned if there are any errors or the combined filepath is not found!</returns>
         public static string ProgramFilepath(ExternalProgramBase epb) {
+            
+            string enableLookup = epb.Project.Properties["doNotFind.dotnet.exes"];
+            if(enableLookup != null && bool.Parse(enableLookup) == true)
+                return epb.Name;
+
             string sdkInstallPath = null;
             try{
                 if(FXBin == null) {

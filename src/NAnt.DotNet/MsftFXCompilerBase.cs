@@ -23,6 +23,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Configuration;
 
 using SourceForge.NAnt.Attributes;
 
@@ -31,11 +32,16 @@ namespace SourceForge.NAnt.Tasks {
     /// <summary>Provides the abstract base class for a Microsoft .Net Framework compiler task.</summary>
     public abstract class MsftFXCompilerBase : CompilerBase {
         public override string ProgramFileName  {
-            get { 
+            get {
                 return ProgramFilepath(this);
             } 
         }
         public static string ProgramFilepath(ExternalProgramBase epb) {
+            
+            string enableLookup = epb.Project.Properties["doNotFind.dotnet.exes"];
+            if(enableLookup != null && bool.Parse(enableLookup) == true)
+                return epb.Name;
+
             // Instead of relying on the .NET compilers to be in the user's path, point
             // to the compiler directly since it lives in the .NET Framework's runtime directory
             string pfn = null;
