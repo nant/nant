@@ -142,8 +142,20 @@
         Perform unit tests.  If a unit test fails, the build fails.
         The base directory is set to the Test directory so that tests can easily
         load external data files wihtout having to worry about complicated paths.
+        
+        NOTE: The tests are run from the newly built nant version.
     -->
-    <target name="test" depends="build" description="run unit tests">
+    <target name="test"  depends="build" description="run unit tests">
+		<!-- call the newly built executable and tests it. -->
+		<echo message="************************************************************************************"/>
+		<echo message="** Running newly built NAnt.exe with tests."/>
+		<exec program="${build.dir}\${project.FormalName}.exe" commandline="-indent:1 -buildfile:${nant.project.buildfile} test.nunit"/>
+		<echo message="** End of Tests"/>
+		<echo message="************************************************************************************"/>
+    </target>
+    
+    <!-- Called from above target only.-->
+    <target name="test.nunit" description="Do Not Call Directly">
         <nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltonerror="true" haltonfailure="true">
             <formatter type="Xml"/>
             <formatter type="Plain"/>
@@ -151,6 +163,9 @@
         </nunit>
     </target>
 
+	<target name="examples" depends="build" description="Build Examples">
+		<nant buildfile="examples\examples.build" target="build"/>
+	</target>
     <target name="doc" depends="build" description="build documentation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc failonerror="false">
