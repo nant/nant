@@ -22,7 +22,9 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 
+using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Checksums;
+using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 
 using NAnt.Core;
@@ -58,6 +60,7 @@ namespace NAnt.Zip.Tasks {
 		private FileInfo _destFile;
 		private TarFileSet _fileset = new TarFileSet();
 		private bool _includeEmptyDirs = false;
+		private TarCompressionMethod _compressionMethod = TarCompressionMethod.None;
 		private Hashtable _addedDirs = new Hashtable();
 
 		#endregion Private Instance Fields
@@ -93,6 +96,15 @@ namespace NAnt.Zip.Tasks {
 			set { _fileset = value; }
 		}
 
+		/// <summary>
+		/// The compression method. The default is <see cref="TarCompressionMethod.None" />.
+		/// </summary>
+		[TaskAttribute("compression")]
+		public TarCompressionMethod CompressionMethod {
+			get { return _compressionMethod; }
+			set { _compressionMethod = value; }
+		}
+
 		#endregion Public Instance Properties
 
 		#region Override implementation of Task
@@ -101,7 +113,8 @@ namespace NAnt.Zip.Tasks {
 		/// Creates the tar file.
 		/// </summary>
 		protected override void ExecuteTask() {
-			TarOutputStream tarOutstream = null;
+			TarArchive archive = null;
+			Stream outstream = null;
 
 			string basePath;
 
@@ -120,14 +133,20 @@ namespace NAnt.Zip.Tasks {
 			}
 
 			try {
-				// TODO: compression !!
-				tarOutstream = new TarOutputStream(DestFile.Create());
+				outstream = File.Create(DestFile.FullName);
 
-				/*
-				archive = TarArchive.CreateOutputTarArchive(tarOutstream, 
+				switch (CompressionMethod) {
+					case TarCompressionMethod.GZip:
+						outstream = new GZipOutputStream(outstream);
+						break;
+					case TarCompressionMethod.BZip2:
+						outstream = new BZip2OutputStream(outstream);
+						break;
+				}
+
+				archive = TarArchive.CreateOutputTarArchive(outstream, 
 					TarBuffer.DefaultBlockFactor);
 				archive.SetAsciiTranslation(true);
-				*/
 
 				// add files to tar
 				foreach (string file in TarFileSet.FileNames) {
@@ -166,103 +185,72 @@ namespace NAnt.Zip.Tasks {
 						entryName = entryName.Replace(@"\", "/");
 					}
 
-					// create tar header
-					TarHeader header = new TarHeader();
-					header.mode = TarFileSet.FileMode;
-					header.size = new FileInfo(file).Length;
-
-					// create tar entry
-					TarEntry entry = new TarEntry(header);
+					TarEntry entry = TarEntry.CreateEntryFromFile(file);
 					entry.Name = entryName;
 					entry.GroupId = TarFileSet.Gid;
 					entry.GroupName = TarFileSet.GroupName;
 					entry.UserId = TarFileSet.Uid;
 					entry.UserName = TarFileSet.UserName;
-					entry.ModTime = File.GetLastWriteTime(file);
-
-					Log(Level.Verbose, "Adding {0}.", entryName);
-                    
-					// write file to tar file
-					tarOutstream.PutNextEntry(entry);
-
-					// write file content to stream in small chuncks
-					using (FileStream fs = File.OpenRead(file)) {
-						byte[] buffer = new byte[50000];
-
-						while (true) {
-							int bytesRead = fs.Read(buffer, 0, buffer.Length);
-							if (bytesRead == 0) {
-								break;
-							}
-							tarOutstream.Write(buffer, 0, bytesRead);
-						}
-					}
-
-					// close the tar entry
-					tarOutstream.CloseEntry();
+					entry.TarHeader.mode = TarFileSet.FileMode;
+					archive.WriteEntry(entry, true);
 				}
 
 				// add (possibly empty) directories to tar
-				if (IncludeEmptyDirs) {
-					foreach (string directory in TarFileSet.DirectoryNames) {
-						// skip directories that were already added when the 
-						// files were added
-						if (_addedDirs[directory] != null) {
-							continue;
-						}
-
-						// skip directories that are not located beneath the base 
-						// directory
-						if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
-							continue;
-						}
-
-						// determine tar entry name
-						string entryName = directory.Substring(basePath.Length + 1);
-
-						// add prefix if specified
-						if (TarFileSet.Prefix != null) {
-							entryName = TarFileSet.Prefix + entryName;
-						}
-
-						// ensure directory separators are understood on linux
-						if (Path.DirectorySeparatorChar == '\\') {
-							entryName = entryName.Replace(@"\", "/");
-						}
-
-						if (!entryName.EndsWith("/")) {
-							// trailing directory signals to #ziplib that we're
-							// dealing with directory entry
-							entryName += "/";
-						}
-
-						// create tar header
-						TarHeader header = new TarHeader();
-						header.mode = TarFileSet.DirMode;
-
-						// create directory entry
-						TarEntry entry = new TarEntry(header);
-						entry.Name = entryName;
-						entry.GroupId = TarFileSet.Gid;
-						entry.GroupName = TarFileSet.GroupName;
-						entry.UserId = TarFileSet.Uid;
-						entry.UserName = TarFileSet.UserName;
-						entry.ModTime = File.GetLastWriteTime(directory);
-
-						// write directory to tar file
-						tarOutstream.PutNextEntry(entry);
-
-						// close the tar entry
-						tarOutstream.CloseEntry();
+				foreach (string directory in TarFileSet.DirectoryNames) {
+					// skip directories that were already added when the 
+					// files were added
+					if (_addedDirs[directory] != null) {
+						continue;
 					}
+
+					// skip directories that are not located beneath the base 
+					// directory
+					if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
+						continue;
+					}
+
+					// determine tar entry name
+					string entryName = directory.Substring(basePath.Length + 1);
+
+					// add prefix if specified
+					if (TarFileSet.Prefix != null) {
+						entryName = TarFileSet.Prefix + entryName;
+					}
+
+					// ensure directory separators are understood on linux
+					if (Path.DirectorySeparatorChar == '\\') {
+						entryName = entryName.Replace(@"\", "/");
+					}
+
+					if (!entryName.EndsWith("/")) {
+						// trailing directory signals to #ziplib that we're
+						// dealing with directory entry
+						entryName += "/";
+					}
+
+					// create directory entry
+					TarEntry entry = TarEntry.CreateTarEntry(entryName);
+					entry.GroupId = TarFileSet.Gid;
+					entry.GroupName = TarFileSet.GroupName;
+					entry.UserId = TarFileSet.Uid;
+					entry.UserName = TarFileSet.UserName;
+					entry.TarHeader.mode = TarFileSet.DirMode;
+
+					// write directory to tar file
+					archive.WriteEntry(entry, false);
 				}
 
-				// close the tar output stream
-				tarOutstream.Close();
+				// close the tar archive
+				archive.CloseArchive();
 			} catch (Exception ex) {
 				// close the tar output stream
-				if (tarOutstream != null) {
-					tarOutstream.Close();
+				if (outstream != null) {
+					outstream.Close();
+				}
+
+				// close the tar archive
+				if (archive != null) {
+					archive.CloseArchive();
 				}
 
 				// delete the (possibly corrupt) tar file
@@ -277,5 +265,25 @@ namespace NAnt.Zip.Tasks {
 		}
 
 		#endregion Override implementation of Task
+	}
+
+	/// <summary>
+	/// Specifies the compression methods support by <see cref="TarTask" />.
+	/// </summary>
+	public enum TarCompressionMethod {
+		/// <summary>
+		/// No compression.
+		/// </summary>
+		None = 0,
+
+		/// <summary>
+		/// GZIP compression.
+		/// </summary>
+		GZip = 1,
+
+		/// <summary>
+		/// BZIP2 compression.
+		/// </summary>
+		BZip2 = 2
 	}
 }
