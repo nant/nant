@@ -25,7 +25,7 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-	[TestFixture]
+    [TestFixture]
     public class DirectoryScannerTest {
 
         string _tempDir;
@@ -34,7 +34,7 @@ namespace SourceForge.NAnt.Tests {
         string _folder3;
         DirectoryScanner _scanner;
 
-		[SetUp]
+        [SetUp]
         protected void SetUp() {
             _tempDir = TempDir.Create("NAnt.Tests.DirectoryScannerTest");
 
@@ -49,7 +49,7 @@ namespace SourceForge.NAnt.Tests {
             _scanner.BaseDirectory = _tempDir;
         }
 
-		[TearDown]
+        [TearDown]
         protected void TearDown() {
             TempDir.Delete(_tempDir);
         }
@@ -177,6 +177,30 @@ namespace SourceForge.NAnt.Tests {
                 Path.Combine(_folder3, "Foo4.bar")
             };
 
+            _scanner.Includes.Add(@"**\folder3\**\XYZ*");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>Test specifying a folder both recursively and non-recursively.</summary>
+        /// <remarks>
+        ///   Matches all files/dirs that start with "XYZ" and where there is a 
+        ///   parent directory called 'folder3' (e.g. "abc\folder3\def\ghi\XYZ123").
+        /// </remarks>
+        [Test]
+        public void Test_RecursiveWildcardMatching4() 
+        {
+            string[] includedFileNames = new string[] {
+                Path.Combine(_folder3, "XYZ.txt"),
+                Path.Combine(_folder3, "XYZ.bak"),
+                Path.Combine(_folder3, "XYZzzz.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                Path.Combine(_tempDir, "Foo2.bar"),
+                Path.Combine(_folder2, "Foo3.bar"),
+                Path.Combine(_folder3, "Foo4.bar")
+            };
+
+            _scanner.Includes.Add(@"folder3/XYZ*");
             _scanner.Includes.Add(@"**\folder3\**\XYZ*");
             CheckScan(includedFileNames, excludedFileNames);
         }
