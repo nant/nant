@@ -583,6 +583,10 @@ namespace NAnt.Core {
                         continue;
                     }
                 }
+
+                // also support child elements that are backed by methods
+                // we need this in order to support ordered child elements
+                InitializeOrderedChildElements();
             
                 // skip checking for anything in target
                 if(!(currentType.Equals(typeof(Target)) || currentType.IsSubclassOf(typeof(Target)))) {
@@ -768,13 +772,17 @@ namespace NAnt.Core {
 
                         // set the property value
                         attributeSetter.Set(attributeNode, Element, propertyInfo, attributeValue);
+
+                        // if a value is assigned to the property, we consider
+                        // it done
+                        return true;
                     }
                 }
 
                 // if a BuildAttribute was assigned to the property, then 
                 // there's no need to try to initialize this property as a 
                 // collection or nested element
-                return (buildAttribute != null);
+                return (buildAttribute != null);            
             }
 
             protected virtual bool InitializeBuildElementCollection(PropertyInfo propertyInfo) {
@@ -787,267 +795,262 @@ namespace NAnt.Core {
                 buildElementCollectionAttribute = (BuildElementCollectionAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementCollectionAttribute));
 
-                if (buildElementArrayAttribute != null || buildElementCollectionAttribute != null) {
-                    if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
+                if (buildElementArrayAttribute == null && buildElementCollectionAttribute == null) {
+                    // continue trying to initialize property
+                    return false;
+                }
+
+                if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "BuildElementArrayAttribute and BuildElementCollection attributes" +
+                        " must be applied to array or collection-based types '{0}' element" +
+                        "for <{1} .../>.", buildElementArrayAttribute.Name, 
+                        Name), Location);
+                }
+
+                Type elementType = null;
+
+                // determine type of child elements
+                if (buildElementArrayAttribute != null) {
+                    elementType = buildElementArrayAttribute.ElementType;
+                } else {
+                    elementType = buildElementCollectionAttribute.ElementType;
+                }
+
+                if (propertyInfo.PropertyType.IsArray) {
+                    if (!propertyInfo.CanWrite) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "BuildElementArrayAttribute and BuildElementCollection attributes" +
-                            " must be applied to array or collection-based types '{0}' element" +
-                            "for <{1} ...//>.", buildElementArrayAttribute.Name, 
-                            Name), Location);
+                            "BuildElementArrayAttribute cannot be applied to read-only" +
+                            " array-based properties. '{0}' element for <{1} .../>.", 
+                            buildElementArrayAttribute.Name, Name), 
+                            Location);
                     }
 
-                    Type elementType = null;
-
-                    // determine type of child elements
-                    if (buildElementArrayAttribute != null) {
-                        elementType = buildElementArrayAttribute.ElementType;
-                    } else {
-                        elementType = buildElementCollectionAttribute.ElementType;
+                    if (elementType == null) {
+                        elementType = propertyInfo.PropertyType.GetElementType();
                     }
-
-                    if (propertyInfo.PropertyType.IsArray) {
-                        if (!propertyInfo.CanWrite) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "BuildElementArrayAttribute cannot be applied to read-only" +
-                                " array-based properties. '{0}' element for <{1} ...//>.", 
-                                buildElementArrayAttribute.Name, Name), 
-                                Location);
-                        }
-
-                        if (elementType == null) {
-                            elementType = propertyInfo.PropertyType.GetElementType();
-                        }
-                    } else {
-                        if (!propertyInfo.CanRead) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "BuildElementArrayAttribute cannot be applied to write-only" +
-                                " collection-based properties. '{0}' element for <{1} ...//>.", 
-                                buildElementArrayAttribute.Name, Name), 
-                                Location);
-                        }
-
-                        if (elementType == null) {
-                            // locate Add method with 1 parameter, type of that parameter is parameter type
-                            foreach (MethodInfo method in propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                                if (method.Name == "Add" && method.GetParameters().Length == 1) {
-                                    ParameterInfo parameter = method.GetParameters()[0];
-                                    elementType = parameter.ParameterType;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    // make sure the element is strongly typed
-                    if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
+                } else {
+                    if (!propertyInfo.CanRead) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
-                            " should have an element type assigned that derives from Element" +
-                            " for <{0} ...//>.", Name), Location);
+                            "BuildElementArrayAttribute cannot be applied to write-only" +
+                            " collection-based properties. '{0}' element for <{1} .../>.", 
+                            buildElementArrayAttribute.Name, Name), 
+                            Location);
                     }
 
-                    XmlNodeList collectionNodes = null;
-
-                    if (buildElementCollectionAttribute != null) {
-                        collectionNodes = ElementXml.SelectNodes("nant:" 
-                            + buildElementCollectionAttribute.Name, 
-                            NamespaceManager);
-                        
-                        if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "There must be a least one '{0}' element for <{1} ...//>.", 
-                                buildElementCollectionAttribute.Name, Name), 
-                                Location);
-                        }
-
-                        if (collectionNodes.Count == 1) {
-                            // check if property is deprecated
-                            ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
-
-                            // emit warning or error if attribute is deprecated
-                            if (obsoleteAttribute != null) {
-                                string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                    "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
-                                    Location, buildElementCollectionAttribute.Name, Name, 
-                                    obsoleteAttribute.Message);
-                                if (obsoleteAttribute.IsError) {
-                                    throw new BuildException(obsoleteMessage,
-                                        Location);
-                                } else {
-                                    Element.Log(Level.Warning, obsoleteMessage);
-                                }
-                            }
-
-                            // remove element from list of remaining items
-                            UnprocessedChildNodes.Remove(collectionNodes[0].Name);
-
-                            string elementName = buildElementCollectionAttribute.ChildElementName;
-                            if (elementName == null) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "No name was assigned to the base element '{0}' for collection element {1} for <{2} ...//>.", 
-                                    elementType.FullName, buildElementCollectionAttribute.Name, 
-                                    Name), Location);
-                            }
-
-                            // get actual collection of element nodes
-                            collectionNodes = collectionNodes[0].SelectNodes("nant:" 
-                                + elementName, NamespaceManager);
-
-                            // check if its required
-                            if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "There must be a least one '{0}' element for <{1} ... />.", 
-                                    elementName, buildElementCollectionAttribute.Name), 
-                                    Location);
-                            }
-                        } else if (collectionNodes.Count > 1) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "Use BuildElementArrayAttributes to have array like elements!" +
-                                " There must be at most one '{0}' element for <{1} ... />.", 
-                                buildElementCollectionAttribute.Name, 
-                                Name), Location);
-                        }
-                    } else {
-                        collectionNodes = ElementXml.SelectNodes("nant:" 
-                            + buildElementArrayAttribute.Name, 
-                            NamespaceManager);
-
-                        if (collectionNodes.Count > 0) {
-                            // check if property is deprecated
-                            ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
-
-                            // emit warning or error if attribute is deprecated
-                            if (obsoleteAttribute != null) {
-                                string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                    "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
-                                    Location, buildElementArrayAttribute.Name, Name, 
-                                    obsoleteAttribute.Message);
-                                if (obsoleteAttribute.IsError) {
-                                    throw new BuildException(obsoleteMessage,
-                                        Location);
-                                } else {
-                                    Element.Log(Level.Warning, obsoleteMessage);
-                                }
-                            }
-
-                            // remove element from list of remaining items
-                            UnprocessedChildNodes.Remove(collectionNodes[0].Name);
-                        } else if (buildElementArrayAttribute.Required) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Element Required! There must be a least one '{0}' element for <{1} ... />.", 
-                                buildElementArrayAttribute.Name, Name), 
-                                Location);
-                        }
-                    }
-
-                    if (buildElementArrayAttribute != null) {
-                        if (!buildElementArrayAttribute.ProcessXml) {
-                            return true;
-                        }
-                    } else if (!buildElementCollectionAttribute.ProcessXml) {
-                        return true;
-                    }
-
-                    // create new array of the required size - even if size is 0
-                    Array list = Array.CreateInstance(elementType, collectionNodes.Count);
-
-                    int arrayIndex = 0;
-                    foreach (XmlNode childNode in collectionNodes) {
-                        // skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                        if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
-                            continue;
-                        }
-
-                        // create a child element
-                        Element childElement = (Element) Activator.CreateInstance(
-                            elementType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
-                            null, null, CultureInfo.InvariantCulture);
-
-                        // initialize child element (from XML or data type reference)
-                        childElement = InitializeBuildElement(childNode, 
-                            childElement, elementType);
-
-                        // set element in array
-                        list.SetValue(childElement, arrayIndex);
-
-                        // move to next index position in array
-                        arrayIndex++;
-                    }
-
-                    if (propertyInfo.PropertyType.IsArray) {
-                        try {
-                            // set the member array to our newly created array
-                            propertyInfo.SetValue(Element, list, null);
-                        } catch (Exception ex) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Child element type {0} is not assignable to the type" +
-                                " of the underlying array ({1} for property {2} for <{3} ... />.", 
-                                elementType.FullName, propertyInfo.PropertyType.FullName, 
-                                propertyInfo.Name, Name), Location, ex);
-                        }
-                    } else {
-                        MethodInfo addMethod = null;
-
-                        // get array of public instance methods
-                        MethodInfo[] addMethods = propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-
-                        // search for a method called 'Add' which accepts a parameter
-                        // to which the element type is assignable
-                        foreach (MethodInfo method in addMethods) {
+                    if (elementType == null) {
+                        // locate Add method with 1 parameter, type of that parameter is parameter type
+                        foreach (MethodInfo method in propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
                             if (method.Name == "Add" && method.GetParameters().Length == 1) {
                                 ParameterInfo parameter = method.GetParameters()[0];
-                                if (parameter.ParameterType.IsAssignableFrom(elementType)) {
-                                    addMethod = method;
-                                    break;
-                                }
+                                elementType = parameter.ParameterType;
+                                break;
                             }
-                        }
-
-                        if (addMethod == null) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Child element type {0} cannot be added to collection" +
-                                " {1} for underlying property {2} for <{3} ... />.", elementType.FullName,
-                                propertyInfo.PropertyType.FullName, propertyInfo.Name, Name),
-                                Location);
-                        }
-
-                        // if value of property is null, create new instance of collection
-                        object collection = propertyInfo.GetValue(Element, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
-                        if (collection == null) {
-                            if (!propertyInfo.CanWrite) {
-                                if (buildElementArrayAttribute != null) {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "BuildElementArrayAttribute cannot be applied to read-only property with" +
-                                        " uninitialized collection-based value '{0}' element for <{1} ... />.", 
-                                        buildElementArrayAttribute.Name, Name), 
-                                        Location);
-                                } else {
-                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "BuildElementCollectionAttribute cannot be applied to read-only property with" +
-                                        " uninitialized collection-based value '{0}' element for <{1} ... />.", 
-                                        buildElementCollectionAttribute.Name, Name), 
-                                        Location);
-                                }
-                            }
-
-                            object instance = Activator.CreateInstance(
-                                propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, 
-                                null, null, CultureInfo.InvariantCulture);
-                            propertyInfo.SetValue(Element, instance, 
-                                BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
-                        }
-
-                        // add each element of the array to collection instance
-                        foreach (object childElement in list) {
-                            addMethod.Invoke(collection, BindingFlags.Default, null, new object[] {childElement}, CultureInfo.InvariantCulture);
                         }
                     }
+                }
 
+                // make sure the element is strongly typed
+                if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
+                        " should have an element type assigned that derives from Element" +
+                        " for <{0} .../>.", Name), Location);
+                }
+
+                XmlNodeList collectionNodes = null;
+
+                if (buildElementCollectionAttribute != null) {
+                    collectionNodes = ElementXml.SelectNodes("nant:" 
+                        + buildElementCollectionAttribute.Name, 
+                        NamespaceManager);
+                    
+                    if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "There must be a least one '{0}' element for <{1} .../>.", 
+                            buildElementCollectionAttribute.Name, Name), 
+                            Location);
+                    }
+
+                    if (collectionNodes.Count == 1) {
+                        // check if property is deprecated
+                        ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
+
+                        // emit warning or error if attribute is deprecated
+                        if (obsoleteAttribute != null) {
+                            string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                                "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
+                                Location, buildElementCollectionAttribute.Name, Name, 
+                                obsoleteAttribute.Message);
+                            if (obsoleteAttribute.IsError) {
+                                throw new BuildException(obsoleteMessage,
+                                    Location);
+                            } else {
+                                Element.Log(Level.Warning, obsoleteMessage);
+                            }
+                        }
+
+                        // remove element from list of remaining items
+                        UnprocessedChildNodes.Remove(collectionNodes[0].Name);
+
+                        string elementName = buildElementCollectionAttribute.ChildElementName;
+                        if (elementName == null) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "No name was assigned to the base element '{0}' for collection element {1} for <{2} .../>.", 
+                                elementType.FullName, buildElementCollectionAttribute.Name, 
+                                Name), Location);
+                        }
+
+                        // get actual collection of element nodes
+                        collectionNodes = collectionNodes[0].SelectNodes("nant:" 
+                            + elementName, NamespaceManager);
+
+                        // check if its required
+                        if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "There must be a least one '{0}' element for <{1} ... />.", 
+                                elementName, buildElementCollectionAttribute.Name), 
+                                Location);
+                        }
+                    } else if (collectionNodes.Count > 1) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Use BuildElementArrayAttributes to have array like elements!" +
+                            " There must be at most one '{0}' element for <{1} ... />.", 
+                            buildElementCollectionAttribute.Name, 
+                            Name), Location);
+                    }
+                } else {
+                    collectionNodes = ElementXml.SelectNodes("nant:" 
+                        + buildElementArrayAttribute.Name, 
+                        NamespaceManager);
+
+                    if (collectionNodes.Count > 0) {
+                        // check if property is deprecated
+                        ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
+
+                        // emit warning or error if attribute is deprecated
+                        if (obsoleteAttribute != null) {
+                            string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                                "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
+                                Location, buildElementArrayAttribute.Name, Name, 
+                                obsoleteAttribute.Message);
+                            if (obsoleteAttribute.IsError) {
+                                throw new BuildException(obsoleteMessage,
+                                    Location);
+                            } else {
+                                Element.Log(Level.Warning, obsoleteMessage);
+                            }
+                        }
+
+                        // remove element from list of remaining items
+                        UnprocessedChildNodes.Remove(collectionNodes[0].Name);
+                    } else if (buildElementArrayAttribute.Required) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Element Required! There must be a least one '{0}' element for <{1} ... />.", 
+                            buildElementArrayAttribute.Name, Name), 
+                            Location);
+                    }
+                }
+
+                if (buildElementArrayAttribute != null) {
+                    if (!buildElementArrayAttribute.ProcessXml) {
+                        return true;
+                    }
+                } else if (!buildElementCollectionAttribute.ProcessXml) {
                     return true;
                 }
 
-                // continue trying to initialize property
-                return false;
+                // create new array of the required size - even if size is 0
+                Array list = Array.CreateInstance(elementType, collectionNodes.Count);
+
+                int arrayIndex = 0;
+                foreach (XmlNode childNode in collectionNodes) {
+                    // skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                    if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
+                        continue;
+                    }
+
+                    // create and initialize child element (from XML or data type reference)
+                    Element childElement = InitializeBuildElement(childNode, 
+                        elementType);
+
+                    // set element in array
+                    list.SetValue(childElement, arrayIndex);
+
+                    // move to next index position in array
+                    arrayIndex++;
+                }
+
+                if (propertyInfo.PropertyType.IsArray) {
+                    try {
+                        // set the member array to our newly created array
+                        propertyInfo.SetValue(Element, list, null);
+                    } catch (Exception ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Child element type {0} is not assignable to the type" +
+                            " of the underlying array ({1} for property {2} for <{3} ... />.", 
+                            elementType.FullName, propertyInfo.PropertyType.FullName, 
+                            propertyInfo.Name, Name), Location, ex);
+                    }
+                } else {
+                    MethodInfo addMethod = null;
+
+                    // get array of public instance methods
+                    MethodInfo[] addMethods = propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+
+                    // search for a method called 'Add' which accepts a parameter
+                    // to which the element type is assignable
+                    foreach (MethodInfo method in addMethods) {
+                        if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                            ParameterInfo parameter = method.GetParameters()[0];
+                            if (parameter.ParameterType.IsAssignableFrom(elementType)) {
+                                addMethod = method;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (addMethod == null) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Child element type {0} cannot be added to collection" +
+                            " {1} for underlying property {2} for <{3} ... />.", elementType.FullName,
+                            propertyInfo.PropertyType.FullName, propertyInfo.Name, Name),
+                            Location);
+                    }
+
+                    // if value of property is null, create new instance of collection
+                    object collection = propertyInfo.GetValue(Element, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                    if (collection == null) {
+                        if (!propertyInfo.CanWrite) {
+                            if (buildElementArrayAttribute != null) {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "BuildElementArrayAttribute cannot be applied to read-only property with" +
+                                    " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                                    buildElementArrayAttribute.Name, Name), 
+                                    Location);
+                            } else {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "BuildElementCollectionAttribute cannot be applied to read-only property with" +
+                                    " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                                    buildElementCollectionAttribute.Name, Name), 
+                                    Location);
+                            }
+                        }
+
+                        object instance = Activator.CreateInstance(
+                            propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, 
+                            null, null, CultureInfo.InvariantCulture);
+                        propertyInfo.SetValue(Element, instance, 
+                            BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                    }
+
+                    // add each element of the array to collection instance
+                    foreach (object childElement in list) {
+                        addMethod.Invoke(collection, BindingFlags.Default, null, new object[] {childElement}, CultureInfo.InvariantCulture);
+                    }
+                }
+
+                return true;
             }
 
             protected virtual bool InitializeChildElement(PropertyInfo propertyInfo) {
@@ -1077,7 +1080,7 @@ namespace NAnt.Core {
                         return true;
                     }
 
-                    //create the child build element; not needed directly. It will be assigned to the local property.
+                    // create the child build element; not needed directly. It will be assigned to the local property.
                     CreateChildBuildElement(propertyInfo, nestedElementNode, 
                         Properties, TargetFramework);
 
@@ -1092,6 +1095,129 @@ namespace NAnt.Core {
                 }
 
                 return true;
+            }
+
+            protected virtual void InitializeOrderedChildElements() {
+                // first, we'll fill a hashtable with public methods that take
+                // a single argument and to which a BuildElementAttribute is 
+                // assigned
+                Hashtable childElementMethods = new Hashtable();
+
+                // will hold list of required methods, in order to check missing
+                // required elements
+                Hashtable requiredMethods = new Hashtable();
+
+                MethodInfo[] methods = Element.GetType().GetMethods(BindingFlags.Public 
+                    | BindingFlags.Instance);
+
+                foreach (MethodInfo method in methods) {
+                    ParameterInfo[] parameters = method.GetParameters();
+
+                    // we're only interested in methods with one argument, meaning
+                    // the element
+                    if (parameters.Length != 1) {
+                        continue;
+                    }
+
+                    // ignore methods that do not have a BuildElementAttribute
+                    // assigned to it
+                    object[] buildElementAttributes = method.GetCustomAttributes(
+                        typeof(BuildElementAttribute), true);
+                    if (buildElementAttributes.Length == 0) {
+                        continue;
+                    }
+
+                    BuildElementAttribute buildElementAttribute = (BuildElementAttribute)
+                        buildElementAttributes[0];
+                    childElementMethods.Add(buildElementAttribute.Name, method);
+
+                    if (buildElementAttribute.Required) {
+                        requiredMethods.Add(buildElementAttribute.Name, method);
+                    }
+                }
+
+                // keep track of nodes that were processed as ordered build 
+                // elements
+                StringCollection processedNodes = new StringCollection();
+
+                foreach (XmlNode childNode in ElementXml.ChildNodes) {
+                    string elementName = childNode.Name;
+
+                    // skip childnodes that have already been processed 
+                    // (by other means)
+                    if (!UnprocessedChildNodes.Contains(elementName)) {
+                        continue;
+                    }
+
+                    // skip child nodes for which no init method exists
+                    MethodInfo method = (MethodInfo) childElementMethods[elementName];
+                    if (method == null) {
+                        continue;
+                    }
+
+                    // mark node as processed (as an ordered build element)
+                    if (!processedNodes.Contains(elementName)) {
+                        processedNodes.Add(elementName);
+                    }
+
+                    // ensure method is marked processed
+                    if (requiredMethods.ContainsKey(elementName)) {
+                        requiredMethods.Remove(elementName);
+                    }
+
+                    // obtain buildelementattribute to check whether xml 
+                    // should be processed
+                    BuildElementAttribute buildElementAttribute = (BuildElementAttribute)
+                        Attribute.GetCustomAttribute(method, typeof(BuildElementAttribute), 
+                        true);
+                    if (!buildElementAttribute.ProcessXml) {
+                        continue;
+                    }
+
+                    // methods should have an argument of a type that derives 
+                    // from Element
+                    Type childElementType = method.GetParameters()[0].ParameterType;
+
+                    // create and initialize the element (from XML or datatype reference)
+                    Element element = InitializeBuildElement(childNode, 
+                        childElementType);
+
+                    // invoke method, passing in the initialized element
+                    method.Invoke(Element, BindingFlags.InvokeMethod, null,
+                        new object[] {element}, CultureInfo.InvariantCulture);
+                }
+
+                // permanently mark nodes as processed
+                foreach (string node in processedNodes) {
+                    UnprocessedChildNodes.Remove(node);
+                }
+
+                // finally check if there are methods that are required, and for
+                // which no element was specified in the build file
+                if (requiredMethods.Count > 0) {
+                    foreach (DictionaryEntry entry in requiredMethods) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "There must be a least one <{0} .../> child element for"
+                            + " <{1} .../>.", (string) entry.Key, Name), Location);
+                    }
+                }
+            }
+
+            protected virtual Element InitializeBuildElement(XmlNode childNode, Type elementType) {
+                if (!typeof(Element).IsAssignableFrom(elementType)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "<{0} ... /> could not be initialized as its backed by"
+                        + " type '{1}' which does not derive from Element.",
+                        childNode.Name, elementType.FullName), Location);
+                }
+
+                // create a child element
+                Element childElement = (Element) Activator.CreateInstance(
+                    elementType, BindingFlags.Public | BindingFlags.NonPublic 
+                    | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+
+                // initialize the element
+                return InitializeBuildElement(childNode, childElement, elementType);
             }
 
             protected virtual Element InitializeBuildElement(XmlNode childNode, Element buildElement, Type elementType) {
@@ -1255,8 +1381,8 @@ namespace NAnt.Core {
                     attributeSetter = new FileAttributeSetter();
                 } else if (attributeType == typeof(DirectoryInfo)) {
                     attributeSetter = new DirectoryAttributeSetter();
-                } else if (attributeType == typeof(PathList)) {
-                    attributeSetter = new PathListAttributeSetter();
+                } else if (attributeType == typeof(PathSet)) {
+                    attributeSetter = new PathSetAttributeSetter();
                 } else {
                     attributeSetter = new ConvertableAttributeSetter();
                 }
@@ -1434,10 +1560,10 @@ namespace NAnt.Core {
                 }
             }
 
-            private class PathListAttributeSetter : IAttributeSetter {
+            private class PathSetAttributeSetter : IAttributeSetter {
                 public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
                     try {
-                        PathList propertyValue = new PathList(parent.Project, value);
+                        PathSet propertyValue = new PathSet(parent.Project, value);
                         property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
