@@ -22,6 +22,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -35,7 +36,8 @@ namespace NAnt.Core {
     public class XmlLogger : IBuildLogger, ISerializable {
         #region Private Instance Fields
 
-        private TextWriter _writer = Console.Out;
+        private TextWriter _outputWriter;
+        private StringWriter _buffer = new StringWriter();
         private Level _threshold = Level.Info;
         [NonSerialized()]
         private XmlTextWriter _xmlWriter;
@@ -48,7 +50,7 @@ namespace NAnt.Core {
         /// Initializes a new instance of the <see cref="XmlLogger" /> class.
         /// </summary>
         public XmlLogger() {
-            _xmlWriter = new XmlTextWriter(_writer);
+            _xmlWriter = new XmlTextWriter(_buffer);
         }
 
         #endregion Public Instance Constructors
@@ -62,9 +64,10 @@ namespace NAnt.Core {
         /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data.</param>
         /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
         protected XmlLogger(SerializationInfo info, StreamingContext context) {
-            _writer = info.GetValue("Writer", typeof(TextWriter)) as TextWriter;
+            _outputWriter = info.GetValue("OutputWriter", typeof(TextWriter)) as TextWriter;
+            _buffer = info.GetValue("Buffer", typeof(StringWriter)) as StringWriter;
             _threshold = (Level) info.GetValue("Threshold", typeof(Level));
-            _xmlWriter = new XmlTextWriter(_writer);
+            _xmlWriter = new XmlTextWriter(_buffer);
         }
 
         #endregion Protected Instance Constructors
@@ -78,7 +81,8 @@ namespace NAnt.Core {
         /// <param name="info">The <see cref="SerializationInfo" /> to populate with data.</param>
         /// <param name="context">The destination for this serialization.</param>
         public void GetObjectData(SerializationInfo info, StreamingContext context) {
-            info.AddValue("Writer", _writer);
+            info.AddValue("OutputWriter", _outputWriter);
+            info.AddValue("Buffer", _buffer);
             info.AddValue("Threshold", _threshold);
         }
 
@@ -90,7 +94,7 @@ namespace NAnt.Core {
         /// Returns the contents of log captured.
         /// </summary>
         public override string ToString() {
-            return _writer.ToString();
+            return _buffer.ToString();
         }
 
         #endregion Override implementation of Object
@@ -128,6 +132,27 @@ namespace NAnt.Core {
             // close buildresults node
             _xmlWriter.WriteEndElement();
             _xmlWriter.Flush();
+
+            try {
+                // write results to file
+                if (OutputWriter != null) {
+                    OutputWriter.Write(_buffer.ToString());
+                    OutputWriter.Flush();
+                } else { // Xmlogger is used as BuildListener
+                    string outFileName = e.Project.Properties["XmlLogger.file"];
+                    if (outFileName == null) {
+                        outFileName = "log.xml";
+                    }
+                    // convert to full path relative to project base directory
+                    outFileName = e.Project.GetFullPath(outFileName);
+                    // write build log to file
+                    using (StreamWriter writer = new StreamWriter(new FileStream(outFileName, FileMode.Create, FileAccess.Write, FileShare.Read), Encoding.UTF8)) {
+                        writer.Write(_buffer.ToString());
+                    }
+                }
+            } catch (Exception ex) {
+                throw new BuildException("Unable to write to log file.", ex);
+            }
         }
 
         /// <summary>
@@ -233,12 +258,8 @@ namespace NAnt.Core {
         /// to send its output.
         /// </summary>
         public TextWriter OutputWriter {
-            get { return _writer; }
-            set { 
-                _writer = value;
-                _xmlWriter = new XmlTextWriter(value);
-                _xmlWriter.Formatting = Formatting.Indented;
-            }
+            get { return _outputWriter; }
+            set { _outputWriter = value; }
         }
 
         /// <summary>
@@ -281,7 +302,6 @@ namespace NAnt.Core {
         #endregion Public Instance Methods
 
         #region Private Instance Methods
-
 
         private void WriteErrorNode(Exception exception) {
             if (exception == null) {
