@@ -82,6 +82,26 @@ namespace NAnt.SourceControl.Tasks {
         protected const bool DefaultPruneEmpty = true;
         #endregion
 
+        #region "Protected Instance Properties"
+        /// <summary>
+        /// Specify if the module is needed for this cvs command.  It is
+        /// only needed if there is no module information on the local file
+        /// system.
+        /// </summary>
+        protected override bool IsModuleNeeded {
+            get {return false;}
+        }
+
+        /// <summary>
+        /// Specify if the cvs root should be used for this cvs command.  It is
+        /// only needed if there is no module information on the local file
+        /// system, there fore is not needed for a cvs update.
+        /// </summary>
+        protected override bool IsCvsRootNeeded {
+            get {return false;}
+        }
+        #endregion "Protected Instance Properties"
+
         #region Public Instance Properties
         /// <summary>
         /// The name of the cvs command that is going to be executed.

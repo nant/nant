@@ -131,6 +131,49 @@ namespace NAnt.SourceControl.Tasks {
         protected override string SshEnv {
             get {return CvsRsh;}
         }
+
+        /// <summary>
+        /// The name of the cvs binary, or <code>cvs.exe</code> at the time this 
+        ///     was written.
+        /// </summary>
+        protected override string VcsExeName {
+            get {return CvsExe;}
+        }
+
+        /// <summary>
+        /// The name of the pass file, or <code>.cvspass</code> at the time
+        ///     of this writing.
+        /// </summary>
+        protected override string PassFileName {
+            get {return CvsPassfile;}
+        }
+
+        /// <summary>
+        /// The name of the version control system specific home environment 
+        ///     variable.
+        /// </summary>
+        protected override string VcsHomeEnv {
+            get {return CvsHome;}
+        }
+
+        /// <summary>
+        /// Specify if the module is needed for this cvs command.  It is
+        /// only needed if there is no module information on the local file
+        /// system.
+        /// </summary>
+        protected virtual bool IsModuleNeeded {
+            get {return true;}
+        }
+
+        /// <summary>
+        /// Specify if the cvs root should be used for this cvs command.  It is
+        /// only needed if there is no module information on the local file
+        /// system, there fore is not needed for a cvs update.
+        /// </summary>
+        protected virtual bool IsCvsRootNeeded {
+            get {return true;}
+        }
+
         #endregion
 
         #region Public Instance Properties
@@ -171,30 +214,6 @@ namespace NAnt.SourceControl.Tasks {
         public FileInfo CvsFullPath {
             get {return _cvsFullPath;}
             set {_cvsFullPath = value;}
-        }
-
-        /// <summary>
-        /// The name of the cvs binary, or <code>cvs.exe</code> at the time this 
-        ///     was written.
-        /// </summary>
-        protected override string VcsExeName {
-            get {return CvsExe;}
-        }
-
-        /// <summary>
-        /// The name of the pass file, or <code>.cvspass</code> at the time
-        ///     of this writing.
-        /// </summary>
-        protected override string PassFileName {
-            get {return CvsPassfile;}
-        }
-
-        /// <summary>
-        /// The name of the version control system specific home environment 
-        ///     variable.
-        /// </summary>
-        protected override string VcsHomeEnv {
-            get {return CvsHome;}
         }
 
         /// <summary>
@@ -447,8 +466,8 @@ namespace NAnt.SourceControl.Tasks {
 
         private void AppendGlobalOptions () {
             foreach (Option option in GlobalOptions.Values) {
-//              Log(Level.Verbose, 
-//                  String.Format(CultureInfo.InvariantCulture,"{0} Type '{1}'.", LogPrefix, optionte.GetType()));
+                //              Log(Level.Verbose, 
+                //                  String.Format(CultureInfo.InvariantCulture,"{0} Type '{1}'.", LogPrefix, optionte.GetType()));
                 if (!option.IfDefined || option.UnlessDefined) {
                     // skip option
                     continue;
@@ -479,26 +498,6 @@ namespace NAnt.SourceControl.Tasks {
         protected void AddArg (String arg) {
             Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"{0}",
                 arg)));
-        }
-
-        private bool IsModuleNeeded {
-            get {
-                if (UpdateTask.CvsCommandName.Equals(CommandName)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        }
-
-        private bool IsCvsRootNeeded {
-            get {
-                if (UpdateTask.CvsCommandName.Equals(CommandName)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
         }
 
         #endregion Private Instance Methods
