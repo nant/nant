@@ -95,23 +95,29 @@ namespace NAnt.Compression.Tasks {
         /// Extracts the files from the zip file.
         /// </summary>
         protected override void ExecuteTask() {
-            using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
-                Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
-                    ZipFile.FullName, ToDirectory.FullName, s.Length);
+            try {
+                using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
+                    Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
+                        ZipFile.FullName, ToDirectory.FullName, s.Length);
 
-                ZipEntry entry;
+                    ZipEntry entry;
 
-                // extract the file or directory entry
-                while ((entry = s.GetNextEntry()) != null) {
-                    if (entry.IsDirectory) {
-                        ExtractDirectory(s, entry.Name, entry.DateTime);
-                    } else {
-                        ExtractFile(s, entry.Name, entry.DateTime);
+                    // extract the file or directory entry
+                    while ((entry = s.GetNextEntry()) != null) {
+                        if (entry.IsDirectory) {
+                            ExtractDirectory(s, entry.Name, entry.DateTime);
+                        } else {
+                            ExtractFile(s, entry.Name, entry.DateTime);
+                        }
                     }
-                }
 
-                // close the zip stream
-                s.Close();
+                    // close the zip stream
+                    s.Close();
+                }
+            } catch (IOException ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to extract '{0}' to '{1}'.", ZipFile.FullName, 
+                    ToDirectory.FullName), Location, ex);
             }
         }
 
