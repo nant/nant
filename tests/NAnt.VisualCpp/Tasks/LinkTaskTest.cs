@@ -25,9 +25,12 @@ using System.Xml;
 
 using NUnit.Framework;
 
+using NAnt.Core;
+
+using NAnt.VisualCpp.Tasks;
+
 using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
-
 
 namespace Tests.NAnt.VisualCpp.Tasks
 {
@@ -131,6 +134,16 @@ namespace Tests.NAnt.VisualCpp.Tasks
                     </link>
                 </project>";
 
+        const string _test_compile_only = @"<?xml version='1.0'?>
+                <project>
+                    <cl outputdir=""objs""
+                        options=""-Zi -MDd -GA -Gz -YX -DWIN32 -DUNICODE -DDEBUG -D_DEBUG"" >
+                        <sources>
+                            <include name=""src\*.cpp"" />
+                        </sources>
+                    </cl>
+                </project>";
+
         [SetUp]
         protected override void SetUp() {
             base.SetUp();
@@ -210,6 +223,38 @@ namespace Tests.NAnt.VisualCpp.Tasks
                 Assert.IsTrue(binFileInfo.LastWriteTime >= objFileInfo.LastWriteTime,
                     "{0} must be newer than {1}.", _binPathName, _objPathName[i]);
             }
+        }
+
+        /// <summary>
+        /// Ensures &lt;link&gt; task supports lib dirs containing spaces, and
+        /// quoted dirs containing spaces (bug #1117794).
+        /// </summary>
+        [Test]
+        public void Test_LibDirsContainingSpaces() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
+            CleanAllObjs();
+            CleanAllBins();
+
+            Project project = CreateFilebasedProject(_test_compile_only);
+            ExecuteProject(project);
+
+            LinkTask lt = new LinkTask();
+            lt.Project = project;
+            lt.Options = "-debug";
+            lt.OutputFile = new FileInfo(Path.Combine(this.TempDirectory.FullName,
+                "bin/HelloWorld.exe"));
+
+            lt.LibDirs.BaseDirectory = this.TempDirectory;
+            lt.LibDirs.DirectoryNames.Add("\"whatever you want\"");
+            lt.LibDirs.DirectoryNames.Add("whatever you want");
+
+            lt.Sources.BaseDirectory = this.TempDirectory;
+            lt.Sources.Includes.Add("objs\\*.obj");
+
+            ExecuteTask(lt);
         }
     }
 }

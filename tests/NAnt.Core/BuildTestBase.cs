@@ -154,7 +154,35 @@ namespace Tests.NAnt.Core {
                     output = c.Close();
                     throw new TestBuildException("Error Executing Project", output, e);
                 } finally {
-                    if(output == null) {
+                    if (output == null) {
+                        output = c.Close();
+                    }
+                }
+                return output;
+            }
+        }
+
+        /// <summary>
+        /// Executes a task and returns the console output as a string.
+        /// </summary>
+        /// <param name="task">The task to execute.</param>
+        /// <returns>
+        /// The console output.
+        /// </returns>
+        /// <remarks>
+        /// Any exception that is thrown as part of the execution of the 
+        /// <see cref="Task" /> is wrapped in a <see cref="TestBuildException" />.
+        /// </remarks>
+        public static string ExecuteTask(Task task) {
+            using (ConsoleCapture c = new ConsoleCapture()) {
+                string output = null;
+                try {
+                    task.Execute();
+                } catch (Exception e) {
+                    output = c.Close();
+                    throw new TestBuildException("Error Executing Task", output, e);
+                } finally {
+                    if (output == null) {
                         output = c.Close();
                     }
                 }

@@ -34,31 +34,31 @@ namespace Tests.NAnt.VisualCpp.Util {
 
         [Test]
         public void Test_DuplicateTrailingBackSlash() {
-            Assert.AreEqual(string.Empty, ArgumentUtils.DuplicateTrailingBackSlash(string.Empty), "#1");
-            Assert.AreEqual("a", ArgumentUtils.DuplicateTrailingBackSlash("a"), "#2");
-            Assert.AreEqual("a\\\\", ArgumentUtils.DuplicateTrailingBackSlash("a\\"), "#3");
-            Assert.AreEqual("\"a\\\\\"", ArgumentUtils.DuplicateTrailingBackSlash("\"a\\\""), "#4");
-            Assert.AreEqual("a\\\"", ArgumentUtils.DuplicateTrailingBackSlash("a\\\""), "#5");
+            Assert.AreEqual(string.Empty, ArgumentUtils.DuplicateTrailingBackslash(string.Empty), "#1");
+            Assert.AreEqual("a", ArgumentUtils.DuplicateTrailingBackslash("a"), "#2");
+            Assert.AreEqual("a\\\\", ArgumentUtils.DuplicateTrailingBackslash("a\\"), "#3");
+            Assert.AreEqual("\"a\\\\\"", ArgumentUtils.DuplicateTrailingBackslash("\"a\\\""), "#4");
+            Assert.AreEqual("a\\\"", ArgumentUtils.DuplicateTrailingBackslash("a\\\""), "#5");
         }
 
         [Test]
         public void Test_FixTrailingBackSlash() {
-            Assert.AreEqual(string.Empty, ArgumentUtils.FixTrailingBackSlash(string.Empty), "#1");
-            Assert.AreEqual("a", ArgumentUtils.FixTrailingBackSlash("a"), "#2");
-            Assert.AreEqual("a", ArgumentUtils.FixTrailingBackSlash("a\\"), "#3");
-            Assert.AreEqual("a\\", ArgumentUtils.FixTrailingBackSlash("a\\\\"), "#4");
-            Assert.AreEqual("\"a\\\"", ArgumentUtils.FixTrailingBackSlash("\"a\\\""), "#5");
-            Assert.AreEqual("a\\\"", ArgumentUtils.FixTrailingBackSlash("a\\\""), "#6");
+            Assert.AreEqual(string.Empty, ArgumentUtils.FixTrailingBackslash(string.Empty), "#1");
+            Assert.AreEqual("a", ArgumentUtils.FixTrailingBackslash("a"), "#2");
+            Assert.AreEqual("a", ArgumentUtils.FixTrailingBackslash("a\\"), "#3");
+            Assert.AreEqual("a\\", ArgumentUtils.FixTrailingBackslash("a\\\\"), "#4");
+            Assert.AreEqual("\"a\\\"", ArgumentUtils.FixTrailingBackslash("\"a\\\""), "#5");
+            Assert.AreEqual("a\\\"", ArgumentUtils.FixTrailingBackslash("a\\\""), "#6");
         }
 
         [Test]
         public void Test_CleanTrailingBackSlash() {
-            Assert.AreEqual(string.Empty, ArgumentUtils.CleanTrailingBackSlash(string.Empty), "#1");
-            Assert.AreEqual("a", ArgumentUtils.CleanTrailingBackSlash("a"), "#2");
-            Assert.AreEqual("a", ArgumentUtils.CleanTrailingBackSlash("a\\"), "#3");
-            Assert.AreEqual("a", ArgumentUtils.CleanTrailingBackSlash("a\\\\"), "#4");
-            Assert.AreEqual("\"a\\\"", ArgumentUtils.CleanTrailingBackSlash("\"a\\\""), "#5");
-            Assert.AreEqual("a\\\"", ArgumentUtils.CleanTrailingBackSlash("a\\\""), "#6");
+            Assert.AreEqual(string.Empty, ArgumentUtils.CleanTrailingBackslash(string.Empty), "#1");
+            Assert.AreEqual("a", ArgumentUtils.CleanTrailingBackslash("a"), "#2");
+            Assert.AreEqual("a", ArgumentUtils.CleanTrailingBackslash("a\\"), "#3");
+            Assert.AreEqual("a", ArgumentUtils.CleanTrailingBackslash("a\\\\"), "#4");
+            Assert.AreEqual("\"a\\\"", ArgumentUtils.CleanTrailingBackslash("\"a\\\""), "#5");
+            Assert.AreEqual("a\\\"", ArgumentUtils.CleanTrailingBackslash("a\\\""), "#6");
         }
 
         #endregion Public Instance Methods
