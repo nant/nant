@@ -185,7 +185,7 @@
                 <!-- make sure the documenter is not new -->
                 <includes name="NDoc.Documenter.*.dll"/>
 		    </comparefiles>
-<!-- don't build this for now. Just for testing.
+            <!--
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -199,7 +199,7 @@
                     </documenter>
                 </documenters>
             </ndoc>
--->		    
+            -->
 		    <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -294,11 +294,31 @@
             </ndoc>
         </ifnot>
     </target>
+    
     <target name="schema" depends="init">
+        <property name="schema.output" value="${build.dir}/schema/${project.name}-${project.version}.xsd"/>
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
-        <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
+        <nantschema output="${schema.output}" target-ns="http://nant.sf.net/schemas/${project.name}-${project.version}.${nant.platform.name}.${nant.settings.currentframework}.xsd"/>
     </target>
+    
+    <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
+        
+        <property name="schema.dests" value=""/>
+        
+        <readregistry property="vs7.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.0\InstallDir" hive="LocalMachine" failonerror="false"/>
+        <property name="schema.dests" value="${schema.dests};${vs7.xml.schemas}..\\Packages\schemas\xml" failonerror="false"/>
+        
+        <readregistry property="vs7.1.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir" hive="LocalMachine" failonerror="false"/>
+        <property name="schema.dests" value="${schema.dests};${vs7.1.xml.schemas}..\\Packages\schemas\xml" failonerror="false"/>
+        
+        <!-- copy the file to each dest. -->
+        <foreach item="String" in="${schema.dests}" delim=";" property="schema.dest">
+            <copy file="${schema.output}" todir="${schema.dest}"/>
+        </foreach>
+        
+    </target>
+    
     <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
