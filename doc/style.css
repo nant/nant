@@ -164,7 +164,7 @@ pre.code {
     background-color: inherit;
     color: #0000AA;
     font-size: 100%;
-    margin-left: 0px;
+    margin-left: 50px;
 }
 
 span.code {
@@ -200,4 +200,8 @@ span.parameter {
 p.topicstatus {
     display: block;
     color: red;
+}
+
+ul.examples {
+	list-style-type: lower-roman;
 }
