@@ -142,7 +142,7 @@ namespace NAnt.NUnit2.Tasks {
         /// <summary>
         /// Tests to run.
         /// </summary>
-        [BuildElementArray("test", typeof(NUnit2Test))]
+        [BuildElementArray("test")]
         public NUnit2TestCollection Tests {
             get { return _tests; }
         }
@@ -150,7 +150,7 @@ namespace NAnt.NUnit2.Tasks {
         /// <summary>
         /// Formatters to output results of unit tests.
         /// </summary>
-        [BuildElementArray("formatter", typeof(FormatterElement))]
+        [BuildElementArray("formatter")]
         public FormatterElementCollection FormatterElements {
             get { return _formatterElements; }
         }

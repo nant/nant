@@ -190,7 +190,7 @@ namespace NAnt.DotNet.Tasks {
         /// specified.
         /// </para>
         /// </remarks>
-        [BuildElementArray("resources", typeof(ResourceFileSet))]
+        [BuildElementArray("resources")]
         public ResourceFileSetCollection ResourcesList {
             get { return _resourcesList; }
         }

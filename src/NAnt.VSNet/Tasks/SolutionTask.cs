@@ -206,7 +206,7 @@ namespace NAnt.VSNet.Tasks {
         /// <summary>
         /// WebMap of URL's to project references.
         /// </summary>
-        [BuildElementCollection("webmap", "map", typeof(WebMap), Required=false)]
+        [BuildElementCollection("webmap", "map")]
         public WebMapCollection WebMaps {
             get { return _webMaps; }
         }

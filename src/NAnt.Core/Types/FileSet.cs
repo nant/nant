@@ -196,7 +196,7 @@ namespace NAnt.Core.Types {
             }
         }
 
-        [BuildElementArray("includes", typeof(IncludesElement))]
+        [BuildElementArray("includes")]
         public IncludesElement[] SetIncludes {
             set {                foreach(IncludesElement include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
@@ -211,7 +211,7 @@ namespace NAnt.Core.Types {
                         }
                     }                }            }        }
 
-        [BuildElementArray("excludes", typeof(ExcludesElement))]
+        [BuildElementArray("excludes")]
         public ExcludesElement[] SetExcludes {
             set {
                 foreach(ExcludesElement exclude in value) {
@@ -222,7 +222,7 @@ namespace NAnt.Core.Types {
                 }
             }        }
 
-        [BuildElementArray("includesList",typeof(IncludesListElement))]
+        [BuildElementArray("includesList")]
         public IncludesListElement[] SetIncludesList {
             set {
                 foreach (IncludesListElement includeList in value){

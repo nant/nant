@@ -121,7 +121,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// The assembly-level attributes to generate.
         /// </value>
-        [BuildElementCollection("attributes", "attribute", typeof(AssemblyAttribute))]
+        [BuildElementCollection("attributes", "attribute")]
         public AssemblyAttributeCollection AssemblyAttributes {
             get { return _attributes; }
         }
@@ -132,7 +132,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// The namespaces to import.
         /// </value>
-        [BuildElementCollection("imports", "import", typeof(NamespaceImport))]
+        [BuildElementCollection("imports", "import")]
         public NamespaceImportCollection Imports {
             get { return _imports; }
         }
