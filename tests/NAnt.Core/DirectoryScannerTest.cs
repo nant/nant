@@ -81,6 +81,51 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
+        /// <summary>Tests without wildcards.</summary>
+        /// <remarks>
+        ///   Try to match the files without wildcards.
+        /// </remarks>
+        [Test]
+        public void Test_NoWildcardMatching1() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(_folder2, "Foo3.txt"),
+                                                          Path.Combine(_folder2, "Foo2.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(_folder3, "Foo4.txt")
+                                                      };
+            _scanner.Includes.Add(@"Foo1.txt");
+            _scanner.Includes.Add(@"folder2/Foo2.txt");
+            _scanner.Includes.Add(@"folder2\Foo3.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+        
+        /// <summary>Tests without wildcards.</summary>
+        /// <remarks>
+        ///   Try to match the files without wildcards.  Include a file with one slash and exclude it with the other.
+        /// </remarks>
+        [Test]
+        public void Test_NoWildcardMatching2() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(_folder2, "Foo3.txt"),
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(_folder2, "Foo2.txt"),
+                                                          Path.Combine(_folder3, "Foo4.txt")
+                                                      };
+            _scanner.Includes.Add(@"Foo1.txt");
+            _scanner.Includes.Add(@"folder2/Foo2.txt");
+            _scanner.Excludes.Add(@"folder2\Foo2.txt");
+            _scanner.Includes.Add(@"folder2\Foo4.txt");
+            _scanner.Excludes.Add(@"folder2/Foo4.txt");
+            _scanner.Includes.Add(@"folder2\Foo3.txt");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+        
         /// <summary>Test ** wildcard.</summary>
         /// <remarks>
         ///   Matches everything in the base directory and sub directories.
@@ -231,6 +276,29 @@ namespace Tests.NAnt.Core {
 
             _scanner.Includes.Add(@"*");
             _scanner.Excludes.Add(@"**\XYZ*");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>Test excluding files.</summary>
+        /// <remarks>
+        ///   Matches all files from the temp directory, then excludes XYZzzz.txt.  See if adding an exact exclude to a 
+        ///   recursive include break things.
+        /// </remarks>
+        [Test]
+        public void Test_Excludes4() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(_folder2, "Foo3.bar"),
+                                                          Path.Combine(_folder3, "Foo4.bar"),
+                                                          Path.Combine(_folder3, "XYZ.txt"),
+                                                          Path.Combine(_folder3, "XYZ.bak")
+                                                      };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_folder3, "XYZzzz.txt")
+                                                      };
+
+            _scanner.Includes.Add(@"**");
+            _scanner.Excludes.Add(@"folder2\folder3\XYZzzz.txt");
             CheckScan(includedFileNames, excludedFileNames);
         }
 
