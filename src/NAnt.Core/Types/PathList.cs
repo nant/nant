@@ -93,7 +93,7 @@ namespace NAnt.Core.Types {
         #region Public Static Methods
 
         /// <summary>
-        /// Splits a PATH (with ; as separators) into its parts, while resolving 
+        /// Splits a PATH (with ; as separator) into its parts, while resolving 
         /// references to environment variables.
         /// </summary>
         /// <param name="project">The <see cref="Project" /> to be used to resolve relative paths.</param>
