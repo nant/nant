@@ -151,6 +151,17 @@ namespace NAnt.Core.Functions {
             return Project.DefaultTargetName;
         }
 
+        /// <summary>
+        /// Gets the base directory of the current project.
+        /// </summary>
+        /// <returns>
+        /// The base directory of the current project.
+        /// </returns>
+        [Function("get-base-directory")]
+        public string GetBaseDirectory() {
+            return Project.BaseDirectory;
+        }
+
         #endregion Public Instance Methods
     }
 
