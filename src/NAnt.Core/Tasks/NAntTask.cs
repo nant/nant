@@ -32,23 +32,15 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("nant")]
     public class NAntTask : Task {
-        #region Private Instance Fields        
+        #region Private Instance Fields
 
         string _buildFileName = null;
         string _target = null;
         bool _inheritAll = true;
-        bool _newAppDomain = false;
 
-        #endregion Private Instance Fields        
+        #endregion Private Instance Fields
 
         #region Public Instance Properties
-
-        /// <summary>The build file to build. If not specified, use the current build file.</summary>
-        [TaskAttribute("newappdomain")]
-        public bool NewAppDomain {
-            get { return _newAppDomain; }
-            set { _newAppDomain = value; }
-        }
 
         /// <summary>The build file to build. If not specified, use the current build file.</summary>
         [TaskAttribute("buildfile")]
@@ -82,8 +74,6 @@ namespace SourceForge.NAnt.Tasks {
 
         protected override void ExecuteTask() {
             try {
-                //TODO: Add NewAppDomain code here.!
-
                 Log.WriteLine(LogPrefix + "{0} {1}", BuildFileName, DefaultTarget);
                 Log.Indent();
                 Project project = new Project(Project.GetFullPath(BuildFileName), Verbose);
