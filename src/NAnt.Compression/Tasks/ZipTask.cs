@@ -52,12 +52,13 @@ namespace NAnt.Zip.Tasks {
     public class ZipTask : Task {
         #region Private Instance Fields
 
-        string _zipfile = null;
-        int _ziplevel = 6; 
-        FileSet _fileset = new FileSet();
-        Crc32 crc = new Crc32();
-        DateTime _stampDateTime = DateTime.MinValue;
-        string _comment = null;
+        private string _zipfile = null;
+        private int _ziplevel = 6; 
+        private FileSet _fileset = new FileSet();
+        private Crc32 crc = new Crc32();
+        private DateTime _stampDateTime = DateTime.MinValue;
+        private string _comment = null;
+        private bool _includeEmptyDirs = false;
 
         #endregion Private Instance Fields
 
@@ -68,8 +69,8 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         [TaskAttribute("zipfile", Required=true)]
         public string ZipFileName {
-            get { return Project.GetFullPath(_zipfile); }
-            set {_zipfile = value; }
+            get { return (_zipfile != null) ? Project.GetFullPath(_zipfile) : null; }
+            set { _zipfile = SetStringValue(value); }
         }
 
         /// <summary>
@@ -78,7 +79,7 @@ namespace NAnt.Zip.Tasks {
         [TaskAttribute("comment", Required=false)]
         public string Comment {
             get { return _comment; }
-            set {_comment = value; }
+            set { _comment = SetStringValue(value); }
         }
 
         /// <summary>
@@ -90,8 +91,8 @@ namespace NAnt.Zip.Tasks {
             set {
                 try {
                     _stampDateTime = DateTime.Parse(value, DateTimeFormatInfo.InvariantInfo);
-                } catch (FormatException exc) {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid string representatation {0} of a DateTime value.", value), "Stamp", exc);
+                } catch (FormatException ex) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid string representation {0} of a DateTime value.", value), "Stamp", ex);
                 }
             } 
         }
@@ -101,18 +102,29 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         /// <value>0 - 9 (0 - STORE only, 1-9 DEFLATE (1-lowest, 9-highest))</value>
         [TaskAttribute("ziplevel", Required=false)]
+        [Int32ValidatorAttribute(0, 9)]
         public int ZipLevel {
             get { return _ziplevel; }
-            set {_ziplevel = value; }
+            set { _ziplevel = value; }
         }
         
+        /// <summary>
+        /// Include empty directories in the generated zip file. Defaults to "false".
+        /// </summary>
+        [TaskAttribute("includeemptydirs", Required=false)]
+        [BooleanValidator()]
+        public bool IncludeEmptyDirs {
+            get { return _includeEmptyDirs; }
+            set { _includeEmptyDirs = value; }
+        }
+
         /// <summary>
         /// The set of files to be included in the archive.
         /// </summary>
         [FileSet("fileset")]
         public FileSet ZipFileSet {
-            get { return _fileset;}  
-            set {_fileset = value; } 
+            get { return _fileset; }  
+            set { _fileset = value; } 
         }
 
         #endregion Public Instance Properties
@@ -123,64 +135,112 @@ namespace NAnt.Zip.Tasks {
         /// Creates the zip file.
         /// </summary>
         protected override void ExecuteTask() {
-            int fileCount = ZipFileSet.FileNames.Count;
-            Log(Level.Info, LogPrefix + "Zipping {0} files to {1}.", fileCount, ZipFileName);
+            ZipOutputStream zOutstream = null;
 
-            ZipOutputStream zOutstream = new ZipOutputStream(File.Create(ZipFileName));
-            int zipLevel = ZipLevel;
-            if (zipLevel > 0) {
-                zOutstream.SetLevel(zipLevel);
-            } else {
-                zOutstream.SetMethod(ZipOutputStream.STORED);
-            }
-                      
-            string basePath = Path.GetDirectoryName( Project.GetFullPath(  Path.GetFullPath( ZipFileSet.BaseDirectory)  ) +  Path.DirectorySeparatorChar );
-            //set comment
-            if (_comment != null) {
-                zOutstream.SetComment(_comment);
-            }
+            Log(Level.Info, LogPrefix + "Zipping {0} files to {1}.", ZipFileSet.FileNames.Count, ZipFileName);
 
-            foreach (string file in ZipFileSet.FileNames) {
-                if (File.Exists(file)) {
-                    // read source file
-                    FileStream fStream = File.OpenRead(file);
-                    long   fileSize = fStream.Length;
-                    byte[] buffer = new byte[fileSize];
-                    fStream.Read(buffer, 0, buffer.Length);
-                    fStream.Close();
-                    
-                    // create ZIP entry
-                    string entryName = file.Substring(basePath.Length + 1);
-                   
-                    ZipEntry entry = new ZipEntry(entryName);
-                    
-                    //set time/date stamp on files
-                    if (_stampDateTime != DateTime.MinValue) {
-                        entry.DateTime = _stampDateTime;
-                    } else {
-                        entry.DateTime = File.GetLastWriteTime(file);
-                    }
+            string basePath = Path.GetDirectoryName(Project.GetFullPath(Path.GetFullPath(ZipFileSet.BaseDirectory)) + Path.DirectorySeparatorChar);
 
-                    Log(Level.Verbose, LogPrefix + "Adding {0}.", entryName);
-                    
-                    if (zipLevel == 0) {
-                        entry.Size = fileSize;
-                        
-                        // calculate crc32 of current file
-                        crc.Reset();
-                        crc.Update(buffer);
-                        entry.Crc  = crc.Value;
-                    }
-                    
-                    // write file to ZIP
-                    zOutstream.PutNextEntry(entry);
-                    zOutstream.Write(buffer, 0, buffer.Length);
+            // TO-DO check if all matching files and directories are located 
+            // under the base path and throw BuildException if not ?
+
+            try {
+                zOutstream = new ZipOutputStream(File.Create(ZipFileName));
+
+                // set compression level
+                if (ZipLevel > 0) {
+                    zOutstream.SetLevel(ZipLevel);
                 } else {
-                    throw new FileNotFoundException();
+                    zOutstream.SetMethod(ZipOutputStream.STORED);
+
+                    // setting the method to store still compresses the files
+                    // setting the level to 0 fixes this
+                    zOutstream.SetLevel(ZipLevel);
                 }
+
+                // set comment
+                if (Comment != null) {
+                    zOutstream.SetComment(Comment);
+                }
+
+                // add files to zip
+                foreach (string file in ZipFileSet.FileNames) {
+                    if (File.Exists(file)) {
+                        // read source file
+                        FileStream fStream = File.OpenRead(file);
+                        long fileSize = fStream.Length;
+                        byte[] buffer = new byte[fileSize];
+                        fStream.Read(buffer, 0, buffer.Length);
+                        fStream.Close();
+                        
+                        // determine name of the zip entry
+                        string entryName = file.Substring(basePath.Length + 1);
+
+                        // create zip entry                       
+                        ZipEntry entry = new ZipEntry(entryName);
+                        
+                        // set time/date stamp on zip entry
+                        if (_stampDateTime != DateTime.MinValue) {
+                            entry.DateTime = _stampDateTime;
+                        } else {
+                            entry.DateTime = File.GetLastWriteTime(file);
+                        }
+
+                        Log(Level.Verbose, LogPrefix + "Adding {0}.", entryName);
+                        
+                        if (ZipLevel == 0) {
+                            entry.Size = fileSize;
+                            
+                            // calculate crc32 of current file
+                            crc.Reset();
+                            crc.Update(buffer);
+                            entry.Crc  = crc.Value;
+                        }
+                        
+                        // write file to zip file
+                        zOutstream.PutNextEntry(entry);
+                        zOutstream.Write(buffer, 0, buffer.Length);
+                    } else {
+                        throw new FileNotFoundException("File no longer exists.", file);
+                    }
+                }
+
+                // add (possibly empty) directories to zip
+                if (IncludeEmptyDirs) {
+                    foreach (string directory in ZipFileSet.DirectoryNames) {
+                        // skip directories that are not located beneath the base 
+                        // directory
+                        if (!directory.StartsWith(basePath) || directory.Length <= basePath.Length) {
+                            continue;
+                        }
+
+                        // determine zip entry name
+                        string entryName = directory.Substring(basePath.Length + 1);
+
+                        // create directory entry (done by adding a trailing slash)
+                        ZipEntry entry = new ZipEntry(entryName + "/");
+
+                        // write directory to zip file
+                        zOutstream.PutNextEntry(entry);
+                    }
+                }
+
+                zOutstream.Close();
+                zOutstream.Finish();
+            } catch (Exception ex) {
+                // close the zip output stream
+                if (zOutstream != null) {
+                    zOutstream.Close();
+                }
+
+                // delete the (possibly corrupt) zip file
+                if (File.Exists(ZipFileName)) {
+                    File.Delete(ZipFileName);
+                }
+
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Zip file '{0}' could not be created.", ZipFileName), Location, ex);
             }
-            zOutstream.Finish();
-            zOutstream.Close();
         }
 
         #endregion Override implementation of Task
