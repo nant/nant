@@ -392,9 +392,11 @@ namespace NAnt.Core {
             }
 
             if (error == null) {
+                OutputMessage(Level.Info, "", indentationLevel);
                 OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
                 OutputMessage(Level.Info, "", indentationLevel);
             } else {
+                OutputMessage(Level.Error, "", indentationLevel);
                 OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
                 OutputMessage(Level.Error, "", indentationLevel);
 
@@ -424,7 +426,7 @@ namespace NAnt.Core {
             if (_buildTimes.Count > 0) {
                 TimeSpan buildTime = DateTime.Now - (DateTime) _buildTimes.Pop();
                 OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture, 
-                    "Total time: {0} seconds.\n", (int) buildTime.TotalSeconds), indentationLevel);
+                    "Total time: {0} seconds.\n", Math.Round(buildTime.TotalSeconds, 1)), indentationLevel);
             }
 
             // make sure all messages are written to the underlying storage
