@@ -63,9 +63,9 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <tstamp verbose="true">
-    ///     <formatter property="TODAY" pattern="dd MMM yyyy" />
-    ///     <formatter property="DSTAMP" pattern="yyyyMMdd" />
-    ///     <formatter property="TSTAMP" pattern="HHmm" />
+    ///     <formatter property="TODAY" pattern="dd MMM yyyy"/>
+    ///     <formatter property="DSTAMP" pattern="yyyyMMdd" unless="${date.not.needed}" />
+    ///     <formatter property="TSTAMP" pattern="HHmm" if="${need.hours}" />
     /// </tstamp>
     ///     ]]>
     ///   </code>
@@ -190,8 +190,10 @@ namespace NAnt.Core.Tasks {
 
             // set properties set in formatters nested elements
             foreach (Formatter f in Formatters) {
-                Properties[f.Property] = now.ToString(f.Pattern, CultureInfo.InvariantCulture);
-                Log(Level.Verbose, LogPrefix + "{0} = {1}.", f.Property, Properties[f.Property].ToString(CultureInfo.InvariantCulture));
+                if (IfDefined && !UnlessDefined) {
+                    Properties[f.Property] = now.ToString(f.Pattern, CultureInfo.InvariantCulture);
+                    Log(Level.Verbose, LogPrefix + "{0} = {1}.", f.Property, Properties[f.Property].ToString(CultureInfo.InvariantCulture));
+                }
             }
         }
 
