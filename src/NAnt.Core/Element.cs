@@ -188,21 +188,7 @@ namespace NAnt.Core {
         /// the <see cref="InitializeElement" /> method.
         /// </remarks>
         public void Initialize(XmlNode elementNode) {
-            if (Project == null) {
-                throw new InvalidOperationException("Element has invalid Project property.");
-            }
-
-            // save position in buildfile for reporting useful error messages.
-            try {
-                _location = Project.LocationMap.GetLocation(elementNode);
-            } catch (ArgumentException ex) {
-                logger.Warn("Location of Element node could be located.", ex);
-            }
-
-            InitializeXml(elementNode, Project.Properties, Project.TargetFramework);
-
-            // allow inherited classes a chance to do some custom initialization.
-            InitializeElement(elementNode);
+            Initialize(elementNode, Project.Properties, Project.TargetFramework);
         }
 
         /// <summary>
@@ -270,6 +256,13 @@ namespace NAnt.Core {
         internal void Initialize(XmlNode elementNode, PropertyDictionary properties, FrameworkInfo framework) {
             if (Project == null) {
                 throw new InvalidOperationException("Element has invalid Project property.");
+            }
+
+            // save position in buildfile for reporting useful error messages.
+            try {
+                _location = Project.LocationMap.GetLocation(elementNode);
+            } catch (ArgumentException ex) {
+                logger.Warn("Location of Element node could be located.", ex);
             }
 
             InitializeXml(elementNode, properties, framework);
@@ -710,6 +703,7 @@ namespace NAnt.Core {
                         } else if (!buildElementCollectionAttribute.ProcessXml) {
                             continue;
                         }
+
                         // determine type of child elements
                         if (buildElementArrayAttribute != null) {
                             elementType = buildElementArrayAttribute.ElementType;
@@ -773,6 +767,22 @@ namespace NAnt.Core {
                             }
 
                             if (collectionNodes.Count == 1) {
+                                // check if property is deprecated
+                                ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
+
+                                // emit warning or error if attribute is deprecated
+                                if (obsoleteAttribute != null) {
+                                    string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                                        "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
+                                        Location, buildElementCollectionAttribute.Name, Name, 
+                                        obsoleteAttribute.Message);
+                                    if (obsoleteAttribute.IsError) {
+                                        Element.Log(Level.Error, obsoleteMessage);
+                                    } else {
+                                        Element.Log(Level.Warning, obsoleteMessage);
+                                    }
+                                }
+
                                 // remove element from list of remaining items
                                 childElementsRemaining.Remove(collectionNodes[0].Name);
 
@@ -808,6 +818,22 @@ namespace NAnt.Core {
                                 NamespaceManager);
 
                             if (collectionNodes.Count > 0) {
+                                // check if property is deprecated
+                                ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
+
+                                // emit warning or error if attribute is deprecated
+                                if (obsoleteAttribute != null) {
+                                    string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                                        "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
+                                        Location, buildElementArrayAttribute.Name, Name, 
+                                        obsoleteAttribute.Message);
+                                    if (obsoleteAttribute.IsError) {
+                                        Element.Log(Level.Error, obsoleteMessage);
+                                    } else {
+                                        Element.Log(Level.Warning, obsoleteMessage);
+                                    }
+                                }
+
                                 // remove element from list of remaining items
                                 childElementsRemaining.Remove(collectionNodes[0].Name);
                             } else if (buildElementArrayAttribute.Required) {
@@ -868,22 +894,6 @@ namespace NAnt.Core {
                             arrayIndex++;
                         }
 
-                        // check if property is deprecated
-                        ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
-
-                        // emit warning or error if attribute is deprecated
-                        if (obsoleteAttribute != null) {
-                            string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "{0} Attribute '{1}' for <{2}... /> is deprecated. {3}", 
-                                Location, buildAttribute.Name, Name, 
-                                obsoleteAttribute.Message);
-                            if (obsoleteAttribute.IsError) {
-                                Element.Log(Level.Error, obsoleteMessage);
-                            } else {
-                                Element.Log(Level.Warning, obsoleteMessage);
-                            }
-                        }
-                    
                         if (propertyInfo.PropertyType.IsArray) {
                             try {
                                 // set the member array to our newly created array
