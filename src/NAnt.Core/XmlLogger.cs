@@ -151,8 +151,9 @@ namespace NAnt.Core {
                 }
                 
                 _xmlWriter.WriteStartElement(Elements.Message);
-                // TO-DO : uncomment next line and update unit tests
-                // _xmlWriter.WriteAttributeString(Attributes.MessageType, e.Level.ToString(CultureInfo.InvariantCulture));
+
+                // write message level as attribute
+                _xmlWriter.WriteAttributeString(Attributes.MessageLevel, e.MessageLevel.ToString(CultureInfo.InvariantCulture));
                 
                 if (IsValidXml(rawMessage)) {
                     rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", string.Empty);
@@ -267,7 +268,7 @@ namespace NAnt.Core {
 
         private class Attributes {
             public const string Project = "project";
-            public const string MessageType = "type";
+            public const string MessageLevel = "level";
         }
     }
 }
