@@ -88,17 +88,21 @@ namespace SourceForge.NAnt.Tasks.NUnit2
                   string configFilePath, EventListener listener
                )
       {
-         AppDomain domain = 
-            CreateDomain(Path.GetDirectoryName(assemblyFile), configFilePath);
+         string assemblyDir = Path.GetDirectoryName(assemblyFile);
+         AppDomain domain = CreateDomain(assemblyDir, configFilePath);
+
+         string currentDir = Directory.GetCurrentDirectory();
+         Directory.SetCurrentDirectory(assemblyDir);
+
          try 
          {
             RemoteTestRunner runner = CreateTestRunner(domain);
-
             runner.Initialize(testcase, assemblyFile);
             domain.DoCallBack(new CrossAppDomainDelegate(runner.BuildSuite));
             return runner.Run(listener, _outStream, _errorStream);
 
          } finally {
+            Directory.SetCurrentDirectory(currentDir);
             AppDomain.Unload(domain);
          }
       }
