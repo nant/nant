@@ -21,6 +21,7 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -74,6 +75,7 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
        
         private FileInfo _docFile;
+        private int _fileAlign;
         private bool _nostdlib;
         private bool _noconfig;
         private bool _checked;
@@ -127,6 +129,20 @@ namespace NAnt.DotNet.Tasks {
         public FileInfo DocFile {
             get { return _docFile; }
             set { _docFile = value; }
+        }
+
+        /// <summary>
+        /// Specifies the size of sections in the output file. Valid values are
+        /// 512, 1024, 2048, 4096, and 8192.
+        /// </summary>
+        /// <value>
+        /// The size of sections in the output file.
+        /// </value>
+        [TaskAttribute("filealign")]
+        [Int32Validator(512, 8192)]
+        public int FileAlign {
+            get { return _fileAlign; }
+            set { _fileAlign = value; }
         }
 
         /// <summary>
@@ -296,6 +312,10 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "debug");
                 WriteOption(writer, "define", "DEBUG");
                 WriteOption(writer, "define", "TRACE");
+            }
+
+            if (FileAlign > 0) {
+                WriteOption(writer, "filealign", FileAlign.ToString(CultureInfo.InvariantCulture));
             }
 
             if (NoStdLib) {
