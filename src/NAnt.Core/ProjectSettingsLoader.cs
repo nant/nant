@@ -343,13 +343,15 @@ namespace NAnt.Core {
                     } else {
                         if (name != null && name == defaultTargetFramework) {
                             Project.Log(Level.Warning, "The default targetframework" +
-                                " '{0}' is invalid and has not been loaded :", 
+                                " '{0}' is invalid and has not been loaded : {1}", 
                                 name, ex.Message);
                             Project.Log(Level.Debug, ex.ToString());
+                            Project.Log(Level.Warning, "");
                         } else {
                             Project.Log(Level.Verbose, "Framework '{0}' is invalid" 
                                 + " and has not been loaded : {1}", name, ex.Message);
                             Project.Log(Level.Debug, ex.ToString());
+                            Project.Log(Level.Verbose, "");
                         }
                     }
                 }
@@ -370,7 +372,8 @@ namespace NAnt.Core {
                 } else {
                     Project.Log(Level.Warning, "The default targetframework" +
                         " '{0}' is not valid. Defaulting to the runtime framework" 
-                        + " ({1}).", Project.RuntimeFramework.Name);
+                        + " ({1}).", defaultTargetFramework, Project.RuntimeFramework.Name);
+                    Project.Log(Level.Warning, "");
                 }
             }
         }
