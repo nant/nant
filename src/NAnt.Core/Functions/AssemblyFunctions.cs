@@ -40,6 +40,26 @@ namespace NAnt.Core.Functions {
 
         #endregion Public Instance Constructors
 
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Loads an assembly given its file name or path.
+        /// </summary>
+        /// <param name="assemblyFile">The name or path of the file that contains the manifest of the assembly.</param>
+        /// <returns>
+        /// The loaded assembly.
+        /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> is not found, or the module you are trying to load does not specify a filename extension.</exception>
+        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
+        /// <exception cref="PathTooLongException">An assembly or module was loaded twice with two different evidences, or the assembly name is longer than MAX_PATH characters.</exception>
+        [Function("load-from-file")]
+        public Assembly LoadFromFile(string assemblyFile) {
+            return Assembly.LoadFrom(Project.GetFullPath(assemblyFile));
+        }
+
+        #endregion Public Instance Methods
+
         #region Public Static Methods
         
         /// <summary>
@@ -78,22 +98,6 @@ namespace NAnt.Core.Functions {
             return assembly.Location;
         }
 
-        /// <summary>
-        /// Loads an assembly given its file name or path.
-        /// </summary>
-        /// <param name="assemblyFile">The name or path of the file that contains the manifest of the assembly.</param>
-        /// <returns>
-        /// The loaded assembly.
-        /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string" />.</exception>
-        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> is not found, or the module you are trying to load does not specify a filename extension.</exception>
-        /// <exception cref="BadImageFormatException"><paramref name="assemblyFile" /> is not a valid assembly.</exception>
-        /// <exception cref="PathTooLongException">An assembly or module was loaded twice with two different evidences, or the assembly name is longer than MAX_PATH characters.</exception>
-        [Function("load-from-file")]
-        public static Assembly LoadFromFile(string assemblyFile) {
-            return Assembly.LoadFrom(assemblyFile);
-        }
-        
         #endregion Public Static Methods
     }
 }
