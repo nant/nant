@@ -327,7 +327,8 @@ namespace NAnt.Core {
         /// Gets the name of the <see cref="Project" />.
         /// </summary>
         /// <value>
-        /// The name of the <see cref="Project" />.
+        /// The name of the <see cref="Project" /> or an empty <see cref="string" />
+        /// if no name is specified.
         /// </value>
         public string ProjectName {
             get { return _projectName; }
@@ -536,6 +537,11 @@ namespace NAnt.Core {
         /// Gets the name of the target that will be executed when no other 
         /// build targets are specified.
         /// </remarks>
+        /// <value>
+        /// The name of the target that will be executed when no other 
+        /// build targets are specified, or <see langword="null" /> if no
+        /// default target is specified in the build file.
+        /// </value>
         public string DefaultTargetName {
             get { return _defaultTargetName; }
         }
