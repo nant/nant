@@ -115,6 +115,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Resources\common.xslt"
+                    BuildAction = "Content"
+                />
+                <File
                     RelPath = "Resources\tags.xslt"
                     BuildAction = "Content"
                 />

@@ -192,7 +192,9 @@
      +-->
 
     <xsl:template match="c" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfc.htm">
-        <tt class="c"><xsl:apply-templates mode="slashdoc" /></tt>
+		<code>
+			<xsl:apply-templates mode="slashdoc" />
+		</code>
     </xsl:template>
 
     <xsl:template match="paramref[@name]" mode="slashdoc" doc:group="inline" doc:msdn="ms-help://MS.NETFrameworkSDK/csref/html/vclrfparamref.htm">
