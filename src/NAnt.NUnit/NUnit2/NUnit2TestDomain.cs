@@ -47,16 +47,14 @@ namespace NAnt.NUnit2.Tasks {
         /// <summary>
         /// Runs a single testcase.
         /// </summary>
-        /// <param name="testcase">The test to run, or <see langword="null" /> if running all tests.</param>
         /// <param name="assemblyFile">The test assembly.</param>
         /// <param name="configFile">The application configuration file for the test domain.</param>
-        /// <param name="listener">An <see cref="EventListener" />.</param>
         /// <returns>
         /// The result of the test.
         /// </returns>
-        public TestResult RunTest(string testcase, FileInfo assemblyFile, FileInfo configFile, EventListener listener) {
+        public TestRunner CreateRunner(FileInfo assemblyFile, FileInfo configFile) {
             // create test domain
-            AppDomain domain = CreateDomain(assemblyFile.Directory, assemblyFile, 
+            _domain = CreateDomain(assemblyFile.Directory, assemblyFile, 
                 configFile);
 
             // assemble directories which can be probed for missing unresolved 
@@ -75,7 +73,7 @@ namespace NAnt.NUnit2.Tasks {
             probePaths.Add(AppDomain.CurrentDomain.BaseDirectory);
 
             // create an instance of our custom Assembly Resolver in the target domain.
-            ObjectHandle oh = domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
+            ObjectHandle oh = _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
                     typeof(AssemblyResolveHandler).FullName,
                     false, 
                     BindingFlags.Public | BindingFlags.Instance,
@@ -85,37 +83,18 @@ namespace NAnt.NUnit2.Tasks {
                     null,
                     AppDomain.CurrentDomain.Evidence);     
             
-            // store current directory
-            string currentDir = Directory.GetCurrentDirectory();
+            // create testrunner
+            RemoteTestRunner runner = CreateTestRunner(_domain);
 
-            // change current dir to directory containing test assembly
-            Directory.SetCurrentDirectory(assemblyFile.DirectoryName);
+            runner.Out = _outStream;
+            runner.Error = _errorStream;
 
-            try {
-                // create testrunner
-                RemoteTestRunner runner = CreateTestRunner(domain);
+            return runner;
+        }
 
-                // set the file name of the test assembly without directory 
-                // information, as the current directory is already set to the 
-                // directory containing the assembly
-                runner.TestFileName = assemblyFile.Name;
-
-                // check whether an individual testcase should be run
-                if (testcase != null) {
-                    runner.TestName = testcase;
-                }
-
-                // build the test suite
-                runner.BuildSuite();
-
-                // run the test(s)
-                return runner.Run(listener, _outStream, _errorStream);
-            } finally {
-                // restore original current directory
-                Directory.SetCurrentDirectory(currentDir);
-
-                // unload test domain
-                AppDomain.Unload(domain);
+        public void Unload() {
+            if (_domain != null) {
+                AppDomain.Unload(_domain);
             }
         }
 
@@ -139,7 +118,7 @@ namespace NAnt.NUnit2.Tasks {
 
             // only set configuration file if it actually exists
             if (File.Exists(configurationFile)) {
-                domSetup.ConfigurationFile = configFile.FullName;
+                domSetup.ConfigurationFile = configurationFile;
             }
                 
             domSetup.ApplicationName = "NAnt NUnit Remote Domain";
@@ -174,6 +153,7 @@ namespace NAnt.NUnit2.Tasks {
 
         private TextWriter _outStream;
         private TextWriter _errorStream;
+        private AppDomain _domain;
 
         #endregion Private Instance Fields
 

@@ -88,7 +88,7 @@ namespace NAnt.NUnit2.Types {
         }
 
         /// <summary>
-        /// XSLT transform file to use when using the <see cref="FormatterType.Xml" /> 
+        /// XSLT transform file to use when using the <see cref="FormatterType.Plain" /> 
         /// formatter.
         /// </summary>
         [TaskAttribute("transformfile")]

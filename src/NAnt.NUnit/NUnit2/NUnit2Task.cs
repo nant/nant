@@ -32,6 +32,7 @@ using System.Xml.XPath;
 
 using NUnit.Core;
 using NUnit.Framework;
+using NUnit.Util;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -57,8 +58,8 @@ namespace NAnt.NUnit2.Tasks {
     ///   ignore test errors and continue the build.
     ///   </para>
     ///   <para>
-    ///   In order to run a test assembly built with NUnit 2.0 using the NAnt
-    ///   <see cref="NUnit2Task" />, you must add the following node to your 
+    ///   In order to run a test assembly built with NUnit 2.0 or 2.1 using the 
+    ///   NAnt <see cref="NUnit2Task" />, you must add the following node to your 
     ///   test config file :
     ///   </para>
     ///   <code>
@@ -69,7 +70,8 @@ namespace NAnt.NUnit2.Tasks {
     ///         <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
     ///             <dependentAssembly>
     ///                 <assemblyIdentity name="nunit.framework" publicKeyToken="96d09a1eb7f44a77" culture="Neutral" /> 
-    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.1.4.0" /> 
+    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.2.0.0" /> 
+    ///                 <bindingRedirect oldVersion="2.1.4.0" newVersion="2.2.0.0" /> 
     ///             </dependentAssembly>
     ///         </assemblyBinding>
     ///     </runtime>
@@ -180,97 +182,63 @@ namespace NAnt.NUnit2.Tasks {
                     " to ensure forward compatibility with future revisions of NAnt.");
             }
 
-            foreach (NUnit2Test test in Tests) {
+            Version nunitVersion = typeof(TestResult).Assembly.GetName().Version;
+
+            foreach (NUnit2Test testElement in Tests) {
                 EventListener listener = new NullListener();
-                TestResult[] results = RunRemoteTest(test, listener);
 
-                // no tests results. An error might have occurred
-                if (results == null || results.Length == 0) {
-                    continue;
-                }
-
-                StringCollection assemblies = test.TestAssemblies;
-                for (int i = 0; i < results.Length; i++) {
-                    string assemblyFile = assemblies[i];
-                    TestResult result = results[i];
-
-                    // temp file for storing test results
-                    string xmlResultFile = Path.GetTempFileName();
-
-                    // permanent file for storing test results
-                    string outputFile = null;
+                foreach (string testAssembly in testElement.TestAssemblies) {
+                    LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
+                    NUnit2TestDomain domain = new NUnit2TestDomain(logWriter, logWriter);
 
                     try {
-                        XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
-                        result.Accept(resultVisitor);
-                        resultVisitor.Write();
-
-                        foreach (FormatterElement formatter in _formatterElements) {
-                            if (formatter.Type == FormatterType.Xml) {
-                                if (formatter.UseFile) {
-                                    // determine file name for output file
-                                    outputFile = result.Name + "-results" + formatter.Extension;
-                                    
-                                    if (formatter.OutputDirectory != null) {
-                                        // ensure output directory exists
-                                        if (!formatter.OutputDirectory.Exists) {
-                                            formatter.OutputDirectory.Create();
-                                        }
-
-                                        // combine output directory and result filename
-                                        outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
-                                            Path.GetFileName(outputFile));
-                                    }
-
-                                    // copy the temp result file to permanent location
-                                    File.Copy(xmlResultFile, outputFile, true);
-                                } else {
-                                    using (StreamReader reader = new StreamReader(xmlResultFile)) {
-                                        // strip off the xml header
-                                        reader.ReadLine();
-                                        StringBuilder builder = new StringBuilder();
-                                        while (reader.Peek() > -1) {
-                                            builder.Append(reader.ReadLine().Trim()).Append(
-                                                Environment.NewLine);
-                                        }
-                                        Log(Level.Info, builder.ToString());
-                                    }
-                                }
-                            } else if (formatter.Type == FormatterType.Plain) {
-                                TextWriter writer;
-                                if (formatter.UseFile) {
-                                    // determine file name for output file
-                                    outputFile = result.Name + "-results" + formatter.Extension;
-
-                                    if (formatter.OutputDirectory != null) {
-                                        // ensure output directory exists
-                                        if (!formatter.OutputDirectory.Exists) {
-                                            formatter.OutputDirectory.Create();
-                                        }
-
-                                        // combine output directory and result filename
-                                        outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
-                                            Path.GetFileName(outputFile));
-                                    }
-
-                                    writer = new StreamWriter(outputFile);
-                                } else {
-                                    writer = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
-                                }
-                                CreateSummaryDocument(xmlResultFile, writer, test);
-                                writer.Close();
-                            }
+                        TestRunner runner = domain.CreateRunner(new FileInfo(testAssembly), testElement.AppConfigFile);
+                        Test test = null;
+                        if (testElement.TestName != null) {
+                            test = runner.Load(testAssembly, testElement.TestName);
+                        } else {
+                            test = runner.Load(testAssembly);
                         }
-                    } catch (Exception ex) {
-                        throw new BuildException("Test results could not be" 
-                            + " formatted.", Location, ex);
-                    } finally {
-                        // make sure temp file with test results is removed
-                        File.Delete(xmlResultFile);
-                    }
 
-                    if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
-                        throw new BuildException("Tests Failed", Location);
+                        if (test == null) {
+                            if (runner.FrameworkVersion == null) {
+                                Log(Level.Warning, "Assembly \"{0}\" was not built"
+                                    + " with the NUnit framework and contains no tests.",
+                                    testAssembly);
+                            }
+                            continue;
+                        }
+
+                        if (runner.FrameworkVersion != nunitVersion) {
+                            Log(Level.Warning, "Assembly \"{0}\" is using version"
+                                + " {1} of the NUnit framework. If any problems"
+                                + " arise, then either rebuild this assembly using"
+                                + " version {2} of the NUnit Framework or use a"
+                                + " binding redirect from version {1} to version"
+                                + " {2} of the NUnit Framework.", testAssembly, 
+                                runner.FrameworkVersion, nunitVersion);
+                        }
+
+                        // run test
+                        TestResult result = test.Run(listener);
+
+                        // format test results using specified formatters
+                        FormatResult(testElement, result);
+
+                        if (result.IsFailure && (testElement.HaltOnFailure || HaltOnFailure)) {
+                            throw new BuildException("Tests Failed.", Location);
+                        }
+                    } catch (BuildException) {
+                        // re-throw build exceptions
+                        throw;
+                    } catch (Exception ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Failure executing test(s). If you assembly is not built using"
+                            + " NUnit version {0}, then ensure you have redirected assembly"
+                            + " bindings. Consult the documentation of the <nunit2> task"
+                            + " for more information.", nunitVersion), Location, ex);
+                    } finally {
+                        domain.Unload();
                     }
                 }
             }
@@ -280,33 +248,80 @@ namespace NAnt.NUnit2.Tasks {
 
         #region Private Instance Methods
 
-        private TestResult[] RunRemoteTest(NUnit2Test test, EventListener listener) {
-            StringCollection assemblies = test.TestAssemblies;
-            ArrayList results = new ArrayList();
+        private void FormatResult(NUnit2Test testElement, TestResult result) {
+            // temp file for storing test results
+            string xmlResultFile = Path.GetTempFileName();
 
-            foreach (string assembly in assemblies) {
-                TestResult res = RunSingleRemoteTest(test, new FileInfo(assembly), 
-                    listener);
-                if (res != null) {
-                    results.Add(res);
-                }
-            }
+            // permanent file for storing test results
+            string outputFile = null;
 
-            return (TestResult[]) results.ToArray(typeof(TestResult));
-        }
-
-        private TestResult RunSingleRemoteTest(NUnit2Test test, FileInfo testAssembly, EventListener listener) {
             try {
-                LogWriter writer = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
-                NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
-                return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, 
-                    listener);
-            } catch (Exception ex) {
-                if (HaltOnError) {
-                    throw new BuildException("NUnit error.", Location, ex);
+                XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
+                result.Accept(resultVisitor);
+                resultVisitor.Write();
+
+                foreach (FormatterElement formatter in FormatterElements) {
+                    if (formatter.Type == FormatterType.Xml) {
+                        if (formatter.UseFile) {
+                            // determine file name for output file
+                            outputFile = result.Name + "-results" + formatter.Extension;
+                                        
+                            if (formatter.OutputDirectory != null) {
+                                // ensure output directory exists
+                                if (!formatter.OutputDirectory.Exists) {
+                                    formatter.OutputDirectory.Create();
+                                }
+
+                                // combine output directory and result filename
+                                outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
+                                    Path.GetFileName(outputFile));
+                            }
+
+                            // copy the temp result file to permanent location
+                            File.Copy(xmlResultFile, outputFile, true);
+                        } else {
+                            using (StreamReader reader = new StreamReader(xmlResultFile)) {
+                                // strip off the xml header
+                                reader.ReadLine();
+                                StringBuilder builder = new StringBuilder();
+                                while (reader.Peek() > -1) {
+                                    builder.Append(reader.ReadLine().Trim()).Append(
+                                        Environment.NewLine);
+                                }
+                                Log(Level.Info, builder.ToString());
+                            }
+                        }
+                    } else if (formatter.Type == FormatterType.Plain) {
+                        TextWriter writer;
+                        if (formatter.UseFile) {
+                            // determine file name for output file
+                            outputFile = result.Name + "-results" + formatter.Extension;
+
+                            if (formatter.OutputDirectory != null) {
+                                // ensure output directory exists
+                                if (!formatter.OutputDirectory.Exists) {
+                                    formatter.OutputDirectory.Create();
+                                }
+
+                                // combine output directory and result filename
+                                outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
+                                    Path.GetFileName(outputFile));
+                            }
+
+                            writer = new StreamWriter(outputFile);
+                        } else {
+                            writer = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
+                        }
+                        CreateSummaryDocument(xmlResultFile, writer, testElement);
+                        writer.Close();
+                    }
                 }
-                Log(Level.Error, "NUnit error :" + ex.ToString());
-                return null;
+            } catch (Exception ex) {
+                throw new BuildException("Test results could not be" 
+                    + " formatted.", Location, ex);
+            } finally {
+                // make sure temp file with test results is removed
+                File.Delete(xmlResultFile);
             }
         }
 
@@ -322,7 +337,7 @@ namespace NAnt.NUnit2.Tasks {
             XmlTextReader transformReader;
             if (test.XsltFile == null) {
                 Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
-                ResourceManager resourceManager = new ResourceManager("NUnit.Framework.Transform", assembly);
+                ResourceManager resourceManager = new ResourceManager("NUnit.Util.Transform", assembly);
                 string xmlData = (string) resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
                 transformReader = new XmlTextReader(new StringReader(xmlData));
             } else {
