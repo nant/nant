@@ -91,7 +91,7 @@
             <references>
                 <includes name="${build.dir}/${project.FormalName}.Core.dll"/>                
             </references>
-            <arg value="/resource:${src.dir}\${project.FormalName}\xslt\projecthelp.xslt,Nant.xslt.projecthelp.xslt" />
+			<arg value="/resource:${src.dir}\${project.FormalName}\xslt\projecthelp.xslt,Nant.xslt.projecthelp.xslt" /> 
             <arg value="/nowarn:1591"/>
         </csc>
         
@@ -108,6 +108,7 @@
                 
                 <includes name="${build.dir}\NDoc.Core.dll" />
             </references>
+            
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\css\NAntDoc.css,Documenter.css.NAntDoc.css" />
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\html\index.html,Documenter.html.index.html" />
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\html\NAntTaskRef.html,Documenter.html.NAntTaskRef.html" />
@@ -149,7 +150,11 @@
         <!-- call the newly built executable and tests it. -->
         <echo message="************************************************************************************"/>
         <echo message="** Running newly built NAnt.exe with tests."/>
-        <exec program="${nant.project.basedir}\${build.dir}\${project.FormalName}.exe" commandline="-indent:1 -buildfile:${nant.project.buildfile} test.nunit"/>
+        <exec program="${nant.project.basedir}\${build.dir}\${project.FormalName}.exe">
+			<arg value="-indent:1"/>
+			<arg value="-buildfile:${nant.project.buildfile}"/>
+			<arg value="test.nunit"/>
+		</exec>
         <echo message="** End of Tests"/>
         <echo message="************************************************************************************"/>
     </target>
