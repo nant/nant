@@ -32,7 +32,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>Macros in the message will be expanded.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Writes a message with level <see cref="F:Level.Debug" /> to the build log.</para>
+    ///   <para>Writes a message with level <see cref="Level.Debug" /> to the build log.</para>
     ///   <code>
     ///     <![CDATA[
     /// <echo message="Hello, World!" level="Debug" />
@@ -63,7 +63,7 @@ namespace NAnt.Core.Tasks {
 
         private string _message = null;
         private string _contents = null;
-        private Level _level = Level.Info;
+        private Level _messageLevel = Level.Info;
 
         #endregion Private Instance Fields
 
@@ -112,18 +112,18 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// The logging level with which the message should be output - either 
-        /// <see cref="F:Level.Debug" />, <see cref="F:Level.Verbose" />,
-        /// <see cref="F:Level.Info" />, <see cref="F:Level.Warning" /> or 
-        /// <see cref="F:Level.Error" />. Default is <see cref="F:Level.Info" />.
+        /// <see cref="Level.Debug" />, <see cref="Level.Verbose" />,
+        /// <see cref="Level.Info" />, <see cref="Level.Warning" /> or 
+        /// <see cref="Level.Error" />. Default is <see cref="Level.Info" />.
         /// </summary>
         [TaskAttribute("level")]
-        public Level Level {
-            get { return _level; }
+        public Level MessageLevel {
+            get { return _messageLevel; }
             set {
                 if (!Enum.IsDefined(typeof(Level), value)) {
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "An invalid level {0} was specified.", value)); 
                 } else {
-                    this._level = value;
+                    this._messageLevel = value;
                 }
             }
         }
@@ -137,11 +137,11 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             if (Message != null) {
-                Log(Level, LogPrefix + Message);
+                Log(MessageLevel, LogPrefix + Message);
             } else if (Contents != null) {
-                Log(Level, LogPrefix + Contents);
+                Log(MessageLevel, LogPrefix + Contents);
             } else {
-                Log(Level, LogPrefix);
+                Log(MessageLevel, LogPrefix);
             }
         }
         protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
