@@ -20,6 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -173,6 +174,26 @@ namespace NAnt.Core.Tasks {
                         FileName));
                 }
             }
+        }
+
+        /// <summary>
+        /// Performs additional checks after the task has been initialized.
+        /// </summary>
+        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
+        /// <exception cref="BuildException"><see cref="FileName" /> does not hold a valid file name.</exception>
+        protected override void InitializeTask(XmlNode taskNode) {
+            try {
+                // just check if program file to execute is a valid file name
+                if (Path.IsPathRooted(FileName)) {
+                    // do nothing
+                }
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "'{0}' is not a valid value for attribute 'program' of <{1} ... />.", 
+                    FileName, Name), Location, ex);
+            }
+
+            base.InitializeTask(taskNode);
         }
 
         /// <summary>
