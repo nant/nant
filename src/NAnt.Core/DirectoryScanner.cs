@@ -441,11 +441,13 @@ namespace NAnt.Core {
                 searchDirectory = new DirectoryInfo(s).FullName;
             } else {
                 //We also (correctly) get to this branch of code when s.Length == 0
-                if (isInclude || indexOfFirstWildcard == -1)
+                // Note that I tried setting the base directory of unrooted exclude patterns to "" but this ends up
+                // matching base directories where it shouldn't.
+//              if (isInclude || indexOfFirstWildcard == -1)
                     searchDirectory = new DirectoryInfo(Path.Combine(
                         BaseDirectory.FullName, s)).FullName;
-                else
-                    searchDirectory = String.Empty;
+//              else
+//                  searchDirectory = String.Empty;
             }
             
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
