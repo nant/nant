@@ -35,25 +35,28 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             _referenceTimeStamp = DateTime.MinValue;
             _isSystem = false;
-
+            _name = (string) elemReference.Attributes["Name"].Value;
             _isCreated = false;
-            DirectoryInfo diGAC = new DirectoryInfo(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName);
-            _strName = (string) elemReference.Attributes["Name"].Value;
 
             if (elemReference.Attributes["Project"] != null) {
                 if (solution == null) {
-                    throw new Exception("External reference found, but no solution specified: " + _strName);
+                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
+                        "External reference '{0}' found, but no solution was specified.",
+                        _name));
                 }
 
                 Project project = new Project(_solutionTask, ps.TemporaryFiles, outputDir);
                 string projectFile = solution.GetProjectFileFromGUID(elemReference.GetAttribute("Project"));
                 if (projectFile == null) {
-                    throw new Exception("External reference found, but project was not loaded: " + _strName);
+                    throw new Exception(string.Format(CultureInfo.InvariantCulture, 
+                        "External reference '{0}' found, but project was not loaded.",
+                        _name));
                 }
 
                 project.Load(solution, projectFile);
-                // We don't know what the timestamp of the project is going to be, because we don't know what configuration
-                // we will be building
+
+                // we don't know what the timestamp of the project is going to be, 
+                // because we don't know what configuration we will be building
                 _referenceTimeStamp = DateTime.MinValue;
 
                 _project = project;
@@ -76,14 +79,15 @@ namespace NAnt.VSNet {
             if (_importTool == "tlbimp" || _importTool == "primary" || _importTool == "aximp") {
                 HandleWrapperImport(elemReference);
             } else {
-                _strReferenceFile = elemReference.Attributes[ "AssemblyName" ].Value + ".dll";
-                
-                string gacFile = Path.Combine(diGAC.FullName, _strReferenceFile);
+                _referenceFile = elemReference.Attributes["AssemblyName"].Value + ".dll";
+
+                DirectoryInfo diGAC = new DirectoryInfo(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName);
+                string gacFile = Path.Combine(diGAC.FullName, _referenceFile);
                 if (File.Exists(gacFile)) {
                     // This file is in the GAC
                     _baseDirectory = diGAC.FullName;
                     _copyLocal = _privateSpecified ? _isPrivate : false;
-                    _strReferenceFile = gacFile;
+                    _referenceFile = gacFile;
                     _isSystem = true;
                 } else {
                     FileInfo fiRef = new FileInfo(Path.Combine(ps.RootDirectory, elemReference.Attributes["HintPath"].Value));
@@ -92,11 +96,11 @@ namespace NAnt.VSNet {
                     //    throw new Exception( "Couldn't find referenced assembly: " + _strReferenceFile );
 
                     _baseDirectory = fiRef.DirectoryName;
-                    _strReferenceFile = fiRef.FullName;
+                    _referenceFile = fiRef.FullName;
                     _copyLocal = _privateSpecified ? _isPrivate : true;
                 }
 
-                _referenceTimeStamp = GetTimestamp(_strReferenceFile);
+                _referenceTimeStamp = GetTimestamp(_referenceFile);
             }
         }
 
@@ -113,15 +117,15 @@ namespace NAnt.VSNet {
         }
 
         public string Setting {
-            get { return String.Format(@"/r:""{0}""", _strReferenceFile); }
+            get { return string.Format(CultureInfo.InvariantCulture, @"/r:""{0}""", _referenceFile); }
         }
 
         public string Filename {
-            get { return _strReferenceFile; }
+            get { return _referenceFile; }
             set { 
-                _strReferenceFile = value; 
-                _baseDirectory = new FileInfo(_strReferenceFile).DirectoryName;
-                _referenceTimeStamp = GetTimestamp(_strReferenceFile);
+                _referenceFile = value; 
+                _baseDirectory = new FileInfo(_referenceFile).DirectoryName;
+                _referenceTimeStamp = GetTimestamp(_referenceFile);
             }
         }
 
@@ -131,7 +135,7 @@ namespace NAnt.VSNet {
         }
 
         public string Name {
-            get { return _strName; }
+            get { return _name; }
         }
 
         public bool IsSystem {
@@ -161,11 +165,11 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void GetCreationCommand(ConfigurationSettings cs, out string program, out string commandLine) {
-            _strReferenceFile = new FileInfo(Path.Combine(cs.OutputPath, _strInteropFile)).FullName;
+            _referenceFile = new FileInfo(Path.Combine(cs.OutputPath, _interopFile)).FullName;
 
-            commandLine = @"""" + _strTypeLib + @""" /silent /out:""" + _strReferenceFile + @"""";
+            commandLine = @"""" + _typelibFile + @""" /silent /out:""" + _referenceFile + @"""";
             if (_importTool == "tlbimp") {
-                commandLine += " /namespace:" + _strNamespace;
+                commandLine += " /namespace:" + _namespace;
             }
             program = _importTool + ".exe";
         }
@@ -182,15 +186,18 @@ namespace NAnt.VSNet {
             StringCollection referencedFiles = new StringCollection();
 
             if (Project != null) {
-                _strReferenceFile = Project.GetConfigurationSettings(configurationSettings.Name).FullOutputFile; 
+                _referenceFile = Project.GetConfigurationSettings(configurationSettings.Name).FullOutputFile; 
             }
 
-            FileInfo fi = new FileInfo(_strReferenceFile);
+            FileInfo fi = new FileInfo(_referenceFile);
             if (!fi.Exists) {
                 if (Project == null) {
-                    throw new Exception("Couldn't find referenced assembly: " + _strReferenceFile);
+                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
+                        "Couldn't find referenced assembly '{0}'.", _referenceFile));
                 } else {
-                    throw new Exception("Couldn't find referenced project's output: " + _strReferenceFile);
+                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
+                        "Couldn't find referenced project '{0}' output file, '{1}'.",
+                        Project.Name, _referenceFile));
                 }
             }
 
@@ -201,7 +208,7 @@ namespace NAnt.VSNet {
 
                 foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
                     // Ignore any other the garbage files created
-                    string fileExtension = Path.GetExtension(relatedFile).ToLower();
+                    string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
                     if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
                         continue;
                     }
@@ -239,18 +246,15 @@ namespace NAnt.VSNet {
                 elemReference.Attributes["Lcid"].Value
                 );
 
-            // First, look for a primary interop assembly
+            // look for a primary interop assembly
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
                 if (registryKey.GetValue("PrimaryInteropAssemblyName") != null) {
-                    _strReferenceFile = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
-                    // Assembly.Load does its own checking
-                    //if ( !File.Exists( _strReferenceFile ) )
-                    //    throw new Exception( "Couldn't find referenced primary interop assembly: " + _strReferenceFile );
-                    Assembly asmRef = Assembly.Load(_strReferenceFile);
-                    _strReferenceFile = new Uri(asmRef.CodeBase).LocalPath;
-                    _baseDirectory = Path.GetDirectoryName(_strReferenceFile);
+                    _referenceFile = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
+                    Assembly asmRef = Assembly.Load(_referenceFile);
+                    _referenceFile = new Uri(asmRef.CodeBase).LocalPath;
+                    _baseDirectory = Path.GetDirectoryName(_referenceFile);
                     _copyLocal = _privateSpecified ? _isPrivate : false;
-                    _referenceTimeStamp = GetTimestamp(_strReferenceFile);
+                    _referenceTimeStamp = GetTimestamp(_referenceFile);
 
                     return;
                 }
@@ -259,34 +263,35 @@ namespace NAnt.VSNet {
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbRegistryKey)) {
                 if (registryKey == null)
                     throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
-                        "Couldn't find reference to type library {0} ({1}).", 
+                        "Couldn't find reference to type library '{0}' ({1}).", 
                         elemReference.Attributes["Name"].Value, tlbRegistryKey));
 
-                _strTypeLib = (string) registryKey.GetValue(null);
-                if (!File.Exists(_strTypeLib)) {
-                    throw new Exception("Couldn't find referenced type library: " + _strTypeLib);
+                // check if the typelib actually exists
+                _typelibFile = (string) registryKey.GetValue(null);
+                if (!File.Exists(_typelibFile)) {
+                    throw new Exception(string.Format(CultureInfo.InvariantCulture, 
+                        "Couldn't find referenced type library '{0}'.", _typelibFile));
                 }
 
-                _referenceTimeStamp = GetTimestamp(_strTypeLib);
-                _strInteropFile = "Interop." + elemReference.Attributes["Name"].Value + ".dll";
-                _strReferenceFile = _strInteropFile;
-                _strNamespace = elemReference.Attributes["Name"].Value;
+                _referenceTimeStamp = GetTimestamp(_typelibFile);
+                _interopFile = "Interop." + elemReference.Attributes["Name"].Value + ".dll";
+                _referenceFile = _interopFile;
+                _namespace = elemReference.Attributes["Name"].Value;
                 _copyLocal = true;
                 _isCreated = true;
             }
-
         }
 
         #endregion Private Instance Methods
 
         #region Private Instance Fields
 
-        private string _strName;
-        private string _strReferenceFile;
-        private string _strInteropFile;
-        private string _strTypeLib;
-        private string _strNamespace;
+        private string _name;
+        private string _referenceFile;
         private string _baseDirectory;
+        private string _namespace;
+        private string _interopFile;
+        private string _typelibFile;
         private bool _copyLocal;
         private bool _isCreated;
         private bool _isSystem;
