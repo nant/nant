@@ -28,9 +28,12 @@ using System.Reflection;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
  
 namespace NAnt.Core {
-    /// <summary>Models a NAnt XML element in the build file.</summary>
+    /// <summary>
+    /// Models a NAnt XML element in the build file.
+    /// </summary>
     /// <remarks>
     /// <para>
     /// Automatically validates attributes in the element based on attributes 
@@ -102,10 +105,10 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Project"/> to which this element belongs.
+        /// Gets or sets the <see cref="Project" /> to which this element belongs.
         /// </summary>
         /// <value>
-        /// The <see cref="Project"/> to which this element belongs.
+        /// The <see cref="Project" /> to which this element belongs.
         /// </value>
         public virtual Project Project {
             get { return _project; }
@@ -127,10 +130,10 @@ namespace NAnt.Core {
         #region Protected Instance Properties
 
         /// <summary>
-        /// Gets or sets the xml node of the element.
+        /// Gets or sets the XML node of the element.
         /// </summary>
         /// <value>
-        /// The xml node of the element.
+        /// The XML node of the element.
         /// </value>
         protected virtual XmlNode XmlNode {
             get { return _xmlNode; }
@@ -138,7 +141,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets or sets the location in the build file where the element is defined.
+        /// Gets or sets the location in the build file where the element is 
+        /// defined.
         /// </summary>
         /// <value>
         /// The location in the build file where the element is defined.
@@ -156,9 +160,8 @@ namespace NAnt.Core {
         /// Performs default initialization.
         /// </summary>
         /// <remarks>
-        /// <para>Derived classes that wish to add custom initialization should override 
-        /// the <see cref="InitializeElement"/> method.
-        /// </para>
+        /// Derived classes that wish to add custom initialization should override 
+        /// the <see cref="InitializeElement" /> method.
         /// </remarks>
         public void Initialize(XmlNode elementNode) {
             if (Project == null) {
@@ -212,10 +215,10 @@ namespace NAnt.Core {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Derived classes should override to this method to provide extra initialization 
-        /// and validation not covered by the base class.
+        /// Derived classes should override to this method to provide extra 
+        /// initialization and validation not covered by the base class.
         /// </summary>
-        /// <param name="elementNode">The xml node of the element to use for initialization.</param>
+        /// <param name="elementNode">The XML node of the element to use for initialization.</param>
         protected virtual void InitializeElement(XmlNode elementNode) {
         }
 
@@ -244,25 +247,26 @@ namespace NAnt.Core {
 
             #region Create Collections for Attributes and Element Names Tracking
 
-            //collect a list of attributes, we will check to see if we use them all.
+            // collect a list of attributes, we will check to see if we use them all.
             StringCollection attribs = new StringCollection();
             foreach (XmlAttribute xmlattr in XmlNode.Attributes) {
                 attribs.Add(xmlattr.Name);
             }
 
-            //create collection of element names. We will remove 
+            // create collection of element names. We will remove 
             StringCollection childElementsRemaining = new StringCollection();
             foreach (XmlNode childNode in XmlNode) {
-                //skip existing names. We only need unique names.
-                if(childElementsRemaining.Contains(childNode.Name))
+                // skip existing names as we only need unique names.
+                if(childElementsRemaining.Contains(childNode.Name)) {
                     continue;
+                }
 
                 childElementsRemaining.Add(childNode.Name);
             }
 
             #endregion Create Collections for Attributes and Element Names Tracking
 
-            //Loop through all the properties in the derived class.
+            // loop through all the properties in the derived class.
             foreach (PropertyInfo propertyInfo in propertyInfoArray) {
                 #region Initialize all properties with an assigned FrameworkConfigurableAttribute
 
@@ -281,13 +285,15 @@ namespace NAnt.Core {
                         attributeValue = attributeNode.InnerText;
 
                         if (frameworkAttribute.ExpandProperties && Project.CurrentFramework != null) {
-                            // expand attribute properites
                             try {
+                                // expand attribute properties
                                 attributeValue = Project.CurrentFramework.Properties.ExpandProperties(attributeValue, Location);
-                            } catch (Exception ex) {
+                            } catch (BuildException ex) {
                                 // throw BuildException if required
                                 if (frameworkAttribute.Required) {
-                                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name),Location, ex);
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                        "'{0}' is a required framework configuration setting for <{1} ... />.", 
+                                        frameworkAttribute.Name, this.Name), Location, ex);
                                 }
 
                                 // set value to null
@@ -295,9 +301,11 @@ namespace NAnt.Core {
                             }
                         }
                     } else {
-                        // check if its required
+                        // check if the attribute is required
                         if (frameworkAttribute.Required) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "'{0}' is a required framework configuration setting for <{1} ... />.", 
+                                frameworkAttribute.Name, this.Name), Location);
                         }
                     }
                 }
@@ -338,7 +346,7 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "Attribute {0} for {1} is deprecated : {2}", 
+                                "Attribute '{0}' for <{1} ... /> is deprecated.  {2}", 
                                 buildAttribute.Name, Name, obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 Log(Level.Error, obsoleteMessage);
@@ -347,9 +355,11 @@ namespace NAnt.Core {
                             }
                         }
                     } else {
-                        // check if its required
+                        // check if attribute is required
                         if (buildAttribute.Required) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required attribute of <{1} ... \\>.", buildAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "'{0}' is a required attribute of <{1} ... />.", 
+                                buildAttribute.Name, this.Name), Location);
                         }
                     }
                 }
@@ -380,13 +390,15 @@ namespace NAnt.Core {
                             }
                         } catch (ValidationException ve) {
                             logger.Error("Validation Exception", ve);
-                            throw new ValidationException("Validation failed on" + propertyInfo.DeclaringType.FullName, Location, ve);
+                            throw new ValidationException(string.Format(CultureInfo.InvariantCulture,
+                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                attributeValue, attributeNode.Name, this.Name), Location, ve);
                         }
 
                         // holds the attribute value converted to the property type
                         object propertyValue = null;
 
-                        // If the object is an emum
+                        // check if the object is an emum
                         if (propertyType.IsEnum) {
                             try {
                                 propertyValue = Enum.Parse(propertyType, attributeValue);
@@ -404,7 +416,7 @@ namespace NAnt.Core {
                             propertyValue = Convert.ChangeType(attributeValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
                         }
 
-                        //set value
+                        // set value
                         propertyInfo.SetValue(this, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     }
                 }
@@ -416,7 +428,7 @@ namespace NAnt.Core {
                 BuildElementArrayAttribute buildElementArrayAttribute = null;
                 BuildElementCollectionAttribute buildElementCollectionAttribute = null;
 
-                // Do build Element Arrays (assuming they are of a certain collection type.)
+                // do build element arrays (assuming they are of a certain collection type.)
                 buildElementArrayAttribute = (BuildElementArrayAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
                 buildElementCollectionAttribute = (BuildElementCollectionAttribute) 
@@ -424,7 +436,7 @@ namespace NAnt.Core {
 
                 if (buildElementArrayAttribute != null || buildElementCollectionAttribute != null) {
                     if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
                     
                     Type elementType = null;
@@ -450,7 +462,7 @@ namespace NAnt.Core {
                         }
                     }
 
-                    // Make sure the element is strongly typed
+                    // make sure the element is strongly typed
                     if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute and BuildElementCollectionAttribute can only be applied to strongly typed collection of Elements or classes that derive from Element. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
@@ -461,7 +473,7 @@ namespace NAnt.Core {
                         collectionNodes = elementNode.SelectNodes("nant:" + buildElementCollectionAttribute.Name, Project.NamespaceManager);
                         
                         if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementCollectionAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementCollectionAttribute.Name, this.Name), Location);
                         }
 
                         if (collectionNodes.Count == 1) {
@@ -470,7 +482,7 @@ namespace NAnt.Core {
 
                             string elementName = Element.GetElementNameFromType(elementType);
                             if (elementName == null) {
-                                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "No name was assigned to the base element {0} for collection element {1} for <{2} ...//>.", elementType.FullName, buildElementCollectionAttribute.Name, this.Name), Location);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "No name was assigned to the base element {0} for collection element {1} for <{2} ...//>.", elementType.FullName, buildElementCollectionAttribute.Name, this.Name), Location);
                             }
 
                             // get actual collection of element nodes
@@ -478,10 +490,10 @@ namespace NAnt.Core {
 
                             // check if its required
                             if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
-                                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", elementName, buildElementCollectionAttribute.Name), Location);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ... />.", elementName, buildElementCollectionAttribute.Name), Location);
                             }
                         } else if (collectionNodes.Count > 1) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Use BuildElementArrayAttributes to have multiple Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementCollectionAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Use BuildElementArrayAttributes to have multiple Element Required! There must be a least one '{0}' element for <{1} ... />.", buildElementCollectionAttribute.Name, this.Name), Location);
                         }
                     } else {
                         collectionNodes = elementNode.SelectNodes("nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
@@ -490,7 +502,7 @@ namespace NAnt.Core {
                             // remove element from list of remaining items
                             childElementsRemaining.Remove(collectionNodes[0].Name);
                         } else if (buildElementArrayAttribute.Required) {
-                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ... />.", buildElementArrayAttribute.Name, this.Name), Location);
                         }
                     }
 
@@ -545,11 +557,11 @@ namespace NAnt.Core {
                             new Type[] {elementType},
                             null);
 
-                        // If value of property is null, create new instance of collection
+                        // if value of property is null, create new instance of collection
                         object collection = propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                         if (collection == null) {
                             if (!propertyInfo.CanWrite) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for <{1} ... />.", buildElementArrayAttribute.Name, this.Name), Location);
                             }
                             object instance = Activator.CreateInstance(propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                             propertyInfo.SetValue(this, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
@@ -577,7 +589,7 @@ namespace NAnt.Core {
 
                     // check if its required
                     if (nestedElementNode == null && buildElementAttribute.Required) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required element of <{1} ...//>.", buildElementAttribute.Name, this.Name), Location);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "'{0}' is a required element of <{1} ... />.", buildElementAttribute.Name, this.Name), Location);
                     }
                     if (nestedElementNode != null) {
                         //remove item from list. Used to account for each child xmlelement.
@@ -591,19 +603,19 @@ namespace NAnt.Core {
                 #endregion Initiliaze the Nested BuildElements (Child xmlnodes)
             }
             
-            //skip checking for anything in target.
+            // skip checking for anything in target
             if(!(currentType.Equals(typeof(Target)) || currentType.IsSubclassOf(typeof(Target)))) {
                 #region Check Tracking Collections for Attribute and Element use
-                foreach(string attr in attribs) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "{2}:Did not use {0} of <{1} ...>?", attr, currentType.Name, Location);
-                    //Log.WriteLineIf(Project.Verbose, msg);
+
+                foreach (string attr in attribs) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "{2}:Did not use {0} of <{1} ... />?", attr, currentType.Name, Location);
                     logger.Info(msg);
                 }
-                foreach(string element in childElementsRemaining) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "Did not use <{0} .../> under <{1}/>?", element, currentType.Name);
-                    //Log.WriteLine(msg);
+                foreach (string element in childElementsRemaining) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "Did not use <{0} ... /> under <{1} />?", element, currentType.Name);
                     logger.Info(msg);
                 }
+
                 #endregion Check Tracking Collections for Attribute and Element use
             }
 
@@ -623,7 +635,7 @@ namespace NAnt.Core {
             setter = propInf.GetSetMethod(true);
             getter = propInf.GetGetMethod(true);
            
-            //if there is a getter, then get the current instance of the object, and use that.
+            // if there is a getter, then get the current instance of the object, and use that
             if (getter != null) {
                 childElement = (Element) propInf.GetValue(this, null);
                 if (childElement == null && setter == null) {
@@ -631,13 +643,13 @@ namespace NAnt.Core {
                     logger.Error(msg);
                     throw new BuildException(msg, Location);
                 } else if (childElement == null && setter != null) {
-                    //fake the getter as null so we process the rest like there is no getter.
+                    // fake the getter as null so we process the rest like there is no getter
                     getter = null;
                     logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}_get() returned null; will go the route of set method to populate.", propInf.Name));
                 }
             }
             
-            //create a new instance of the object if there is not a get method. (or the get object returned null... see above)
+            // create a new instance of the object if there is not a get method. (or the get object returned null... see above)
             if (getter == null && setter != null) {
                 Type elemType = setter.GetParameters()[0].ParameterType;
                 if (elemType.IsAbstract) {
@@ -646,13 +658,13 @@ namespace NAnt.Core {
                 childElement = (Element) Activator.CreateInstance(elemType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null , CultureInfo.InvariantCulture);
             }
 
-            //initialize the object with context.
+            // initialize the object with context
             childElement.Project = Project;
             childElement.Parent = this;
             childElement.Initialize(xml);
             
             DataTypeBase dataType = childElement as DataTypeBase;
-            if (dataType != null && dataType.RefID != null && dataType.RefID.Length != 0) {
+            if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
                 // we have a datatype reference
                 childElement = InitDataTypeBase(dataType);
                 // re-set the getter
@@ -660,20 +672,20 @@ namespace NAnt.Core {
                 childElement.Project = Project;
             }
 
-            //call the set method if we created the object
+            // call the set method if we created the object
             if(setter != null && getter == null) {
                 setter.Invoke(this, new object[] {childElement});
             }
             
-            //return the new/used object
+            // return the new/used object
             return childElement;
         }
         
         private DataTypeBase InitDataTypeBase(DataTypeBase reference) {
             DataTypeBase refType = null;
-            if (reference.ID != null && reference.ID.Length > 0) {
+            if (!StringUtils.IsNullOrEmpty(reference.ID)) {
                 // throw exception because of id and ref
-                string msg = string.Format(CultureInfo.InvariantCulture, "datatype references cannot contain an id attribute");
+                string msg = string.Format(CultureInfo.InvariantCulture, "Datatype references cannot contain an id attribute.");
                 throw new BuildException(msg, reference.Location);
             }
             if (Project.DataTypeReferences.Contains(reference.RefID)) {
