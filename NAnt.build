@@ -42,7 +42,7 @@
             }
         ]]></code>
         </script>
-	    <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
+        <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
         <echo message="Building ${project.name}-${project.version} (release)"/>
     </target>
 
@@ -61,6 +61,7 @@
                 <includes name="NDoc.Documenter.Msdn.dll"/>
                 <includes name="NUnitCore.dll"/>
                 <includes name="NZipLib.dll"/>
+                <includes name="CollectionGen.dll"/>
             </fileset>
         </copy>
 
@@ -75,6 +76,7 @@
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
                 <includes name="${build.dir}/NZipLib.dll"/>
+                <includes name="${build.dir}/CollectionGen.dll"/>
                 <includes name="Microsoft.JScript.dll" asis="true"/>
             </references>
             <arg value="/nowarn:1591"/>
