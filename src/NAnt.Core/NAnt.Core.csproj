@@ -134,6 +134,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DefaultCommandLineArgumentAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "DirectoryListScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
