@@ -43,7 +43,7 @@
 		}
 	]]></code>
     </script>
-	
+
     <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
     <property name="backup.name" value="..\${project.name}-backup-${nant.dstamp}-${nant.tstamp}.zip" />
 
@@ -51,10 +51,12 @@
 
 	<target name="debug" depends="clean">
 		<property name="debug" value="true"/>
+		<echo message="debug='${debug}'"/>
 	</target>
 
 	<target name="release" depends="clean">
 		<property name="debug" value="false"/>
+		<echo message="debug='${debug}'"/>
 	</target>
 
     <target name="clean">
@@ -90,11 +92,12 @@
                 <includes name="${build.dir}/DocNet.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
             </references>
+            <arg value="/debug"/>
             <arg value="/nowarn:1591"/>
             <arg value="/reference:Microsoft.JScript.dll"/>
         </csc>
 
-		<!--<copy file="build\NAnt.exe" tofile="build\NAnt.Core.dll"/>-->
+		<copy file="build\NAnt.exe" tofile="${build.dir}/${project.FormalName}.Core.dll"/>
 
 		<!-- compile NAnt.Tests.dll -->
 		<csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
@@ -103,27 +106,27 @@
 			</sources>
 			<references>
 				<includes name="${build.dir}/NUnitCore.dll"/>
-				<includes name="${build.dir}/${project.FormalName}.exe"/>
-				<!--<includes name="${build.dir}/${project.FormalName}.Core.dll"/>-->
+				<!--<includes name="${build.dir}/${project.FormalName}.exe"/>-->
+				<includes name="${build.dir}/${project.FormalName}.Core.dll"/>
 			</references>
 		</csc>
 
-		<!-- 
+		<call target="test"/>
+    </target>
+
+    <target name="test">
+		<!--
 			Perform unit tests.  If a unit test fails, the build fails.
 			The base directory is set to the Test directory so that tests can easily
 			load external data files wihtout having to worry about complicated paths.
 		-->
-		<nunit basedir="${src.dir}\${project.FormalName}.Tests" printsummary="true" haltonerror="true" haltonfailure="true">          
+		<nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltOnError="true" haltOnFailure="true">
             <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" />
 		</nunit>
     </target>
 
     <target name="examples" depends="build">
         <exec program="${build.dir}\nant.exe" basedir="examples"/>
-    </target>
-
-    <target name="test">
-        <echo message="This task currently does nothing."/>
     </target>
 
     <target name="doc" depends="build">
