@@ -222,7 +222,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Used to test arbitrary boolean expression
         /// </summary>
-       [TaskAttribute("test")]
+       [TaskAttribute("test", ExpandProperties=false)]
         public string Eval {
             get { return _eval; }
             set { _eval = StringUtils.ConvertEmptyToNull(value); }
@@ -237,22 +237,10 @@ namespace NAnt.Core.Tasks {
                 bool ret = true;
 
                 if (Eval != null) {
-                    ExpressionEvaluator evaluator = new ExpressionEvaluator(this.Properties);
-                    try {
-                        object val = evaluator.Evaluate(Eval);
-                        if (!(val is bool)) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "Expression '{0}' doesn't evaluate to a boolean value (got {1} which is {2}).", Eval, val, val.GetType().Name), Location);
-                        }
-                        ret = ret && (bool)val;
-                        if (!ret) {
-                            return false;
-                        }
-                    }
-                    catch (ExpressionParseException ex) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "Parse error on '{0}'", Eval), Location, ex);
-                    }
+                    string val = Project.ExpandProperties(Eval, Location);
+                    bool booleanValue = Convert.ToBoolean(val);
+                    if (!booleanValue)
+                        return false;
                 }
 
                 // check if target exists
