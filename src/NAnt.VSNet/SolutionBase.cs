@@ -463,7 +463,18 @@ namespace NAnt.VSNet {
             // solution
             foreach (DictionaryEntry de in _htProjectDependencies) {
                 string projectGuid = (string) de.Key;
-                string projectName = ((ProjectBase) _htProjects[projectGuid]).Name;
+
+                // lookup project using GUID
+                ProjectBase project = _htProjects[projectGuid];
+                // make sure project is loaded
+                if (project == null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Dependencies for project \'{0}\' could not be analyzed."
+                        + " Project is not included.", projectGuid), 
+                        Location.UnknownLocation);
+                }
+
+                string projectName = project.Name;
 
                 Hashtable projectDependencies = (Hashtable) de.Value;
 
