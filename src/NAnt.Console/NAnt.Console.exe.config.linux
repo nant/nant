@@ -2,7 +2,7 @@
 <configuration>
     <!-- Leave this alone. Sets up configsectionhandler section -->
     <configSections>
-        <section name="nantsettings" type="NAnt.Core.ConfigurationSection, NAnt.Core" />
+        <section name="nant" type="NAnt.Core.ConfigurationSection, NAnt.Core" />
         <section name="log4net" type="System.Configuration.IgnoreSectionHandler" />
     </configSections>
     <appSettings>
@@ -16,39 +16,44 @@
         <!-- <add key="log4net.Internal.Debug" value="true"/> -->
     </appSettings>
     <!-- nant config settings -->
-    <nantsettings 
-    	defaultframework="mono-0.23-linux"
-    	taskpath=".\optional">
-        
-        <frameworks>
-            <frameworkinfo    
-                name = "mono-0.23-linux"
-                description = "gnome projects port of the .Net Framework 0.23"
-                version = "0.23"
-                runtimeengine="mono"
-                csharpcompilername = "mcs"
-                basiccompilername = "vbc"
-                jsharpcompilername = "vjc"
-                jscriptcompilername = "jsc"
-                resgenname = "monoresgen"
-            >
-            <sdkdirectory dir="/usr/local/bin" />
-            <frameworkdirectory dir="/usr/local/bin" />
-            <frameworkassemblydirectory dir="/usr/local/lib" />
-            </frameworkinfo>      
+    <nant taskpath=".\optional">
+        <frameworks default="mono-1.0">
+            <framework name="mono-1.0" description="GNOME projects port of the .NET Framework" version="${version}"
+                runtimeengine="mono.exe" sdkdirectory="/usr/local/bin" frameworkdirectory="/usr/local/bin"
+                frameworkassemblydirectory="/usr/local/lib">
+                <properties>
+                    <property name="version" value="0.25" />
+                </properties>
+                <tasks>
+                    <task name="csc">
+                        <attribute name="exename">mcs</attribute>
+                        <attribute name="useruntimeengine">true</attribute>
+                    </task>
+                    <task name="vbc">
+                        <attribute name="exename">mbas</attribute>
+                        <attribute name="useruntimeengine">true</attribute>
+                    </task>
+                    <task name="resgen">
+                        <attribute name="exename">monoresgen</attribute>
+                        <attribute name="useruntimeengine">true</attribute>
+                    </task>
+                </tasks>
+            </framework>
+            <!-- Framework-neutral properties -->
+            <properties>
+                <!-- <property name="foo" value = "bar" /> -->
+            </properties>
+            <!-- Framework-neutral task configuration defaults -->
+            <tasks>
+                <!-- settings for individual tasks -->
+            </tasks>
         </frameworks>
         <!-- Default properties -->
         <properties>
             <!-- add global properties here in th following format-->
-            <!-- <property name="foo" value = "bar" readonly="false" /> --></properties>
-        <tasks>
-            <!-- setting for individual tasks -->
-            <task name="csctask">
-                <!-- not used yet --></task>
-            <task name="resgentask">
-                <!-- not used yet --></task>
-        </tasks>
-    </nantsettings>
+            <!-- <property name="foo" value = "bar" readonly="false" /> -->
+        </properties>
+    </nant>
     <!--
         This section contains the log4net configuration settings.
 
