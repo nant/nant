@@ -51,6 +51,14 @@
                 target named <code>nant.failure</code> (if available). This has now been 
                 corrected and the old syntax (<code>nant.failure</code>) is now deprecated.
             </li>
+            <li>
+                The <code>&lt;param&gt;</code> element of the <code>&lt;style&gt;</code> task has
+                been deprecated in favor of a <code>&lt;parameters&gt;</code> collection with nested
+                <code>&lt;parameter&gt;</code> elements.  The <code>&lt;parameter&gt;</code> element
+                now also supports a <code>namespaceuri</code>, <code>if</code> and <code>unless</code>
+                attribute. See the documentation of the <code>&lt;style&gt;</code> task for more
+                information.
+            </li>
         </ul>
         <h4>Fixed bugs</h4>
         <ul>
