@@ -37,51 +37,51 @@ namespace NAnt.Core.Tasks {
     ///       <description>Value</description>
     ///     </listheader>
     ///     <item>
-    ///       <term>sys.clr.version</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.clr.version</term>
     ///       <description>Common Language Runtime version number.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.env.*</term>
-    ///       <description>Environment variables (e.g., sys.env.PATH).</description>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.env.*</term>
+    ///       <description>Environment variables (e.g., &lt;<see cref="Prefix" />&gt;.env.PATH).</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.platform</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.platform</term>
     ///       <description>Operating system platform ID.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.version</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.version</term>
     ///       <description>Operating system version.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os</term>
     ///       <description>Operating system version string.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.applicationdata</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.applicationdata</term>
     ///       <description>The directory that serves as a common repository for application-specific data for the current roaming user.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.commonapplicationdata</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.commonapplicationdata</term>
     ///       <description>The directory that serves as a common repository for application-specific data that is used by all users.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.commonprogramfiles</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.commonprogramfiles</term>
     ///       <description>The directory for components that are shared across applications.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.desktopdirectory</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.desktopdirectory</term>
     ///       <description>The directory used to physically store file objects on the desktop. Do not confuse this directory with the desktop folder itself, which is a virtual folder.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.programfiles</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.programfiles</term>
     ///       <description>The Program Files directory.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.system</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.system</term>
     ///       <description>The System directory.</description>
     ///     </item>
     ///     <item>
-    ///       <term>sys.os.folder.temp</term>
+    ///       <term>&lt;<see cref="Prefix" />&gt;.os.folder.temp</term>
     ///       <description>The temporary directory.</description>
     ///     </item>
     ///   </list>
@@ -117,7 +117,7 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
        
         /// <summary>
-        /// The string to prefix the property names with. The default is <c>sys.</c>.
+        /// The string to prefix the property names with. The default is "sys.".
         /// </summary>
         [TaskAttribute("prefix", Required=false)]
         public string Prefix {
