@@ -87,8 +87,12 @@ namespace NDoc.Documenter.NAnt {
         /// The href for the specified cref.
         /// </returns>
         public string GetHRef(string cref) {
+            //System.Console.WriteLine("looking up:" + cref);
             if ((cref.Length < 2) || (cref[1] != ':')) {
                 return string.Empty;
+            }
+            if(cref.EndsWith("[]")){
+                cref=cref.Replace("[]","");
             }
 
             if (cref.Length < 9 || cref.Substring(2, 7) != SystemPrefix) {

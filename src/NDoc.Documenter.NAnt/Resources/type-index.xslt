@@ -38,9 +38,9 @@
                     <tr>
                         <td class="NavBar-Cell" width="100%">
                             <a href="../../index.html"><b>NAnt</b></a>
-                            <img alt="->" src="../images/arrow.gif" />
-                            <a href="../index.html">Help</a>
-                            <img alt="->" src="../images/arrow.gif" />
+                            <img alt="->" src="images/arrow.gif" />
+                            <a href="index.html">Help</a>
+                            <img alt="->" src="images/arrow.gif" />
                             Type Reference
                         </td>
                     </tr>
@@ -52,7 +52,7 @@
                             <th>Type</th>
                             <th>Summary</th>
                         </tr>
-                        <xsl:apply-templates select="//class">
+                        <xsl:apply-templates select="//class[attribute/@name='NAnt.Core.Attributes.ElementNameAttribute']">
 	                            <xsl:sort select="attribute/property[@name='Name']/@value" />
                         </xsl:apply-templates>
                     </table>
@@ -65,29 +65,26 @@
 
     <!-- match class tag -->
     <xsl:template match="class">
-        <xsl:variable name="attr" select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/@name" />
-        <xsl:if test="string-length(string($attr)) != 0">
-            <xsl:variable name="ObsoleteAttribute" select="attribute[@name='System.ObsoleteAttribute']" />
-            <xsl:choose>
-                <!-- check if the task is deprecated -->
-                <xsl:when test="count($ObsoleteAttribute) > 0">
-                    <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name='IsError']/@value" />
-                    <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
-                    <xsl:if test="$IsErrorValue != 'True'">
-                        <tr>
-                            <!-- output task name in italics to indicate that its deprecated -->
-                            <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
-                            <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
-                        </tr>
-                    </xsl:if>
-                </xsl:when>
-                <xsl:otherwise>
+        <xsl:variable name="ObsoleteAttribute" select="attribute[@name='System.ObsoleteAttribute']" />
+        <xsl:choose>
+            <!-- check if the task is deprecated -->
+            <xsl:when test="count($ObsoleteAttribute) > 0">
+                <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name='IsError']/@value" />
+                <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
+                <xsl:if test="$IsErrorValue != 'True'">
                     <tr>
-                        <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />type.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
-                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
+                        <!-- output task name in italics to indicate that its deprecated -->
+                        <td><a><xsl:attribute name="href">tasks/<xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
+                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                     </tr>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:if>
+                </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+                <tr>
+                    <td><a><xsl:attribute name="href">types/<xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
+                    <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
+                </tr>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 </xsl:stylesheet>

@@ -196,7 +196,10 @@ namespace NAnt.Core.Types {
             }
         }
 
-        [BuildElementArray("includes")]
+        /// <summary>
+        /// The items to include in the fileset.
+        /// </summary>
+        [BuildElementArray("includes", ElementType=typeof(IncludesElement))]
         public IncludesElement[] SetIncludes {
             set {                foreach(IncludesElement include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
@@ -210,8 +213,10 @@ namespace NAnt.Core.Types {
                             Includes.Add(include.Pattern);
                         }
                     }                }            }        }
-
-        [BuildElementArray("excludes")]
+        /// <summary>
+        /// The items to exclude from the fileset.
+        /// </summary>
+        [BuildElementArray("excludes", ElementType=typeof(ExcludesElement))]
         public ExcludesElement[] SetExcludes {
             set {
                 foreach(ExcludesElement exclude in value) {
@@ -221,8 +226,10 @@ namespace NAnt.Core.Types {
                     }
                 }
             }        }
-
-        [BuildElementArray("includesList")]
+        /// <summary>
+        /// The items to include in the fileset.
+        /// </summary>
+        [BuildElementArray("includesList", ElementType=typeof(IncludesListElement))]
         public IncludesListElement[] SetIncludesList {
             set {
                 foreach (IncludesListElement includeList in value){

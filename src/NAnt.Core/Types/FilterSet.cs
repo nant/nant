@@ -91,7 +91,7 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The filters to apply.
         /// </summary>
-        [BuildElementArray("filter")]
+        [BuildElementArray("filter", ElementType=typeof(Filter))]
         public FilterCollection Filters {
             get { return _filters; }
         }

@@ -67,7 +67,7 @@
         <copy todir="${build.dir}/bin">
             <fileset basedir="${lib.dir}">
                 <includes name="NDoc.Core.dll" />
-                <includes name="NDoc.Documenter.Msdn.dll" />
+                <includes name="NDoc.Documenter.*.dll" />
                 <includes name="nunit.framework.dll" />
                 <includes name="log4net.dll"/>
             </fileset>
@@ -167,24 +167,49 @@
         </exec>
     </target>
     <target name="self-userdoc" depends="init">
-        <!-- use ndoc and NAnt.Documenter to build user doc -->
+<!--
         <ndoc>
+            <assemblies basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll" />
+            </assemblies>
+            <documenters>
+                <documenter name="XML">
+                    <property name="OutputFile" value="${build.dir}/doc/nantdoc.raw.xml" />
+                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                    <property name="DocumentAttributes" value="True" />
+                    <property name="IncludeAssemblyVersion" value="True" />
+                </documenter>
+            </documenters>
+        </ndoc>
+-->
+        <!-- use ndoc and NAnt.Documenter to build user doc -->
+		<ndoc>
             <assemblies basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="*Tasks.dll" />
             </assemblies>
             <documenters>
+<!--
+                <documenter name="NAntTaskMissingDocs">
+                    <property name="OutputDirectory" value="${build.dir}/doc/missing" />
+                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                    <property name="IncludeAssemblyVersion" value="True" />
+                </documenter>
+-->
                 <documenter name="NAntTask">
-                    <property name="OutputDirectory" value="${build.dir}/doc/help/tasks" />
+                    <property name="OutputDirectory" value="${build.dir}/doc/help" />
                     <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
                     <property name="DocumentAttributes" value="True" />
+                    <property name="IncludeAssemblyVersion" value="True" />
                 </documenter>
             </documenters>
         </ndoc>
+
+        
         <!-- copy images so we can preview userdoc and have it look right -->
         <copy file="doc/style.css" todir="${build.dir}/doc" />
         <copy file="doc/arrow.gif" todir="${build.dir}/doc" />
-        <echo message="Preview task references: file://${build.dir}/doc/help/tasks/index.html" />
+        <echo message="Preview task references: file://${build.dir}/doc/help/tasks.html" />
     </target>
     <target name="sdkdoc" depends="build" description="Builds SDK documentation">
         <echo message="Documenting NAnt with just built version of NAnt." />
@@ -298,8 +323,8 @@
             <fileset basedir="lib">
                 <includes name="**/NDoc.Core.dll" />
                 <includes name="**/NDoc.Core.xml" />
-                <includes name="**/NDoc.Documenter.Msdn.dll" />
-                <includes name="**/NDoc.Documenter.Msdn.xml" />
+                <includes name="**/NDoc.Documenter.*.dll" />
+                <includes name="**/NDoc.Documenter.*.xml" />
                 <includes name="**/nunit.framework.dll" />
                 <includes name="**/NUnitCore.dll" />
                 <includes name="**/ICSharpCode.SharpZipLib.dll" />

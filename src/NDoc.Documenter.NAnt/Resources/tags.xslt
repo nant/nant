@@ -20,6 +20,7 @@
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://ndoc.sf.net/doc" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="doc NAntUtil">
     <!--
@@ -228,7 +229,7 @@
     <!-- get-a-href -->
     <xsl:template name="get-a-href">
         <xsl:param name="cref" />
-        <xsl:variable name="href" select="string(NAntUtil:GetHRef($cref))" />
+        <xsl:variable name="href" select="concat('../', string(NAntUtil:GetHRef($cref)))" />
         <xsl:choose>
             <xsl:when test="$href = ''">
                 <xsl:choose>

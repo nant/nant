@@ -18,6 +18,7 @@
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Scott Hernandez (ScottHernandez_hotmail_com)
 
 using System;
 using System.Collections.Specialized;
@@ -40,7 +41,6 @@ namespace NDoc.Documenter.NAnt {
         #region Private Instance Fields
 
         private XslTransform _xsltTaskIndex;
-        private XslTransform _xsltTaskDoc;
         private XslTransform _xsltTypeIndex;
         private XslTransform _xsltTypeDoc;        
         private XmlDocument _xmlDocumentation;
@@ -50,6 +50,7 @@ namespace NDoc.Documenter.NAnt {
         private StringDictionary _namespaceNames = new StringDictionary();
         private StringDictionary _assemblyNames = new StringDictionary();
         private StringDictionary _taskNames = new StringDictionary();
+        private StringDictionary _writtenFiles = new StringDictionary();
 
         #endregion Private Instance Fields
 
@@ -117,7 +118,8 @@ namespace NDoc.Documenter.NAnt {
         /// Builds the documentation.
         /// </summary>
         public override void Build(NDoc.Core.Project project) {
-            OnDocBuildingStep(0, "Initializing...");
+            int buildStepProgress = 0;
+            OnDocBuildingStep(buildStepProgress, "Initializing...");
 
             _resourceDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\NDoc\\NAntTasks\\";
 
@@ -126,12 +128,18 @@ namespace NDoc.Documenter.NAnt {
             EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.xslt", _resourceDirectory + "xslt\\");
             EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.html", _resourceDirectory + "html\\");
 
-            // create the html output directory if it doesn't exist.
-            if (!Directory.Exists(OutputDirectory)) {
+            // create the html output directory.
+            try{
                 Directory.CreateDirectory(OutputDirectory);
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
             }
-
-            OnDocBuildingStep(10, "Merging XML documentation...");
+            catch{
+                //continue;
+            }
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Merging XML documentation...");
 
             // crate the master xml document that contains all the documentation
             MakeXml(project);
@@ -144,7 +152,8 @@ namespace NDoc.Documenter.NAnt {
             _xmlDocumentation.LoadXml( XmlBuffer); 
 
             // build the file mapping
-            OnDocBuildingStep(25, "Building mapping...");
+            buildStepProgress += 15;
+            OnDocBuildingStep(buildStepProgress, "Building mapping...");
             MakeFilenames(_xmlDocumentation);
 
             // create arguments for nant index page transform
@@ -158,96 +167,153 @@ namespace NDoc.Documenter.NAnt {
             // add extension object to Xslt arguments
             indexArguments.AddExtensionObject("urn:NAntUtil", indexUtilities);
 
+            buildStepProgress += 15;
+            OnDocBuildingStep(buildStepProgress, "Creating Task Index Page...");
+
             // transform nant task index page transform
-            TransformAndWriteResult(_xsltTaskIndex, indexArguments, "index.html");
-            
+            TransformAndWriteResult(_xsltTaskIndex, indexArguments, "tasks.html");
+
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Creating Task Index Page...");
+
             // transform nant type index page transform
-            TransformAndWriteResult(_xsltTypeIndex, indexArguments, "type-index.html");
+            TransformAndWriteResult(_xsltTypeIndex, indexArguments, "types.html");
+
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
 
             // generate a page for each marked task
-            XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
-            foreach (XmlNode node in taskAttrNodes) {
-                // do not document tasks that are deprecated and have the IsError 
-                // property of ObsoleteAttribute set to "true"
-                XmlNode obsoleteErrorNode = node.ParentNode.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
-                if (obsoleteErrorNode != null) {
-                    if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
-                        continue;
-                    }
-                }
-
-                // create arguments for nant task page transform
-                XsltArgumentList arguments = new XsltArgumentList();
-                string classID = node.ParentNode.Attributes["id"].Value;
-                arguments.AddParam("class-id", String.Empty, classID);
-
-                // add extension object for NAnt utilities
-                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, 
-                    _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
-                    LinkToSdkDocVersion);
-
-                // add extension object to Xslt arguments
-                arguments.AddExtensionObject("urn:NAntUtil", utilities);
-
-                // generate filename for page
-                XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
-                string filename = propNode.Attributes["value"].Value.ToLower(CultureInfo.InvariantCulture) + "task.html";;    
-
-                // create the page
-                TransformAndWriteResult(_xsltTaskDoc, arguments, filename);
+            XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("//class[attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
+            foreach (XmlNode taskNode in taskAttrNodes) {
+                //OnDocBuildingStep(buildStepProgress++, "Doc'n Task:" + taskNode.Attributes["id"].Value);
+                DocumentType(taskNode, ElementDocType.Task);
             }
             
+            buildStepProgress += 10;
+            OnDocBuildingStep(buildStepProgress, "Generating DataType Documents...");
             // generate a page for each marked type
-            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.ElementNameAttribute']");
-            foreach (XmlNode node in typeAttrNodes) {
-                // do not document types that are deprecated and have the IsError 
-                // property of ObsoleteAttribute set to "true"
-                XmlNode obsoleteErrorNode = node.ParentNode.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
-                if (obsoleteErrorNode != null) {
-                    if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
-                        continue;
-                    }
-                }
-
-                // create arguments for nant type page transform
-                XsltArgumentList arguments = new XsltArgumentList();
-                string classID = node.ParentNode.Attributes["id"].Value;
-                arguments.AddParam("class-id", String.Empty, classID);
-                
-                // add extension object for NAnt utilities
-                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, 
-                    _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
-                    LinkToSdkDocVersion);
-
-                // add extension object to Xslt arguments
-                arguments.AddExtensionObject("urn:NAntUtil", utilities);
-                
-                // generate filename for page
-                XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
-                string filename = propNode.Attributes["value"].Value.ToLower(CultureInfo.InvariantCulture) + "type.html";;    
-
-                // create the page
-                TransformAndWriteResult(_xsltTypeDoc, arguments, filename);
+            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("//class[attribute/@name = 'NAnt.Core.Attributes.ElementNameAttribute']");
+            foreach (XmlNode typeNode in typeAttrNodes) {
+                //OnDocBuildingStep(buildStepProgress++, "Doc'n DataType:" + typeNode.Attributes["id"].Value);
+                DocumentType(typeNode, ElementDocType.DataTypeElement);
             }
+            OnDocBuildingStep(100, "Complete");
+
         }
 
         #endregion Override implementation of IDocumenter
 
         #region Private Instance Methods
 
+        
+        private void DocumentType(XmlNode typeNode, ElementDocType docType) {
+            if(typeNode == null)
+                throw new ArgumentException("XmlNode cannot be Null.","typeNode");
+
+            // do not document tasks that are deprecated and have the IsError 
+            // property of ObsoleteAttribute set to "true"
+            XmlNode obsoleteErrorNode = typeNode.SelectSingleNode("attribute[@name = 'System.ObsoleteAttribute']/property[@name='IsError']");
+            if (obsoleteErrorNode != null) {
+                if (Convert.ToBoolean(obsoleteErrorNode.Attributes["value"].Value)) {
+                    return;
+                }
+            }
+            
+            string classID = typeNode.Attributes["id"].Value;
+            string filename = GetFileNameForType(typeNode);
+            if (_writtenFiles.ContainsValue(classID)) {
+                return;
+            }
+            else {
+                _writtenFiles.Add(filename, classID);
+            }
+
+            //Console.WriteLine(classID + " --> " + filename);
+
+
+            // create arguments for nant task page transform (valid args are class-id, refType, imagePath, relPathAdjust)
+            XsltArgumentList arguments = new XsltArgumentList();
+            arguments.AddParam("class-id", String.Empty, classID);
+
+            string refTypeString;
+            switch (docType) {
+                case ElementDocType.DataTypeElement:
+                    refTypeString = "Type";
+                    break;
+                case ElementDocType.Element:
+                    refTypeString = "Element";
+                    break;
+                case ElementDocType.Task:
+                    refTypeString = "Task";
+                    break;
+                default:
+                    refTypeString = "Other?";
+                    break;
+            }
+
+            arguments.AddParam("refType", string.Empty, refTypeString);
+
+            // add extension object for NAnt utilities
+            NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, 
+                _elementNames, _namespaceNames, _assemblyNames, _taskNames, 
+                LinkToSdkDocVersion);
+
+            // add extension object to Xslt arguments
+            arguments.AddExtensionObject("urn:NAntUtil", utilities);
+
+            // generate filename for page
+            //Console.Write(classID);
+            //Console.WriteLine(" filename is " + filename);
+
+            
+            //create a temp node with all the children we document.
+            XmlNode childElementNodes = _xmlDocumentation.CreateElement("elements");
+
+            // Process all sub-elements and generate docs for them. :)
+            // Just look for properties with attributes to narrow down the foreach loop. 
+            // (This is a restriction of NAnt.Core.Attributes.BuildElementAttribute)
+            foreach(XmlNode propNode in typeNode.SelectNodes("property[attribute]")){
+                //Console.Write("Working on Property: " + propNode.Attributes["name"].Value + " (");
+                string eleName = GetElementNameForProperty(propNode);
+                //Console.WriteLine( eleName + "=" + propNode.Attributes["type"].Value + ")");
+                if (eleName != null) {
+                    //try to get attribute info if it is an array.
+                    string elementType = "T:" + propNode.Attributes["type"].Value.Replace("[]","");
+                    XmlNode childType = propNode.SelectSingleNode("attribute/property[@ElementType]");
+                    if(childType != null) {
+                        elementType = childType.Attributes["value"].Value.Replace("+",".");
+                        Console.WriteLine("Documenting Child Type " + elementType);
+                    }
+
+                    ElementDocType type = _elementNames[elementType] == null ? ElementDocType.DataTypeElement : ElementDocType.Element;
+                    XmlNode elementNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
+                    if(elementNode == null) {
+                        //Console.WriteLine(elementType + " not found in document");
+                    } else {
+                        // When I didn't use the Clone() call the node was not found in the document after this point. 
+                        // I'm guessing that the appendchild call is removing it from the prev parent.
+                        childElementNodes.AppendChild(elementNode.Clone());
+                        DocumentType(elementNode, type);
+                    }
+                }
+            }
+            if(childElementNodes.ChildNodes.Count >0) {
+                arguments.AddParam("childrenElements", string.Empty, childElementNodes.CreateNavigator().Select("."));
+                //Console.WriteLine( classID + " has " + childElementNodes.ChildNodes.Count + " Elements");
+            }
+
+            // create the page
+            TransformAndWriteResult(_xsltTypeDoc, arguments, filename);
+        }
         private void MakeTransforms() {
             OnDocBuildingProgress(0);
 
             _xsltTaskIndex = new XslTransform();
-            _xsltTaskDoc = new XslTransform();
             _xsltTypeIndex = new XslTransform();
             _xsltTypeDoc = new XslTransform();
 
             OnDocBuildingProgress(25);
             MakeTransform(_xsltTaskIndex, "task-index.xslt");
-
-            OnDocBuildingProgress(50);
-            MakeTransform(_xsltTaskDoc, "task-doc.xslt");
             
             OnDocBuildingProgress(75);
             MakeTransform(_xsltTypeIndex, "type-index.xslt");
@@ -261,7 +327,7 @@ namespace NDoc.Documenter.NAnt {
             try {
                 transform.Load(_resourceDirectory + "xslt/" + fileName);
             } catch (Exception e) {
-                String msg = String.Format(CultureInfo.InvariantCulture, "Error compiling the '{0}' stylesheet:\n{1}", fileName, e.Message);
+                String msg = String.Format(CultureInfo.InvariantCulture, "Error compiling the '{0}' stylesheet:\n{1}", fileName, e.ToString());
                 throw new DocumenterException(msg, e);
             }
         }
@@ -279,7 +345,14 @@ namespace NDoc.Documenter.NAnt {
         private void TransformAndWriteResult(XslTransform transform, XsltArgumentList arguments, string filename) {
             string path = Path.Combine(OutputDirectory, filename);
             using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII)) {
-                transform.Transform(_xmlDocumentation, arguments, writer);
+                try{
+                    transform.Transform(_xmlDocumentation, arguments, writer);
+                }
+                catch (XsltException xsltex) {
+                    xsltex.ToString();
+                    //Console.WriteLine("{0}({1},{2}):\n{3}", xsltex.SourceUri, xsltex.LineNumber, xsltex.LinePosition, xsltex.ToString());
+                    throw;
+                }
             }
         }
 
@@ -295,6 +368,7 @@ namespace NDoc.Documenter.NAnt {
                 foreach (XmlElement typeNode in types) {
                     string typeId = typeNode.Attributes["id"].Value;
                     _fileNames[typeId] = GetFileNameForType(typeNode);
+                    //Console.WriteLine(typeId + " mapped to file " + _fileNames[typeId]);
                     _elementNames[typeId] = GetElementNameForType(typeNode);
                     _namespaceNames[typeId] = namespaceName;
                     _assemblyNames[typeId] = assemblyName;
@@ -361,8 +435,16 @@ namespace NDoc.Documenter.NAnt {
                 return "<" + taskName + ">";
             }
 
-            // use name of type
-            return typeNode.Attributes["name"].Value;
+        
+            // make sure the type has a ElementNameAttribute assigned to it
+            XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementNameAttribute != null) {
+                return elementNameAttribute.Value;
+            }
+
+            // null
+            //Console.WriteLine("no element name for: " + typeNode.Attributes["id"].Value);
+            return null;
         }
 
         private string GetElementNameForProperty(XmlNode propertyNode) {
@@ -402,28 +484,27 @@ namespace NDoc.Documenter.NAnt {
                 return frameworkConfigAttributeNode.Value;
             }
 
-            return propertyNode.Attributes["name"].Value;
+            return null;
         }
 
         private string GetFileNameForType(XmlNode typeNode) {
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {
-                return taskName + "task.html";
+                return "tasks\\" + taskName + ".html";
             }
 
-            /*
-            // check if type derives from NAnt.Core.Element
-            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) {
+            // check if type derives from NAnt.Core.DataTypeBase
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
-                    return elementNameAttribute.Value + "type.html";
+                    return "types\\" + elementNameAttribute.Value + ".html";
                 }
             }
-            */
 
-            return null;
+
+            return "elements\\" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
 
         #endregion Private Instance Methods
@@ -447,5 +528,11 @@ namespace NDoc.Documenter.NAnt {
         /// The online version of the SDK documentation.
         /// </summary>
         MsdnOnline
+    }
+    public enum ElementDocType {
+        Task,
+        DataTypeElement,
+        Element,
+        Inline
     }
 }

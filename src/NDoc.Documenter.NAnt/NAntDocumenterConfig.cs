@@ -41,6 +41,7 @@ namespace NDoc.Documenter.NAnt {
         #endregion Private Instance Fields
 
         #region Public Instance Constructors
+        protected NAntTaskDocumenterConfig(string name) : base(name){}
         
         /// <summary>
         /// Initializes a new instance of the <see cref="NAntTaskDocumenterConfig" /> class.
@@ -55,9 +56,9 @@ namespace NDoc.Documenter.NAnt {
             ShowMissingSummaries = false;
             ShowMissingValues = false;
             DocumentAttributes = true; 
-            DocumentEmptyNamespaces = true;
-            DocumentInternals = false;
-            DocumentPrivates = false;
+            DocumentEmptyNamespaces = false;
+            DocumentInternals = true;
+            DocumentPrivates = true;
             DocumentProtected = true;
             IncludeAssemblyVersion = false;
             SkipNamespacesWithoutSummaries = false;

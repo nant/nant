@@ -38,10 +38,10 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
                         <td class="NavBar-Cell" width="100%">
-                            <a href="../../index.html"><b>NAnt</b></a>
-                            <img alt="->" src="../images/arrow.gif" />
-                            <a href="../index.html">Help</a>
-                            <img alt="->" src="../images/arrow.gif" />
+                            <a href="../index.html"><b>NAnt</b></a>
+                            <img alt="->" src="images/arrow.gif" />
+                            <a href="index.html">Help</a>
+                            <img alt="->" src="images/arrow.gif" />
                             Task Reference
                         </td>
                     </tr>
@@ -53,7 +53,7 @@
                             <th>Task</th>
                             <th>Summary</th>
                         </tr>
-                        <xsl:apply-templates select="//class">
+                        <xsl:apply-templates select="//class[attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']">
                             <xsl:sort select="attribute/property[@name = 'Name']/@value" />
                         </xsl:apply-templates>
                     </table>
@@ -77,14 +77,14 @@
                     <xsl:if test="$IsErrorValue != 'True'">
                         <tr>
                             <!-- output task name in italics to indicate that its deprecated -->
-                            <td><a><xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value" />task.html</xsl:attribute><i><xsl:value-of select="attribute/property[@name = 'Name']/@value" /></i></a></td>
+                            <td><a><xsl:attribute name="href">tasks/<xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute/property[@name = 'Name']/@value" /></i></a></td>
                             <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                         </tr>
                     </xsl:if>
                 </xsl:when>
                 <xsl:otherwise>
                     <tr>
-                        <td><a><xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
+                        <td><a><xsl:attribute name="href">tasks/<xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
                         <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                     </tr>
                 </xsl:otherwise>
