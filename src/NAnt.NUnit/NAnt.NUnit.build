@@ -44,5 +44,4 @@
             </references>
         </csc>
     </target>
-    <target name="test" depends="build" />
 </project>
