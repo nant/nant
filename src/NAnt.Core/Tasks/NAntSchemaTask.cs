@@ -589,8 +589,6 @@ namespace NAnt.Core.Tasks {
 
                                     // locate Add method with 1 parameter, type of that parameter is parameter type
                                     foreach (MethodInfo method in childType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                                        Console.WriteLine("IN LOOP");
-
                                         if (method.Name == "Add" && method.GetParameters().Length == 1) {
                                             ParameterInfo parameter = method.GetParameters()[0];
                                             elementType = parameter.ParameterType;
