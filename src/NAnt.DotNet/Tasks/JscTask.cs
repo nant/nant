@@ -41,6 +41,29 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("jsc")]
     public class JscTask : MsftFXCompilerBase {
+        #region Private Instance Fields
+
+        string _warningLevel = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Specifies the warning level for the compiler to display. Valid values are 0-4. Default is 4.
+        /// </summary>
+        /// <value>The warning level for the compiler to display.</value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/warn</c> option.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("warninglevel")]
+        [Int32Validator(0, 4)]
+        public string WarningLevel  { get { return _warningLevel; } set {_warningLevel = value;}}
+
+        #endregion Public Instance Properties
+
         #region Override implementation of ExternalProgramBase
            
         public override string ExeName {           
@@ -78,6 +101,10 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "debug");
                 WriteOption(writer, "define", "DEBUG");
                 WriteOption(writer, "define", "TRACE");
+            }
+
+            if (WarningLevel != null) {
+                WriteOption(writer, "warn" , WarningLevel);
             }
         }
 
