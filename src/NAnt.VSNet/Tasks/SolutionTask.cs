@@ -399,7 +399,7 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _excludeProjects;
         private FileSet _assemblyFolders;
         private WebMapCollection _webMaps;
-        private bool _includeVSFolders;
+        private bool _includeVSFolders = true;
 
         #endregion Private Instance Fields
 
