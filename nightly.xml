@@ -20,24 +20,30 @@
     <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf, deploy-nightly-web-sf" />
     <!-- copy the zipped nighly build to sourceforge -->
     <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, package">
-        <!-- determine filename of source distribution package on sf.net -->
-        <property name="deploy.zip.src" value="${project.name}-src.zip" />
-        <!-- determine filename of binary distribution package on sf.net -->
-        <property name="deploy.zip.bin" value="${project.name}-bin.zip" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/${nightly.builds.path}" />
         </exec>
-        <!-- copy the source distribution to sourceforge -->
+        <!-- copy the source zip distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
             <arg value="${path::get-file-name(project.zip-path.src)}" />
-            <arg value="${serverpart}/${nightly.builds.path}/${deploy.zip.src}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${project.name}-src.zip" />
         </exec>
-        <!-- copy the binary distribution to sourceforge -->
+        <!-- copy the source gzipped tar distribution to sourceforge -->
+        <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
+            <arg value="${path::get-file-name(project.gzip-path.src)}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${project.name}-src.tar.gz" />
+        </exec>
+        <!-- copy the binary zip distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
             <arg value="${path::get-file-name(project.zip-path.bin)}" />
-            <arg value="${serverpart}/${nightly.builds.path}/${deploy.zip.bin}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${project.name}-bin.zip" />
+        </exec>
+        <!-- copy the binary gzipped tar distribution to sourceforge -->
+        <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
+            <arg value="${path::get-file-name(project.gzip-path.bin)}" />
+            <arg value="${serverpart}/${nightly.builds.path}/${project.name}-bin.tar.gz" />
         </exec>
         <echo message="Copied nightly build over to SF.Net" />
         <!-- make sure permissions are set right -->
