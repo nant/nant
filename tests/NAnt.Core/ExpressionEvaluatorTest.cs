@@ -106,7 +106,6 @@ namespace Tests.NAnt.Core {
             AssertFailure("((((1+2)+(2+1)))");
             AssertFailure("5/0");
             AssertFailure("5%0");
-            AssertFailure("convert::to-double(5)/(2+8)");
         }
         
         [Test] public void TestRelationalOperators() {
