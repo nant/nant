@@ -190,6 +190,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ProjectSettingsLoader.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "PropertyDictionary.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
