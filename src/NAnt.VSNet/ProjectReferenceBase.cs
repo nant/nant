@@ -150,6 +150,17 @@ namespace NAnt.VSNet {
                 assemblyReferences = new StringCollection();
             }
 
+            // check if we're referencing a Visual C++ project
+            if (typeof(VcProject).IsAssignableFrom(Project.GetType())) {
+                VcConfiguration vcConfig = ((VcProject) Project).GetConfiguration(
+                    config.Name) as VcConfiguration;
+                // if configuration type if Makefile, then we know that the
+                // project has no assembly references and no output file
+                if (vcConfig.Type == VcConfiguration.ConfigurationType.Makefile) {
+                    return assemblyReferences;
+                }
+            }
+
             string projectOutputFile = Project.GetConfiguration(
                 config.Name).OutputPath;
             if (!File.Exists(projectOutputFile)) {
