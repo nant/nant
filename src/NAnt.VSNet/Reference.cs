@@ -24,6 +24,7 @@ using System.Xml;
 
 using Microsoft.Win32;
 
+using NAnt.Core;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -192,12 +193,12 @@ namespace NAnt.VSNet {
             FileInfo fi = new FileInfo(_referenceFile);
             if (!fi.Exists) {
                 if (Project == null) {
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
-                        "Couldn't find referenced assembly '{0}'.", _referenceFile));
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Couldn't find referenced assembly '{0}'.", _referenceFile), Location.UnknownLocation);
                 } else {
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture,
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Couldn't find referenced project '{0}' output file, '{1}'.",
-                        Project.Name, _referenceFile));
+                        Project.Name, _referenceFile), Location.UnknownLocation);
                 }
             }
 
