@@ -386,11 +386,11 @@ namespace NAnt.VSNet {
             }
 
             // determine output file of project
-            string projectOutputFile = config.OutputPath;
+            string projectOutputFile = config.BuildPath;
 
             // check if project has output file (eg. NMake project does not 
             // necessarily have an output file)
-            if (projectOutputFile != null) {
+            if (projectOutputFile != null && File.Exists(projectOutputFile)) {
                 // get list of files related to project output file (eg. debug symbols,
                 // xml doc, ...), this will include the project output file itself
                 Hashtable relatedFiles = ReferenceBase.GetRelatedFiles(projectOutputFile);
