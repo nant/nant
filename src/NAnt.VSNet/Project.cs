@@ -443,15 +443,14 @@ namespace NAnt.VSNet {
 
                         // Visual C#.NET uses the <project dir>\obj\<configuration> 
                         // as working directory, so we should do the same to make 
-                        // sure relative paths are resovled correctly 
+                        // sure relative paths are resolved correctly 
                         // (eg. AssemblyKeyFile attribute)
 
-                        DirectoryInfo objConfigDir = new DirectoryInfo(Path.Combine(
-                            _projectDirectory, Path.Combine("obj", cs.Name)));
-                        if (!objConfigDir.Exists) {
-                            objConfigDir.Create();
+                        // ensure object directory exists
+                        if (!cs.ObjectDir.Exists) {
+                            cs.ObjectDir.Create();
                         }
-                        psi.WorkingDirectory = objConfigDir.FullName;
+                        psi.WorkingDirectory = cs.ObjectDir.FullName;
                         break;
                     case ProjectType.VBNet:
                         psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
