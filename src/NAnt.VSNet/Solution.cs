@@ -318,10 +318,23 @@ namespace NAnt.VSNet {
                                     }
                                     reference.Filename = outputPath;
                                 } else if (_htOutputFiles.Contains(reference.Filename)) {
-                                    // TO-DO : Not sure why we would need this ??
-                                    ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
-                                    if (pRef != null) {
-                                        reference.Filename = pRef.GetOutputPath(configuration);
+                                    // if the reference is an output file of
+                                    // another build configuration of a project
+                                    // and this output file wasn't built before
+                                    // then use the output file for the current 
+                                    // build configuration 
+                                    //
+                                    // eg. a project file might be referencing the
+                                    // the debug assembly of a given project as an
+                                    // assembly reference, but the projects are now 
+                                    // being built in release configuration, so
+                                    // instead of failing the build we use the 
+                                    // release assembly of that project
+                                    if (!System.IO.File.Exists(reference.Filename)) {
+                                        ProjectBase pRef = (ProjectBase) _htProjects[(string) _htOutputFiles[reference.Filename]];
+                                        if (pRef != null) {
+                                            reference.Filename = pRef.GetOutputPath(configuration);
+                                        }
                                     }
                                 }
 
@@ -435,12 +448,6 @@ namespace NAnt.VSNet {
                 if (isReferenceProject) {
                     _htReferenceProjects[projectGuid] = null;
                 } else {
-                    // set-up all other existing projects as dependencies for
-                    // the current project to ensure the project file order
-                    // defined in the build file is retained
-                    foreach (string dependencyGuid in _htProjectFiles.Keys) {
-                        AddProjectDependency(projectGuid, dependencyGuid);
-                    }
                     _htProjectFiles[projectGuid] = projectFileName;
                 }
             }

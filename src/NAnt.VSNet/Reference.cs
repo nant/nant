@@ -280,7 +280,7 @@ namespace NAnt.VSNet {
             if (IsProjectReference) {
                 // get output file of project
                 _referenceFile = Project.GetConfiguration(
-                    configurationSettings.Name).OutputPath; 
+                    configurationSettings.Name).OutputPath;
             }
 
             FileInfo fi = new FileInfo(_referenceFile);
@@ -487,15 +487,14 @@ namespace NAnt.VSNet {
             }
 
             // 5. The HintPath
-            //  - This is resolved before the AssemblyFolders!
             if (ResolveFromHintPath(referenceElement)) {
                 return;
             }
 
-            _copyLocal = _privateSpecified ? _isPrivate : true;
-
-            // TO-DO : Is there actually any hope past this point or should
-            // we just throw an exception ?
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                "Reference to assembly '{0}' could not be resolved.",
+                referenceElement.Attributes["AssemblyName"].Value), 
+                Location.UnknownLocation);
         }
 
         /// <summary>
@@ -547,12 +546,25 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <returns>
         /// <see langword="true" /> if the assembly could be located in the
-        /// <c>HintPath</c> directory; otherwise, see langword="false" />.
+        /// <c>HintPath</c> directory; otherwise, <see langword="false" />.
         /// </returns>
         private bool ResolveFromHintPath(XmlElement referenceElement) {
             if (referenceElement.Attributes["HintPath"] != null) {
-                return ResolveFromPath(Path.Combine(_projectSettings.ProjectDirectory.FullName, 
+                string referencePath = Path.GetFullPath(Path.Combine(
+                    _projectSettings.ProjectDirectory.FullName, 
                     referenceElement.Attributes["HintPath"].Value));
+                if (!ResolveFromPath(referencePath)) {
+                    // allow a not-existing file to be a valid reference,
+                    // as the reference might point to an output file of
+                    // a project that was not referenced as a project
+                    FileInfo fileReference = new FileInfo(referencePath);
+                    _referenceFile = fileReference.FullName;
+                    _baseDirectory = fileReference.Directory;
+                    _referenceTimeStamp = GetTimestamp(_referenceFile);
+                    _copyLocal = _privateSpecified ? _isPrivate : true;
+                }
+                return true;
+
             }
             return false;
         }
