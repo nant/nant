@@ -18,6 +18,7 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
+using System.IO;
 using System.Xml;
 
 using NAnt.Core;
@@ -90,8 +91,8 @@ namespace NAnt.NUnit.Types {
         /// the test module is located.
         /// </summary> 
         [TaskAttribute("outputdir", Required=false)]
-        public string OutputDirectory {
-            get { return (_data.OutputDirectory != null) ? Project.GetFullPath(_data.OutputDirectory) : null; }
+        public DirectoryInfo OutputDirectory {
+            get { return _data.OutputDirectory; }
             set { _data.OutputDirectory = value; }
         }
 

@@ -18,10 +18,9 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
+using System.IO;
 
 using NUnit.Framework;
-
-using NAnt.Core.Util;
 
 namespace NAnt.NUnit.Types {
     /// <summary>
@@ -34,7 +33,7 @@ namespace NAnt.NUnit.Types {
         private string _extension;
         private bool _usefile;
         private FormatterType _formatterType = FormatterType.Plain;
-        private string _outputDirectory;
+        private DirectoryInfo _outputDirectory;
 
         #endregion Private Instance Fields
 
@@ -78,9 +77,9 @@ namespace NAnt.NUnit.Types {
         /// <value>
         /// The directory where the output file should be written to.
         /// </value>
-        public string OutputDirectory {
+        public DirectoryInfo OutputDirectory {
             get { return _outputDirectory; }
-            set { _outputDirectory = StringUtils.ConvertEmptyToNull(value); }
+            set { _outputDirectory = value; }
         }
 
         #endregion Public Instance Properties

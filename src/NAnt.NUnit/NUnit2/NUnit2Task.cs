@@ -212,10 +212,11 @@ namespace NAnt.NUnit2.Tasks {
                                     
                                     if (formatter.OutputDirectory != null) {
                                         // make sure output directory exists
-                                        Directory.CreateDirectory(formatter.OutputDirectory);
+                                        formatter.OutputDirectory.Create();
 
                                         // combine output directory and result filename
-                                        outputFile = Path.Combine(formatter.OutputDirectory, Path.GetFileName(outputFile));
+                                        outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
+                                            Path.GetFileName(outputFile));
                                     }
 
                                     // copy the temp result file to permanent location
@@ -240,10 +241,11 @@ namespace NAnt.NUnit2.Tasks {
 
                                     if (formatter.OutputDirectory != null) {
                                         // make sure output directory exists
-                                        Directory.CreateDirectory(formatter.OutputDirectory);
+                                        formatter.OutputDirectory.Create();
 
                                         // combine output directory and result filename
-                                        outputFile = Path.Combine(formatter.OutputDirectory, Path.GetFileName(outputFile));
+                                        outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
+                                            Path.GetFileName(outputFile));
                                     }
 
                                     writer = new StreamWriter(outputFile);
