@@ -177,7 +177,7 @@
     
     <target name="self-userdoc" depends="init">
         <!-- use ndoc and NAnt.Documenter to build user doc if they need it -->
-		<ifnot uptodatefile="${build.dir}/doc/help/tasks.html">
+		<ifnot uptodatefile="${build.dir}/doc/help/*.html">
 		    <comparefiles basedir="${build.dir}/bin">
                 <!-- make sure the tasks/types are not new -->
                 <includes name="NAnt.Core.dll" />
@@ -185,7 +185,7 @@
                 <!-- make sure the documenter is not new -->
                 <includes name="NDoc.Documenter.*.dll"/>
 		    </comparefiles>
-<!--
+<!-- don't build this for now. Just for testing.
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -199,8 +199,7 @@
                     </documenter>
                 </documenters>
             </ndoc>
--->
-		    
+-->		    
 		    <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -251,41 +250,49 @@
     </target>
 
     <target name="self-sdkdoc" depends="init">
-        <ndoc>
-            <assemblies basedir="${build.dir}/bin">
+        <!-- use ndoc to build sdk doc if they are not uptodate-->
+	    <ifnot uptodatefile="${build.dir}/doc/sdk/*.chm">
+		    <comparefiles basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
-                <includes name="NAnt.*Tasks.dll" />
+                <includes name="*Tasks.dll" />
                 <includes name="NAnt.NUnit.dll" />
-            </assemblies>
-            <documenters>
-                <documenter name="MSDN">
-                    <property name="OutputDirectory" value="${build.dir}/doc/sdk" />
-                    <property name="OutputTarget" value="HtmlHelp" />
-                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
-                    <property name="HtmlHelpName" value="NAnt-SDK" />
-                    <property name="IncludeFavorites" value="False" />
-                    <property name="Title" value="NAnt SDK Documentation - v.${project.version}" />
-                    <property name="SplitTOCs" value="False" />
-                    <property name="DefaulTOC" value="" />
-                    <property name="ShowVisualBasic" value="True" />
-                    <property name="ShowMissingSummaries" value="${build.debug}" />
-                    <property name="ShowMissingRemarks" value="${build.debug}" />
-                    <property name="ShowMissingParams" value="${build.debug}" />
-                    <property name="ShowMissingReturns" value="${build.debug}" />
-                    <property name="ShowMissingValues" value="${build.debug}" />
-                    <property name="DocumentAttributes" value="True" />
-                    <property name="ShowTypeIdInAttributes" value="True" />
-                    <property name="DocumentInternals" value="False" />
-                    <property name="DocumentPrivates" value="False" />
-                    <property name="DocumentProtected" value="True" />
-                    <property name="DocumentEmptyNamespaces" value="False" />
-                    <property name="IncludeAssemblyVersion" value="False" />
-                    <property name="CopyrightText" value="Copyright (C) 2001-2003 Gerry Shaw" />
-                    <property name="CopyrightHref" value="http://nant.sourceforge.net" />
-                    <property name="EditorBrowsableFilter" value="Off" />
-                </documenter>
-            </documenters>
-        </ndoc>
+		    </comparefiles>
+            <ndoc>
+                <assemblies basedir="${build.dir}/bin">
+                    <includes name="NAnt.Core.dll" />
+                    <includes name="NAnt.*Tasks.dll" />
+                    <includes name="NAnt.NUnit.dll" />
+                </assemblies>
+                <documenters>
+                    <documenter name="MSDN">
+                        <property name="OutputDirectory" value="${build.dir}/doc/sdk" />
+                        <property name="OutputTarget" value="HtmlHelp" />
+                        <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="HtmlHelpName" value="NAnt-SDK" />
+                        <property name="IncludeFavorites" value="False" />
+                        <property name="Title" value="NAnt SDK Documentation - v.${project.version}" />
+                        <property name="SplitTOCs" value="False" />
+                        <property name="DefaulTOC" value="" />
+                        <property name="ShowVisualBasic" value="True" />
+                        <property name="ShowMissingSummaries" value="${build.debug}" />
+                        <property name="ShowMissingRemarks" value="${build.debug}" />
+                        <property name="ShowMissingParams" value="${build.debug}" />
+                        <property name="ShowMissingReturns" value="${build.debug}" />
+                        <property name="ShowMissingValues" value="${build.debug}" />
+                        <property name="DocumentAttributes" value="True" />
+                        <property name="ShowTypeIdInAttributes" value="True" />
+                        <property name="DocumentInternals" value="False" />
+                        <property name="DocumentPrivates" value="False" />
+                        <property name="DocumentProtected" value="True" />
+                        <property name="DocumentEmptyNamespaces" value="False" />
+                        <property name="IncludeAssemblyVersion" value="False" />
+                        <property name="CopyrightText" value="Copyright (C) 2001-2003 Gerry Shaw" />
+                        <property name="CopyrightHref" value="http://nant.sourceforge.net" />
+                        <property name="EditorBrowsableFilter" value="Off" />
+                    </documenter>
+                </documenters>
+            </ndoc>
+        </ifnot>
     </target>
     <target name="schema" depends="init">
         <!-- generate schema -->
