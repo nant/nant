@@ -97,7 +97,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2
          domSetup.ConfigurationFile = configFilePath;
          domSetup.ApplicationName = "NAnt NUnit2.0 Remote Domain";
          
-         return AppDomain.CreateDomain(domSetup.ApplicationName, null, domSetup);
+         return AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
       }
 
       private RemoteTestRunner CreateTestRunner(AppDomain domain)

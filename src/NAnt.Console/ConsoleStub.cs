@@ -101,7 +101,7 @@ namespace SourceForge.NAnt {
                 }
 
                 //create the domain.
-                executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, null, myDomainSetup);
+                executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, myDomainSetup);
 
                 logger.Debug(string.Format(
                     CultureInfo.InvariantCulture,
