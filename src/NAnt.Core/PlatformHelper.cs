@@ -33,9 +33,7 @@ namespace NAnt.Core {
         public static readonly bool PInvokeOK;
         
         static PlatformHelper() {
-            //
             // check a class in mscorlib to determine if we're running on Mono
-            // 
             if (Type.GetType("Mono.Runtime", false) != null) {
                 // we're on Mono
                 IsMono = true;
@@ -45,13 +43,13 @@ namespace NAnt.Core {
             
             PlatformID platformID = System.Environment.OSVersion.Platform;
 
-            if ((platformID == PlatformID.Win32NT) || (platformID == PlatformID.Win32Windows)) {
+            if (platformID == PlatformID.Win32NT || platformID == PlatformID.Win32Windows) {
                 IsWindows = true;
             } else {
                 IsWindows = false;
             }
 
-            if (IsMono && (int)platformID == 128) {
+            if (IsMono && (int) platformID == 128) {
                 IsUnix = true;
             }
 
@@ -73,13 +71,13 @@ namespace NAnt.Core {
                 UInt32 MaxCompLen = 0;
 
                 long Ret = PInvokeHelper.GetVolumeInformationWrapper(path, 
-                        VolLabel, 
-                        (UInt32)VolLabel.Capacity, 
-                        ref SerNum, 
-                        ref MaxCompLen, 
-                        ref VolFlags, 
-                        FSName, 
-                        (UInt32)FSName.Capacity);
+                    VolLabel, 
+                    (UInt32) VolLabel.Capacity, 
+                    ref SerNum, 
+                    ref MaxCompLen, 
+                    ref VolFlags, 
+                    FSName, 
+                    (UInt32) FSName.Capacity);
 
                 return (((VolumeFlags) VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
             }
@@ -91,13 +89,11 @@ namespace NAnt.Core {
             }
         }
         
-        class PInvokeHelper
-        {
+        private class PInvokeHelper {
             [DllImport("kernel32.dll")]
             private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
 
-            public static long GetVolumeInformationWrapper(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize)
-            {
+            public static long GetVolumeInformationWrapper(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize) {
                 return GetVolumeInformation(PathName, VolumeNameBuffer, VolumeNameSize, ref VolumeSerialNumber, ref MaximumComponentLength, ref FileSystemFlags, FileSystemNameBuffer, FileSystemNameSize);
             }
         }
