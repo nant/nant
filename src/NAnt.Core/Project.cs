@@ -134,9 +134,10 @@ namespace NAnt.Core {
         private LocationMap _locationMap = new LocationMap();
         private PropertyDictionary _properties = null;
         private PropertyDictionary _frameworkNeutralProperties = null;
+        private XmlNode _configurationNode;
 
         // info about frameworks
-        private FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
+        private FrameworkInfoDictionary _frameworks = new FrameworkInfoDictionary();
         private FrameworkInfo _runtimeFramework;
         private FrameworkInfo _targetFramework;
 
@@ -158,38 +159,42 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Initializes a new <see cref="Project" /> class with the given 
-        /// document and message threshold and with default indentation 
-        /// level (0).
-        /// </summary>
-        /// <param name="doc">Any valid build format will do.</param>
-        /// <param name="threshold">The message threshold.</param>
-        public Project(XmlDocument doc, Level threshold) : this(doc, threshold, 0) {
-        }
-
-        /// <summary>
-        /// Initializes a new <see cref="Project" /> class with the given 
         /// document, message threshold and indentation level.
         /// </summary>
         /// <param name="doc">Any valid build format will do.</param>
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
         public Project(XmlDocument doc, Level threshold, int indentLevel) {
+            // initialize project
             CtorHelper(doc, threshold, indentLevel);
         }
 
         /// <summary>
         /// Initializes a new <see cref="Project" /> class with the given 
-        /// source, message threshold and default indentation level.
+        /// document, message threshold and indentation level, and using 
+        /// the specified <see cref="XmlNode" /> to load internal configuration
+        /// settings.
         /// </summary>
-        /// <param name="uriOrFilePath">
-        /// <para>The full path to the build file.</para>
-        /// <para> This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
-        /// </param>
+        /// <param name="doc">Any valid build format will do.</param>
         /// <param name="threshold">The message threshold.</param>
+        /// <param name="indentLevel">The project indentation level.</param>
+        /// <param name="configurationNode">The <see cref="XmlNode" /> NAnt should use to initialize configuration settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="configurationNode" /> is <see langword="null" />.</exception>
         /// <remarks>
-        /// If the source is a uri of form 'file:///path' then use the path part.
+        /// This constructor is useful for developers using NAnt as a class
+        /// library.
         /// </remarks>
-        public Project(string uriOrFilePath, Level threshold) : this(uriOrFilePath, threshold, 0) {
+        public Project(XmlDocument doc, Level threshold, int indentLevel, XmlNode configurationNode) {
+            if (configurationNode == null) {
+                throw new ArgumentNullException("configurationNode");
+            }
+
+            // set configuration node to use for loading internal configuration 
+            // settings
+            _configurationNode = configurationNode;
+
+            // initialize project
+            CtorHelper(doc, threshold, indentLevel);
         }
 
         /// <summary>
@@ -223,6 +228,52 @@ namespace NAnt.Core {
                     path = uriOrFilePath;
                 }
             }
+
+            // initialize project
+            CtorHelper(LoadBuildFile(path), threshold, indentLevel);
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="Project" /> class with the given 
+        /// source, message threshold and indentation level, and using 
+        /// the specified <see cref="XmlNode" /> to load internal configuration
+        /// settings.
+        /// </summary>
+        /// <param name="uriOrFilePath">
+        /// <para>The full path to the build file.</para>
+        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// </param>
+        /// <param name="threshold">The message threshold.</param>
+        /// <param name="indentLevel">The project indentation level.</param>
+        /// <param name="configurationNode">The <see cref="XmlNode" /> NAnt should use to initialize configuration settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="configurationNode" /> is <see langword="null" />.</exception>
+        /// <remarks>
+        /// If the source is a uri of form 'file:///path' then use the path part.
+        /// </remarks>
+        public Project(string uriOrFilePath, Level threshold, int indentLevel, XmlNode configurationNode) {
+            string path = uriOrFilePath;
+
+            //if the source is not a valid uri, pass it thru.
+            //if the source is a file uri, pass the localpath of it thru.
+            try {
+                Uri testURI = new Uri(uriOrFilePath);
+
+                if (testURI.IsFile) {
+                    path = testURI.LocalPath;
+                }
+            } catch (Exception ex) {
+                logger.Debug("Error creating URI in project constructor. Moving on... ", ex);
+            } finally {
+                if (path == null) {
+                    path = uriOrFilePath;
+                }
+            }
+
+            // set configuration node to use for loading internal configuration 
+            // settings
+            _configurationNode = configurationNode;
+
+            // initialize project
             CtorHelper(LoadBuildFile(path), threshold, indentLevel);
         }
 
@@ -336,15 +387,21 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Table of framework info - accessible by tasks and others
+        /// Gets a collection of available .NET frameworks.
         /// </summary>
-        public FrameworkInfoDictionary FrameworkInfoDictionary {
-            get { return _frameworkInfoDictionary; }
+        /// <value>
+        /// A collection of available .NET frameworks.
+        /// </value>
+        public FrameworkInfoDictionary Frameworks {
+            get { return _frameworks; }
         }
 
         /// <summary>
-        /// This is the framework in which NAnt is currently running.
+        /// Gets the framework in which NAnt is currently running.
         /// </summary>
+        /// <value>
+        /// The framework in which NAnt is currently running.
+        /// </value>
         public FrameworkInfo RuntimeFramework {
             get { return _runtimeFramework; }
             set { _runtimeFramework = value; }
@@ -430,6 +487,40 @@ namespace NAnt.Core {
         /// </value>
         public XmlDocument Document {
             get { return _doc; }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="XmlNode" /> NAnt should use to initialize 
+        /// configuration settings.
+        /// </summary>
+        /// <value>
+        /// The <see cref="XmlNode" /> NAnt should use to initialize 
+        /// configuration settings.
+        /// </value>
+        /// <exception cref="BuildException">
+        /// No explicit configuration node is set and <c>nant</c> section is 
+        /// not available in configuration file of current <see cref="AppDomain" />.
+        /// </exception>
+        /// <remarks>
+        /// By default, NAnt will use the <c>nant</c> section of the configuration 
+        /// file of the <see cref="AppDomain" /> in which NAnt is running.
+        /// </remarks>
+        public XmlNode ConfigurationNode {
+            get { 
+                if (_configurationNode == null) {
+                    _configurationNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
+
+                    if (_configurationNode == null) { 
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "The NAnt configuration settings in file '{0}' could" 
+                            + " not be loaded.  Please ensure this file is available"
+                            + " and contains a 'nant' settings node.", 
+                            AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
+                    }
+
+                }
+                return _configurationNode; 
+            }
         }
 
         /// <remarks>
@@ -1045,7 +1136,12 @@ namespace NAnt.Core {
         /// <param name="doc">An <see cref="XmlDocument" /> representing the project definition.</param>
         /// <param name="threshold">The project message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="doc" /> is <see langword="null" />.</exception>
         protected void CtorHelper(XmlDocument doc, Level threshold, int indentLevel) {
+            if (doc == null) {
+                throw new ArgumentNullException("doc");
+            }
+
             string newBaseDir = null;
 
             _properties = new PropertyDictionary(this);
@@ -1071,7 +1167,8 @@ namespace NAnt.Core {
             // configure platform properties
             ConfigurePlatformProperties();
 
-            //fill the namespace manager up. So we can make qualified xpath expressions.
+            // fill the namespace manager up, so we can make qualified xpath 
+            // expressions
             if (StringUtils.IsNullOrEmpty(doc.DocumentElement.NamespaceURI)) {
                 string defURI;
 
@@ -1085,15 +1182,13 @@ namespace NAnt.Core {
 
                 attr.Value = defURI;
                 doc.DocumentElement.Attributes.Append(attr);
-                //if(!defURI.Equals(doc.DocumentElement.NamespaceURI))
-                //    throw new BuildException(string.Format("Default namespace is bad! {0}!={1}", defURI, doc.DocumentElement.NamespaceURI));
             }
 
             _nm.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
 
-            //check to make sure that the root element in named correctly
+            // check to make sure that the root element in named correctly
             if (!doc.DocumentElement.LocalName.Equals(RootXml)) {
-                throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
                     "Root element in '{0}' must be named '{1}'.", doc.BaseURI, RootXml));
             }
 
@@ -1131,9 +1226,8 @@ namespace NAnt.Core {
             BaseDirectory = newBaseDir;
 
             // load settings out of settings file
-            XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
             ProjectSettingsLoader psl = new ProjectSettingsLoader(this);
-            psl.ProcessSettings(nantNode);
+            psl.ProcessSettings();
 
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();

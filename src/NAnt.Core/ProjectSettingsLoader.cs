@@ -99,21 +99,14 @@ namespace NAnt.Core {
         /// Loads and processes settings from the specified <see cref="XmlNode" /> 
         /// of the configuration file.
         /// </summary>
-        public void ProcessSettings(XmlNode nantNode) {
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
-
-            if (nantNode == null) { 
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The NAnt configuration settings in file '{0}' could not be" +
-                    " located.  Please ensure this file is available and contains" 
-                    + " a 'nant' settings node."));
-            }
-
+        public void ProcessSettings() {
             // process the framework-neutral properties
-            ProcessFrameworkNeutralProperties(nantNode.SelectNodes("frameworks/properties/property"));
+            ProcessFrameworkNeutralProperties(Project.ConfigurationNode.SelectNodes(
+                "frameworks/properties/property"));
 
             // process the framework nodes of the current platform
-            ProcessFrameworks(nantNode.SelectSingleNode("frameworks/platform[@name='" + Project.PlatformName + "']"));
+            ProcessFrameworks(Project.ConfigurationNode.SelectSingleNode(
+                "frameworks/platform[@name='" + Project.PlatformName + "']"));
 
             // only scan the extension assemblies for the runtime framework once
             if (!ScannedExtensions) {
@@ -134,7 +127,8 @@ namespace NAnt.Core {
             // and have it scan not only for tasks but also for types and functions ?
 
             // process global properties
-            ProcessGlobalProperties(nantNode.SelectNodes("properties/property"));
+            ProcessGlobalProperties(Project.ConfigurationNode.SelectNodes(
+                "properties/property"));
         }
 
         #endregion Public Instance Methods
@@ -288,7 +282,7 @@ namespace NAnt.Core {
                     }
 
                     // framework is valid, so add it to framework dictionary
-                    Project.FrameworkInfoDictionary.Add(info.Name, info);
+                    Project.Frameworks.Add(info.Name, info);
 
                     if (isRuntimeFramework) {
                         // framework matches current runtime, so set it as 
@@ -326,8 +320,8 @@ namespace NAnt.Core {
             }
 
             if (defaultTargetFramework != null && defaultTargetFramework != "auto") {
-                if (Project.FrameworkInfoDictionary.ContainsKey(defaultTargetFramework)) {
-                    Project.TargetFramework = Project.FrameworkInfoDictionary[defaultTargetFramework];
+                if (Project.Frameworks.ContainsKey(defaultTargetFramework)) {
+                    Project.TargetFramework = Project.Frameworks[defaultTargetFramework];
                 } else {
                     Project.Log(Level.Warning, "The default targetframework" +
                         " '{0}' is not valid. Defaulting to the runtime framework" 
