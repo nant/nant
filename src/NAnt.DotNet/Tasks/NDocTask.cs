@@ -33,6 +33,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.DotNet.Types;
+
 namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Runs NDoc to create documentation.
@@ -104,7 +106,7 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private XmlNodeList _docNodes;
-        private FileSet _assemblies = new FileSet();
+        private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileSet _summaries = new FileSet();
         private RawXml _documenters;
 
@@ -116,7 +118,7 @@ namespace NAnt.DotNet.Tasks {
         /// The set of assemblies to document.
         /// </summary>
         [BuildElement("assemblies", Required=true)]
-        public FileSet Assemblies {
+        public AssemblyFileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
         }
@@ -167,28 +169,12 @@ namespace NAnt.DotNet.Tasks {
                 Summaries.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            // fix references to system assemblies
-            if (Project.TargetFramework != null) {
-                foreach (string pattern in Assemblies.Includes) {
-                    if (Path.GetFileName(pattern) == pattern) {
-                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                        string localPath = Path.Combine(Assemblies.BaseDirectory.FullName, pattern);
-                        string fullPath = Path.Combine(frameworkDir, pattern);
-
-                        if (!File.Exists(localPath) && File.Exists(fullPath)) {
-                            // found a system reference
-                            Assemblies.FileNames.Add(fullPath);
-                        }
-                    }
-                }
-            }
-
             // Make sure there is at least one included assembly.  This can't
             // be done in the InitializeTask() method because the files might
             // not have been built at startup time.
             if (Assemblies.FileNames.Count == 0) {
-                string msg = "There must be at least one included assembly.";
-                throw new BuildException(msg, Location);
+                throw new BuildException("There must be at least one included"
+                    + " assembly.", Location);
             }
 
             // create NDoc Project
@@ -239,7 +225,9 @@ namespace NAnt.DotNet.Tasks {
                 string docPath = Path.ChangeExtension(assemblyPath, ".xml");
                 writer.WriteStartElement("assembly");
                 writer.WriteAttributeString("location", assemblyPath);
-                writer.WriteAttributeString("documentation", docPath);
+                if (File.Exists(docPath)) {
+                    writer.WriteAttributeString("documentation", docPath);
+                }
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -253,9 +241,10 @@ namespace NAnt.DotNet.Tasks {
                     tr.MoveToContent();   // skip XmlDeclaration  and Processing Instructions                                               
                     sb.Append(tr.ReadOuterXml());
                     tr.Close();
-                } catch (IOException e) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}.", summaryPath);
-                    throw new BuildException(msg, Location, e);
+                } catch (IOException ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Failed to read ndoc namespace summary file '{0}'.", 
+                        summaryPath), Location, ex);
                 }
             }
             writer.WriteRaw(sb.ToString());
