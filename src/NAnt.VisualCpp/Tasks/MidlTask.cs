@@ -415,9 +415,9 @@ namespace NAnt.VisualCpp.Tasks {
             foreach (Option define in _defines) {
                 if (IfDefined && !UnlessDefined) {
                     if (define.Value == null) {
-                        writer.WriteLine("/D " + define.Name);
+                        writer.WriteLine("/D " + define.OptionName);
                     } else {
-                        writer.WriteLine("/D " + define.Name + "=" + define.Value);
+                        writer.WriteLine("/D " + define.OptionName + "=" + define.Value);
                     }
                 }
             }
