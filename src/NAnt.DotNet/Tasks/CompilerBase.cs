@@ -28,8 +28,7 @@ using System.Text.RegularExpressions;
 
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tasks 
-{
+namespace SourceForge.NAnt.Tasks {
 
     /// <summary>Provides the abstract base class for a Microsoft compiler task.</summary>
     public abstract class CompilerBase : ExternalProgramBase {
@@ -88,7 +87,13 @@ namespace SourceForge.NAnt.Tasks
         [FileSet("sources")]
         public FileSet Sources { get { return _sources; } set { _sources = value; }}
 
-        public override string ProgramFileName  { get { return Name; } }
+        public override string ProgramFileName  { 
+            get { 
+                // Instead of relying on the .NET compilers to be in the user's path point
+                // to the compiler directly since it lives in the .NET Framework's runtime directory
+                return Path.Combine(Path.GetDirectoryName(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()), Name);
+            } 
+        }
 
         public override string ProgramArguments { get { return "@" + _responseFileName; } }
 
