@@ -71,7 +71,7 @@ namespace NAnt.VSNet.Tasks {
     ///   <para>Compiles projects A, B and C, using the output of project X as a reference.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution configuration="release">        
+    ///    <solution configuration="release">
     ///        <projects>
     ///            <includes name="A\A.csproj" />
     ///            <includes name="B\b.vbproj" />
@@ -86,7 +86,7 @@ namespace NAnt.VSNet.Tasks {
     ///   <para>Compiles all of the projects in the solution except for project A.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution solutionfile="test.sln" configuration="release">        
+    ///    <solution solutionfile="test.sln" configuration="release">
     ///        <excludeprojects>
     ///            <includes name="A\A.csproj" />
     ///        </excludeprojects>
@@ -98,7 +98,7 @@ namespace NAnt.VSNet.Tasks {
     ///   the build to work without WebDAV.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution solutionfile="test.sln" configuration="release">        
+    ///    <solution solutionfile="test.sln" configuration="release">
     ///        <webmap>
     ///            <map url="http://localhost/A/A.csproj c:\inetpub\wwwroot\A\A.csproj" />
     ///        </webmap>
@@ -108,7 +108,7 @@ namespace NAnt.VSNet.Tasks {
     ///   <para>Compiles all of the projects in the solution placing compiled outputs in c:\temp.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution solutionfile="test.sln" configuration="release" outputdir="c:\temp"/>        
+    ///    <solution solutionfile="test.sln" configuration="release" outputdir="c:\temp"/>
     ///     ]]>
     ///   </code>
     /// </example>
