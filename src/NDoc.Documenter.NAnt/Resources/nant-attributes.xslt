@@ -64,19 +64,9 @@
     <xsl:template name="NestedElement">
         <xsl:param name="elementTypeParam" select="'#'" />
         
-
-        
         <xsl:variable name="elementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')"/>
-
-        <xsl:comment>
-            Doing nested element for <xsl:value-of select="$elementType" />.
-        </xsl:comment>
-        
-        <xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$elementType"/></xsl:comment>
-        <xsl:variable name="href" select="concat('../',string(NAntUtil:GetHRef($elementType)))" />
-        
+        <xsl:variable name="href" select="string(NAntUtil:GetHRef($elementType))" />
         <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)"/>
-        
         <xsl:variable name="childElementName">
             <xsl:choose>
                 <xsl:when test="property[@name='ChildElementName'] and not(property[@name='ChildElementName']/@value = '')"><xsl:value-of select="property[@name='ChildElementName']/@value"/></xsl:when>
@@ -84,17 +74,12 @@
                 <xsl:otherwise></xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-
-        <xsl:comment>
-            Doing nested element for <xsl:value-of select="$elementType" />.
-        </xsl:comment>
-
         <h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4>
         
         <!-- Required:<xsl:value-of select="property[@name='Required']/@value"/> -->
-        
+       
         <xsl:if test="not($childElementName = '')">
-            <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value"/> ... /&gt;</h5>        
+            <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value"/> ... /&gt;</h5>
             <p />
         </xsl:if>
         
@@ -116,10 +101,9 @@
         <xsl:if test="not($childElementName = '')">
             <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value"/> ... /&gt;</h5>
             <h5>...</h5>
-        </xsl:if>        
+        </xsl:if>
         
         <h4>&lt;/<xsl:value-of select="property[@name='Name']/@value"/>&gt;</h4>
-
     </xsl:template>
     
     <!-- match TaskAttribute property tag -->

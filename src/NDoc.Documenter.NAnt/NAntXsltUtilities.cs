@@ -181,7 +181,7 @@ namespace NDoc.Documenter.NAnt {
                 if (fileName == null) {
                     return string.Empty;
                 } else {
-                    return fileName;
+                    return "../" + fileName;
                 }
             } else {
                 //a system cref
