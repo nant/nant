@@ -132,7 +132,7 @@ namespace NAnt.Core.Tasks {
                         // resolve program to full path relative to project's base
                         // directory if program contains directory information
                         return Path.GetFullPath(Path.Combine(Path.GetFullPath(
-                            BaseDirectory), FileName));
+                            Project.BaseDirectory), FileName));
                     } else {
                         // just use the filename to scan the directories on the 
                         // PATH
