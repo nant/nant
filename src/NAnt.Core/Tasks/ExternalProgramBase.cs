@@ -73,7 +73,7 @@ namespace NAnt.Core.Tasks {
         /// </remarks>
         [FrameworkConfigurable("exename")]
         public virtual string ExeName {
-            get { return (_exeName != null) ? _exeName : Name; }
+            get { return (_exeName != null) ? _exeName : Name + ".exe"; }
             set { _exeName = value; }
         }
 
@@ -419,7 +419,7 @@ namespace NAnt.Core.Tasks {
                     ErrorWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
-                        writer.Write(logContents);
+                        writer.WriteLine(logContents);
                         doAppend = true;
                         writer.Close();
                     }
@@ -431,7 +431,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Determines the path of the external program that should be executed.
         /// </summary>
-        /// <returns>A fully qualifies pathname including the program name.</returns>
+        /// <returns>
+        /// A fully qualifies pathname including the program name.
+        /// </returns>
         /// <exception cref="BuildException">The task is not available or not configured for the current framework.</exception>
         private string DetermineFilePath() {
             string fullPath = "";
@@ -459,7 +461,7 @@ namespace NAnt.Core.Tasks {
                     case LocationType.FrameworkDir:
                         if (Project.TargetFramework.FrameworkDirectory != null) {
                             string frameworkDir = Project.TargetFramework.FrameworkDirectory.FullName;
-                            fullPath = Path.Combine(frameworkDir, ExeName + ".exe");
+                            fullPath = Path.Combine(frameworkDir, ExeName);
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
@@ -470,7 +472,7 @@ namespace NAnt.Core.Tasks {
                     case LocationType.FrameworkSdkDir:
                         if (Project.TargetFramework.SdkDirectory != null) {
                             string sdkDirectory = Project.TargetFramework.SdkDirectory.FullName;
-                            fullPath = Path.Combine(sdkDirectory, ExeName + ".exe");
+                            fullPath = Path.Combine(sdkDirectory, ExeName);
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
