@@ -126,11 +126,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\AbstractSvnTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Tasks\CheckoutTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -146,16 +141,10 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\SvnTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Tasks\UpdateTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
-                <Folder RelPath = "Types\" />
             </Include>
         </Files>
     </CSHARP>

@@ -18,6 +18,7 @@
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -73,9 +74,9 @@ namespace NAnt.SourceControl.Tasks {
 
 		private string _commandName;
 		private string _commandLine = null;
-        private OptionCollection _commandOptions = new OptionCollection();
+        private Hashtable _commandOptions = new Hashtable();
 		private string _commandLineArguments;
-        private OptionCollection _globalOptions = new OptionCollection();
+        private Hashtable _globalOptions = new Hashtable();
 
 		private FileInfo _ssh;
         private FileSet _fileset = new FileSet();
@@ -100,6 +101,43 @@ namespace NAnt.SourceControl.Tasks {
 
         #endregion Protected Instance Constructors
 
+		#region Protected Instance Properties
+		/// <summary>
+		/// The name of the passfile, overriden for each version control system (VCS).
+		/// </summary>
+		protected abstract string PassFileName {get;}
+
+		/// <summary>
+		/// The path to the specific home directory of the version control system,
+		///		this can be where the binary files are kept, or other app
+		///		information.
+		/// </summary>
+		protected DirectoryInfo VcsHome {
+			get {
+				string vcsHome =
+					Environment.GetEnvironmentVariable(this.VcsHomeEnv);
+				if (null != vcsHome) {
+					if (Directory.Exists(vcsHome)) {
+						return new DirectoryInfo(vcsHome);
+					}
+				}
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// The environment variable that defines where the version control system
+		///		(VCS) home variable is kept.
+		/// </summary>
+		protected abstract string VcsHomeEnv {get;}
+
+		/// <summary>
+		/// The name of the version control system (VCS) executable file.
+		/// </summary>
+		protected abstract string VcsExeName {get;}
+
+		#endregion
+
         #region Public Instance Properties
 
 		/// <summary>
@@ -109,11 +147,6 @@ namespace NAnt.SourceControl.Tasks {
 			get {return this._exeName;}
 			set {this._exeName = value;}
 		}
-
-		/// <summary>
-		/// The name of the version control system (VCS) executable file.
-		/// </summary>
-		protected abstract string VcsExeName {get;}
 
         /// <summary>
         /// <para>
@@ -178,41 +211,19 @@ namespace NAnt.SourceControl.Tasks {
         }
 
 		/// <summary>
-		/// The name of the passfile, overriden for each version control system (VCS).
+		/// Holds a collection of globally available options.
 		/// </summary>
-		protected abstract string PassFileName {get;}
-
-		/// <summary>
-		/// The path to the specific home directory of the version control system,
-		///		this can be where the binary files are kept, or other app
-		///		information.
-		/// </summary>
-		protected DirectoryInfo VcsHome {
-			get {
-				string vcsHome =
-					Environment.GetEnvironmentVariable(this.VcsHomeEnv);
-				if (null != vcsHome) {
-					if (Directory.Exists(vcsHome)) {
-						return new DirectoryInfo(vcsHome);
-					}
-				}
-				return null;
-			}
+		public Hashtable GlobalOptions {
+			get {return this._globalOptions;}
+			set {this._globalOptions = value;}
 		}
-
-		/// <summary>
-		/// The environment variable that defines where the version control system
-		///		(VCS) home variable is kept.
-		/// </summary>
-		protected abstract string VcsHomeEnv {get;}
 
         /// <summary>
         /// A collection of options that can be used to modify the default behavoir
         ///		of the version control commands.  See the sub-tasks for implementation
         ///		specifics.
         /// </summary>
-        [BuildElementCollection("commandoptions", "option")]
-        public OptionCollection CommandOptions {
+        public Hashtable CommandOptions {
             get { return _commandOptions;}
 			set { this._commandOptions = value; }
         }
@@ -231,14 +242,6 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		public override string ProgramArguments {
 			get {return this._commandLine;}
-		}
-
-		/// <summary>
-		/// Holds a collection of globally available options.
-		/// </summary>
-		[BuildElementCollection("globaloptions", "option")]
-		public OptionCollection GlobalOptions {
-			get {return this._globalOptions;}
 		}
 
 		/// <summary>
@@ -272,6 +275,50 @@ namespace NAnt.SourceControl.Tasks {
 		/// The environment name for the ssh variable.
 		/// </summary>
 		protected abstract string SshEnv {get;}
+
+		/// <summary>
+		/// Adds a new global option if none exists.  If one does exist then
+		///		the use switch is toggled on or of.
+		/// </summary>
+		/// <param name="name">The common name of the option.</param>
+		/// <param name="value">The option value or command line switch
+		///		of the option.</param>
+		/// <param name="on"><code>true</code> if the option should be
+		///		appended to the commandline, otherwise <code>false</code>.</param>
+		protected void SetGlobalOption (String name, String value, bool on) {
+			Option option;
+			if (this.GlobalOptions.Contains(name)) {
+				option = (Option)this.GlobalOptions[name];
+			} else {
+				option = new Option();
+				option.OptionName = name;
+				option.Value = value;
+				this.GlobalOptions.Add(option.Name, option);
+			} 
+			option.IfDefined = on;
+		}
+
+		/// <summary>
+		/// Adds a new command option if none exists.  If one does exist then
+		///		the use switch is toggled on or of.
+		/// </summary>
+		/// <param name="name">The common name of the option.</param>
+		/// <param name="value">The option value or command line switch
+		///		of the option.</param>
+		/// <param name="on"><code>true</code> if the option should be
+		///		appended to the commandline, otherwise <code>false</code>.</param>
+		protected void SetCommandOption (String name, String value, bool on) {
+			Option option;
+			if (this.CommandOptions.Contains(name)) {
+				option = (Option)this.CommandOptions[name];
+			} else {
+				option = new Option();
+				option.OptionName = name;
+				option.Value = value;
+				this.CommandOptions.Add(name, option);
+			} 
+			option.IfDefined = on;
+		}
 
         #endregion Public Instance Properties
 
@@ -311,6 +358,10 @@ namespace NAnt.SourceControl.Tasks {
 				}
 			}
 		}
+
+		#endregion
+
+		#region Protected Instance Methods
 
 		#endregion
 

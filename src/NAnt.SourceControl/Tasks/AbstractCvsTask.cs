@@ -39,8 +39,22 @@ namespace NAnt.SourceControl.Tasks {
     /// A base class for creating tasks for executing CVS client commands on a 
     /// CVS repository.
     /// </summary>
-    public abstract class AbstractCvsTask : AbstractSourceControlTask {
+	public abstract class AbstractCvsTask : AbstractSourceControlTask {
+
 		#region Protected Static Fields
+
+		/// <summary>
+		/// Default value for the recursive directive.  Default is <code>false</code>.
+		/// </summary>
+		protected const bool DEFAULT_RECURSIVE = false;
+		/// <summary>
+		/// Default value for the quiet command.
+		/// </summary>
+		protected const bool DEFAULT_QUIET = false;
+		/// <summary>
+		/// Default value for the really quiet command.
+		/// </summary>
+		protected const bool DEFAULT_REALLY_QUIET = false;
 
 		/// <summary>
 		/// An environment variable that holds path information about where
@@ -60,7 +74,7 @@ namespace NAnt.SourceControl.Tasks {
 		/// The default use of binaries, defaults to use sharpcvs
 		///		<code>true</code>.
 		/// </summary>
-        protected const bool DEFAULT_USE_SHARPCVSLIB = true;
+		protected const bool DEFAULT_USE_SHARPCVSLIB = true;
 
 		/// <summary>
 		/// The name of the cvs executable.
@@ -81,11 +95,11 @@ namespace NAnt.SourceControl.Tasks {
 
         #region Private Instance Fields
 
-        private string _module;
-        private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
+		private string _module;
+		private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
 		private bool _isUseSharpCvsLibSet = false;
 
-        private FileSet _fileset = new FileSet();
+		private FileSet _fileset = new FileSet();
 
 		private string _sharpcvslibExeName;
 
@@ -93,23 +107,32 @@ namespace NAnt.SourceControl.Tasks {
 
         #region Private Static Fields
 
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #endregion Private Static Fields
 
         #region Protected Instance Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractCvsTask" /> 
-        /// class.
-        /// </summary>
-        protected AbstractCvsTask () : base() {
+		/// <summary>
+		/// Initializes a new instance of the <see cref="AbstractCvsTask" /> 
+		/// class.
+		/// </summary>
+		protected AbstractCvsTask () : base() {
 			this._sharpcvslibExeName = 
 				Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
-        }
+		}
 
         #endregion Protected Instance Constructors
 
+		#region Protected Instance Properties
+
+		/// <summary>
+		/// The environment name for the ssh variable.
+		/// </summary>
+		protected override string SshEnv {
+			get {return CVS_RSH;}
+		}
+		#endregion
         #region Public Instance Properties
 
 		/// <summary>
@@ -154,119 +177,119 @@ namespace NAnt.SourceControl.Tasks {
 			get {return CVS_HOME;}
 		}
 
-        /// <summary>
-        /// <para>
-        /// The cvs root variable has the following components.  The examples used is for the
-        ///     NAnt cvsroot.
-        ///     
-        ///     protocol:       ext
-        ///     username:       [username]
-        ///     servername:     cvs.sourceforge.net
-        ///     server path:    /cvsroot/nant
-        /// </para>
-        /// <para>
-        /// Currently supported protocols include:
-        /// </para>
-        /// <list type="table">
-        ///     <item>
-        ///         <term>ext</term>
-        ///         <description>
-        ///         Used for securely checking out sources from a cvs repository.  
-        ///         This checkout method uses a local ssh binary to communicate 
-        ///         with the repository.  If you would like to secure password 
-        ///         information then this method can be used along with public/private 
-        ///         key pairs to authenticate against a remote server.
-        ///         Please see: http://sourceforge.net/docman/display_doc.php?docid=761&amp;group_id=1
-        ///         for information on how to do this for http://sourceforge.net.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term>ssh</term>
-        ///         <description>
-        ///         Similar to the ext method.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term>pserver</term>
-        ///         <description>
-        ///         The pserver authentication method is used to checkout sources 
-        ///         without encryption.  Passwords are stored as plain text and 
-        ///         all files are transported unencrypted.
-        ///         </description>
-        ///     </item>
-        /// </list>
-        /// </summary>
-        /// <example>
-        ///   <para>NAnt anonymous cvsroot:</para>
-        ///   <code>
-        ///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant
-        ///   </code>
-        /// </example>
-        /// <example>
-        ///   <para>Sharpcvslib anonymous cvsroot:</para>
-        ///   <code>
-        ///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib
-        ///   </code>
-        /// </example>
-        [TaskAttribute("cvsroot", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public override string Root {
-            get { return base.Root; }
-            set { base.Root = StringUtils.ConvertEmptyToNull(value); }
-        }
+		/// <summary>
+		/// <para>
+		/// The cvs root variable has the following components.  The examples used is for the
+		///     NAnt cvsroot.
+		///     
+		///     protocol:       ext
+		///     username:       [username]
+		///     servername:     cvs.sourceforge.net
+		///     server path:    /cvsroot/nant
+		/// </para>
+		/// <para>
+		/// Currently supported protocols include:
+		/// </para>
+		/// <list type="table">
+		///     <item>
+		///         <term>ext</term>
+		///         <description>
+		///         Used for securely checking out sources from a cvs repository.  
+		///         This checkout method uses a local ssh binary to communicate 
+		///         with the repository.  If you would like to secure password 
+		///         information then this method can be used along with public/private 
+		///         key pairs to authenticate against a remote server.
+		///         Please see: http://sourceforge.net/docman/display_doc.php?docid=761&amp;group_id=1
+		///         for information on how to do this for http://sourceforge.net.
+		///         </description>
+		///     </item>
+		///     <item>
+		///         <term>ssh</term>
+		///         <description>
+		///         Similar to the ext method.
+		///         </description>
+		///     </item>
+		///     <item>
+		///         <term>pserver</term>
+		///         <description>
+		///         The pserver authentication method is used to checkout sources 
+		///         without encryption.  Passwords are stored as plain text and 
+		///         all files are transported unencrypted.
+		///         </description>
+		///     </item>
+		/// </list>
+		/// </summary>
+		/// <example>
+		///   <para>NAnt anonymous cvsroot:</para>
+		///   <code>
+		///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant
+		///   </code>
+		/// </example>
+		/// <example>
+		///   <para>Sharpcvslib anonymous cvsroot:</para>
+		///   <code>
+		///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib
+		///   </code>
+		/// </example>
+		[TaskAttribute("cvsroot", Required=true)]
+		[StringValidator(AllowEmpty=false)]
+		public override string Root {
+			get { return base.Root; }
+			set { base.Root = StringUtils.ConvertEmptyToNull(value); }
+		}
 
-        /// <summary>
-        /// The module to perform an operation on.
-        /// </summary>
-        /// <value>
-        /// The module to perform an operation on.
-        /// </value>
-        /// <example>
-        ///   <para>In Nant the module name would be:</para>
-        ///   <code>nant</code>
-        /// </example>
-        [TaskAttribute("module", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Module {
-            get { return _module; }
-            set { _module = StringUtils.ConvertEmptyToNull(value); }
-        }
+		/// <summary>
+		/// The module to perform an operation on.
+		/// </summary>
+		/// <value>
+		/// The module to perform an operation on.
+		/// </value>
+		/// <example>
+		///   <para>In Nant the module name would be:</para>
+		///   <code>nant</code>
+		/// </example>
+		[TaskAttribute("module", Required=true)]
+		[StringValidator(AllowEmpty=false)]
+		public string Module {
+			get { return _module; }
+			set { _module = StringUtils.ConvertEmptyToNull(value); }
+		}
 
-        /// <summary>
-        /// <code>true</code> if the SharpCvsLib binaries that come bundled with 
-        ///     NAnt should be used to perform the cvs commands, <code>false</code>
-        ///     otherwise.
-        ///     
-        ///     You may also specify an override value for all cvs tasks instead
-        ///     of specifying a value for each.  To do this set the property
-        ///     <code>sourcecontrol.usesharpcvslib</code> to <code>false</code>.
-        ///     
-        ///     <warn>If you choose not to use SharpCvsLib to checkout from 
-        ///         cvs you will need to include a cvs.exe binary in your
-        ///         path.</warn>
-        /// </summary>
-        /// <example>
-        ///		To use a cvs client in your path instead of sharpcvslib specify
-        ///			the property:
-        ///		&gt;property name="sourcecontrol.usesharpcvslib" value="false"&lt;
-        ///		
-        ///		The default settings is to use sharpcvslib and the setting closest
-        ///		to the task execution is used to determine which value is used
-        ///		to execute the process.
-        ///		
+		/// <summary>
+		/// <code>true</code> if the SharpCvsLib binaries that come bundled with 
+		///     NAnt should be used to perform the cvs commands, <code>false</code>
+		///     otherwise.
+		///     
+		///     You may also specify an override value for all cvs tasks instead
+		///     of specifying a value for each.  To do this set the property
+		///     <code>sourcecontrol.usesharpcvslib</code> to <code>false</code>.
+		///     
+		///     <warn>If you choose not to use SharpCvsLib to checkout from 
+		///         cvs you will need to include a cvs.exe binary in your
+		///         path.</warn>
+		/// </summary>
+		/// <example>
+		///		To use a cvs client in your path instead of sharpcvslib specify
+		///			the property:
+		///		&gt;property name="sourcecontrol.usesharpcvslib" value="false"&lt;
+		///		
+		///		The default settings is to use sharpcvslib and the setting closest
+		///		to the task execution is used to determine which value is used
+		///		to execute the process.
+		///		
 		///		For instance if the attribute usesharpcvslib was set to false 
 		///		and the global property was set to true, the usesharpcvslib is 
 		///		closes to the point of execution and would be used and is false. 
 		///		Therefore the sharpcvslib binary would NOT be used.
-        /// </example>
-        [TaskAttribute("usesharpcvslib", Required=false)]
-        public bool UseSharpCvsLib {
+		/// </example>
+		[TaskAttribute("usesharpcvslib", Required=false)]
+		public bool UseSharpCvsLib {
 			get {return this._useSharpCvsLib;}
 			set {
 				this._isUseSharpCvsLibSet = true;
 				this._useSharpCvsLib = value;
 			}
-        }
+		}
 
 		/// <summary>
 		/// The executable to use for ssh communication.
@@ -278,10 +301,55 @@ namespace NAnt.SourceControl.Tasks {
 		}
 
 		/// <summary>
-		/// The environment name for the ssh variable.
+		/// Indicates if the output from the cvs command should be supressed.  Defaults to 
+		///		<code>false</code>.
 		/// </summary>
-		protected override string SshEnv {
-			get {return CVS_RSH;}
+		[TaskAttribute("quiet", Required=false)]
+		[BooleanValidator()]
+		public bool Quiet {
+			get {return ((Option)this.GlobalOptions["quiet"]).IfDefined;}
+			set {this.SetGlobalOption("quiet", "q", value);}
+		}
+
+		/// <summary>
+		/// Indicates if the output from the cvs command should be stopped.  Default to 
+		///		<code>false</code>.
+		/// </summary>
+		[TaskAttribute("reallyquiet", Required=false)]
+		[BooleanValidator()]
+		public bool ReallyQuiet {
+			get {return ((Option)this.GlobalOptions["reallyquiet"]).IfDefined;}
+			set {this.SetGlobalOption("reallyquiet", "Q", value);}
+		}
+
+		/// <summary>
+		/// <code>true</code> if the sandbox files should be checked out in
+		///		read only mode.
+		/// </summary>
+		[TaskAttribute("readonly", Required=false)]
+		[BooleanValidator()]
+		public bool ReadOnly {
+			get {return ((Option)this.GlobalOptions["readonly"]).IfDefined;}
+			set {this.SetGlobalOption("readonly", "r", value);}
+		}
+
+		/// <summary>
+		/// <code>true</code> if the sandbox files should be checked out in 
+		///		read/ write mode.
+		///		
+		///		Defaults to <code>true</code>.
+		/// </summary>
+		[TaskAttribute("readwrite", Required=false)]
+		[BooleanValidator()]
+		public bool ReadWrite {
+			get {return ((Option)this.GlobalOptions["readwrite"]).IfDefined;}
+			set {
+				if (true == this.ReadOnly && 
+					value == true) {
+					throw new BuildException ("Cannot set readonly and read/ write.");
+				}
+				this.SetGlobalOption("readwrite", "w", value);
+			}
 		}
 
         #endregion Public Instance Properties
@@ -357,70 +425,39 @@ namespace NAnt.SourceControl.Tasks {
         #region Private Instance Methods
 
 		private void AppendGlobalOptions () {
-			foreach (Option option in this.GlobalOptions) {
-				if (!IfDefined || UnlessDefined) {
+			foreach (Option option in this.GlobalOptions.Values) {
+//				Log(Level.Verbose, 
+//					String.Format("{0} Type '{1}'.", LogPrefix, optionte.GetType()));
+				if (!option.IfDefined || option.UnlessDefined) {
 					// skip option
 					continue;
 				}
-
-				Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
-				Logger.Debug ("option.Value=[" + option.Value + "]");
-				switch (option.OptionName) {
-					case "cvsroot-prefix":
-					case "-D":
-					case "temp-dir":
-					case "-T":
-					case "editor":
-					case "-e":
-					case "compression":
-					case "-z":
-					case "variable":
-					case "-s": 
-						Arguments.Add(new Argument(option.OptionName));
-						Arguments.Add(new Argument(option.Value));
-						Logger.Debug ("setting option" + option.OptionName + 
-							"=[" + option.Value + "]");
-						break;
-					default:
-						Arguments.Add(new Argument(option.OptionName));
-						Logger.Debug("setting prune to true.");
-						break;
-				}
-																																																								}
+				this.AddArg(option.Value);
+			}
 		}
 
+		/// <summary>
+		/// Append the command line options or commen names for the options
+		///		to the generic options collection.  This is then piped to the
+		///		command line as a switch.
+		/// </summary>
 		private void AppendCommandOptions () {
-			foreach (Option option in this.CommandOptions) {
-				if (!IfDefined || UnlessDefined) {
+			foreach (Option option in this.CommandOptions.Values) {
+				if (!option.IfDefined || option.UnlessDefined) {
 					// skip option
 					continue;
 				}
+				this.AddArg(option.Value);
+			}
+		}
 
-				Logger.Debug ("option.OptionName=[" + option.OptionName + "]");
-				Logger.Debug ("option.Value=[" + option.Value + "]");
-				switch (option.OptionName) {
-					case "sticky-tag":
-					case "-r":
-					case "override-directory":
-					case "-d":
-					case "join":
-					case "-j":
-					case "revision-date":
-					case "-D":
-					case "rcs-kopt":
-					case "-k":
-					case "message":
-					case "-m":
-						Arguments.Add(new Argument(option.OptionName));
-						Arguments.Add(new Argument(option.Value));
-						Logger.Debug ("setting option" + option.OptionName + 
-							"=[" + option.Value + "]");
-						break;
-					default:
-						Arguments.Add(new Argument(option.OptionName));
-						Logger.Debug("adding command option: " + option.OptionName);
-						break;
-				}
+		private void AddArg (String arg) {
+			if (arg.IndexOf("-") != 0) {
+				Arguments.Add(new Argument(String.Format("{0}{1}",
+					"-", arg)));
+			} else {
+				Arguments.Add(new Argument(String.Format("{1}",
+					arg)));
 			}
 		}
 
