@@ -575,13 +575,6 @@ namespace NAnt.DotNet.Tasks {
                             } else {
                                 // add license type to list of processed license types
                                 licenseTypes[line] = tp;
-                                // output assembly from which license type was loaded
-                                licenseTask.Log(Level.Verbose, ((Type) licenseTypes[line]).Assembly.CodeBase);
-
-                                // TO-DO REMOVE DEBUG CODE
-                                licenseTask.Log(Level.Debug, "License type: '{0}'.", 
-                                    tp.AssemblyQualifiedName);
-                                // END REMOVE DEBUG CODE
                             }
 
                             // ensure that we've got a licensed component
