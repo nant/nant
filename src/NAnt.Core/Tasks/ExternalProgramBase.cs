@@ -18,17 +18,17 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Xml;
-using System.Globalization;
-
-using SourceForge.NAnt.Attributes;
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System;
+    using System.Collections.Specialized;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Text;
+    using System.Xml;
+    using System.Globalization;
+
+    using SourceForge.NAnt.Attributes;
 
     /// <summary>Provides the abstract base class for tasks that execute external applications.</summary>
     public abstract class ExternalProgramBase : Task {
@@ -83,9 +83,9 @@ namespace SourceForge.NAnt.Tasks {
         public ArgElement[] ArgElements{
             set {
                 ArgElement[] args = value as ArgElement[];
-                    foreach(ArgElement arg in args){
-                        _args.Add(arg.File==null ? arg.Value : arg.File);
-                    }
+                foreach(ArgElement arg in args){
+                    _args.Add(arg.File==null ? arg.Value : arg.File);
+                }
             }
         }
 
@@ -115,7 +115,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <returns>new Process with information about programs to run, etc.</returns>
         protected virtual void PrepareProcess(ref Process process){
             // create process (redirect standard output to temp buffer)
-            if ( UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null ) {
+            if (UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
                 process.StartInfo.FileName = Project.CurrentFramework.RuntimeEngine.FullName;
                 process.StartInfo.Arguments = ProgramFileName + " " + GetCommandLine();
             } else {
@@ -137,9 +137,9 @@ namespace SourceForge.NAnt.Tasks {
                 Log.WriteLineIf(
                     Verbose, 
                     LogPrefix + "Starting '{1} ({2})' in '{0}'", 
-                        p.StartInfo.WorkingDirectory, 
-                        p.StartInfo.FileName, 
-                        p.StartInfo.Arguments);
+                    p.StartInfo.WorkingDirectory, 
+                    p.StartInfo.FileName, 
+                    p.StartInfo.Arguments);
                 p.Start();
             } catch (Exception e) {
                 throw new BuildException(String.Format(CultureInfo.InvariantCulture, "<{0} task>{1} failed to start.", Name ,p.StartInfo.FileName), Location, e);
@@ -148,8 +148,10 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
-            Process process = StartProcess();
             try {
+                // Start the external process
+                Process process = StartProcess();
+
                 // display standard output
                 StreamReader stdOut = process.StandardOutput;
                 string output = stdOut.ReadToEnd();
@@ -168,12 +170,12 @@ namespace SourceForge.NAnt.Tasks {
                 process.WaitForExit(TimeOut);
                 if (process.ExitCode != 0){
                     throw new BuildException(
-                                String.Format(CultureInfo.InvariantCulture, 
-                                    "External Program Failed: {0} return {1}\nOutput:\n{2}", 
-                                    ProgramFileName, 
-                                    process.ExitCode, 
-                                    output), 
-                                Location);
+                        String.Format(CultureInfo.InvariantCulture, 
+                        "External Program Failed: {0} return {1}\nOutput:\n{2}", 
+                        ProgramFileName, 
+                        process.ExitCode, 
+                        output), 
+                        Location);
                 }
                 if (output.Length > 0) {
                     if (OutputFile == null) {
