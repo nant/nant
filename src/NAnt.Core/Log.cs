@@ -44,36 +44,35 @@ namespace NAnt.Core {
     /// </summary>
     public enum Level : int {
         /// <summary>
-        /// The <see cref="Debug" /> level designates fine-grained informational 
-        /// events that are most useful to debug a build process.
+        /// Designates fine-grained informational events that are most useful 
+        /// to debug a build process.
         /// </summary>
         Debug = 1000,
 
         /// <summary>
-        /// The <see cref="Verbose" /> level designates events that offer a more
-        /// detailed view of the build process.
+        /// Designates events that offer a more detailed view of the build 
+        /// process.
         /// </summary>
         Verbose = 2000,
 
         /// <summary>
-        /// The <see cref="Info" /> level designates informational events that
-        /// are useful for getting a high-level view of the build process.
+        /// Designates informational events that are useful for getting a 
+        /// high-level view of the build process.
         /// </summary>
         Info = 3000,
 
         /// <summary>
-        /// The <see cref="Warning" /> level designates potentionally harmful 
-        /// events.
+        /// Designates potentionally harmful events.
         /// </summary>
         Warning = 4000,
 
         /// <summary>
-        /// The <see cref="Error" /> level designates error events.
+        /// Designates error events.
         /// </summary>
         Error = 5000,
 
         /// <summary>
-        /// The <see cref="None" /> level could be used to suppress all messages.
+        /// Can be used to suppress all messages.
         /// </summary>
         /// <remarks>
         /// No events should be logged with this <see cref="Level" />.
