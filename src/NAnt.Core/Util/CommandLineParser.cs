@@ -309,6 +309,23 @@ namespace NAnt.Core.Util {
                                 if (arg == null) {
                                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", argument));
                                 } else {
+                                    // check if argument is obsolete
+                                    Attribute[] attribs = (Attribute[]) arg.Property.GetCustomAttributes(
+                                        typeof(ObsoleteAttribute), false);
+                                    if (attribs.Length > 0) {
+                                        ObsoleteAttribute obsoleteAttrib = (ObsoleteAttribute) attribs[0];
+                                        string message = string.Format(CultureInfo.InvariantCulture, 
+                                            "Commandline argument '-{0}' is obsolete. {1}", option, 
+                                            obsoleteAttrib.Message);
+                                        if (obsoleteAttrib.IsError) {
+                                            throw new CommandLineArgumentException(message);
+                                        } else {
+                                            Console.WriteLine(string.Empty);
+                                            Console.WriteLine("Warning: " + message);
+                                            Console.WriteLine(string.Empty);
+                                        }
+                                    }
+
                                     if (arg.IsExclusive && args.Length > 1) {
                                         throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Commandline argument '-{0}' cannot be combined with other arguments.", arg.LongName));
                                     } else {
