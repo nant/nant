@@ -19,6 +19,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.IO;
 using System.Xml;
 using System.Collections;
 using System.Collections.Specialized;
@@ -101,7 +102,11 @@ namespace SourceForge.NAnt.Tasks {
             // push ourselves onto the stack (prevents recursive includes)
             string includedFileName = Project.GetFullPath(BuildFileName);
             _includedFileNames.Push(includedFileName);
-
+            string oldBaseDir = Project.BaseDirectory;
+            
+            // set the base dir so that paths are relative to the include file and not the main build-file
+            Project.BaseDirectory = Path.GetDirectoryName( includedFileName );
+            
             try {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(includedFileName);
@@ -111,8 +116,10 @@ namespace SourceForge.NAnt.Tasks {
             } catch (Exception e) {
                 throw new BuildException("Could not include build file " + includedFileName, Location, e);
             } finally {
+                
                 // pop off the stack
                 _includedFileNames.Pop();
+                Project.BaseDirectory = oldBaseDir;  // reset base\dir
             }
         }
     }
