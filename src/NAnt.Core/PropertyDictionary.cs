@@ -391,12 +391,12 @@ namespace NAnt.Core {
             switch (name) {
                 case Project.NAntPropertyFileName:
                     Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
-                        + " Use the nant::get-location() function instead.", name);
+                        + " Use assembly::get-location(nant::get-assembly()) expression instead.", name);
                     break;
                 case Project.NAntPropertyVersion:
                     Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."
-                        + " Use the assembly::get-version(nant::get-location())"
-                        + " instead.", name);
+                        + " Use the assemblyname::get-version(assembly::get-name(nant::get-assembly))"
+                        + " expression instead.", name);
                     break;
                 case Project.NAntPropertyLocation:
                     Project.Log(Level.Warning, "Built-in property '{0}' is deprecated."

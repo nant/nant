@@ -450,7 +450,7 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-version")]
-        public string GetVersion(string framework) {
+        public Version GetVersion(string framework) {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the family of the specified framework
@@ -486,7 +486,7 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-clr-version")]
-        public string GetClrVersion(string framework) {
+        public Version GetClrVersion(string framework) {
             // ensure the framework is valid
             CheckFramework(framework);
             // return the family of the specified framework

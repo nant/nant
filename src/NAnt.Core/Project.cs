@@ -1392,7 +1392,7 @@ namespace NAnt.Core {
         /// </summary>
         private void UpdateTargetFrameworkProperties() {
             Properties["nant.settings.currentframework"] = TargetFramework.Name;
-            Properties["nant.settings.currentframework.version"] = TargetFramework.Version;
+            Properties["nant.settings.currentframework.version"] = TargetFramework.Version.ToString();
             Properties["nant.settings.currentframework.description"] = TargetFramework.Description;
             Properties["nant.settings.currentframework.frameworkdirectory"] = TargetFramework.FrameworkDirectory.FullName;
             if (TargetFramework.SdkDirectory != null) {

@@ -233,7 +233,7 @@ namespace NAnt.Core {
 
                 // scan framework version specific assemblies
                 ScanDir(Path.Combine(Path.Combine(Path.Combine(project.BaseDirectory, "tasks"), 
-                    project.RuntimeFramework.Family), project.RuntimeFramework.Version), 
+                    project.RuntimeFramework.Family), project.RuntimeFramework.Version.ToString()), 
                     loadTasks, false);
             }
 

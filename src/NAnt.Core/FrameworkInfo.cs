@@ -36,8 +36,8 @@ namespace NAnt.Core {
         private readonly string _name;
         private readonly string _family;
         private readonly string _description;
-        private readonly string _version;
-        private readonly string _clrVersion;
+        private readonly Version _version;
+        private readonly Version _clrVersion;
         private readonly DirectoryInfo _frameworkDirectory;
         private readonly DirectoryInfo _sdkDirectory;
         private readonly DirectoryInfo _frameworkAssemblyDirectory;
@@ -65,8 +65,8 @@ namespace NAnt.Core {
         /// <param name="frameworkAssemblyDir">The directory containing the system assemblies for the framework.</param>
         /// <param name="runtimeEngine">The name of the runtime engine, if required.</param>
         /// <param name="project">The <see cref="Project" /> used to initialized the framework.</param>
-        public FrameworkInfo(string name, string family, string description, string version, 
-            string clrVersion, string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
+        public FrameworkInfo(string name, string family, string description, Version version, 
+            Version clrVersion, string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
             string runtimeEngine, Project project) {
 
             _taskAssemblies = new FileSet();
@@ -186,7 +186,7 @@ namespace NAnt.Core {
         /// <value>
         /// The version of the framework.
         /// </value>
-        public string Version {
+        public Version Version {
             get { return _version; }
         }
 
@@ -196,10 +196,35 @@ namespace NAnt.Core {
         /// <value>
         /// The Common Language Runtime of the framework.
         /// </value>
-        public string ClrVersion {
+        public Version ClrVersion {
             get { return _clrVersion; }
         }
         
+        /// <summary>
+        /// Gets the Visual Studio version that corresponds with this
+        /// framework.
+        /// </summary>
+        /// <remarks>
+        /// The Visual Studio version that corresponds with this framework.
+        /// </remarks>
+        /// <exception cref="BuildException">There is no version of Visual Studio .NET that corresponds with this framework.</exception>
+        public Version VisualStudioVersion {
+            get {
+                switch (ClrVersion.ToString(2)) {
+                    case "1.0":
+                        return new Version(7, 0);
+                    case "1.1":
+                        return new Version(7, 1);
+                    case "2.0":
+                        return new Version(8, 0);
+                    default:
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "There is no version of Visual Studio .NET that corresponds"
+                            + " with {0}.", Description), Location.UnknownLocation);
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the base directory of the framework tools for the framework.
         /// </summary>
