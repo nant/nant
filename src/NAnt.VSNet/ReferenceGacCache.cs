@@ -129,9 +129,13 @@ namespace NAnt.VSNet {
             /// <see langword="false" />.
             /// </returns>
             public bool IsAssemblyInGAC(string assemblyFile) {
-                AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                Assembly assembly = Assembly.Load(assemblyName);
-                return assembly.GlobalAssemblyCache;
+                try {
+                    AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                    Assembly assembly = Assembly.Load(assemblyName);
+                    return assembly.GlobalAssemblyCache;
+                } catch {
+                    return false;
+                }
             }
         }
     }
