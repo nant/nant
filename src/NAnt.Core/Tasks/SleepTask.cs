@@ -42,22 +42,24 @@ namespace SourceForge.NAnt.Tasks {
         int _seconds = 0;
         int _milliseconds = 0;
 
-        // TODO: add [IntValidator] attributes to prevent negative values in times
-       
         /// <summary>Hours to add to the sleep time.</summary>
         [TaskAttribute("hours")]
+        [Int32Validator(0, Int32.MaxValue)]
         public int Hours                  { get { return _hours; } set {_hours = value; } }
         
         /// <summary>Minutes to add to the sleep time.</summary>
         [TaskAttribute("minutes")]
+        [Int32Validator(0, Int32.MaxValue)]
         public int Minutes                { get { return _minutes; } set {_minutes = value; } }
         
         /// <summary>Seconds to add to the sleep time.</summary>
         [TaskAttribute("seconds")]
+        [Int32Validator(0, Int32.MaxValue)]
         public int Seconds                { get { return _seconds; } set {_seconds = value; } }
         
         /// <summary>Milliseconds to add to the sleep time.</summary>
         [TaskAttribute("milliseconds")]
+        [Int32Validator(0, Int32.MaxValue)]
         public int Milliseconds           { get { return _milliseconds; } set {_milliseconds = value; } }
 
         /// <summary>Return time to sleep.</summary>
