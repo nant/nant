@@ -73,7 +73,7 @@ namespace NAnt.VisualCpp.Tasks {
         private string _client;
         private string _cstub;
         // TODO: /D!!!!!
-        private string _dlldata;
+        private FileInfo _dlldata;
         private string _env = "win32";
         // TODO: /error
         private string _Oi;
@@ -84,6 +84,7 @@ namespace NAnt.VisualCpp.Tasks {
         private FileInfo _filename;
         private OptionCollection _options = new OptionCollection();
         private OptionCollection _defines = new OptionCollection();
+        private OptionCollection _undefines = new OptionCollection();
 
         #endregion Private Instance Fields
 
@@ -142,7 +143,7 @@ namespace NAnt.VisualCpp.Tasks {
             get { return _char; }
             set { _char = value; }
         }
-
+    
         /// <summary>
         /// The /client switch directs the MIDL compiler to generate
         /// client-side C source files for an RPC interface
@@ -165,13 +166,12 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
-        /// The /dlldata switch is used to specify the file
-        /// name for the generated dlldata file for a proxy
-        /// DLL. The default file name Dlldata.c is used if
-        /// the /dlldata switch is not specified.
+        /// Specifies the file name for the generated dlldata file for a proxy
+        /// DLL. The default file name Dlldata.c is used if 
+        /// <see cref="DllData" /> is not specified.
         /// </summary>
         [TaskAttribute("dlldata")]
-        public string DllData {
+        public FileInfo DllData {
             get { return _dlldata; }
             set { _dlldata = value; }
         }
@@ -270,6 +270,14 @@ namespace NAnt.VisualCpp.Tasks {
         [BuildElementCollection("defines", "define")]
         public OptionCollection Defines {
             get { return _defines; }
+        }
+
+        /// <summary>
+        /// Macro undefines (/U) to pass to mdil.
+        /// </summary>
+        [BuildElementCollection("undefines", "undefine")]
+        public OptionCollection Undefines {
+            get { return _undefines; }
         }
 
         #endregion Public Instance Properties
@@ -394,9 +402,9 @@ namespace NAnt.VisualCpp.Tasks {
                 writer.WriteLine("/client {0}", _client);
             if (_cstub != null)
                 writer.WriteLine("/cstub {0}", _cstub);
-            if (_dlldata != null)
-                writer.WriteLine("/dlldata \"{0}\"", DllData );
-
+            if (_dlldata != null) {
+                writer.WriteLine("/dlldata \"{0}\"", DllData.FullName );
+            }
             if (_Oi != null)
                 writer.WriteLine("/Oi" + _Oi);
             if (Tlb != null)
@@ -415,6 +423,12 @@ namespace NAnt.VisualCpp.Tasks {
                     } else {
                         writer.WriteLine("/D " + define.OptionName + "=" + define.Value);
                     }
+                }
+            }
+
+            foreach (Option undefine in _undefines) {
+                if (IfDefined && !UnlessDefined) {
+                    writer.WriteLine("/U " + undefine.OptionName);
                 }
             }
 
