@@ -316,7 +316,7 @@ namespace NAnt.Core.Tasks {
 
             // scan the new assembly for tasks, types and functions
             // Its unlikely that tasks will be defined in buildfiles though.
-            bool extensionAssembly = TypeFactory.ScanAssembly(compiled);
+            bool extensionAssembly = TypeFactory.ScanAssembly(compiled, this);
             
             string mainClass = _rootClassName;
             if (!StringUtils.IsNullOrEmpty(MainClass)) {
