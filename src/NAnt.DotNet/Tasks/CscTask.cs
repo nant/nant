@@ -24,7 +24,7 @@ namespace SourceForge.NAnt.Tasks {
     using System.IO;
     using SourceForge.NAnt.Attributes;
 
-    /// <summary>Compiles C# programs using csc, Microsoft's C# compiler.</summary>
+    /// <summary>Compiles C# programs.</summary>
     /// <example>
     ///   <para>Compile <c>helloworld.cs</c> to <c>helloworld.exe</c>.</para>
     ///   <code>
@@ -43,6 +43,8 @@ namespace SourceForge.NAnt.Tasks {
         string _doc = null;
         bool _nostdlib = false;
         bool _noconfig = false;
+        bool _checked = false;
+        bool _unsafe = false;
         
         public override string ExeName {           
             get { return Project.CurrentFramework.CSharpCompilerName; }
@@ -53,7 +55,7 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("doc")]
         public string Doc        { get { return _doc; } set {_doc = value; } }
 
-        /// <summary>Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <summary>Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
         /// <remarks>
         /// <para>
         /// This attribute corresponds to the <c>/nostdlib[+|-]</c> flag.
@@ -62,7 +64,7 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("nostdlib")]
         public bool NoStdLib     { get { return _nostdlib; } set {_nostdlib = value; } }
 
-        /// <summary>Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <summary>Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
         /// <remarks>
         /// <para>
         /// This attribute corresponds to the <c>/noconfig</c> flag.
@@ -70,6 +72,30 @@ namespace SourceForge.NAnt.Tasks {
         /// </remarks>
         [TaskAttribute("noconfig")]
         public bool NoConfig     { get { return _noconfig; } set {_noconfig = value; } }
+
+        /// <summary>
+        /// Specifies whether an integer arithmetic statement that is not in the scope of the 
+        /// <c>checked</c> or <c>unchecked</c> keywords and that results in a value outside the 
+        /// range of the data type should cause a run-time exception (<c>true</c>/<c>false</c>). 
+        /// Default is <c>&quot;false&quot;</c>.</summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/checked[+|-]</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("checked")]
+        public bool Checked     { get { return _checked; } set {_checked = value; } }
+
+        /// <summary>
+        /// Instructs the compiler to allow code that uses the <c>unsafe</c> keyword 
+        /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.</summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/unsafe[+|-]</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("unsafe")]
+        public bool Unsafe      { get { return _unsafe; } set {_unsafe = value; } }
 
         protected override void WriteOptions(TextWriter writer) {
             WriteOption(writer, "fullpaths");
@@ -86,6 +112,14 @@ namespace SourceForge.NAnt.Tasks {
 
             if (NoStdLib) {
                 WriteOption(writer, "nostdlib");
+            }
+
+            if (Checked) {
+                WriteOption(writer, "checked");
+            }
+
+            if (Unsafe) {
+                WriteOption(writer, "unsafe");
             }
 
             if (NoConfig && ! Args.Contains("/noconfig")) {
