@@ -54,7 +54,7 @@ namespace NAnt.Win32.Tasks {
         private string _regKey = null;
         private string _regKeyValueName = null;
         private RegistryHive[] _regHive = {RegistryHive.LocalMachine};
-        private string _regHiveString = RegistryHive.LocalMachine.ToString(CultureInfo.InvariantCulture);
+        private string _regHiveString = RegistryHive.LocalMachine.ToString();
 
         #endregion Private Instance Fields
 
@@ -174,7 +174,7 @@ namespace NAnt.Win32.Tasks {
         /// </returns>
         protected RegistryKey LookupRegKey(string key, RegistryHive[] registries) {
             foreach (RegistryHive hive in registries) {
-                Log(Level.Verbose, "Opening {0}:{1}.", hive.ToString(CultureInfo.InvariantCulture), key);
+                Log(Level.Verbose, "Opening {0}:{1}.", hive.ToString(), key);
                 RegistryKey returnkey = GetHiveKey(hive).OpenSubKey(key, false);
                 if (returnkey != null) {
                     return returnkey;
@@ -204,7 +204,7 @@ namespace NAnt.Win32.Tasks {
                     return Registry.ClassesRoot;
                 default:
                     Log(Level.Verbose, "Registry not found for {0}.", 
-                        hive.ToString(CultureInfo.InvariantCulture));
+                        hive.ToString());
                     return null;
             }
         }
