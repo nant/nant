@@ -49,18 +49,21 @@ namespace SourceForge.NAnt.Tasks
 
 			ArrayList alAssemblies = new ArrayList();
 
+			// First, load all the assemblies so that we can search for the licensed component
 			foreach ( string strAssembly in _assemblies.Includes )
 			{
 				Assembly asm;
 
 				try
 				{
+					// See if we've got an absolute path to the assembly
 					if ( File.Exists( strAssembly ) )
 					{
 						asm = Assembly.LoadFrom( strAssembly );
 					}
 					else
 					{
+						// No absolute path, ask .NET to load it for us
 						FileInfo fiAssembly = new FileInfo( strAssembly );
 						asm = Assembly.LoadWithPartialName( Path.GetFileNameWithoutExtension( fiAssembly.Name ) );
 					}
@@ -73,68 +76,80 @@ namespace SourceForge.NAnt.Tasks
 				}
 			}
 
-			StreamReader sr = new StreamReader( _input );
+			// Create the license manager
 			DesigntimeLicenseContext dlc = new DesigntimeLicenseContext();
 			LicenseManager.CurrentContext = dlc;
-
-			Hashtable htLicenses = new Hashtable();
-
-			while ( true )
+			
+			// Read in the input file
+			using ( StreamReader sr = new StreamReader( _input ) )
 			{
-				string strLine = sr.ReadLine();
-				if ( strLine == null )
-					break;
-				strLine = strLine.Trim();
-				if ( strLine.StartsWith( "#" ) || strLine.Length == 0 || htLicenses.Contains( strLine ) )
-					continue;
+				Hashtable htLicenses = new Hashtable();
 
-				if ( Verbose )
-					Log.Write( strLine + ": " );
-				
-				string strTypeName;
-
-				if ( strLine.IndexOf( ',' ) == -1 )
-					strTypeName = strLine.Trim();
-				else
-					strTypeName = strLine.Split( ',' )[ 0 ];
-
-				Type tp = null;
-
-				foreach ( Assembly asm in alAssemblies )
+				while ( true )
 				{
-					tp = asm.GetType( strTypeName, false, true );
-					if ( tp == null )
+					string strLine = sr.ReadLine();
+					if ( strLine == null )
+						break;
+					strLine = strLine.Trim();
+					// Skip comments and empty lines
+					if ( strLine.StartsWith( "#" ) || strLine.Length == 0 || htLicenses.Contains( strLine ) )
 						continue;
 
-					htLicenses[ strLine ] = tp;
-					break;
-				}
+					if ( Verbose )
+						Log.Write( strLine + ": " );
 
-				if ( tp == null )
-					throw new BuildException( String.Format( "Failed to locate type: {0}", strTypeName ), Location );
+					// Strip off the assembly name, if it exists
+					string strTypeName;
 
-				if ( Verbose && tp != null )
-					Log.WriteLine( ( ( Type )htLicenses[ strLine ] ).Assembly.CodeBase );
+					if ( strLine.IndexOf( ',' ) == -1 )
+						strTypeName = strLine.Trim();
+					else
+						strTypeName = strLine.Split( ',' )[ 0 ];
 
-				if ( tp.GetCustomAttributes( typeof( LicenseProviderAttribute ), true ).Length == 0 )
-					throw new BuildException( String.Format( "Type is not a licensed component: {0}", tp ), Location );
+					Type tp = null;
 
-				try
-				{
-					LicenseManager.CreateWithContext( tp, dlc );
-				}
-				catch ( Exception e )
-				{
-					throw new BuildException( String.Format( "Failed to create license for type {0}", tp ), Location, e );
+					// Try to locate the type in each assembly
+					foreach ( Assembly asm in alAssemblies )
+					{
+						tp = asm.GetType( strTypeName, false, true );
+						if ( tp == null )
+							continue;
+
+						htLicenses[ strLine ] = tp;
+						break;
+					}
+
+					if ( tp == null )
+						throw new BuildException( String.Format( "Failed to locate type: {0}", strTypeName ), Location );
+
+					if ( Verbose && tp != null )
+						Log.WriteLine( ( ( Type )htLicenses[ strLine ] ).Assembly.CodeBase );
+
+					// Ensure that we've got a licensed component
+					if ( tp.GetCustomAttributes( typeof( LicenseProviderAttribute ), true ).Length == 0 )
+						throw new BuildException( String.Format( "Type is not a licensed component: {0}", tp ), Location );
+
+					// Now try to create the licensed component - this gives us a license
+					try
+					{
+						LicenseManager.CreateWithContext( tp, dlc );
+					}
+					catch ( Exception e )
+					{
+						throw new BuildException( String.Format( "Failed to create license for type {0}", tp ), Location, e );
+					}
 				}
 			}
 
+			// Overwrite the existing file, if it exists - is there a better way?			
 			if ( File.Exists( strResourceFilename ) )
 			{
 				File.SetAttributes( strResourceFilename, FileAttributes.Normal );
 				File.Delete( strResourceFilename );
 			}
 
+			// Now write out the license file, keyed to the appropriate output target filename
+			// This .license file will only be valid for this exe/dll
 			using ( FileStream fs = new FileStream( _output, FileMode.Create ) )
 			{
 				DesigntimeLicenseContextSerializer.Serialize( fs, _strTarget, dlc );

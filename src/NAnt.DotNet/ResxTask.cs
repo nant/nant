@@ -62,10 +62,13 @@ namespace SourceForge.NAnt.Tasks
 			if ( Verbose )
 				Log.WriteLine( "Compiling {0} to {1}...", _strInput, strOutput );
 
+			// Open in the input .resx file
 			using ( ResXResourceReader rrr = new ResXResourceReader( _strInput ) )
 			{
+				// Open the output .resources file
 				using ( ResourceWriter rw = new ResourceWriter( strOutput ) )
 				{
+					// Now add each of the input resources to the output resource file
 					foreach ( DictionaryEntry de in rrr )
 					{
 						rw.AddResource( ( string )de.Key, de.Value );
