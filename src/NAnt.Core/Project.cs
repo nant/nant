@@ -19,6 +19,7 @@
 // Ian MacLean (ian_maclean@another.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
+
 using System;
 using System.Collections;
 using System.Collections.Specialized;
@@ -28,7 +29,10 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+
 using Microsoft.Win32;
+
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -822,7 +826,16 @@ namespace NAnt.Core {
                 }
 
                 if (!StringUtils.IsNullOrEmpty(endTarget)) {
-                    Execute(endTarget);
+                    // executing the target identified by the 'nant.onsuccess' 
+                    // or 'nant.onfailure' properties should not affect the 
+                    // build outcome
+                    CallTask callTask = new CallTask();
+                    callTask.Parent = this;
+                    callTask.Project = this;
+                    callTask.Verbose = this.Verbose;
+                    callTask.FailOnError = false;
+                    callTask.TargetName = endTarget;
+                    callTask.Execute();
                 }
 
                 // fire BuildFinished event with details of build outcome
