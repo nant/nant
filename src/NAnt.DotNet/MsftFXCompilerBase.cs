@@ -33,28 +33,25 @@ namespace SourceForge.NAnt.Tasks {
     public abstract class MsftFXCompilerBase : CompilerBase {
         public override string ProgramFileName  {
             get {
-                return ProgramFilepath(this);
+                return determineFilePath();
             } 
         }
-        public static string ProgramFilepath(ExternalProgramBase epb) {
-            
-            string enableLookup = epb.Project.Properties["doNotFind.dotnet.exes"];
-            if(enableLookup != null && bool.Parse(enableLookup) == true)
-                return epb.Name;
-
-            // Instead of relying on the .NET compilers to be in the user's path, point
-            // to the compiler directly since it lives in the .NET Framework's runtime directory
-            string pfn = null;
-            try {
-                pfn = Path.Combine(Path.GetDirectoryName(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()), epb.Name + ".exe");
+        /// <summary>
+        /// Instead of relying on the .NET external program to be in the user's path, point
+        /// to the compiler directly since it lives in the .NET Framework's bin directory.
+        /// <note>If the file path returned does not exist then there is some issue with the users framework setup</note>
+        /// </summary>       
+        /// <returns>A fully qualifies pathname including the program name.</returns>
+        private string determineFilePath() {
+            if (Project.CurrentFramework != null ) {
+                string FrameworkDir = "";           
+                FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                              
+                return Path.Combine(FrameworkDir, ExeName +  ".exe" );               
             }
-            catch {
-                //no-op ignore the error
-            }
-            if(pfn != null && File.Exists(pfn))
-                return pfn;
-            else 
-                return epb.Name;
-        }
+            else {
+                return ExeName;
+            }                         
+        }      
     }
 }

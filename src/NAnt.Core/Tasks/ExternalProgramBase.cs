@@ -56,7 +56,12 @@ namespace SourceForge.NAnt.Tasks {
             }
             set{} //so that it can be overriden.
         }
-
+        /// <summary>
+        /// default to task name but can be overridden by derived classes
+        /// </summary>
+        public virtual string ExeName {
+            get { return Name; }
+        }
         /// <summary>The maximum amount of time the application is allowed to execute, expressed in milliseconds.  Defaults to no time-out.</summary>
         public virtual int TimeOut { get { return Int32.MaxValue;  } set{} }
 

@@ -119,9 +119,9 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>The set of source files for compilation.</summary>
         [FileSet("sources")]
-        public FileSet Sources { get { return _sources; } set { _sources = value; }}
+        public FileSet Sources { get { return _sources; } set { _sources = value; }}                     
 
-        public override string ProgramFileName  {get { return Name; } }          
+        public override string ProgramFileName  {get { return ExeName; } }          
 
         public override string ProgramArguments { get { return "@" + _responseFileName; } }
 
@@ -409,7 +409,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         /// <param name="resourceFileSet"></param>
         protected void CompileResxResources(FileSet resourceFileSet ) {
-            ResGenTask resgen = new ResGenTask();                                     
+            ResGenTask resgen = new ResGenTask(); 
             resgen.Resources = resourceFileSet; // set the fileset
             resgen.Verbose = false; 
             resgen.Parent = this.Parent;

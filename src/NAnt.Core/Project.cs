@@ -21,14 +21,13 @@
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Xml;
-using System.Xml.XPath;
-using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
+using Microsoft.Win32;
+
 
 namespace SourceForge.NAnt {
 
@@ -80,6 +79,10 @@ namespace SourceForge.NAnt {
         LocationMap        _locationMap = new LocationMap();
         PropertyDictionary _properties = new PropertyDictionary();
         XmlDocument    _doc = null; // set in ctorHelper
+        
+        // info about framework information
+        FrameworkInfoHashTable _frameworkInfoTable = new FrameworkInfoHashTable();
+        FrameworkInfo _defaultFramework;
 
         public static event BuildEventHandler BuildStarted;
         public static event BuildEventHandler BuildFinished;
@@ -210,10 +213,13 @@ namespace SourceForge.NAnt {
             newBaseDir = Path.GetFullPath(newBaseDir);
             //BaseDirectory must be rooted.
             BaseDirectory = newBaseDir;
-
+            
+            // Load settings out of settings file                      
+            ProcessSettingsFile();
+            
             //set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
-
+            
             Properties.AddReadOnly(NANT_PROPERTY_FILENAME, ass.CodeBase);
             Properties.AddReadOnly(NANT_PROPERTY_VERSION,  ass.GetName().Version.ToString());
             Properties.AddReadOnly(NANT_PROPERTY_LOCATION, AppDomain.CurrentDomain.BaseDirectory);
@@ -248,13 +254,13 @@ namespace SourceForge.NAnt {
                 else if(!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Task task = CreateTask(childNode);
 
-                    //see comments below.
+                    //see comments below.                   
                     //globalTasks.Add(task);
                     task.Parent = this;
                     task.Execute();
 
                 }
-            }
+            }          
 
             /* Do not do this yet. We need to do lazy init of the Tasks first.
             foreach(Task task in globalTasks) {
@@ -329,7 +335,37 @@ namespace SourceForge.NAnt {
                 }
             }
         }
-
+        
+        /// <summary>
+        /// Table of framework info - accessilbe by tasks and others
+        /// </summary>
+        public FrameworkInfoHashTable FrameworkInfoTable {
+            get { return _frameworkInfoTable; }   
+        }
+        
+        /// <summary>
+        /// This is the framework we will normally use unless the nant.settings.currentframework has been set to somthing else  
+        /// </summary>
+        public FrameworkInfo DefaultFramework {
+            get { return _defaultFramework; }  
+        }
+        /// <summary>
+        /// Current Framework to use for compilation. ie if its set to NET-1.0 then will will use compiler tools for that framework version
+        /// </summary>
+        public FrameworkInfo CurrentFramework {
+            get {
+                FrameworkInfo cframework = null;
+                string frameworkKey = Properties["nant.settings.currentframework"];
+                if ( frameworkKey != null && _frameworkInfoTable.Contains( frameworkKey )) {
+                    cframework = _frameworkInfoTable[frameworkKey];
+                }
+                else {
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier.", frameworkKey ));
+                }            
+                return cframework;
+            }            
+        }
+             
         /// <summary>
         /// If the build document is not file backed then null will be returned.
         /// </summary>
@@ -403,8 +439,7 @@ namespace SourceForge.NAnt {
                 BuildTargets.Add(DefaultTargetName);
             }
 
-            if (BuildTargets.Count == 0) {
-                //TODO: Display Project Help...
+            if (BuildTargets.Count == 0) {               
                 //throw new BuildException("No Target Specified");
             }
             else {
@@ -540,5 +575,131 @@ namespace SourceForge.NAnt {
             }
             return path;
         }
+        
+        #region Settings file Load routines
+        
+        // Addional routines to write      
+        // ProcessTaskInfo
+        // ValidateSettingsFile
+        
+        /// <summary>
+        /// Read the list of Global properties specified in the settings file
+        /// </summary>
+        /// <param name="propertyNodes"></param>
+        void ProcessGlobalProperties( XmlNodeList propertyNodes ) {
+            foreach( XmlNode propertyNode in propertyNodes ){               
+                 string propName = propertyNode.Attributes["name"].Value;
+                 string propValue= propertyNode.Attributes["value"].Value;
+                                  
+                 XmlNode readonlyNode = propertyNode.Attributes["readonly"];               
+                 if (readonlyNode != null && readonlyNode.Value == "true" ) {
+                    Properties.AddReadOnly(propName, propValue);
+                 }     
+                 else {
+                    Properties[propName] =  propValue;
+                 }                                                       
+            }        
+        }
+        /// <summary>
+        /// Process the Framework Info
+        /// </summary>
+        /// <param name="frameworkInfoNodes"></param>
+        void ProcessFrameworkInfo( XmlNodeList frameworkInfoNodes ) {
+            foreach ( XmlNode frameworkNode in frameworkInfoNodes ) {
+            
+                // load the runtimInfo stuff
+                XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("SdkDirectory");
+                XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkDirectory");
+                
+                string name = frameworkNode.Attributes["name"].Value;
+                string description =  frameworkNode.Attributes["description"].Value;
+                string version = frameworkNode.Attributes["version"].Value;
+                string csharpCompilerName = frameworkNode.Attributes["CsharpCompilerName"].Value;
+                string resgenToolName = frameworkNode.Attributes["ResGenName"].Value;
+                                
+                string sdkDirectory = "";
+                string frameworkDirectory = "";
+                
+                // Do some validation here on null or not null fields
+                if ( SdkDirectoryNode.Attributes["useregistry"] != null &&  SdkDirectoryNode.Attributes["useregistry"].Value == "true") {
+                    string regKey = SdkDirectoryNode.Attributes["regkey"].Value;                    
+                    string regValue = SdkDirectoryNode.Attributes["regvalue"].Value;
+                    RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
+                    
+                    if ( sdkKey != null && sdkKey.GetValue(regValue) != null ) {
+                        sdkDirectory  = sdkKey.GetValue(regValue).ToString() + Path.DirectorySeparatorChar + "bin";
+                    }
+                } else {
+                    sdkDirectory =  SdkDirectoryNode.Attributes["dir"].Value;
+                }
+                
+                if ( frameworkDirectoryNode.Attributes["useregistry"] != null &&  frameworkDirectoryNode.Attributes["useregistry"].Value == "true"){
+                    string regKey = frameworkDirectoryNode.Attributes["regkey"].Value;
+                    string regValue = frameworkDirectoryNode.Attributes["regvalue"].Value;
+                    RegistryKey frameworkKey = Registry.LocalMachine.OpenSubKey(regKey);
+                    
+                    if ( frameworkKey  != null && frameworkKey.GetValue(regValue) != null ) {                    
+                        frameworkDirectory  = frameworkKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
+                    }
+                } else {
+                    frameworkDirectory =  frameworkDirectoryNode.Attributes["dir"].Value;
+                }
+                FrameworkInfo info = null;
+                try {
+                    info = new FrameworkInfo( name, description, version, frameworkDirectory, sdkDirectory, csharpCompilerName, resgenToolName );                
+                }
+                catch (Exception ){} // just ignore frameworks that don't validate
+                if ( info != null ) {
+                    // Add to our collection of framework info
+                    _frameworkInfoTable.Add( info.Name, info );   
+                }                                            
+            }
+        }
+                
+        /// <summary>
+        /// Load and process a settings file from the directory of the current Assembly
+        /// </summary>
+        private void ProcessSettingsFile(){
+            XmlDocument confdoc = new XmlDocument();
+            _frameworkInfoTable = new FrameworkInfoHashTable();
+            
+            string configpath = Path.GetDirectoryName(  Assembly.GetExecutingAssembly().Location ) + Path.DirectorySeparatorChar + "NAnt.settings";
+            
+            if ( ! File.Exists(configpath) ){
+                // todo pull a settings file out of the assembly resource and copy to that location                          
+                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture, "settings file {0} not found. ", configpath ) );                
+            }                 
+            try {   
+                confdoc.Load( configpath );
+                // todo validate against .xsd
+                          
+                XmlNode node = confdoc.SelectSingleNode("nantsettings");
+                           
+                XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
+                ProcessFrameworkInfo(frameworkInfoNodes);
+                
+                string defaultFramework = node.Attributes["defaultframework"].Value;
+                if ( _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
+                    
+                    // set the default framework.
+                    _defaultFramework = _frameworkInfoTable[defaultFramework];
+                    Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );            
+                    
+                    // Current Framework is the same as default when we start
+                    Properties.Add("nant.settings.currentframework", defaultFramework );
+                }   
+                else {        
+                    throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the Nant.settings file. Defaulting to no known framework", defaultFramework ) );                  
+                }                              
+                
+                // now load the efault property set
+                XmlNodeList propertyNodes = node.SelectNodes("properties/property");
+                ProcessGlobalProperties( propertyNodes );
+            } 
+            catch ( Exception e)  {
+                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,   "Error loading settings file {0}." + e.Message,  configpath ), e ); 
+            }
+        }
+        #endregion
     }
 }

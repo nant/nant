@@ -16,7 +16,6 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-
 // Joe Jones (joejo@microsoft.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Klemen Zagar (klemen@zagar.ws)
@@ -31,7 +30,6 @@ using SourceForge.NAnt.Attributes;
 using System.Globalization;
 
 namespace SourceForge.NAnt.Tasks {
-
 
     /// <summary>Converts files from one resource format to another (wraps Microsoft's resgen.exe).</summary>
     /// <example>
@@ -72,13 +70,16 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("resources")]
         public FileSet Resources { get { return _resources; } set { _resources = value; } }
                            
-        public override string ProgramFileName { get { return Name; } }
 
         public override string ProgramArguments { get { return _arguments; } }
                 
         protected virtual void WriteOptions(TextWriter writer) {
         }
-
+        
+        public override string ExeName {           
+            get {return Project.CurrentFramework.ResGenToolName; }                          
+        }
+                
         protected virtual bool NeedsCompiling(string input, string output) {
               // return true as soon as we know we need to compile
   

@@ -42,9 +42,11 @@ namespace SourceForge.NAnt.Tasks {
     /// ]]>
     ///   </code>
     /// </example>
+    
     [TaskName("al")]
     public class AlTask : ExternalProgramBase {
 
+        // TODO - move to compiler base and remove all the
         string _arguments;        
         string _output = null;        
         string _target = null;       
@@ -79,9 +81,21 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("sources")]
         public FileSet Sources { get { return _sources; } }
 
-        public override string ProgramFileName { get { return MsftFXCompilerBase.ProgramFilepath(this); } }
+           
+        public override string ProgramFileName { get { return determineFilePath(); } }
         public override string ProgramArguments { get { return _arguments; } }
-
+        
+        // copy of code from MsftFXCompilerBase
+        private string determineFilePath() {
+            if (Project.CurrentFramework != null ) {                        
+                string FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
+                              
+                return Path.Combine(FrameworkDir, ExeName +  ".exe" );      
+            }
+            else {
+                return ExeName;
+            }                         
+        }      
         protected virtual void WriteOptions(TextWriter writer) {}
 
         protected string GetOutputPath() {

@@ -127,6 +127,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "FrameworkInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "FrameworkInfoHashTable.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Location.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

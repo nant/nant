@@ -35,44 +35,24 @@ namespace SourceForge.NAnt.Tasks {
         protected static string FXBin = null;
         public override string ProgramFileName  {
             get { 
-                return ProgramFilepath(this);
+                return determineFilePath();
             } 
         }
         /// <summary>
         /// Instead of relying on the .NET external program to be in the user's path, point
         /// to the compiler directly since it lives in the .NET Framework's bin directory.
-        /// <note>This method also checks for the existance of the end filepath against the filesystem!</note>
-        /// </summary>
-        /// <param name="epb">The External Program to lookup info for.</param>
-        /// <returns>A fully qualifies pathname including the program name. Null is returned if there are any errors or the combined filepath is not found!</returns>
-        public static string ProgramFilepath(ExternalProgramBase epb) {
-            
-            string enableLookup = epb.Project.Properties["doNotFind.dotnet.exes"];
-            if(enableLookup != null && bool.Parse(enableLookup) == true)
-                return epb.Name;
-
-            string sdkInstallPath = null;
-            try{
-                if(FXBin == null) {
-                    RegistryKey dotNetFXKey = Registry.LocalMachine.OpenSubKey("SOFTWARE").OpenSubKey("Microsoft").OpenSubKey(".NETFramework");
-                    sdkInstallPath = dotNetFXKey.GetValue("sdkInstallRoot").ToString();
-                }
-            }
-            catch(Exception e){ /*no-op*/ }
-
-            string pfn = null;
-            if(sdkInstallPath != null){
-                try {
-                    pfn = Path.Combine(Path.Combine(sdkInstallPath,"bin"), epb.Name + ".exe");
-                }
-                catch {
-                    //no-op, ignore the error
-                }
-            }
-            if(pfn != null && File.Exists(pfn))
-                return pfn;
-            else 
-                return epb.Name;
-        }
+        /// <note>If the file path returned does not exist then there is some issue with the users framework setup</note>
+        /// </summary>       
+        /// <returns>A fully qualifies pathname including the program name.</returns>
+        private string determineFilePath(){
+            if (Project.CurrentFramework != null ) {
+                string SdkDirectory = "";           
+                SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName; //   always returna valid currnet Runtime
+                                
+                return Path.Combine(SdkDirectory, ExeName +  ".exe" );               
+            } else {
+                return ExeName;
+            }                                     
+        }            
     }
 }

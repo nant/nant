@@ -44,6 +44,9 @@ namespace SourceForge.NAnt.Tasks {
         bool _nostdlib = false;
         bool _noconfig = false;
         
+        public override string ExeName {           
+            get { return Project.CurrentFramework.CSharpCompilerName; }
+        }
         // C# specific compiler options
         /// <summary>The name of the XML documentation file to generate.
         ///     This attribute corresponds to the <c>/doc:</c> flag.</summary>
