@@ -73,15 +73,16 @@ namespace NAnt.Core {
         /// An <see cref="XmlDocument" /> can only be added to the map once.
         /// </remarks>
         public void Add(XmlDocument doc) {
-            // prevent duplicate mapping
-            // NOTE: if this becomes a liability then just return when a duplicate map has happened
-            string fileName = doc.BaseURI;
-            
-            //check for non-backed documents
-            if (StringUtils.IsNullOrEmpty(fileName)) {
+            // check for non-backed documents
+            if (StringUtils.IsNullOrEmpty(doc.BaseURI)) {
                 return;
             }
 
+            // convert URI to absolute URI
+            Uri uri = new Uri(doc.BaseURI);
+            string fileName = uri.AbsoluteUri;
+
+            // prevent duplicate mapping
             if (FileIsMapped(fileName)) {
                 // do not re-map the file a 2nd time
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "XML document '{0}' has already been mapped.", fileName));
@@ -182,12 +183,14 @@ namespace NAnt.Core {
         /// that has been added to the map.
         /// </remarks>
         public Location GetLocation(XmlNode node) {
-            // find hashtable this node's file is mapped under
-            string fileName = node.BaseURI;
-
-            if (StringUtils.IsNullOrEmpty(fileName)) {
+            // check for non-backed documents
+            if (StringUtils.IsNullOrEmpty(node.BaseURI)) {
                 return new Location(null, 0, 0 ); // return null location because we have a fileless node.
             } 
+
+            // convert URI to absolute URI
+            Uri uri = new Uri(node.BaseURI);
+            string fileName = uri.AbsoluteUri;
 
             if (!FileIsMapped(fileName)) {
                 throw new ArgumentException("Xml node has not been mapped.");
