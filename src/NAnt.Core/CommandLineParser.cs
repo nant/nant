@@ -46,7 +46,7 @@ namespace SourceForge.NAnt {
             _argumentCollection = new CommandLineArgumentCollection();
 
             foreach (PropertyInfo propertyInfo in argumentSpecification.GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
-                if (propertyInfo.CanWrite) {
+                if (propertyInfo.CanWrite || typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType)) {
                     CommandLineArgumentAttribute attribute = GetCommandLineAttribute(propertyInfo);
                     if (attribute is DefaultCommandLineArgumentAttribute) {
                         Debug.Assert(_defaultArgument == null);

@@ -18,6 +18,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections.Specialized;
 using System.IO;
 
 namespace SourceForge.NAnt {
@@ -69,7 +70,7 @@ namespace SourceForge.NAnt {
         /// indented.
         /// </summary>
         /// <value>
-        /// The number of characters that build output should be indented.
+        /// The number of characters that the build output should be indented.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "number of characters to indent build output")]
         public int Indent {
@@ -84,19 +85,21 @@ namespace SourceForge.NAnt {
         /// The list of properties that should be set.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name = "D", Description = "use value for given property")]
-        public string[] Properties {
+        public StringCollection Properties {
             get { return _properties; }
-            set { _properties = value; }
         }
 
         /// <summary>
-        /// Gets the <see cref="Type" /> of logger to add to the list
+        /// Gets or sets the <see cref="Type" /> of logger to add to the list
         /// of listeners.
         /// </summary>
         /// <value>
         /// The <see cref="Type" /> of logger to add to the list of
         /// listeners.
         /// </value>
+        /// <remarks>
+        /// The <see cref="LoggerType" /> should derive from <see cref="LogListener" />.
+        /// </remarks>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logger", Description="use given type as logger")]
         public string LoggerType {
             get { return _loggerType; }
@@ -156,15 +159,13 @@ namespace SourceForge.NAnt {
 
         /// <summary>
         /// Gets or sets a list of targets that should be executed.
-        /// printed.
         /// </summary>
         /// <value>
         /// The list of targets that should be executed.
         /// </value>
         [DefaultCommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="target")]
-        public string[] Targets {
+        public StringCollection Targets {
             get { return _targets; }
-            set { _targets = value; }
         }
 
         #endregion Public Instance Properties
@@ -177,10 +178,10 @@ namespace SourceForge.NAnt {
         private bool _verbose;
         private int _indent;
         private bool _findInParent;
-        private string[] _properties;
+        private StringCollection _properties = new StringCollection();
         private string _loggerType;
         private FileInfo _logFile;
-        private string[] _targets;
+        private StringCollection _targets = new StringCollection();
         private bool _showProjectHelp;
 
         #endregion Private Instance Fields

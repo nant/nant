@@ -22,6 +22,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using System.Security.Permissions;
 
 namespace SourceForge.NAnt {
     /// <summary>
@@ -38,13 +39,13 @@ namespace SourceForge.NAnt {
             _elementType = GetElementType(propertyInfo);
             _argumentType = GetArgumentType(attribute, propertyInfo);
            
-            if (IsCollection) {
+            if (IsCollection || IsArray) {
                 _collectionValues = new ArrayList();
             }
             
             Debug.Assert(LongName != null && LongName.Length > 0);
-            Debug.Assert(!IsCollection || AllowMultiple, "Collection arguments must have allow multiple");
-            Debug.Assert(!Unique || IsCollection, "Unique only applicable to collection arguments");
+            Debug.Assert((!IsCollection && !IsArray) || AllowMultiple, "Collection and array arguments must have allow multiple");
+            Debug.Assert(!Unique || (IsCollection || IsArray), "Unique only applicable to collection arguments");
         }
         
         #endregion Public Instance Constructors
@@ -60,7 +61,7 @@ namespace SourceForge.NAnt {
         /// this property will returns the underlying type of that collection.
         /// </remarks>
         public Type ValueType {
-            get { return IsCollection ? _elementType : Type; }
+            get { return IsCollection || IsArray ? _elementType : Type; }
         }
         
         /// <summary>
@@ -136,7 +137,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool AllowMultiple {
-            get { return IsCollection && (0 != (_argumentType & CommandLineArgumentTypes.Multiple)); }
+            get { return (IsCollection || IsArray) && (0 != (_argumentType & CommandLineArgumentTypes.Multiple)); }
         }
         
         /// <summary>
@@ -172,6 +173,16 @@ namespace SourceForge.NAnt {
         public bool IsCollection {
             get { return IsCollectionType(Type); }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the argument is array-nased.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the argument is array-based; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsArray {
+            get { return IsArrayType(Type); }
+        }
         
         /// <summary>
         /// Gets a value indicating whether the argument is the default argument.
@@ -204,16 +215,69 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="destination">The object on which the value of the argument should be set.</param>
         /// <exception cref="CommandLineArgumentException">The argument is required and no value was specified.</exception>
+        /// <exception cref="NotSupportedException">
+        /// <para>
+        /// The matching property is collection-based, but is not initialized 
+        /// and cannot be written to.
+        /// </para>
+        /// <para>-or-</para>
+        /// <para>
+        /// The matching property is collection-based, but has no strongly-typed
+        /// Add method.
+        /// </para>
+        /// <para>-or-</para>
+        /// <para>
+        /// The matching property is collection-based, but the signature of the 
+        /// Add method is not supported.
+        /// </para>
+        /// </exception>
+        [System.Security.Permissions.ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public void Finish(object destination) {
             if (IsRequired && !SeenValue) {
                 throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Missing required argument '-{0}'.", LongName));
             }
 
-            if (IsCollection) {
+            if (IsArray) {
                 _propertyInfo.SetValue(destination, _collectionValues.ToArray(_elementType), BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+            } else if (IsCollection) {
+                // If value of property is null, create new instance of collection 
+                if (_propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
+                    if (!_propertyInfo.CanWrite) {
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Command-line argument '-{0}' is collection-based, but is not initialized and does not allow the collection to be initialized.", LongName));
+                    }
+                    object instance = Activator.CreateInstance(_propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                    _propertyInfo.SetValue(destination, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                }
+                
+                object value = _propertyInfo.GetValue(destination, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                 
+                MethodInfo addMethod = null;
+
+                // Locate Add method with 1 parameter
+                foreach (MethodInfo method in value.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                    if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                        ParameterInfo parameter = method.GetParameters()[0];
+                        if (parameter.ParameterType != typeof(object)) {
+                            addMethod = method;
+                            break;
+                        }
+                    }
+                }
+
+                if (addMethod == null) {
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Collection-based command-line argument '-{0}' has no strongly-typed Add method.", LongName));
+                } else {
+                    try {
+                        foreach (object item in _collectionValues) {
+                            addMethod.Invoke(value, BindingFlags.Default, null, new object[] {item}, CultureInfo.InvariantCulture);
+                        }
+                    } catch (Exception ex) {
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The signature of the Add method for the collection-based command-line argument '-{0}' is not supported.", LongName), ex);
+                    }
+                }
             } else {
                 // this fails on mono if the _argumentValue is null
-                if ( _argumentValue != null ) {
+                if (_argumentValue != null) {
                     _propertyInfo.SetValue(destination, _argumentValue, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                 }
             }
@@ -230,16 +294,16 @@ namespace SourceForge.NAnt {
         /// </exception>
         public void SetValue(string value) {
             if (SeenValue && !AllowMultiple) {
-                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate argument '-{0}'.", LongName));
+                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate command-line argument '-{0}'.", LongName));
             }
 
             _seenValue = true;
             
             object newValue = ParseValue(ValueType, value);
 
-            if (IsCollection) {
+            if (IsCollection || IsArray) {
                 if (Unique && _collectionValues.Contains(newValue)) {
-                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate '-{0}' argument '{1}'.", LongName, value));
+                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate value '-{0}' for command-line argument '{1}'.", value, LongName));
                 } else {
                     _collectionValues.Add(newValue);
                 }
@@ -265,16 +329,24 @@ namespace SourceForge.NAnt {
                         } else if (stringData == "-") {
                             return false;
                         }
+/*
                     } else if (type == typeof(int)) {
                         return int.Parse(stringData, CultureInfo.InvariantCulture);
                     } else if (type == typeof(uint)) {
                         return uint.Parse(stringData, CultureInfo.InvariantCulture);
+*/                        
                     } else {
                         if (type.IsEnum) {
                             try {
-                                Enum.Parse(type, stringData, true);
-                            } catch(ArgumentException exception) {
-                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value {0} for enum {1}.", stringData), exception);
+                                return Enum.Parse(type, stringData, true);
+                            } catch(ArgumentException ex) {
+                                string message = "Invalid value {0} for command-line argument '-{1}'. Valid values are: ";
+                                foreach (object value in Enum.GetValues(type)) {
+                                    message += value.ToString() + ", ";
+                                }
+                                // strip last ,
+                                message = message.Substring(0, message.Length - 2) + ".";
+                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, message, stringData, LongName), ex);
                             }
                         } else {
                             // Make a guess that the there's a public static Parse method on the type of the property
@@ -294,12 +366,12 @@ namespace SourceForge.NAnt {
                             }
                         }
                     }
-                } catch {
-                    // catch parse errors
+                } catch (Exception ex) {
+                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for command-line argument '-{1}'.", stringData, LongName), ex);
                 }
             }
-                            
-            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for option '-{1}'.", stringData, LongName));
+
+            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for command-line argument '-{1}'.", stringData, LongName));
         }
 
         #endregion Private Instance Methods
@@ -317,14 +389,40 @@ namespace SourceForge.NAnt {
         }
 
         private static Type GetElementType(PropertyInfo propertyInfo) {
-            if (IsCollectionType(propertyInfo.PropertyType)) {
-                return propertyInfo.PropertyType.GetElementType();
-            } else {
-                return null;
+            Type elementType = null;
+
+            if (propertyInfo.PropertyType.IsArray) {
+                elementType = propertyInfo.PropertyType.GetElementType();
+                if (elementType == typeof(object)) {
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Property {0} is not a strong-typed array.", propertyInfo.Name));
+                }
+            } else if (typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType)) {
+                // Locate Add method with 1 parameter
+                foreach (MethodInfo method in propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                    if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                        ParameterInfo parameter = method.GetParameters()[0];
+                        if (parameter.ParameterType == typeof(object)) {
+                            throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Property {0} is not a strong-typed collection.", propertyInfo.Name));
+                        } else {
+                            elementType = parameter.ParameterType;
+                            break;
+                        }
+                    }
+                }
+
+                if (elementType == null) {
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Invalid commandline argument type for property {0}.", propertyInfo.Name));
+                }
             }
+
+            return elementType;
         }
-        
+
         private static bool IsCollectionType(Type type) {
+            return typeof(ICollection).IsAssignableFrom(type);
+        }
+
+        private static bool IsArrayType(Type type) {
             return type.IsArray;
         }
 
