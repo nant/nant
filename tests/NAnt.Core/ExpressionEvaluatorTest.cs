@@ -61,7 +61,167 @@ namespace Tests.NAnt.Core {
         #endregion Override implementation of BuildTestBase
 
         #region Public Instance Methods
-        
+
+        [Test]
+        public void TestRelationOperators() {
+            // string & string
+            AssertExpression("'a'='a'", true);
+            AssertExpression("'a'=='a'", true);
+            AssertExpression("'a'='b'", false);
+            AssertExpression("'a'=='b'", false);
+            AssertExpression("'a'<>'b'", true);
+            AssertExpression("'a'!='b'", true);
+            AssertExpression("'a'!='a'", false);
+            AssertExpression("'a'<>'a'", false);
+            AssertExpression("'a'>'b'", false);
+            AssertExpression("'a'>'a'", false);
+            AssertExpression("'b'>'a'", true);
+            AssertExpression("'a'>='b'", false);
+            AssertExpression("'a'>='a'", true);
+            AssertExpression("'b'>='a'", true);
+            AssertExpression("'a'<'b'", true);
+            AssertExpression("'a'<'a'", false);
+            AssertExpression("'b'<'a'", false);
+            AssertExpression("'a'<='b'", true);
+            AssertExpression("'a'<='a'", true);
+            AssertExpression("'b'<='a'", false);
+
+            // bool & bool
+            AssertExpression("false=false", true);
+            AssertExpression("false==false", true);
+            AssertExpression("false=true", false);
+            AssertExpression("false==true", false);
+            AssertExpression("false<>true", true);
+            AssertExpression("false!=true", true);
+            AssertExpression("false<>false", false);
+            AssertExpression("false!=false", false);
+            AssertExpression("false>true", false);
+            AssertExpression("false>false", false);
+            AssertExpression("true>false", true);
+            AssertExpression("false>=true", false);
+            AssertExpression("false>=false", true);
+            AssertExpression("true>=false", true);
+            AssertExpression("false<true", true);
+            AssertExpression("false<false", false);
+            AssertExpression("true<false", false);
+            AssertExpression("false<=true", true);
+            AssertExpression("false<=false", true);
+            AssertExpression("true<=false", false);
+            
+            // int & int
+            AssertExpression("1=1", true);
+            AssertExpression("1==1", true);
+            AssertExpression("1=2", false);
+            AssertExpression("1==2", false);
+            AssertExpression("1<>2", true);
+            AssertExpression("1!=2", true);
+            AssertExpression("1<>1", false);
+            AssertExpression("1!=1", false);
+            AssertExpression("1>2", false);
+            AssertExpression("1>1", false);
+            AssertExpression("2>1", true);
+            AssertExpression("1>=2", false);
+            AssertExpression("1>=1", true);
+            AssertExpression("2>=1", true);
+            AssertExpression("1<2", true);
+            AssertExpression("1<1", false);
+            AssertExpression("2<1", false);
+            AssertExpression("1<=2", true);
+            AssertExpression("1<=1", true);
+            AssertExpression("2<=1", false);
+
+            // int & double
+            AssertExpression("1=1.0", true);
+            AssertExpression("1==1.0", true);
+            AssertExpression("1=1.5", false);
+            AssertExpression("1==1.5", false);
+            AssertExpression("1<>1.5", true);
+            AssertExpression("1!=1.5", true);
+            AssertExpression("1<>1.0", false);
+            AssertExpression("1!=1.0", false);
+            AssertExpression("1>1.5", false);
+            AssertExpression("1>1.5", false);
+            AssertExpression("1.5>1", true);
+            AssertExpression("1>=1.5", false);
+            AssertExpression("1>=1.0", true);
+            AssertExpression("1.5>=1", true);
+            AssertExpression("1<1.5", true);
+            AssertExpression("1<1.0", false);
+            AssertExpression("1.5<1", false);
+            AssertExpression("1<=1.5", true);
+            AssertExpression("1<=1.0", true);
+            AssertExpression("1.5<=1", false);
+
+            // double & double
+            AssertExpression("1.0=1.0", true);
+            AssertExpression("1.0==1.0", true);
+            AssertExpression("1.0=2.0", false);
+            AssertExpression("1.0==2.0", false);
+            AssertExpression("1.0<>2.0", true);
+            AssertExpression("1.0!=2.0", true);
+            AssertExpression("1.0<>1.0", false);
+            AssertExpression("1.0!=1.0", false);
+            AssertExpression("1.0>2.0", false);
+            AssertExpression("1.0>1.0", false);
+            AssertExpression("2.0>1.0", true);
+            AssertExpression("1.0>=2.0", false);
+            AssertExpression("1.0>=1.0", true);
+            AssertExpression("2.0>=1.0", true);
+            AssertExpression("1.0<2.0", true);
+            AssertExpression("1.0<1.0", false);
+            AssertExpression("2.0<1.0", false);
+            AssertExpression("1.0<=2.0", true);
+            AssertExpression("1.0<=1.0", true);
+            AssertExpression("2.0<=1.0", false);
+
+            // double & int
+            AssertExpression("1.0=1", true);
+            AssertExpression("1.0==1", true);
+            AssertExpression("1.0=2", false);
+            AssertExpression("1.0==2", false);
+            AssertExpression("1.0<>2", true);
+            AssertExpression("1.0!=2", true);
+            AssertExpression("1.0<>1", false);
+            AssertExpression("1.0!=1", false);
+            AssertExpression("1.0>2", false);
+            AssertExpression("1.0>1", false);
+            AssertExpression("2.0>1", true);
+            AssertExpression("1.0>=2", false);
+            AssertExpression("1.0>=1", true);
+            AssertExpression("2.0>=1", true);
+            AssertExpression("1.0<2", true);
+            AssertExpression("1.0<1", false);
+            AssertExpression("2.0<1", false);
+            AssertExpression("1.0<=2", true);
+            AssertExpression("1.0<=1", true);
+            AssertExpression("2.0<=1", false);
+
+            // datetime & datetime
+            // TO-DO !!!!
+
+            // timespan & timespan
+            AssertExpression("timespan::from-days(1.0)=timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(1.0)==timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(1.0)=timespan::from-days(2.0)", false);
+            AssertExpression("timespan::from-days(1.0)==timespan::from-days(2.0)", false);
+            AssertExpression("timespan::from-days(1.0)<>timespan::from-days(2.0)", true);
+            AssertExpression("timespan::from-days(1.0)!=timespan::from-days(2.0)", true);
+            AssertExpression("timespan::from-days(1.0)<>timespan::from-days(1.0)", false);
+            AssertExpression("timespan::from-days(1.0)!=timespan::from-days(1.0)", false);
+            AssertExpression("timespan::from-days(1.0)>timespan::from-days(2.0)", false);
+            AssertExpression("timespan::from-days(1.0)>timespan::from-days(1.0)", false);
+            AssertExpression("timespan::from-days(2.0)>timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(1.0)>=timespan::from-days(2.0)", false);
+            AssertExpression("timespan::from-days(1.0)>=timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(2.0)>=timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(1.0)<timespan::from-days(2.0)", true);
+            AssertExpression("timespan::from-days(1.0)<timespan::from-days(1.0)", false);
+            AssertExpression("timespan::from-days(2.0)<timespan::from-days(1.0)", false);
+            AssertExpression("timespan::from-days(1.0)<=timespan::from-days(2.0)", true);
+            AssertExpression("timespan::from-days(1.0)<=timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(2.0)<=timespan::from-days(1.0)", false);
+        }
+
         [Test]
         public void TestCoreOperations() {
             AssertExpression("1+2", 3);
