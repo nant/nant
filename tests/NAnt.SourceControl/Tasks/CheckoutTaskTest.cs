@@ -75,6 +75,22 @@ namespace Tests.NAnt.SourceControl.Tasks {
             </project>";
 */
 
+        private readonly string _testReadonly = @"<?xml version='1.0'?>
+            <project name='Test checkout' default='checkout'>
+                <property name='sourcecontrol.usesharpcvslib' value='{0}' />
+                <target name='checkout'>
+                    <cvs-checkout   module='{1}'
+                                    cvsroot='{2}' 
+                                    destination='{3}'
+                                    password='{4}'
+                                    readonly='true'
+                                    quiet='true'
+                                    commandline='-n'
+                    />
+                </target>
+
+            </project>";
+
         #endregion Private Instance Fields
 
         #region Override implementation of BuildTestBase
@@ -134,6 +150,27 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
             Assertion.Assert(String.Format("File {0} does not exist.", checkFilePath), 
                 File.Exists(checkFilePath));
+        }
+
+        /// <summary>
+        /// Test that a checkout is performed for the given date.
+        /// </summary>
+        [Test]
+        public void TestCheckoutReadonly () {
+            object[] args = { 
+                false, TestModule, TestCvsRoot, destination, string.Empty, "2003/08/16", "2003_08_16"};
+
+            string checkoutPath = Path.Combine(destination, TestModule);
+            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
+
+            string result = 
+                RunBuild(FormatBuildFile(_testReadonly, args), Level.Debug);
+            Assertion.Assert(String.Format("File {0} does not exist.", checkFilePath), 
+                File.Exists(checkFilePath));
+
+            FileAttributes attributes = File.GetAttributes(checkFilePath);
+            
+            Assertion.Assert(attributes.CompareTo(FileAttributes.ReadOnly) > 0);
         }
 
         #endregion Public Instance Methods
