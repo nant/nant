@@ -19,19 +19,19 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Xml;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-namespace NAnt.Core.Tasks {
+ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Sets an environment variable or a whole collection of them. Use an empty value attribute
     /// to clear a variable.
     /// </summary>
-    ///   <remarks>    
+    ///   <remarks>
     ///     <note>
     ///	Variables will be set for the current NAnt process and all child processes 
     ///	that NAnt spawns ( compilers, shell tools etc ). If the intention is to only 
@@ -48,7 +48,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>Set the MONO_PATH environment variable on a *nix platform.</para>
     ///   <code>
     ///     <![CDATA[
-    ///     <setenv name=="MONO_PATH" value="/home/jimbob/dev/foo:$MONO_PATH"/>
+    ///     <setenv name=="MONO_PATH" value="/home/jimbob/dev/foo:%MONO_PATH%"/>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -56,35 +56,47 @@ namespace NAnt.Core.Tasks {
     ///   <para>Set a collection of environment variables. Note the nested variable used to set var3.</para>
     ///   <code>
     ///     <![CDATA[
-    ///     <setenv >
-    ///         <environment>
-    ///             <option name="var1" value="value2" />
-    ///             <option name="var2" value="value2" />
-    ///             <option name="var3" value="value3:$var2" />
-    ///         </environment>
+    ///     <setenv>
+    ///             <variable name="var1" value="value2" />
+    ///             <variable name="var2" value="value2" />
+    ///             <variable name="var3" value="value3:%var2%" />
     ///     </setenv>
     ///     ]]>
     ///   </code>
     /// </example>
-    /// <para>
-    /// </para>
     /// <example>
+    ///   <para>Set environment variables using nested path elements.</para>
+    ///   <code>
+    ///     <![CDATA[
+    ///     <path id="build.path">
+    ///            <pathelement dir="c:/windows" />
+    ///            <pathelement dir="c:/cygwin/usr/local/bin" />
+    ///        </path>
+    ///     <setenv>         
+    ///             <variable name="build_path" >
+    ///                    <path refid="build.path" />
+    ///             </variable>
+    ///             <variable name="path2">
+    ///                <path>
+    ///                    <pathelement dir="c:/windows" />
+    ///                    <pathelement dir="c:/cygwin/usr/local/bin" />
+    ///                </path>
+    ///             </variable>
+    ///     </setenv>    
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("setenv")]
     public class SetEnvTask : Task {
-        
-        #region Protected Static Fields
-        
-        static string _matchEnvRegex = @"\$[a-zA-Z][a-zA-Z0-9_]+";
-        static string _matchEnvRegexWin = @"%[a-zA-Z][a-zA-Z0-9_]+%"; 
-        
-        #endregion Protected Static Fields
-
         #region Private Instance Fields
-        
+
         private string _name;
         private string _value;
-        private OptionCollection _environment = new OptionCollection();
+        private string _literalValue;
+        private FileInfo _file;
+        private DirectoryInfo _directory;
+        private PathSet _path;        
+        private EnvironmentVariableCollection _environmentVariables = new EnvironmentVariableCollection();
 
         #endregion Private Instance Fields
 
@@ -98,27 +110,69 @@ namespace NAnt.Core.Tasks {
             get { return _name; }
             set { _name = StringUtils.ConvertEmptyToNull(value); }
         }
-        
+
         /// <summary>
-        /// The value of a single Environment variable to set
+        /// The literal value for the environment variable.
         /// </summary>
-        [TaskAttribute("value", Required=false)]
-        public string EnvValue {
-            get { return _value; }
-            set { _value = value; }
+        [TaskAttribute("value")]
+        public string LiteralValue {
+            get { return _literalValue; }
+            set { 
+                _value = value;
+                _literalValue = value;
+            }
         }
 
         /// <summary>
-        /// Collection of Environment variables to set.
+        /// The value for a file-based environment variable. NAnt will convert 
+        /// it to an absolute filename.
         /// </summary>
-        [BuildElementCollection("environment", "option")]
-        public OptionCollection EnvironmentCollection {
-            get { return _environment; }
+        [TaskAttribute("file")]
+        public FileInfo File {
+            get { return _file; }
+            set { 
+                _value = value.ToString();
+                _file = value;
+            }
+        }
+
+        /// <summary>
+        /// The value for a directory-based environment variable. NAnt will 
+        /// convert it to an absolute path.
+        /// </summary>
+        [TaskAttribute("dir")]
+        public DirectoryInfo Directory {
+            get { return _directory; }
+            set { 
+                _value = value.ToString();
+                _directory = value;
+            }
+        }
+
+        /// <summary>
+        /// The value for a PATH like environment variable. You can use 
+        /// <c>:</c> or <c>;</c> as path separators and NAnt will convert it to 
+        /// the platform's local conventions.
+        /// </summary>
+        [TaskAttribute("path")]
+        public PathSet Path {
+            get { return _path; }
+            set { 
+                _value = value.ToString(); 
+                _path = value;
+            }
+        }
+                
+        [BuildElementArray("variable", ElementType=typeof(EnvironmentVariable))]
+        public EnvironmentVariableCollection EnvironmentVariables {
+            get { return _environmentVariables; }
+            set { _environmentVariables = value; }
         }
 
         #endregion Public Instance Properties
         
         #region DllImports
+        
         /// <summary>
         /// Win32 DllImport for the SetEnvironmentVariable function.
         /// </summary>
@@ -147,7 +201,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <param name="taskNode"></param>
         protected override void InitializeTask(XmlNode taskNode) {
-            if ( EnvName == null && EnvironmentCollection.Count == 0) {
+            if ( EnvName == null && EnvironmentVariables.Count == 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "Either the name attribute or at least one nested <option> element is required."), Location );
             }
@@ -157,13 +211,13 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             
-            if (EnvName != null && EnvValue != null ) {
-                // add the single env var 
-                EnvironmentCollection.Add(new Option( EnvName, EnvValue ));
+            if (EnvName != null && _value != null ) {
+                // add the single env var
+                EnvironmentVariables.Add(new EnvironmentVariable( EnvName, _value ));
             }
             
-            foreach( Option option in EnvironmentCollection ) {
-                SetSingleEnvironmentVariable( option.OptionName, option.Value );
+            foreach( EnvironmentVariable env in EnvironmentVariables ) {
+                SetSingleEnvironmentVariable( env.VariableName, env.Value );
             }
         }
         
@@ -178,11 +232,11 @@ namespace NAnt.Core.Tasks {
         /// <param name="value"></param>
         private void SetSingleEnvironmentVariable(string name, string value) {
             
-            Log(Level.Verbose, "Setting env var {0} to {1}", name, value);
             bool result;
+            Log(Level.Verbose, "Setting environment variable '{0}' to '{1}'", name, value);
             
             // expand any env vars in value
-            string expandedValue = ExpandEnvironmentStrings ( value);
+            string expandedValue = Environment.ExpandEnvironmentVariables(value);
             if ( PlatformHelper.IsWin32 ) {
                 result = SetEnvironmentVariable(name, expandedValue);
             } 
@@ -196,38 +250,7 @@ namespace NAnt.Core.Tasks {
                 throw new BuildException(string.Format("Error setting env var {0} to {1}", name, value ) , Location);
             }
         }
-        /// <summary>
-        /// callback to process environment variable matches.
-        /// </summary>
-        /// <param name="m"></param>
-        /// <returns>The value of the matched env var if it exists otherwise the value of the match</returns>
-        private string ExpandEnvVarMatchCallback(Match m) {
-            string envVar = m.ToString();
-            
-            Match match = Regex.Match(m.ToString(), @"[a-zA-Z][a-zA-Z0-9_]+");
-            string envName = match.Captures[0].ToString();
-            string envValue = Environment.GetEnvironmentVariable(envName);
-            if (envValue != null) {
-                return envValue;
-            } else {
-                return envVar;
-            }
-        }
-        /// <summary>
-        /// Expand any inline environment variables in the passed string.
-        /// The standard env var syntax for the current platform is used.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns>The source string with any env vars expanded</returns>
-        private string ExpandEnvironmentStrings(string text) {
-            string matchEnvRegexWin = "";
-            if ( PlatformHelper.IsWin32 ) {
-                matchEnvRegexWin = _matchEnvRegexWin;
-            } else {
-                matchEnvRegexWin = _matchEnvRegex;
-            }
-            return Regex.Replace(text, matchEnvRegexWin, new MatchEvaluator(this.ExpandEnvVarMatchCallback));
-        }
+        
         #endregion Private Instance Methods
     }
 }

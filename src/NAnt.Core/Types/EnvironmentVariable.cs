@@ -43,6 +43,21 @@ namespace NAnt.Core.Types {
 
         #endregion Private Instance Fields
 
+        /// <summary>
+        /// name, value constructor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public EnvironmentVariable(string name, string value) {
+            _name = name;
+            _value = value;
+        }
+        
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public EnvironmentVariable() {}
+
         #region Public Instance Properties
 
         /// <summary>

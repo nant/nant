@@ -18,6 +18,7 @@
 // Ian MacLean (imaclean@gmail.com)
 
 using System;
+using System.IO;
 using NAnt.Core;
 using NUnit.Framework;
 
@@ -49,11 +50,9 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_SetMultipleEnvVars() {
             string _xml = @"
                     <project>
-                        <setenv >
-                            <environment>
-                                <option name='var1' value='value1' />
-                                <option name='var2' value='value2' />
-                            </environment>
+                        <setenv>
+                            <variable name='var1' value='value1' />
+                            <variable name='var2' value='value2' />
                         </setenv>
                     </project>";
             RunBuild(_xml);
@@ -66,29 +65,57 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue( Environment.GetEnvironmentVariable("var2") == "value2", 
                 "Environment variable var2 should have been set to 'value2'" );
         }
-
+        
         [Test]
         public void Test_ExpandEnvStrings() {
-            string platformSpecVarPart = "";
-            if ( PlatformHelper.IsWin32 ) {
-                platformSpecVarPart = "%var2%";
-            } else {
-                platformSpecVarPart = "$var2";
-            }
-            string _xml = string.Format(@"
+            string _xml = @"
                     <project>
                         <setenv >
-                            <environment>
-                                <option name='var2' value='value2' />
-                                <option name='var3' value='value3:{0}' />
-                            </environment>
+                            <variable name='var2' value='value2' />
+                            <variable name='var3' value='value3:%var2%' />
                         </setenv>
-                    </project>", platformSpecVarPart);
+                    </project>";
             RunBuild(_xml);
             Assert.IsTrue( Environment.GetEnvironmentVariable("var3") != null, 
                 "Environment variable var3 should have been set" );
             Assert.IsTrue( Environment.GetEnvironmentVariable("var3") == "value3:value2", 
                 "Environment variable var3 should have been set to 'value3:value2'" );
+        }
+        [Test]
+        public void Test_UsePathAttribute() {
+            string _xml = @"
+                    <project>
+                        <setenv name='test_path' path='/home/foo' >
+                        </setenv>
+                    </project>";
+            RunBuild(_xml);
+            Assert.IsTrue( Environment.GetEnvironmentVariable("test_path") != null, 
+                "Environment variable test_path should have been set" );
+            Assert.IsTrue( Environment.GetEnvironmentVariable("test_path") == "/home/foo", 
+                "Environment variable test_path should have been set to '/home/foo'" );
+        }
+        [Test]
+        public void Test_NestedPathElement() {
+                        
+            string expectedPath = string.Format(@"c:{0}windows{1}c:{0}cygwin{0}usr{0}local{0}bin",
+                Path.DirectorySeparatorChar, Path.PathSeparator );
+            string _xml = @"
+                    <project>
+                        <setenv>
+                            <variable name='test_path2'>
+                                <path>
+                                    <pathelement dir='c:/windows' />
+                                    <pathelement dir='c:/cygwin/usr/local/bin' />
+                                </path>
+                            </variable>
+                        </setenv>
+                    </project>";
+            RunBuild(_xml);
+            Assert.IsTrue( Environment.GetEnvironmentVariable("test_path2") != null, 
+                "Environment variable test_path2 should have been set" );
+            Assert.IsTrue( Environment.GetEnvironmentVariable("test_path2") == expectedPath, 
+                "Environment variable test_path2 should have been set to '{0}' actual value is {1}",
+                    expectedPath, Environment.GetEnvironmentVariable("test_path2") );
         }
     }
 }
