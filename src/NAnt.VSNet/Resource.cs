@@ -59,11 +59,12 @@ namespace NAnt.VSNet {
         }
 
         public string ManifestResourceName {
-            get { return _manifestResourceName; }
-        }
-
-        public string CompiledResourceFile {
-            get { return _compiledResourceFile; }
+            get { 
+                if (_manifestResourceName == null) {
+                    throw new InvalidOperationException("The resource must compiled first.");
+                }
+                return _manifestResourceName;
+            }
         }
 
         /// <summary>
@@ -97,21 +98,63 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public void Compile(ConfigurationSettings config) {
+        /// <summary>
+        /// Compiles the resource file.
+        /// </summary>
+        /// <param name="config">A build configuration.</param>
+        /// <returns>
+        /// A <see cref="FileInfo" /> representing the compiled resource file.
+        /// </returns>
+        public FileInfo Compile(ConfigurationSettings config) {
+            FileInfo compiledResourceFile = null;
+
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
-                    _manifestResourceName = GetManifestResourceName(config);
-                    _compiledResourceFile = CompileResx(config);
+                    compiledResourceFile = CompileResx(config);
                     break;
                 case ".licx":
-                    _manifestResourceName = GetManifestResourceName(config);
-                    _compiledResourceFile = CompileLicx(config);
+                    compiledResourceFile = CompileLicx(config);
                     break;
                 default:
-                    _manifestResourceName = GetManifestResourceName(config);
-                    _compiledResourceFile = CompileResource();
+                    compiledResourceFile = CompileResource(config);
                     break;
             }
+
+            // determine manifest resource name
+            _manifestResourceName = GetManifestResourceName(config);
+
+            return compiledResourceFile;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="FileInfo" /> representing the compiled resource
+        /// file.
+        /// </summary>
+        /// <param name="config">A build configuration.</param>
+        /// <returns>
+        /// A <see cref="FileInfo" /> representing the compiled resource file.
+        /// </returns>
+        /// <remarks>
+        /// Calling this method does not force compilation of the resource file.
+        /// </remarks>
+        public FileInfo GetCompiledResourceFile(ConfigurationSettings config) {
+            string compiledResourceFile = null;
+
+            switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
+                case ".resx":
+                    compiledResourceFile = Path.Combine(config.ObjectDir.FullName, 
+                        GetManifestResourceName(config));
+                    break;
+                case ".licx":
+                    compiledResourceFile = Path.Combine(config.ObjectDir.FullName, 
+                        Project.ProjectSettings.OutputFileName + ".licenses");
+                    break;
+                default:
+                    compiledResourceFile = InputFile.FullName;
+                    break;
+            }
+
+            return new FileInfo(compiledResourceFile);
         }
 
         #endregion Public Instance Methods
@@ -203,13 +246,11 @@ namespace NAnt.VSNet {
                 LogicalFile.FullName, dependentFile);
         }
 
-        private string CompileResource() {
-            return InputFile.FullName;
+        private FileInfo CompileResource(ConfigurationSettings config) {
+            return GetCompiledResourceFile(config);
         }
 
-        private string CompileLicx(ConfigurationSettings config) {
-            string outputFileName = Project.ProjectSettings.OutputFileName;
-
+        private FileInfo CompileLicx(ConfigurationSettings config) {
             // create instance of License task
             LicenseTask lt = new LicenseTask();
 
@@ -242,11 +283,10 @@ namespace NAnt.VSNet {
 
             // set task properties
             lt.InputFile = InputFile;
-            lt.OutputFile = new FileInfo(Path.Combine(config.ObjectDir.FullName, 
-                outputFileName + ".licenses"));
+            lt.OutputFile = GetCompiledResourceFile(config);
             // convert target to uppercase to match VS.NET
-            lt.Target = Path.GetFileName(outputFileName).ToUpper(
-                CultureInfo.InvariantCulture);
+            lt.Target = Path.GetFileName(Project.ProjectSettings.OutputFileName).
+                ToUpper(CultureInfo.InvariantCulture);
 
             // inherit non-GAC assembly references from project
             foreach (ReferenceBase reference in Project.References) {
@@ -269,13 +309,10 @@ namespace NAnt.VSNet {
                 lt.Project.Unindent();
             }
 
-            return lt.OutputFile.FullName;
+            return lt.OutputFile;
         }
 
-        private string CompileResx(ConfigurationSettings config) {
-            FileInfo outputFile = new FileInfo(Path.Combine(
-                config.ObjectDir.FullName, ManifestResourceName));
-
+        private FileInfo CompileResx(ConfigurationSettings config) {
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
 
@@ -308,7 +345,7 @@ namespace NAnt.VSNet {
 
             // set task properties
             rt.InputFile = InputFile;
-            rt.OutputFile = outputFile;
+            rt.OutputFile = GetCompiledResourceFile(config);
 
             // inherit assembly references from project
             foreach (ReferenceBase reference in Project.References) {
@@ -329,7 +366,7 @@ namespace NAnt.VSNet {
                 rt.Project.Unindent();
             }
 
-            return outputFile.FullName;
+            return rt.OutputFile;
         }
 
         #endregion Private Instance Methods
@@ -337,7 +374,6 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private CultureInfo _culture;
-        private string _compiledResourceFile;
         private FileInfo _resourceSourceFile;
         private string _dependentFile;
         private string _resourceSourceFileRelativePath;
