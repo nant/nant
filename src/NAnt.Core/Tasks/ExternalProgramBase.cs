@@ -47,7 +47,7 @@ namespace NAnt.Core.Tasks {
         private int _timeout = Int32.MaxValue;
         private TextWriter _outputWriter;
         private TextWriter _errorWriter;
-        private int _exitCode;
+        private int _exitCode = -1;
 
         #endregion Private Instance Fields
 
@@ -227,7 +227,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <value>
         /// The code that the associated process specified when it terminated, 
-        /// or <c>-1</c> if the process could not be started.
+        /// or <c>-1</c> if the process could not be started or did not finish
+        /// in time.
         /// </value>
         public int ExitCode {
             get { return _exitCode; }
