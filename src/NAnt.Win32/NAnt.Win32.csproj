@@ -29,7 +29,7 @@
                     DocumentationFile = "Nant.Win32Tasks.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
-                    IncrementalBuild = "true"
+                    IncrementalBuild = "false"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.Win32\"
                     RegisterForComInterop = "false"

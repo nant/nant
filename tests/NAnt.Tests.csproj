@@ -29,7 +29,7 @@
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
-                    IncrementalBuild = "true"
+                    IncrementalBuild = "false"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.Tests\"
                     RegisterForComInterop = "false"

@@ -29,7 +29,7 @@
                     DocumentationFile = "NAnt.NUnit2Tasks.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
-                    IncrementalBuild = "true"
+                    IncrementalBuild = "false"
                     NoWarn = "0618"
                     Optimize = "false"
                     OutputPath = "..\..\..\build.VS.NET\NAnt.NUnit2\"
