@@ -307,7 +307,7 @@ namespace NAnt.VSNet {
                 return;
             }
 
-            ResolveFolderFromList(_solutionTask.DefaultAssemlyFolders.DirectoryNames, fiRef.Name);
+            ResolveFolderFromList(_solutionTask.DefaultAssemblyFolders.DirectoryNames, fiRef.Name);
         }
 
 

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 
 namespace NAnt.VSNet.Types {
     /// <summary>
@@ -75,13 +76,38 @@ namespace NAnt.VSNet.Types {
                 if (value != null) {
                     // Try to locate instance using Value
                     foreach (WebMap WebMap in base.List) {
-                        if (value.Equals(WebMap.Url)) {
+                        if ((WebMap.CaseSensitive && value.Equals(WebMap.Url)) || (!WebMap.CaseSensitive && value.ToUpper(CultureInfo.InvariantCulture) == WebMap.Url.ToUpper(CultureInfo.InvariantCulture))) {
                             return WebMap;
                         }
                     }
                 }
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Find the best matching <see cref="WebMap"/> for the given Uri.
+        /// </summary>
+        /// <param name="uri">The value to match against the <see cref="WebMap" /> objects in the collection.</param>
+        public string FindBestMatch(string uri)
+        {
+            string bestMatch = null;
+            int bestMatchLength = Int32.MinValue;
+
+            foreach (WebMap webMap in base.List) {
+                if (!webMap.IfDefined || webMap.UnlessDefined)
+                    continue;
+
+                string testSubject = webMap.CaseSensitive ? uri : uri.ToUpper(CultureInfo.InvariantCulture);
+                string testTarget = webMap.CaseSensitive ? webMap.Url : webMap.Url.ToUpper(CultureInfo.InvariantCulture);
+
+                if (testSubject.StartsWith(testTarget) && testTarget.Length > bestMatchLength) {
+                    bestMatchLength = testTarget.Length;
+                    bestMatch = webMap.Path + uri.Substring(testTarget.Length);
+                }
+            }
+
+            return bestMatch;
         }
 
         #endregion Public Instance Properties

@@ -36,6 +36,7 @@ namespace NAnt.VSNet.Types {
 
         private string _url;
         private string _path;
+        private bool _caseSensitive = false;
         private bool _ifDefined = true;
         private bool _unlessDefined = false;
 
@@ -67,6 +68,19 @@ namespace NAnt.VSNet.Types {
         public string Path {
             get { return _path; } 
             set { _path = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies whether the mapping is case-sensitive or not.
+        /// </summary>
+        /// <value>
+        /// A boolean flag representing the case-sensitivity of the mapping.  Default is <see langword="true" />.
+        /// </value>
+        [TaskAttribute("casesensitive", Required=false)]
+        [BooleanValidator()]
+        public bool CaseSensitive {
+            get { return _caseSensitive; }
+            set { _caseSensitive = value; }
         }
 
         /// <summary>

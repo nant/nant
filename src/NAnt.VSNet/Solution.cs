@@ -77,9 +77,10 @@ namespace NAnt.VSNet {
                 }
 
                 // translate URLs to physical paths if using a webmap
-                WebMap map = _webMaps[project];
-                if (map != null && map.IfDefined && !map.UnlessDefined) {
-                    project = map.Path;
+                string map = _webMaps.FindBestMatch(project);
+                if (map != null) {
+                    Log(Level.Debug, LogPrefix + "Found webmap match: " + map);
+                    project = map;
                 }
 
                 try {
@@ -88,6 +89,11 @@ namespace NAnt.VSNet {
                         fullPath = Path.Combine(fiSolution.DirectoryName, uri.LocalPath);
                     } else {
                         fullPath = project;
+
+                        if (!solutionTask.EnableWebDAV) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture,
+                                @"Cannot build web project '{0}'.  Please use <webmap> to map the given URL to a project-relative path, or specify enablewebdav=""true"" on the <solution> task element to use WebDAV.", fullPath));
+                        }
                     }
                 } catch (UriFormatException) {
                     fullPath = Path.Combine(fiSolution.DirectoryName, project);
@@ -465,7 +471,7 @@ namespace NAnt.VSNet {
                 string outputfile = (string)de.Key;
                 string folder = Path.GetDirectoryName(outputfile);
 
-                if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemlyFolders.DirectoryNames.Contains(folder)) {
+                if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemblyFolders.DirectoryNames.Contains(folder)) {
                     outputsInAssemblyFolders[Path.GetFileName(outputfile)] = de.Value;
                 }
             }

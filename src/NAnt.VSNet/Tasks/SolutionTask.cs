@@ -266,10 +266,26 @@ namespace NAnt.VSNet.Tasks {
         }
 
         /// <summary>
+        /// Allow the task to use WebDAV for retrieving/compiling the projects within solution.  Use of 
+        /// <see cref="WebMap" /> is preferred over WebDAV.  The default is <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        ///     <para>WebDAV support requires permission changes to be made on your project server.  These changes may affect          
+        ///     the security of the server and should not be applied to a public installation.</para>
+        ///     <para>Consult your web server or the NAnt Wiki documentation for more information.</para>
+        /// </remarks>
+        [TaskAttribute("enablewebdav", Required = false)]
+        [BooleanValidator()]
+        public bool EnableWebDAV {
+            get { return _enableWebDAV; }
+            set { _enableWebDAV = value; }
+        }
+
+        /// <summary>
         /// Set of folders where references are searched when not found in path 
         /// from project file (HintPath) or <see cref="AssemblyFolders" />.
         /// </summary>
-        public FileSet DefaultAssemlyFolders {
+        public FileSet DefaultAssemblyFolders {
             get {
                 if (IncludeVSFolders) {
                     return FindDefaultAssemblyFolders();
@@ -400,6 +416,7 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _assemblyFolders;
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
+        private bool _enableWebDAV = false;
 
         #endregion Private Instance Fields
 
