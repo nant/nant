@@ -160,6 +160,12 @@
                 has already been executed before.
             </li>
         </ul>
+        <h5>&lt;cl&gt;</h5>
+        <ul>
+            <li>
+                Added support for Managed Extensions.
+            </li>
+        </ul>
         <h5>&lt;copy&gt;</h5>
         <ul>
             <li>
@@ -304,6 +310,27 @@
             <li>
                 The nested <code>&lt;param&gt;</code> child element has been deprecated in favor
                 of a nested <code>&lt;parameters&gt;</code> collection.
+            </li>
+        </ul>
+        <h5>&lt;touch&gt;</h5>
+        <ul>
+            <li>
+                If the file specified in the single-file case does not exist, it will now be created.
+            </li>
+        </ul>
+        <h5>&lt;zip&gt;</h5>
+        <ul>
+            <li>
+                Fixed issue when files were included that were not located beneath the basedir of the fileset.
+            </li>
+            <li>
+                Added <code>includeemptydirs</code> attribute to control whether empty directories should be included in the generated zip file.
+            </li>
+            <li>
+                Fixed failure when no <code>basedir</code> for fileset was specified.
+            </li>
+            <li>
+                Fixed failure when <code>basedir</code> of fileset is set to the root directory of a drive in Windows.
             </li>
         </ul>
         <h4>API changes</h4>
