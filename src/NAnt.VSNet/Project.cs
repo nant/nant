@@ -319,7 +319,7 @@ namespace NAnt.VSNet {
                     }
                 }
 
-                // Add the compiled files
+                // add the files to compile
                 foreach (string file in _htFiles.Keys) {
                     sw.WriteLine(@"""" + file + @"""");
                 }
@@ -381,7 +381,7 @@ namespace NAnt.VSNet {
                 bSuccess = false;
             } else {
                 if (_isWebProject) {
-                    Log(Level.Info, LogPrefix + "Uploading output files...");
+                    Log(Level.Verbose, LogPrefix + "Uploading output files...");
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                     //wdc.DeleteFile( cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _ps.OutputFile );
                     wdc.UploadFile(cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _projectSettings.OutputFile);

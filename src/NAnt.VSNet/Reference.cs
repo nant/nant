@@ -221,9 +221,56 @@ namespace NAnt.VSNet {
             return referencedFiles;
         }
 
+
+        /// <summary>
+        /// Searches for the reference file.
+        /// </summary>
+        public void ResolveFolder() {
+            if (IsSystem || IsProjectReference) {
+                //do not resolve system assemblies or project references
+                return;
+            }
+
+            FileInfo fiRef = new FileInfo(_referenceFile);
+            if (fiRef.Exists) {
+                //referenced file found - no other tasks required
+                return;
+            }
+
+            if (ResolveFolderFromList(_solutionTask.AssemblyFolders.DirectoryNames, fiRef.Name)) {
+                return;
+            }
+
+            ResolveFolderFromList(_solutionTask.DefaultAssemlyFolders.DirectoryNames, fiRef.Name);
+        }
+
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
+
+        /// <summary>
+        /// Searches for the given file in all paths in <paramref name="folderList" />.
+        /// </summary>
+        /// <param name="folderList">The folder to search.</param>
+        /// <param name="fileName">The file to search for.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="fileName" /> was found
+        /// in <paramref name="folderList" />.
+        /// </returns>
+        private bool ResolveFolderFromList(StringCollection folderList, string fileName) {
+            foreach (string path in folderList) {
+                FileInfo fiRef = new FileInfo(Path.Combine(path, fileName));
+
+                if (fiRef.Exists) {
+                    _referenceFile = fiRef.FullName;
+                    _baseDirectory = fiRef.DirectoryName;
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private DateTime GetTimestamp(string fileName) {
             if (!File.Exists(fileName)) {

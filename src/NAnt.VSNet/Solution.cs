@@ -202,11 +202,14 @@ namespace NAnt.VSNet {
 
                         if (!failed) {
                             // Fixup references
-                            Log(Level.Info, LogPrefix + "Fixing up references...");
+                            Log(Level.Verbose, LogPrefix + "Fixing up references...");
 
                             foreach (Reference reference in p.References) {
                                 // store original reference filename
                                 string originalReference = reference.Filename;
+
+                                // resolving path, where reference file is (find that file in search paths)
+                                reference.ResolveFolder();
 
                                 if (reference.IsProjectReference) {
                                     Project pRef = GetProjectFromGUID(reference.Project.GUID);
@@ -247,7 +250,7 @@ namespace NAnt.VSNet {
                             success = false;
                             htFailedProjects[p.GUID] = null;
 
-                            // Mark the projects referencing this one as failed
+                            // mark the projects referencing this one as failed
                             foreach (Project pFailed in _htProjects.Values) {
                                 if (HasProjectDependency(pFailed.GUID, p.GUID)) {
                                     htFailedProjects[pFailed.GUID] = null;
@@ -257,7 +260,7 @@ namespace NAnt.VSNet {
 
                         compiledThisRound = true;
 
-                        // Remove all references to this project
+                        // remove all references to this project
                         foreach (Project pRemove in _htProjects.Values) {
                             RemoveProjectDependency(pRemove.GUID, p.GUID);
                         }
@@ -356,7 +359,7 @@ namespace NAnt.VSNet {
         }
 
         private void LoadProjects() {
-            Log(Level.Info, LogPrefix + "Loading projects...");
+            Log(Level.Verbose, LogPrefix + "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;
             foreach (DictionaryEntry de in _htProjectFiles) {
@@ -372,7 +375,7 @@ namespace NAnt.VSNet {
         }
 
         private void GetDependenciesFromProjects() {
-            Log(Level.Info, LogPrefix + "Gathering additional dependencies...");
+            Log(Level.Verbose, LogPrefix + "Gathering additional dependencies...");
 
             // First get all of the output files
             foreach (DictionaryEntry de in _htProjects) {
