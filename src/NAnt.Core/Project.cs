@@ -521,8 +521,8 @@ namespace SourceForge.NAnt {
         /// <returns>Indication of success</returns>
         public bool Run() {
             bool success = true;
-            try {
 
+            try {
                 Project.OnBuildStarted(this, new BuildEventArgs(_projectName));
                 DateTime startTime = DateTime.Now;
 
@@ -543,13 +543,21 @@ namespace SourceForge.NAnt {
 
                 success = true;
                 return true;
-
             } catch (BuildException e) {
-                string message = "\nBUILD FAILED\n" + e.ToString();
+                string message = "\nBUILD FAILED";
+                if (this.Verbose) {
+                    message += "\n" + e.ToString();
+                } else {
+                    if (e.Message != null) {
+                        message += "\n" + e.Message;
+                    }
+                    if (e.InnerException != null && e.InnerException.Message != null) {
+                        message += "\n" + e.InnerException.Message;
+                    } 
+                }
                 Log.WriteMessage(message, "error");
                 success = false;
                 return false;
-
             } catch (Exception e) {
                 // all other exceptions should have been caught
                 string message = "\nINTERNAL ERROR\n" + e.ToString() + "\nPlease send bug report to nant-developers@lists.sourceforge.net";
