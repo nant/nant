@@ -114,7 +114,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// The executable file for which the license will be generated.
+        /// Specifies the executable for which the .licenses file is generated.
         /// </summary>
         [TaskAttribute("licensetarget", Required=true)]
         [StringValidator(AllowEmpty=false)]
@@ -346,10 +346,9 @@ namespace NAnt.DotNet.Tasks {
                 BaseDirectory = FileUtils.GetTempDirectory();
 
                 try {
-                    // set target assembly for generated licenses file (in
-                    // uppercase, to match VS.NET)
+                    // set target assembly for generated licenses file
                     Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                        "/target:\"{0}\"", Path.GetFileName(Target.ToUpper(CultureInfo.InvariantCulture)))));
+                        "/target:\"{0}\"", Target)));
                     // set input filename
                     Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
                         "/complist:\"{0}\"", InputFile.FullName)));
@@ -370,9 +369,9 @@ namespace NAnt.DotNet.Tasks {
                         File.Delete(licensesFile.FullName);
                     }
 
-                    // copy licenses file to output file
+                    // copy licenses file to output file (with overwrite)
                     File.Copy(Path.Combine(BaseDirectory.FullName, Target + ".licenses"), 
-                        licensesFile.FullName);
+                        licensesFile.FullName, true);
                 } finally {
                     // delete temporary directory and all files in it
                     DeleteTask deleteTask = new DeleteTask();
@@ -606,8 +605,7 @@ namespace NAnt.DotNet.Tasks {
                     // target filename
                     // this .license file will only be valid for this exe/dll
                     using (FileStream fs = new FileStream(licensesFile, FileMode.Create)) {
-                        // note the ToUpper() - this is the behaviour of VisualStudio
-                        DesigntimeLicenseContextSerializer.Serialize(fs, Path.GetFileName(licenseTask.Target.ToUpper(CultureInfo.InvariantCulture)), dlc);
+                        DesigntimeLicenseContextSerializer.Serialize(fs, licenseTask.Target, dlc);
                         licenseTask.Log(Level.Verbose, "Created new license file {0}.", 
                             licensesFile);
                     }
