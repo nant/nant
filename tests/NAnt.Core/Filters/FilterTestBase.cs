@@ -31,7 +31,7 @@ namespace Tests.NAnt.Core.Filters {
         const string _projectXmlFormat = @"<?xml version='1.0'?>
             <project>
                 {0}
-                <copy todir=""" + _destDirName + @""" verbose=""True"">
+                <copy todir=""" + _destDirName + @""" verbose=""true"">
                     <filterchain>{1}</filterchain>		
                     <fileset basedir=""."">
                         <include name=""" + _testFileName + @""" />

@@ -31,12 +31,12 @@ namespace Tests.NAnt.Core.Filters {
 
         [Test]
         public void InstantiationTest() {
-            base.TestFilter(@"<" + _tagName + @" endtoken=""@"" order=""0""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", " ", " ");
+            base.TestFilter(@"<" + _tagName + @" endtoken=""@""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", " ", " ");
         }
 
         [Test]
         public void EmptyFileTest() {
-            base.TestFilter(@"<" + _tagName + @" endtoken=""@"" order=""0""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", "", "");
+            base.TestFilter(@"<" + _tagName + @" endtoken=""@""><token key=""FALA"" value=""falalalalalalalala"" /></" + _tagName + @">", "", "");
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Tests.NAnt.Core.Filters {
 
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" endtoken=""@"" order=""0"">
+            string filterXml = @"<" + _tagName + @" endtoken=""@"">
                                <token key=""OLD"" value=""NEW""/>
                                </" + _tagName + @">";
 
@@ -63,7 +63,7 @@ namespace Tests.NAnt.Core.Filters {
         public void ExtraTokenTesta() {
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" endtoken=""@"" order=""0"">
+            string filterXml = @"<" + _tagName + @" endtoken=""@"">
                                <token key=""OLD"" value=""NEW""/>
                                </" + _tagName + @">";
 
@@ -73,24 +73,6 @@ namespace Tests.NAnt.Core.Filters {
         }
 
         /// <summary>
-        /// Test with filter tag
-        /// </summary>
-        [Test]
-        public void TestFilterTag() {
-            string prologueXml = null;
-
-            string filterXml = @"<filter assembly=""NAnt.Core"" class=""NAnt.Core.Filters.ReplaceTokens"" order=""0"">
-                               <param name=""endtoken"" value=""^""/>
-                               <param name=""OLD"" value=""NEW""/>
-                               </filter>";
-
-            string input = @"@OLD^@";
-            string expectedOutput = @"NEW@";
-            base.TestFilter(filterXml, input, expectedOutput, prologueXml);
-        }
-
-
-        /// <summary>
         /// Test if two tokens are next to each other with different beginning and ending tokens
         /// </summary>
         [Test]
@@ -98,7 +80,7 @@ namespace Tests.NAnt.Core.Filters {
             //Token on left
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" endtoken=""^"" order=""0"">
+            string filterXml = @"<" + _tagName + @" endtoken=""^"">
                                <token key=""OLD"" value=""NEW""/>
                                </" + _tagName + @">";
 
@@ -115,7 +97,7 @@ namespace Tests.NAnt.Core.Filters {
             //Token on right
             string prologueXml = null;
 
-            string filterXml = @"<" + _tagName + @" endtoken=""^"" order=""0"">
+            string filterXml = @"<" + _tagName + @" endtoken=""^"">
                                <token key=""OLD"" value=""NEW""/>
                                </" + _tagName + @">";
 
@@ -131,7 +113,7 @@ namespace Tests.NAnt.Core.Filters {
         public void ComplexTest() {
             string prologueXml = @"<property name=""DATE"" value=""13 May 2004"" />";
 
-            string filterXml = @"<" + _tagName + @" endtoken=""@"" order=""0"">
+            string filterXml = @"<" + _tagName + @" endtoken=""@"">
                                <token key=""DATE"" value=""${DATE}""/>
                                <token key=""INNER_TEST"" value=""--$$--""/>
                                <token key=""EOF"" value=""End of file..""/>
@@ -206,7 +188,7 @@ namespace Tests.NAnt.Core.Filters {
         public void ComplexTest1() {
             string prologueXml = @"<property name=""DATE"" value=""13 May 2004"" />";
 
-            string filterXml = @"<" + _tagName + @" endtoken=""^"" order=""0"">
+            string filterXml = @"<" + _tagName + @" endtoken=""^"">
                                <token key=""DATE"" value=""${DATE}""/>
                                <token key=""INNER_TEST"" value=""--$$--""/>
                                <token key=""EOF"" value=""End of file..""/>
