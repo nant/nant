@@ -495,7 +495,7 @@ namespace NAnt.Core.Tasks {
                 doc.Markup = ...;
 #endif
 
-                XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
+                XmlSchemaSequence group1 = null;
                 XmlSchemaObjectCollection attributesCollection = ct.Attributes;
 
                 /*
@@ -513,7 +513,6 @@ namespace NAnt.Core.Tasks {
                     attributesCollection = ext.Attributes;
                 } else {
                 */
-                    ct.Particle = group1;
                     attributesCollection = ct.Attributes;
                 //}
 
@@ -526,7 +525,6 @@ namespace NAnt.Core.Tasks {
 
                     //Add Attributes
                     TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute) Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
-                    BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementArrayAttribute), true);
                     BuildElementAttribute buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
 
                     if (taskAttrAttr != null) {
@@ -540,11 +538,12 @@ namespace NAnt.Core.Tasks {
                             min = 1;
                         }
 
-                        //XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
                         XmlSchemaElement childElement = new XmlSchemaElement();
                         childElement.MinOccurs = min;
                         childElement.MaxOccurs = 1;
                         childElement.Name = buildElemAttr.Name;
+
+                        //XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
 
                         Type childType;
 
@@ -564,7 +563,10 @@ namespace NAnt.Core.Tasks {
                             throw new ApplicationException("Member Type != Field/Property/Method");
                         }
 
+                        BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementArrayAttribute), true);
+                        
                         // determine type of child elements
+
                         if (buildElementArrayAttribute != null)  {
                             if (buildElementArrayAttribute.ElementType == null) {
                                 if (childType.IsArray) {
@@ -597,8 +599,32 @@ namespace NAnt.Core.Tasks {
                             }
                         }
 
-                        childElement.SchemaTypeName = FindOrCreateComplexType(childType).QualifiedName;
-                        //elementGroup.Items.Add(childElement);
+                        BuildElementCollectionAttribute buildElementCollectionAttribute = (BuildElementCollectionAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementCollectionAttribute), true);
+                        if (buildElementCollectionAttribute != null) {
+                            XmlSchemaComplexType collectionType = new XmlSchemaComplexType();
+                            XmlSchemaSequence sequence = new XmlSchemaSequence();
+                            collectionType.Particle = sequence;
+                            
+                            sequence.MinOccurs = 0;
+                            sequence.MaxOccursString = "unbounded";
+                            
+                            XmlSchemaElement itemType = new XmlSchemaElement();
+                            itemType.Name = buildElementCollectionAttribute.ChildElementName;
+                            itemType.SchemaTypeName = FindOrCreateComplexType(childType).QualifiedName;
+
+                            sequence.Items.Add(itemType);
+
+                            childElement.SchemaType = collectionType;
+                        } else {
+                            childElement.SchemaTypeName = FindOrCreateComplexType(childType).QualifiedName;
+                        }
+
+                        // lazy init of sequence
+                        if (group1 == null) {
+                            group1 = CreateXsdSequence(0, Decimal.MaxValue);
+                            ct.Particle = group1;
+                        }
+
                         group1.Items.Add(childElement);
                     }
                 }
