@@ -353,12 +353,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Filters\ExpandExpressions.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Filters\ExpandExpressionsConvenience.cs"
+                    RelPath = "Filters\ExpandProperties.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -368,32 +363,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Filters\ReplaceCharacterConvenience.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Filters\ReplaceTokens.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Filters\ReplaceTokensConvenience.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Filters\ReplaceTokensToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Filters\TabsToSpaces.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Filters\TabsToSpacesConvenience.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -408,27 +383,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Filters\Support\FilterBuilder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Filters\Support\FilterBuilderCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Filters\Support\FilterChain.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Filters\Support\FilterElement.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Filters\Support\FilterElementCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Filters\Support\FilterElementParameter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Filters\Support\FilterElementParameterCollection.cs"
+                    RelPath = "Filters\Support\FilterCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
