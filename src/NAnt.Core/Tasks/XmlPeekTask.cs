@@ -18,17 +18,15 @@
 // Ian McLean (ianm@activestate.com)
 // Mitch Denny (mitch.denny@monash.net)
 
-using NAnt;
-using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
 
-namespace NAnt.Core.Tasks {
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Extracts text from an XML file at the location specified by an XPath 
     /// expression.
@@ -47,12 +45,11 @@ namespace NAnt.Core.Tasks {
     ///     <code>
     ///         <![CDATA[
     /// <?xml version="1.0" encoding="utf-8" ?>
-    /// 
     /// <configuration>
     ///     <appSettings>
     ///         <add key="server" value="testhost.somecompany.com" />
     ///     </appSettings>
-    /// </configurations>
+    /// </configuration>
     ///         ]]>
     ///     </code>
     ///     <para>
@@ -61,16 +58,15 @@ namespace NAnt.Core.Tasks {
     ///     </para>
     ///     <code>
     ///         <![CDATA[
-    /// <xmlpoke
+    /// <xmlpeek
     ///     file="App.config"
     ///     xpath="/configuration/appSettings/add[@key = 'server']/@value"
-    ///     property="server" />
+    ///     property="configuration.server" />
     ///         ]]>
     ///     </code>
     /// </example>
     [TaskName("xmlpeek")]
     public class XmlPeekTask : Task  {
-        
         #region Private Instance Fields
 
         private string _fileName = null;
@@ -83,21 +79,21 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
         
         /// <summary>
-        /// The file name of the file that contains the XML document
+        /// The name of the file that contains the XML document
         /// that is going to be peeked at.
         /// </summary>
-        [TaskAttribute("filename", Required = true)]
+        [TaskAttribute("file", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string FileName {
-            get { return _fileName; }
+            get { return (_fileName != null) ? Project.GetFullPath(_fileName) : null; }
             set { _fileName = value; }
         }
 
         /// <summary>
-        ///    The the index of the node that gets its text returned when the query returns
-        ///    multiple nodes.
+        /// The index of the node that gets its text returned when the query 
+        /// returns multiple nodes.
         /// </summary>
-        [TaskAttribute("nodeindex", Required = false)]
+        [TaskAttribute("nodeindex", Required=false)]
         [Int32Validator(0, Int32.MaxValue)]
         public int NodeIndex {
             get { return _nodeIndex; }
@@ -105,10 +101,10 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The property that receives the text representation of the XML inside the
-        /// node returned from the XPath expression.
+        /// The property that receives the text representation of the XML inside 
+        /// the node returned from the XPath expression.
         /// </summary>
-        [TaskAttribute("property", Required = true)]
+        [TaskAttribute("property", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Property {
             get { return _property; }
@@ -118,7 +114,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The XPath expression used to select which node to read.
         /// </summary>
-        [TaskAttribute("xpath", Required = true)]
+        [TaskAttribute("xpath", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string XPath  {
             get { return _xPath; }
@@ -128,132 +124,92 @@ namespace NAnt.Core.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of Task
-              /// <summary>
+
+        /// <summary>
         /// Executes the XML peek task.
         /// </summary>
         protected override void ExecuteTask() {
+           Log(Level.Info, LogPrefix + "Peeking at '{0}' with XPath expression '{1}'.", 
+               FileName,  XPath);
 
-           string xmlFile = Project.GetFullPath(FileName);
-           Log( Level.Info, "{0}Peeking at file '{1}' with the XPath expression '{2}'.", LogPrefix, xmlFile,  XPath );
            try {
-            
-                XmlDocument document = LoadDocument(xmlFile);
+                XmlDocument document = LoadDocument(FileName);
                 string contents = GetNodeContents(XPath, document, NodeIndex);
                 Properties[Property] = contents;
-
-            }
-            catch (BuildException ex) {
+            } catch (BuildException ex) {
                 throw ex; // Just re-throw the build exceptions.
             } catch (Exception ex) {
-
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Could not peek at XML file because an unhandled" +
-                    " exception was thrown. The underlying exception" +
-                    " message was '{0}'.",
-                    ex.Message
-                    );
-
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not peek at XML file '{0}'.", FileName), Location, ex);
             }
         }
         
         #endregion Override implementation of Task
         
         #region private Instance Methods
+
         /// <summary>
         /// Loads an XML document from a file on disk.
         /// </summary>
-        /// <param name="fileName">
-        /// The file name of the file to load the XML document from.
-        /// </param>
+        /// <param name="fileName">The file name of the file to load the XML document from.</param>
         /// <returns>
-        /// A <see cref="System.Xml.XmlDocument">document</see> containing
+        /// A <see cref="XmlDocument">document</see> containing
         /// the document object representing the file.
         /// </returns>
         private XmlDocument LoadDocument(string fileName)  {
-
             XmlDocument document = null;
+
             try {
-                
                 document = new XmlDocument();
                 document.Load(FileName);
-
+                return document;
             } catch (Exception ex) {
-
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Failed to load the XML document '{0}' because of the" +
-                    " following reason '{1}'.",
-                    fileName,
-                    ex.Message
-                    );
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to load the XML document '{0}'.", fileName), Location, 
+                    ex);
             }
-            return document;
         }
 
         /// <summary>
         /// Gets the contents of the node specified by the XPath expression.
         /// </summary>
-        /// <param name="xpath">
-        /// The XPath expression used to determine which nodes to choose from.
-        /// </param>
-        /// <param name="document">
-        /// The XML document to select the nodes from.
-        /// </param>
-        /// <param name="nodeIndex">
-        /// The node index in the case where multiple nodes satisfy the expression.
-        /// </param>
-        /// <returns></returns>
+        /// <param name="xpath">The XPath expression used to determine which nodes to choose from.</param>
+        /// <param name="document">The XML document to select the nodes from.</param>
+        /// <param name="nodeIndex">The node index in the case where multiple nodes satisfy the expression.</param>
+        /// <returns>
+        /// The contents of the node specified by the XPath expression.
+        /// </returns>
         private string GetNodeContents(string xpath, XmlDocument document, int nodeIndex ) {
-
             string contents = null;
             XmlNodeList nodes;
+
             try {
                 nodes = document.SelectNodes(xpath);
-                
             } catch (Exception ex) {
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Failed to select node with the XPath expression '{0}'",
-                    xpath 
-                    ); 
-                    
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to select node with XPath expression '{0}'.", xpath), 
+                    Location, ex);
             }
-            if (nodes == null || nodes.Count == 0){
-                string message = string.Format("No matching nodes found for xpath: '{0}'", xpath );
-                throw new BuildException( message, Location );
+
+            if (nodes == null || nodes.Count == 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "No matching nodes found for XPath expression '{0}'.", xpath), 
+                    Location);
             }
-            Log( Level.Info,
-                    "{0}Found '{1}' nodes with the XPath expression '{2}'.",
-                    LogPrefix,
-                    nodes.Count,
-                    xpath
-                    );
+
+            Log(Level.Info, LogPrefix + "Found '{0}' nodes with the XPath expression '{1}'.",
+                nodes.Count, xpath);
           
-            if ( nodeIndex >= nodes.Count ){
-                string message = string.Format("nodeindex '{0}' is out of range ", nodeIndex );
-                throw new BuildException( message, Location );
+            if (nodeIndex >= nodes.Count){
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Nodeindex '{0}' is out of range.", nodeIndex), Location);
             }
             
             XmlNode selectedNode = nodes[nodeIndex];
             contents = selectedNode.InnerXml;
             return contents;
         }
+
         #endregion private Instance Methods
     }
 }

@@ -38,6 +38,7 @@ namespace NAnt.Core {
         private string _ifCondition = null;
         private string _unlessCondition = null;
         private StringCollection _dependencies = new StringCollection();
+        private bool _executed = false;
 
         #endregion Private Instance Fields
 
@@ -52,6 +53,15 @@ namespace NAnt.Core {
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// This indicates whether the target has already executed.
+        /// </summary>
+        public bool Executed {
+            get {
+                return _executed;
+            }
+        }
 
         /// <summary>
         /// The name of the target.
@@ -221,6 +231,7 @@ namespace NAnt.Core {
                         }
                     }
                 } finally {
+                    _executed = true;
                     Project.OnTargetFinished(this, new BuildEventArgs(this));
                 }
             }

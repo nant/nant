@@ -730,7 +730,8 @@ namespace NAnt.Core {
                 //throw new BuildException("No Target Specified");
             } else {
                 foreach (string targetName in BuildTargets) {
-                    Execute(targetName);
+                    //do not force dependencies of build targets.
+                    Execute(targetName, false);
                 }
             }
         }
@@ -743,6 +744,18 @@ namespace NAnt.Core {
         /// Global tasks are not executed.
         /// </remarks>
         public void Execute(string targetName) {
+            Execute(targetName, true);
+        }
+        
+        /// <summary>
+        /// Executes a specific target.
+        /// </summary>
+        /// <param name="targetName">The name of the target to execute.</param>
+        /// <param name="forceDependencies">Whether dependencies should be forced to execute</param>
+        /// <remarks>
+        /// Global tasks are not executed.
+        /// </remarks>
+        public void Execute(string targetName, bool forceDependencies) {
             // Sort the dependency tree, and run everything from the
             // beginning until we hit our targetName.
             // Sorting checks if all the targets (and dependencies)
@@ -754,10 +767,12 @@ namespace NAnt.Core {
 
             do {
                 currentTarget = (Target) sortedTargets[currentIndex++];
-                currentTarget.Execute();
+                //only execute targets that have not been executed already, if we are not forcing.
+                if(forceDependencies || !currentTarget.Executed) {
+                    currentTarget.Execute();
+                }
             } while (!currentTarget.Name.Equals(targetName));
         }
-
         /// <summary>
         /// Executes the default target and wraps in error handling and time 
         /// stamping.

@@ -18,17 +18,15 @@
 // Ian McLean (ianm@activestate.com)
 // Mitch Denny (mitch.denny@monash.net)
 
-using NAnt;
-using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
 
-namespace NAnt.Core.Tasks {
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Replaces text in an XML file at the location specified by an XPath 
     /// expression.
@@ -49,18 +47,17 @@ namespace NAnt.Core.Tasks {
     ///     <code>
     ///         <![CDATA[
     /// <?xml version="1.0" encoding="utf-8" ?>
-    /// 
     /// <configuration>
     ///     <appSettings>
     ///         <add key="server" value="testhost.somecompany.com" />
     ///     </appSettings>
-    /// </configurations>
+    /// </configuration>
     ///         ]]>
     ///     </code>
     ///     <para>
-    ///     The example will change the server setting in the
-    ///     above configuration from testhost.somecompany.com to
-    ///     productionhost.somecompany.com.
+    ///     The example will change the <c>server</c> setting in the above 
+    ///     configuration from <c>testhost.somecompany.com</c> to
+    ///     <c>productionhost.somecompany.com</c>.
     ///     </para>
     ///     <code>
     ///         <![CDATA[
@@ -82,21 +79,22 @@ namespace NAnt.Core.Tasks {
         #endregion Private Instance Fields
 
         #region Public Instance Properties
+
         /// <summary>
         /// The file name of the file that contains the XML document that is
         /// going to be poked.
         /// </summary>
-        [TaskAttribute("filename", Required = true)]
+        [TaskAttribute("file", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string FileName {
-            get { return _fileName; }
+            get { return (_fileName != null) ? Project.GetFullPath(_fileName) : null; }
             set { _fileName = value; }
         }
 
         /// <summary>
         /// The XPath expression used to select which nodes are to be modified.
         /// </summary>
-        [TaskAttribute("xpath", Required = true)]
+        [TaskAttribute("xpath", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string XPath  {
             get { return _xPathExpression; }
@@ -106,12 +104,13 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The value that replaces the contents of the selected nodes.
         /// </summary>
-        [TaskAttribute("value", Required = true)]
+        [TaskAttribute("value", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Value {
             get { return _value; }
             set { _value = value; }
         }
+
         #endregion Public Instance Properties
         
         #region Override implementation of Task
@@ -120,7 +119,6 @@ namespace NAnt.Core.Tasks {
         /// Executes the XML poke task.
         /// </summary>
         protected override void ExecuteTask() {
-
             try  {  
                 XmlDocument document = LoadDocument(FileName);
                 XmlNodeList nodes = SelectNodes(XPath, document);
@@ -131,29 +129,17 @@ namespace NAnt.Core.Tasks {
                     UpdateNodes(nodes, Value);
                     SaveDocument(document, FileName);
                 } 
-            }             
-            catch (BuildException ex) {
+            } catch (BuildException ex) {
                 throw ex;
-            }
-            catch (Exception ex) {
-                
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Could not poke at XML file because an unhandled" +
-                    " exception was thrown. The underlying exception" +
-                    " message was '{0}'.",
-                    ex.Message
-                    );
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not poke at XML file '{0}'.", FileName), Location, ex);
             }
         }
         #endregion Override implementation of Task
         
         #region Private Instance Methods
+
         /// <summary>
         /// Loads an XML document from a file on disk.
         /// </summary>
@@ -161,46 +147,27 @@ namespace NAnt.Core.Tasks {
         /// The file name of the file to load the XML document from.
         /// </param>
         /// <returns>
-        /// A <see cref="System.Xml.XmlDocument">document</see> containing
-        /// the document object modem representing the file.
+        /// An <see cref="System.Xml.XmlDocument" /> containing
+        /// the document object model representing the file.
         /// </returns>
         private XmlDocument LoadDocument(string fileName) {
-
             XmlDocument document = null;
 
             try {
-                Log( Level.Verbose,
-                    "{0}Attempting to load XML document in the file '{1}'.",
-                    LogPrefix,
-                    FileName
-                    );
+                Log(Level.Verbose, LogPrefix + "Attempting to load XML document" 
+                    + " in file '{0}'.", fileName);
 
                 document = new XmlDocument();
-                document.Load(FileName);
+                document.Load(fileName);
 
-                Log( Level.Verbose,
-                    "{0}XML document in file '{1}' loaded successfully.",
-                    LogPrefix,
-                    FileName
-                    );
-
+                Log(Level.Verbose, LogPrefix + "XML document in file '{0}' loaded" 
+                    + " successfully.", fileName);
+                return document;
             } catch (Exception ex) {
-
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Failed to load the XML document '{0}' because of the" +
-                    " following reason '{1}'.",
-                    fileName,
-                    ex.Message
-                    );            
-
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to load the XML document '{0}'.", fileName), Location,
+                    ex);
             }
-            return document;
         }
 
         /// <summary>
@@ -214,56 +181,33 @@ namespace NAnt.Core.Tasks {
         /// The XML document that is searched.
         /// </param>
         /// <returns>
-        /// A <see cref="System.Xml.XmlNodeList">node list</see> containing
-        /// references to the nodes that matched the XPath expression.
+        /// An <see cref="XmlNodeList" /> containing references to the nodes 
+        /// that matched the XPath expression.
         /// </returns>
         private XmlNodeList SelectNodes(string xpath, XmlDocument document) {
-
             XmlNodeList nodes = null;
 
             try {
-                Log( Level.Verbose,
-                    "{0}Selecting nodes with the XPath expression '{1}'.",
-                    LogPrefix,
-                    xpath
-                    );
+                Log(Level.Verbose, LogPrefix + "Selecting nodes with XPath" 
+                    + " expression '{0}'.", xpath);
 
                 nodes = document.SelectNodes(xpath);
 
                 // Report back how many we found if any. If not then
                 // log a warning saying we didn't find any.
                 if (nodes.Count != 0) {
-                    Log( Level.Info,
-                        "{0}Found '{1}' nodes matching the XPath expression '{2}'.",
-                        LogPrefix,
-                        nodes.Count,
-                        xpath
-                        );
+                    Log(Level.Info, LogPrefix + "Found '{0}' nodes matching" 
+                        + " XPath expression '{1}'.", nodes.Count, xpath);
                 } else {
-                    Log(
-                        Level.Warning,
-                        "{0}No matching nodes were found with the XPath expression '{1}'.",
-                        LogPrefix,
-                        xpath
-                        );
-
+                    Log(Level.Warning, LogPrefix + "No matching nodes were found" 
+                        + " with XPath expression '{0}'.", xpath);
                 }
+                return nodes;
             } catch (Exception ex) {
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Failed to select nodes with the XPath expression '{0}'" +
-                    " because of the following reason '{1}'.",
-                    xpath,
-                    ex.Message
-                    );            
-
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to select nodes with XPath expression '{0}'.",
+                    xpath), Location, ex);
             }
-            return nodes;
         }
 
         /// <summary>
@@ -276,76 +220,41 @@ namespace NAnt.Core.Tasks {
         /// The text to replace the contents with.
         /// </param>
         private void UpdateNodes(XmlNodeList nodes, string value) {
-            
-            Log( Level.Verbose,
-                "{0}Updating nodes with the value '{1}'.",
-                LogPrefix,
-                value
-                );
+            Log(Level.Verbose, LogPrefix + "Updating nodes with value '{0}'.",
+                value);
                 
             int index = 0;
-            foreach ( XmlNode node in  nodes)  {
-                Log( Level.Verbose,
-                    "{0}Updating node '{1}'.",
-                    LogPrefix,
-                    index
-                    );
+            foreach (XmlNode node in nodes)  {
+                Log(Level.Verbose, LogPrefix + "Updating node '{0}'.", index);
                 node.InnerXml = value;
                 index ++;
             }
 
-            Log( Level.Verbose,
-                "{0}Updated all nodes successfully.",
-                LogPrefix,
-                value
-                );            
+            Log( Level.Verbose, LogPrefix + "Updated all nodes successfully.",
+                value);
         }
         
         /// <summary>
         /// Saves the XML document to a file.
         /// </summary>
-        /// <param name="document">
-        /// The XML document to be saved.
-        /// </param>
-        /// <param name="fileName">
-        /// The file name to save the XML document under.
-        /// </param>
+        /// <param name="document">The XML document to be saved.</param>
+        /// <param name="fileName">The file name to save the XML document under.</param>
         private void SaveDocument(XmlDocument document, string fileName) {
-
             try {
-                Log( Level.Verbose,
-                    "{0}Attempting to save XML document to the file '{1}'.",
-                    LogPrefix,
-                    FileName
-                    );
+                Log(Level.Verbose, LogPrefix + "Attempting to save XML document" 
+                    + " to '{0}'.", fileName);
 
                 document.Save(fileName);
                 
-                Log( Level.Verbose,
-                    "{0}XML document saved to the file '{1}' successfully.",
-                    LogPrefix,
-                    FileName
-                    );
-
+                Log(Level.Verbose, LogPrefix + "XML document successfully saved" 
+                    + " to '{0}'.", fileName);
             } catch (Exception ex) {
-                
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Failed to save the XML document in to the file '{0}'" +
-                    " because of the following reason '{0}'.",
-                    fileName,
-                    ex.Message
-                    );        
-                
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to save the XML document to '{0}'.", fileName), 
+                    Location, ex);
             }
         }
-        #endregion Private Instance Methods
-         
 
+        #endregion Private Instance Methods
     }
 }

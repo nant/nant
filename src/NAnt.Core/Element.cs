@@ -865,7 +865,7 @@ namespace NAnt.Core {
                                         Location);
                                 }
                                 object instance = Activator.CreateInstance(propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
-                                propertyInfo.SetValue(this, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                                propertyInfo.SetValue(Element, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                             }
 
                             // add each element of the array to collection instance

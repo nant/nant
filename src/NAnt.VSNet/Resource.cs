@@ -110,7 +110,8 @@ namespace NAnt.VSNet {
             VbcTask vbc = new VbcTask();
             vbc.Project = _solutionTask.Project;
             vbc.RootNamespace = Project.ProjectSettings.RootNamespace;
-            return vbc.GetManifestResourceName(new ResourceFileSet(), _resourceSourceFile, dependentFile );            
+            return vbc.GetManifestResourceName(new ResourceFileSet(), 
+                _resourceSourceFile, dependentFile);
         }
 
         private string CompileResource() {
