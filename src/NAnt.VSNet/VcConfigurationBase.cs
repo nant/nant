@@ -86,19 +86,6 @@ namespace NAnt.VSNet {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets the project directory.
-        /// </summary>
-        /// <value>
-        /// The project directory.
-        /// </value>
-        public DirectoryInfo ProjectDir {
-            get { 
-                return new DirectoryInfo(Path.GetDirectoryName(
-                    Project.ProjectPath));
-            }
-        }
-
-        /// <summary>
         /// Gets the intermediate directory, specified relative to project 
         /// directory.
         /// </summary>
@@ -146,8 +133,8 @@ namespace NAnt.VSNet {
             get { 
                 if (_outputDir == null) {
                     if (RelativeOutputDir != null) {
-                        _outputDir = new DirectoryInfo(FileUtils.CombinePaths(ProjectDir.FullName, 
-                            RelativeOutputDir));
+                        _outputDir = new DirectoryInfo(FileUtils.CombinePaths(
+                            Project.ProjectDirectory.FullName, RelativeOutputDir));
                     } else {
                         throw new BuildException("The output directory could not be"
                             + " determined.", Location.UnknownLocation);
@@ -155,37 +142,6 @@ namespace NAnt.VSNet {
                 }
 
                 return _outputDir;
-            }
-        }
-
-        /// <summary>
-        /// Gets the path for the output file.
-        /// </summary>
-        /// <value>
-        /// The path for the output file, or <see langword="null" /> if there's
-        /// no output file for this configuration.
-        /// </value>
-        /// <remarks>
-        /// An NMake project does not necessarily have an output file.
-        /// </remarks>
-        public override string OutputPath {
-            get { 
-                string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
-                if (linkOutput != null) {
-                    return FileUtils.CombinePaths(ProjectDir.FullName, linkOutput);
-                }
-
-                string librarianOutput = GetToolSetting("VCLibrarianTool", "OutputFile");
-                if (librarianOutput != null) {
-                    return FileUtils.CombinePaths(ProjectDir.FullName, librarianOutput);
-                }
-
-                string nmakeOutput = GetToolSetting("VCNMakeTool", "Output");
-                if (nmakeOutput != null) {
-                    return FileUtils.CombinePaths(ProjectDir.FullName, nmakeOutput);
-                }
-
-                return null;
             }
         }
 
@@ -257,6 +213,10 @@ namespace NAnt.VSNet {
         protected internal override string ExpandMacro(string macro) {
             // perform case-insensitive expansion of macros 
             switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "outdir":
+                    // for Visual C++ project the outdir is the absolute path
+                    // while for other project types its a relative path
+                    return OutputDir.FullName;
                 case "noinherit":
                     return "$(noinherit)";
                 case "intdir":
@@ -316,10 +276,38 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Gets the value of a given setting for a specified tool.
+        /// </summary>
+        /// <param name="toolName">The name of the tool.</param>
+        /// <param name="settingName">The name of the setting.</param>
+        /// <returns>
+        /// The value of a setting for the specified tool, or <see langword="null" />
+        /// if the setting is not defined for the specified tool.
+        /// </returns>
+        /// <remarks>
+        /// An empty setting value, which is used as a means to override the
+        /// project default, will be returned as a empty <see cref="string" />.
+        /// </remarks>
         public string GetToolSetting(string toolName, string settingName) {
             return GetToolSetting(toolName, settingName, (string) null);
         }
 
+        /// <summary>
+        /// Gets the value of a given setting for a specified tool.
+        /// </summary>
+        /// <param name="toolName">The name of the tool.</param>
+        /// <param name="settingName">The name of the setting.</param>
+        /// <param name="defaultValue">The value to return if setting is not defined.</param>
+        /// <returns>
+        /// The value of a setting for the specified tool, or 
+        /// <paramref name="defaultValue" /> if the setting is not defined for
+        /// the specified tool.
+        /// </returns>
+        /// <remarks>
+        /// An empty setting value, which is used as a means to override the
+        /// project default, will be returned as a empty <see cref="string" />.
+        /// </remarks>
         public abstract string GetToolSetting(string toolName, string settingName, string defaultValue);
 
         public Hashtable GetToolArguments(string toolName, VcArgumentMap argMap) {
@@ -342,6 +330,5 @@ namespace NAnt.VSNet {
         private DirectoryInfo _outputDir;
 
         #endregion Private Instance Fields
-
     }
 }

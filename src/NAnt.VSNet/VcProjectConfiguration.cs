@@ -201,6 +201,53 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets the path for the output file.
+        /// </summary>
+        /// <value>
+        /// The path for the output file, or <see langword="null" /> if there's
+        /// no output file for this configuration.
+        /// </value>
+        public override string OutputPath {
+            get {
+                string outputPath = null;
+
+                switch (Type) {
+                    case ConfigurationType.Application:
+                        string applicationOutput = GetToolSetting("VCLinkerTool", "OutputFile");
+                        if (StringUtils.IsNullOrEmpty(applicationOutput)) {
+                            applicationOutput = ExpandMacros("$(OutDir)/$(ProjectName).exe");
+                        }
+                        outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, applicationOutput);
+                        break;
+                    case ConfigurationType.DynamicLibrary:
+                        string libraryOutput = GetToolSetting("VCLinkerTool", "OutputFile");
+                        if (StringUtils.IsNullOrEmpty(libraryOutput)) {
+                            libraryOutput = ExpandMacros("$(OutDir)/$(ProjectName).dll");
+                        }
+                        outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, libraryOutput);
+                        break;
+                    case ConfigurationType.StaticLibrary:
+                        string librarianOutput = GetToolSetting("VCLibrarianTool", "OutputFile");
+                        if (StringUtils.IsNullOrEmpty(librarianOutput)) {
+                            librarianOutput = ExpandMacros("$(OutDir)/$(ProjectName).lib");
+                        }
+                        outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, librarianOutput);
+                        break;
+                    case ConfigurationType.Makefile:
+                        string nmakeOutput = GetToolSetting("VCNMakeTool", "Output");
+                        if (!StringUtils.IsNullOrEmpty(nmakeOutput)) {
+                            outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, nmakeOutput);
+                        }
+                        break;
+                    case ConfigurationType.Utility:
+                        return null;
+                }
+
+                return outputPath;
+            }
+        }
+
+        /// <summary>
         /// Gets a comma-separated list of directories to scan for assembly
         /// references.
         /// </summary>
@@ -229,8 +276,6 @@ namespace NAnt.VSNet {
             if (toolSettings != null) {
                 setting = (string) toolSettings[settingName];
                 if (setting != null) {
-                    // convert empty settings to null
-                    setting = StringUtils.ConvertEmptyToNull(setting);
                     // expand macros
                     return expander(setting);
                 }

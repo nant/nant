@@ -130,12 +130,12 @@ namespace NAnt.VSNet {
             // perform case-insensitive expansion of macros 
             switch (macro.ToLower(CultureInfo.InvariantCulture)) {
                 case "inputdir":
-                    return Path.GetDirectoryName(FileUtils.CombinePaths(ProjectDir.FullName, 
+                    return Path.GetDirectoryName(FileUtils.CombinePaths(Project.ProjectDirectory.FullName, 
                         _relativePath)) + Path.DirectorySeparatorChar;
                 case "inputname":
                     return Path.GetFileNameWithoutExtension(_relativePath);
                 case "inputpath":
-                    return FileUtils.CombinePaths(ProjectDir.FullName, _relativePath);
+                    return FileUtils.CombinePaths(Project.ProjectDirectory.FullName, _relativePath);
                 case "inputfilename":
                     return Path.GetFileName(_relativePath);
                 case "inputext":
@@ -165,6 +165,17 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets the path for the output file.
+        /// </summary>
+        /// <value>
+        /// The path for the output file, or <see langword="null" /> if there's
+        /// no output file for this configuration.
+        /// </value>
+        public override string OutputPath {
+            get { return _parentConfig.OutputPath; }
+        }
+
+        /// <summary>
         /// Gets a comma-separated list of directories to scan for assembly
         /// references.
         /// </summary>
@@ -177,6 +188,27 @@ namespace NAnt.VSNet {
             get { return ExpandMacros(_parentConfig.RawReferencesPath); }
         }
 
+        /// <summary>
+        /// Gets the value of a given setting for a specified tool.
+        /// </summary>
+        /// <param name="toolName">The name of the tool.</param>
+        /// <param name="settingName">The name of the setting.</param>
+        /// <param name="projectDefault">The value to return if setting is not defined in both the file and project configuration.</param>
+        /// <returns>
+        /// The value of a setting for the specified tool, or 
+        /// <paramref name="defaultValue" /> if the setting is not defined in
+        /// both the file and project configuration.
+        /// </returns>
+        /// <remarks>
+        ///   <para>
+        ///   If the setting is not defined in the file configuration, then
+        ///   the project level setting will be used.
+        ///   </para>
+        ///   <para>
+        ///   An empty setting value, which is used as a means to override the
+        ///   project default, will be returned as a empty <see cref="string" />.
+        ///   </para>
+        /// </remarks>
         public override string GetToolSetting(string toolName, string settingName, string projectDefault) {
             string setting = null;
 
@@ -184,8 +216,6 @@ namespace NAnt.VSNet {
             if (toolSettings != null) {
                 setting = (string) toolSettings[settingName];
                 if (setting != null) {
-                    // convert empty settings to null
-                    setting = StringUtils.ConvertEmptyToNull(setting);
                     // expand macros
                     return ExpandMacros(setting);
                 }
