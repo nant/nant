@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="nant" default="build">
+<project name="NAnt.NUnit" default="build">
     <!--
         Required properties:
             * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
@@ -11,11 +11,10 @@
             <sources>
                 <includes name="*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
-                <includes name="NDoc.Core.dll"/>
                 <includes name="nunit.framework.dll"/>
             </references>
         </csc>
@@ -23,11 +22,10 @@
             <sources>
                 <includes name="NUnit1/*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
-                <includes name="NDoc.Core.dll"/>
                 <includes name="NUnitCore.dll"/>
                 <includes name="NAnt.NUnitFormatters.dll"/>
             </references>
@@ -36,44 +34,14 @@
             <sources>
                 <includes name="NUnit2/*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
-                <includes name="NDoc.Core.dll"/>
                 <includes name="nunit.framework.dll"/>
                 <includes name="NAnt.NUnitFormatters.dll"/>
             </references>
         </csc>
-        <!-- build test assembly
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitTasks.Tests.dll">
-            <sources>
-                <includes name="NAnt.NUnitTasks.Tests/NUnit2TaskTest.cs"/>
-                <includes name="CommonAssemblyInfo.cs" />
-            </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="NAnt.NUnitTasks.dll"/>
-                <includes name="nunit.framework.dll"/>
-                <includes name="NAnt.Core.Tests.dll"/>
-                <includes name="NAnt.Core.dll"/>
-            </references>
-        </csc>
-        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitTasks.Tests.TestAssembly.dll">
-            <sources>
-                <includes name="NAnt.NUnitTasks.Tests/MockTest.cs"/>
-                <includes name="CommonAssemblyInfo.cs" />
-            </sources>
-            <references basedir="${build.dir}/bin">
-                <includes name="nunit.framework.dll"/>
-            </references>
-        </csc>
-        -->
     </target>
-    <target name="test" depends="build">
-        <!--
-            <nunit2>
-                <test assemblyname="${build.dir}/bin/NAnt.NUnitTasks.Tests.dll" fork="true" type="Plain" failonwarning="true"/>
-            </nunit2>
-        -->
-    </target>
+    <target name="test" depends="build" />
 </project>
