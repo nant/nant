@@ -231,7 +231,7 @@ namespace NAnt.VSNet {
 
                                 // only output message when reference has actually been fixed up
                                 if (originalReference != reference.Filename) {
-                                    Log(Level.Verbose, LogPrefix + "Fixed reference {0}: {1} -> {2}.", 
+                                    Log(Level.Verbose, LogPrefix + "Fixed reference '{0}': {1} -> {2}.", 
                                         reference.Name, originalReference, reference.Filename);
                                 }
                             }
