@@ -20,11 +20,10 @@
 
 using System;
 using System.IO;
+
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tasks
-{
-
+namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// Compiles C# programs using the mono mcs compiler.
     /// </summary>
@@ -44,8 +43,7 @@ namespace SourceForge.NAnt.Tasks
     ///   </code>
     /// </example>
     [TaskName("mcs")]
-    public class McsTask : CompilerBase
-    {
+    public class McsTask : CompilerBase {
         private bool _nostdlib = false;
         private bool _noconfig = false;
         
@@ -91,7 +89,7 @@ namespace SourceForge.NAnt.Tasks
             }
 
             if (NoConfig && ! Args.Contains("/noconfig")) {
-               Args.Add("/noconfig");
+                Args.Add("/noconfig");
             }
         }            
 

@@ -17,13 +17,15 @@
 
 // Tom Jordan (tdjordan@users.sourceforge.net)
 
-namespace SourceForge.NAnt.Tasks {
+using System;
+using System.IO;
 
-    using System;
-    using System.IO;
-    using SourceForge.NAnt.Attributes;
-   
-    /// <summary>Compiles Visual J# programs using vjc, Microsoft's J# compiler.</summary>
+using SourceForge.NAnt.Attributes;
+
+namespace SourceForge.NAnt.Tasks {
+    /// <summary>
+    /// Compiles Visual J# programs using vjc, Microsoft's J# compiler.
+    /// </summary>
     /// <example>
     ///   <para>Compile <c>helloworld.jsl</c> to <c>helloworld.exe</c>.</para>
     ///   <code>
@@ -38,7 +40,6 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("vjc")]
     public class VjcTask : MsftFXCompilerBase {
-
         #region Private Instance Fields
 
         bool   _secureScoping = false;

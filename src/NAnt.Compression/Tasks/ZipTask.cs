@@ -22,13 +22,12 @@ using System;
 using System.Globalization;
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
-
 using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
 
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-    
     /// <summary>
     /// A task to create a zip file from a specified fileset.
     /// </summary>

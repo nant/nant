@@ -18,14 +18,16 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.IO;
-    using SourceForge.NAnt.Attributes;
-    using System.Text.RegularExpressions;
-
-    /// <summary>Compiles C# programs.</summary>
+    /// <summary>
+    /// Compiles C# programs.
+    /// </summary>
     /// <example>
     ///   <para>Compile <c>helloworld.cs</c> to <c>helloworld.exe</c>.</para>
     ///   <code>

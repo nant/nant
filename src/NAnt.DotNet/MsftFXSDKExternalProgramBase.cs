@@ -17,12 +17,13 @@
 
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System.Globalization;
+using System.IO;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System.Globalization;
-    using System.IO;
-
-    /// <summary>Provides the abstract base class for a Microsoft .Net Framework SDK external program task.</summary>
+    /// <summary>
+    /// Provides the abstract base class for a Microsoft .Net Framework SDK external program task.
+    /// </summary>
     public abstract class MsftFXSDKExternalProgramBase : ExternalProgramBase {
 
         public override string ProgramFileName  {

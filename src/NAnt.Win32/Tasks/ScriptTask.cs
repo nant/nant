@@ -31,8 +31,9 @@ using System.Xml;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Executes the code contained within the task.</summary>
+    /// <summary>
+    /// Executes the code contained within the task.
+    /// </summary>
     /// <remarks>
     ///     <para>
     ///         The <c>script</c> element must contain a single <c>code</c> element, which in turn contains the script code.

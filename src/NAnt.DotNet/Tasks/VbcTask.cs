@@ -21,11 +21,13 @@
 
 using System;
 using System.IO;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Compiles Visual Basic.NET programs.</summary>
+    /// <summary>
+    /// Compiles Visual Basic.NET programs.
+    /// </summary>
     /// <example>
     ///   <para>Example build file using this task.</para>
     ///   <code><![CDATA[

@@ -19,12 +19,12 @@
 
 using System;
 using System.IO;
-using SourceForge.NAnt.Attributes;
 
 using ICSharpCode.SharpZipLib.Zip;
 
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-    
     /// <summary>
     /// A task to extract file from a zip file.
     /// </summary>

@@ -22,13 +22,12 @@ using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
+
 using SourceForge.NAnt;
 using SourceForge.NAnt.Tasks;
 using SourceForge.NAnt.Attributes;
 
-
 namespace SourceForge.NAnt.Tasks {
-
     /// <summary>
     /// Specialized fileset class for managing resources. Has an additional namespace 
     /// </summary>

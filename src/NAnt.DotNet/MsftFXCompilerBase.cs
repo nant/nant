@@ -20,16 +20,17 @@
 using System;
 using System.Collections.Specialized;
 using System.Collections;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Configuration;
 
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Provides the abstract base class for a Microsoft .Net Framework compiler task.</summary>
+    /// <summary>
+    /// Provides the abstract base class for a .Net compiler task.
+    /// </summary>
     public abstract class MsftFXCompilerBase : CompilerBase {
         public override string ProgramFileName  {
             get {

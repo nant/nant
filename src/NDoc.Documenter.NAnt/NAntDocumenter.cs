@@ -19,17 +19,16 @@
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Xsl;
+
+using NDoc.Core;
+
 namespace Sourceforge.NAnt.Documenter {
-
-    using System;
-    using System.IO;
-    using System.Text;
-    using System.Xml;
-    using System.Xml.Xsl;
-    using System.Globalization;
-
-    using NDoc.Core;
-
     /// <summary>
     /// NDoc Documenter for building custom NAnt User documentation.
     /// </summary>

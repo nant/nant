@@ -18,13 +18,15 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 
+using System;
+using System.IO;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-    using System;
-    using System.IO;
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Compiles JScript.NET programs.</summary>
+    /// <summary>
+    /// Compiles JScript.NET programs.
+    /// </summary>
     /// <example>
     ///   <para>Compile helloworld.js to helloworld.exe.</para>
     ///   <code>

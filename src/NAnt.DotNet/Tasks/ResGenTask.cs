@@ -28,8 +28,8 @@ using System.IO;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
-    /// <summary>Converts files from one resource format to another (wraps Microsoft's resgen.exe).
+    /// <summary>
+    /// Converts files from one resource format to another (wraps Microsoft's resgen.exe).
     /// <note>
     ///     <para>
     ///         If no todir is specified, the resource file will be created next to the input file.

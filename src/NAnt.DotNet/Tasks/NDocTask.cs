@@ -17,21 +17,22 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
+
 using System;
 using System.Collections;
-using System.IO;
-using System.Xml;
-using System.Text;
 using System.Globalization;
-
-using SourceForge.NAnt.Attributes;
+using System.IO;
+using System.Text;
+using System.Xml;
 
 using NDoc.Core;
 
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt.Tasks {
-
-
-    /// <summary>Runs NDoc to create documentation.</summary>
+    /// <summary>
+    /// Runs NDoc to create documentation.
+    /// </summary>
     /// <remarks>
     ///   <para>See the <a href="http://ndoc.sf.net">NDoc home page</a> for more information.</para>
     /// </remarks>
