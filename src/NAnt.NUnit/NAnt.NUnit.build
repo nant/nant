@@ -23,8 +23,8 @@
             <nowarn>
                 <!-- do not report warnings for missing XML comments -->
                 <warning number="1591" />
-                 <!-- do not report deprecation warnings -->
-                <warning number="0618" />
+                 <!-- workaround for Mono bug #61902: do not report deprecation warnings -->
+                <warning number="0618" if="${framework::get-family(framework::get-target-framework())='mono'}" />
             </nowarn>
             <sources>
                 <include name="NUnit1/*.cs"/>
