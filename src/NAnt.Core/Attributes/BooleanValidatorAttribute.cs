@@ -50,7 +50,7 @@ namespace NAnt.Core.Attributes {
                 Convert.ToBoolean(value, CultureInfo.InvariantCulture);
             } catch (Exception ex) {
                 throw new ValidationException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot resolve to '{0}' to Boolean value.", value.ToString()), ex);
+                    "Cannot resolve '{0}' to boolean value.", value.ToString()), ex);
             }
         }
 
