@@ -79,7 +79,10 @@ namespace NAnt.VSNet {
             Hashtable htBooleanSettings = new Hashtable();
 
             htStringSettings["BaseAddress"] = "/baseaddress:{0}";
+
+            // is only supported by csc (all versions) and vbc (2.0 or higher)
             htStringSettings["FileAlignment"] = "/filealign:{0}";
+
             htStringSettings["DefineConstants"] = "/define:{0}";
 
             switch (project.Type) {
@@ -87,6 +90,8 @@ namespace NAnt.VSNet {
                     htStringSettings["WarningLevel"] = "/warn:{0}";
                     htStringSettings["NoWarn"] = "/nowarn:{0}";
                     htBooleanSettings["IncrementalBuild"] = "/incremental";
+                    htBooleanSettings["AllowUnsafeBlocks"] = "/unsafe";
+                    htBooleanSettings["CheckForOverflowUnderflow"] = "/checked";
                     break;
                 case ProjectType.JSharp:
                     htStringSettings["WarningLevel"] = "/warn:{0}";
@@ -96,12 +101,11 @@ namespace NAnt.VSNet {
                 case ProjectType.VB:
                     htStringSettings["DefineDebug"] = "/d:DEBUG={0}";
                     htStringSettings["DefineTrace"] = "/d:TRACE={0}";
+                    htBooleanSettings["RemoveIntegerChecks"] = "/removeintchecks";
                     break;
             }
 
-            htBooleanSettings["AllowUnsafeBlocks"] = "/unsafe";
             htBooleanSettings["DebugSymbols"] = "/debug";
-            htBooleanSettings["CheckForOverflowUnderflow"] = "/checked";
             htBooleanSettings["TreatWarningsAsErrors"] = "/warnaserror";
             htBooleanSettings["Optimize"] = "/optimize";
 
