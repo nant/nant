@@ -129,15 +129,16 @@ namespace NDoc.Documenter.NAnt {
             EmbeddedResources.WriteEmbeddedResources(assembly, "Documenter.html", _resourceDirectory + "html\\");
 
             // create the html output directory.
-            try{
+            try {
                 Directory.CreateDirectory(OutputDirectory);
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
+            } catch (Exception ex) {
+                throw new DocumenterException("The output directories could not" 
+                    + " be created.", ex);
             }
-            catch{
-                //continue;
-            }
+
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Merging XML documentation...");
 
@@ -204,11 +205,11 @@ namespace NDoc.Documenter.NAnt {
         #endregion Override implementation of IDocumenter
 
         #region Private Instance Methods
-
         
         private void DocumentType(XmlNode typeNode, ElementDocType docType) {
-            if(typeNode == null)
-                throw new ArgumentException("XmlNode cannot be Null.","typeNode");
+            if (typeNode == null) {
+                throw new ArgumentNullException("typeNode");
+            }
 
             // do not document tasks that are deprecated and have the IsError 
             // property of ObsoleteAttribute set to "true"
@@ -223,8 +224,7 @@ namespace NDoc.Documenter.NAnt {
             string filename = GetFileNameForType(typeNode);
             if (_writtenFiles.ContainsValue(classID)) {
                 return;
-            }
-            else {
+            } else {
                 _writtenFiles.Add(filename, classID);
             }
 
@@ -272,7 +272,7 @@ namespace NDoc.Documenter.NAnt {
             // Process all sub-elements and generate docs for them. :)
             // Just look for properties with attributes to narrow down the foreach loop. 
             // (This is a restriction of NAnt.Core.Attributes.BuildElementAttribute)
-            foreach(XmlNode propNode in typeNode.SelectNodes("property[attribute]")){
+            foreach (XmlNode propNode in typeNode.SelectNodes("property[attribute]")) {
                 //Console.Write("Working on Property: " + propNode.Attributes["name"].Value + " (");
                 string eleName = GetElementNameForProperty(propNode);
                 //Console.WriteLine( eleName + "=" + propNode.Attributes["type"].Value + ")");
@@ -280,14 +280,14 @@ namespace NDoc.Documenter.NAnt {
                     //try to get attribute info if it is an array.
                     string elementType = "T:" + propNode.Attributes["type"].Value.Replace("[]","");
                     XmlNode childType = propNode.SelectSingleNode("attribute/property[@ElementType]");
-                    if(childType != null) {
+                    if (childType != null) {
                         elementType = childType.Attributes["value"].Value.Replace("+",".");
                         Console.WriteLine("Documenting Child Type " + elementType);
                     }
 
                     ElementDocType type = _elementNames[elementType] == null ? ElementDocType.DataTypeElement : ElementDocType.Element;
                     XmlNode elementNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
-                    if(elementNode == null) {
+                    if (elementNode == null) {
                         //Console.WriteLine(elementType + " not found in document");
                     } else {
                         // When I didn't use the Clone() call the node was not found in the document after this point. 
@@ -297,7 +297,7 @@ namespace NDoc.Documenter.NAnt {
                     }
                 }
             }
-            if(childElementNodes.ChildNodes.Count >0) {
+            if (childElementNodes.ChildNodes.Count > 0) {
                 arguments.AddParam("childrenElements", string.Empty, childElementNodes.CreateNavigator().Select("."));
                 //Console.WriteLine( classID + " has " + childElementNodes.ChildNodes.Count + " Elements");
             }
@@ -324,12 +324,7 @@ namespace NDoc.Documenter.NAnt {
 
 
         private void MakeTransform(XslTransform transform, string fileName) {
-            try {
-                transform.Load(_resourceDirectory + "xslt/" + fileName);
-            } catch (Exception e) {
-                String msg = String.Format(CultureInfo.InvariantCulture, "Error compiling the '{0}' stylesheet:\n{1}", fileName, e.ToString());
-                throw new DocumenterException(msg, e);
-            }
+            transform.Load(_resourceDirectory + "xslt/" + fileName);
         }
 
         private void TransformAndWriteResult(XslTransform transform, string filename) {
@@ -345,14 +340,7 @@ namespace NDoc.Documenter.NAnt {
         private void TransformAndWriteResult(XslTransform transform, XsltArgumentList arguments, string filename) {
             string path = Path.Combine(OutputDirectory, filename);
             using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII)) {
-                try{
-                    transform.Transform(_xmlDocumentation, arguments, writer);
-                }
-                catch (XsltException xsltex) {
-                    xsltex.ToString();
-                    //Console.WriteLine("{0}({1},{2}):\n{3}", xsltex.SourceUri, xsltex.LineNumber, xsltex.LinePosition, xsltex.ToString());
-                    throw;
-                }
+                transform.Transform(_xmlDocumentation, arguments, writer);
             }
         }
 
