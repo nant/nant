@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Xml;
 
 using NUnit.Framework;
 using SourceForge.NAnt;
@@ -39,6 +40,12 @@ namespace SourceForge.NAnt.Tests {
             _fileSet.BaseDirectory = TempDirName;
 
             // create some test files to match against
+            TempFile.CreateWithContents( 
+@"world.peace
+world.war
+reefer.maddness",
+				Path.Combine(TempDirName, "include.list")
+            );
             TempFile.Create(Path.Combine(TempDirName, "world.peace"));
             TempFile.Create(Path.Combine(TempDirName, "world.war"));
             TempFile.Create(Path.Combine(TempDirName, "reefer.maddness"));
@@ -78,8 +85,22 @@ namespace SourceForge.NAnt.Tests {
             AssertMatch("world.war");
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
-            // Expect 5 - not including directory
-            Assertion.AssertEquals(5, _fileSet.FileNames.Count);
+            // Expect 6 - not including directory
+            Assertion.AssertEquals(6, _fileSet.FileNames.Count);
+            // Two directories, including one empty one
+            Assertion.AssertEquals(2, _fileSet.DirectoryNames.Count);
+        }
+
+        [Test]
+        public void Test_Includes_All_Excludes_Some() {
+            _fileSet.Includes.Add("**/*");
+            _fileSet.Excludes.Add("**/*reefer*");
+            
+            AssertMatch("sub1" + Path.DirectorySeparatorChar + "sub.one");
+            AssertMatch("world.peace");
+            AssertMatch("world.war");
+            // Expect 4 - not including directory
+            Assertion.AssertEquals(4, _fileSet.FileNames.Count);
             // Two directories, including one empty one
             Assertion.AssertEquals(2, _fileSet.DirectoryNames.Count);
         }
@@ -111,6 +132,17 @@ namespace SourceForge.NAnt.Tests {
         public void Test_Includes_Sub2() {
             _fileSet.Includes.Add("sub2/**/*");
             Assertion.AssertEquals(0, _fileSet.FileNames.Count);
+        }
+
+        [Test]
+        public void Test_Includes_List() {
+            FileSet.IncludesListElement elem = new FileSet.IncludesListElement();
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml( "<includesList name=\"" + _fileSet.BaseDirectory + "\\include.list\"/>" );
+            elem.Project = CreateFilebasedProject("<project/>" );
+            elem.Initialize( doc.DocumentElement );
+            _fileSet.SetIncludesList = new FileSet.IncludesListElement[] { elem };
+            Assertion.AssertEquals(3, _fileSet.FileNames.Count);
         }
 
         void AssertMatch(string fileName) 
