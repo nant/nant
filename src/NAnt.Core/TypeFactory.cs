@@ -264,8 +264,6 @@ namespace NAnt.Core {
                     Attribute.GetCustomAttribute(function, 
                     typeof(ObsoleteAttribute), true);
 
-                    Console.WriteLine(function.DeclaringType.FullName);
-
                 // if function itself is not deprecated, check if its declaring
                 // type is deprecated
                 if (obsoleteAttribute == null) {
