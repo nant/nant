@@ -650,6 +650,22 @@ namespace NAnt.Core {
         #region Override implementation of DefaultLogger
 
         /// <summary>
+        /// Signals that a build has started.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
+        /// <remarks>
+        /// This event is fired before any targets have started.
+        /// </remarks>
+        public override void BuildStarted(object sender, BuildEventArgs e) {
+            base.BuildStarted (sender, e);
+
+            // add an item to the project stack
+            _projectStack.Push(null);
+        }
+            
+
+        /// <summary>
         /// Signals that the last target has finished, and send an e-mail with 
         /// the build results.
         /// </summary>
@@ -657,6 +673,16 @@ namespace NAnt.Core {
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public override void BuildFinished(object sender, BuildEventArgs e) {
             base.BuildFinished(sender, e);
+
+            // remove an item from the project stack
+            _projectStack.Pop();
+
+            // check if there are still nested projects executing
+            if (_projectStack.Count != 0) {
+                // do not yet send the mail, as it should only be sent when the
+                // main project is finished
+                return;
+            }
 
             Project project = e.Project;
             PropertyDictionary properties = project.Properties;
@@ -685,7 +711,7 @@ namespace NAnt.Core {
                 string subject = GetPropertyValue(properties, prefix + ".subject",
                     (success) ? "Build Success" : "Build Failure");
 
-                SendMail(mailhost, from, toList, subject, buffer.ToString());
+                SendMail(mailhost, from, toList, subject, _buffer.ToString());
             } catch (Exception ex) {
                 Console.WriteLine("MailLogger failed to send e-mail!");
                 Console.WriteLine(ex.ToString());
@@ -697,7 +723,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="message">The message being logged.</param>
         protected override void Log(string message) {
-            buffer.Append(message).Append(Environment.NewLine);
+            _buffer.Append(message).Append(Environment.NewLine);
         }
 
         #endregion Override implementation of DefaultLogger
@@ -750,7 +776,12 @@ namespace NAnt.Core {
         /// <summary>
         /// Buffer in which the message is constructed prior to sending.
         /// </summary>
-        private StringBuilder buffer = new StringBuilder();
+        private StringBuilder _buffer = new StringBuilder();
+
+        /// <summary>
+        /// Holds the stack of currently executing projects.
+        /// </summary>
+        private Stack _projectStack = new Stack();
 
         #endregion Private Instance Fields
     }
