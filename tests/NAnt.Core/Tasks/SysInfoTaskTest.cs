@@ -16,11 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Tomas Restrepo (tomasr@mvps.org)
 
 using System;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -48,7 +50,11 @@ namespace SourceForge.NAnt.Tests {
             Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
         }
 
+
         public void Test_DuplicateTasks() {
+            //
+            // ensure we can call sysinfo twice in during a buildfile
+            //
             string xml = @"<?xml version='1.0' ?>
             <project>
                 <sysinfo/>
@@ -62,5 +68,24 @@ namespace SourceForge.NAnt.Tests {
               Fail("Duplicate sysinfo tasks should've worked\n" + e.ToString());
            }
         }
+    
+       
+        public void Test_PropertiesNotReadOnly() {
+            //
+            // ensure properties set by sysinfo task are not readonly
+            //
+            string xml = @"<?xml version='1.0' ?>
+            <project>
+                <sysinfo prefix='test'/>
+                <property name='test.clr.version' value='44.32.23'/>
+                <echo message='test.clr.version = ${test.clr.version}'/>
+            </project>";
+
+            string result = RunBuild(xml);
+            string expression = @"test.clr.version = 44.32.23";
+            Match match = Regex.Match(result, expression);
+            Assert("SysInfo property should've been modified!\n" + result, match.Success);
+        }
+ 
     }
 }

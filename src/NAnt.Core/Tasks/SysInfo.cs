@@ -63,18 +63,17 @@ namespace SourceForge.NAnt.Tasks {
             Log.WriteLine(LogPrefix + "Setting system information properties under " + Prefix + "*");
 
             // set properties
-            Properties.Add(Prefix + "clr.version", Environment.Version.ToString());
-            Properties.Add(Prefix + "os.platform", Environment.OSVersion.Platform.ToString());
-            Properties.Add(Prefix + "os.version", Environment.OSVersion.Version.ToString());
-            Properties.Add(Prefix + "os.folder.system", Environment.GetFolderPath(Environment.SpecialFolder.System));
-            Properties.Add(Prefix + "os.folder.temp", Path.GetTempPath());
-            Properties.Add(Prefix + "os", Environment.OSVersion.ToString());
+            Properties[Prefix + "clr.version"] = Environment.Version.ToString();
+            Properties[Prefix + "os.platform"] = Environment.OSVersion.Platform.ToString();
+            Properties[Prefix + "os.version"]  = Environment.OSVersion.Version.ToString();
+            Properties[Prefix + "os.folder.system"] = Environment.GetFolderPath(Environment.SpecialFolder.System);
+            Properties[Prefix + "os.folder.temp"] = Path.GetTempPath();
+            Properties[Prefix + "os"] = Environment.OSVersion.ToString();
 
             // set environment variables
             IDictionary variables = Environment.GetEnvironmentVariables();
             foreach (string name in variables.Keys) {
-                string value = (string) variables[name];
-                Properties.Add(Prefix + "env." + name, value);
+                Properties[Prefix + "env." + name] = (string)variables[name];
             }
 
             // display the properties

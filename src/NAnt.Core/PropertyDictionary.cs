@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Tomas Restrepo (tomasr@mvps.org)
 
 namespace SourceForge.NAnt {
 
@@ -43,9 +44,7 @@ namespace SourceForge.NAnt {
         public virtual void AddReadOnly(string name, string value) {
             if (!_readOnlyProperties.Contains(name)) {
                 _readOnlyProperties.Add(name);
-                if(!Dictionary.Contains(name))  {
-                    Dictionary.Add(name, value);
-                }                 
+                Dictionary.Add(name, value);
             }
         }
 
@@ -56,23 +55,30 @@ namespace SourceForge.NAnt {
         /// <param name="value">Value of property</param>
         public virtual void Add(string name, string value) {
             if (!_readOnlyProperties.Contains(name)) {
-                
-                if(!Dictionary.Contains(name))  {
-                    Dictionary.Add(name, value);
-                }                
-                else { 
-                    Dictionary[name] = value;
-                }
+                Dictionary.Add(name, value);
             }
         }
 
+        public virtual void SetValue(string name, string value) {
+            if (!_readOnlyProperties.Contains(name)) {
+                Dictionary[name] = value;
+            } 
+        }
+
+        /// <summary>
+        /// Indexer property. 
+        /// </summary>
         public virtual string this[string name] {
             get { return (string) Dictionary[(object) name]; }
             set {
                 if (!_readOnlyProperties.Contains(name)) {
                     Dictionary[name] = value;
-                    
+                } 
+/* // tomasr: Should this throw an error? I think so
+                else {
+                  throw new BuildException(String.Format("Property '{0}' is read-only!", name));
                 }
+*/
             }
         }
 
@@ -135,6 +141,8 @@ namespace SourceForge.NAnt {
                 }
             }
             return output;
-        }    
+        }
+
+    
     }
 }
