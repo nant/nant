@@ -63,9 +63,11 @@ namespace NAnt.VSNet {
                     VcProject p = new VcProject(slnTask, tfc, outputDir);
                     p.Load(sln, path);
                     _cachedProjects[projectName] = p;
-                } 
-                else 
-                    throw new BuildException("Unknown project file extension " + projectExt);
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Unknown project file extension {0}.", projectExt),
+                        Location.UnknownLocation);
+                }
             }
 
             return (ProjectBase)_cachedProjects[projectName];

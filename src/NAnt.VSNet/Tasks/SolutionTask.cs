@@ -306,6 +306,10 @@ namespace NAnt.VSNet.Tasks {
 
             try {
                 using (TempFileCollection tfc = new TempFileCollection()) {
+                    // store the temp dir so we can clean it up later
+                    basePath = tfc.BasePath;
+
+                    // check if solution file was specified
                     if (SolutionFile == null) {
                         sln = new Solution(new ArrayList(Projects.FileNames), new ArrayList(ReferenceProjects.FileNames), tfc, 
                             this, WebMaps, ExcludeProjects, OutputDir);
@@ -317,8 +321,6 @@ namespace NAnt.VSNet.Tasks {
                     if (!sln.Compile(Configuration, new ArrayList(), null, Verbose, false)) {
                         throw new BuildException("Project build failed.", Location);
                     }
-                
-                    basePath = tfc.BasePath;
                 }
             } finally {
                 if (basePath != null && Directory.Exists(basePath)) {

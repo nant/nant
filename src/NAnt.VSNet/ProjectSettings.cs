@@ -33,6 +33,8 @@ namespace NAnt.VSNet {
         public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, TempFileCollection tfc) {
             _elemSettings = elemSettings;
             _tfc = tfc;
+
+            // ensure the temp dir exists
             Directory.CreateDirectory(_tfc.BasePath);
 
             _settings = new ArrayList();
