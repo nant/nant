@@ -108,7 +108,7 @@
             </li>
         </ul>
         <h4>New Tasks</h4>
-        <h5>&lt;fail&gt;</h5>
+        <h5>&lt;asminfo&gt;</h5>
         <ul>
             <li>
                 Moved from <a href="http://nantcontrib.sourceforge.net">NAntContrib</a> to NAnt,
@@ -158,6 +158,15 @@
                 deprecated and has no longer any effect. The <code>&lt;call&gt;</code> task will
                 now always execute the specified target, regardless of the fact that this target
                 has already been executed before.
+            </li>
+        </ul>
+        <h5>&lt;csc&gt;</h5>
+        <ul>
+            <li>
+                Improved localization support.
+            </li>
+            <li>
+                Added support for <code>/lib</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
             </li>
         </ul>
         <h5>&lt;cl&gt;</h5>
@@ -227,6 +236,15 @@
             <li>
                 A verbose message will now be output to the build log when a file is included multiple
                 times. In previous versions of NAnt, this would cause a build failure.
+            </li>
+        </ul>
+        <h5>&lt;jsc&gt;</h5>
+        <ul>
+            <li>
+                Improved localization support.
+            </li>
+            <li>
+                Added support for <code>/lib</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
             </li>
         </ul>
         <h5>&lt;mail&gt;</h5>
@@ -316,6 +334,24 @@
         <ul>
             <li>
                 If the file specified in the single-file case does not exist, it will now be created.
+            </li>
+        </ul>
+        <h5>&lt;vbc&gt;</h5>
+        <ul>
+            <li>
+                Improved localization support.
+            </li>
+            <li>
+                Added support for <code>/libpath</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
+            </li>
+        </ul>
+        <h5>&lt;vjc&gt;</h5>
+        <ul>
+            <li>
+                Improved localization support.
+            </li>
+            <li>
+                Added support for <code>/libpath</code> option through nested <code>&lt;lib&gt;</code> element, which allows additional directories to be specified in which to search for assembly references.
             </li>
         </ul>
         <h5>&lt;zip&gt;</h5>
