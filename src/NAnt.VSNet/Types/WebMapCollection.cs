@@ -103,7 +103,7 @@ namespace NAnt.VSNet.Types {
 
                 if (testSubject.StartsWith(testTarget) && testTarget.Length > bestMatchLength) {
                     bestMatchLength = testTarget.Length;
-                    bestMatch = webMap.Path + uri.Substring(testTarget.Length);
+                    bestMatch = webMap.Path.FullName + uri.Substring(testTarget.Length);
                 }
             }
 
