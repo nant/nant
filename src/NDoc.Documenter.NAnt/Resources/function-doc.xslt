@@ -127,6 +127,7 @@
                 <h3>Return Value</h3>
                 <xsl:apply-templates select="documentation/returns/node()" mode="slashdoc" />
             </xsl:if>
+            <xsl:call-template name="exceptions-section" />
             <xsl:if test="count(documentation/remarks) != 0">
                 <h3>Remarks</h3>
                 <xsl:apply-templates select="documentation/remarks" mode="slashdoc" />
@@ -141,4 +142,21 @@
             </div>
         </body>
     </xsl:template>
+	<xsl:template name="exceptions-section">
+		<xsl:if test="documentation/exception">
+			<h3>Exceptions</h3>
+			The function will fail in any of the following circumstances:
+            <div style="margin-left: 40px;">
+                <ul>
+				    <xsl:for-each select="documentation/exception">
+					    <xsl:sort select="@name" />
+					    <li>
+                            <xsl:apply-templates select="./node()" mode="slashdoc" />
+							<xsl:if test="not(./node())">&#160;</xsl:if>
+					    </li>
+				    </xsl:for-each>
+				</ul>
+			</div>
+		</xsl:if>
+	</xsl:template>
 </xsl:stylesheet>
