@@ -55,8 +55,8 @@ namespace NAnt.Core {
             AddTasks(Assembly.GetExecutingAssembly());
             AddTasks(Assembly.GetCallingAssembly());
             
-            // todo combine these two AddTasks and AddDataTypes
-            AddDataTypes( Assembly.GetExecutingAssembly());
+            // TO-DO combine these two AddTasks and AddDataTypes
+            AddDataTypes(Assembly.GetExecutingAssembly());
             AddDataTypes(Assembly.GetCallingAssembly());
 
             string nantBinDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
@@ -74,7 +74,7 @@ namespace NAnt.Core {
         /// <param name="path">The directory to scan in.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanDir(string path) {
-            // Don't do anything if we don't have a valid directory path
+            // don't do anything if we don't have a valid directory path
             if (StringUtils.IsNullOrEmpty(path)) {
                 return;
             }
@@ -90,17 +90,16 @@ namespace NAnt.Core {
 
             logger.Info(string.Format(CultureInfo.InvariantCulture,"Adding Tasks (from AppDomain='{0}'):", AppDomain.CurrentDomain.FriendlyName));
             foreach (string assemblyFile in scanner.FileNames) {
-                //Log.WriteLine("{0}:Add Tasks from {1}", AppDomain.CurrentDomain.FriendlyName, assemblyFile);
-                logger.Info(string.Format(CultureInfo.InvariantCulture,"Assembly '{0}'s tasks are being scanned.", assemblyFile));
+                logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                    "Scanning assembly '{0}' for tasks and types.", assemblyFile));
                 
                 AddTasks(Assembly.LoadFrom(assemblyFile));
                 AddDataTypes(Assembly.LoadFrom(assemblyFile));
-                //AddTasks(AppDomain.CurrentDomain.Load(assemblyFile.Replace(AppDomain.CurrentDomain.BaseDirectory,"").Replace(".dll","")));
             }
         }
 
         /// <summary>
-        /// Adds any task Assemblies in the project basedirectory.
+        /// Adds any task assemblies in the project base directory.
         /// </summary>
         /// <param name="project">The project to work from.</param>
         public static void AddProject(Project project) {
@@ -108,7 +107,8 @@ namespace NAnt.Core {
                 ScanDir(project.BaseDirectory);
                 ScanDir(Path.Combine(project.BaseDirectory, "tasks"));
             }
-            //create weakref to project. It is possible that project may go away, we don't want to hold it.
+            // create weakref to project. It is possible that project may go away, 
+            // we don't want to hold it.
             _projects.Add(new WeakReference(project));
             foreach (TaskBuilder tb in TaskBuilders) {
                 UpdateProjectWithBuilder(project, tb);
@@ -118,7 +118,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the list of loaded <see cref="TaskBuilder" /> instances.
         /// </summary>
-        /// <value>List of loaded <see cref="TaskBuilder" /> instances.</value>
+        /// <value>
+        /// List of loaded <see cref="TaskBuilder" /> instances.
+        /// </value>
         public static TaskBuilderCollection TaskBuilders {
             get { return _taskBuilders; }
         }
@@ -126,7 +128,6 @@ namespace NAnt.Core {
          public static DataTypeBaseBuilderCollection DataTypeBuilders {
             get { return _dataTypeBuilders; }
         }
-
 
         /// <summary>
         /// Scans the given assembly for any classes derived from 
@@ -138,7 +139,9 @@ namespace NAnt.Core {
         /// </note>
         /// </summary>
         /// <param name="taskAssembly">The <see cref="Assembly" /> containing the new tasks to be loaded.</param>
-        /// <returns>The number of tasks found in the assembly.</returns>
+        /// <returns>
+        /// The number of tasks found in the assembly.
+        /// </returns>
         public static int AddTasks(Assembly taskAssembly) {
             int taskCount = 0;
 
@@ -148,7 +151,8 @@ namespace NAnt.Core {
                         Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
 
                     if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract && taskNameAttribute != null) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "Creating TaskBuilder for {0}", type.Name));
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, 
+                            "Creating TaskBuilder for '{0}'", type.Name));
                         TaskBuilder tb = new TaskBuilder(type.FullName, taskAssembly.Location);
                         if (TaskBuilders[tb.TaskName] == null) {
                             TaskBuilders.Add(tb);
@@ -164,22 +168,26 @@ namespace NAnt.Core {
                                 }
                                 UpdateProjectWithBuilder(p, tb);
                             }
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture,"Adding '{0}' from {1}:{2}", tb.TaskName, tb.AssemblyFileName, tb.ClassName));
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture,
+                                "Adding '{0}' from {1}:{2}", tb.TaskName, 
+                                tb.AssemblyFileName, tb.ClassName));
+
+                            // increment number of tasks loaded from assembly
                             taskCount++;
                         }
                     }
                 }
+            } catch (Exception ex) { // for assemblies that don't have types
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error loading tasks from {0}({1}).", taskAssembly.FullName, 
+                    taskAssembly.Location), ex);
             }
-            // For assemblies that don't have types
-            catch (Exception e){
-                logger.Error(string.Format(CultureInfo.InvariantCulture, "Error loading tasks from {0}({1}).", taskAssembly.FullName, taskAssembly.Location), e);
-            };
 
             return taskCount;
         }
         
         public static int AddDataTypes(Assembly taskAssembly) {
-            int ElementCount = 0;
+            int typeCount = 0;
 
             try {
                 foreach (Type type in taskAssembly.GetTypes()) {
@@ -191,7 +199,7 @@ namespace NAnt.Core {
                         DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.FullName, taskAssembly.Location);
                         if (DataTypeBuilders[dtb.DataTypeName ] == null) {
                             DataTypeBuilders.Add(dtb);
-                            foreach(WeakReference wr in _projects) {
+                            foreach (WeakReference wr in _projects) {
                                 if (!wr.IsAlive) {
                                     logger.Error("Project WeakRef is dead.");
                                     continue;
@@ -201,20 +209,23 @@ namespace NAnt.Core {
                                     logger.Error("WeakRef not a project! This should not be possible.");
                                     continue;
                                 }
-                                //UpdateProjectWithBuilder(p, tb);
                             }
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture,"Adding '{0}' from {1}:{2}", dtb.DataTypeName, dtb.AssemblyFileName, dtb.ClassName));
-                            ElementCount++;
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture, 
+                                "Adding '{0}' from {1}:{2}", dtb.DataTypeName, 
+                                dtb.AssemblyFileName, dtb.ClassName));
+
+                            // increment number of types loaded from assembly
+                            typeCount++;
                         }
                     }
                 }
+            } catch (Exception ex) { // for assemblies that don't have types
+                logger.Error(string.Format(CultureInfo.InvariantCulture, 
+                    "Error loading types from {0}({1}).", taskAssembly.FullName, 
+                    taskAssembly.Location), ex);
             }
-            // For assemblies that don't have types
-            catch (Exception e){
-                logger.Error(string.Format(CultureInfo.InvariantCulture, "Error loading Elements from {0}({1}).", taskAssembly.FullName, taskAssembly.Location), e);
-            };
 
-            return ElementCount;
+            return typeCount;
         }
 
         /// <summary> 
@@ -225,30 +236,81 @@ namespace NAnt.Core {
         /// <param name="proj">The <see cref="Project" /> that the <see cref="Task" /> belongs to.</param>
         /// <returns>The new <see cref="Task" /> instance.</returns>
         public static Task CreateTask(XmlNode taskNode, Project proj) {
+            if (taskNode == null) {
+                throw new ArgumentNullException("taskNode");
+            }
+            if (proj == null) {
+                throw new ArgumentNullException("proj");
+            }
+
             string taskName = taskNode.Name;
 
             TaskBuilder builder = TaskBuilders[taskName];
-            if (builder == null && proj != null) {
+            if (builder == null) {
                 Location location = proj.LocationMap.GetLocation(taskNode);
-                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Unknown task <{0}>.", taskName), location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Unknown task <{0}>.", taskName), location);
             }
 
             Task task = builder.CreateTask();
             task.Project = proj;
+
+            // check whether the task (or its base class) is deprecated
+            ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
+                Attribute.GetCustomAttribute(task.GetType(), 
+                typeof(ObsoleteAttribute), true);
+
+            if (obsoleteAttribute != null) {
+                Location location = proj.LocationMap.GetLocation(taskNode);
+                string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                    "{0} Task <{1}> is deprecated.  {2}", location, taskName, 
+                    obsoleteAttribute.Message);
+                if (obsoleteAttribute.IsError) {
+                    proj.Log(Level.Error, obsoleteMessage);
+                } else {
+                    proj.Log(Level.Warning, obsoleteMessage);
+                }
+            }
+
             return task;
         }
         
         public static DataTypeBase CreateDataType(XmlNode elementNode, Project proj) {
+            if (elementNode == null) {
+                throw new ArgumentNullException("elementNode");
+            }
+            if (proj == null) {
+                throw new ArgumentNullException("proj");
+            }
+
             string dataTypeName = elementNode.Name;
 
             DataTypeBaseBuilder builder = DataTypeBuilders[dataTypeName];
-            if (builder == null && proj != null) {
+            if (builder == null) {
                 Location location = proj.LocationMap.GetLocation(elementNode);
-                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Unknown element <{0}>.", dataTypeName), location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Unknown element <{0}>.", dataTypeName), location);
             }
 
-            DataTypeBase element = (DataTypeBase)builder.CreateDataTypeBase();
+            DataTypeBase element = (DataTypeBase) builder.CreateDataTypeBase();
             element.Project = proj;
+
+            // check whether the type (or its base class) is deprecated
+            ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
+                Attribute.GetCustomAttribute(element.GetType(), 
+                typeof(ObsoleteAttribute), true);
+
+            if (obsoleteAttribute != null) {
+                Location location = proj.LocationMap.GetLocation(elementNode);
+                string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                    "{0} Type <{1}> is deprecated.  {2}", location, dataTypeName, 
+                    obsoleteAttribute.Message);
+                if (obsoleteAttribute.IsError) {
+                    proj.Log(Level.Error, obsoleteMessage);
+                } else {
+                    proj.Log(Level.Warning, obsoleteMessage);
+                }
+            }
             return element;
         }
 
