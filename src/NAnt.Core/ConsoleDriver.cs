@@ -34,6 +34,7 @@ namespace SourceForge.NAnt {
     /// ConsoleDriver is used as the main entry point to NAnt. It is called by the ConsoleStub.
     /// </summary>
     public class ConsoleDriver {
+        private static readonly log4net.ILog debuglogger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     
         const string buildfileOption    = "-buildfile:";
         const string buildfileOption2   = "-file:";
@@ -250,22 +251,24 @@ namespace SourceForge.NAnt {
                     }
                 return 0;
             } catch (ApplicationException e) {
-                if (verbose) {
-                    Console.WriteLine(e.ToString());
+                debuglogger.Debug("Internal Nant Error", e);
+                Console.WriteLine("More information was logged via log4net at level debug");
+                
+                if (e.InnerException != null && e.InnerException.Message != null) {
+                    Console.WriteLine(e.Message + "\n\t" + e.InnerException.Message);
                 } else {
-                    if (e.InnerException != null && e.InnerException.Message != null) {
-                        Console.WriteLine(e.Message + "\n\t" + e.InnerException.Message);
-                    } else {
-                        Console.WriteLine(e.Message);
-                    }
+                    Console.WriteLine(e.Message);
                 }
                 Console.WriteLine();
                 Console.WriteLine("Try 'nant -help' for more information");
                 return 1;
             } catch (Exception e) {
+                debuglogger.Debug("Internal Nant Error", e);
+                Console.WriteLine("More information was logged via log4net at level debug");
+
                 // all other exceptions should have been caught
                 Console.WriteLine("INTERNAL ERROR");
-                Console.WriteLine(e.ToString());
+                Console.WriteLine(e.Message);
                 Console.WriteLine();
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
                 return 2;

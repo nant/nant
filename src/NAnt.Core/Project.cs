@@ -556,12 +556,14 @@ namespace SourceForge.NAnt {
                     } 
                 }
                 Log.WriteMessage(message, "error");
+                logger.Info(message, e);
                 success = false;
                 return false;
             } catch (Exception e) {
                 // all other exceptions should have been caught
                 string message = "\nINTERNAL ERROR\n" + e.ToString() + "\nPlease send bug report to nant-developers@lists.sourceforge.net";
                 Log.WriteMessage(message, "error");
+                logger.Info(message, e);
                 success = false;
                 return false;
             }
@@ -794,7 +796,9 @@ namespace SourceForge.NAnt {
                                             resgenToolName,
                                             runtimeEngine );
                 } catch (Exception e ) {
-                    Log.WriteLineIf(Verbose, string.Format(CultureInfo.InvariantCulture, "settings warning: frameworkinfo {0} is invalid and has not been loaded: ", name ) + e.Message );
+                    string msg = string.Format(CultureInfo.InvariantCulture, "settings warning: frameworkinfo {0} is invalid and has not been loaded: ", name ); 
+                    Log.WriteLineIf(Verbose, msg + e.Message);
+                    logger.Info(msg, e);
                 } 
                 // just ignore frameworks that don't validate
                 if (info != null ) {
@@ -837,20 +841,15 @@ namespace SourceForge.NAnt {
             
             object testobj = ConfigurationSettings.GetConfig("nantsettings");
             XmlNode node = testobj as XmlNode;
-            
-            //Log.WriteLine("Project: AppDom Config File: {0}", AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);            
-            if ( node == null){
-                XmlDocument doc = new XmlDocument();
-                doc.Load( AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ); // try and load it from disk
-                node = doc.SelectSingleNode("//nantsettings" );
-                // if still equal to null..
-                if ( node == null) { 
-                    // todo pull a settings file out of the assembly resource and copy to that location                          
-                    Log.WriteLine("Settings not found. Using none!");
-                    return;
-                }                        
-            }
+            logger.Debug("Current Config:\n" + node.OuterXml);
+            logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
 
+            if ( node == null) { 
+                // todo pull a settings file out of the assembly resource and copy to that location                          
+                Log.WriteLine("Settings not found. Using none!");
+                logger.Info("Settings not found. Using none!");
+                return;
+            }     
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             //If a default namespace is specified this will fail.
             XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
@@ -866,7 +865,7 @@ namespace SourceForge.NAnt {
                 CurrentFramework = _defaultFramework;
             }   
             else {        
-                Log.WriteLine( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
+                logger.Info( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
             }
 
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)

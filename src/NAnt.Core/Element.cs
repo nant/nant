@@ -436,8 +436,8 @@ namespace SourceForge.NAnt {
                 childElement = (Element)propInf.GetValue(this, null);
                 if (childElement == null && setter == null){
                     string msg = string.Format(CultureInfo.InvariantCulture, "Property {0} cannot return null (if there is no set method) for class {1}", propInf.Name, this.GetType().FullName);
-                    throw new BuildException(msg, Location);
                     logger.Error(msg);
+                    throw new BuildException(msg, Location);
                 }else if (childElement == null && setter != null){
                     //fake the getter as null so we process the rest like there is no getter.
                     getter = null;

@@ -1,7 +1,8 @@
 // NAnt - A .NET build tool// Copyright (C) 2001-2003 Scott Hernandez//// This program is free software; you can redistribute it and/or modify// it under the terms of the GNU General Public License as published by// the Free Software Foundation; either version 2 of the License, or// (at your option) any later version.//// This program is distributed in the hope that it will be useful,// but WITHOUT ANY WARRANTY; without even the implied warranty of// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the// GNU General Public License for more details.//// You should have received a copy of the GNU General Public License// along with this program; if not, write to the Free Software// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA//// Scott Hernandez (ScottHernandez@hotmail.com)
 using System;using System.Collections;using System.Collections.Specialized;using System.Diagnostics;using System.IO;using System.Reflection;using System.Xml;using System.Xml.Schema;
 using SourceForge.NAnt.Attributes;
-namespace SourceForge.NAnt.Tasks {    /// <summary>    /// Creates an XSD File for all available Tasks.    /// </summary>    /// <remarks>    ///   <para>This can be used in conjuntion with the command line option to do XSD Schema validation on the build file.</para>    /// </remarks>    /// <example>    ///   <para>Creates an NAnt.xsd file in the current project directory</para>    ///   <code><![CDATA[<NAntSchema name="NAnt.xsd"/>]]></code>    /// </example>    [TaskName("nantschema")]    public class NAntSchemaTask : Task {        #region Private Instance Fields
+namespace SourceForge.NAnt.Tasks {    /// <summary>    /// Creates an XSD File for all available Tasks.    /// </summary>    /// <remarks>    ///   <para>This can be used in conjuntion with the command line option to do XSD Schema validation on the build file.</para>    /// </remarks>    /// <example>    ///   <para>Creates an NAnt.xsd file in the current project directory</para>    ///   <code><![CDATA[<NAntSchema name="NAnt.xsd"/>]]></code>    /// </example>    [TaskName("nantschema")]    public class NAntSchemaTask : Task {        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #region Private Instance Fields
 
         string  _file               = null;        string  _forType            = null;        string  _targetNamespace    = null;
         #endregion Private Instance Fields
@@ -66,11 +67,11 @@ namespace SourceForge.NAnt.Tasks {    /// <summary>    /// Creates an XSD File
 
             #region Protected Instance Methods
 
-            protected void ValidationEH(object sender, ValidationEventArgs args) {                if(args.Severity == XmlSeverityType.Warning) {                    Console.Write("WARNING: ");                } else if(args.Severity == XmlSeverityType.Error) {                    Console.Write("ERROR: ");                }
+            protected void ValidationEH(object sender, ValidationEventArgs args) {                if(args.Severity == XmlSeverityType.Warning) {                    logger.Info("WARNING: ");                } else if(args.Severity == XmlSeverityType.Error) {                    logger.Error("ERROR: ");                }
 
                 XmlSchemaComplexType source = args.Exception.SourceSchemaObject as XmlSchemaComplexType;
-                Console.WriteLine(args.ToString());
-                if(source != null) {                    Console.WriteLine("{0}({1})", source.Name, source.Id);                }            }
+                logger.Info(args.ToString());
+                if(source != null) {                    logger.Info("{0}({1})", source.Name, source.Id);                }            }
             protected XmlSchemaComplexType FindCTByID(string id) {                if(_nantComplexTypes.Contains(id)) {                    return (XmlSchemaComplexType)_nantComplexTypes[id];                }
                 return null;            }
 /*            protected XmlSchemaComplexType CreateComplexTypeForTask(Type t, string name, bool useRefs) {
@@ -148,8 +149,6 @@ namespace SourceForge.NAnt.Tasks {    /// <summary>    /// Creates an XSD File
             XmlSchemaDocumentation schemaDoc = new XmlSchemaDocumentation();
             attr.Annotation.Items.Add(schemaDoc);
             schemaDoc.Markup = TextToNodeArray(doc);        }
-        protected static void ValidationCallback(object sender, ValidationEventArgs args) {            if(args.Severity == XmlSeverityType.Warning) {                Console.Write("WARNING: ");            } else if(args.Severity == XmlSeverityType.Error) {                Console.Write("ERROR: ");            }
-            Console.WriteLine(args.ToString());        }
         /// <summary>        /// Searches throught custom attributes for any attribute based on attr        /// </summary>        /// <param name="meminfo">MemberInfo (includes Properties/Fields/Types)</param>        /// <param name="attr">Type of the Attribute you want; meaning that you want something derived by it.</param>        /// <param name="bSearchObjectHier">Search the MemberInfo class ancestry</param>        /// <param name="bSearchAttributeHier">Search the Attribute Type ancestry for a mactch to attr</param>        /// <returns></returns>        protected static Attribute GetDerivedAttribute(MemberInfo meminfo, Type attr, bool bSearchObjectHier, bool bSearchAttributeHier) {            if (bSearchAttributeHier) {                Attribute[] attrs = Attribute.GetCustomAttributes(meminfo, bSearchObjectHier);
                 foreach(Attribute a in attrs) {                    Type aType = a.GetType();
                     while (!typeof(object).Equals(aType.BaseType) && aType.BaseType != null) {                        if (aType.Equals(attr)) {                            return a;                        }

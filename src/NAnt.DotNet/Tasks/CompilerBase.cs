@@ -145,7 +145,7 @@ namespace SourceForge.NAnt.Tasks {
         protected string GetOutputPath() {
             return Path.GetFullPath(Path.Combine(BaseDirectory, Output));
         }
-
+        
         /// <summary>Determines whether compilation is needed.</summary>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
