@@ -45,6 +45,10 @@ namespace NAnt.DotNet.Tasks {
     ///   </target>
     ///   <target name="build">
     ///      <vbc target="exe" output="${basename}-vb.exe" rootnamespace="${basename}">
+    ///         <imports>
+    ///             <import name="System" />
+    ///             <import name="System.Data" />
+    ///         </imports>
     ///         <sources>
     ///            <include name="${basename}.vb" />
     ///         </sources>
