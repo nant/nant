@@ -25,29 +25,36 @@ using System.IO;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
-
+ 
     /// <summary>Set properties with system information.</summary>
-	/// <remarks>
-	///   <para>Sets a number of properties with information about the system environment.  The intent of this task is for nightly build logs to have a record of system information so that the build was performed on.</para>
-	///   <list type="table">
-	///     <listheader><term>Property</term>      <description>Value</description></listheader>
-	///     <item><term>sys.clr.version</term>     <description>Common Language Runtime version number.</description></item>
-	///     <item><term>sys.env.*</term>           <description>Environment variables (e.g., sys.env.PATH).</description></item>
-	///     <item><term>sys.os.folder.system</term><description>The System directory.</description></item>
-	///     <item><term>sys.os.folder.temp</term>  <description>The temporary directory.</description></item>
-	///     <item><term>sys.os.platform</term>     <description>Operating system platform ID.</description></item>
-	///     <item><term>sys.os.version</term>      <description>Operating system version.</description></item>
-   ///     <item><term>sys.os</term>              <description>Operating system version string.</description></item>
-	///   </list>
-	/// </remarks>
-	/// <example>
-	///   <para>Register the properties with the default property prefix.</para>
-	///   <code>&lt;sysinfo/&gt;</code>
-	///   <para>Register the properties without a prefix.</para>
-	///   <code>&lt;sysinfo prefix=""/&gt;</code>
-	///   <para>Register properties and display a summary</para>
-	///   <code>&lt;sysinfo verbose="true"/&gt;</code>
-	/// </example>
+    /// <remarks>
+    ///   <para>Sets a number of properties with information about the system environment.  The intent of this task is for nightly build logs to have a record of system information so that the build was performed on.</para>
+    ///   <list type="table">
+    ///     <listheader><term>Property</term>      <description>Value</description></listheader>
+    ///     <item><term>sys.clr.version</term>     <description>Common Language Runtime version number.</description></item>
+    ///     <item><term>sys.env.*</term>           <description>Environment variables (e.g., sys.env.PATH).</description></item>
+    ///     <item><term><a href="ms-help://MS.VSCC/MS.MSDNQTR.2003FEB.1033/cpref/html/frlrfSystemEnvironmentSpecialFolderClassTopic.htm">See the Microsoft.NET Framework SDK documentation for more details on the following.</a></term></item>
+    ///     <item><term>sys.os.folder.applicationdata</term><description>The directory that serves as a common repository for application-specific data for the current roaming user.</description></item>
+    ///     <item><term>sys.os.folder.commonapplicationdata</term><description>The directory that serves as a common repository for application-specific data that is used by all users..</description></item>
+    ///     <item><term>sys.os.folder.commonprogramfiles</term><description>The directory for components that are shared across applications.</description></item>
+    ///     <item><term>sys.os.folder.desktopdirectory</term><description>The directory used to physically store file objects on the desktop. Do not confuse this directory with the desktop folder itself, which is a virtual folder.</description></item>            
+    ///     <item><term>sys.os.folder.programfiles</term><description>The Program Files directory.</description></item>         
+    ///     <item><term>sys.os.folder.system</term><description>The System directory.</description></item>
+    ///     <item><term>sys.os.folder.temp</term>  <description>The temporary directory.</description></item>
+    
+    ///     <item><term>sys.os.platform</term>     <description>Operating system platform ID.</description></item>
+    ///     <item><term>sys.os.version</term>      <description>Operating system version.</description></item>
+    ///     <item><term>sys.os</term>              <description>Operating system version string.</description></item>
+    ///   </list>
+    /// </remarks>
+    /// <example>
+    ///   <para>Register the properties with the default property prefix.</para>
+    ///   <code>&lt;sysinfo/&gt;</code>
+    ///   <para>Register the properties without a prefix.</para>
+    ///   <code>&lt;sysinfo prefix=""/&gt;</code>
+    ///   <para>Register properties and display a summary</para>
+    ///   <code>&lt;sysinfo verbose="true"/&gt;</code>
+    /// </example>
     [TaskName("sysinfo")]
     public class SysInfoTask : Task {
         string _prefix = "sys.";
@@ -66,7 +73,12 @@ namespace SourceForge.NAnt.Tasks {
             Properties[Prefix + "clr.version"] = Environment.Version.ToString();
             Properties[Prefix + "os.platform"] = Environment.OSVersion.Platform.ToString();
             Properties[Prefix + "os.version"]  = Environment.OSVersion.Version.ToString();
-            Properties[Prefix + "os.folder.system"] = Environment.GetFolderPath(Environment.SpecialFolder.System);
+            Properties[Prefix + "os.folder.applicationdata"] = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);  
+            Properties[Prefix + "os.folder.commonapplicationData"] = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);  
+            Properties[Prefix + "os.folder.commonprogramFiles"] = Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles);  
+            Properties[Prefix + "os.folder.desktopdirectory"] = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);                          
+            Properties[Prefix + "os.folder.programfiles"] = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);                        
+            Properties[Prefix + "os.folder.system"] = Environment.GetFolderPath(Environment.SpecialFolder.System);                                   
             Properties[Prefix + "os.folder.temp"] = Path.GetTempPath();
             Properties[Prefix + "os"] = Environment.OSVersion.ToString();
 
