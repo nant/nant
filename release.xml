@@ -9,11 +9,11 @@
     <!-- include master build file -->
     <include buildfile="nant.build"/>
     <!-- perform a 'release' package and upload to sf.net -->
-    <target name="build-release" depends="set-net-1.0-runtime-configuration, release, package, deploy" description="Perform a 'release' package and uploads to sf.net" />
+    <target name="build-release" depends="set-net-1.0-runtime-configuration, release, package, deploy-sf" description="Perform a 'release' package and uploads to sf.net" />
     <!-- deploy content to sourceforge -->
-    <target name="deploy" depends="deploy-schema, deploy-help, deploy-web" />
+    <target name="deploy-sf" depends="deploy-schema-sf, deploy-help-sf, deploy-web-sf" />
     <!-- copy schema to sourceforge -->
-    <target name="deploy-schema" depends="set-net-1.0-runtime-configuration, release, package">
+    <target name="deploy-schema-sf" depends="set-net-1.0-runtime-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -38,7 +38,7 @@
         </exec>
     </target>
     <!-- copy help to sourceforge -->
-    <target name="deploy-help" depends="set-net-1.0-runtime-configuration, release, package">
+    <target name="deploy-help-sf" depends="set-net-1.0-runtime-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -69,7 +69,7 @@
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-web" depends="set-net-1.0-runtime-configuration, release, package">
+    <target name="deploy-web-sf" depends="set-net-1.0-runtime-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />

@@ -11,11 +11,11 @@
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
-    <target name="nightly" depends="set-net-1.0-runtime-configuration, package, deploy, install" description="Perform a 'nightly' package, and installs NAnt." />
+    <target name="nightly" depends="set-net-1.0-runtime-configuration, package, deploy-sf, install" description="Perform a 'nightly' package, and installs NAnt." />
     <!-- deploy content to sourceforge -->
-    <target name="deploy" depends="deploy-zip, deploy-schema, deploy-help, deploy-web, deploy-nightly-web" />
+    <target name="deploy-sf" depends="deploy-zip-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf, deploy-nightly-web-sf" />
     <!-- copy the zipped nighly build to sourceforge -->
-    <target name="deploy-zip" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-zip-sf" depends="set-net-1.0-runtime-configuration, package">
         <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
@@ -40,7 +40,7 @@
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
-    <target name="deploy-schema" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-schema-sf" depends="set-net-1.0-runtime-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -65,7 +65,7 @@
         </exec>
     </target>
     <!-- copy help to sourceforge -->
-    <target name="deploy-help" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-help-sf" depends="set-net-1.0-runtime-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -96,7 +96,7 @@
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-web" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-web-sf" depends="set-net-1.0-runtime-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -144,7 +144,7 @@
         </exec>
     </target>
     <!-- copy nightly website to sourceforge -->
-    <target name="deploy-nightly-web" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-nightly-web-sf" depends="set-net-1.0-runtime-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
