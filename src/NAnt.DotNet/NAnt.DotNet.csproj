@@ -89,13 +89,22 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\AssemblyLinkerTask.cs"
+                    RelPath = "CommonAssemblyInfo.cs"
+                    Link = "..\CommonAssemblyInfo.cs"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.DotNet.build"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "Tasks\AssemblyInfoTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CommonAssemblyInfo.cs"
-                    Link = "..\CommonAssemblyInfo.cs"
+                    RelPath = "Tasks\AssemblyLinkerTask.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -114,16 +123,22 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.DotNet.build"
-                    BuildAction = "None"
-                />
-                <File
                     RelPath = "Tasks\NDocTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Tasks\ResGenTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\AssemblyAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\AssemblyAttributeCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
