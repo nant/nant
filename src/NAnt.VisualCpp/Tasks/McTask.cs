@@ -20,28 +20,44 @@
 
 using System;
 using System.IO;
+
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
 namespace NAnt.VisualCpp.Tasks {
 
-    /// <summary>Compiles messages using mc.exe, Microsoft's Win32 message compiler.</summary>
+    /// <summary>
+    /// Compiles messages using mc.exe, Microsoft's Win32 message compiler.
+    /// </summary>
     /// <example>
-    ///   <para>Compile <c>text.mc</c> using the default options.</para>
-    ///   <code><![CDATA[<mc mcfile="text.mc"/>]]></code>
-    ///   <para>Compile <c>text.mc</c>, passing a path to store the header, the rc file and some additonal options.</para>
-    ///   <code><![CDATA[<mc mcfile="text.mc" headerpath=".\build" rcpath=".\build" options="-v -c -u"/>]]></code>
+    ///   <para>
+    ///   Compile <c>text.mc</c> using the default options.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mc mcfile="text.mc"/>
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   Compile <c>text.mc</c>, passing a path to store the header, the rc 
+    ///   file and some additonal options.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mc mcfile="text.mc" headerpath=".\build" rcpath=".\build" options="-v -c -u"/>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("mc")]
     public class McTask : ExternalProgramBase {
         #region Private Instance Fields
         
-        string _headerpath = null;
-        string _rcpath = null;
-        string _options = null;
-        string _mcfile = null;
+        private string _headerpath = null;
+        private string _rcpath = null;
+        private string _options = null;
+        private string _mcfile = null;
 
         #endregion Private Instance Fields
         
@@ -86,8 +102,12 @@ namespace NAnt.VisualCpp.Tasks {
         /// <summary>
         /// Gets the filename of the external program to start.
         /// </summary>
-        /// <value>The filename of the external program.</value>
-        public override string ProgramFileName {get {return Name;}}
+        /// <value>
+        /// The filename of the external program.
+        /// </value>
+        public override string ProgramFileName {
+            get { return Name; }
+        }
 
         /// <summary>
         /// Gets the command-line arguments for the external program.
@@ -120,18 +140,20 @@ namespace NAnt.VisualCpp.Tasks {
                 return str.ToString();
             }
         }
+
         #endregion Override implementation of ExternalProgramBase
+
         #region Override implementation of Task
+
         /// <summary>
-        /// Compile the sources.
+        /// Compiles the sources.
         /// </summary>
         protected override void ExecuteTask() {
             string header = Path.Combine(HeaderPath, Path.GetFileNameWithoutExtension(McFile)) + ".h";
             string rc = Path.Combine(HeaderPath, Path.GetFileNameWithoutExtension(McFile)) + ".rc";
             if (!NeedsCompiling(header) && !NeedsCompiling(rc)) {
                 Log(Level.Info, LogPrefix + "Target(s) up-to-date, not compiling: {0}", McFile);
-            }
-            else {
+            } else {
                 Log(Level.Info, LogPrefix + "Target out of date compiling {0}", McFile);
                 if (HeaderPath != null) {
                     Log(Level.Info, LogPrefix + "Header file to {0}", HeaderPath);
@@ -144,10 +166,14 @@ namespace NAnt.VisualCpp.Tasks {
             }
         }
 
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
         /// <summary>
         /// Determine if source files need re-building.
         /// </summary>
-        protected bool NeedsCompiling(string DestinationFile) {
+        private bool NeedsCompiling(string DestinationFile) {
             FileInfo srcInfo = new FileInfo(Project.GetFullPath(McFile));
             if (srcInfo.Exists) {
                 string dstFile = DestinationFile;
@@ -155,19 +181,17 @@ namespace NAnt.VisualCpp.Tasks {
                 FileInfo dstInfo = new FileInfo(Project.GetFullPath(dstFile));
                 if ((!dstInfo.Exists) || (srcInfo.LastWriteTime > dstInfo.LastWriteTime)) {
                     return(true);
-                }
-                else {
+                } else {
                     return(false);
                 }
-            }
-            else //If it doesn't exist, let the compiler throw the error
-            {
+            } else {
+                //If it doesn't exist, let the compiler throw the error
                 Log(Level.Info, LogPrefix + "Source file doesn't exist!  Compiler may whine: {0}", srcInfo.FullName);
-
                 return(true);
             }
         }
-        #endregion Override implementation of Task
+
+        #endregion Private Instance Methods
     }
 }
 #if unused
