@@ -277,7 +277,7 @@ namespace NAnt.Core {
             // This condition is true if and only if:
             //  - The first wildcard is before the last directory separator, or
             //  - The pattern contains a directory wildcard ("**")
-            recursive = ( indexOfFirstWildcard < indexOfLastOriginalDirectorySeparator ) || indexOfFirstDirectoryWildcard != -1;
+            recursive = (indexOfFirstWildcard != -1 && (indexOfFirstWildcard < indexOfLastOriginalDirectorySeparator )) || indexOfFirstDirectoryWildcard != -1;
 
             // substring preceding the separator represents our search directory and the part following it represents nant search pattern relative to it            
             if (indexOfLastDirectorySeparator != -1) {
