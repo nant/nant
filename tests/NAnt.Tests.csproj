@@ -425,6 +425,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.DotNet\Tasks\LicenseTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.DotNet\Tasks\ScriptTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
