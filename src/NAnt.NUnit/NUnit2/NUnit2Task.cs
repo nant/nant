@@ -179,6 +179,18 @@ namespace NAnt.NUnit2.Tasks {
 
             foreach (NUnit2Test testElement in Tests) {
                 EventListener listener = new NullListener();
+                IFilter categoryFilter = null;
+
+                // include or exclude specific categories
+                string categories = testElement.Categories.Includes.ToString();
+                if (!StringUtils.IsNullOrEmpty(categories)) {
+                    categoryFilter = new CategoryFilter(categories.Split(','), false);
+                } else {
+                    categories = testElement.Categories.Excludes.ToString();
+                    if (!StringUtils.IsNullOrEmpty(categories)) {
+                        categoryFilter = new CategoryFilter(categories.Split(','), true);
+                    }
+                }
 
                 foreach (string testAssembly in testElement.TestAssemblies) {
                     LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
@@ -186,6 +198,7 @@ namespace NAnt.NUnit2.Tasks {
 
                     try {
                         TestRunner runner = domain.CreateRunner(new FileInfo(testAssembly), testElement.AppConfigFile);
+
                         Test test = null;
                         if (testElement.TestName != null) {
                             test = runner.Load(testAssembly, testElement.TestName);
@@ -210,8 +223,13 @@ namespace NAnt.NUnit2.Tasks {
                                 runner.FrameworkVersion, nunitVersion);
                         }
 
+                        // set category filter
+                        if (categoryFilter != null) {
+                            runner.SetFilter(categoryFilter);
+                        }
+
                         // run test
-                        TestResult result = test.Run(listener);
+                        TestResult result = runner.Run(listener);
 
                         // format test results using specified formatters
                         FormatResult(testElement, result);

@@ -29,6 +29,7 @@ using NAnt.DotNet.Types;
 
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Tasks;
+using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Types {
     /// <summary>
@@ -44,6 +45,7 @@ namespace NAnt.NUnit2.Types {
         private FileInfo _xsltFile;
         private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileInfo _appConfigFile;
+        private CategorySet _categories = new CategorySet();
 
         #endregion Private Instance Fields
 
@@ -57,7 +59,7 @@ namespace NAnt.NUnit2.Types {
             get { return _assemblyFile; }
             set { _assemblyFile = value; }
         }
-        
+
         /// <summary>
         /// Name of a specific testfixture to run. If not specified then all 
         /// testfixtures are run.
@@ -75,6 +77,15 @@ namespace NAnt.NUnit2.Types {
         public AssemblyFileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
+        }
+
+        /// <summary>
+        /// Assemblies to include in test.
+        /// </summary>
+        [BuildElement("categories")]
+        public CategorySet Categories {
+            get { return _categories; }
+            set { _categories = value; }
         }
 
         /// <summary>
