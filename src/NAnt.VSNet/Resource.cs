@@ -200,7 +200,6 @@ namespace NAnt.VSNet {
 
             // ensure output directory exists
             if (!outputFile.Directory.Exists) {
-                Console.WriteLine(outputFile.Directory.FullName);
                 outputFile.Directory.Create();
             }
 
