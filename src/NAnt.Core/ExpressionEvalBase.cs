@@ -310,15 +310,9 @@ namespace NAnt.Core {
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
                     if (!SyntaxCheckOnly()) {
-                        if (o is int || o2 is int) {
-                            int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the modulus operator", p0, p1);
-                            int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the modulus operator", p2, p3);
-                            o = i1 % i2;
-                        } else {
-                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Modulus not supported for arguments of type '{0}' and '{1}'", 
-                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p1);
-                        }
+                        int i1 = (int)SafeConvert(typeof(int), o, "the left hand side of the modulus operator", p0, p1);
+                        int i2 = (int)SafeConvert(typeof(int), o2, "the right hand side of the modulus operator", p2, p3);
+                        o = i1 % i2;
                     }
                 } else {
                     break;
