@@ -46,68 +46,68 @@ namespace SourceForge.NAnt.Tasks
     ///   <para>Compiles all of the projects in <c>test.sln</c>, in relase mode, in the proper order.</para>
     ///   <code>
     ///     <![CDATA[
-	///	<solution configuration="release" solutionfile="test.sln">		
-	///	</solution>
+    ///    <solution configuration="release" solutionfile="test.sln">        
+    ///    </solution>
     ///     ]]>
     ///   </code>
     ///   <para>Compiles all of the projects in <c>projects.txt</c>, in the proper order.</para>
     ///   <code>
     ///     <![CDATA[
-	///	<solution configuration="release">		
-	///		<projects>
-	///			<includesList name="projects.txt" />
-	///		</projects>
-	///	</solution>
+    ///    <solution configuration="release">        
+    ///        <projects>
+    ///            <includesList name="projects.txt" />
+    ///        </projects>
+    ///    </solution>
     ///     ]]>
     ///   </code>
     ///   <para>Compiles projects A, B and C, using the output of project X as a reference.</para>
     ///   <code>
     ///     <![CDATA[
-	///	<solution configuration="release">		
-	///		<projects>
-	///			<includes name="A\A.csproj" />
-	///			<includes name="B\b.vbproj" />
-	///			<includes name="C\c.csproj" />
-	///		</projects>
-	///     <referenceprojects>
-	///         <includes name="X\x.csproj" />
-	///     </referenceprojects>
-	///	</solution>
+    ///    <solution configuration="release">        
+    ///        <projects>
+    ///            <includes name="A\A.csproj" />
+    ///            <includes name="B\b.vbproj" />
+    ///            <includes name="C\c.csproj" />
+    ///        </projects>
+    ///     <referenceprojects>
+    ///         <includes name="X\x.csproj" />
+    ///     </referenceprojects>
+    ///    </solution>
     ///     ]]>
     ///   </code>
     /// </example>
-	[TaskName("solution")]
-	public class SolutionTask : Task
-	{
-		public SolutionTask()
-		{
-			_strConfiguration = "";
-			_fsProjects = new FileSet();
-			_fsReferenceProjects = new FileSet();
-		}
+    [TaskName("solution")]
+    public class SolutionTask : Task
+    {
+        public SolutionTask()
+        {
+            _strConfiguration = "";
+            _fsProjects = new FileSet();
+            _fsReferenceProjects = new FileSet();
+        }
 
-		protected override void ExecuteTask()
-		{
-			Log.WriteLine( LogPrefix + "Starting solution build" );
-		
-			Solution sln;
-			if ( Verbose )
-			{
-				Log.WriteLine( LogPrefix + "Included projects:" );
-				foreach ( string strProject in _fsProjects.FileNames )
-					Log.WriteLine( LogPrefix + " - " + strProject );
-				Log.WriteLine( LogPrefix + "Reference projects:" );
-				foreach ( string strProject in _fsReferenceProjects.FileNames )
-					Log.WriteLine( LogPrefix + " - " + strProject );
-			}
-			
-			if ( _strSolutionFile == null )
-				sln = new Solution( new ArrayList( _fsProjects.FileNames ), new ArrayList( _fsReferenceProjects.FileNames ), this );
-			else
-				sln = new Solution( _strSolutionFile, new ArrayList( _fsProjects.FileNames ), new ArrayList( _fsReferenceProjects.FileNames ), this );
-			if ( !sln.Compile( _strConfiguration, new ArrayList(), null, Verbose, false ) )
-				throw new BuildException( "Project build failed" );
-		}
+        protected override void ExecuteTask()
+        {
+            Log.WriteLine( LogPrefix + "Starting solution build" );
+        
+            Solution sln;
+            if ( Verbose )
+            {
+                Log.WriteLine( LogPrefix + "Included projects:" );
+                foreach ( string strProject in _fsProjects.FileNames )
+                    Log.WriteLine( LogPrefix + " - " + strProject );
+                Log.WriteLine( LogPrefix + "Reference projects:" );
+                foreach ( string strProject in _fsReferenceProjects.FileNames )
+                    Log.WriteLine( LogPrefix + " - " + strProject );
+            }
+            
+            if ( _strSolutionFile == null )
+                sln = new Solution( new ArrayList( _fsProjects.FileNames ), new ArrayList( _fsReferenceProjects.FileNames ), this );
+            else
+                sln = new Solution( _strSolutionFile, new ArrayList( _fsProjects.FileNames ), new ArrayList( _fsReferenceProjects.FileNames ), this );
+            if ( !sln.Compile( _strConfiguration, new ArrayList(), null, Verbose, false ) )
+                throw new BuildException( "Project build failed" );
+        }
 
         /// <summary>
         /// The names of the projects to build.
@@ -117,12 +117,12 @@ namespace SourceForge.NAnt.Tasks
         /// Optional.
         /// </para>
         /// </remarks>
-		[FileSet("projects", Required=false)]
-		public FileSet Projects
-		{
-			get { return _fsProjects; }
-			set { _fsProjects = value; }
-		}
+        [FileSet("projects", Required=false)]
+        public FileSet Projects
+        {
+            get { return _fsProjects; }
+            set { _fsProjects = value; }
+        }
 
         /// <summary>
         /// The names of the projects to scan, but not build.
@@ -135,12 +135,12 @@ namespace SourceForge.NAnt.Tasks
         /// 
         /// </para>
         /// </remarks>
-		[FileSet("referenceprojects", Required=false)]
-		public FileSet ReferenceProjects
-		{
-			get { return _fsReferenceProjects; }
-			set { _fsReferenceProjects = value; }
-		}
+        [FileSet("referenceprojects", Required=false)]
+        public FileSet ReferenceProjects
+        {
+            get { return _fsReferenceProjects; }
+            set { _fsReferenceProjects = value; }
+        }
 
         /// <summary>
         /// The name of the VS.NET solution file to build.
@@ -150,11 +150,11 @@ namespace SourceForge.NAnt.Tasks
         /// Optional, can use <![CDATA[<projects>]]> list instead.
         /// </para>
         /// </remarks>
-		[TaskAttribute("solutionfile", Required=false)]
-		public string SolutionFile
-		{
-			set { _strSolutionFile = value; }
-		}
+        [TaskAttribute("solutionfile", Required=false)]
+        public string SolutionFile
+        {
+            set { _strSolutionFile = value; }
+        }
 
         /// <summary>
         /// The name of the solution configuration to build.
@@ -164,13 +164,13 @@ namespace SourceForge.NAnt.Tasks
         /// Generally <c>release</c> or <c>debug</c>.  Not case-sensitive.
         /// </para>
         /// </remarks>
-		[TaskAttribute("configuration")]
-		public string Configuration
-		{
-			set { _strConfiguration = value; }
-		}
+        [TaskAttribute("configuration")]
+        public string Configuration
+        {
+            set { _strConfiguration = value; }
+        }
 
-		string _strSolutionFile, _strConfiguration;
-		FileSet _fsProjects, _fsReferenceProjects;
-	}
+        string _strSolutionFile, _strConfiguration;
+        FileSet _fsProjects, _fsReferenceProjects;
+    }
 }

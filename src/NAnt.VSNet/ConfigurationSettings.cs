@@ -23,117 +23,117 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tasks
 {
-	/// <summary>
-	/// Summary description for ConfigurationSettings.
-	/// </summary>
-	public class ConfigurationSettings
-	{
-		public ConfigurationSettings( ProjectSettings ps, XmlElement elemConfig )
-		{
-			_alSettings = new ArrayList();
-			_strRelOutputPath = elemConfig.Attributes[ "OutputPath" ].Value;
-			_strOutputPath = new DirectoryInfo( ps.ProjectRootDirectory + @"\" + elemConfig.Attributes[ "OutputPath" ].Value ).FullName;
-			_ps = ps;
+    /// <summary>
+    /// Summary description for ConfigurationSettings.
+    /// </summary>
+    public class ConfigurationSettings
+    {
+        public ConfigurationSettings( ProjectSettings ps, XmlElement elemConfig )
+        {
+            _alSettings = new ArrayList();
+            _strRelOutputPath = elemConfig.Attributes[ "OutputPath" ].Value;
+            _strOutputPath = new DirectoryInfo( ps.ProjectRootDirectory + @"\" + elemConfig.Attributes[ "OutputPath" ].Value ).FullName;
+            _ps = ps;
 
-			_strName = elemConfig.GetAttribute( "Name" ).ToLower();
+            _strName = elemConfig.GetAttribute( "Name" ).ToLower();
 
-			_strDocFilename = null;
-			if ( ( elemConfig.Attributes[ "DocumentationFile" ] != null ) &&
-			   ( elemConfig.Attributes[ "DocumentationFile" ].Value.Length > 0 ))
-			{
-				FileInfo fiDocumentation = new FileInfo( ps.ProjectRootDirectory + @"/" + elemConfig.Attributes[ "DocumentationFile" ].Value );
-				_strDocFilename = fiDocumentation.FullName;
-				_alSettings.Add( @"/doc:""" + _strDocFilename + @"""" );
+            _strDocFilename = null;
+            if ( ( elemConfig.Attributes[ "DocumentationFile" ] != null ) &&
+               ( elemConfig.Attributes[ "DocumentationFile" ].Value.Length > 0 ))
+            {
+                FileInfo fiDocumentation = new FileInfo( ps.ProjectRootDirectory + @"/" + elemConfig.Attributes[ "DocumentationFile" ].Value );
+                _strDocFilename = fiDocumentation.FullName;
+                _alSettings.Add( @"/doc:""" + _strDocFilename + @"""" );
 
-				Directory.CreateDirectory( fiDocumentation.DirectoryName );
-			}
+                Directory.CreateDirectory( fiDocumentation.DirectoryName );
+            }
 
-			Hashtable htStringSettings = new Hashtable();
-			Hashtable htBooleanSettings = new Hashtable();
+            Hashtable htStringSettings = new Hashtable();
+            Hashtable htBooleanSettings = new Hashtable();
 
-			htStringSettings[ "BaseAddress" ] = @"/baseaddress:{0}";
-			htStringSettings[ "FileAlignment" ] = @"/filealign:{0}";
-			
-			if ( ps.Type == ProjectType.CSharp )
-			{
-				htStringSettings[ "WarningLevel" ] = @"/warn:{0}";
-				htBooleanSettings[ "IncrementalBuild" ] = "/incremental";
-			}
+            htStringSettings[ "BaseAddress" ] = @"/baseaddress:{0}";
+            htStringSettings[ "FileAlignment" ] = @"/filealign:{0}";
+            
+            if ( ps.Type == ProjectType.CSharp )
+            {
+                htStringSettings[ "WarningLevel" ] = @"/warn:{0}";
+                htBooleanSettings[ "IncrementalBuild" ] = "/incremental";
+            }
 
-			htBooleanSettings[ "AllowUnsafeBlocks" ] = "/unsafe";
-			htBooleanSettings[ "DebugSymbols" ] = "/debug";
-			htBooleanSettings[ "CheckForOverflowUnderflow" ] = "/checked";
-			htBooleanSettings[ "TreatWarningsAsErrors" ] = "/warnaserror";
-			htBooleanSettings[ "Optimize" ] = "/optimize";
+            htBooleanSettings[ "AllowUnsafeBlocks" ] = "/unsafe";
+            htBooleanSettings[ "DebugSymbols" ] = "/debug";
+            htBooleanSettings[ "CheckForOverflowUnderflow" ] = "/checked";
+            htBooleanSettings[ "TreatWarningsAsErrors" ] = "/warnaserror";
+            htBooleanSettings[ "Optimize" ] = "/optimize";
 
-			foreach ( DictionaryEntry de in htStringSettings )
-			{
-				string strValue = elemConfig.GetAttribute( de.Key.ToString() );
-				if ( strValue != null && strValue.Length > 0 )
-					_alSettings.Add( String.Format( de.Value.ToString(), strValue ) );
-			}
+            foreach ( DictionaryEntry de in htStringSettings )
+            {
+                string strValue = elemConfig.GetAttribute( de.Key.ToString() );
+                if ( strValue != null && strValue.Length > 0 )
+                    _alSettings.Add( String.Format( de.Value.ToString(), strValue ) );
+            }
 
-			foreach ( DictionaryEntry de in htBooleanSettings )
-			{
-				string strValue = elemConfig.GetAttribute( de.Key.ToString() );
-				if ( strValue != null && strValue.Length > 0 )
-				{
-					if ( strValue == "true" )
-						_alSettings.Add( de.Value.ToString() + "+" );
-					else if ( strValue == "false" )
-						_alSettings.Add( de.Value.ToString() + "-" );
-				}
-			}
+            foreach ( DictionaryEntry de in htBooleanSettings )
+            {
+                string strValue = elemConfig.GetAttribute( de.Key.ToString() );
+                if ( strValue != null && strValue.Length > 0 )
+                {
+                    if ( strValue == "true" )
+                        _alSettings.Add( de.Value.ToString() + "+" );
+                    else if ( strValue == "false" )
+                        _alSettings.Add( de.Value.ToString() + "-" );
+                }
+            }
 
-			_alSettings.Add( String.Format( @"/out:""{0}{1}""", OutputPath, ps.OutputFile ) );
-		}
+            _alSettings.Add( String.Format( @"/out:""{0}{1}""", OutputPath, ps.OutputFile ) );
+        }
 
-		public Task[] GetRequiredTasks()
-		{
-			return new Task[ 0 ];
-		}
+        public Task[] GetRequiredTasks()
+        {
+            return new Task[ 0 ];
+        }
 
-		public string[] ExtraOutputFiles
-		{
-			get
-			{
-				if ( _strDocFilename == null )
-					return new string[ 0 ];
+        public string[] ExtraOutputFiles
+        {
+            get
+            {
+                if ( _strDocFilename == null )
+                    return new string[ 0 ];
 
-				return new string[] { _strDocFilename };
-			}
-		}
+                return new string[] { _strDocFilename };
+            }
+        }
 
-		public string RelOutputPath
-		{
-			get { return _strRelOutputPath; }
-		}
+        public string RelOutputPath
+        {
+            get { return _strRelOutputPath; }
+        }
 
-		public string OutputPath
-		{
-			get { return _strOutputPath; }
-		}
+        public string OutputPath
+        {
+            get { return _strOutputPath; }
+        }
 
-		public string FullOutputFile
-		{
-			get { return Path.Combine( _strOutputPath, _ps.OutputFile ); }
-		}
+        public string FullOutputFile
+        {
+            get { return Path.Combine( _strOutputPath, _ps.OutputFile ); }
+        }
 
-		public string[] Settings
-		{
-			get { return ( string[] )_alSettings.ToArray( typeof( string ) ); }
-		}
+        public string[] Settings
+        {
+            get { return ( string[] )_alSettings.ToArray( typeof( string ) ); }
+        }
 
-		public string Name
-		{
-			get { return _strName; }
-		}
+        public string Name
+        {
+            get { return _strName; }
+        }
 
-		ArrayList			_alSettings;
-		string				_strDocFilename;
-		string				_strRelOutputPath;
-		string				_strOutputPath;
-		string				_strName;
-		ProjectSettings		_ps;
-	}
+        ArrayList            _alSettings;
+        string                _strDocFilename;
+        string                _strRelOutputPath;
+        string                _strOutputPath;
+        string                _strName;
+        ProjectSettings        _ps;
+    }
 }
