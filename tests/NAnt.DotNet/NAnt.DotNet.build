@@ -8,8 +8,8 @@
     -->
     <target name="build">
         <!-- build test assembly -->
-        <property name="vjc.location" value="${nant.settings.currentframework.sdkdirectory}/vjc.exe}"  />
-        <property name="jsc.location" value="${nant.settings.currentframework.sdkdirectory}/jsc.exe}"  />
+        <property name="vjc.location" value="${path::combine(framework::get-sdk-directory(framework::get-target-framework()), 'vjc.exe')}"  />
+        <property name="jsc.location" value="${path::combine(framework::get-sdk-directory(framework::get-target-framework()), 'jsc.exe')}"  />
         
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
             <sources>
