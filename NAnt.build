@@ -67,10 +67,11 @@
 			<sources basedir="src/NAnt.Core.Tests">
 				<includes name="**/*.cs" />
 				
+				<!-- requires internet access and server resources -->
 				<excludes name="**/GetTaskTest.cs" />
 				<excludes name="**/MailTaskTest.cs" />
+				<!-- ??? why excluded ??? -->
 				<excludes name="**/TouchTaskTest.cs" />
-				<excludes name="**/AllTests.cs" />
 			</sources>
 			<references basedir="${build.dir}/bin">
 				<includes name="NAnt.Core.dll" />
@@ -90,8 +91,6 @@
 		<csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
 			<sources basedir="src/NAnt.Console.Tests">
 				<includes name="**/*.cs" />
-				
-				<excludes name="**/AllTests.cs" />
 			</sources>
 			<references basedir="${build.dir}/bin">
 				<includes name="NAnt.Core.dll" />
