@@ -250,16 +250,17 @@ namespace NAnt.Core {
                             }
                         } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
                             DataTypeBase dataType = Project.CreateDataTypeBase(childNode);
-                            Project.Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-                            if ( ! Project.DataTypeReferences.Contains(dataType.ID ) )  {
+                            Project.Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", 
+                                childNode.Name, dataType.ID);
+                            if (!Project.DataTypeReferences.Contains(dataType.ID)) {
                                 Project.DataTypeReferences.Add(dataType.ID, dataType);
-                            } 
-                            else {
+                            } else {
                                 Project.DataTypeReferences[dataType.ID] = dataType; // overwrite with the new reference.
                             }
                         } else {
-                            string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
-                            throw new BuildException(message, Project.LocationMap.GetLocation(childNode) );
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Invalid element <{0}>. Unknown task or datatype.", 
+                                childNode.Name), Project.LocationMap.GetLocation(childNode));
                         }
                     }
                 } finally {
