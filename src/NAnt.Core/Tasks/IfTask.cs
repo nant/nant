@@ -30,7 +30,7 @@ namespace SourceForge.NAnt.Tasks {
     ///     <para>If more than one attribute is used, they are &amp;&amp;'d. The first to fail stops the check.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Check existance of a property</para>
+    ///   <para>Check existence of a property</para>
     ///   <code>
     ///   <![CDATA[
     ///   <if propertyexists="myProp">
@@ -38,7 +38,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </if>
     ///   ]]></code>
     ///   
-    ///   <para>Check property value is true</para>
+    ///   <para>Check that a property value is true</para>
     ///   <code>
     ///   <![CDATA[
     ///   <if propertytrue="myProp">
@@ -47,7 +47,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   ]]></code>
     /// </example>
     /// <example>
-    ///   <para>Check for a target's exists</para>
+    ///   <para>Check that a target exists</para>
     ///   <code>
     ///   <![CDATA[
     ///   <target name="myTarget"/>
@@ -56,7 +56,6 @@ namespace SourceForge.NAnt.Tasks {
     ///   </if>
     ///   ]]></code>
     /// </example>
-    /// 
     [TaskName("if")]
     public class IfTask : TaskContainer{
         
@@ -64,16 +63,25 @@ namespace SourceForge.NAnt.Tasks {
         protected string _propNameExists = null;
         protected string _targetName = null;
 
+        /// <summary>
+        /// Used to test whether a property is true.
+        /// </summary>
         [TaskAttribute("propertytrue")]
         public string PropertyNameTrue {
             set {_propNameTrue = value;}
         }
 
+        /// <summary>
+        /// Used to test whether a property exists.
+        /// </summary>
         [TaskAttribute("propertyexists")]
         public string PropertyNameExists {
             set {_propNameExists = value;}
         }
 
+        /// <summary>
+        /// Used to test whether a target exists.
+        /// </summary>
         [TaskAttribute("targetexists")]
         public string TargetNameExists {
             set {_targetName = value;}
@@ -105,7 +113,7 @@ namespace SourceForge.NAnt.Tasks {
                     }
                 }
 
-                //Check for Property existance
+                //Check for Property existence
                 if(_propNameExists != null) {
                     ret = ret && (Properties[_propNameExists] != null);
                 }
@@ -116,8 +124,35 @@ namespace SourceForge.NAnt.Tasks {
     }
 
     /// <summary>
-    /// Just like if, but does a not on the ConditionTrue value.
+    /// The opposite of the <c>if</c> task.
     /// </summary>
+    /// <example>
+    ///   <para>Check existence of a property</para>
+    ///   <code>
+    ///   <![CDATA[
+    ///   <ifnot propertyexists="myProp">
+    ///     <echo message="myProp does not exist."/>
+    ///   </if>
+    ///   ]]></code>
+    ///   
+    ///   <para>Check that a property value is not true</para>
+    ///   <code>
+    ///   <![CDATA[
+    ///   <ifnot propertytrue="myProp">
+    ///     <echo message="myProp is not true."/>
+    ///   </if>
+    ///   ]]></code>
+    /// </example>
+    ///
+    /// <example>
+    ///   <para>Check that a target does not exist</para>
+    ///   <code>
+    ///   <![CDATA[
+    ///   <ifnot targetexists="myTarget">
+    ///     <echo message="myTarget does not exist."/>
+    ///   </if>
+    ///   ]]></code>
+    /// </example>
     [TaskName("ifnot")]
     public class IfNotTask : IfTask{
         protected override bool ConditionsTrue {

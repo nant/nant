@@ -25,7 +25,7 @@ namespace SourceForge.NAnt.Tasks {
     using Microsoft.Win32;
     
     /// <summary>
-    /// A task that reads a value, or set of values, from the registry
+    /// A task that reads a value or set of values from the Windows Registry into one or more NAnt properties.
     /// </summary>
     /// <example>
     ///     <para>Reads a single value from the registry</para>
@@ -43,16 +43,19 @@ namespace SourceForge.NAnt.Tasks {
         private string _regHiveString = RegistryHive.LocalMachine.ToString();
 
         
+        /// <summary>The property to set to the specified registry key value.</summary>
         [TaskAttribute("property")]
         public virtual string PropertyName {
             set { _propName = value; }
         }
 
+        /// <summary>The prefix to use for the specified registry key values.</summary>
         [TaskAttribute("prefix")]
         public virtual string PropertyPrefix{
             set { _propPrefix = value; }
         }
 
+        /// <summary>The registry key to read.</summary>
         [TaskAttribute("key", Required=true)]
         public virtual string RegistryKey {
             set { 
@@ -62,6 +65,7 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
+        /// <summary>The registry hive to use.</summary>
         [TaskAttribute("hive")]
         public virtual string RegistryHiveName {
             set {

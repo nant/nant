@@ -36,7 +36,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 	/// <summary>Runs tests using the NUnit V2.0 framework.</summary>
 	/// <remarks>
 	///   <para>See the <a href="http://nunit.sf.net">NUnit home page</a> for more information.</para>
-	///   <para>The <c>haltonfailure</c> or <c>haltonerror></c> are only used to stop more than one test suite to stop running.  If any test suite fails a build error will be thrown.  Use <c>failonerror="false"</c> to ignore test errors and continue build.</para>
+	///   <para>The <c>haltonfailure</c> or <c>haltonerror</c> are only used to stop more than one test suite to stop running.  If any test suite fails a build error will be thrown.  Use <c>failonerror="false"</c> to ignore test errors and continue build.</para>
 	/// </remarks>
 	/// <example>
 	///   <para>Run tests in the <c>MyProject.Tests.dll</c> assembly.</para>

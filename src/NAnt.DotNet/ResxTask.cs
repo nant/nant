@@ -29,6 +29,14 @@ namespace SourceForge.NAnt.Tasks
 	/// <summary>
 	/// Task to generate a .resources file from a .resx file.
 	/// </summary>
+	/// <example>
+	///   <para>Generate a .resources file for <c>translations.resx</c>.</para>
+	///   <code>
+	///     <![CDATA[
+	///         <resx input="translations.resx" />
+	///     ]]>
+	///   </code>
+	/// </example>
 	[TaskName("resx")]
 	public class ResxTask : Task
 	{

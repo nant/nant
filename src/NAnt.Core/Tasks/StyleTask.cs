@@ -36,7 +36,7 @@ namespace SourceForge.NAnt.Tasks {
     ///     This is useful for building views of XML based documentation, or in generating code.</para>
     /// <para>
     ///     Note: <![CDATA[<param name="" expression=""/>]]> are allowed.
-    ///     </para>
+    /// </para>
     /// 
     /// </summary>
     /// <example>
@@ -49,7 +49,7 @@ namespace SourceForge.NAnt.Tasks {
     ///     <style style="report.xsl" in="data.xml" out="report.html">
     ///         <param name="reportType" expression="Plain"/>
     ///     </style>
-    ///   <code>]]></code>
+    ///   ]]></code>
     /// </example>
     /// <example>
     ///   <para>Create a report in HTML, with a expanded param.</para>
@@ -57,7 +57,7 @@ namespace SourceForge.NAnt.Tasks {
     ///     <style style="report.xsl" in="data.xml" out="report.html">
     ///         <param name="reportType" expression="${report.type}"/>
     ///     </style>
-    ///   <code>]]></code>
+    ///   ]]></code>
     /// </example>
     [TaskName("style")]
     public class StyleTask : Task {
