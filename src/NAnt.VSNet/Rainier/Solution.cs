@@ -66,7 +66,7 @@ namespace NAnt.VSNet.Rainier {
                 }
 
                 // set-up project configuration
-                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[0-9a-zA-Z\s]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[0-9a-zA-Z\s_]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
                 MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
 
                 // initialize hashtable that will hold the project build configurations
