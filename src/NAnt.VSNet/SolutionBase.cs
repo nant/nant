@@ -222,33 +222,57 @@ namespace NAnt.VSNet {
                                     continue;
                                 }
 
-                                // if the reference is an output file of
-                                // another build configuration of a project
-                                // and this output file wasn't built before
-                                // then use the output file for the current 
-                                // build configuration 
-                                //
-                                // eg. a project file might be referencing the
-                                // the debug assembly of a given project as an
-                                // assembly reference, but the projects are now 
-                                // being built in release configuration, so
-                                // instead of failing the build we use the 
-                                // release assembly of that project
-
-                                // Note that this was designed to intentionally 
-                                // deviate from VS.NET's building strategy.
-
-                                // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
-                                // for why we must always convert file references to project references
-
-                                // If we want a different behaviour, this 
-                                // should be controlled by a flag
+                                ProjectBase projectRef = null;
 
                                 string outputFile = reference.GetPrimaryOutputFile(
                                     projectConfig);
+
                                 if (_htOutputFiles.Contains(outputFile)) {
-                                    ProjectBase projectRef = (ProjectBase) _htProjects[
+                                    // if the reference is an output file of
+                                    // another build configuration of a project
+                                    // and this output file wasn't built before
+                                    // then use the output file for the current 
+                                    // build configuration 
+                                    //
+                                    // eg. a project file might be referencing the
+                                    // the debug assembly of a given project as an
+                                    // assembly reference, but the projects are now 
+                                    // being built in release configuration, so
+                                    // instead of failing the build we use the 
+                                    // release assembly of that project
+
+                                    // Note that this was designed to intentionally 
+                                    // deviate from VS.NET's building strategy.
+
+                                    // See "Reference Configuration Matching" at http://nant.sourceforge.net/wiki/index.php/SolutionTask
+                                    // for why we must always convert file references to project references
+
+                                    // If we want a different behaviour, this 
+                                    // should be controlled by a flag
+
+                                    projectRef = (ProjectBase) _htProjects[
                                         (string) _htOutputFiles[outputFile]];
+                                } else if (_outputDir != null) {
+                                    // if an output directory is set, then the 
+                                    // assembly reference might not have been 
+                                    // resolved during Reference initialization, 
+                                    // as the output file of the project might 
+                                    // not have existed at that time
+                                    //
+                                    // this will perform matching on file name
+                                    // only, so its really tricky (VS.NET does
+                                    // not support this)
+
+                                    string projectOutput = Path.Combine(
+                                        _outputDir.FullName, Path.GetFileName(
+                                        outputFile));
+                                    if (_htOutputFiles.Contains(projectOutput)) {
+                                        projectRef = (ProjectBase) _htProjects[
+                                            (string) _htOutputFiles[projectOutput]];
+                                    }
+                                }
+
+                                if (projectRef != null) {
                                     ProjectReference projectReference = fileReference.
                                         CreateProjectReference(projectRef);
                                     Log(Level.Verbose, "Converted file reference to project reference: {0} -> {1}", 
