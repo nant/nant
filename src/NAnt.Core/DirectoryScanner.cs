@@ -171,7 +171,7 @@ namespace SourceForge.NAnt {
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
             convertPatterns(_includes, _includePatterns, true);
-            convertPatterns(_excludes, _excludePatterns, true);
+            convertPatterns(_excludes, _excludePatterns, false);
             
             for (int index = 0; index < _searchDirectories.Count; index++) {
                 ScanDirectory(_searchDirectories[index], (bool)_searchDirIsRecursive[index]);
@@ -184,17 +184,19 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="nantPatterns">In. NAnt patterns. Absolute or relative paths.</param>
         /// <param name="regexPatterns">Out. Regex patterns. Absolute canonical paths.</param>
-        /// <param name="isInclude">In.</param>
+        /// <param name="addSearchDirectories">In. Whether to allow a pattern to add search directories.</param>
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>
-        public void convertPatterns(StringCollection nantPatterns, StringCollection regexPatterns, bool isInclude) {
+        public void convertPatterns(StringCollection nantPatterns, StringCollection regexPatterns, bool addSearchDirectories) {
             string searchDirectory;
             string regexPattern;
             bool isRecursive;
             foreach (string nantPattern in nantPatterns) {
                 parseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out isRecursive, out regexPattern);
-                if (!isInclude)
+                if (!regexPatterns.Contains(regexPattern))
+                    regexPatterns.Add(regexPattern);
+                if (!addSearchDirectories)
                     continue;
                 int index = _searchDirectories.IndexOf(searchDirectory);
                 // If the directory was found before, but wasn't recursive and is now, mark it as so
@@ -208,8 +210,6 @@ namespace SourceForge.NAnt {
                     _searchDirectories.Add(searchDirectory);
                     _searchDirIsRecursive.Add(isRecursive);
                 }
-                if (!regexPatterns.Contains(regexPattern))
-                    regexPatterns.Add(regexPattern);
             }
         }
 
