@@ -281,6 +281,12 @@ namespace NAnt.VSNet {
                             // make sure framework specific information is set
                             ct.InitializeTaskConfiguration();
 
+                            // set parent of child elements
+                            ct.CopyFileSet.Parent = ct;
+
+                            // inherit project from solution task for child elements
+                            ct.CopyFileSet.Project = _solutionTask.Project;
+
                             // set task properties
                             foreach (string file in fromFilenames) {
                                 ct.CopyFileSet.Includes.Add(file);

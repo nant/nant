@@ -206,9 +206,17 @@ namespace NAnt.VSNet {
             // make sure framework specific information is set
             clTask.InitializeTaskConfiguration();
 
+            // set parent of child elements
+            clTask.Includes.Parent = clTask;
+            clTask.Sources.Parent = clTask;
+
+            // inherit project from solution task for child elements
+            clTask.Includes.Project = clTask.Project;
+            clTask.Sources.Project = clTask.Project;
+
             // set task properties
             clTask.OutputDir = baseConfig.IntermediateDir;
-            clTask.PchFile   = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
+            clTask.PchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
 
             Directory.CreateDirectory(baseConfig.IntermediateDir);
 
@@ -274,6 +282,12 @@ namespace NAnt.VSNet {
             // make sure framework specific information is set
             libTask.InitializeTaskConfiguration();
 
+            // set parent of child elements
+            libTask.Sources.Parent = libTask;
+
+            // inherit project from solution task for child elements
+            libTask.Sources.Project = libTask.Project;
+
             // set task properties
             string outFile = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
             libTask.Output = Path.Combine(_projectDirectory, outFile);
@@ -303,6 +317,14 @@ namespace NAnt.VSNet {
 
             // make sure framework specific information is set
             linkTask.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            linkTask.Sources.Parent = linkTask;
+            linkTask.LibDirs.Parent = linkTask;
+
+            // inherit project from solution task for child elements
+            linkTask.Sources.Project = linkTask.Project;
+            linkTask.LibDirs.Project = linkTask.Project;
 
             // set task properties
             string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");
