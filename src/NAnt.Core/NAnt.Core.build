@@ -25,8 +25,8 @@
             <resources basedir="Resources">
                 <include name="**/*" />
             </resources>
-            <references basedir="${lib.framework.dir}">
-                <include name="log4net.dll"/>
+            <references>
+                <include name="${build.dir}/bin/log4net.dll"/>
                 <include name="System.Web.dll"/>
             </references>
         </csc>
