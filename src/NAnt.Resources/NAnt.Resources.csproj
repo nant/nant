@@ -85,7 +85,7 @@
                     BuildAction = "None"
                 />
                 <File
-                    RelPath = "Strings.resx"
+                    RelPath = "Resources\Strings.resx"
                     BuildAction = "EmbeddedResource"
                 />
             </Include>
