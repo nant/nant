@@ -19,6 +19,7 @@
 // Mike Krueger (mike@icsharpcode.net)
 // Aaron A. Anderson (aaron@skypoint.com | aaron.anderson@farmcreditbank.com)
 
+using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
@@ -60,14 +61,14 @@ namespace NAnt.DotNet.Tasks {
     public class VbcTask : CompilerBase {
         #region Private Instance Fields
 
-        string _baseAddress     = null;
-        string _imports         = null;
-        string _optionCompare   = null;
-        bool   _optionExplicit  = false;
-        bool   _optionStrict    = false;
-        bool   _optionOptimize  = false;
-        bool   _removeintchecks = false;
-        string _rootNamespace   = null;
+        private string _baseAddress = null;
+        private string _imports = null;
+        private string _optionCompare = null;
+        private bool _optionExplicit = false;
+        private bool _optionStrict = false;
+        private bool _optionOptimize = false;
+        private bool _removeintchecks = false;
+        private string _rootNamespace = null;
 
         #endregion Private Instance Fields
 
@@ -86,13 +87,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("baseaddress")]
         public string BaseAddress {
             get { return _baseAddress; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _baseAddress = value;
-                } else {
-                    _baseAddress = null;
-                }
-            }
+            set { _baseAddress = SetStringValue(value); }
         }
 
         /// <summary>
@@ -112,13 +107,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("imports")]
         public string Imports {
             get { return _imports; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _imports = value;
-                } else {
-                    _imports = null;
-                }
-            }
+            set { _imports = SetStringValue(value); }
         }
 
         /// <summary>
@@ -134,13 +123,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("optioncompare")]
         public string OptionCompare {
             get { return _optionCompare; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _optionCompare = value;
-                } else {
-                    _optionCompare = null;
-                }
-            }
+            set { _optionCompare = SetStringValue(value); }
         }
 
         /// <summary>
@@ -219,13 +202,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("rootnamespace")]
         public string RootNamespace {
             get { return _rootNamespace; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _rootNamespace = value;
-                } else {
-                    _rootNamespace = null;
-                }
-            }
+            set { _rootNamespace = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
@@ -270,7 +247,7 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "imports", Imports); 
             }
 
-            if (OptionCompare != null && OptionCompare.ToUpper() != "FALSE") {
+            if (OptionCompare != null && OptionCompare.ToUpper(CultureInfo.InvariantCulture) != "FALSE") {
                 WriteOption(writer, "optioncompare", OptionCompare);
             }
 
