@@ -36,8 +36,7 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
 	/// <summary>class to represent the FormatterElement of the NUnit task.</summary>
 	[ElementName("formatter")]
 	public class FormatterElement : Element {
-        protected FormatterData _data = new FormatterData();
-				                  
+        private FormatterData _data = new FormatterData();
         
         // Attribute properties
         
