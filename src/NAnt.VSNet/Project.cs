@@ -846,7 +846,7 @@ namespace NAnt.VSNet {
                         case "$(targetext)": // E.g. .exe
                             commandsExpanded = commandsExpanded.Replace(macro, Path.GetExtension(cs.OutputPath));
                             break;
-                        case "$(targetfileName)": // E.g. WindowsApplications1.exe
+                        case "$(targetfilename)": // E.g. WindowsApplications1.exe
                             commandsExpanded = commandsExpanded.Replace(macro, Path.GetFileName(cs.OutputPath));
                             break;
                         case "$(targetdir)": // Absolute path to OutDir
