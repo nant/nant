@@ -647,6 +647,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\XmlNamespace.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\XmlNamespaceCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\XsltParameter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
