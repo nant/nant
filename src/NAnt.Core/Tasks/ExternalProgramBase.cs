@@ -41,6 +41,7 @@ namespace NAnt.Core.Tasks {
 
         private Hashtable _htThreadStream = new Hashtable();
         private ArgumentCollection _arguments = new ArgumentCollection();
+        private bool _useRuntimeEngine = false;
 #if (mono)
         // TO-DO : remove this when issue has been fixed in Mono
         // Mono does not (always) wait for process to exit when large timeout is
@@ -82,7 +83,7 @@ namespace NAnt.Core.Tasks {
         /// </value>
         public virtual string OutputFile {
             get { return null; } 
-            set{} //so that it can be overriden.
+            set {} //so that it can be overriden.
         }
         
         /// <summary>
@@ -95,7 +96,7 @@ namespace NAnt.Core.Tasks {
         /// </value>
         public virtual bool OutputAppend {
             get { return false; } 
-            set{} //so that it can be overriden.
+            set {} //so that it can be overriden.
         }
       
         /// <summary>
@@ -112,7 +113,7 @@ namespace NAnt.Core.Tasks {
                     return null;
                 }
             }
-            set{} //so that it can be overriden.
+            set {} //so that it can be overriden.
         }
 
         /// <summary>
@@ -139,37 +140,38 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Properties
 
         /// <summary>
-        /// Gets the name of executable that should be used to launch the
-        /// external program.
+        /// Gets or sets the name of the executable that should be used to launch 
+        /// the external program.
         /// </summary>
+        /// <value>
+        /// The name of the executable that should be used to launch the external
+        /// program.
+        /// </value>
         /// <remarks>
         /// <para>
-        /// The default implementation will return the name of the task as 
-        /// <see cref="ExeName" />.
+        /// The default implementation will always return the name of the task.
         /// </para>
         /// <para>
         /// Derived classes should override this property to change this behaviour.
         /// </para>
         /// </remarks>
-        protected virtual string ExeName {
+        public virtual string ExeName {
             get { return Name; }
+            set {} //so that it can be overriden.
         }
 
         /// <summary>
-        /// Gets a value indicating whether the external program should be executed
-        /// using a runtime engine, if configured.
+        /// Gets or sets a value indicating whether the external program should 
+        /// be executed using a runtime engine, if configured.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The default implementation will always execute external programs without
-        /// using a runtime engine.
-        /// </para>
-        /// <para>
-        /// Derived classes should override this property to change this behaviour.
-        /// </para>
-        /// </remarks>
-        protected virtual bool UsesRuntimeEngine {
-            get { return false; }
+        /// <value>
+        /// <c>true</c> if the external program should be executed using a runtime
+        /// engine; otherwise, <c>false</c>.
+        /// </value>
+        [FrameworkConfigurable("useruntimeengine")]
+        public virtual bool UseRuntimeEngine {
+            get { return _useRuntimeEngine; }
+            set { _useRuntimeEngine = value; }
         }
 
         #endregion Protected Instance Properties
@@ -268,7 +270,7 @@ namespace NAnt.Core.Tasks {
 
         #endregion Public Instance Methods
 
-        #region Public Instance Methods
+        #region Protected Instance Methods
 
         /// <summary>
         /// Sets the StartInfo Options and returns a new Process that can be run.
@@ -276,7 +278,7 @@ namespace NAnt.Core.Tasks {
         /// <returns>new Process with information about programs to run, etc.</returns>
         protected virtual void PrepareProcess(Process process){
             // create process (redirect standard output to temp buffer)
-            if (Project.CurrentFramework != null && UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
+            if (Project.CurrentFramework != null && UseRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
                 process.StartInfo.FileName = Project.CurrentFramework.RuntimeEngine.FullName;
                 process.StartInfo.Arguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\" {1}", ProgramFileName, CommandLine);
             } else {
@@ -314,7 +316,7 @@ namespace NAnt.Core.Tasks {
             return p;
         }
 
-        #endregion Public Instance Methods
+        #endregion Protected Instance Methods
 
         #region Private Instance Methods
 
