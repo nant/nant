@@ -195,7 +195,7 @@ namespace NAnt.Core {
                 
                     // select all the task nodes and execute them
                     foreach (XmlNode childNode in XmlNode) {
-                        if (childNode.Name.StartsWith("#")) {
+                        if (!(childNode.NodeType == XmlNodeType.Element)|| !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                             continue;
                         }
                         

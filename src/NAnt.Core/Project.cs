@@ -59,11 +59,6 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        /// <summary>
-        /// Holds a value indicating whether a scan for tasks has already been 
-        /// performed on the configured task path.
-        /// </summary>
-        private static bool ScannedTaskPath = false;
         // XML element and attribute names that are not defined in metadata
         private const string RootXml = "project";
         private const string ProjectNameAttribute = "name";
@@ -650,14 +645,29 @@ namespace NAnt.Core {
         /// No top level error handling is done. Any <see cref="BuildException" /> 
         /// will be passed onto the caller.
         /// </remarks>
-        public virtual void Execute() {
-            // initialize the list of Targets, and execute any global tasks.
-            InitializeProjectDocument(Document);
-            if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
-                BuildTargets.Add(DefaultTargetName);
-            }
+		public virtual void Execute() {
+			
+			if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
+				BuildTargets.Add(DefaultTargetName);
+			}			
 
-            if (BuildTargets.Count == 0) {
+
+			//log the targets specified, or the default target if specified.
+			StringBuilder sb = new StringBuilder();
+			if(BuildTargets != null) {
+				foreach(string target in BuildTargets) {
+					sb.Append(target);
+					sb.Append(" ");
+				}
+			}
+			if(sb.Length > 0) Log(Level.Info, "Target(s) specified: " + sb.ToString());
+            
+			// initialize the list of Targets, and execute any global tasks.
+			InitializeProjectDocument(Document);
+
+			if (BuildTargets.Count == 0) {
+				//It is okay if there are no targets defined in a build file. 
+				//It just means we have all global tasks. -- skot
                 //throw new BuildException("No Target Specified");
             } else {
                 foreach (string targetName in BuildTargets) {
@@ -982,7 +992,7 @@ namespace NAnt.Core {
             _nm.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
 
             //check to make sure that the root element in named correctly
-            if (!doc.DocumentElement.Name.Equals(RootXml)) {
+            if (!doc.DocumentElement.LocalName.Equals(RootXml)) {
                 throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
                     "Root element in '{0}' must be named '{1}'.", doc.BaseURI, RootXml));
             }
@@ -1022,7 +1032,8 @@ namespace NAnt.Core {
 
             // load settings out of settings file
             XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
-            ProcessSettings(nantNode);
+            ProjectSettingsLoader psl = new ProjectSettingsLoader(this);
+			psl.ProcessSettings(nantNode);
 
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
@@ -1063,9 +1074,10 @@ namespace NAnt.Core {
             // load line and column number information into position map
             LocationMap.Add(doc);
 
-            // initialize targets 
+            // initialize targets first
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-                if (childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
+				//skip non-nant namespace elements and special elements like comments, pis, text, etc.                
+				if (childNode.LocalName.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Target target = new Target();
 
                     target.Project = this;
@@ -1077,27 +1089,31 @@ namespace NAnt.Core {
 
             // initialize datatypes and execute global tasks
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-                if (!childNode.Name.StartsWith("#") && !childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
-                    if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
-                        // create task instance
-                        Task task = CreateTask(childNode);
+				//skip targets that were handled above.
+				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
+				if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)|| childNode.LocalName.Equals(TargetXml)) {
+					continue;
+				}
 
-                        task.Parent = this;
+				if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+					// create task instance
+					Task task = CreateTask(childNode);
 
-                        // execute task
-                        task.Execute();
-                    } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
-                        // we are an datatype declaration
-                        DataTypeBase dataType = CreateDataTypeBase(childNode);
+					task.Parent = this;
 
-                        Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-                        DataTypeReferences.Add(dataType.ID, dataType);
-                    } else {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
-                            LocationMap.GetLocation(childNode));
-                    }
-                }
+					// execute task
+					task.Execute();
+				} else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
+					// we are an datatype declaration
+					DataTypeBase dataType = CreateDataTypeBase(childNode);
+
+					Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
+					DataTypeReferences.Add(dataType.ID, dataType);
+				} else {
+					throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+						"Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
+						LocationMap.GetLocation(childNode));
+				}
             }
         }
 
@@ -1180,229 +1196,6 @@ namespace NAnt.Core {
         }
 
         #endregion Private Instance Methods
-
-        #region Settings file Load routines
-        
-        /// <summary>
-        /// Reads the list of global properties specified in the NAnt configuration
-        /// file.
-        /// </summary>
-        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing global properties.</param>
-        private void ProcessGlobalProperties(XmlNodeList propertyNodes) {
-            foreach (XmlNode propertyNode in propertyNodes) {
-                string propertyName = GetXmlAttributeValue(propertyNode, "name");
-                string propertyValue = GetXmlAttributeValue(propertyNode, "value");
-                string propertyReadonly = GetXmlAttributeValue(propertyNode, "readonly");
-
-                if (propertyReadonly != null && propertyReadonly == "true") {
-                    Properties.AddReadOnly(propertyName, propertyValue);
-                } else {
-                    Properties[propertyName] = propertyValue;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Reads the list of framework-neutral properties defined in the 
-        /// NAnt configuration file.
-        /// </summary>
-        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing framework-neutral properties.</param>
-        private void ProcessFrameworkNeutralProperties(XmlNodeList propertyNodes) {
-            foreach (XmlNode propertyNode in propertyNodes) {
-                string propertyName = GetXmlAttributeValue(propertyNode, "name");
-                string propertyValue = GetXmlAttributeValue(propertyNode, "value");
-
-                if (propertyName == null) {
-                    throw new ArgumentException("A framework-neutral property should at least have a name.");
-                }
-
-                if (propertyValue != null) {
-                    // expand properties in property value
-                    propertyValue = FrameworkNeutralProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
-
-                    // add read-only property to collection of framework-neutral properties
-                    FrameworkNeutralProperties.AddReadOnly(propertyName, propertyValue);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Processes the framework nodes.
-        /// </summary>
-        /// <param name="frameworkNodes">An <see cref="XmlNodeList" /> representing supported frameworks.</param>
-        private void ProcessFrameworks(XmlNodeList frameworkNodes) {
-            foreach (XmlNode frameworkNode in frameworkNodes) {
-                PropertyDictionary frameworkProperties = null;
-                string name = null;
-
-                try {
-                    // initialize framework-specific properties
-                    frameworkProperties = new PropertyDictionary();
-
-                    // inject framework-neutral properties
-                    frameworkProperties.Inherit(FrameworkNeutralProperties, (StringCollection)null);
-
-                    // get framework attributes
-                    name = GetXmlAttributeValue(frameworkNode, "name");
-
-                    string description = GetXmlAttributeValue(frameworkNode, "description");
-                    string version = GetXmlAttributeValue(frameworkNode, "version");
-                    string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
-                    string frameworkDir = GetXmlAttributeValue(frameworkNode, "frameworkdirectory");
-                    string frameworkAssemblyDir = GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory");
-                    string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
-
-                    // get framework-specific properties
-                    XmlNodeList propertyNodes = frameworkNode.SelectNodes("properties/property");
-
-                    foreach (XmlNode propertyNode in propertyNodes) {
-                        string propertyName = GetXmlAttributeValue(propertyNode, "name");
-                        string propertyValue = null;
-
-                        if (propertyName == null) {
-                            throw new ArgumentException("A framework property should at least have a name.");
-                        }
-
-                        if (GetXmlAttributeValue(propertyNode, "useregistry") == "true") {
-                            string regKey = GetXmlAttributeValue(propertyNode, "regkey");
-
-                            if (regKey == null) {
-                                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regkey attribute set.", propertyName));
-                            } else {
-                                // expand properties in regkey
-                                regKey = frameworkProperties.ExpandProperties(regKey, Location.UnknownLocation);
-                            }
-
-                            string regValue = GetXmlAttributeValue(propertyNode, "regvalue");
-
-                            if (regValue == null) {
-                                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regvalue attribute set.", propertyName));
-                            } else {
-                                // expand properties in regvalue
-                                regValue = frameworkProperties.ExpandProperties(regValue, Location.UnknownLocation);
-                            }
-
-                            RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
-
-                            if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
-                                propertyValue = sdkKey.GetValue(regValue).ToString();
-                            }
-                        } else {
-                            propertyValue = GetXmlAttributeValue(propertyNode, "value");
-                        }
-
-                        if (propertyValue != null) {
-                            // expand properties in property value
-                            propertyValue = frameworkProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
-
-                            // add read-only property to collection of framework properties
-                            frameworkProperties.AddReadOnly(propertyName, propertyValue);
-                        }
-                    }
-
-                    // create new FrameworkInfo instance, this will throw an
-                    // an exception if the framework is not valid
-                    FrameworkInfo info = new FrameworkInfo(name, 
-                        description, 
-                        version, 
-                        frameworkDir, 
-                        sdkDir, 
-                        frameworkAssemblyDir, 
-                        runtimeEngine, 
-                        frameworkProperties);
-
-                    // framework is valid, so add it for framework dictionary
-                    FrameworkInfoDictionary.Add(info.Name, info);
-                } catch (Exception ex) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, 
-                        "Framework {0} is invalid and has not been loaded : {1}", 
-                        name, ex.Message);
-
-                    Log(Level.Verbose, msg);
-                    logger.Info(msg, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the value of the specified attribute from the specified node.
-        /// </summary>
-        /// <param name="xmlNode">The node of which the attribute value should be retrieved.</param>
-        /// <param name="attributeName">The attribute of which the value should be returned.</param>
-        /// <returns>
-        /// The value of the attribute with the specified name or <c>null</c> if the attribute
-        /// does not exist or has no value.
-        /// </returns>
-        private static string GetXmlAttributeValue(XmlNode xmlNode, string attributeName) {
-            string attributeValue = null;
-
-            if (xmlNode != null) {
-                XmlAttribute xmlAttribute = (XmlAttribute)xmlNode.Attributes.GetNamedItem(attributeName);
-
-                if (xmlAttribute != null) {
-                    attributeValue = StringUtils.ConvertEmptyToNull(xmlAttribute.Value);
-                }
-            }
-
-            return attributeValue;
-        }
-
-        /// <summary>
-        /// Loads and processes settings from the specified XmlNode.
-        /// </summary>
-        public void ProcessSettings(XmlNode nantNode) {
-            logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
-
-            if (nantNode == null) { 
-                // todo pull a settings file out of the assembly resource and copy to that location
-                Log(Level.Warning, "NAnt settings not found. Defaulting to no known framework.");
-                logger.Info("NAnt settings not found. Defaulting to no known framework.");
-                return;
-            }
-
-            // process the framework-neutral properties
-            ProcessFrameworkNeutralProperties(nantNode.SelectNodes("frameworks/properties/property"));
-
-            // process the defined frameworks
-            ProcessFrameworks(nantNode.SelectNodes("frameworks/framework"));
-
-            // get taskpath setting to load external tasks and types from
-            string taskPath = GetXmlAttributeValue(nantNode, "taskpath");
-
-            if (taskPath != null && ScannedTaskPath == false) {
-                string[] paths = taskPath.Split(';');
-
-                foreach (string path in paths) {
-                    string fullpath = path;
-
-                    if (!Directory.Exists(path)) {
-                        // try relative path 
-                        fullpath = Path.GetFullPath(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path));
-                    }
-
-                    TypeFactory.ScanDir(fullpath);
-                }
-
-                ScannedTaskPath = true; // so we only load tasks once 
-            }
-
-            // determine default framework
-            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode("frameworks"), "default");
-
-            if (defaultFramework != null && _frameworkInfoDictionary.ContainsKey(defaultFramework)) {
-                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
-                Properties.Add("nant.settings.currentframework", defaultFramework);
-                DefaultFramework = _frameworkInfoDictionary[defaultFramework];
-                CurrentFramework = _defaultFramework;
-            } else {
-                Log(Level.Warning, "Framework '{0}' does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
-            }
-
-            // process global properties
-            ProcessGlobalProperties(nantNode.SelectNodes("properties/property"));
-        }
-
-        #endregion Settings file Load routines
 
         /// <summary>
         /// Topologically sorts a set of targets.

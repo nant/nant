@@ -529,25 +529,30 @@ namespace NAnt.Core {
                     Array list = Array.CreateInstance(elementType, collectionNodes.Count);
 
                     int arrayIndex = 0;
-                    foreach (XmlNode childNode in collectionNodes) {
-                        // Create a child element
-                        Element childElement = (Element) Activator.CreateInstance(elementType); 
+					foreach (XmlNode childNode in collectionNodes) {
+						//skip non-nant namespace elements and special elements like comments, pis, text, etc.
+						if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+							continue;	
+						}
+
+						// Create a child element
+						Element childElement = (Element) Activator.CreateInstance(elementType); 
                         
-                        childElement.Project = Project;
-                        childElement.Parent = this;
-                        childElement.Initialize(childNode);
-                        // if subtype of DataTypeBase
-                        DataTypeBase dataType = childElement as DataTypeBase;
-                        if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
-                            // we have a datatype reference
-                            childElement = InitDataTypeBase(dataType );
-                            childElement.Project = Project;
-                            childElement.Parent = this;
-                        }
+						childElement.Project = Project;
+						childElement.Parent = this;
+						childElement.Initialize(childNode);
+						// if subtype of DataTypeBase
+						DataTypeBase dataType = childElement as DataTypeBase;
+						if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
+							// we have a datatype reference
+							childElement = InitDataTypeBase(dataType );
+							childElement.Project = Project;
+							childElement.Parent = this;
+						}
                        
-                        list.SetValue(childElement, arrayIndex);
-                        arrayIndex ++;
-                    }
+						list.SetValue(childElement, arrayIndex);
+						arrayIndex ++;
+					}
 
                     // check if property is deprecated
                     ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
@@ -625,7 +630,7 @@ namespace NAnt.Core {
                         // output warning to build log when multiple nested elements 
                         // were specified in the build file, as NAnt will only process
                         // the first element it encounters
-                        if (elementNode.SelectNodes(buildElementAttribute.Name).Count > 1) {
+                        if (elementNode.SelectNodes("nant:" + buildElementAttribute.Name, Project.NamespaceManager).Count > 1) {
                             Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
                                 "<{0} ... /> does not support multiple '{1}' child elements." +
                                 " Only the first element will be processed.", this.Name,
@@ -796,7 +801,7 @@ namespace NAnt.Core {
 
                 while (parentElement != null) {
                     if (parentElement is Task) {
-                        xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
+                        xpath += " and parent::nant:task[@name=\"" + parentElement.Name + "\""; 
                         level++;
                         break;
                     }
@@ -819,7 +824,7 @@ namespace NAnt.Core {
                     parentElement = parentElement.Parent as Element;
                 }
 
-                xpath = "descendant::attribute[@name=\"" + attributeName + "\"" + xpath;
+                xpath = "descendant::nant:attribute[@name=\"" + attributeName + "\"" + xpath;
 
                 for (int counter = 0; counter < level; counter++) {
                     xpath += "]";
@@ -833,11 +838,11 @@ namespace NAnt.Core {
 
                 if (Project.CurrentFramework != null) {
                     // locate framework node for current framework
-                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("frameworks/framework[@name=\"" + Project.CurrentFramework.Name + "\"]");
+                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
 
                     if (frameworkNode != null) {
                         // locate framework-specific configuration node
-                        attributeNode = frameworkNode.SelectSingleNode(xpath);
+                        attributeNode = frameworkNode.SelectSingleNode(xpath, Project.NamespaceManager);
                     }
                 }
 
@@ -847,11 +852,11 @@ namespace NAnt.Core {
 
                 if (attributeNode == null) {
                     // locate framework-neutral node
-                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode("frameworks/tasks");
+                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:tasks", Project.NamespaceManager);
 
                     if (frameworkNeutralNode != null) {
                         // locate framework-neutral configuration node
-                        attributeNode = frameworkNeutralNode.SelectSingleNode(xpath);
+                        attributeNode = frameworkNeutralNode.SelectSingleNode(xpath, Project.NamespaceManager);
                     }
                 }
 
