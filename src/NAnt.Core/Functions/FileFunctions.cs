@@ -97,6 +97,16 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if <paramref name="file" /> refers to an 
         /// existing file; otherwise, <see langword="false" />.
         /// </returns>
+        /// <example>
+        ///   <para>Execute a set of tasks, if file "output.xml" does not exist.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <if test="${not file::exists('output.xml')}">
+        ///     ...
+        /// </if>
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("exists")]
         public bool Exists(string file) {
             return File.Exists(Project.GetFullPath(file));

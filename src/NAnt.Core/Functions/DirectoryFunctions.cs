@@ -148,6 +148,14 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if <paramref name="path" /> refers to an
         /// existing directory; otherwise, <see langword="false" />.
         /// </returns>
+        /// <example>
+        ///   <para>Remove directory "test", if it exists.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <delete dir="test" if="${directory::exists('test')}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("exists")]
         public bool Exists(string path) {
             return Directory.Exists(Project.GetFullPath(path));
