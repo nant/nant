@@ -150,6 +150,37 @@ namespace NAnt.Core.Functions {
             return fi.Length;
         }
 
+        /// <summary>
+        /// Checks if a given file is an assembly.
+        /// </summary>
+        /// <param name="assemblyFile">The name or path of the file to be checked.</param>
+        /// <returns>True if the file is a valid assembly, false if it's not or if the assembly seems corrupted (invalid headers or metadata).</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="assemblyFile" /> is a null <see cref="string"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string"/>.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> is not found, or the file you are trying to check does not specify a filename extension.</exception>
+        /// <exception cref="SecurityException">The caller does not have path discovery permission.</exception>
+        /// <exception cref="FileLoadException">The file could not be loaded for some reason.</exception>
+        [Function("is-assembly")]
+        public bool IsAssembly(string assemblyFile) {
+            try {
+                AssemblyName.GetAssemblyName(Project.GetFullPath(assemblyFile));
+                //no exception occurred, this is an assembly
+                return true;
+            } catch (FileLoadException fle) {
+                if (fle.InnerException != null && fle.InnerException.GetType() == typeof(BadImageFormatException)) {
+                    // this is probably not an assembly, or it has invalid headers / metadata
+                    return false;
+                }
+                // other exceptions should be thrown to the end-user
+                throw;
+            } catch (BadImageFormatException) {
+                return false;
+            } catch (Exception) {
+                // other exceptions should be thrown to the end-user
+                throw;
+            }
+        }
+
         #endregion Public Instance Methods
     }
 }
