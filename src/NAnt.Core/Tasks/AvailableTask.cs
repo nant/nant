@@ -23,6 +23,7 @@ using System.IO;
 using System.Globalization;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Functions;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
@@ -30,11 +31,36 @@ namespace NAnt.Core.Tasks {
     /// Checks if a resource is available at runtime.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// The specified property is set to <see langword="true" /> if the requested 
-    /// resource is available at runtime, and <see langword="false" /> if the 
-    /// resource is not available.
-    /// </para>
+    ///   <para>
+    ///   The specified property is set to <see langword="true" /> if the 
+    ///   requested resource is available at runtime, and <see langword="false" /> 
+    ///   if the resource is not available.
+    ///   </para>
+    ///   <note>
+    ///   we advise you to use the following functions instead:
+    ///   </note>
+    ///   <list type="table">
+    ///     <listheader>
+    ///         <term>Function</term>
+    ///         <description>Description</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term><see cref="FileFunctions.Exists(string)" /></term>
+    ///         <description>Determines whether the specified file exists.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="DirectoryFunctions.Exists(string)" /></term>
+    ///         <description>Determines whether the given path refers to an existing directory on disk.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="FrameworkFunctions.Exists(string)" /></term>
+    ///         <description>Checks whether the specified framework exists..</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="FrameworkFunctions.SdkExists(string)" /></term>
+    ///         <description>Checks whether the SDK for the specified framework is installed.</description>
+    ///     </item>
+    ///   </list>  
     /// </remarks>
     /// <example>
     ///   <para>
@@ -283,8 +309,8 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private ResourceType _resourceType;
-        private string _resource = null;
-        private string _propertyName = null;
+        private string _resource;
+        private string _propertyName;
 
         #endregion Private Instance Fields
     }
