@@ -46,14 +46,14 @@ namespace NAnt.DotNet.Tasks {
     ///   <target name="build">
     ///      <vbc target="exe" output="${basename}-vb.exe">
     ///         <sources>
-    ///            <includes name="${basename}.vb" />
+    ///            <include name="${basename}.vb" />
     ///         </sources>
     ///      </vbc>
     ///   </target>
     ///   <target name="debug" depends="clean">
     ///      <vbc target="exe" output="${basename}-vb.exe" debug="${debug}">
     ///         <sources>
-    ///            <includes name="${basename}.vb" />
+    ///            <include name="${basename}.vb" />
     ///         </sources>
     ///      </vbc>
     ///   </target>

@@ -57,7 +57,7 @@ namespace NAnt.Core.Tasks {
     /// <foreach item="File" property="filename">
     ///     <in>
     ///         <items>
-    ///             <includes name="**" />
+    ///             <include name="**" />
     ///         </items>
     ///     </in>
     ///     <do>
@@ -80,7 +80,7 @@ namespace NAnt.Core.Tasks {
     /// <foreach item="Folder" property="foldername">
     ///     <in>
     ///         <items>
-    ///             <includes name="**" />
+    ///             <include name="**" />
     ///         </items>
     ///     </in>
     ///     <do>

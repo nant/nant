@@ -65,8 +65,8 @@ namespace NAnt.SourceControl.Tasks {
     ///     overridedir="replacement_for_module_directory_name"
     ///     recursive="false">
     ///     <fileset>
-    ///         <includes name="nant/bin/NAnt.exe"/>
-    ///         <includes name="nant/bin/NAnt.exe.config"/>
+    ///         <include name="nant/bin/NAnt.exe"/>
+    ///         <include name="nant/bin/NAnt.exe.config"/>
     ///     </fileset>
     /// </cvs-export>
     ///     ]]>

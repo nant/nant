@@ -10,18 +10,18 @@
         <!-- build NAnt.Core -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="1591,0618" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.dll" doc="${build.dir}/bin/${nant.project.name}.xml">
             <sources failonempty="true">
-                <includes name="**/*.cs" />
+                <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="../CommonAssemblyInfo.cs" />
+                <include name="../CommonAssemblyInfo.cs" />
                 <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
-                <excludes name="Tasks/ScriptTask.cs"/>
+                <exclude name="Tasks/ScriptTask.cs"/>
             </sources>
             <resources basedir="Resources">
-                <includes name="**/*" />
+                <include name="**/*" />
             </resources>
             <references basedir="${lib.framework.dir}">
-                <includes name="log4net.dll"/>
-                <includes name="System.Web.dll"/>
+                <include name="log4net.dll"/>
+                <include name="System.Web.dll"/>
             </references>
         </csc>
     </target>

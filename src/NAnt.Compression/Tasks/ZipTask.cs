@@ -44,7 +44,7 @@ namespace NAnt.Zip.Tasks {
     ///     <![CDATA[
     /// <zip zipfile="backup.zip">
     ///     <fileset basedir="build">
-    ///         <includes name="*.*"/>
+    ///         <include name="*.*"/>
     ///     </fileset>
     /// </zip>
     ///     ]]>

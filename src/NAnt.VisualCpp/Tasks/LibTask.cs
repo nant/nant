@@ -40,7 +40,7 @@ namespace NAnt.VisualCpp.Tasks {
     ///     <![CDATA[
     /// <lib output="library.lib">
     ///     <sources>
-    ///         <includes name="library.obj" />
+    ///         <include name="library.obj" />
     ///     </sources>
     /// </lib>
     ///     ]]>

@@ -68,8 +68,8 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <attrib normal="true">
     ///     <fileset>
-    ///         <includes name="**/*.exe" />
-    ///         <includes name="bin" />
+    ///         <include name="**/*.exe" />
+    ///         <include name="bin" />
     ///     </fileset>
     /// </attrib>
     ///     ]]>

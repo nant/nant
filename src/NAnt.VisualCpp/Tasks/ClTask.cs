@@ -48,7 +48,7 @@ namespace NAnt.VisualCpp.Tasks {
     ///     <![CDATA[
     /// <cl outputdir="build" options="/clr">
     ///     <sources>
-    ///         <includes name="helloworld.cpp" />
+    ///         <include name="helloworld.cpp" />
     ///     </sources>
     /// </cl>
     ///     ]]>

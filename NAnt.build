@@ -17,38 +17,38 @@
     <property name="current.build.defines" value="${build.defines}" />
 
     <fileset id="tas.msnet" basedir="src">
-        <includes name="NAnt.MSNet/NAnt.MSNet.build" />
+        <include name="NAnt.MSNet/NAnt.MSNet.build" />
     </fileset>
     
     <fileset id="tas.msnet.tests" basedir="tests">
-        <includes name="NAnt.MSNet/NAnt.MSNet.build" />
+        <include name="NAnt.MSNet/NAnt.MSNet.build" />
     </fileset>
     
     <fileset id="tas.win32" basedir="src">
-        <includes name="NAnt.Win32/NAnt.Win32.build" />
-        <includes name="NAnt.VisualCpp/NAnt.VisualCpp.build" />
-        <includes name="NAnt.VSNet/NAnt.VSNet.build" />
+        <include name="NAnt.Win32/NAnt.Win32.build" />
+        <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" />
+        <include name="NAnt.VSNet/NAnt.VSNet.build" />
     </fileset>
     
     <fileset id="tas.win32.tests" basedir="tests">
-        <includes name="NAnt.Win32/NAnt.Win32.build" />
-        <includes name="NAnt.VSNet/NAnt.VSNet.build" />
-        <!-- <includes name="NAnt.VisualCpp/NAnt.VisualCpp.build" /> -->
+        <include name="NAnt.Win32/NAnt.Win32.build" />
+        <include name="NAnt.VSNet/NAnt.VSNet.build" />
+        <!-- <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" /> -->
     </fileset>
     
     <fileset id="tas.core" basedir="src">
-        <includes name="NAnt.DotNet/NAnt.DotNet.build" />
-        <includes name="NAnt.Zip/NAnt.Zip.build" />
-        <includes name="NAnt.NUnit/NAnt.NUnit.build" />
-        <includes name="NAnt.SourceControl/NAnt.SourceControl.build" />
+        <include name="NAnt.DotNet/NAnt.DotNet.build" />
+        <include name="NAnt.Zip/NAnt.Zip.build" />
+        <include name="NAnt.NUnit/NAnt.NUnit.build" />
+        <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
     </fileset>
     
     <fileset id="tas.core.tests" basedir="tests">
-        <includes name="NAnt.DotNet/NAnt.DotNet.build" />
-        <includes name="NAnt.Zip/NAnt.Zip.build" />
+        <include name="NAnt.DotNet/NAnt.DotNet.build" />
+        <include name="NAnt.Zip/NAnt.Zip.build" />
         <!--
-        <includes name="NAnt.NUnit/NAnt.NUnit.build" />
-        <includes name="NAnt.SourceControl/NAnt.SourceControl.build" />
+        <include name="NAnt.NUnit/NAnt.NUnit.build" />
+        <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
         -->
     </fileset>
     <!-- named project configurations (used by self-test and self-doc tasks) -->
@@ -113,13 +113,13 @@
         <!-- copy third party executables -->
         <copy todir="${build.dir}/bin">
             <fileset basedir="bin">
-                <includes name="scvs.exe" />
+                <include name="scvs.exe" />
             </fileset>
         </copy>
         <!-- copy third party assemblies -->
         <copy todir="${build.dir}/bin/lib">
             <fileset basedir="bin/lib">
-                <includes name="**/*" />
+                <include name="**/*" />
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
@@ -196,16 +196,16 @@
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618"
             debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
             <sources failonempty="true">
-                <includes name="src/NDoc.Documenter.NAnt/*.cs" />
+                <include name="src/NDoc.Documenter.NAnt/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="src/CommonAssemblyInfo.cs" />
+                <include name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references failonempty="true">
-                <includes name="${build.dir}/bin/NAnt.Core.dll" />
-                <includes name="${lib.framework.dir}/NDoc.Core.dll" />
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${lib.framework.dir}/NDoc.Core.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
-                <includes name="**/*.xslt" />
+                <include name="**/*.xslt" />
             </resources>
         </csc>
         <echo message="Creating task and type documentation from ${build.dir}/bin" />
@@ -222,23 +222,23 @@
         <!-- use ndoc and NAnt.Documenter to build user doc if they need it -->
         <uptodate property="help.uptodate">
             <targetfiles>
-                <includes name="${build.dir}/doc/help/*.html" />
+                <include name="${build.dir}/doc/help/*.html" />
             </targetfiles>
             <sourcefiles basedir="${build.dir}/bin">
                 <!-- make sure the tasks/types are not new -->
-                <includes name="NAnt.Core.dll" />
-                <includes name="*Tasks.dll" />
-                <includes name="NAnt.NUnit.dll" />
+                <include name="NAnt.Core.dll" />
+                <include name="*Tasks.dll" />
+                <include name="NAnt.NUnit.dll" />
                 <!-- make sure the documenter is not new -->
-                <includes name="NDoc.Documenter.*.dll" />
+                <include name="NDoc.Documenter.*.dll" />
             </sourcefiles>
         </uptodate>
         <if test="${not(help.uptodate)}">
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
-                    <includes name="NAnt.Core.dll" />
-                    <includes name="*Tasks.dll" />
-                    <includes name="NAnt.NUnit.dll" />
+                    <include name="NAnt.Core.dll" />
+                    <include name="*Tasks.dll" />
+                    <include name="NAnt.NUnit.dll" />
                 </assemblies>
                 <documenters>
                     <documenter name="NAnt">
@@ -263,9 +263,9 @@
         <!-- copy doc files from source-->
         <copy todir="${build.dir}" failonerror="false">
             <fileset>
-                <includes name="doc/**" />
-                <excludes name="**/obj/**" />
-                <excludes name="**/bin/**" />
+                <include name="doc/**" />
+                <exclude name="**/obj/**" />
+                <exclude name="**/bin/**" />
             </fileset>
         </copy>
         <echo message="User documentation: file://${build.dir}/doc/index.html" />
@@ -283,8 +283,8 @@
         <!-- delete everything but the .chm -->
         <delete>
             <fileset basedir="${build.dir}/doc/sdk">
-                <includes name="**/*" />
-                <excludes name="NAnt-SDK.chm" />
+                <include name="**/*" />
+                <exclude name="NAnt-SDK.chm" />
             </fileset>
         </delete>
     </target>
@@ -292,22 +292,22 @@
         <!-- use ndoc to build sdk doc if they are not uptodate-->
         <uptodate property="sdk.uptodate">
             <targetfiles>
-                <includes name="${build.dir}/doc/sdk/*.chm" />
+                <include name="${build.dir}/doc/sdk/*.chm" />
             </targetfiles>
             <sourcefiles basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-                <includes name="*Tasks.dll" />
-                <includes name="NAnt.NUnit.dll" />
+                <include name="NAnt.Core.dll" />
+                <include name="*Tasks.dll" />
+                <include name="NAnt.NUnit.dll" />
                 <!-- make sure the documenter is not new -->
-                <includes name="NDoc.Documenter.*.dll" />
+                <include name="NDoc.Documenter.*.dll" />
             </sourcefiles>
         </uptodate>
         <if test="${not(sdk.uptodate)}">
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
-                    <includes name="NAnt.Core.dll" />
-                    <includes name="NAnt.*Tasks.dll" />
-                    <includes name="NAnt.NUnit.dll" />
+                    <include name="NAnt.Core.dll" />
+                    <include name="NAnt.*Tasks.dll" />
+                    <include name="NAnt.NUnit.dll" />
                 </assemblies>
                 <documenters>
                     <documenter name="MSDN">
@@ -378,29 +378,29 @@
         <!-- remove non-release files -->
         <delete>
             <fileset basedir="${build.dir}/bin">
-                <includes name="NAnt.Console.*" />
+                <include name="NAnt.Console.*" />
                 <!-- remove test assemblies -->
-                <includes name="*.Tests.*" />
+                <include name="*.Tests.*" />
             </fileset>
         </delete>
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
-                <includes name="doc/**" />
-                <includes name="src/**" />
-                <includes name="tests/**" />
-                <includes name="examples/**" />
-                <includes name="schema/**" />
-                <includes name="*" />
+                <include name="doc/**" />
+                <include name="src/**" />
+                <include name="tests/**" />
+                <include name="examples/**" />
+                <include name="schema/**" />
+                <include name="*" />
                 <!-- exclude nighlty build file -->
-                <excludes name="nightly.xml" />
+                <exclude name="nightly.xml" />
                 <!-- exclude release build file -->
-                <excludes name="release.xml" />
+                <exclude name="release.xml" />
                 <!--exclude VS.Net stuff -->
-                <excludes name="**/*.suo" />
-                <excludes name="**/*j.user" />
-                <excludes name="**/bin/**" />
-                <excludes name="**/obj/**" />
+                <exclude name="**/*.suo" />
+                <exclude name="**/*j.user" />
+                <exclude name="**/bin/**" />
+                <exclude name="**/obj/**" />
             </fileset>
         </copy>
         <!-- determine name of package zip file -->
@@ -410,9 +410,9 @@
         <!-- create package zip file -->
         <zip zipfile="${project.zip-path}">
             <fileset basedir="${build.dir}">
-                <includes name="**/*" />
-                <excludes name="**/cache/**" />
-                <excludes name="**/_*/**" />
+                <include name="**/*" />
+                <exclude name="**/cache/**" />
+                <exclude name="**/_*/**" />
             </fileset>
         </zip>
         <echo message="Created a '${project.config}' package at file://${project.zip-path}" />
@@ -421,16 +421,16 @@
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
         <delete if="false">
             <fileset basedir="bin">
-                <includes name="NAnt*" />
-                <excludes name="${nant.console.name}.exe" />
+                <include name="NAnt*" />
+                <exclude name="${nant.console.name}.exe" />
             </fileset>
         </delete>
         <copy todir="bin" overwrite="true">
             <fileset basedir="${build.dir}/bin/">
-                <includes name="NAnt*" />
-                <excludes name="*Test*" />
-                <excludes name="${nant.console.name}.xml" />
-                <excludes name="${nant.console.name}.exe" />
+                <include name="NAnt*" />
+                <exclude name="*Test*" />
+                <exclude name="${nant.console.name}.xml" />
+                <exclude name="${nant.console.name}.exe" />
             </fileset>
         </copy>
     </target>

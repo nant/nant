@@ -43,10 +43,10 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <uptodate property="myfile.dll.uptodate">
     ///     <sourcefiles>
-    ///         <includes name="myfile.cs" />
+    ///         <include name="myfile.cs" />
     ///     </sourcefiles>
     ///     <targetfiles>
-    ///         <includes name="myfile.dll" />
+    ///         <include name="myfile.dll" />
     ///     </targetfiles>
     /// </uptodate>
     ///     ]]>

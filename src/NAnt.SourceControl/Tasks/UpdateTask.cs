@@ -59,7 +59,7 @@ namespace NAnt.SourceControl.Tasks {
     ///     overridedir="replacement_for_module_directory_name"
     ///     usesharpcvslib="false">
     ///     <fileset>
-    ///         <includes name="build.number"/>
+    ///         <include name="build.number"/>
     ///     </fileset>
     /// </cvs-update>
     ///     ]]>

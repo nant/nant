@@ -112,7 +112,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <if uptodatefile="myfile.dll">
     ///     <comparefiles>
-    ///         <includes name="*.cs" />
+    ///         <include name="*.cs" />
     ///     </comparefiles>
     ///     <echo message="myfile.dll is newer/same-date as myfile.cs" />
     /// </if>
@@ -123,10 +123,10 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <if>
     ///     <uptodatefiles>
-    ///         <includes name="myfile.dll" />
+    ///         <include name="myfile.dll" />
     ///     </uptodatefiles>
     ///     <comparefiles>
-    ///         <includes name="*.cs" />
+    ///         <include name="*.cs" />
     ///     </comparefiles>
     ///     <echo message="myfile.dll is newer/same-date as myfile.cs" />
     /// </if>

@@ -71,8 +71,8 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <delete>
     ///     <fileset>
-    ///         <includes name="${basename}-??.exe" />
-    ///         <includes name="${basename}-??.pdb" />
+    ///         <include name="${basename}-??.exe" />
+    ///         <include name="${basename}-??.pdb" />
     ///     </fileset>
     /// </delete>
     ///     ]]>

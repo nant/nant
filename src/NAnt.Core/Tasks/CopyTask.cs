@@ -58,7 +58,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <copy todir="${build.dir}">
     ///     <fileset basedir="bin">
-    ///         <includes name="*.dll" />
+    ///         <include name="*.dll" />
     ///     </fileset>
     /// </copy>
     ///     ]]>

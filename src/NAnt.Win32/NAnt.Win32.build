@@ -10,14 +10,14 @@
         <!-- build main assembly -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}Tasks.dll" doc="${build.dir}/bin/${nant.project.name}Tasks.xml">
             <sources>
-                <includes name="**/*.cs" />
+                <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="../CommonAssemblyInfo.cs" />
+                <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll" />
-                <includes name="Microsoft.JScript.dll" />
-                <includes name="System.ServiceProcess.dll" />
+                <include name="NAnt.Core.dll" />
+                <include name="Microsoft.JScript.dll" />
+                <include name="System.ServiceProcess.dll" />
             </references>
         </csc>
     </target>

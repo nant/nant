@@ -60,7 +60,7 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <resgen todir=".">
     ///     <resources>
-    ///         <includes name="*.resx" />
+    ///         <include name="*.resx" />
     ///     </resources>
     /// </resgen>
     ///     ]]>

@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <nant>
     ///     <buildfiles>
-    ///         <includes name="**/default.build" />
+    ///         <include name="**/default.build" />
     ///     </buildfiles>
     /// </nant>
     ///     ]]>

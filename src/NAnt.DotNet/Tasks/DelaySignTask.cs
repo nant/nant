@@ -44,7 +44,7 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <delay-sign keyfile="bar.snk" verbose="false">
     ///     <targets>
-    ///         <includes name="foo.dll" />
+    ///         <include name="foo.dll" />
     ///     </targets>
     /// </delay-sign>
     ///     ]]>

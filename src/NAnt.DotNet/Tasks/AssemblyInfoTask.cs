@@ -65,7 +65,7 @@ namespace NAnt.DotNet.Tasks {
     ///         <attribute type="ApplicationNameAttribute" value="FunAssembly" />
     ///     </attributes>
     ///     <references>
-    ///         <includes name="System.EnterpriseServices.dll" />
+    ///         <include name="System.EnterpriseServices.dll" />
     ///     </references>
     /// </asminfo>
     ///     ]]>
@@ -88,7 +88,7 @@ namespace NAnt.DotNet.Tasks {
     ///         <attribute type="DOMConfiguratorAttribute" value="ConfigFile=&quot;config.log4net&quot;,Watch=true" asis="true" />
     ///     </attributes>
     ///     <references>
-    ///         <includes name="log4net.dll" />
+    ///         <include name="log4net.dll" />
     ///     </references>
     /// </asminfo>
     ///     ]]>

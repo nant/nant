@@ -267,8 +267,12 @@ namespace NAnt.Core.Types {
         [TaskAttribute("basedir")]
         public virtual DirectoryInfo BaseDirectory {
             get { 
-                if (_baseDirectory == null && Project != null) {
-                    return new DirectoryInfo(Project.BaseDirectory);
+                if (_baseDirectory == null) {
+                    if (Parent != null && typeof(FileSet).IsAssignableFrom(Parent.GetType())) {
+                        return ((FileSet) Parent).BaseDirectory;
+                    } else if (Project != null) {
+                        return new DirectoryInfo(Project.BaseDirectory);
+                    }
                 }
                 return _baseDirectory; 
             }
@@ -354,8 +358,16 @@ namespace NAnt.Core.Types {
         /// The items to include in the fileset.
         /// </summary>
         [BuildElementArray("includes")]
-        public IncludesElement[] SetIncludes {
-            set {                foreach(IncludesElement include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
+        [Obsolete("Use <include> element instead.", false)]
+        public Include[] SetIncludes {
+            set { IncludeElements = value; }        }
+
+        /// <summary>
+        /// The items to include in the fileset.
+        /// </summary>
+        [BuildElementArray("include")]
+        public Include[] IncludeElements {
+            set {                foreach (Include include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
                             logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", include.Pattern));
                             AsIs.Add(include.Pattern);
@@ -367,13 +379,23 @@ namespace NAnt.Core.Types {
                             Includes.Add(include.Pattern);
                         }
                     }                }            }        }
+
         /// <summary>
         /// The items to exclude from the fileset.
         /// </summary>
         [BuildElementArray("excludes")]
-        public ExcludesElement[] SetExcludes {
+        [Obsolete("Use <exclude> element instead.", false)]
+        public Exclude[] SetExcludes {
+            set { ExcludeElements = value; }
+        }
+
+        /// <summary>
+        /// The items to exclude from the fileset.
+        /// </summary>
+        [BuildElementArray("exclude")]
+        public Exclude[] ExcludeElements {
             set {
-                foreach(ExcludesElement exclude in value) {
+                foreach (Exclude exclude in value) {
                     if (exclude.IfDefined && !exclude.UnlessDefined) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding pattern", exclude.Pattern));
                         Excludes.Add(exclude.Pattern);
@@ -387,7 +409,7 @@ namespace NAnt.Core.Types {
         /// </summary>
         [BuildElementArray("includesList")]
         [Obsolete("Use <includesfile> instead.", false)]
-        public IncludesFileElement[] SetIncludesList {
+        public IncludesFile[] SetIncludesList {
             set {
                 IncludesFiles = value;
             }
@@ -398,9 +420,9 @@ namespace NAnt.Core.Types {
         /// be obtained.
         /// </summary>
         [BuildElementArray("includesfile")]
-        public IncludesFileElement[] IncludesFiles {
+        public IncludesFile[] IncludesFiles {
             set {
-                foreach (IncludesFileElement includesFile in value) {
+                foreach (IncludesFile includesFile in value) {
                     if (includesFile.IfDefined && !includesFile.UnlessDefined) {
                         if (includesFile.AsIs) {
                             foreach (string pattern in includesFile.Patterns) {
@@ -428,9 +450,9 @@ namespace NAnt.Core.Types {
         /// be obtained.
         /// </summary>
         [BuildElementArray("excludesfile")]
-        public ExcludesFileElement[] ExcludesFiles {
+        public ExcludesFile[] ExcludesFiles {
             set {
-                foreach (ExcludesFileElement excludesFile in value) {
+                foreach (ExcludesFile excludesFile in value) {
                     if (excludesFile.IfDefined && !excludesFile.UnlessDefined) {
                         foreach (string pattern in excludesFile.Patterns) {
                             logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding=", pattern));
@@ -685,16 +707,15 @@ namespace NAnt.Core.Types {
 
         #endregion Private Static Methods
 
-
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.
 
-        public class ExcludesElement : Element {
+        public class Exclude : Element {
             #region Private Instance Fields
 
             private string _pattern;
             private bool _ifDefined = true;
-            private bool _unlessDefined = false;
+            private bool _unlessDefined;
 
             #endregion Private Instance Fields
 
@@ -736,7 +757,7 @@ namespace NAnt.Core.Types {
             #endregion Public Instance Properties
         }
 
-        public class IncludesElement : ExcludesElement {
+        public class Include : Exclude {
             #region Private Instance Fields
 
             private bool _asIs;
@@ -772,7 +793,7 @@ namespace NAnt.Core.Types {
             #endregion Public Instance Properties
         }
 
-        public class ExcludesFileElement : Element {
+        public class ExcludesFile : Element {
             #region Private Instance Fields
 
             private bool _ifDefined = true;
@@ -847,7 +868,7 @@ namespace NAnt.Core.Types {
             #endregion Override implementation of Element
         }
         
-        public class IncludesFileElement : ExcludesFileElement {
+        public class IncludesFile : ExcludesFile {
             #region Private Instance Fields
 
             private bool _asIs;
@@ -883,7 +904,7 @@ namespace NAnt.Core.Types {
 
             #endregion Public Instance Properties
 
-            #region Override implementation of ExcludesFileElement
+            #region Override implementation of ExcludesFile
 
             /// <summary>
             /// If <see langword="true" /> then the patterns will be included; 
@@ -908,7 +929,7 @@ namespace NAnt.Core.Types {
                 set { base.UnlessDefined = value; }
             }
 
-            #endregion Override implementation of ExcludesFileElement
+            #endregion Override implementation of ExcludesFile
         }
     }
 }

@@ -206,7 +206,7 @@
         <!-- copy files to install directory -->
         <copy todir="${install.dir}" overwrite="true">
             <fileset basedir="${build.dir}">
-                <includes name="**/**" />
+                <include name="**/**" />
             </fileset>
         </copy>
     </target>

@@ -74,7 +74,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <style style="CodeGenerator.xsl" extension="java">
     ///     <infiles>
-    ///         <includes name="*.xml" />
+    ///         <include name="*.xml" />
     ///     </infiles>
     ///     <parameters>
     ///         <parameter name="reportType" namespaceuri="" value="Plain" if="${report.plain}" />

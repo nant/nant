@@ -49,7 +49,7 @@ namespace NAnt.DotNet.Tasks {
     ///     <![CDATA[
     /// <al output="MyIcons.dll" target="lib">
     ///     <sources>
-    ///         <includes name="*.ico" />
+    ///         <include name="*.ico" />
     ///     </sources>
     /// </al>
     ///     ]]>

@@ -11,12 +11,12 @@
         <!-- build NAnt.Console -->
         <csc target="exe" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <sources failonempty="true">
-                <includes name="**/*.cs" />
+                <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="../CommonAssemblyInfo.cs" />
+                <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <includes name="System.Xml.dll" />
+                <include name="System.Xml.dll" />
             </references>
         </csc>
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="NAnt.Console.exe.config" />

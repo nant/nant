@@ -78,7 +78,7 @@ namespace NAnt.VSNet.Tasks {
     ///     <![CDATA[
     /// <solution configuration="release">
     ///     <projects>
-    ///         <includesList name="projects.txt" />
+    ///         <includesfile name="projects.txt" />
     ///    </projects>
     /// </solution>
     ///     ]]>
@@ -93,12 +93,12 @@ namespace NAnt.VSNet.Tasks {
     ///     <![CDATA[
     /// <solution configuration="release">
     ///     <projects>
-    ///         <includes name="A\A.csproj" />
-    ///         <includes name="B\b.vbproj" />
-    ///         <includes name="C\c.csproj" />
+    ///         <include name="A\A.csproj" />
+    ///         <include name="B\b.vbproj" />
+    ///         <include name="C\c.csproj" />
     ///     </projects>
     ///     <referenceprojects>
-    ///         <includes name="X\x.csproj" />
+    ///         <include name="X\x.csproj" />
     ///     </referenceprojects>
     /// </solution>
     ///     ]]>
@@ -112,7 +112,7 @@ namespace NAnt.VSNet.Tasks {
     ///     <![CDATA[
     /// <solution solutionfile="test.sln" configuration="release">
     ///     <excludeprojects>
-    ///         <includes name="A\A.csproj" />
+    ///         <include name="A\A.csproj" />
     ///     </excludeprojects>
     /// </solution>
     ///     ]]>

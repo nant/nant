@@ -59,10 +59,10 @@ namespace NAnt.Core.Tasks {
     ///     subject="Msg 7: With attachments" 
     ///     mailhost="smtpserver.anywhere.com">
     ///     <files>
-    ///         <includes name="*.txt" />
+    ///         <include name="*.txt" />
     ///     </files>   
     ///     <attachments>
-    ///         <includes name="*.zip" />
+    ///         <include name="*.zip" />
     ///     </attachments>
     ///     ]]>
     ///   </code>

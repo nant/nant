@@ -48,8 +48,8 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <touch>
     ///     <fileset>
-    ///         <includes name="**/*.exe" />
-    ///         <includes name="**/*.dll" />
+    ///         <include name="**/*.exe" />
+    ///         <include name="**/*.dll" />
     ///     </fileset>
     /// </touch>
     ///     ]]>

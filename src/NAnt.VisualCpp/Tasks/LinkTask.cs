@@ -45,7 +45,7 @@ namespace NAnt.VisualCpp.Tasks {
     ///     <![CDATA[
     /// <link output="helloworld.exe">
     ///     <sources>
-    ///         <includes name="*.obj" />
+    ///         <include name="*.obj" />
     ///     </sources>
     /// </link>
     ///     ]]>

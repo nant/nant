@@ -10,16 +10,16 @@
         <!-- build main assembly -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}Tasks.dll" doc="${build.dir}/bin/${nant.project.name}Tasks.xml">
             <sources>
-                <includes name="**/*.cs"/>
+                <include name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="../CommonAssemblyInfo.cs" />
+                <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
-		<!-- temporary workaround for Mono Runtime bug #57602 -->
-		<includes name="${lib.framework.dir}/log4net.dll" />
-		<!-- end workaround -->
-                <includes name="${build.dir}/bin/NAnt.Core.dll"/>
-                <includes name="${lib.framework.dir}/NDoc.Core.dll"/>
+                <!-- temporary workaround for Mono Runtime bug #57602 -->
+                <include name="${lib.framework.dir}/log4net.dll" />
+                <!-- end workaround -->
+                <include name="${build.dir}/bin/NAnt.Core.dll"/>
+                <include name="${lib.framework.dir}/NDoc.Core.dll"/>
             </references>
         </csc>
     </target>
