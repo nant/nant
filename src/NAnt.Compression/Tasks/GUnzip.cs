@@ -33,7 +33,7 @@ namespace NAnt.Compression.Tasks {
     ///   <para>Expands &quot;test.tar.gz&quot; to &quot;test2.tar&quot;.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <gunzip srcfile="test.tar.gz" destfile="test.tar" />
+    /// <gunzip src="test.tar.gz" dest="test.tar" />
     ///     ]]>
     ///   </code>
     /// </example>
@@ -51,7 +51,7 @@ namespace NAnt.Compression.Tasks {
         /// <summary>
         /// The file to expand.
         /// </summary>
-        [TaskAttribute("srcfile", Required=true)]
+        [TaskAttribute("src", Required=true)]
         public FileInfo SrcFile {
             get { return _srcFile; }
             set { _srcFile = value; }
@@ -60,7 +60,7 @@ namespace NAnt.Compression.Tasks {
         /// <summary>
         /// The destination file.
         /// </summary>
-        [TaskAttribute("destfile", Required=true)]
+        [TaskAttribute("dest", Required=true)]
         public FileInfo DestFile {
             get { return _destFile; }
             set { _destFile = value; }
