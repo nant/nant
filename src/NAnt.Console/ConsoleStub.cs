@@ -103,13 +103,16 @@ namespace SourceForge.NAnt {
                 }
             }
 
-            return helper.Return;
+            if(helper == null || helper.Return == -1)
+                throw new ApplicationException("No return code set!");
+            else
+                return helper.Return;
         }
 
         [Serializable]
-        public class helperArgs {
+        public class helperArgs : MarshalByRefObject {
             private string[] args = null;
-            private int ret = 0;
+            private int ret = -1;
 
             private helperArgs(){}
             public helperArgs(string[] args0) {this.args = args0;}
@@ -124,8 +127,7 @@ namespace SourceForge.NAnt {
                 foreach(MethodInfo meth in consoleDriverType.GetMethods(BindingFlags.Static | BindingFlags.Public)) {
                     if(meth.Name.Equals("Main"))
                         mainMethodInfo = meth;
-                }
-
+                }                
                 ret = (int) mainMethodInfo.Invoke(null, new Object[] {args});
             }
             public int Return { get { return ret;}}
