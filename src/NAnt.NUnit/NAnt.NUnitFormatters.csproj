@@ -26,7 +26,7 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = ""
+                    DocumentationFile = "Nant.NUnitFormatters.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
@@ -34,8 +34,8 @@
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
             </Settings>
             <References>

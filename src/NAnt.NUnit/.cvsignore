@@ -1,5 +1,5 @@
+Nant.NUnitFormatters.xml
 *.dat
 *.suo
 *.user
 obj
-bin
