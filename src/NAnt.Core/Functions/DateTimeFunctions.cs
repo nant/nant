@@ -65,7 +65,7 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         [Function("diff")]
         public static int Diff(DateTime date1, DateTime date2) {
-            return (int)((date1 - date2).TotalSeconds);
+            return (int) ((date1 - date2).TotalSeconds);
         }
 
         /// <summary>

@@ -120,7 +120,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("to-lower")]
         public static string ToLower(string s) {
-            return s.ToLower();
+            return s.ToLower(CultureInfo.InvariantCulture);
         }
         /// <summary>
         /// Converts a string to uppercase.
@@ -131,7 +131,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("to-upper")]
         public static string ToUpper(string s) {
-            return s.ToUpper();
+            return s.ToUpper(CultureInfo.InvariantCulture);
         }
         /// <summary>
         /// Determines whether a string is contained in another string.

@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -115,22 +116,23 @@ namespace NAnt.Core {
                     }
 
                     if (!SyntaxCheckOnly()) {
-                        if (!(o is bool))
+                        if (!(o is bool)) {
                             ReportParseError("Boolean value expected");
+                        }
                     }
 
                     _tokenizer.GetNextToken();
                     object o2 = ParseRelationalExpression();
                     if (!SyntaxCheckOnly()) {
-                        if (!(o2 is bool))
+                        if (!(o2 is bool)) {
                             ReportParseError("Boolean value expected");
+                        }
 
-                        o = (bool)o && (bool)o2;
+                        o = (bool) o && (bool) o2;
                     }
                 }
                 return o;
-            }
-            finally {
+            } finally {
                 _evalMode = oldEvalMode;
             }
         }
@@ -141,54 +143,60 @@ namespace NAnt.Core {
                 _tokenizer.GetNextToken();
                 object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly())
+                if (!SyntaxCheckOnly()) {
                     return o.Equals(o2);
-                else
+                } else {
                     return null;
+                }
             }
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.NE) {
                 _tokenizer.GetNextToken();
                 object o2 = ParseAddSubtract();
-                if (!SyntaxCheckOnly())
+                if (!SyntaxCheckOnly()) {
                     return !o.Equals(o2);
-                else
+                } else {
                     return null;
+                }
             }
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LT) {
                 _tokenizer.GetNextToken();
                 object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly())
-                    return ((IComparable)o).CompareTo(o2) < 0;
-                else
+                if (!SyntaxCheckOnly()) {
+                    return ((IComparable) o).CompareTo(o2) < 0;
+                } else {
                     return null;
+                }
             }
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GT) {
                 _tokenizer.GetNextToken();
                 object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly())
-                    return ((IComparable)o).CompareTo(o2) > 0;
-                else
+                if (!SyntaxCheckOnly()) {
+                    return ((IComparable) o).CompareTo(o2) > 0;
+                } else {
                     return null;
+                }
             }
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LE) {
                 _tokenizer.GetNextToken();
                 object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly())
-                    return ((IComparable)o).CompareTo(o2) <= 0;
-                else
+                if (!SyntaxCheckOnly()) {
+                    return ((IComparable) o).CompareTo(o2) <= 0;
+                } else {
                     return null;
+                }
             }
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GE) {
                 _tokenizer.GetNextToken();
                 object o2 = ParseAddSubtract();
 
-                if (!SyntaxCheckOnly())
-                    return ((IComparable)o).CompareTo(o2) >= 0;
-                else
+                if (!SyntaxCheckOnly()) {
+                    return ((IComparable) o).CompareTo(o2) >= 0;
+                } else {
                     return null;
+                }
             }
             return o;
         }
@@ -204,13 +212,18 @@ namespace NAnt.Core {
                     if (!SyntaxCheckOnly()) {
                         if (o is string || o2 is string) {
                             // promote to strings and concatenate
-                            o = Convert.ToString(o) + Convert.ToString(o2);
+                            o = Convert.ToString(o, CultureInfo.InvariantCulture) 
+                                + Convert.ToString(o2, CultureInfo.InvariantCulture);
                         } else if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o) + Convert.ToDouble(o2);
+                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
+                                + Convert.ToDouble(o2, CultureInfo.InvariantCulture);
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o) + Convert.ToInt32(o2);
+                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
+                                + Convert.ToInt32(o2, CultureInfo.InvariantCulture);
                         } else {
-                            ReportParseError(String.Format("Addition not supported for arguments of type {0} and {1}", o.GetType().Name, o2.GetType().Name));
+                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                                "Addition not supported for arguments of type '{0}' and '{1}'.", 
+                                o.GetType().Name, o2.GetType().Name));
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus) {
@@ -219,15 +232,20 @@ namespace NAnt.Core {
 
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o) - Convert.ToDouble(o2);
+                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
+                                - Convert.ToDouble(o2, CultureInfo.InvariantCulture);
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o) - Convert.ToInt32(o2);
+                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
+                                - Convert.ToInt32(o2, CultureInfo.InvariantCulture);
                         } else {
-                            ReportParseError(String.Format("Subtraction not supported for arguments of type {0} and {1}", o.GetType().Name, o2.GetType().Name));
+                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                                "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
+                                o.GetType().Name, o2.GetType().Name));
                         }
                     }
-                } else
+                } else {
                     break;
+                }
             }
             return o;
         }
@@ -241,11 +259,15 @@ namespace NAnt.Core {
                     object o2 = ParseValue();
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o) * Convert.ToDouble(o2);
+                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
+                                * Convert.ToDouble(o2, CultureInfo.InvariantCulture);
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o) * Convert.ToInt32(o2);
+                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
+                                * Convert.ToInt32(o2, CultureInfo.InvariantCulture);
                         } else {
-                            ReportParseError(String.Format("Multiplication not supported for arguments of type {0} and {1}", o.GetType().Name, o2.GetType().Name));
+                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                                "Multiplication not supported for arguments of type '{0}' and '{1}'.", 
+                                o.GetType().Name, o2.GetType().Name));
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Div) {
@@ -253,11 +275,15 @@ namespace NAnt.Core {
                     object o2 = ParseValue();
                     if (!SyntaxCheckOnly()) {
                         if (o is double || o2 is double) {
-                            o = Convert.ToDouble(o) / Convert.ToDouble(o2);
+                            o = Convert.ToDouble(o, CultureInfo.InvariantCulture) 
+                                / Convert.ToDouble(o2, CultureInfo.InvariantCulture);
                         } else if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o) / Convert.ToInt32(o2);
+                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
+                                / Convert.ToInt32(o2, CultureInfo.InvariantCulture);
                         } else {
-                            ReportParseError(String.Format("Division not supported for arguments of type {0} and {1}", o.GetType().Name, o2.GetType().Name));
+                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                                "Division not supported for arguments of type '{0}' and '{1}'.", 
+                                o.GetType().Name, o2.GetType().Name));
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Mod) {
@@ -265,13 +291,17 @@ namespace NAnt.Core {
                     object o2 = ParseValue();
                     if (!SyntaxCheckOnly()) {
                         if (o is int || o2 is int) {
-                            o = Convert.ToInt32(o) % Convert.ToInt32(o2);
+                            o = Convert.ToInt32(o, CultureInfo.InvariantCulture) 
+                                % Convert.ToInt32(o2, CultureInfo.InvariantCulture);
                         } else {
-                            ReportParseError(String.Format("Modulo not supported for arguments of type {0} and {1}", o.GetType().Name, o2.GetType().Name));
+                            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                                "Modulo not supported for arguments of type '{0}' and '{1}'", 
+                                o.GetType().Name, o2.GetType().Name));
                         }
                     }
-                } else
+                } else {
                     break;
+                }
             }
             return o;
         }
@@ -287,14 +317,16 @@ namespace NAnt.Core {
             object val = ParseExpression();
             bool cond = false;
             if (!SyntaxCheckOnly()) {
-                if (!(val is bool))
-                    ReportParseError("Boolean value expected in conditional");
+                if (!(val is bool)) {
+                    ReportParseError("Boolean value expected in conditional.");
+                }
                 cond = (bool)val;
             }
 
             // skip comma between condition value and then
-            if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma)
-                ReportParseError("',' expected");
+            if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
+                ReportParseError("',' expected.");
+            }
             _tokenizer.GetNextToken();
 
             EvalMode oldEvalMode = _evalMode;
@@ -309,8 +341,9 @@ namespace NAnt.Core {
                 object thenValue = ParseExpression();
                 _evalMode = oldEvalMode;
 
-                if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma)
-                    ReportParseError("',' expected");
+                if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
+                    ReportParseError("',' expected.");
+                }
                 _tokenizer.GetNextToken(); // skip comma
 
                 if (cond) {
@@ -324,8 +357,9 @@ namespace NAnt.Core {
                 _evalMode = oldEvalMode;
 
                 // skip closing ')'
-                if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen)
-                    ReportParseError("')' expected");
+                if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
+                    ReportParseError("')' expected.");
+                }
                 _tokenizer.GetNextToken();
 
                 return cond ? thenValue : elseValue;
@@ -341,7 +375,7 @@ namespace NAnt.Core {
                 object v = _tokenizer.TokenText;
                 _tokenizer.GetNextToken();
                 return v;
-            };
+            }
 
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Number) {
                 string number = _tokenizer.TokenText;
@@ -349,14 +383,15 @@ namespace NAnt.Core {
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Dot) {
                     number += ".";
                     _tokenizer.GetNextToken();
-                    if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Number)
-                        ReportParseError("Fractional part expected");
+                    if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Number) {
+                        ReportParseError("Fractional part expected.");
+                    }
                     number += _tokenizer.TokenText;
                     _tokenizer.GetNextToken();
-                    return Double.Parse(number);
+                    return Double.Parse(number, CultureInfo.InvariantCulture);
+                } else {
+                    return Int32.Parse(number, CultureInfo.InvariantCulture);
                 }
-                else
-                    return Int32.Parse(number);
             }
 
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus) {
@@ -365,11 +400,15 @@ namespace NAnt.Core {
                 // unary minus
                 object v = ParseValue();
                 if (!SyntaxCheckOnly()) {
-                    if (v is int)
-                        return -((int)v);
-                    if (v is double)
-                        return -((double)v);
-                    ReportParseError(String.Format("Unary minus not supported for arguments of type {0}", v.GetType().Name));
+                    if (v is int) {
+                        return -((int) v);
+                    }
+                    if (v is double) {
+                        return -((double) v);
+                    }
+                    ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                        "Unary minus not supported for arguments of type '{0}'.", 
+                        v.GetType().Name));
                 }
             }
 
@@ -379,7 +418,7 @@ namespace NAnt.Core {
                 // unary boolean not
                 object v = ParseValue();
                 if (!SyntaxCheckOnly()) {
-                    bool value = Convert.ToBoolean(v);
+                    bool value = Convert.ToBoolean(v, CultureInfo.InvariantCulture);
                     return !value;
                 }
             }
@@ -387,8 +426,9 @@ namespace NAnt.Core {
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LeftParen) {
                 _tokenizer.GetNextToken();
                 object v = ParseExpression();
-                if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen)
-                    ReportParseError("')' expected");
+                if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
+                    ReportParseError("')' expected.");
+                }
                 _tokenizer.GetNextToken();
                 return v;
             }
@@ -418,13 +458,12 @@ namespace NAnt.Core {
                 bool isFunction = false;
 
                 // gather function or property name
-                //
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.DoubleColon) {
                     isFunction = true;
                     functionOrPropertyName += "::";
                     _tokenizer.GetNextToken();
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Keyword) {
-                        throw new ExpressionParseException("Function name expected");
+                        throw new ExpressionParseException("Function name expected.");
                     }
                     functionOrPropertyName += _tokenizer.TokenText;
                     _tokenizer.GetNextToken();
@@ -440,14 +479,13 @@ namespace NAnt.Core {
                 _tokenizer.IgnoreWhitespace = true;
 
                 // if we've stopped on a whitespace - advance to the next token
-
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Whitespace) {
                     _tokenizer.GetNextToken();
                 }
 
                 if (isFunction) {
                     if ( _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
-                        throw new ExpressionParseException("'(' expected");
+                        throw new ExpressionParseException("'(' expected.");
                     }
 
                     _tokenizer.GetNextToken();
@@ -456,15 +494,18 @@ namespace NAnt.Core {
                             _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
                         object e = ParseExpression();
                         args.Add(e);
-                        if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.RightParen)
+                        if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.RightParen) {
                             break;
-                        if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma)
-                            ReportParseError("',' expected");
+                        }
+                        if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
+                            ReportParseError("',' expected.");
+                        }
                         _tokenizer.GetNextToken();
                     }
 
-                    if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen)
-                        ReportParseError("')' expected");
+                    if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
+                        ReportParseError("')' expected.");
+                    }
                     _tokenizer.GetNextToken();
                 }
 
@@ -499,7 +540,8 @@ namespace NAnt.Core {
         protected abstract void ValidateProperty(string propertyName);
 
         protected virtual void UnexpectedToken() {
-            ReportParseError("Unexpected token: " + _tokenizer.CurrentToken);
+            ReportParseError(string.Format(CultureInfo.InvariantCulture, 
+                "Unexpected token '{0}'.", _tokenizer.CurrentToken));
         }
 
         protected virtual object ReportParseError(string desc) {

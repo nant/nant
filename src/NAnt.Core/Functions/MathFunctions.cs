@@ -49,7 +49,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("round")]
         public static double Round(object value) {
-            return Math.Round(Convert.ToDouble(value));
+            return Math.Round(Convert.ToDouble(value, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("abs")]
         public static object Abs(object value) {
-            return Math.Abs(Convert.ToDouble(value));
+            return Math.Abs(Convert.ToDouble(value, CultureInfo.InvariantCulture));
         }
 
         #endregion Public Static Methods

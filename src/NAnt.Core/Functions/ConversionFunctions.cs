@@ -46,7 +46,7 @@ namespace NAnt.Core.Functions {
         /// <returns><paramref name="value" /> converted to integer. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-int")]
         public static int ToInt(object value) {
-            return Convert.ToInt32(value);
+            return Convert.ToInt32(value, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace NAnt.Core.Functions {
         /// <returns><paramref name="value" /> converted to double. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-double")]
         public static double ToDouble(object value) {
-            return Convert.ToDouble(value);
+            return Convert.ToDouble(value, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace NAnt.Core.Functions {
         /// </remarks>
         [Function("to-string")]
         public static string ConvertToString(object value) {
-            return Convert.ToString(value);
+            return Convert.ToString(value, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace NAnt.Core.Functions {
         /// <returns><paramref name="value" /> converted to datetime. The function fails with an exception when the conversion is not possible.</returns>
         [Function("to-datetime")]
         public static DateTime ToDateTime(object value) {
-            return Convert.ToDateTime(value);
+            return Convert.ToDateTime(value, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("to-boolean")]
         public static bool ToBoolean(string value) {
-            return Convert.ToBoolean(value);
+            return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
         }
 
         #endregion Public Static Methods
