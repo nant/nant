@@ -148,6 +148,7 @@ namespace SourceForge.NAnt {
                 Excludes.Add("**/SCCS");
                 Excludes.Add("**/SCCS/**");
                 Excludes.Add("**/vssver.scc");
+                Excludes.Add("**/_vti_cnf/**");
             }
 
             // The Element class will initialize the marked xml attributes but
