@@ -155,18 +155,6 @@
     </target>
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
-        <echo message="Examples: Copy local and build."/>
-        <copy todir="${build.dir}">
-            <fileset>
-                <include name="examples/**" />
-            </fileset>
-        </copy>    
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" workingdir="${build.dir}/examples" useruntimeengine="true">
-            <arg value="-buildfile:examples.build" />
-            <arg value="build"/>
-            <arg value="-targetframework:${framework::get-target-framework()}" />
-        </exec>    
-    
         <echo message="Running unit tests with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
@@ -176,7 +164,7 @@
             <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
     </target>
-    <target name="self-test" depends="init">
+    <target name="self-test" depends="init, test-examples">
         <copy file="${path::combine(nant.location, 'NAnt.exe.config')}" tofile="${path::combine(nant.location, 'nant.tests.config')}" />
         <!-- make sure the config file is writable -->
         <attrib file="${path::combine(nant.location, 'nant.tests.config')}" readonly="false" />
@@ -202,6 +190,19 @@
             <buildfiles refid="tas.win32.tests" />
         </nant>
     </target>
+    <target name="test-examples" depends="init" unless="${framework::get-family(framework::get-target-framework())='mono'}">
+        <echo message="Examples: Copy local and build."/>
+        <copy todir="${build.dir}">
+            <fileset>
+                <include name="examples/**" />
+            </fileset>
+        </copy>    
+        <nant target="build">
+            <buildfiles basedir="${build.dir}/examples">
+                <include name="examples.build" />
+            </buildfiles>
+        </nant>
+    </target>    
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
