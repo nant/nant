@@ -161,7 +161,7 @@ namespace NAnt.NUnit1.Tasks {
                 test.ToDir = Project.BaseDirectory;
             }
             if (test.OutFile == null) {
-                test.OutFile = "TEST-" + test.Class;
+                test.OutFile = "TEST-" + test.Class;    
             }
 
             NUnitTestData testData = test.GetTestData();
