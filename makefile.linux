@@ -5,7 +5,13 @@ all_assemblies= -r ./bin/linux/NDoc.Core.dll -r ./bin/linux/log4net-mono-0.23.dl
 all: mininant.exe
 
 mininant.exe: src/NAnt.Core/ConsoleDriver.cs
-	$(MCS) --unsafe -define:mono -debug -o bin/linux/mininant.exe $(local_paths) $(all_assemblies) './src/NAnt.Core/*.cs' './src/NAnt.Core/Attributes/*.cs' './src/NAnt.Core/Tasks/*.cs' './src/NAnt.DotNetTasks/*.cs'
+	$(MCS) --unsafe -define:mono -debug -o bin/linux/mininant.exe $(local_paths) $(all_assemblies) \
+	'./src/NAnt.Core/*.cs' \
+	'./src/NAnt.Core/Types/*.cs' \
+	'./src/NAnt.Core/Util/*.cs' \
+	'./src/NAnt.Core/Attributes/*.cs' \
+	'./src/NAnt.Core/Tasks/*.cs' \
+	'./src/NAnt.DotNetTasks/*.cs'
 	
 clean:
 	bin/linux/mininant.exe 	
