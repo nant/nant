@@ -440,18 +440,28 @@ namespace NAnt.VSNet {
         #region Internal Instance Methods
 
         internal string GetToolSetting(string toolName, string settingName) {
+            return GetToolSetting(toolName, settingName, (string) null);
+        }
+
+        internal string GetToolSetting(string toolName, string settingName, string defaultValue) {
+            string setting = null;
+
             Hashtable toolSettings = (Hashtable) _htTools[toolName];
             if (toolSettings != null) {
-                string setting = (string) toolSettings[settingName];
+                setting = (string) toolSettings[settingName];
                 if (setting != null) {
                     return ExpandMacros(setting);
                 }
             }
             if (_parentConfig != null) {
-                return _parentConfig.GetToolSetting(toolName, settingName);
+                setting = _parentConfig.GetToolSetting(toolName, settingName);
             }
 
-            return null;
+            if (setting == null && defaultValue != null) {
+                return ExpandMacros(defaultValue);
+            }
+
+            return setting;
         }
 
         internal Hashtable GetToolArguments(string toolName, VcArgumentMap argMap) {

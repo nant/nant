@@ -610,6 +610,24 @@ namespace NAnt.VSNet {
                 clTask.Arguments.Add(new Argument("/EHsc"));
             }
 
+            string browseInformation = fileConfig.GetToolSetting(compilerTool, "BrowseInformation");
+            if (browseInformation != null && browseInformation != "0") {
+                // determine file name of browse information file
+                string browseInformationFile = fileConfig.GetToolSetting(
+                    compilerTool, "BrowseInformationFile", "$(IntDir)/");
+
+                switch (browseInformation) {
+                    case "1": // Include All Browse Information
+                        clTask.Arguments.Add(new Argument("/FR\"" 
+                            + browseInformationFile + "\""));
+                        break;
+                    case "2": // No Local Symbols
+                        clTask.Arguments.Add(new Argument("/Fr\"" 
+                            + browseInformationFile + "\""));
+                        break;
+                }
+            }
+
             if (IsOutputDll(fileConfig)) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_WINDLL"));
