@@ -51,16 +51,19 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(_xml);
             Assertion.Assert("Property value not re-set." + Environment.NewLine + result, result.IndexOf("I Love me") != -1);
         }
- 
+
+        /// <summary>
+        /// Overwriting a read-only property should result in build error.
+        /// </summary>
         [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_ROSet() {
             string _xml = @"
                     <project name='PropTests'>
-                        <property name='nant.filename' value='you'/>
-                        <echo message='nant.filename=${nant.filename}'/>
+                        <property name='test' value='you' readonly='true' />
+                        <property name='test' value='you2' />
                     </project>";
-            string result = RunBuild(_xml);
-            Assertion.Assert("RO Property value was set." + Environment.NewLine + result, result.IndexOf("nant.filename=you") == -1);
+            RunBuild(_xml);
         }
 
         [Test]
@@ -87,7 +90,11 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert("Property value should have been overwritten." + Environment.NewLine + result, result.IndexOf("I Love me") != -1);
         }
 
+        /// <summary>
+        /// Overwriting a read-only property should result in build error.
+        /// </summary>
         [Test]
+        [ExpectedException(typeof(TestBuildException))]
         public void Test_OverwriteReadOnlyProperty() {
             string _xml = @"
                     <project name='PropTests'>
@@ -95,8 +102,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <property name='foo' value='me' overwrite='true' />
                         <echo message='I Love ${foo}'/>
                     </project>";
-            string result = RunBuild(_xml);
-            Assertion.Assert("Read-only property should not have been overwritten." + Environment.NewLine + result, result.IndexOf("I Love me") == -1);
+            RunBuild(_xml);
         }
 
         [Test]
