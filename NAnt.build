@@ -113,7 +113,7 @@
             <arg value="/d:mono" if="${mono}" />
         </csc>
         <!-- build NAnt.Console -->
-        <csc target="exe" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
+        <csc target="exe" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <sources failonempty="true">
                 <includes name="src/NAnt.Console/**/*.cs" />
                 <!-- common assembly-level attributes -->
