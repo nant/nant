@@ -52,7 +52,8 @@ namespace NAnt.Core {
         #region Public Instance Properties
 
         /// <summary>
-        /// Determines if task failure stops the build, or is just reported. Default is "true".
+        /// Determines if task failure stops the build, or is just reported. 
+        /// Default is <c>true</c>.
         /// </summary>
         [TaskAttribute("failonerror")]
         [BooleanValidator()]
@@ -62,7 +63,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Task reports detailed build log messages.  Default is "false".
+        /// Task reports detailed build log messages. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("verbose")]
         [BooleanValidator()]
@@ -72,7 +73,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// If true then the task will be executed; otherwise skipped. Default is "true".
+        /// If true then the task will be executed; otherwise skipped. 
+        /// Default is <c>true</c>.
         /// </summary>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -82,7 +84,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Opposite of if.  If false then the task will be executed; otherwise skipped. Default is "false".
+        /// Opposite of if. If false then the task will be executed; otherwise 
+        /// skipped. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]
@@ -321,8 +324,8 @@ namespace NAnt.Core {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Sets a string value ensuring that it will be null if an empty string 
-        /// is passed.
+        /// Sets a string value ensuring that it will be <see langword="null" />
+        /// if an empty string is passed.
         /// </summary>
         protected string SetStringValue(string value) {
             if (value != null && value.Trim().Length != 0) {
