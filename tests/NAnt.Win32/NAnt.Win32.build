@@ -13,13 +13,11 @@
                 <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="../../src/CommonAssemblyInfo.cs" />
-                <!-- tests for extra tasks only build on win32 -->
-                <includes name="../NAnt.Core/Tasks/ScriptTest.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
-                <includes name="NAnt.Core.dll"/>
-                <includes name="NAnt.Core.Tests.dll"/>
-                <includes name="nunit.framework.dll"/>
+                <includes name="NAnt.Core.dll" />
+                <includes name="NAnt.Core.Tests.dll" />
+                <includes name="nunit.framework.dll" />
             </references>
         </csc>
     </target>

@@ -16,8 +16,6 @@
                 <!-- requires internet access and server resources -->
                 <excludes name="/**/GetTaskTest.cs" />
                 <excludes name="/**/MailTaskTest.cs" />
-                <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
-                <excludes name="/**/ScriptTest.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
