@@ -42,7 +42,7 @@ namespace NAnt.SourceControl.Tasks {
 
         private string _cvsRoot;
         private string _module;
-        private string _destination;
+        private DirectoryInfo _destinationDirectory;
         private string _password;
 
         private CvsRoot _root;
@@ -161,11 +161,10 @@ namespace NAnt.SourceControl.Tasks {
         /// This is the current working directory that will be modifed.
         /// </para>
         /// </remarks>
-        [TaskAttribute ("destination", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Destination {
-            get { return (_destination != null) ? Project.GetFullPath(_destination) : null; }
-            set { _destination = StringUtils.ConvertEmptyToNull(value); }
+        [TaskAttribute("destination", Required=true)]
+        public DirectoryInfo DestinationDirectory {
+            get { return _destinationDirectory; }
+            set { _destinationDirectory = value; }
         }
 
         /// <summary>
@@ -279,17 +278,18 @@ namespace NAnt.SourceControl.Tasks {
         /// Executes the CVS command.
         /// </summary>
         protected override void ExecuteTask () {
-            if (!Directory.Exists(this.Destination)) {
-                Logger.Debug("Creating directory=[" + this.Destination + "]");
-                Directory.CreateDirectory(this.Destination);
+            if (!this.DestinationDirectory.Exists) {
+                Log(Level.Info, LogPrefix + "Creating directory '{0}'.", 
+                    this.DestinationDirectory.FullName);
+                this.DestinationDirectory.Create();
             }
 
-            this.Root = new CvsRoot(this.CvsRoot);
+            this.Root = new CvsRoot(CvsRoot);
             this.WorkingDirectory = new WorkingDirectory(this.Root, 
-                this.Destination, this.Module);
+                this.DestinationDirectory.FullName, this.Module);
 
-            this.SetOptions (this.WorkingDirectory);
-            Logger.Debug ("this.WorkingDirectory.Revision=[" + this.WorkingDirectory.Revision + "]");
+            this.SetOptions(this.WorkingDirectory);
+            Logger.Debug("this.WorkingDirectory.Revision=[" + this.WorkingDirectory.Revision + "]");
 
             this.Connection = new CVSServerConnection();
             this.Connection.MessageEvent.MessageEvent +=
@@ -362,7 +362,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Set the checkout/ update options.
         /// </summary>
         /// <param name="workingDirectory">Information about the cvs repository and local sandbox.</param>
-        private void SetOptions (WorkingDirectory workingDirectory) {
+        private void SetOptions(WorkingDirectory workingDirectory) {
             Logger.Debug ("Setting options");
             foreach (Option option in _options) {
                 if (!IfDefined || UnlessDefined) {
@@ -395,7 +395,7 @@ namespace NAnt.SourceControl.Tasks {
             }
         }
 
-        private void LogCvsMessage (String message) {
+        private void LogCvsMessage(string message) {
             Log(Level.Info, LogPrefix + message);
         }
 

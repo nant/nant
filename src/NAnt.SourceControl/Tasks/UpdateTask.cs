@@ -126,7 +126,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <param name="workingDirectory">The directory to use in the comparison.</param>
         private void PopulateFolders (WorkingDirectory workingDirectory) {
             Logger.Debug(string.Format(CultureInfo.InvariantCulture,
-                "Reading all directory entries from working directory {0}.",
+                "Reading all directory entries from working directory '{0}'.",
                 workingDirectory.WorkingDirectoryName));
 
             Manager manager = new Manager(workingDirectory.WorkingPath);
