@@ -138,10 +138,10 @@ namespace NAnt.DotNet.Tasks {
             ExpandPropertiesInNodes(_docNodes);
             // check for valid documenters (any other validation can be done by NDoc itself at project load time)
             foreach (XmlNode node in _docNodes) {
-				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
-				if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
-					continue;	
-				} 
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                    continue;
+                }
 
                 string documenterName = node.Attributes["name"].Value;
             }
@@ -214,11 +214,11 @@ namespace NAnt.DotNet.Tasks {
             // write out the documenters section
             writer.WriteStartElement("documenters");
             foreach (XmlNode node in _docNodes) {
-				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
-				if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
-					continue;	
-				}
-				writer.WriteRaw(node.OuterXml);
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                    continue;
+                }
+                writer.WriteRaw(node.OuterXml);
             }
             writer.WriteEndElement();
 
@@ -238,12 +238,12 @@ namespace NAnt.DotNet.Tasks {
             project.Read(projectFileName);
 
             foreach (XmlNode node in _docNodes) {
-				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
-				if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
-					continue;	
-				}
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                    continue;
+                }
             
-				string documenterName = node.Attributes["name"].Value;
+                string documenterName = node.Attributes["name"].Value;
                 IDocumenter documenter = GetDocumenter(project, documenterName);
                 if (documenter == null) {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Error loading documenter {0}.", documenterName);
