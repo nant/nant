@@ -30,9 +30,10 @@ namespace NAnt.VSNet {
     public class ProjectSettings {
         #region Public Instance Constructors
 
-        public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, TempFileCollection tfc) {
+        public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, DirectoryInfo projectDirectory, TempFileCollection tfc) {
             _elemSettings = elemSettings;
             _tfc = tfc;
+            _projectDirectory = projectDirectory;
 
             // ensure the temp dir exists
             Directory.CreateDirectory(_tfc.BasePath);
@@ -47,7 +48,7 @@ namespace NAnt.VSNet {
                 _type = ProjectType.CSharp;
             }
 
-            _guid = elemRoot.FirstChild.Attributes["ProjectGuid"].Value.ToUpper(CultureInfo.InvariantCulture);
+            _guid = ProjectSettings.GetProjectGuid(elemRoot);
 
             // initialize hashtable for holding string settings
             Hashtable htStringSettings = new Hashtable();
@@ -107,13 +108,22 @@ namespace NAnt.VSNet {
                 }
             }
 
-            htStringSettings["ApplicationIcon"] = @"/win32icon:""{0}""";
+            if (elemSettings.Attributes["ApplicationIcon"] != null) {
+                string value = StringUtils.ConvertEmptyToNull(
+                    elemSettings.Attributes["ApplicationIcon"].Value);
+                if (value != null) {
+                    _applicationIcon = new FileInfo(Path.Combine(
+                        ProjectDirectory.FullName, value));
+                }
+            }
 
             foreach (DictionaryEntry de in htStringSettings) {
-                string strValue = elemSettings.GetAttribute(de.Key.ToString());
-                if (!StringUtils.IsNullOrEmpty(strValue)) {
-                    _settings.Add(string.Format(de.Value.ToString(), strValue));
+                string value = elemSettings.GetAttribute(de.Key.ToString());
+                if (StringUtils.IsNullOrEmpty(value)) {
+                    // skip empty values
+                    continue;
                 }
+                _settings.Add(string.Format(de.Value.ToString(), value));
             }
         }
 
@@ -134,11 +144,21 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Gets or set the directory in which the project file is located.
+        /// Gets the directory in which the project file is located.
         /// </summary>
         public DirectoryInfo ProjectDirectory {
             get { return _projectDirectory; }
-            set { _projectDirectory = value; }
+        }
+
+        /// <summary>
+        /// Gets the .ico file to use as application icon.
+        /// </summary>
+        /// <value>
+        /// The .ico file to use as application icon, or <see langword="null" /> 
+        /// if no application icon should be used.
+        /// </value>
+        public FileInfo ApplicationIcon {
+            get { return _applicationIcon; }
         }
 
         public string AssemblyName {
@@ -212,6 +232,22 @@ namespace NAnt.VSNet {
         
         #endregion Public Instance Properties
 
+        #region Public Static Methods
+
+        /// <summary>
+        /// Gets the project GUID from the given <see cref="XmlElement" /> 
+        /// holding a <c>&lt;VisualStudioProject&gt;</c> node.
+        /// </summary>
+        /// <param name="elemRoot">The <c>&lt;VisualStudioProject&gt;</c> node from which the project GUID should be retrieved.</param>
+        /// <returns>
+        /// The project GUID from specified <c>&lt;VisualStudioProject&gt;</c> node.
+        /// </returns>
+        public static string GetProjectGuid(XmlElement elemRoot) {
+            return elemRoot.FirstChild.Attributes["ProjectGuid"].Value.ToUpper(CultureInfo.InvariantCulture);
+        }
+
+        #endregion Public Static Methods
+
         #region Public Instance Methods
 
         public string GetTemporaryFilename(string fileName) {
@@ -223,6 +259,7 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private ArrayList _settings;
+        private FileInfo _applicationIcon;
         private string _assemblyName;
         private string _assemblyOriginatorKeyFile;
         private DirectoryInfo _projectDirectory;
