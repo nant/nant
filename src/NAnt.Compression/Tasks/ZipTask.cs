@@ -139,10 +139,18 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             ZipOutputStream zOutstream = null;
+            string basePath;
+
+            if (ZipFileSet.BaseDirectory == null) {
+                ZipFileSet.BaseDirectory = Project.BaseDirectory;
+            }
 
             Log(Level.Info, LogPrefix + "Zipping {0} files to {1}.", ZipFileSet.FileNames.Count, ZipFileName);
 
-            string basePath = Path.GetDirectoryName(Project.GetFullPath(Path.GetFullPath(ZipFileSet.BaseDirectory)) + Path.DirectorySeparatorChar);
+            basePath = Project.GetFullPath(Path.GetFullPath(ZipFileSet.BaseDirectory));
+            if (Path.GetPathRoot(basePath) != basePath) {
+                basePath = Path.GetDirectoryName(basePath + Path.DirectorySeparatorChar);
+            }
 
             // TO-DO check if all matching files and directories are located 
             // under the base path and throw BuildException if not ?
