@@ -23,6 +23,7 @@ using System.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
     /// <summary>
@@ -76,7 +77,7 @@ namespace NAnt.Core.Types {
         [StringValidator(AllowEmpty=false)]
         public string Namespace {
             get { return _namespace; }
-            set { _namespace = value; }
+            set { _namespace = value.Trim(); }
         }
 
         /// <summary>
