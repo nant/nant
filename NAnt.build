@@ -146,12 +146,12 @@
         NOTE: The tests are run from the newly built nant version.
     -->
     <target name="test"  depends="build" description="run unit tests">
-		<!-- call the newly built executable and tests it. -->
-		<echo message="************************************************************************************"/>
-		<echo message="** Running newly built NAnt.exe with tests."/>
-		<exec program="${build.dir}\${project.FormalName}.exe" commandline="-indent:1 -buildfile:${nant.project.buildfile} test.nunit"/>
-		<echo message="** End of Tests"/>
-		<echo message="************************************************************************************"/>
+        <!-- call the newly built executable and tests it. -->
+        <echo message="************************************************************************************"/>
+        <echo message="** Running newly built NAnt.exe with tests."/>
+        <exec program="${nant.project.basedir}\${build.dir}\${project.FormalName}.exe" commandline="-indent:1 -buildfile:${nant.project.buildfile} test.nunit"/>
+        <echo message="** End of Tests"/>
+        <echo message="************************************************************************************"/>
     </target>
     
     <!-- Called from above target only.-->
@@ -163,9 +163,9 @@
         </nunit>
     </target>
 
-	<target name="examples" depends="build" description="Build Examples">
-		<nant buildfile="examples\examples.build" target="build"/>
-	</target>
+    <target name="examples" depends="build" description="Build Examples">
+        <nant buildfile="examples\examples.build" target="build"/>
+    </target>
     <target name="doc" depends="build" description="build documentation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc failonerror="false">
@@ -202,11 +202,11 @@
     </target>
 
     <target name="userdoc" depends="build" description="build documentation">
-		<!-- copy required files for task documentation -->
+        <!-- copy required files for task documentation -->
         <copy file="doc\style.css" todir="${build.dir}\docs" />
         <copy file="doc\arrow.gif" todir="${build.dir}\docs\images" />
 
-		<ndoc>
+        <ndoc>
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.Core.dll"/>
             </assemblies>
