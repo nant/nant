@@ -275,7 +275,10 @@ namespace NAnt.VSNet {
                                 string program, commandLine;
                                 reference.GetCreationCommand(cs, out program, out commandLine);
 
+                                // Append the correct SDK directory to the program
+                                program = Path.Combine(SolutionTask.Project.TargetFramework.SdkDirectory.FullName, program);
                                 Log(Level.Verbose, LogPrefix + program + " " + commandLine);
+
                                 ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
                                 psiRef.UseShellExecute = false;
                                 psiRef.WorkingDirectory = cs.OutputDir.FullName;
@@ -423,7 +426,7 @@ namespace NAnt.VSNet {
                             break;
                         }
                         // display line
-                        Log(Level.Info, "[compile] " + line);
+                        Log(Level.Info, line);
                     }
                 } finally {
                     // restore indentation level
