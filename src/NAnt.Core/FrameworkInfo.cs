@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
@@ -22,10 +22,9 @@ using System.Globalization;
 using System.IO;
     
 namespace SourceForge.NAnt {
-
     /// <summary>
-    /// Encalsulates information about installed frameworks incuding version information 
-    /// and directory locations for finding tools.
+    /// Encalsulates information about installed frameworks incuding version 
+    /// information and directory locations for finding tools.
     /// </summary>
     public class FrameworkInfo {
         #region Private Instance Fields
@@ -47,18 +46,18 @@ namespace SourceForge.NAnt {
 
         #region Public Instance Constructors
 
-        public FrameworkInfo( string name, 
-                                string description, 
-                                string version, 
-                                string frameworkDir, 
-                                string sdkDir, 
-                                string frameworkAssemblyDir,
-                                string csharpCompilerName,
-                                string basicCompilerName,
-                                string jsharpCompilerName,
-                                string jscriptCompilerName,
-                                string resgenToolName,
-                                string runtimeEngine ) {
+        public FrameworkInfo(string name, 
+                             string description, 
+                             string version, 
+                             string frameworkDir, 
+                             string sdkDir, 
+                             string frameworkAssemblyDir,
+                             string csharpCompilerName,
+                             string basicCompilerName,
+                             string jsharpCompilerName,
+                             string jscriptCompilerName,
+                             string resgenToolName,
+                             string runtimeEngine) {
             _name = name;
             _description = description;
             _version = version;           
@@ -106,6 +105,7 @@ namespace SourceForge.NAnt {
         public string Name {
             get { return _name; }
         }
+
         /// <summary>
         /// Gets the description of this framework.
         /// </summary>
