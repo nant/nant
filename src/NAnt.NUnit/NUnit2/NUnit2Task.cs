@@ -97,7 +97,7 @@ namespace NAnt.NUnit2.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Only tests that are not known to fail in files listed in the <c>tests.txt</c>
+    ///   Only run tests that are not known to fail in files listed in the <c>tests.txt</c>
     ///   file.
     ///   </para>
     ///   <code>

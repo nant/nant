@@ -80,7 +80,7 @@ namespace NAnt.NUnit2.Types {
         }
 
         /// <summary>
-        /// Assemblies to include in test.
+        /// Categories of test cases to include or exclude.
         /// </summary>
         [BuildElement("categories")]
         public CategorySet Categories {
