@@ -65,17 +65,24 @@ namespace NAnt.VSNet {
         public static XmlDocument LoadProjectXml(string path) {
             if (!_cachedProjectXml.Contains(path)) {
                 XmlDocument doc = new XmlDocument();
-                if (!ProjectFactory.IsUrl(path)) {
-                    doc.Load(path);
-                } else {
-                    Uri uri = new Uri(path);
-                    if (uri.Scheme == Uri.UriSchemeFile) {
-                        doc.Load(uri.LocalPath);
+
+                try {
+                    if (!ProjectFactory.IsUrl(path)) {
+                        doc.Load(path);
                     } else {
-                        doc.LoadXml(WebDavClient.GetFileContentsStatic(path));
+                        Uri uri = new Uri(path);
+                        if (uri.Scheme == Uri.UriSchemeFile) {
+                            doc.Load(uri.LocalPath);
+                        } else {
+                            doc.LoadXml(WebDavClient.GetFileContentsStatic(path));
+                        }
                     }
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Project '{0}' could not be loaded.", path), 
+                        Location.UnknownLocation, ex);
                 }
-                
+            
                 _cachedProjectXml[path] = doc;
             }
             
