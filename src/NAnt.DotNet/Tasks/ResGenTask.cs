@@ -25,6 +25,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Xml;
+using System.Xml.XPath;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
@@ -35,443 +37,510 @@ using NAnt.Core.Util;
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
-    /// <summary>
-    /// Converts files from one resource format to another.
-    /// </summary>
-    /// <remarks>
-    /// <note>
-    /// If no <see cref="ToDirectory" /> is specified, the resource file will 
-    /// be created next to the input file.
-    /// </note>
-    /// </remarks>
-    /// <example>
-    ///   <para>
-    ///   Convert a resource file from the <c>.resx</c> to the <c>.resources</c> 
-    ///   format.
-    ///   </para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <resgen input="translations.resx" output="translations.resources" />
-    ///     ]]>
-    ///   </code>
-    /// </example>
-    /// <example>
-    ///   <para>
-    ///   Convert a set of <c>.resx</c> files to the <c>.resources</c> format.
-    ///   </para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <resgen todir=".">
-    ///     <resources>
-    ///         <include name="*.resx" />
-    ///     </resources>
-    /// </resgen>
-    ///     ]]>
-    ///   </code>
-    /// </example>
-    [TaskName("resgen")]
-    [ProgramLocation(LocationType.FrameworkSdkDir)]
-    public class ResGenTask : ExternalProgramBase {
-        #region Private Instance Fields
+	/// <summary>
+	/// Converts files from one resource format to another.
+	/// </summary>
+	/// <remarks>
+	/// <note>
+	/// If no <see cref="ToDirectory" /> is specified, the resource file will 
+	/// be created next to the input file.
+	/// </note>
+	/// </remarks>
+	/// <example>
+	///   <para>
+	///   Convert a resource file from the <c>.resx</c> to the <c>.resources</c> 
+	///   format.
+	///   </para>
+	///   <code>
+	///     <![CDATA[
+	/// <resgen input="translations.resx" output="translations.resources" />
+	///     ]]>
+	///   </code>
+	/// </example>
+	/// <example>
+	///   <para>
+	///   Convert a set of <c>.resx</c> files to the <c>.resources</c> format.
+	///   </para>
+	///   <code>
+	///     <![CDATA[
+	/// <resgen todir=".">
+	///     <resources>
+	///         <include name="*.resx" />
+	///     </resources>
+	/// </resgen>
+	///     ]]>
+	///   </code>
+	/// </example>
+	[TaskName("resgen")]
+	[ProgramLocation(LocationType.FrameworkSdkDir)]
+	public class ResGenTask : ExternalProgramBase {
+		#region Private Instance Fields
 
-        private string _arguments;
-        private AssemblyFileSet _assemblies = new AssemblyFileSet();
-        private FileInfo _inputFile; 
-        private FileInfo _outputFile;
-        private string _programFileName;
-        private ResourceFileSet _resources = new ResourceFileSet();
-        private string _targetExt = "resources";
-        private DirectoryInfo _toDir;
-        private DirectoryInfo _workingDirectory;
+		private string _arguments;
+		private AssemblyFileSet _assemblies = new AssemblyFileSet();
+		private FileInfo _inputFile; 
+		private FileInfo _outputFile;
+		private string _programFileName;
+		private ResourceFileSet _resources = new ResourceFileSet();
+		private string _targetExt = "resources";
+		private DirectoryInfo _toDir;
+		private DirectoryInfo _workingDirectory;
 
-        // framework configuration settings
-        private bool _supportsAssemblyReferences;
+		// framework configuration settings
+		private bool _supportsAssemblyReferences;
 
-        #endregion Private Instance Fields
+		#endregion Private Instance Fields
 
-        #region Public Instance Properties
+		#region Public Instance Properties
 
-        /// <summary>
-        /// Input file to process.
-        /// </summary>
-        /// <value>
-        /// The full path to the input file.
-        /// </value>
-        [TaskAttribute("input", Required=false)]
-        public FileInfo InputFile {
-            get { return _inputFile; }
-            set { _inputFile = value; }
-        }
+		/// <summary>
+		/// Input file to process.
+		/// </summary>
+		/// <value>
+		/// The full path to the input file.
+		/// </value>
+		[TaskAttribute("input", Required=false)]
+		public FileInfo InputFile {
+			get { return _inputFile; }
+			set { _inputFile = value; }
+		}
 
-        /// <summary>
-        /// The resource file to output.
-        /// </summary>
-        [TaskAttribute("output", Required=false)]
-        public FileInfo OutputFile {
-            get { return _outputFile; }
-            set { _outputFile = value; }
-        }
+		/// <summary>
+		/// The resource file to output.
+		/// </summary>
+		[TaskAttribute("output", Required=false)]
+		public FileInfo OutputFile {
+			get { return _outputFile; }
+			set { _outputFile = value; }
+		}
 
-        /// <summary>
-        /// The target type. The default is <c>resources</c>.
-        /// </summary>
-        [TaskAttribute("target", Required=false)]
-        public string TargetExt {
-            get { return _targetExt; }
-            set { _targetExt = StringUtils.ConvertEmptyToNull(value); }
-        }
+		/// <summary>
+		/// The target type. The default is <c>resources</c>.
+		/// </summary>
+		[TaskAttribute("target", Required=false)]
+		public string TargetExt {
+			get { return _targetExt; }
+			set { _targetExt = StringUtils.ConvertEmptyToNull(value); }
+		}
 
-        /// <summary>
-        /// The directory to which outputs will be stored.
-        /// </summary>
-        [TaskAttribute("todir", Required=false)]
-        public DirectoryInfo ToDirectory {
-            get { return _toDir; }
-            set { _toDir = value; }
-        }
+		/// <summary>
+		/// The directory to which outputs will be stored.
+		/// </summary>
+		[TaskAttribute("todir", Required=false)]
+		public DirectoryInfo ToDirectory {
+			get { return _toDir; }
+			set { _toDir = value; }
+		}
        
-        /// <summary>
-        /// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.      
-        /// </summary>
-        [BuildElement("resources")]
-        public ResourceFileSet Resources {
-            get { return _resources; }
-            set { _resources = value; }
-        }
+		/// <summary>
+		/// Takes a list of <c>.resx</c> or <c>.txt</c> files to convert to <c>.resources</c> files.      
+		/// </summary>
+		[BuildElement("resources")]
+		public ResourceFileSet Resources {
+			get { return _resources; }
+			set { _resources = value; }
+		}
 
-        /// <summary>
-        /// Reference metadata from the specified assembly files.
-        /// </summary>
-        [BuildElement("assemblies")]
-        public AssemblyFileSet Assemblies {
-            get { return _assemblies; }
-            set { _assemblies = value; }
-        }
+		/// <summary>
+		/// Reference metadata from the specified assembly files.
+		/// </summary>
+		[BuildElement("assemblies")]
+		public AssemblyFileSet Assemblies {
+			get { return _assemblies; }
+			set { _assemblies = value; }
+		}
 
-        /// <summary>
-        /// Indicates whether assembly references are supported by the 
-        /// <c>resgen</c> tool for the current target framework. The default 
-        /// is <see langword="false" />.
-        /// </summary>
-        [FrameworkConfigurable("supportsassemblyreferences")]
-        public bool SupportsAssemblyReferences {
-            get { return _supportsAssemblyReferences; }
-            set { _supportsAssemblyReferences = value; }
-        }
+		/// <summary>
+		/// Indicates whether assembly references are supported by the 
+		/// <c>resgen</c> tool for the current target framework. The default 
+		/// is <see langword="false" />.
+		/// </summary>
+		[FrameworkConfigurable("supportsassemblyreferences")]
+		public bool SupportsAssemblyReferences {
+			get { return _supportsAssemblyReferences; }
+			set { _supportsAssemblyReferences = value; }
+		}
 
-        #endregion Public Instance Properties
+		#endregion Public Instance Properties
 
-        #region Override implementation of ExternalProgramBase
+		#region Private Instance Properties
 
-        /// <summary>
-        /// Gets the working directory for the application.
-        /// </summary>
-        /// <value>
-        /// The working directory for the application.
-        /// </value>
-        public override DirectoryInfo BaseDirectory {
-            get { 
-                if (_workingDirectory == null) {
-                    return base.BaseDirectory; 
-                }
-                return _workingDirectory;
-            }
-            set {
-                _workingDirectory = value;
-            }
-        }
+		private bool RequiresAssemblyReferences {
+			get {
+				if (Resources.FileNames.Count > 0) {
+					foreach (string resourceFile in Resources.FileNames) {
+						if (ReferencesThirdPartyAssemblies(resourceFile)) {
+							return true;
+						}
+					}
+				} else if (InputFile != null) {
+					return ReferencesThirdPartyAssemblies(InputFile.FullName);
+				}
+				return false;
+			}
+		}
 
-        /// <summary>
-        /// Gets the command line arguments for the external program.
-        /// </summary>
-        /// <value>
-        /// The command line arguments for the external program.
-        /// </value>
-        public override string ProgramArguments { 
-            get { return _arguments; } 
-        }
+		#endregion Private Instance Properties
 
-        /// <summary>
-        /// Gets the filename of the external program to start.
-        /// </summary>
-        /// <value>
-        /// The filename of the external program.
-        /// </value>
-        /// <remarks>
-        /// Override in derived classes to explicitly set the location of the 
-        /// external tool.
-        /// </remarks>
-        public override string ProgramFileName { 
-            get { 
-                if (_programFileName == null) {
-                    _programFileName = base.ProgramFileName;
-                }
-                return _programFileName;
-            }
-        }
+		#region Override implementation of ExternalProgramBase
 
-        /// <summary>
-        /// Updates the <see cref="ProcessStartInfo" /> of the specified 
-        /// <see cref="Process"/>.
-        /// </summary>
-        /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
-        protected override void PrepareProcess(Process process) {
-            if (!SupportsAssemblyReferences) {
-                // create instance of Copy task
-                CopyTask ct = new CopyTask();
+		/// <summary>
+		/// Gets the working directory for the application.
+		/// </summary>
+		/// <value>
+		/// The working directory for the application.
+		/// </value>
+		public override DirectoryInfo BaseDirectory {
+			get { 
+				if (_workingDirectory == null) {
+					return base.BaseDirectory; 
+				}
+				return _workingDirectory;
+			}
+			set {
+				_workingDirectory = value;
+			}
+		}
 
-                // inherit project from current task
-                ct.Project = Project;
+		/// <summary>
+		/// Gets the command line arguments for the external program.
+		/// </summary>
+		/// <value>
+		/// The command line arguments for the external program.
+		/// </value>
+		public override string ProgramArguments { 
+			get { return _arguments; } 
+		}
 
-                // inherit namespace manager from current task
-                ct.NamespaceManager = NamespaceManager;
+		/// <summary>
+		/// Gets the filename of the external program to start.
+		/// </summary>
+		/// <value>
+		/// The filename of the external program.
+		/// </value>
+		/// <remarks>
+		/// Override in derived classes to explicitly set the location of the 
+		/// external tool.
+		/// </remarks>
+		public override string ProgramFileName { 
+			get { 
+				if (_programFileName == null) {
+					_programFileName = base.ProgramFileName;
+				}
+				return _programFileName;
+			}
+		}
 
-                // parent is current task
-                ct.Parent = this;
+		/// <summary>
+		/// Updates the <see cref="ProcessStartInfo" /> of the specified 
+		/// <see cref="Process"/>.
+		/// </summary>
+		/// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
+		protected override void PrepareProcess(Process process) {
+			if (!SupportsAssemblyReferences) {
+				// avoid copying the assembly references (and resgen) to a
+				// temporary directory if not necessary
+				if (!RequiresAssemblyReferences) {
+					// further delegate preparation to base class
+					base.PrepareProcess(process);
+					
+					// no further processing required
+					return;
+				}
 
-                // inherit verbose setting from resgen task
-                ct.Verbose = Verbose;
+				// create instance of Copy task
+				CopyTask ct = new CopyTask();
 
-                // only output warning messages or higher, unless we're running
-                // in verbose mode
-                if (!ct.Verbose) {
-                    ct.Threshold = Level.Warning;
-                }
+				// inherit project from current task
+				ct.Project = Project;
 
-                // make sure framework specific information is set
-                ct.InitializeTaskConfiguration();
+				// inherit namespace manager from current task
+				ct.NamespaceManager = NamespaceManager;
 
-                // set parent of child elements
-                ct.CopyFileSet.Parent = ct;
+				// parent is current task
+				ct.Parent = this;
 
-                // inherit project from solution task for child elements
-                ct.CopyFileSet.Project = ct.Project;
+				// inherit verbose setting from resgen task
+				ct.Verbose = Verbose;
 
-                // inherit namespace manager from solution task
-                ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
+				// only output warning messages or higher, unless we're running
+				// in verbose mode
+				if (!ct.Verbose) {
+					ct.Threshold = Level.Warning;
+				}
 
-                // set base directory of fileset
-                ct.CopyFileSet.BaseDirectory = Assemblies.BaseDirectory;
+				// make sure framework specific information is set
+				ct.InitializeTaskConfiguration();
 
-                // copy all files to base directory itself
-                ct.Flatten = true;
+				// set parent of child elements
+				ct.CopyFileSet.Parent = ct;
 
-                // copy referenced assemblies
-                foreach (string file in Assemblies.FileNames) {
-                    ct.CopyFileSet.Includes.Add(file);
-                }
+				// inherit project from solution task for child elements
+				ct.CopyFileSet.Project = ct.Project;
 
-                // copy command line tool to working directory
-                ct.CopyFileSet.Includes.Add(base.ProgramFileName);
+				// inherit namespace manager from solution task
+				ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
 
-                // set destination directory
-                ct.ToDirectory = BaseDirectory;
+				// set base directory of fileset
+				ct.CopyFileSet.BaseDirectory = Assemblies.BaseDirectory;
 
-                // increment indentation level
-                ct.Project.Indent();
-                try {
-                    // execute task
-                    ct.Execute();
-                } finally {
-                    // restore indentation level
-                    ct.Project.Unindent();
-                }
+				// copy all files to base directory itself
+				ct.Flatten = true;
 
-                // change program to execute the tool in working directory as
-                // that will allow this tool to resolve assembly references
-                // using assemblies stored in the same directory
-                _programFileName = Path.Combine(BaseDirectory.FullName, 
-                    Path.GetFileName(base.ProgramFileName));
-            } else {
-                foreach (string assembly in Assemblies.FileNames) {
-                    AppendArgument(string.Format(CultureInfo.InvariantCulture,
-                        " /r:\"{0}\"", assembly));
-                }
-            }
+				// copy referenced assemblies
+				foreach (string file in Assemblies.FileNames) {
+					ct.CopyFileSet.Includes.Add(file);
+				}
 
-            // further delegate preparation to base class
-            base.PrepareProcess(process);
-        }
+				// copy command line tool to working directory
+				ct.CopyFileSet.Includes.Add(base.ProgramFileName);
 
-        /// <summary>
-        /// Converts a single file or group of files.
-        /// </summary>
-        protected override void ExecuteTask() {
-            // ensure base directory is set, even if fileset was not initialized
-            // from XML
-            if (Assemblies.BaseDirectory == null) {
-                Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
-            }
-            if (Resources.BaseDirectory == null) {
-                Resources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
-            }
+				// set destination directory
+				ct.ToDirectory = BaseDirectory;
 
-            _arguments = "";
-            if (Resources.FileNames.Count > 0 ) {
-                if (OutputFile != null) {
-                    throw new BuildException("'output' attribute is incompatible with fileset use.", Location);
-                }
-                foreach (string filename in Resources.FileNames ) {
-                    FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
-                        Resources.Prefix);
+				// increment indentation level
+				ct.Project.Indent();
+				try {
+					// execute task
+					ct.Execute();
+				} finally {
+					// restore indentation level
+					ct.Project.Unindent();
+				}
 
-                    if (NeedsCompiling(new FileInfo(filename), outputFile)) {
-                        if (StringUtils.IsNullOrEmpty(_arguments)) {
-                            AppendArgument ("/compile");
-                        }
+				// change program to execute the tool in working directory as
+				// that will allow this tool to resolve assembly references
+				// using assemblies stored in the same directory
+				_programFileName = Path.Combine(BaseDirectory.FullName, 
+					Path.GetFileName(base.ProgramFileName));
+			} else {
+				foreach (string assembly in Assemblies.FileNames) {
+					AppendArgument(string.Format(CultureInfo.InvariantCulture,
+						" /r:\"{0}\"", assembly));
+				}
+			}
 
-                        // ensure output directory exists
-                        if (!outputFile.Directory.Exists) {
-                            outputFile.Directory.Create();
-                        }
+			// further delegate preparation to base class
+			base.PrepareProcess(process);
+		}
 
-                        AppendArgument(string.Format(CultureInfo.InvariantCulture, 
-                            " \"{0},{1}\"", filename, outputFile.FullName));
-                    }
-                }
-            } else {
-                // Single file situation
-                if (InputFile == null) {
-                    throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
-                }
+		/// <summary>
+		/// Converts a single file or group of files.
+		/// </summary>
+		protected override void ExecuteTask() {
+			// ensure base directory is set, even if fileset was not initialized
+			// from XML
+			if (Assemblies.BaseDirectory == null) {
+				Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+			}
+			if (Resources.BaseDirectory == null) {
+				Resources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+			}
 
-                FileInfo outputFile = GetOutputFile(InputFile, null);
+			_arguments = "";
+			if (Resources.FileNames.Count > 0) {
+				if (OutputFile != null) {
+					throw new BuildException("'output' attribute is incompatible with fileset use.", Location);
+				}
+				foreach (string filename in Resources.FileNames) {
+					FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
+						Resources.Prefix);
 
-                if (NeedsCompiling(InputFile, outputFile)) {
-                    // ensure output directory exists
-                    if (!outputFile.Directory.Exists) {
-                        outputFile.Directory.Create();
-                    }
+					if (NeedsCompiling(new FileInfo(filename), outputFile)) {
+						if (StringUtils.IsNullOrEmpty(_arguments)) {
+							AppendArgument ("/compile");
+						}
 
-                    AppendArgument(string.Format(CultureInfo.InvariantCulture, 
-                        " \"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
-                }
-            }
+						// ensure output directory exists
+						if (!outputFile.Directory.Exists) {
+							outputFile.Directory.Create();
+						}
 
-            if (!StringUtils.IsNullOrEmpty(_arguments)) {
-                // use a newly created temporary directory as working directory
-                BaseDirectory = FileUtils.GetTempDirectory();
+						AppendArgument(string.Format(CultureInfo.InvariantCulture, 
+							" \"{0},{1}\"", filename, outputFile.FullName));
+					}
+				}
+			} else {
+				// Single file situation
+				if (InputFile == null) {
+					throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
+				}
 
-                try {
-                    // call base class to do the work
-                    base.ExecuteTask();
-                } finally {
-                    // delete temporary directory and all files in it
-                    DeleteTask deleteTask = new DeleteTask();
-                    deleteTask.Project = Project;
-                    deleteTask.Parent = this;
-                    deleteTask.InitializeTaskConfiguration();
-                    deleteTask.Directory = BaseDirectory;
-                    deleteTask.Threshold = Level.None; // no output in build log
-                    deleteTask.Execute();
-                }
-            }
-        }
+				FileInfo outputFile = GetOutputFile(InputFile, null);
 
-        #endregion Override implementation of ExternalProgramBase
+				if (NeedsCompiling(InputFile, outputFile)) {
+					// ensure output directory exists
+					if (!outputFile.Directory.Exists) {
+						outputFile.Directory.Create();
+					}
 
-        #region Public Instance Methods
+					AppendArgument(string.Format(CultureInfo.InvariantCulture, 
+						" \"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
+				}
+			}
 
-        /// <summary>
-        /// Cleans up generated files.
-        /// </summary>
-        public void RemoveOutputs() {
-            foreach (string filename in Resources.FileNames) {
-                FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
-                    Resources.Prefix);
-                if (filename != outputFile.FullName) {
-                    outputFile.Delete();
-                }
-            }
-            if (InputFile != null) {
-                FileInfo outputFile = GetOutputFile(InputFile, null);
+			if (!StringUtils.IsNullOrEmpty(_arguments)) {
+				// use a newly created temporary directory as working directory
+				BaseDirectory = FileUtils.GetTempDirectory();
+
+				try {
+					// call base class to do the work
+					base.ExecuteTask();
+				} finally {
+					// delete temporary directory and all files in it
+					DeleteTask deleteTask = new DeleteTask();
+					deleteTask.Project = Project;
+					deleteTask.Parent = this;
+					deleteTask.InitializeTaskConfiguration();
+					deleteTask.Directory = BaseDirectory;
+					deleteTask.Threshold = Level.None; // no output in build log
+					deleteTask.Execute();
+				}
+			}
+		}
+
+		#endregion Override implementation of ExternalProgramBase
+
+		#region Public Instance Methods
+
+		/// <summary>
+		/// Cleans up generated files.
+		/// </summary>
+		public void RemoveOutputs() {
+			foreach (string filename in Resources.FileNames) {
+				FileInfo outputFile = GetOutputFile(new FileInfo(filename), 
+					Resources.Prefix);
+				if (filename != outputFile.FullName) {
+					outputFile.Delete();
+				}
+			}
+			if (InputFile != null) {
+				FileInfo outputFile = GetOutputFile(InputFile, null);
                 
-                if (InputFile.FullName != outputFile.FullName) {
-                    outputFile.Delete();
-                }
-            }
-        }
+				if (InputFile.FullName != outputFile.FullName) {
+					outputFile.Delete();
+				}
+			}
+		}
 
-        #endregion Public Instance Methods
+		#endregion Public Instance Methods
 
-        #region Protected Instance Methods
+		#region Protected Instance Methods
 
-        /// <summary>
-        /// Determines whether the specified input file needs to be compiled.
-        /// </summary>
-        /// <param name="inputFile">The input file.</param>
-        /// <param name="outputFile">The output file.</param>
-        /// <returns>
-        /// <see langword="true" /> if the input file need to be compiled; 
-        /// otherwise <see langword="false" />.
-        /// </returns>
-        protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
-            if (!outputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.",
-                    outputFile.FullName);
-                return true;
-            }
+		/// <summary>
+		/// Determines whether the specified input file needs to be compiled.
+		/// </summary>
+		/// <param name="inputFile">The input file.</param>
+		/// <param name="outputFile">The output file.</param>
+		/// <returns>
+		/// <see langword="true" /> if the input file need to be compiled; 
+		/// otherwise <see langword="false" />.
+		/// </returns>
+		protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
+			if (!outputFile.Exists) {
+				Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.",
+					outputFile.FullName);
+				return true;
+			}
 
-            // check if input file was updated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(inputFile.FullName, outputFile.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
-                return true;
-            }
+			// check if input file was updated
+			string fileName = FileSet.FindMoreRecentLastWriteTime(inputFile.FullName, outputFile.LastWriteTime);
+			if (fileName != null) {
+				Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+				return true;
+			}
 
-            // check if reference assemblies were updated
-            fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, outputFile.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
-                return true;
-            }
+			// check if reference assemblies were updated
+			fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, outputFile.LastWriteTime);
+			if (fileName != null) {
+				Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+				return true;
+			}
 
-            // if we made it here then we don't have to recompile
-            return false;
-        }
+			// if we made it here then we don't have to recompile
+			return false;
+		}
 
-        /// <summary>
-        /// Adds a command line argument to the command line for the external
-        /// program that is used to convert the resource files.
-        /// </summary>
-        /// <param name="s">The argument that should be added to the command line.</param>
-        protected void AppendArgument(string s) {
-            _arguments += s;
-        }
+		/// <summary>
+		/// Adds a command line argument to the command line for the external
+		/// program that is used to convert the resource files.
+		/// </summary>
+		/// <param name="s">The argument that should be added to the command line.</param>
+		protected void AppendArgument(string s) {
+			_arguments += s;
+		}
         
-        #endregion Protected Instance Methods
+		#endregion Protected Instance Methods
 
-        #region Private Instance Methods
+		#region Private Instance Methods
        
-        /// <summary>
-        /// Determines the full path and extension for the output file.
-        /// </summary>
-        /// <param name="file">The output file for which the full path and extension should be determined.</param>
-        /// <param name="prefix">prefix to prepend to the output .resources file</param>
-        /// <returns>
-        /// The full path (with extensions) for the specified file.
-        /// </returns>
-        private FileInfo GetOutputFile(FileInfo file, string prefix) {
-            FileInfo outputFile;
+		/// <summary>
+		/// Determines the full path and extension for the output file.
+		/// </summary>
+		/// <param name="file">The output file for which the full path and extension should be determined.</param>
+		/// <param name="prefix">prefix to prepend to the output .resources file</param>
+		/// <returns>
+		/// The full path (with extensions) for the specified file.
+		/// </returns>
+		private FileInfo GetOutputFile(FileInfo file, string prefix) {
+			FileInfo outputFile;
             
-            // If output is empty just change the extension 
-            if (OutputFile == null) {
-                if (ToDirectory == null) {
-                    outputFile = file;
-                } else {
-                    outputFile = new FileInfo(Path.Combine(ToDirectory.FullName, file.Name));
-                }
-                if (!StringUtils.IsNullOrEmpty(prefix)) {
-                    outputFile = new FileInfo(outputFile.FullName.Replace(
-                        file.Name, prefix + "." + file.Name));
-                }
-                outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, TargetExt));
-            } else {
-                outputFile = OutputFile;
-            }
-            return outputFile;
-        }
-        
-        #endregion Private Instance Methods
-    }
+			// If output is empty just change the extension 
+			if (OutputFile == null) {
+				if (ToDirectory == null) {
+					outputFile = file;
+				} else {
+					outputFile = new FileInfo(Path.Combine(ToDirectory.FullName, file.Name));
+				}
+				if (!StringUtils.IsNullOrEmpty(prefix)) {
+					outputFile = new FileInfo(outputFile.FullName.Replace(
+						file.Name, prefix + "." + file.Name));
+				}
+				outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, TargetExt));
+			} else {
+				outputFile = OutputFile;
+			}
+			return outputFile;
+		}
+
+		/// <summary>
+		/// Determines whether the specified resource file references third
+		/// party assemblies by checking whether a &lt;data&gt; element exists
+		/// with a &quot;type&quot; attribute that does not start with 
+		/// &quot;System.&quot;.
+		/// </summary>
+		/// <param name="resourceFile">The resource file to check.</param>
+		/// <returns>
+		/// <see langword="true" /> if the resource file references third party
+		/// assemblies, or an error occurred; otherwise, <see langword="false" />.
+		/// </returns>
+		/// <remarks>
+		/// This check will only be accurate for 1.0 resource file, but the
+		/// 2.0 resx files can only be compiled with a resgen tool that supported
+		/// assembly references, so this method will not be used anyway.
+		/// </remarks>
+		private bool ReferencesThirdPartyAssemblies(string resourceFile) {
+			try {
+				if (!File.Exists(resourceFile)) {
+					return false;
+				}
+
+				XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(
+					new StreamReader(resourceFile, true)));
+				// determine the number of <data> elements that have a "type"
+				// attribute with a value that does not start with "System."
+				int count = xpathDoc.CreateNavigator().Select("/root/data[@type and not(starts-with(@type, 'System.'))]").Count;
+
+				// if there are no <data> elements of a third party type, we 
+				// assume that the resource file does not reference types from
+				// third party assemblies
+				return count > 0;
+			} catch (Exception) {
+				// have the resgen tool deal with issues (eg. invalid xml)
+				return true;
+			}
+		}
+
+		#endregion Private Instance Methods
+	}
 }
