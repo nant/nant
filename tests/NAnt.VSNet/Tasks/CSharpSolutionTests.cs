@@ -33,6 +33,7 @@ namespace Tests.NAnt.VSNet.Tasks {
     public class CSharpSolutionTests : SolutionTestBase {
         #region Private Instance Fields
 
+        /*
         private string _solutionProject =
             @"<?xml version='1.0'?>
                 <project default='solution'>
@@ -40,6 +41,7 @@ namespace Tests.NAnt.VSNet.Tasks {
                         <solution solutionfile='{0}' configuration='{1}' />
                     </target>
                 </project>";
+        */
 
         #endregion Private Instance Fields
 
