@@ -253,7 +253,7 @@ namespace NAnt.VisualCpp.Tasks {
       /// <summary>
       /// Additional options to pass to midl.exe.
       /// </summary>
-      [BuildElementCollection("options")]
+      [BuildElementCollection("options", "option", typeof(Option))]
       public OptionCollection Options {
          get { return _options; }
       }
@@ -262,7 +262,7 @@ namespace NAnt.VisualCpp.Tasks {
       /// Macro definitions to pass to mdil.exe.
       /// Each entry will generate a /D
       /// </summary>
-      [BuildElementCollection("defines")]
+      [BuildElementCollection("defines", "option", typeof(Option))]
       public OptionCollection Defines {
          get { return _defines; }
       }
