@@ -29,7 +29,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
-    public sealed class Target : Element, ICloneable {
+    public sealed class Target : Element {
         #region Private Instance Fields
 
         private string _name = null;
@@ -50,17 +50,7 @@ namespace NAnt.Core {
 
         #endregion Public Instance Constructors
 
-        #region Private Instance Constructors
-
-        private Target(Target t) : base((Element) t) {
-            this._name = t._name;
-            this._description = t._description;
-            this._dependencies = t._dependencies;
-            this._ifCondition = t._ifCondition;
-            this._unlessCondition = t._unlessCondition;
-        }
-
-        #endregion Private Instance Constructors
+        #region Public Instance Properties
 
         /// <summary>
         /// The name of the target.
@@ -191,6 +181,10 @@ namespace NAnt.Core {
             get { return _dependencies; }
         }
 
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+
         /// <summary>
         /// Executes dependent targets first, then the target.
         /// </summary>
@@ -225,28 +219,6 @@ namespace NAnt.Core {
             }
         }
 
-        #region Implementation of ICloneable
-
-        /// <summary>
-        /// Creates a deep copy of the <see cref="Target" />.
-        /// </summary>
-        /// <returns></returns>
-        object ICloneable.Clone() {
-            return Clone();
-        }
-
-        /// <summary>
-        /// Creates a deep copy of the <see cref="Target" />.
-        /// </summary>
-        /// <returns>
-        /// A copy of the <see cref="Target" /> with <see cref="HasExecuted" /> 
-        /// set to <see langword="false" />. This allows the new <see cref="Target" /> 
-        /// to be executed.
-        /// </returns>
-        public Target Clone() {
-            return new Target(this);
-        }
-
-        #endregion Implementation of ICloneable
+        #endregion Public Instance Methods
     }
 }
