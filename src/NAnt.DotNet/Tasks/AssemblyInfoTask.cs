@@ -438,7 +438,8 @@ namespace NAnt.DotNet.Tasks {
 
             private object GetTypedValue(AssemblyAttribute attribute, StringCollection assemblies, StringCollection imports) {
                 // locate type assuming TypeName is fully qualified typename
-                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", AppDomain.CurrentDomain.Evidence, new AppDomainSetup());
+                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
+                    AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
@@ -446,8 +447,7 @@ namespace NAnt.DotNet.Tasks {
                     AppDomain.CurrentDomain.Evidence);
 
                 object typedValue = typedValueGatherer.GetTypedValue(
-                    _assemblyInfoTask, assemblies, imports, attribute.TypeName, 
-                    attribute.Value);
+                    assemblies, imports, attribute.TypeName, attribute.Value);
 
                 // unload newly created AppDomain
                 AppDomain.Unload(newDomain);
@@ -492,7 +492,6 @@ namespace NAnt.DotNet.Tasks {
             /// Retrieves the specified <see cref="Type" /> corresponding with the specified 
             /// type name from a list of assemblies.
             /// </summary>
-            /// <param name="assemblyInfoTask">The <see cref="AssemblyInfoTask" /> task in which context the <see cref="Type" /> should be resolved.</param>
             /// <param name="assemblies">The collection of assemblies that the type should tried to be instantiated from.</param>
             /// <param name="imports">The list of imports that can be used to resolve the typename to a full typename.</param>
             /// <param name="typename">The typename that should be used to determine the type to which the specified value should be converted.</param>
@@ -507,9 +506,9 @@ namespace NAnt.DotNet.Tasks {
             /// <para>-or-</para>
             /// <para>A <see cref="Type" /> identified by <paramref name="typename" /> could not be located or loaded.</para>
             /// </exception>
-            public object GetTypedValue(AssemblyInfoTask assemblyInfoTask, StringCollection assemblies, StringCollection imports, string typename, string value) {
+            public object GetTypedValue(StringCollection assemblies, StringCollection imports, string typename, string value) {
                 // create assembly resolver
-                AssemblyResolver assemblyResolver = new AssemblyResolver(assemblyInfoTask);
+                AssemblyResolver assemblyResolver = new AssemblyResolver();
 
                 // attach assembly resolver to the current domain
                 assemblyResolver.Attach();
@@ -610,4 +609,3 @@ namespace NAnt.DotNet.Tasks {
         }
     }
 }
-
