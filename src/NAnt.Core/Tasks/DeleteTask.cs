@@ -140,7 +140,9 @@ namespace SourceForge.NAnt.Tasks {
                 string[] files = Directory.GetFiles(path);
                 foreach (string file in files) {
                     try {
-                        File.SetAttributes(file, FileAttributes.Normal);
+                        #if ! mono  
+                            File.SetAttributes(file, FileAttributes.Normal);
+                        #endif
                         Log.WriteLineIf(Verbose, LogPrefix + "Deleting file {0}.", file);
                         File.Delete(file);
                     }
@@ -154,7 +156,9 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 // Finally, delete the directory
-                File.SetAttributes(path, FileAttributes.Normal);
+                #if ! mono  
+                    File.SetAttributes(path, FileAttributes.Normal);
+                #endif
                 Log.WriteLineIf(Verbose, LogPrefix + "Deleting directory {0}.", path);
                 Directory.Delete(path);
             } catch (BuildException e) {
@@ -174,7 +178,9 @@ namespace SourceForge.NAnt.Tasks {
                 if (deleteInfo.Exists)  {
                     Log.WriteLineIf(verbose, LogPrefix + "Deleting file {0}.", path);
                     if ( deleteInfo.Attributes != FileAttributes.Normal ) {
-                        File.SetAttributes( deleteInfo.FullName, FileAttributes.Normal );
+                        #if ! mono  
+                            File.SetAttributes( deleteInfo.FullName, FileAttributes.Normal );
+                        #endif
                     }
                     File.Delete(path);
                 } else {
