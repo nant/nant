@@ -281,12 +281,24 @@ namespace NAnt.VSNet {
                     // first import type library B and use a reference to that 
                     // imported type library when we import type library A.
                     // 
-                    // however, we  have no way to find out in which order the type
+                    // however, we have no way to find out in which order the type
                     // libraries should be imported. So only if type library B is 
                     // first listed in the project file, it will work fine.
                     //
                     // we should find a way to analyse a type library to determine
-                    //dependencies on other type libraries
+                    // dependencies on other type libraries
+                    // 
+                    // according to JR (jrv72@users.sourceforge.net) a possible
+                    // solution could be to "use TypeLibConverter.ConvertTypeLibToAssembly. 
+                    // This has a callback of type ITypeLibImporterNotifySink, which I 
+                    // speculate allows one to recognize when one type library 
+                    // depends on another. I believe what you have to do is start 
+                    // with an arbitrary type library, and if that type library calls 
+                    // back on the ResolveRef() method, and if that type library is 
+                    // one you were planning to add later, you compile it 
+                    // immediately and pass the assembly back out of ResolveRef. I 
+                    // haven't tested this yet, but it's my best understanding of 
+                    // how it all works.
                     foreach (ReferenceBase reference in Parent.References) {
                         // we're only interested in imported type libraries
                         WrapperReference wrapper = reference as WrapperReference;
