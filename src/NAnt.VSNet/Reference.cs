@@ -398,6 +398,11 @@ namespace NAnt.VSNet {
         ///     </item>
         ///     <item>
         ///         <term>
+        ///             The HintPath.
+        ///         </term>
+        ///     </item>
+        ///     <item>
+        ///         <term>
         ///             <para>
         ///                 The directories specified under the following registry 
         ///                 keys:
@@ -442,11 +447,6 @@ namespace NAnt.VSNet {
         ///             </list>
         ///         </term>
         ///     </item>
-        ///     <item>
-        ///         <term>
-        ///             The HintPath.
-        ///         </term>
-        ///     </item>
         /// </list>
         /// </remarks>
         private void ResolveAssemblyReference(XmlElement referenceElement) {
@@ -464,13 +464,14 @@ namespace NAnt.VSNet {
                 return;
             }
 
-            // 4. AssemblyFolders
-            if (ResolveFromAssemblyFolders(referenceElement)) {
+            // 4. The HintPath
+            //  - This is resolved before the AssemblyFolders!
+            if (ResolveFromHintPath(referenceElement)) {
                 return;
             }
 
-            // 5. The HintPath
-            if (ResolveFromHintPath(referenceElement)) {
+            // 5. AssemblyFolders
+            if (ResolveFromAssemblyFolders(referenceElement)) {
                 return;
             }
 

@@ -290,22 +290,26 @@ namespace NAnt.VSNet {
                             }
                         }
 
-                        if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration))) {
-                            if (!failed) {
-                                Log(Level.Error, LogPrefix + "Project '{0}' failed!", p.Name);
-                                Log(Level.Error, LogPrefix + "Continuing build with non-dependent projects.");
-                                failedProjects.Add( p.Name );
-                            }
+                        try {
+                            if (!_htReferenceProjects.Contains(p.Guid) && (failed || !p.Compile(configuration))) {
+                                if (!failed) {
+                                    Log(Level.Error, LogPrefix + "Project '{0}' failed!", p.Name);
+                                    Log(Level.Error, LogPrefix + "Continuing build with non-dependent projects.");
+                                    failedProjects.Add( p.Name );
+                                }
 
-                            success = false;
-                            htFailedProjects[p.Guid] = null;
+                                success = false;
+                                htFailedProjects[p.Guid] = null;
 
-                            // mark the projects referencing this one as failed
-                            foreach (ProjectBase pFailed in _htProjects.Values) {
-                                if (HasProjectDependency(pFailed.Guid, p.Guid)) {
-                                    htFailedProjects[pFailed.Guid] = null;
+                                // mark the projects referencing this one as failed
+                                foreach (ProjectBase pFailed in _htProjects.Values) {
+                                    if (HasProjectDependency(pFailed.Guid, p.Guid)) {
+                                        htFailedProjects[pFailed.Guid] = null;
+                                    }
                                 }
                             }
+                        } catch ( Exception e ) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Unexpected error while compiling project '{0}'", p.Name), Location.UnknownLocation, e);
                         }
 
                         compiledThisRound = true;
