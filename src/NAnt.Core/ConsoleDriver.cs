@@ -24,6 +24,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -81,7 +82,7 @@ namespace SourceForge.NAnt {
 
                 if (cmdlineOptions.BuildFile != null) {
                     if(project != null) {
-                        Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileURI));
+                        Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileUri));
                     }
 
                     project = new Project(cmdlineOptions.BuildFile, projectThreshold, cmdlineOptions.IndentationLevel);
@@ -120,12 +121,12 @@ namespace SourceForge.NAnt {
                 //add these here and in the project .ctor
                 Assembly ass = Assembly.GetExecutingAssembly();
 
-                project.Properties.AddReadOnly(Project.NANT_PROPERTY_FILENAME, ass.Location);
-                project.Properties.AddReadOnly(Project.NANT_PROPERTY_VERSION,  ass.GetName().Version.ToString());
-                project.Properties.AddReadOnly(Project.NANT_PROPERTY_LOCATION, Path.GetDirectoryName(ass.Location));
+                project.Properties.AddReadOnly(Project.NAntPropertyFileName, ass.Location);
+                project.Properties.AddReadOnly(Project.NAntPropertyVersion,  ass.GetName().Version.ToString());
+                project.Properties.AddReadOnly(Project.NAntPropertyLocation, Path.GetDirectoryName(ass.Location));
 
                 if (cmdlineOptions.ShowProjectHelp) {
-                    ConsoleDriver.ShowProjectHelp(project.Doc);
+                    ConsoleDriver.ShowProjectHelp(project.Document);
                 } else {
                     if (!project.Run()) {
                         return 1;
@@ -275,6 +276,7 @@ namespace SourceForge.NAnt {
         /// </remarks>
         /// <param name="className">The fully qualified name of the logger that should be instantiated.</param>
         /// <exception cref="ArgumentException"><paramref name="className" /> does not implement <see cref="IBuildLogger" />.</exception>
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static IBuildLogger CreateLogger(string className) {
             Assembly assembly = Assembly.GetAssembly(typeof(IBuildLogger));
 
@@ -301,6 +303,7 @@ namespace SourceForge.NAnt {
         /// </remarks>
         /// <param name="className">The fully qualified name of the listener that should be instantiated.</param>
         /// <exception cref="ArgumentException"><paramref name="className" /> does not implement <see cref="IBuildListener" />.</exception>
+        [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static IBuildListener CreateListener(string className) {
             Assembly assembly = Assembly.GetAssembly(typeof(IBuildListener));
 

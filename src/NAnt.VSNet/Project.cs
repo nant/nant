@@ -286,7 +286,7 @@ namespace SourceForge.NAnt.Tasks {
 
                                 _nanttask.Project.Indent();
                                 ct.Execute();
-                                _nanttask.Project.UnIndent();
+                                _nanttask.Project.Unindent();
                             }
                         }
                         sw.WriteLine( reference.Setting );
@@ -348,7 +348,7 @@ namespace SourceForge.NAnt.Tasks {
                             break;                    
                         Log(Level.Info, "      [compile] " + strLogContents);
                     }
-                    _nanttask.Project.UnIndent();
+                    _nanttask.Project.Unindent();
                 }
 
                 p.WaitForExit();

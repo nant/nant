@@ -89,15 +89,15 @@ namespace SourceForge.NAnt.Tasks {
 
             if (InheritAll) {
                 StringCollection excludes = new StringCollection();
-                excludes.Add(Project.NANT_PROPERTY_FILENAME);
-                excludes.Add(Project.NANT_PROPERTY_LOCATION);
-                excludes.Add(Project.NANT_PROPERTY_ONSUCCESS);
-                excludes.Add(Project.NANT_PROPERTY_ONFAILURE);
-                excludes.Add(Project.NANT_PROPERTY_PROJECT_BASEDIR);
-                excludes.Add(Project.NANT_PROPERTY_PROJECT_BUILDFILE);
-                excludes.Add(Project.NANT_PROPERTY_PROJECT_DEFAULT);
-                excludes.Add(Project.NANT_PROPERTY_PROJECT_NAME);
-                excludes.Add(Project.NANT_PROPERTY_VERSION);
+                excludes.Add(Project.NAntPropertyFileName);
+                excludes.Add(Project.NAntPropertyLocation);
+                excludes.Add(Project.NAntPropertyOnSuccess);
+                excludes.Add(Project.NAntPropertyOnFailure);
+                excludes.Add(Project.NAntPropertyProjectBaseDir);
+                excludes.Add(Project.NAntPropertyProjectBuildFile);
+                excludes.Add(Project.NAntPropertyProjectDefault);
+                excludes.Add(Project.NAntPropertyProjectName);
+                excludes.Add(Project.NAntPropertyVersion);
                 project.Properties.Inherit(Properties, excludes);
             }
 

@@ -158,7 +158,7 @@ namespace SourceForge.NAnt.Tasks {
 
             lt.Project.Indent();
             lt.Execute();
-            lt.Project.UnIndent();
+            lt.Project.Unindent();
 
             return lt.Output;
         }
@@ -183,7 +183,7 @@ namespace SourceForge.NAnt.Tasks {
 
             rt.Project.Indent();
             rt.Execute();
-            rt.Project.UnIndent();
+            rt.Project.Unindent();
 
             return strOutFile;
         }
