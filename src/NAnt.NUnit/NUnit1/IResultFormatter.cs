@@ -18,13 +18,11 @@
 // Ian MacLean (ian_maclean@another.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
 using System.IO;
+
 using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-        
-    /// <summary>Summary description for IResultFormatter.</summary>
     public interface IResultFormatter : ITestListener {
         
         /// <summary>The whole test suite started.</summary>

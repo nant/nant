@@ -14,24 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-
-    /// <summary>Prints information about running tests directly to the Log class.</summary>
-    public class LogFormatter : IResultFormatter    {
-
-        string _prefix;
-        bool _verbose;
+    /// <summary>
+    /// Prints information about running tests directly to the <see cref="Log" /> class.
+    /// </summary>
+    public class LogFormatter : IResultFormatter {
+        #region Public Instance Constructors
 
         public LogFormatter(string prefix, bool verbose) {
             if (prefix != null) {
@@ -42,6 +39,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             _verbose = verbose;
         }
 
+        #endregion Public Instance Constructors
+
+        #region Protected Instance Properties
+
         protected bool Verbose {
             get { return _verbose; }
         }
@@ -50,9 +51,9 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             get { return _prefix; }
         }
 
-        //-------------------------------------------------------------
-        // IResultFormatter interface methods
-        //-------------------------------------------------------------
+        #endregion Protected Instance Properties
+
+        #region Implementation of IResultFormatter
 
         /// <summary>Not used, all output goes to Log class.</summary>
         public void SetOutput(TextWriter writer) {
@@ -74,19 +75,10 @@ namespace SourceForge.NAnt.Tasks.NUnit {
             }
         }
 
-        //-------------------------------------------------------------
-        // ITestListener interface methods
-        //-------------------------------------------------------------
+        #endregion Implementation of IResultFormatter
 
-        // NOTE: When test.ToString() displays something less stupid than 
-        // MethodName(Namespace.ClassName) think about changing to that.  As it 
-        // is now its impossible to sort the test output.
-        // The workaround is to use this method.
-        private static string GetTestSummary(ITest test) {
-            string nunitInfo = test.ToString();
-            return test.GetType().Name + "." + nunitInfo.Substring(0, nunitInfo.IndexOf('('));
-        }
-        
+        #region Implementation of ITestListener
+
         public void AddError(ITest test, Exception e) {
             Log.WriteLine(Prefix + "ERROR: " + GetTestSummary(test));
             Log.WriteLine(FormatError(e.StackTrace, e.Message));
@@ -105,6 +97,20 @@ namespace SourceForge.NAnt.Tasks.NUnit {
 
         public void EndTest(ITest test) {
         }
+
+        #endregion Implementation of ITestListener
+
+        #region Private Static Methods
+
+        // NOTE: When test.ToString() displays something less stupid than 
+        // MethodName(Namespace.ClassName) think about changing to that.  As it 
+        // is now its impossible to sort the test output.
+        // The workaround is to use this method.
+        private static string GetTestSummary(ITest test) {
+            string nunitInfo = test.ToString();
+            return test.GetType().Name + "." + nunitInfo.Substring(0, nunitInfo.IndexOf('('));
+        }
+
 
         /// <summary>Convert a stack trace line into something that can be clicked on in an IDE output window.</summary>
         /// <param name="trace">The StackTrace string, see <see cref="Exception.StackTrace"/>.</param>
@@ -127,5 +133,14 @@ namespace SourceForge.NAnt.Tasks.NUnit {
 
             return line;
         }
+
+        #endregion Private Static Methods
+
+        #region Private Instance Fields
+
+        private string _prefix;
+        private bool _verbose;
+
+        #endregion Private Instance Fields
     }
 }

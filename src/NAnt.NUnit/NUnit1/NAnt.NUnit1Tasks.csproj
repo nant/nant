@@ -95,6 +95,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "IResultFormatterCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "LogFormatter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

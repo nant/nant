@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,23 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian_maclean@another.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using NUnit.Framework;
-using NUnit.Runner;
+using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
-using System.IO;
 using System.Xml;
+
+using NUnit.Framework;
+using NUnit.Runner;
+
 using SourceForge.NAnt.Tasks.NUnit.Formatters;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
-
-    using System;
-    using System.Reflection;
-
     public enum RunnerResult {
         Success,
         Failures,
@@ -38,14 +37,18 @@ namespace SourceForge.NAnt.Tasks.NUnit {
     }
 
     public class NUnitTestRunner : BaseTestRunner {
-        FormatterCollection _formatters = new FormatterCollection();
+        IResultFormatterCollection _formatters = new IResultFormatterCollection();
         NUnitTestData           _nunittest = null;
         ITest               _suite = null;
         TestResultExtra     _result = null;
         RunnerResult        _resultCode = RunnerResult.Success;
 
-        /// <summary>Collection of the registered formatters.</summary>
-        public FormatterCollection Formatters { get { return _formatters; } }
+        /// <summary>
+        /// Gets the collection of the registered formatters.
+        /// </summary>
+        public IResultFormatterCollection Formatters {
+            get { return _formatters; }
+        }
 
         public RunnerResult ResultCode        { get { return _resultCode; } }
 

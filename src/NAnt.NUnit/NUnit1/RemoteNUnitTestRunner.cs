@@ -17,39 +17,42 @@
 //
 // Tomas Restrepo (tomasr@mvps.org)
 
-using NUnit.Framework;
-using NUnit.Runner;
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
-
-namespace SourceForge.NAnt.Tasks.NUnit 
-{
-
-   using System;
-   using System.Xml;
+using System;
    
-   using SourceForge.NAnt.Attributes;
-    
-   public class RemoteNUnitTestRunner : MarshalByRefObject 
-   {
-      private NUnitTestRunner _runner;
+namespace SourceForge.NAnt.Tasks.NUnit {
+    public class RemoteNUnitTestRunner : MarshalByRefObject {
+        #region Public Instance Constructors
 
-      public RunnerResult ResultCode {
-         get { return _runner.ResultCode; }
-      }
-      public FormatterCollection Formatters {
-         get { return _runner.Formatters; }
-      }
+        public RemoteNUnitTestRunner(NUnitTestData testData) {
+            _runner = new NUnitTestRunner(testData);
+        }
 
-      public RemoteNUnitTestRunner(NUnitTestData testData)
-      {
-         _runner = new NUnitTestRunner(testData);
+        #endregion Public Instance Constructors
 
-      }
+        #region Public Instance Properties
 
-      public void Run(string logPrefix, bool verbose)
-      {
-         _runner.Run(logPrefix, verbose);
-      }
-                  
-   }    
+        public RunnerResult ResultCode {
+            get { return _runner.ResultCode; }
+        }
+
+        public IResultFormatterCollection Formatters {
+            get { return _runner.Formatters; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+
+        public void Run(string logPrefix, bool verbose) {
+            _runner.Run(logPrefix, verbose);
+        }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Fields
+
+        private NUnitTestRunner _runner;
+
+        #endregion Private Instance Fields
+    }    
 }
