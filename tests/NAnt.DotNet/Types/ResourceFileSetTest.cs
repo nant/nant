@@ -51,6 +51,14 @@ namespace Tests.NAnt.DotNet.Types {
             actualName = fileset.GetManifestResourceName(Path.Combine(
                 fileset.BaseDirectory.FullName, "file.txt"));
             Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
+
+            // resource with a different logical path
+            fileset.BaseDirectory = new DirectoryInfo(TempDirName + Path.DirectorySeparatorChar);
+            actualName = fileset.GetManifestResourceName(Path.Combine(
+                fileset.BaseDirectory.FullName, "file.txt"), Path.Combine(
+                fileset.BaseDirectory.FullName, "test" + Path.DirectorySeparatorChar +
+                "new.txt"));
+            Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
         }
 
         [Test]
@@ -75,6 +83,15 @@ namespace Tests.NAnt.DotNet.Types {
             fileset.BaseDirectory = new DirectoryInfo(TempDirName + Path.DirectorySeparatorChar);
             actualName = fileset.GetManifestResourceName(Path.Combine(
                 fileset.BaseDirectory.FullName, "file.txt"));
+            Assert.AreEqual(fileset.Prefix + ".file.txt", actualName,
+                "Incorrect manifest resource name.");
+
+            // resource with a different logical path
+            fileset.BaseDirectory = new DirectoryInfo(TempDirName + Path.DirectorySeparatorChar);
+            actualName = fileset.GetManifestResourceName(Path.Combine(
+                fileset.BaseDirectory.FullName, "file.txt"), Path.Combine(
+                fileset.BaseDirectory.FullName, "test" + Path.DirectorySeparatorChar + 
+                "new.txt"));
             Assert.AreEqual(fileset.Prefix + ".file.txt", actualName,
                 "Incorrect manifest resource name.");
         }
@@ -104,6 +121,15 @@ namespace Tests.NAnt.DotNet.Types {
                 fileset.BaseDirectory.FullName, "file.txt"));
             Assert.AreEqual(fileset.Prefix + ".file.txt", actualName,
                 "Incorrect manifest resource name.");
+
+            // resource with a different logical path
+            fileset.BaseDirectory = new DirectoryInfo(TempDirName + Path.DirectorySeparatorChar);
+            actualName = fileset.GetManifestResourceName(Path.Combine(
+                fileset.BaseDirectory.FullName, "file.txt"), Path.Combine(
+                fileset.BaseDirectory.FullName, "test" + Path.DirectorySeparatorChar + 
+                "new.txt"));
+            Assert.AreEqual(fileset.Prefix + ".test.file.txt", actualName,
+                "Incorrect manifest resource name.");
         }
 
         [Test]
@@ -128,6 +154,15 @@ namespace Tests.NAnt.DotNet.Types {
             actualName = fileset.GetManifestResourceName(Path.Combine(
                 fileset.BaseDirectory.FullName, "file.txt"));
             Assert.AreEqual("file.txt", actualName, "Incorrect manifest resource name.");
+
+            // resource with a different logical path
+            fileset.BaseDirectory = new DirectoryInfo(TempDirName + Path.DirectorySeparatorChar);
+            actualName = fileset.GetManifestResourceName(Path.Combine(
+                fileset.BaseDirectory.FullName, "file.txt"), Path.Combine(
+                fileset.BaseDirectory.FullName, "test" + Path.DirectorySeparatorChar + 
+                "new.txt"));
+            Assert.AreEqual("test.file.txt", actualName,
+                "Incorrect manifest resource name.");
         }
 
         [Test]
