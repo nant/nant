@@ -478,6 +478,7 @@
                 <include name="tests/**" />
                 <include name="examples/**" />
                 <include name="schema/**" />
+                <include name="web/**" />
                 <include name="*" />
                 <!-- exclude static html pages as these will be filter-copied -->
                 <exclude name="doc/**/*.html" />
