@@ -40,32 +40,28 @@ namespace NAnt.Core.Attributes {
         public BuildElementArrayAttribute(string name) : base(name) {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BuildElementArrayAttribute" /> with the 
-        /// specified name.
-        /// </summary>
-        /// <param name="name">The name of the attribute.</param>
-        /// <param name="arrayElementType">The contained type.</param>
-        public BuildElementArrayAttribute(string name, Type arrayElementType) : base(name) {
-            _elementType = arrayElementType;
-        }
-
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
 
         /// <summary>
-        /// The type of objects that this container holds. Arrays must be strongly 
-        /// typed.
+        /// Gets or sets the type of objects that this container holds.
         /// </summary>
         /// <value>
-        /// The type of the elements.
+        /// The type of the elements that this container holds.
         /// </value>
         /// <remarks>
+        /// <para>
         /// This can be used for validation and schema generation.
+        /// </para>
+        /// <para>
+        /// If not specified, the type of the elements will be determined using
+        /// reflection.
+        /// </para>
         /// </remarks>
         public Type ElementType {
             get { return _elementType; }
+            set { _elementType = value; }
         }
 
         #endregion Public Instance Properties
