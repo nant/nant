@@ -107,8 +107,9 @@
                 warnings.
             </li>
             <li>
-                Output of the <code><a href="help/fundamentals/listeners.html#XmlLogger">XmlLogger</a></code> is now buffered until build has finished, and <code><a href="help/fundamentals/listeners.html#XmlLogger">XmlLogger</a></code> can 
-                now also be used as a listener.
+                Output of the <code><a href="help/fundamentals/listeners.html#XmlLogger">XmlLogger</a></code>
+                is now buffered until build has finished, and <code><a href="help/fundamentals/listeners.html#XmlLogger">
+                        XmlLogger</a></code> can now also be used as a listener.
             </li>
             <li>
                 Added support for <a href="help/fundamentals/targets.html#wild-targets">wild 
@@ -300,6 +301,15 @@
         <ul>
             <li>
                 Upgraded to NDoc 1.3 post-beta1.
+            </li>
+        </ul>
+        <h5><a class="heading" href="help/tasks/nunit2.html">&lt;nunit&gt;</a></h5>
+        <ul>
+            <li>
+                The <code><a href="help/tasks/nunit2.html">&lt;nunit&gt;</a></code> task has 
+                been deprecated, and will be moved to <a href="http://nantcontrib.sourceforge.net">NAntContrib</a> in a future release. 
+                NUnit 1.0 test assemblies will remain supported through NAntContrib, but we 
+                strongly advise you to upgrade to NUnit 2.x.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/nunit2.html">&lt;nunit2&gt;</a></h5>
@@ -566,8 +576,8 @@
                 dependencies of these targets to be executed again.
             </li>
             <li>
-                The <code><a href="help/fundamentals/listeners.html#XmlLogger">XmlLogger</a></code> will now correctly handle null-characters in 
-                the build output.
+                The <code><a href="help/fundamentals/listeners.html#XmlLogger">XmlLogger</a></code>
+                will now correctly handle null-characters in the build output.
             </li>
             <li>
                 Fixed issue with resources specified using the <code>&lt;resources&gt;</code> element 
