@@ -37,7 +37,7 @@ using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
-    /// Runs NDoc V1.3 to create documentation.
+    /// Runs NDoc V1.3.1 to create documentation.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -46,7 +46,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </para>
     ///   <note>
     ///   By default, only the NDoc MSDN documenter ships as part of the NAnt 
-    ///   distribution. To make another NDoc documenter from the NDoc V1.3 
+    ///   distribution. To make another NDoc documenter from the NDoc V1.3.1 
     ///   distribution available to the <see cref="NDocTask" />, copy the 
     ///   documenter assembly (and possible dependencies) to the &quot;lib&quot; 
     ///   directory corresponding with the CLR you're running NAnt on 
