@@ -434,7 +434,7 @@ namespace NAnt.Core {
         /// This event is fired before any targets have started.
         /// </remarks>
         public virtual void BuildStarted(object sender, BuildEventArgs e) {
-            _buildTimes.Push(DateTime.Now);
+            _buildReports.Push(new BuildReport(DateTime.Now));
         }
 
         /// <summary>
@@ -453,13 +453,27 @@ namespace NAnt.Core {
                 indentationLevel = e.Project.IndentationLevel * e.Project.IndentationSize;
             }
 
+            BuildReport report = (BuildReport) _buildReports.Pop();
+
             if (error == null) {
                 OutputMessage(Level.Info, string.Empty, indentationLevel);
-                OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
+                if (report.Errors == 0 && report.Warnings == 0) {
+                    OutputMessage(Level.Info, "Build succeeded", indentationLevel);
+                } else {
+                    OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
+                        "Build succeeded - {0} non-fatal error(s), {1} warning(s)", 
+                        report.Errors, report.Warnings), indentationLevel);
+                }
                 OutputMessage(Level.Info, string.Empty, indentationLevel);
             } else {
                 OutputMessage(Level.Error, string.Empty, indentationLevel);
-                OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
+                if (report.Errors == 0 && report.Warnings == 0) {
+                    OutputMessage(Level.Error, "Build failure", indentationLevel);
+                } else {
+                    OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
+                        "Build failed - {0} non-fatal error(s), {1} warning(s)", 
+                        report.Errors, report.Warnings), indentationLevel);
+                }
                 OutputMessage(Level.Error, string.Empty, indentationLevel);
 
                 if (error is BuildException) {
@@ -492,11 +506,10 @@ namespace NAnt.Core {
             }
 
             // output total build time
-            if (_buildTimes.Count > 0) {
-                TimeSpan buildTime = DateTime.Now - (DateTime) _buildTimes.Pop();
-                OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture, 
-                    "Total time: {0} seconds." + Environment.NewLine, Math.Round(buildTime.TotalSeconds, 1)), indentationLevel);
-            }
+            TimeSpan buildTime = DateTime.Now - report.StartTime;
+            OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture, 
+                "Total time: {0} seconds." + Environment.NewLine, 
+                Math.Round(buildTime.TotalSeconds, 1)), indentationLevel);
 
             // make sure all messages are written to the underlying storage
             Flush();
@@ -564,6 +577,16 @@ namespace NAnt.Core {
         /// the logger will actually be output in the build log.
         /// </remarks>
         public virtual void MessageLogged(object sender, BuildEventArgs e) {
+            if (_buildReports.Count > 0) {
+                if (e.MessageLevel == Level.Error) {
+                    BuildReport report = (BuildReport) _buildReports.Peek();
+                    report.Errors++;
+                } else if (e.MessageLevel == Level.Warning) {
+                    BuildReport report = (BuildReport) _buildReports.Peek();
+                    report.Warnings++;
+                }
+            }
+
             // output the message
             OutputMessage(e);
         }
@@ -684,9 +707,39 @@ namespace NAnt.Core {
 
         #region Private Static Fields
 
-        private Stack _buildTimes = new Stack();            
+        /// <summary>
+        /// Holds a stack of reports for all running builds.
+        /// </summary>
+        private Stack _buildReports = new Stack();
 
         #endregion Private Static Fields
+    }
+
+    /// <summary>
+    /// Used to store information about a build, to allow better reporting to 
+    /// the user.
+    /// </summary>
+    public class BuildReport {
+        /// <summary>
+        /// Errors encountered so far.
+        /// </summary>
+        public int Errors;
+
+        /// <summary>
+        /// Warnings encountered so far.
+        /// </summary>
+        public int Warnings;
+
+        /// <summary>
+        /// The start time of the build process.
+        /// </summary>
+        public DateTime StartTime;
+
+        public BuildReport(DateTime startTime) {
+            StartTime = startTime;
+            Errors = 0;
+            Warnings = 0;
+        }
     }
 
     /// <summary>
