@@ -26,6 +26,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 using NAnt.Core;
@@ -189,39 +190,40 @@ namespace NAnt.DotNet.Tasks {
                     }
                 }
 
-                // will hold filename of newly generated AssemblyInfo file
-                string tempFile = null;
+                // write out code to memory stream, so we can compare it later 
+                // to what is already present (if necessary)
+                MemoryStream generatedAsmInfoStream = new MemoryStream();
+                
+                using (StreamWriter writer = new StreamWriter(generatedAsmInfoStream, Encoding.Default)) {
+                    // create new instance of CodeProviderInfo for specified CodeLanguage
+                    CodeProvider codeProvider = new CodeProvider(Language);
 
-                try {
-                    tempFile = Path.GetTempFileName();
+                    // only generate imports here for C#, for VB we create the 
+                    // imports as part of the assembly attributes compile unit
+                    if (Language == CodeLanguage.CSharp) {
+                        // generate imports code
+                        codeProvider.GenerateImportCode(imports, writer);
+                    }
 
-                    using (StreamWriter writer = new StreamWriter(tempFile, false, Encoding.Default)) {
-                        // create new instance of CodeProviderInfo for specified CodeLanguage
-                        CodeProvider codeProvider = new CodeProvider(Language);
+                    // generate code for assembly attributes
+                    codeProvider.GenerateAssemblyAttributesCode(AssemblyAttributes, 
+                        imports, References.FileNames, writer);
 
-                        // only generate imports here for C#, for VB we create the 
-                        // imports as part of the assembly attributes compile unit
-                        if (Language == CodeLanguage.CSharp) {
-                            // generate imports code
-                            codeProvider.GenerateImportCode(imports, writer);
+                    // flush 
+                    writer.Flush();
+
+                    if (NeedsPersisting(generatedAsmInfoStream)) {
+                        using (FileStream fs = new FileStream(Output.FullName, FileMode.OpenOrCreate, FileAccess.Write)) {
+                            byte[] buffer = generatedAsmInfoStream.ToArray();
+                            fs.Write(buffer, 0, buffer.Length);
+                            fs.Flush();
+                            fs.Close();
+                            generatedAsmInfoStream.Close();
                         }
 
-                        // generate code for assembly attributes
-                        codeProvider.GenerateAssemblyAttributesCode(AssemblyAttributes, imports, References.FileNames, writer);
-
-                        // close writer
-                        writer.Close();
-                    }
-
-                    // only copy temporary AssemblyInfo file to output file if
-                    // these files differ (this avoid unnecessary rebuilds of
-                    // assemblies)
-                    if (NeedsCompiling(tempFile)) {
-                        File.Copy(tempFile, Output.FullName, true);
-                    }
-                } finally {
-                    if (tempFile != null) {
-                        File.Delete(tempFile);
+                        Log(Level.Info, LogPrefix + "Generated file '{0}'.", Output.FullName);
+                    } else {
+                        Log(Level.Verbose, LogPrefix + "File '{0}' is up-to-date.", Output.FullName);
                     }
                 }
             } catch (Exception ex) {
@@ -229,7 +231,6 @@ namespace NAnt.DotNet.Tasks {
                     CultureInfo.InvariantCulture,
                     "AssemblyInfo file '{0}' could not be generated.",
                     Output.FullName), Location, ex);
-            } finally {
             }
         }
 
@@ -238,67 +239,43 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Methods
 
         /// <summary>
-        /// Determines whether the specified AssemblyInfo file differs from
-        /// the output file.
+        /// Determines whether the specified AssemblyInfo file in the given
+        /// <see cref="Stream" /> needs to be persisted.
         /// </summary>
-        /// <param name="tempAssemblyInfo">The newly generated AssemblyInfo file.</param>
+        /// <param name="generatedAsmInfoStream"><see cref="Stream" /> holding the newly generated AssemblyInfo source.</param>
         /// <returns>
-        /// <see langword="true" /> if the output file needs to be updated;
-        /// otherwise, <see langword="false" />.
+        /// <see langword="true" /> if the generated AssemblyInfo source needs
+        /// to be persisted; otherwise, <see langword="false" />.
         /// </returns>
-        private bool NeedsCompiling(string tempAssemblyInfo) {
-            // if output file doesn't exist, temporary AssemblyInfo file will
-            // always need to be copied to output file
+        private bool NeedsPersisting(Stream generatedAsmInfoStream) {
+            // if output file doesn't exist, the stream will always need to be
+            // persisted to the filesystem.
             if (!Output.Exists) {
                 return true;
             }
 
-            StreamReader existingAsmInfo = null;
-            StreamReader newAsmInfo = null;
+            byte[] existingAssemblyInfoHash = null;
+            byte[] generatedAssemblyInfoHash = null;
 
-            try {
-                existingAsmInfo = new StreamReader(Output.FullName, Encoding.Default);
-                newAsmInfo = new StreamReader(tempAssemblyInfo, Encoding.Default);
+            SHA1 hasher = new SHA1CryptoServiceProvider();
 
-                string existingLine = existingAsmInfo.ReadLine();
-                string newLine = newAsmInfo.ReadLine();
+            // hash existing AssemblyInfo source
+            using (FileStream fs = new FileStream(Output.FullName, FileMode.Open, FileAccess.Read)) {
+                existingAssemblyInfoHash = hasher.ComputeHash(fs);
+            }
 
-                while (existingLine != null && newLine != null) {
-                    if (existingLine.StartsWith("//")) {
-                        // skip source comment
-                        existingLine = existingAsmInfo.ReadLine();
-                        continue;
-                    }
+            // hash generated AssemblyInfo source
+            generatedAsmInfoStream.Position = 0;
+            generatedAssemblyInfoHash = hasher.ComputeHash(generatedAsmInfoStream);
 
-                    if (newLine.StartsWith("//")) {
-                        // skip source comment
-                        newLine = newAsmInfo.ReadLine();
-                        continue;
-                    }
+            // release all resources
+            hasher.Clear();
 
-                    // if both lines are not equal, asminfo file needs to
-                    // be updated on filesystem
-                    if (existingLine.Trim() != newLine.Trim()) {
-                        break;
-                    }
-
-                    // read next line of both files
-                    existingLine = existingAsmInfo.ReadLine();
-                    newLine = newAsmInfo.ReadLine();
-                }
-
-                // if the end of both files was not reached, the files differ
-                if (existingLine != null || newLine != null) {
-                    return true;
-                }
+            //compare hash of generated source with of existing source
+            if (Convert.ToBase64String(generatedAssemblyInfoHash) != Convert.ToBase64String(existingAssemblyInfoHash)) {
+                return true;
+            } else {
                 return false;
-            } finally {
-                if (existingAsmInfo != null) {
-                    existingAsmInfo.Close();
-                }
-                if (newAsmInfo != null) {
-                    newAsmInfo.Close();
-                }
             }
         }
 
