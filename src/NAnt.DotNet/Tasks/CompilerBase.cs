@@ -245,7 +245,8 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Reference packages 
         /// </summary>
-        [BuildElement("pkg-references")]
+        // TODO : Do not expose this for now, need to discuss this further
+        //[BuildElement("pkg-references")]
         public virtual PackageCollection Packages {
             get { return _packages; }
             set { _packages = value; }
