@@ -28,7 +28,7 @@ using NAnt.Core;
 
 namespace NAnt.Core.Util {
     /// <summary> 
-    /// Resolves assemblies by caching assembly that were loaded.
+    /// Resolves assemblies by caching assemblies that were loaded.
     /// </summary>
     public sealed class AssemblyResolver {
         #region Public Instance Constructors
