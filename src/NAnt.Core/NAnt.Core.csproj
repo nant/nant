@@ -353,6 +353,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Functions\AssemblyVersionFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Functions\ConversionFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
