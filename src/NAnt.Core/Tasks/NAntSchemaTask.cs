@@ -146,7 +146,7 @@ namespace NAnt.Core.Tasks {
         public static XmlSchema WriteSchema(System.IO.Stream stream, Type[] tasks, string targetNS) {
             NAntSchemaGenerator gen = new NAntSchemaGenerator(tasks, targetNS);
 
-            if(!gen.Schema.IsCompiled) {
+            if (!gen.Schema.IsCompiled) {
                 gen.Compile();
             }
 
@@ -162,7 +162,7 @@ namespace NAnt.Core.Tasks {
         #region Protected Static Methods
 
         protected static string GenerateIDFromType(Type type) {
-            return type.ToString().Replace("+", "-").Replace("[","_").Replace("]","_");
+            return type.ToString().Replace("+", "-").Replace("[", "_").Replace("]", "_");
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace NAnt.Core.Tasks {
 
             newSeq.MinOccurs = min;
 
-            if(max != Decimal.MaxValue) {
+            if (max != Decimal.MaxValue) {
                 newSeq.MaxOccurs = max;
             } else {
                 newSeq.MaxOccursString = "unbounded";
@@ -275,13 +275,10 @@ namespace NAnt.Core.Tasks {
                     _namespaceURI = targetNS;
                 }
 
-                _nantSchema.Namespaces.Add("vs","urn:schemas-microsoft-com:HTML-Intellisense");
+                // add XSD namespace so that all xsd elements are prefix'd
+                _nantSchema.Namespaces.Add("xs", XmlSchema.Namespace);
 
-                // Add XSD Namespace so that all xsd elements are prefix'd
-                _nantSchema.Namespaces.Add("xs",XmlSchema.Namespace);
-
-                //_nantSchema.ElementFormDefault = XmlSchemaForm.Unqualified;
-                //_nantSchema.AttributeFormDefault = XmlSchemaForm.Unqualified;
+                _nantSchema.ElementFormDefault = XmlSchemaForm.Qualified;
 
                 //initialize stuff
                 _nantComplexTypes = new HybridDictionary(tasks.Length);
@@ -309,19 +306,20 @@ namespace NAnt.Core.Tasks {
                     taskComplexTypes.Add(taskCT);
 
                     //allow any tasks...
-                    if(t.IsSubclassOf(typeof(TaskContainer)))
+                    if(t.IsSubclassOf(typeof(TaskContainer))) {
                         taskContainerComplexTypes.Add(taskCT);
+                    }
                 }
 
                 Compile();
+
                 //update the taskcontainerCTs to allow any other task and the list of tasks generated.
                 foreach(XmlSchemaComplexType ct in taskContainerComplexTypes) {
                     XmlSchemaSequence seq = ct.Particle as XmlSchemaSequence;
 
                     if (seq != null) {
                         seq.Items.Add(CreateTaskListComplexType(tasks).Particle);
-                    }
-                    else {
+                    } else {
                         logger.Error("Unable to fixup complextype with children. Particle is not XmlSchemaSequence");
                     }
                 }
@@ -329,7 +327,7 @@ namespace NAnt.Core.Tasks {
 
                 //create target ComplexType
                 _targetCT = CreateTaskListComplexType(tasks);
-                _targetCT.Name="Target";
+                _targetCT.Name = "Target";
 
                 //name attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("name", true));
@@ -408,9 +406,9 @@ namespace NAnt.Core.Tasks {
                 TaskNameAttribute[] attrs = (TaskNameAttribute[])t.GetCustomAttributes(typeof(TaskNameAttribute), false);
                 if (attrs.Length == 1) {
                     return attrs[0].Name;
-                }
-                else
+                } else {
                     return null;
+                }
             }
 
             /// <summary>
