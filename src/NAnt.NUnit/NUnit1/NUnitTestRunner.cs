@@ -236,11 +236,7 @@ namespace NAnt.NUnit1.Tasks {
                 case FormatterType.Xml:
                     retFormatter = (IResultFormatter) new XmlResultFormatter();
                     break;
-                case FormatterType.Custom:
-                    // Create based on class name
-                    break;
                 default:
-                    //retFormatter = Custom;
                     break;
             }
 
