@@ -5,6 +5,11 @@
         <title>NAnt Release Notes</title>
         <meta http-equiv="Content-Language" content="en-ca" />
         <link rel="stylesheet" type="text/css" href="style.css" />
+        <style type="text/css">
+            li {
+                margin-top: 10px;
+            }
+        </style>
     </head>
     <body>
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
@@ -29,6 +34,31 @@
             </tr>
         </table>
         <h3>0.85-beta 1 (TBD)</h3>
+        <h4>Framework&nbsp;support</h4>
+        <ul>
+            <li>
+                NAnt 0.85 adds support for the following frameworks (both as runtime and as 
+                target framework):
+                <ul>
+                    <li>
+                        Mono 1.0 (including 2.0/generics profile)
+                    </li>
+                    <li>
+                        .NET 2.0 Beta 1
+                    </li>
+                </ul>
+            </li>
+            <li>
+                By default, NAnt will now target the framework on which its running. For 
+                example, if NAnt is running on .NET 2.0, the assemblies built using the <code><a href="help/tasks/csc.html">
+                        &lt;csc&gt;</a></code> task will target .NET 2.0. Previous versions of 
+                NAnt would target .NET 1.0 by default.
+            </li>
+            <li>
+                Information on how to override the target framework, can be found <a href="faq.html#change-targetframework">
+                    here</a>.
+            </li>
+        </ul>
         <h4>Breaking&nbsp;changes</h4>
         <ul>
             <li>
@@ -46,10 +76,6 @@
             <li>
                 Improved error reporting when invalid values are specified for attibutes 
                 representing files or directories.
-            </li>
-            <li>
-                Added support for .NET 2.0 Beta 1, both as a runtime framework and as a target 
-                framework. By default, NAnt will run on .NET 2.0 Beta 1 (if available).
             </li>
             <li>
                 This release of NAnt introduces support for expressions. More information is 
@@ -78,10 +104,6 @@
                     targets</a>.
             </li>
             <li>
-                By default, NAnt targets the framework on which its running. Previous versions 
-                of NAnt targeted the .NET Framework 1.0 by default.
-            </li>
-            <li>
                 NAnt will now report unknown attributes and child elements when initializing 
                 build elements.
             </li>
@@ -89,8 +111,8 @@
         <h4>Commandline changes</h4>
         <ul>
             <li>
-                Added "-e[macs]" option, which can be used to produce logging information without 
-                adornments.
+                Added "-e[macs]" option, which can be used to produce logging information 
+                without adornments.
             </li>
             <li>
                 Added "-ext[ension]" option to allow loading of external assemblies. As a 
@@ -166,20 +188,22 @@
                 regardless of the file timestamps.
             </li>
             <li>
-                "nowarn" attribute has been deprecated in favor of the <code><a href="help/tasks/csc.html#nowarn">&lt;nowarn&gt;</a></code>
-                child element.
+                "nowarn" attribute has been deprecated in favor of the <code><a href="help/tasks/csc.html#nowarn">
+                        &lt;nowarn&gt;</a></code> child element.
             </li>
             <li>
                 Added support for suppressing/reporting specific warnings as errors using the <code>
-                    <a href="help/tasks/csc.html#warnaserror">&lt;warnaserror&gt;</a></code> child element. [.NET 2.0 or higher]
+                    <a href="help/tasks/csc.html#warnaserror">&lt;warnaserror&gt;</a></code> child 
+                element. [.NET 2.0 or higher]
             </li>
             <li>
                 Added support for package references. [Mono]
             </li>
             <li>
-                <code><a href="help/tasks/csc.html#lib">&lt;lib&gt;</a></code> element is obsolete, in favor of <code><a href="help/types/assemblyfileset.html#lib">&lt;lib&gt;</a></code>
-                child element on <code><a href="help/tasks/csc.html#references">&lt;references&gt;</a></code> and <code><a href="help/tasks/csc.html#modules">&lt;modules&gt;</a></code>
-                element.
+                <code><a href="help/tasks/csc.html#lib">&lt;lib&gt;</a></code> element is 
+                obsolete, in favor of <code><a href="help/types/assemblyfileset.html#lib">&lt;lib&gt;</a></code>
+                child element on <code><a href="help/tasks/csc.html#references">&lt;references&gt;</a></code>
+                and <code><a href="help/tasks/csc.html#modules">&lt;modules&gt;</a></code> element.
             </li>
             <li>
                 Added support for /baseaddress compiler option.
@@ -215,8 +239,8 @@
         <h5><a class="heading" href="help/tasks/get.html">&lt;get&gt;</a></h5>
         <ul>
             <li>
-                Added support for client certificates (for HTTP requests) by means of the <code><a href="help/tasks/get.html#certificates">&lt;certificates&gt;</a></code>
-                elements.
+                Added support for client certificates (for HTTP requests) by means of the <code><a href="help/tasks/get.html#certificates">
+                        &lt;certificates&gt;</a></code> elements.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/jsc.html">&lt;jsc&gt;</a></h5>
@@ -239,7 +263,8 @@
         <h5><a class="heading" href="help/tasks/link.html">&lt;link&gt;</a></h5>
         <ul>
             <li>
-                Allow <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> reference to be set for the <code><a href="help/tasks/link.html#sources">&lt;sources&gt;</a></code>
+                Allow <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> reference 
+                to be set for the <code><a href="help/tasks/link.html#sources">&lt;sources&gt;</a></code>
                 element.
             </li>
         </ul>
@@ -252,8 +277,8 @@
         <h5><a class="heading" href="help/tasks/nant.html">&lt;nant&gt;</a></h5>
         <ul>
             <li>
-                Added <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> support for specifiying build files to 
-                execute.
+                Added <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> support 
+                for specifiying build files to execute.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/ndoc.html">&lt;ndoc&gt;</a></h5>
@@ -290,11 +315,12 @@
         <h5><a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
         <ul>
             <li>
-                Simplified definition of custom functions with the <code><a href="help/tasks/script.html">&lt;script&gt;</a></code> task.
+                Simplified definition of custom functions with the <code><a href="help/tasks/script.html">
+                        &lt;script&gt;</a></code> task.
             </li>
             <li>
-                Assemblies emitted by the <code><a href="help/tasks/script.html">&lt;script&gt;</a></code> task will now also be 
-                scanned for functions and filters.
+                Assemblies emitted by the <code><a href="help/tasks/script.html">&lt;script&gt;</a></code>
+                task will now also be scanned for functions and filters.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
@@ -379,12 +405,13 @@
         <h5><a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a></h5>
         <ul>
             <li>
-                Added support for suppressing specific warnings using the <code><a href="help/tasks/vbc.html#nowarn">&lt;nowarn&gt;</a></code>
-                child element. [.NET 2.0 or higher]
+                Added support for suppressing specific warnings using the <code><a href="help/tasks/vbc.html#nowarn">
+                        &lt;nowarn&gt;</a></code> child element. [.NET 2.0 or higher]
             </li>
             <li>
                 Added support for suppressing/reporting specific warnings as errors using the <code>
-                    <a href="help/tasks/vbc.html#warnaserror">&lt;warnaserror&gt;</a></code> child element. [.NET 2.0 or higher]
+                    <a href="help/tasks/vbc.html#warnaserror">&lt;warnaserror&gt;</a></code> child 
+                element. [.NET 2.0 or higher]
             </li>
             <li>
                 Added support for generating XML documentation files, using "doc" attribute. 
@@ -398,25 +425,27 @@
                 regardless of the file timestamps.
             </li>
             <li>
-                Added <code><a href="help/tasks/vbc.html#imports">&lt;imports&gt;</a></code> child element, and deprecated "imports" 
-                attribute.
+                Added <code><a href="help/tasks/vbc.html#imports">&lt;imports&gt;</a></code> child 
+                element, and deprecated "imports" attribute.
             </li>
             <li>
-                <code><a href="help/tasks/vbc.html#lib">&lt;lib&gt;</a></code> element is obsolete, in favor of <code><a href="help/types/assemblyfileset.html#lib">&lt;lib&gt;</a></code>
-                child element on <code><a href="help/tasks/vbc.html#references">&lt;references&gt;</a></code> and <code><a href="help/tasks/vbc.html#modules">&lt;modules&gt;</a></code>
-                element.
+                <code><a href="help/tasks/vbc.html#lib">&lt;lib&gt;</a></code> element is 
+                obsolete, in favor of <code><a href="help/types/assemblyfileset.html#lib">&lt;lib&gt;</a></code>
+                child element on <code><a href="help/tasks/vbc.html#references">&lt;references&gt;</a></code>
+                and <code><a href="help/tasks/vbc.html#modules">&lt;modules&gt;</a></code> element.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/vjc.html">&lt;vjc&gt;</a></h5>
         <ul>
             <li>
-                Added support for suppressing specific warnings using the <code><a href="help/tasks/vjc.html#nowarn">&lt;nowarn&gt;</a></code>
-                child element. [.NET 2.0 or higher]
+                Added support for suppressing specific warnings using the <code><a href="help/tasks/vjc.html#nowarn">
+                        &lt;nowarn&gt;</a></code> child element. [.NET 2.0 or higher]
             </li>
             <li>
-                <code><a href="help/tasks/vjc.html#lib">&lt;lib&gt;</a></code> element is obsolete, in favor of <code><a href="help/types/assemblyfileset.html#lib">&lt;lib&gt;</a></code>
-                child element on <code><a href="help/tasks/vjc.html#references">&lt;references&gt;</a></code> and <code><a href="help/tasks/vjc.html#modules">&lt;modules&gt;</a></code>
-                element.
+                <code><a href="help/tasks/vjc.html#lib">&lt;lib&gt;</a></code> element is 
+                obsolete, in favor of <code><a href="help/types/assemblyfileset.html#lib">&lt;lib&gt;</a></code>
+                child element on <code><a href="help/tasks/vjc.html#references">&lt;references&gt;</a></code>
+                and <code><a href="help/tasks/vjc.html#modules">&lt;modules&gt;</a></code> element.
             </li>
             <li>
                 Added "rebuild" attribute, which instructs NAnt to recompile the output file 
@@ -426,13 +455,15 @@
                 Added support for /baseaddress compiler option.
             </li>
         </ul>
-        <h5><a class="heading" href="help/tasks/xmlpeek.html">&lt;xmlpeek&gt;</a> / <a class="heading" href="help/tasks/xmlpoke.html">&lt;xmlpoke&gt;</a></h5>
+        <h5><a class="heading" href="help/tasks/xmlpeek.html">&lt;xmlpeek&gt;</a> / <a class="heading" href="help/tasks/xmlpoke.html">
+                &lt;xmlpoke&gt;</a></h5>
         <ul>
             <li>
                 Added support for XPath expressions with namespace prefixes.
             </li>
         </ul>
-        <h5><a class="heading" href="help/tasks/zip.html">&lt;zip&gt;</a> / <a class="heading" href="help/tasks/unzip.html">&lt;unzip&gt;</a></h5>
+        <h5><a class="heading" href="help/tasks/zip.html">&lt;zip&gt;</a> / <a class="heading" href="help/tasks/unzip.html">
+                &lt;unzip&gt;</a></h5>
         <ul>
             <li>
                 Upgraded #ziplib to v0.80.
@@ -442,7 +473,8 @@
         <h5><a class="heading" href="help/types/assemblyfileset.html">&lt;assemblyfileset&gt;</a></h5>
         <ul>
             <li>
-                Specialized <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> for managing assembly files.
+                Specialized <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> for 
+                managing assembly files.
             </li>
         </ul>
         <h5><a class="heading" href="help/types/warnaserror.html">&lt;warnaserror&gt;</a></h5>
@@ -455,14 +487,18 @@
         <h5><a class="heading" href="help/types/fileset.html">&lt;fileset&gt;</a></h5>
         <ul>
             <li>
-                Deprecated <code><a href="help/types/fileset.html#includes">&lt;includes&gt;</a></code> and <code><a href="help/types/fileset.html#excludes">&lt;excludes&gt;</a></code> elements 
-                in favor of <code><a href="help/types/fileset.html#include">&lt;include&gt;</a></code> and <code><a href="help/types/fileset.html#exclude">&lt;exclude&gt;</a></code> elements.
+                Deprecated <code><a href="help/types/fileset.html#includes">&lt;includes&gt;</a></code>
+                and <code><a href="help/types/fileset.html#excludes">&lt;excludes&gt;</a></code>
+                elements in favor of <code><a href="help/types/fileset.html#include">&lt;include&gt;</a></code>
+                and <code><a href="help/types/fileset.html#exclude">&lt;exclude&gt;</a></code> elements.
             </li>
             <li>
-                Deprecated <code><a href="help/types/fileset.html#includesList">&lt;includesList&gt;</a></code> element in favor of <code><a href="help/types/fileset.html#includesfile">&lt;includesfile&gt;</a></code>.
+                Deprecated <code><a href="help/types/fileset.html#includesList">&lt;includesList&gt;</a></code>
+                element in favor of <code><a href="help/types/fileset.html#includesfile">&lt;includesfile&gt;</a></code>.
             </li>
             <li>
-                Added <code><a href="help/types/fileset.html#excludesfile">&lt;excludesfile&gt;</a></code> element.
+                Added <code><a href="help/types/fileset.html#excludesfile">&lt;excludesfile&gt;</a></code>
+                element.
             </li>
         </ul>
         <h4>Developer information</h4>
