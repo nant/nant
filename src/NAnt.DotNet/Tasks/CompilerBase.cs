@@ -565,20 +565,30 @@ namespace NAnt.DotNet.Tasks {
                     }
                     break;
                 default:
-                    // check if resource is localized
-                    if (resourceCulture != null) {
-                        // determine resource name
-                        manifestResourceName = resources.GetManifestResourceName(
-                            resourceFile);
-
-                        // remove culture name from name of resource
-                        int cultureIndex = manifestResourceName.LastIndexOf("." + resourceCulture.Name);
-                        manifestResourceName = manifestResourceName.Substring(0, cultureIndex) 
-                            + manifestResourceName.Substring(cultureIndex).Replace("." 
-                            + resourceCulture.Name, string.Empty);
+                    // VS.NET handles an embedded resource file named licenses.licx
+                    // in the root of the project and without culture in a special
+                    // way
+                    if (Path.GetFileName(resourceFile) == "licenses.licx") {
+                        // the manifest resource name will be <output file>.licenses
+                        // eg. TestAssembly.exe.licenses
+                        manifestResourceName = Path.GetFileName(OutputFile.FullName)
+                            + ".licenses";
                     } else {
-                        manifestResourceName = resources.GetManifestResourceName(
-                            resourceFile);
+                        // check if resource is localized
+                        if (resourceCulture != null) {
+                            // determine resource name
+                            manifestResourceName = resources.GetManifestResourceName(
+                                resourceFile);
+
+                            // remove culture name from name of resource
+                            int cultureIndex = manifestResourceName.LastIndexOf("." + resourceCulture.Name);
+                            manifestResourceName = manifestResourceName.Substring(0, cultureIndex) 
+                                + manifestResourceName.Substring(cultureIndex).Replace("." 
+                                + resourceCulture.Name, string.Empty);
+                        } else {
+                            manifestResourceName = resources.GetManifestResourceName(
+                                resourceFile);
+                        }
                     }
                     break;
             }
