@@ -73,6 +73,7 @@ namespace NAnt.VSNet {
             map.AddBool("EnableFunctionLevelLinking", "Gy");
             map.AddBool("EnableIntrinsicFunctions", "Oi");
             map.AddBool("ExceptionHandling", "EHsc");
+            map.AddBool("RuntimeTypeInfo", "GR");
             map.AddEnum("FavorSizeOrSpeed", null, null, "Ot", "Os");
             map.AddBool("GlobalOptimizations", "Og");
             map.AddEnum("InlineFunctionExpansion", null, "Ob0", "Ob1", "Ob2");
