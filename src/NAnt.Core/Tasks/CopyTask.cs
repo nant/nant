@@ -138,6 +138,10 @@ namespace SourceForge.NAnt.Tasks {
             // http://jakarta.apache.org/ant/manual/CoreTasks/copy.html
         }
 
+        /// <summary>
+        /// Executes the Copy task.
+        /// </summary>
+        /// <exception cref="BuildException">A file that has to be copied does not exist or could not be copied.</exception>
         protected override void ExecuteTask() {
             // NOTE: when working with file and directory names its useful to 
             // use the FileInfo an DirectoryInfo classes to normalize paths like:
@@ -166,7 +170,8 @@ namespace SourceForge.NAnt.Tasks {
                         FileCopyMap.Add(srcInfo.FullName, dstInfo.FullName);
                     }
                 } else {
-                    Log.WriteLine(LogPrefix + "Could not find file {0} to copy.", SourceFile);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file {0} to copy.", srcInfo.FullName);
+                    throw new BuildException(msg, Location);
                 }
             } else {
                 // Copy file set contents.
@@ -185,7 +190,7 @@ namespace SourceForge.NAnt.Tasks {
                         string dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
 
                         if(dstRelFilePath.StartsWith("\\")) {
-                            dstRelFilePath = dstRelFilePath.Substring(1);     
+                            dstRelFilePath = dstRelFilePath.Substring(1);
                         }
                         
                         // The full filepath to copy to.
@@ -199,7 +204,8 @@ namespace SourceForge.NAnt.Tasks {
                             FileCopyMap.Add(srcInfo.FullName, dstFilePath);
                         }
                     } else {
-                        Log.WriteLine(LogPrefix + "Could not find file {0} to copy.", srcInfo.FullName);
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file {0} to copy.", srcInfo.FullName);
+                        throw new BuildException(msg, Location);
                     }
                 }
             }
