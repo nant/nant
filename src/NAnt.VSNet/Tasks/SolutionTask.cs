@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,10 +20,12 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet.Tasks {
     /// <summary>
@@ -78,14 +80,53 @@ namespace NAnt.VSNet.Tasks {
     ///    </solution>
     ///     ]]>
     ///   </code>
+    ///   <para>Compiles all of the projects in the solution except for project A.</para>
+    ///   <code>
+    ///     <![CDATA[
+    ///    <solution solutionfile="test.sln" configuration="release">        
+    ///        <excludeprojects>
+    ///            <includes name="A\A.csproj" />
+    ///        </excludeprojects>
+    ///    </solution>
+    ///     ]]>
+    ///   </code>
+    ///   <para>Compiles all of the projects in the solution mapping the project at
+    ///   http://localhost/A/A.csproj to c:\inetpub\wwwroot\A\A.csproj.  This allows
+    ///   the build to work without WebDAV.</para>
+    ///   <code>
+    ///     <![CDATA[
+    ///    <solution solutionfile="test.sln" configuration="release">        
+    ///        <webmap>
+    ///            <map url="http://localhost/A/A.csproj c:\inetpub\wwwroot\A\A.csproj" />
+    ///        </webmap>
+    ///    </solution>
+    ///     ]]>
+    ///   </code>
+    ///   <para>Compiles all of the projects in the solution placing compiled outputs in c:\temp.</para>
+    ///   <code>
+    ///     <![CDATA[
+    ///    <solution solutionfile="test.sln" configuration="release" outputdir="c:\temp"/>        
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("solution")]
     public class SolutionTask : Task {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SolutionTask" /> class.
+        /// </summary>
         public SolutionTask() {
-            _strConfiguration = "";
-            _fsProjects = new FileSet();
-            _fsReferenceProjects = new FileSet();
+            _configuration = "";
+            _projects = new FileSet();
+            _referenceProjects = new FileSet();
+            _excludeProjects = new FileSet();
+            _webMaps = new WebMapCollection();
         }
+
+        #endregion Public Instance Constructors
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "Starting solution build.");
@@ -93,59 +134,79 @@ namespace NAnt.VSNet.Tasks {
             Solution sln;
             if (Verbose) {
                 Log(Level.Info, LogPrefix + "Included projects:" );
-                foreach (string strProject in _fsProjects.FileNames) {
-                    Log(Level.Info, LogPrefix + " - " + strProject);
+                foreach (string projectFile in _projects.FileNames) {
+                    Log(Level.Info, LogPrefix + " - " + projectFile);
                 }
 
                 Log(Level.Info, LogPrefix + "Reference projects:");
-                foreach (string strProject in _fsReferenceProjects.FileNames) {
-                    Log(Level.Info, LogPrefix + " - " + strProject);
+                foreach (string projectFile in _referenceProjects.FileNames) {
+                    Log(Level.Info, LogPrefix + " - " + projectFile);
                 }
             }
             
-            using (TempFileCollection tfc = new TempFileCollection()) {
-                if (_strSolutionFile == null) {
-                    sln = new Solution(new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), tfc, this);
-                } else {
-                    sln = new Solution(_strSolutionFile, new ArrayList(_fsProjects.FileNames), new ArrayList(_fsReferenceProjects.FileNames), tfc, this);
-                }
-                if (!sln.Compile(_strConfiguration, new ArrayList(), null, Verbose, false)) {
-                    throw new BuildException("Project build failed");
-                }
+            string basePath = null;
+
+            try {
+                using (TempFileCollection tfc = new TempFileCollection()) {
+                    if (_solutionFile == null) {
+                        sln = new Solution(new ArrayList(_projects.FileNames), new ArrayList(_referenceProjects.FileNames), tfc, 
+                            this, WebMaps, ExcludeProjects, OutputDir);
+                    } else {
+                        sln = new Solution(_solutionFile, new ArrayList(_projects.FileNames), 
+                            new ArrayList(_referenceProjects.FileNames), tfc, this, WebMaps, ExcludeProjects, OutputDir);
+                    }
+
+                    if (!sln.Compile(_configuration, new ArrayList(), null, Verbose, false)) {
+                        throw new BuildException("Project build failed.");
+                    }
                 
-                System.IO.Directory.Delete( tfc.BasePath, true );
+                    basePath = tfc.BasePath;
+                }
+            } finally {
+                if (basePath != null) {
+                    Log(Level.Debug, LogPrefix + "Cleaning up temp folder {0}.", basePath); 
+
+                    // force all files to have normal attributes to allow deletion
+                    DirectoryInfo di = new DirectoryInfo(basePath);
+                    foreach (FileInfo info in di.GetFiles()) {
+                        if (info.Attributes != FileAttributes.Normal) {
+                            Log(Level.Debug, LogPrefix + "File {0} has other than normal attributes.  Fixing.", info.FullName);
+                            File.SetAttributes(info.FullName, FileAttributes.Normal);
+                        }
+                    }
+
+                    // delete directory recursively
+                    Directory.Delete(basePath, true);
+                }
             }
         }
+
+        #endregion Override implementation of Task
+
+        #region Public Instance Properties
 
         /// <summary>
         /// The names of the projects to build.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Optional.
-        /// </para>
-        /// </remarks>
-        [FileSet("projects", Required=false)]
+        [FileSet("projects")]
         public FileSet Projects {
-            get { return _fsProjects; }
-            set { _fsProjects = value; }
+            get { return _projects; }
+            set { _projects = value; }
         }
 
         /// <summary>
         /// The names of the projects to scan, but not build.
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// Optional.  These projects are used to resolve project references.  These projects are
-        /// generally external to the solution being built.  References to these project's output files
-        /// are converted to use the appropriate solution configuration at build time.
-        /// 
-        /// </para>
+        /// These projects are used to resolve project references.  These projects 
+        /// are generally external to the solution being built.  References to 
+        /// these project's output files are converted to use the appropriate 
+        /// solution configuration at build time.
         /// </remarks>
-        [FileSet("referenceprojects", Required=false)]
+        [FileSet("referenceprojects")]
         public FileSet ReferenceProjects {
-            get { return _fsReferenceProjects; }
-            set { _fsReferenceProjects = value; }
+            get { return _referenceProjects; }
+            set { _referenceProjects = value; }
         }
 
         /// <summary>
@@ -153,12 +214,20 @@ namespace NAnt.VSNet.Tasks {
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Optional, can use <![CDATA[<projects>]]> list instead.
+        /// The <see cref="Projects" /> can be used instead to supply a list 
+        /// of Visual Studio.NET projects that should be built.
         /// </para>
         /// </remarks>
-        [TaskAttribute("solutionfile", Required=false)]
+        [TaskAttribute("solutionfile")]
         public string SolutionFile {
-            set { _strSolutionFile = value.ToLower(); }
+            get { return (_solutionFile != null) ? Project.GetFullPath(_solutionFile) : null; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _solutionFile = value.ToLower();
+                } else {
+                    _solutionFile = null;
+                }
+            }
         }
 
         /// <summary>
@@ -171,10 +240,55 @@ namespace NAnt.VSNet.Tasks {
         /// </remarks>
         [TaskAttribute("configuration")]
         public string Configuration {
-            set { _strConfiguration = value; }
+            get { return _configuration; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _configuration = value;
+                } else {
+                    _configuration = null;
+                }
+            }
         }
 
-        string _strSolutionFile, _strConfiguration;
-        FileSet _fsProjects, _fsReferenceProjects;
+        /// <summary>
+        /// The directory where compiled targets will be placed.  This
+        /// overrides path settings contained in the solution/project.
+        /// </summary>
+        [TaskAttribute("outputdir", Required=false)]
+        public string OutputDir {
+            set { _outputDir = value; }
+            get { return _outputDir; }
+        }
+
+        /// <summary>
+        /// WebMap of URL's to project references.
+        /// </summary>
+        [BuildElementCollection("webmap")]
+        public WebMapCollection WebMaps {
+            get { return _webMaps; }
+        }
+
+        /// <summary>
+        /// Fileset of projects to exclude.
+        /// </summary>
+        [FileSet("excludeprojects", Required=false)]
+        public FileSet ExcludeProjects {
+            get { return _excludeProjects; }
+            set { _excludeProjects = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private string _solutionFile;
+        private string _configuration;
+        private string _outputDir;
+        private FileSet _projects;
+        private FileSet _referenceProjects;
+        private FileSet _excludeProjects;
+        private WebMapCollection _webMaps;
+
+        #endregion Private Instance Fields
     }
 }
