@@ -292,9 +292,9 @@ namespace NAnt.VSNet {
                     Log(Level.Verbose, LogPrefix + "Copying references:");
 
                     foreach (Reference reference in _htReferences.Values) {
-                        Log(Level.Verbose, LogPrefix + " - " + reference.Name);
-
                         if (reference.CopyLocal) {
+                            Log(Level.Verbose, LogPrefix + " - " + reference.Name);
+
                             if (reference.IsCreated) {
                                 string program, commandLine;
                                 reference.GetCreationCommand(cs, out program, out commandLine);
