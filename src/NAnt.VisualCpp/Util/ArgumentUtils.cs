@@ -17,6 +17,8 @@
 //
 // Hani Atassi (haniatassi@users.sourceforge.net)
 
+using System;
+
 namespace NAnt.VisualCpp.Util {
     /// <summary>
     /// Groups a set of useful <see cref="string" /> manipulation methods for
@@ -32,7 +34,15 @@ namespace NAnt.VisualCpp.Util {
         /// Also duplicates trailing backslash in quoted value.
         /// </remarks>
         public static string DuplicateTrailingBackSlash(string value) {
-            bool isQuoted = value.StartsWith("\"") && value.EndsWith("\"");
+            if (value == null) {
+                throw new ArgumentNullException("value");
+            }
+
+            if (value.Length == 0) {
+                return value;
+            }
+
+            bool isQuoted = value.Length > 2 && value.StartsWith("\"") && value.EndsWith("\"");
 
             int lastIndex = (isQuoted ? value.Length - 2 : value.Length - 1);
             if (value[lastIndex] == '\\') {
@@ -48,6 +58,14 @@ namespace NAnt.VisualCpp.Util {
         /// <param name="value">The input string.</param>
         /// <returns>The result string after being processed.</returns>
         public static string FixTrailingBackSlash(string value) {
+            if (value == null) {
+                throw new ArgumentNullException("value");
+            }
+
+            if (value.Length == 0) {
+                return value;
+            }
+
             if (value.EndsWith(@"\\")) {
                 return value.Remove(value.Length - 2, 2) + @"\";
             } else if (value.EndsWith(@"\")) {
@@ -63,6 +81,10 @@ namespace NAnt.VisualCpp.Util {
         /// <param name="value">The input string.</param>
         /// <returns>The result string without trailing backslashes.</returns>
         public static string CleanTrailingBackSlash(string value) {
+            if (value == null) {
+                throw new ArgumentNullException("value");
+            }
+
             return value.TrimEnd('\\');
         }
     }
