@@ -128,7 +128,7 @@ namespace SourceForge.NAnt {
 
                 // only include location string if not empty
                 string locationString = _location.ToString();
-                if (locationString != String.Empty) {
+                if (locationString.Length != 0) {
                     message = locationString + "\n " + message;
                 }
                 return message;
