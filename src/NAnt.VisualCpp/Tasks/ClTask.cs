@@ -162,13 +162,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// The command-line arguments for the external program.
         /// </value>
         public override string ProgramArguments {
-            get {
-                if (Verbose) {
-                    return "@" + _responseFileName;
-                } else {
-                    return "/nologo @" + _responseFileName;
-                }
-            }
+            get { return "@" + "\"" + _responseFileName + "\""; }
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -308,6 +302,9 @@ namespace NAnt.VisualCpp.Tasks {
                     foreach (string filename in Sources.FileNames) {
                         writer.WriteLine("\"{0}\"", filename);
                     }
+
+                    // suppresses display of the sign-on banner                    
+                    writer.WriteLine("/nologo");
  
                     writer.Close();
 

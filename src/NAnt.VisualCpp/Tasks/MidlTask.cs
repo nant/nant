@@ -66,10 +66,10 @@ namespace NAnt.VisualCpp.Tasks {
     public class MidlTask : ExternalProgramBase {
         #region Private Instance Fields
 
+        private string _responseFileName;
         private string _acf = null;
         private string _align = null;
         private bool _appConfig = false;
-        private string _args = null;
         private string _char = null;
         private string _client = null;
         private string _cstub = null;
@@ -285,10 +285,13 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
-        /// Arguments of program to execute
+        /// Gets the command-line arguments for the external program.
         /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
         public override string ProgramArguments {
-            get { return _args; }
+            get { return "@" + "\"" + _responseFileName + "\""; }
         }
 
         /// <summary>
@@ -296,22 +299,28 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             if (NeedsCompiling()) {
-                string rspFile = Path.GetTempFileName();
+                // create temp response file to hold compiler options
+                _responseFileName = Path.GetTempFileName();
 
-                using (StreamWriter writer = new StreamWriter(rspFile)) {
-                    WriteResponseFile(writer);
+                try {
+                    using (StreamWriter writer = new StreamWriter(_responseFileName)) {
+                        WriteResponseFile(writer);
+                    }
+
+                    if (Verbose) {
+                        // display response file contents
+                        Log(Level.Info, LogPrefix + "Contents of " + _responseFileName);
+                        StreamReader reader = File.OpenText(_responseFileName);
+                        Log(Level.Info, reader.ReadToEnd());
+                        reader.Close();
+                    }
+
+                    base.ExecuteTask();
+                } finally {
+                    // make sure we delete the response file
+                    File.Delete(_responseFileName);
+                    _responseFileName = null;
                 }
-
-                if (Verbose) {
-                    // display response file contents
-                    Log(Level.Info, LogPrefix + "Contents of " + rspFile);
-                    StreamReader reader = File.OpenText(rspFile);
-                    Log(Level.Info, reader.ReadToEnd());
-                    reader.Close();
-                }
-
-                _args = "@" + rspFile;
-                base.ExecuteTask();
             }
         }
 
@@ -370,7 +379,9 @@ namespace NAnt.VisualCpp.Tasks {
         /// Writes the response file for <c>midl.exe</c>.
         /// </summary>
         private void WriteResponseFile(TextWriter writer) {
+            // suppresses display of the sign-on banner                    
             writer.WriteLine("/nologo");
+
             writer.WriteLine("/env " + _env);
 
             if ( _acf != null )

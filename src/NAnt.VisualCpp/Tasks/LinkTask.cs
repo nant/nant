@@ -118,13 +118,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// The command-line arguments for the external program.
         /// </value>
         public override string ProgramArguments {
-            get {
-                if (Verbose) {
-                    return "@" + _responseFileName;
-                } else {
-                    return "/nologo @" + _responseFileName;
-                }
-            }
+            get { return "@" + "\"" + _responseFileName + "\""; }
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -162,8 +156,9 @@ namespace NAnt.VisualCpp.Tasks {
   
                Log(Level.Info, LogPrefix + "Linking {0} files to {1}.", Sources.FileNames.Count, Path.Combine(BaseDirectory, Output));
   
-               // Create temp response file to hold compiler options
+               // create temp response file to hold compiler options
                _responseFileName = Path.GetTempFileName();
+
                StreamWriter writer = new StreamWriter(_responseFileName);
   
                try {
@@ -184,7 +179,10 @@ namespace NAnt.VisualCpp.Tasks {
                    foreach (string libdir in LibDirs.DirectoryNames) {
                        writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
                    }
-  
+
+                   // suppresses display of the sign-on banner                    
+                   writer.WriteLine("/nologo");
+
                    writer.Close();
   
                    if (Verbose) {

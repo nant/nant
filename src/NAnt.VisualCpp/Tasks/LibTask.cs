@@ -114,13 +114,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// The command-line arguments for the external program.
         /// </value>
         public override string ProgramArguments {
-            get {
-                if (Verbose) {
-                    return "@" + _responseFileName;
-                } else {
-                    return "/nologo @" + _responseFileName;
-                }
-            }
+            get { return "@" + "\"" + _responseFileName + "\""; }
         }
 
         #endregion Override implementation of ExternalProgramBase
@@ -159,6 +153,9 @@ namespace NAnt.VisualCpp.Tasks {
                 foreach (string libdir in LibDirs.DirectoryNames) {
                     writer.WriteLine("/LIBPATH:\"{0}\"", libdir);
                 }
+
+                // suppresses display of the sign-on banner                    
+                writer.WriteLine("/nologo");
 
                 writer.Close();
 
