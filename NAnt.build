@@ -151,11 +151,6 @@
         </nunit>
     </target>
 
-    <!-- build Extra task libraries -->
-    <target name="extras" depends="clean" description="">
-        <nant buildfile="Sourcesafe.build" basedir="${src.dir}\Extras\Sourcesafe\" />       
-    </target>
-    
     <target name="doc" depends="build" description="build documentation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc failonerror="false">
