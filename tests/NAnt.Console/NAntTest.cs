@@ -358,19 +358,21 @@ namespace Tests.NAnt.Console {
             try {
                 logger = ConsoleDriver.CreateLogger(badLogger);
                 Assertion.Fail("Test_CreateLogger did not throw an exception.");
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Assertion.AssertEquals(typeof(TypeLoadException), e.GetType());
             }
 
             try {
                 logger = ConsoleDriver.CreateLogger(notLogger);
                 Assertion.Fail("Test_CreateLogger did not throw an exception.");
-            } catch(Exception e) {
-#if (NET_2_0)
-                Assertion.AssertEquals(typeof(MemberAccessException), e.GetType());
-#else
-                Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());
-#endif
+            } catch (Exception e) {
+                // on .NET 2.0 or higher, instantiating an abstract class with
+                // cause a MissingMethodException to be thrown
+                if (Environment.Version.Major >= 2) {
+                    Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());
+                } else {
+                    Assertion.AssertEquals(typeof(MemberAccessException), e.GetType());
+                }
             }
         }
 
