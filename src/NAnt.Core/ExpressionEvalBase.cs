@@ -66,7 +66,7 @@ namespace NAnt.Core {
             }
         }
 
-#region Parser
+        #region Parser
 
         bool SyntaxCheckOnly() {
             return _evalMode == EvalMode.ParseOnly;
@@ -669,11 +669,15 @@ namespace NAnt.Core {
                     }
                 }
 
-                // Horrible hack to work around this mono bug:
-                // http://bugs.ximian.com/show_bug.cgi?id=53919
-                // Be sure to remove once that bug is fixed.
-                if (returnType == typeof(TimeSpan) && source.GetType() == typeof(TimeSpan)) {
-                    return (TimeSpan) source;
+                if (source.GetType() == typeof(TimeSpan) && returnType != typeof(TimeSpan)) {
+                    // implicit conversion from TimeSpan is not supported, as
+                    // TimeSpan does not implement IConvertible
+                    disallow = true;
+                }
+
+                if (returnType == typeof(TimeSpan) && !(source is TimeSpan)) {
+                    // implicit conversion to TimeSpan is not supported
+                    disallow = true;
                 }
 
                 if (returnType == typeof(string)) {
@@ -705,9 +709,11 @@ namespace NAnt.Core {
         protected string GetSimpleTypeName(Type t) {
             if (t == typeof(int)) {
                 return "int";
+            } else if (t == typeof(long)) {
+                return "long";
             } else if (t == typeof(double)) {
                 return "double";
-            } else if (t == typeof(string)) {                    
+            } else if (t == typeof(string)) {
                 return "string";
             } else if (t == typeof(bool)) {
                 return "bool";
@@ -715,18 +721,14 @@ namespace NAnt.Core {
                 return "datetime";
             } else if (t == typeof(TimeSpan)) {
                 return "timespan";
-            } else if (t == typeof(DirectoryInfo)) {
-                return "directory";
-            } else if (t == typeof(FileInfo)) {
-                return "file";
             } else {
                 return t.FullName;
             }
         }
-        
-#endregion
 
-#region Overridables
+        #endregion Parser
+
+        #region Overridables
 
         protected abstract object EvaluateFunction(string functionName, object[] args);
         protected abstract ParameterInfo[] GetFunctionParameters(string functionName);
@@ -736,6 +738,7 @@ namespace NAnt.Core {
             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                 "Unexpected token '{0}'.", _tokenizer.CurrentToken), _tokenizer.CurrentPosition);
         }
-#endregion
+
+        #endregion Overridables
     }
 }
