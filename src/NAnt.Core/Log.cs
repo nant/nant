@@ -719,6 +719,7 @@ namespace NAnt.Core {
     /// Used to store information about a build, to allow better reporting to 
     /// the user.
     /// </summary>
+    [Serializable()]
     public class BuildReport {
         /// <summary>
         /// Errors encountered so far.
