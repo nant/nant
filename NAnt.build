@@ -80,6 +80,7 @@
                 <includes name="NDoc.Core.dll"/>
                 <includes name="NDoc.Documenter.Msdn.dll"/>
 				<includes name="NUnitCore.dll"/>
+				<includes name="NZipLib.dll"/>
             </fileset>
         </copy>
 
@@ -94,6 +95,7 @@
                 <includes name="${build.dir}/NDoc.Core.dll"/>
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
+                <includes name="${build.dir}/NZipLib.dll"/>
             </references>
             <arg value="/debug"/>
             <arg value="/nowarn:1591"/>
