@@ -20,6 +20,7 @@
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
+                <include name="${build.dir}/bin/log4net.dll" />
                 <include name="System.Xml.dll" />
             </references>
         </csc>

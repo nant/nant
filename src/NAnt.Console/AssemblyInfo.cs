@@ -21,6 +21,14 @@
 
 using System.Reflection;
 
+// Configure log4net using the application configuration file 
+// (AppDomain.CurrentDomain.SetupInformation.ConfigurationFile).
+// The application configuration file will be directly accessed 
+// by log4net (not using the System.Configuration namespace).
+// The log4net configuration will be reloaded whenever the
+// configuration file is changed.
+[assembly: log4net.Config.XmlConfigurator(Watch=true)]
+
 // This will not compile with Visual Studio.  If you want to build a signed
 // executable use the NAnt build file.  To build under Visual Studio just
 // exclude this file from the build.
