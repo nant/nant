@@ -71,13 +71,13 @@ namespace NAnt.Core.Tasks {
     public class AttribTask : Task {
         #region Private Instance Fields
 
-        private string _fileName = null;
+        private FileInfo _file;
         private FileSet _fileset = new FileSet();
-        private bool _archiveAttrib = false;
-        private bool _hiddenAttrib = false;
-        private bool _normalAttrib = false;
-        private bool _readOnlyAttrib = false;
-        private bool _systemAttrib = false;
+        private bool _archiveAttrib;
+        private bool _hiddenAttrib;
+        private bool _normalAttrib;
+        private bool _readOnlyAttrib;
+        private bool _systemAttrib;
 
         #endregion Private Instance Fields
 
@@ -88,9 +88,9 @@ namespace NAnt.Core.Tasks {
         /// provided as an alternate to using the task's fileset.
         /// </summary>
         [TaskAttribute("file")]
-        public string FileName {
-            get { return _fileName != null ? Project.GetFullPath(_fileName) : null; }
-            set { _fileName = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo AttribFile {
+            get { return _file; }
+            set { _file = value; }
         }
 
         /// <summary>
@@ -159,8 +159,8 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             // add the shortcut filename to the file set
-            if (FileName != null) {
-                AttribFileSet.Includes.Add(FileName);
+            if (AttribFile != null) {
+                AttribFileSet.Includes.Add(AttribFile.FullName);
             }
 
             // gather the information needed to perform the operation

@@ -68,15 +68,15 @@ namespace NAnt.Core.Tasks {
     public class CopyTask : Task {
         #region Private Instance Fields
 
-        private string _sourceFile = null;
-        private string _toFile = null;
-        private string _toDirectory = null;
-        private bool _overwrite = false;
-        private bool _flatten = false;
+        private FileInfo _sourceFile;
+        private FileInfo _toFile;
+        private DirectoryInfo _toDirectory;
+        private bool _overwrite;
+        private bool _flatten;
         private FileSet _fileset = new FileSet();
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
-        private string _encodingName = null;
+        private string _encodingName;
 
         #endregion Private Instance Fields
 
@@ -86,27 +86,27 @@ namespace NAnt.Core.Tasks {
         /// The file to copy.
         /// </summary>
         [TaskAttribute("file")]
-        public virtual string SourceFile {
-            get { return (_sourceFile != null) ? Project.GetFullPath(_sourceFile) : null; }
-            set { _sourceFile = StringUtils.ConvertEmptyToNull(value); }
+        public virtual FileInfo SourceFile {
+            get { return _sourceFile; }
+            set { _sourceFile = value; }
         }
 
         /// <summary>
         /// The file to copy to.
         /// </summary>
         [TaskAttribute("tofile")]
-        public virtual string ToFile {
-            get { return (_toFile != null) ? Project.GetFullPath(_toFile) : null; }
-            set { _toFile = StringUtils.ConvertEmptyToNull(value); }
+        public virtual FileInfo ToFile {
+            get { return _toFile; }
+            set { _toFile = value; }
         }
 
         /// <summary>
         /// The directory to copy to.
         /// </summary>
         [TaskAttribute("todir")]
-        public virtual string ToDirectory {
-            get { return (_toDirectory != null) ? Project.GetFullPath(_toDirectory) : null; }
-            set { _toDirectory = StringUtils.ConvertEmptyToNull(value); }
+        public virtual DirectoryInfo ToDirectory {
+            get { return _toDirectory; }
+            set { _toDirectory = value; }
         }
 
         /// <summary>
@@ -249,37 +249,35 @@ namespace NAnt.Core.Tasks {
             
             // copy a single file.
             if (SourceFile != null) {
-                FileInfo srcInfo = new FileInfo(SourceFile);
-                if (srcInfo.Exists) {
+                if (SourceFile.Exists) {
                     FileInfo dstInfo = null;
                     if (ToFile != null) {
-                        dstInfo = new FileInfo(ToFile);
+                        dstInfo = ToFile;
                     } else {
-                        string dstFilePath = Path.Combine(ToDirectory, srcInfo.Name);
+                        string dstFilePath = Path.Combine(ToDirectory.FullName, 
+                            SourceFile.Name);
                         dstInfo = new FileInfo(dstFilePath);
                     }
 
                     // do the outdated check
-                    bool outdated = (!dstInfo.Exists) || (srcInfo.LastWriteTime > dstInfo.LastWriteTime);
+                    bool outdated = (!dstInfo.Exists) || (SourceFile.LastWriteTime > dstInfo.LastWriteTime);
 
                     if (Overwrite || outdated) {
                         // add to a copy map of absolute verified paths
-                        FileCopyMap.Add(srcInfo.FullName, dstInfo.FullName);
+                        FileCopyMap.Add(SourceFile.FullName, dstInfo.FullName);
                         if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
                             File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
                         }
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not find file {0} to copy.", srcInfo.FullName), 
+                        "Could not find file '{0}' to copy.", SourceFile.FullName), 
                         Location);
                 }
             } else { // copy file set contents.
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = new DirectoryInfo(CopyFileSet.BaseDirectory);
                 
-                DirectoryInfo dstBaseInfo = new DirectoryInfo(ToDirectory);
-
                 // if source file not specified use fileset
                 foreach (string pathname in CopyFileSet.FileNames) {
                     FileInfo srcInfo = new FileInfo(pathname);
@@ -298,7 +296,7 @@ namespace NAnt.Core.Tasks {
                         }
                         
                         // The full filepath to copy to.
-                        string dstFilePath = Path.Combine(dstBaseInfo.FullName, dstRelFilePath);
+                        string dstFilePath = Path.Combine(ToDirectory.FullName, dstRelFilePath);
                         
                         // do the outdated check
                         FileInfo dstInfo = new FileInfo(dstFilePath);
@@ -312,7 +310,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Could not find file {0} to copy.", srcInfo.FullName), 
+                            "Could not find file '{0}' to copy.", srcInfo.FullName), 
                             Location);
                     }
                 }
@@ -331,7 +329,7 @@ namespace NAnt.Core.Tasks {
                         }
 
                         // The full filepath to copy to.
-                        string destinationDirectory = Path.Combine(dstBaseInfo.FullName, dstRelPath);
+                        string destinationDirectory = Path.Combine(ToDirectory.FullName, dstRelPath);
                         if (!Directory.Exists(destinationDirectory)) {
                             Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
                             Directory.CreateDirectory(destinationDirectory);
@@ -363,8 +361,8 @@ namespace NAnt.Core.Tasks {
                 // loop thru our file list
                 foreach (string sourceFile in FileCopyMap.Keys) {
                     string destinationFile = (string) FileCopyMap[sourceFile];
-                    if (Flatten){
-                        destinationFile = Path.Combine(ToDirectory, 
+                    if (Flatten) {
+                        destinationFile = Path.Combine(ToDirectory.FullName, 
                             Path.GetFileName(destinationFile));
                     }
                     if (sourceFile == destinationFile) {
