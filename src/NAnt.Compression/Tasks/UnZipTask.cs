@@ -55,17 +55,17 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         [TaskAttribute("zipfile", Required=true)]
         public string ZipFileName {
-            get { return Project.GetFullPath(_zipfile); }
-            set { _zipfile = value; }
+            get { return (_zipfile != null) ? Project.GetFullPath(_zipfile) : null; }
+            set { _zipfile = SetStringValue(value); }
         }
 
         /// <summary>
         /// The zip file to use.
         /// </summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDir {
-            get { return Project.GetFullPath(_toDir ); }
-            set {_toDir = value; }
+        public string ToDirectory {
+            get { return Project.GetFullPath(_toDir); }
+            set { _toDir = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties
@@ -77,11 +77,11 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             ZipInputStream s = new ZipInputStream(File.OpenRead(ZipFileName));
-            Log(Level.Info, LogPrefix + "Unzipping {0} to {1} ({2} bytes).", _zipfile, _toDir, s.Length);
+            Log(Level.Info, LogPrefix + "Unzipping {0} to {1} ({2} bytes).", ZipFileName, ToDirectory, s.Length);
             ZipEntry theEntry;
-            while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName      = Path.GetFileName(theEntry.Name);
-                Log(Level.Verbose, "Extracting {0} to {1}.", theEntry.Name, _toDir);
-                // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(ToDir, directoryName));
+            while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName = Path.GetFileName(theEntry.Name);
+                Log(Level.Verbose, "Extracting {0} to {1}.", theEntry.Name, ToDirectory);
+                // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(ToDirectory, directoryName));
                 if (fileName != null && fileName.Length != 0) {                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));                    FileStream streamWriter = fi.Create();                    int size = 2048;                    byte[] data = new byte[2048];
                     while (true) {                        size = s.Read(data, 0, data.Length);                        if (size > 0) {                            streamWriter.Write(data, 0, size);                        } else {                            break;                        }                    }
                     streamWriter.Close();                    fi.LastWriteTime = theEntry.DateTime;                }            }            s.Close();
