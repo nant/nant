@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
     /// <attrib normal="true">
     ///     <fileset>
     ///         <includes name="**/*.exe" />
-    ///         <includes name="**/*.dll" />
+    ///         <includes name="bin" />
     ///     </fileset>
     /// </attrib>
     ///     ]]>
@@ -178,33 +178,36 @@ namespace NAnt.Core.Tasks {
                 AttribFileSet.Includes.Add(File.FullName);
             }
 
-            // add the shortcut filename to the file set
-            if (File != null) {
-                AttribFileSet.Includes.Add(File.FullName);
+            if (AttribFileSet.FileNames.Count > 0) {
+                // determine attributes to set on files
+                FileAttributes fileAttributes = GetFileAttributes();
+
+                // display build log message
+                Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", 
+                    AttribFileSet.FileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
+
+                // perform operation on files
+                foreach (string path in AttribFileSet.FileNames) {
+                    SetFileAttributes(path, fileAttributes);
+                }
             }
 
-            // determine attributes to set on files
-            FileAttributes fileAttributes = GetFileAttributes();
+            if (AttribFileSet.DirectoryNames.Count > 0) {
+                // determine attributes to set on directories
+                FileAttributes directoryAttributes = GetDirectoryAttributes();
 
-            // display build log message
-            Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", 
-                AttribFileSet.FileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
+                // display build log message
+                Log(Level.Info, LogPrefix + "Setting attributes for {0} directories to {1}.", 
+                    AttribFileSet.DirectoryNames.Count, directoryAttributes.ToString(CultureInfo.InvariantCulture));
 
-            // perform operation on files
-            foreach (string path in AttribFileSet.FileNames) {
-                SetFileAttributes(path, fileAttributes);
+                // perform operation on directories
+                foreach (string path in AttribFileSet.DirectoryNames) {
+                    SetDirectoryAttributes(path, directoryAttributes);
+                }
             }
 
-            // determine attributes to set on directories
-            FileAttributes directoryAttributes = GetDirectoryAttributes();
-
-            // display build log message
-            Log(Level.Info, LogPrefix + "Setting attributes for {0} directories to {1}.", 
-                AttribFileSet.DirectoryNames.Count, directoryAttributes.ToString(CultureInfo.InvariantCulture));
-
-            // perform operation on directories
-            foreach (string path in AttribFileSet.DirectoryNames) {
-                SetDirectoryAttributes(path, directoryAttributes);
+            if (AttribFileSet.FileNames.Count == 0 && AttribFileSet.DirectoryNames.Count == 0) {
+                Log(Level.Verbose, "No matching files or directories found.");
             }
         }
 
