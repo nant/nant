@@ -20,7 +20,7 @@ clean:
 	if exist build rmdir /S /Q build
 
 install: build-bootstrap
-	$(NANT) -f:NAnt.build install -D:install.prefix=$(prefix)
+	$(NANT) -f:NAnt.build install -D:install.prefix="$(prefix)"
 	
 build-bootstrap: setup bootstrap\NAnt.exe bootstrap\NAnt.Core.dll bootstrap\NAnt.DotNetTasks.dll bootstrap\NAnt.CompressionTasks.dll bootstrap\NAnt.Win32Tasks.dll
 	
