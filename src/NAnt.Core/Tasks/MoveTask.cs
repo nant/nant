@@ -129,7 +129,8 @@ namespace NAnt.Core.Tasks {
                             Log(Level.Verbose, LogPrefix + "Moving {0} to {1}.", sourcePath, destinationPath);
                             // IM look into how Ant does this for directories
 
-                            FileUtils.MoveFile(sourcePath, destinationPath, Encoding, FilterSets);
+                            // move the file
+                            File.Move(sourcePath, destinationPath);
                         }
                     } catch (IOException ioe) {
                         string msg = String.Format(CultureInfo.InvariantCulture, "Failed to move {0} to {1}\n{2}", sourcePath, destinationPath, ioe.ToString());

@@ -76,7 +76,6 @@ namespace NAnt.Core.Tasks {
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
         private string _encodingName = null;
-        private FilterSetCollection _filtersets = new FilterSetCollection();
 
         #endregion Private Instance Fields
 
@@ -148,15 +147,6 @@ namespace NAnt.Core.Tasks {
         public string EncodingName {
             get { return _encodingName; }
             set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
-        /// The filtersets being applied to this operation.
-        /// </summary>
-        [BuildElementCollection("filtersets", "filterset")]
-        public FilterSetCollection FilterSets {
-            get { return _filtersets; }
-            set { _filtersets = value; }
         }
 
         #endregion Public Instance Properties
@@ -337,7 +327,8 @@ namespace NAnt.Core.Tasks {
                             Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
                         }
 
-                        FileUtils.CopyFile(sourceFile, destinationFile, Encoding, FilterSets);
+                        // actually copy the file
+                        File.Copy(sourceFile, destinationFile, true);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Cannot copy {0} to {1}.", sourceFile, destinationFile), 
