@@ -1316,13 +1316,21 @@ namespace NAnt.Core {
            
                 // if there is a getter, then get the current instance of the object, and use that
                 if (getter != null) {
-                    childElement = (Element) propInf.GetValue(Element, null);
+                    try {
+                        childElement = (Element) propInf.GetValue(Element, null);
+                    } catch (InvalidCastException) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "Property \"{0}\" for class \"{1}\" is backed by"
+                            + " \"{2}\" which does not derive from \"{3}\".", 
+                            propInf.Name, Element.GetType().FullName, propInf.PropertyType.FullName, 
+                            typeof(Element).FullName), Location);
+                    }
                     if (childElement == null) {
                         if (setter == null) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 "Property {0} cannot return null (if there is"
                                 + " no set method) for class {1}", propInf.Name, 
-                                this.GetType().FullName), Location);
+                                Element.GetType().FullName), Location);
                         } else {
                             // fake the getter as null so we process the rest like there is no getter
                             getter = null;
