@@ -92,7 +92,7 @@ namespace NAnt.VSNet {
         /// Gets or sets the unique identifier of the VS.NET project.
         /// </summary>
         public override string Guid {
-            get { return _projectSettings.Guid; }
+            get { return ProjectSettings.Guid; }
             set { throw new InvalidOperationException( "It is not allowed to change the GUID of a C#/VB.NET project" ); }
         }
 
@@ -216,18 +216,26 @@ namespace NAnt.VSNet {
                         }
                     }
                 } else {
-                    if (buildAction == "Compile") {
-                        _sourceFiles[sourceFile] = null;
-                    } else if (buildAction == "EmbeddedResource") {
-                        FileInfo resourceFile = new FileInfo(sourceFile);
-                        if (resourceFile.Exists && resourceFile.Extension == ".resx" && resourceFile.Length == 0) {
-                            Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resx '{0}'.", 
-                                resourceFile.FullName);
-                        } else {
-                            string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                            Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask);
-                            _htResources[r.InputFile] = r;
-                        }
+                    switch (buildAction) {
+                        case "Compile":
+                            _sourceFiles[sourceFile] = null;
+                            break;
+                        case "EmbeddedResource":
+                            FileInfo resourceFile = new FileInfo(sourceFile);
+                            if (resourceFile.Exists && resourceFile.Extension == ".resx" && resourceFile.Length == 0) {
+                                Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resx '{0}'.", 
+                                    resourceFile.FullName);
+                            } else {
+                                string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
+                                Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask);
+                                _htResources[r.InputFile] = r;
+                            }
+                            break;
+                        case "None":
+                            if (elemFile.GetAttribute("RelPath") == "App.config") {
+                                _appConfigFile = new FileInfo(sourceFile);
+                            }
+                            break;
                     }
                 }
             }
@@ -273,7 +281,7 @@ namespace NAnt.VSNet {
                             ProjectSettings.ApplicationIcon.FullName);
                     }
 
-                    if (_projectSettings.Type == ProjectType.VBNet) {
+                    if (ProjectSettings.Type == ProjectType.VBNet) {
                         sw.WriteLine(_imports);
                     }
 
@@ -428,19 +436,11 @@ namespace NAnt.VSNet {
                 }
 
                 ProcessStartInfo psi = null;
-                if (_projectSettings.Type == ProjectType.CSharp) {
-                    psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
-                }
-
-                if (_projectSettings.Type == ProjectType.VBNet) {
-                    psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
-                }
-
-                psi.UseShellExecute = false;
-                psi.RedirectStandardOutput = true;
 
                 switch (ProjectSettings.Type) {
                     case ProjectType.CSharp:
+                        psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
+
                         // Visual C#.NET uses the <project dir>\obj\<configuration> 
                         // as working directory, so we should do the same to make 
                         // sure relative paths are resovled correctly 
@@ -454,6 +454,8 @@ namespace NAnt.VSNet {
                         psi.WorkingDirectory = objConfigDir.FullName;
                         break;
                     case ProjectType.VBNet:
+                        psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
+
                         // Visual Basic.NET uses the directory from which VS.NET 
                         // was launched as working directory, the closest match
                         // and best behaviour for us is to use the <solution dir>
@@ -467,6 +469,9 @@ namespace NAnt.VSNet {
                         }
                         break;
                 }
+
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
 
                 // start compiler
                 Process p = Process.Start(psi);
@@ -499,16 +504,19 @@ namespace NAnt.VSNet {
                     if (_isWebProject) {
                         Log(Level.Verbose, LogPrefix + "Uploading output files...");
                         WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                        //wdc.DeleteFile( cs.FullOutputFile, cs.RelativeOutputPath.Replace(@"\", "/") + _ps.OutputFile );
-                        wdc.UploadFile(cs.OutputPath, cs.RelativeOutputDir.Replace(@"\", "/") + _projectSettings.OutputFileName);
+                        wdc.UploadFile(cs.OutputPath, cs.RelativeOutputDir.Replace(@"\", "/") 
+                            + ProjectSettings.OutputFileName);
                     }
 
-                    // Copy any extra files over
+                    // copy any extra files over
                     foreach (string extraOutputFile in cs.ExtraOutputFiles) {
+                        Log(Level.Verbose, LogPrefix + "Deploying extra output files...");
+
                         FileInfo sourceFile = new FileInfo(extraOutputFile);
                         if (_isWebProject) {
                             WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                            wdc.UploadFile(extraOutputFile, cs.RelativeOutputDir.Replace(@"\", "/") + sourceFile.Name);
+                            wdc.UploadFile(extraOutputFile, cs.RelativeOutputDir.Replace(@"\", "/") 
+                                + sourceFile.Name);
                         } else {
                             FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
                                 sourceFile.Name));
@@ -529,12 +537,43 @@ namespace NAnt.VSNet {
                             sourceFile.CopyTo(destFile.FullName, true);
                         }
                     }
+
+                    // deploy the application configuration file, if available
+                    if (_appConfigFile != null) {
+                        Log(Level.Verbose, LogPrefix + "Deploying application configuration file...");
+
+                        if (_isWebProject) {
+                            WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
+                            wdc.UploadFile(_appConfigFile.FullName, cs.RelativeOutputDir.Replace(@"\", "/") 
+                                + ProjectSettings.OutputFileName + ".config");
+                        } else {
+                            FileInfo deployedConfigFile = new FileInfo(Path.Combine(
+                                cs.OutputDir.FullName, ProjectSettings.OutputFileName 
+                                + ".config"));
+
+                            if (deployedConfigFile.Exists) {
+                                // only copy the file if the source file is more 
+                                // recent than the destination file
+                                if (FileSet.FindMoreRecentLastWriteTime(_appConfigFile.FullName, deployedConfigFile.LastWriteTime) != null) {
+                                    // make sure the destination file is writable
+                                    deployedConfigFile.Attributes = FileAttributes.Normal;
+
+                                    // copy the file and overwrite the destination file
+                                    // if it already exists
+                                    _appConfigFile.CopyTo(deployedConfigFile.FullName, true);
+                                }
+                            } else {
+                                // copy the file, no need to overwrite destination file
+                                _appConfigFile.CopyTo(deployedConfigFile.FullName, false);
+                            }
+                        }
+                    }
                 }
 
                 #region Process culture-specific resource files
 
                 if (bSuccess && haveCultureSpecificResources) {
-                    Log(Level.Verbose, LogPrefix + "Compiling satellite resources:");
+                    Log(Level.Verbose, LogPrefix + "Compiling satellite assemblies:");
                     Hashtable cultures = new Hashtable();
                     foreach (Resource resource in _htResources.Values) {
                         // ignore resource files NOT associated with a culture
@@ -567,11 +606,11 @@ namespace NAnt.VSNet {
                         Directory.CreateDirectory(satellitePath);
                         satellitePath = Path.Combine(satellitePath, string.Format(
                             CultureInfo.InvariantCulture, "{0}.resources.dll", 
-                            _projectSettings.AssemblyName));
+                            ProjectSettings.AssemblyName));
                         al.OutputFile = new FileInfo(satellitePath);
                         al.OutputTarget = "lib";
                         al.Culture = culture;
-                        al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, _projectSettings.OutputFileName));
+                        al.TemplateFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, ProjectSettings.OutputFileName));
                         foreach (Resource resource in resFiles) {
                             resource.Compile(cs);
                             // add resources to embed 
@@ -620,7 +659,7 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         private bool PreBuild(ConfigurationSettings cs) {
-            string buildCommandLine = _projectSettings.PreBuildEvent;
+            string buildCommandLine = ProjectSettings.PreBuildEvent;
             Log(Level.Debug, LogPrefix + "PreBuild commandline: {0}", buildCommandLine);
             // check if there are pre build commands to be run
             if (buildCommandLine != null) {
@@ -630,7 +669,7 @@ namespace NAnt.VSNet {
                 using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat"))) {
                     sw.WriteLine("@echo off");
                     // replace any VS macros in the command line with real values
-                    buildCommandLine = ReplaceMacros(_projectSettings, cs, buildCommandLine);
+                    buildCommandLine = ReplaceMacros(ProjectSettings, cs, buildCommandLine);
                     // handle linebreak charaters
                     buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
                     sw.WriteLine(buildCommandLine);
@@ -649,7 +688,7 @@ namespace NAnt.VSNet {
         }
 
         private bool PostBuild(ConfigurationSettings cs, bool bCompileSuccess, bool bOutputUpdated) {
-            string buildCommandLine = _projectSettings.PostBuildEvent;
+            string buildCommandLine = ProjectSettings.PostBuildEvent;
             Log(Level.Debug, LogPrefix + "PostBuild commandline: {0}", buildCommandLine);
             // check if there are post build commands to be run
             if (buildCommandLine != null) {
@@ -658,7 +697,7 @@ namespace NAnt.VSNet {
                 using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat"))) {
                     sw.WriteLine("@echo off");
                     // replace any VS macros in the command line with real values
-                    buildCommandLine = ReplaceMacros(_projectSettings, cs, buildCommandLine);
+                    buildCommandLine = ReplaceMacros(ProjectSettings, cs, buildCommandLine);
                     // handle linebreak charaters
                     buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
                     sw.WriteLine(buildCommandLine);
@@ -671,7 +710,7 @@ namespace NAnt.VSNet {
                 }
                 bool bBuildEventSuccess;
                 // there are three different settings for when the PostBuildEvent should be run
-                switch (_projectSettings.RunPostBuildEvent) {
+                switch (ProjectSettings.RunPostBuildEvent) {
                     case "OnBuildSuccess":
                         // post-build event will run if the build succeeds. Thus, 
                         // the event will even run for a project that is up-to-date, 
@@ -911,8 +950,15 @@ namespace NAnt.VSNet {
         /// </remarks>
         private Hashtable _sourceFiles;
 
+        /// <summary>
+        /// If available, holds the application configuration file of the project, 
+        /// which should be deployed to the output directory.
+        /// </summary>
+        private FileInfo _appConfigFile;
+
         private Hashtable _htResources;
         private Hashtable _htAssemblies;
+
         private string _imports;
         private bool _isWebProject;
         private string _projectPath;
