@@ -1,15 +1,15 @@
 <?xml version="1.0" ?>
-<project name="nant" default="nightly" xmlns-ds="http://nant.sourceforge.net/schema/nant-current.xsd">
+<project name="nant" default="nightly">
     <!-- set project.version to current date/time in yyyyMMdd format -->
     <tstamp property="project.version" pattern="yyyyMMdd" />
     <property name="sf.net.ssh.server" value="shell1.sf.net" />
     <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs" />
-    <!-- include master build file -->
-    <include buildfile="nant.build" />
     <!-- retrieve system information and environment variables -->
     <sysinfo />
     <!-- setup property that holds partial path to be used by scp -->
     <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}" />
+    <!-- include master build file -->
+    <include buildfile="nant.build" />
     <!-- Perform a 'nightly' build, and update the version of NAnt that is executing -->
     <target name="nightly" depends="package" description="Perform a 'nightly' package, and updates the version of NAnt that is executing.">
         <!-- copy zipped nightly build to sourceforge -->
@@ -29,7 +29,7 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/builds" />
         </exec>
-        <!-- copy the build to sourceforge -->        
+        <!-- copy the build to sourceforge -->
         <exec workingdir="${execpath}" program="scp">
             <arg value="${execfilename}" />
             <arg value="${serverpart}/nightly/builds/${execfilename}" />
@@ -48,8 +48,9 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/schema" />
         </exec>
-        <!-- copy the schema file to sourceforge -->        
+        <!-- copy the schema file to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/schema" program="scp">
+            <arg value="-C" />
             <arg value="${project.name}-${project.version}.xsd" />
             <arg value="${serverpart}/nightly/schema" />
         </exec>
@@ -67,9 +68,15 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/help" />
         </exec>
-        <!-- copy the help to sourceforge -->                
+        <!-- try to remove existing files and directories -->
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="rm -R --force ${sf.net.build.path}/nightly/help/*" />
+        </exec>
+        <!-- copy the help to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/doc/help" program="scp">
             <arg value="-r" />
+            <arg value="-C" />
             <arg value="*" />
             <arg value="${serverpart}/nightly/help" />
         </exec>
