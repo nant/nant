@@ -1,5 +1,4 @@
-//
-// NAntContrib
+// NAnt - A .NET build tool
 // Copyright (C) 2001-2002 Gerry Shaw
 //
 //
@@ -20,11 +19,12 @@
 
 // Joe Jones (joejo@microsoft.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Klemen Zagar (klemen@zagar.ws)
+// Ian MacLean (ian_maclean@another.com)
 
 using System;
 using System.IO;
 using System.Text;
-
 using SourceForge.NAnt;
 using SourceForge.NAnt.Tasks;
 using SourceForge.NAnt.Attributes;
@@ -46,9 +46,10 @@ namespace SourceForge.NAnt.Tasks {
 
         string _arguments;
         string _input = null; 
-        string _output = null;
-        bool _compile = false;
+        string _output = null;        
         FileSet _resources = new FileSet();
+        string _targetExt = "resources";
+        string _toDir = "";
 
         /// <summary>Input file to process.</summary>
         [TaskAttribute("input", Required=false)]
@@ -58,15 +59,18 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("output", Required=false)]
         public string Output { get { return _output; } set {_output = value;} }
 
-        /// <summary>If true use the fileset to determine the list of files to convert (<c>/compile</c> flag).</summary>
-        [TaskAttribute("compile")]
-        [BooleanValidator()]
-        public bool Compile { get { return _compile; } set {_compile = value;} }
+        /// <summary>The target type ( usually resources).</summary>
+        [TaskAttribute("target", Required=false)]
+        public string TargetExt { get { return _targetExt; } set {_targetExt = value;} }
 
+        /// <summary>The directory to which outputs will be stored.</summary>
+        [TaskAttribute("todir", Required=false)]
+        public string ToDirectory { get { return _toDir; } set {_toDir = value;} }
+       
         /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
         [FileSet("resources")]
-        public FileSet Resources { get { return _resources; } }
-
+		public FileSet Resources { get { return _resources; } set { _resources = value; } }
+                           
         public override string ProgramFileName { get { return Name; } }
 
         public override string ProgramArguments { get { return _arguments; } }
@@ -74,81 +78,88 @@ namespace SourceForge.NAnt.Tasks {
         protected virtual void WriteOptions(TextWriter writer) {
         }
 
-        protected string GetOutputPath() {
-            return Path.GetFullPath(Path.Combine(BaseDirectory, Output));
+        protected virtual bool NeedsCompiling(string input, string output) {
+              // return true as soon as we know we need to compile
+  
+              FileInfo outputFileInfo = new FileInfo(output);
+              if (!outputFileInfo.Exists) {
+                  return true;
+              }
+  
+              FileInfo inputFileInfo = new FileInfo(input);
+              if (!inputFileInfo.Exists) {
+                  return true;
+              }
+  
+              if (outputFileInfo.LastWriteTime < inputFileInfo.LastWriteTime) {
+                  return true;
+              }
+  
+              // if we made it here then we don't have to recompile
+              return false;
         }
 
-        protected string GetInputPath() {
-            return Path.GetFullPath(Path.Combine(BaseDirectory, Input));
+        protected void AppendArgument(string s) {
+            _arguments += s;
         }
-
-        protected virtual bool NeedsCompiling() {
-            // return true as soon as we know we need to compile
-
-            FileInfo outputFileInfo = new FileInfo(GetOutputPath());
-            if (!outputFileInfo.Exists) {
-                return true;
-            }
-
-            FileInfo inputFileInfo = new FileInfo(GetInputPath());
-            if (!inputFileInfo.Exists) {
-                return true;
-            }
-
-            if (outputFileInfo.LastWriteTime < inputFileInfo.LastWriteTime) {
-                return true;
-            }
-
-            // if we made it here then we don't have to recompile
-            return false;
-        }
-
+        
         protected override void ExecuteTask() {
-            if (NeedsCompiling()) {
-                // create temp response file to hold compiler options
-                StringBuilder sb = new StringBuilder ();
-                StringWriter writer = new StringWriter ( sb );
-
-                try {
-                    Log.WriteLine(LogPrefix + "Compiling {0} to {1}", GetInputPath(), GetOutputPath());
-
-                    // specific compiler options
-                    WriteOptions(writer);
-
-                    // Microsoft common compiler options
-                    if (Compile) {
-                        bool addComma = false;
-                        writer.Write(" /compile" );
-
-                        foreach (string fileName in Resources.FileNames) {
-                            if ( addComma ) {
-                                writer.Write(",{0}",fileName );
-                            } else {
-                                writer.Write("{0}",fileName );
-                                addComma = true;
-                            }
+            _arguments = "";
+            if (Resources.FileNames.Count > 0) {
+                foreach ( string filename in Resources.FileNames ) {
+                    string outputFile = Path.ChangeExtension( filename, TargetExt );
+                    if (NeedsCompiling (filename, outputFile)) {
+                        if (_arguments.Length == 0) {
+                            AppendArgument ("/compile");
                         }
-                    } else {
-                        writer.Write(" \"{0}\"", Input );
+                        AppendArgument (String.Format(" \"{0},{1}\"", filename, outputFile));
                     }
+                }
+                            
+            } else {
+                // Single file situation
+                if (Input == null)
+                    throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
+                    
+                string inputFile = Path.GetFullPath(Path.Combine (BaseDirectory, Input));
+                string outputFile;
+                               
+                if (Output != null) {
+                    if (ToDirectory == null)
+                        ToDirectory = BaseDirectory;
+                        
+                    outputFile = Path.GetFullPath(
+                        Path.Combine (ToDirectory, Output));
+                } else
+                    outputFile = Path.ChangeExtension (inputFile, TargetExt );
 
-                    writer.Write(" \"{0}\"", Output );
-
-                    // Make sure to close the response file otherwise contents
-                    // will not be written to disc and EXecuteTask() will fail.
-                    writer.Close();
-                    _arguments = sb.ToString ();
-
-                    // display response file contents
-                    Log.WriteLineIf(Verbose, _arguments);
-
-                    // call base class to do the work
-                    base.ExecuteTask();
-                } finally {
-                    // make sure we delete response file even if an exception is thrown
-                    writer.Close(); // make sure stream is closed or file cannot be deleted
+                if (NeedsCompiling (inputFile, outputFile)) {
+                    AppendArgument (String.Format ("\"{0}\" \"{1}\"", inputFile, outputFile));
                 }
             }
+
+            if ( _arguments.Length > 0) {
+                // call base class to do the work
+                base.ExecuteTask();
+            }
+        }
+        
+        /// <summary>
+        /// Clean up generated files
+        /// </summary>
+        public void RemoveOutputs () {
+            foreach ( string filename in Resources.FileNames ) {
+                string outputFile = Path.ChangeExtension( filename, TargetExt );
+                if ( filename != outputFile) {
+                    File.Delete (outputFile);
+                }
+                if (Input != null) {
+                    outputFile = Path.ChangeExtension( Input, TargetExt );
+                    if ( Input != outputFile) {
+                        File.Delete (outputFile);
+                    }
+                }
+            }                     
         }
     }
 }

@@ -47,5 +47,7 @@ namespace SourceForge.NAnt.Tasks {
                 writer.WriteLine("/define:DEBUG;TRACE");
             }
         }
+
+        protected override string GetExtension(){ return "js";}
     }
 }

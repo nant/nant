@@ -61,6 +61,7 @@ namespace SourceForge.NAnt.Tasks {
         string _optionCompare   = null;
         bool   _optionExplicit  = false;
         bool   _optionStrict    = false;
+        bool   _optionOptimize  = false;
         bool   _removeintchecks = false;
         string _rootNamespace   = null;
 
@@ -90,6 +91,13 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("optionexplicit")]
         [BooleanValidator()]
         public bool   OptionExplicit  { get { return Convert.ToBoolean(_optionExplicit); } set {_optionExplicit = value;}}
+        
+        /// <summary>Specifies whether the <c>/optimize</c> option gets passed to the compiler.</summary>
+        /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfoptimizeenabledisableoptimizations.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
+        /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
+        [TaskAttribute("optionoptimize")]
+        [BooleanValidator()]
+        public bool   OptionOptimize{ get { return Convert.ToBoolean(_optionOptimize); } set {_optionOptimize = value;}}
 
         /// <summary>Specifies whether the <c>/optionstrict</c> option gets passed to the compiler.</summary>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfOptionstrictEnforceStrictTypeSemantics.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
@@ -141,9 +149,13 @@ namespace SourceForge.NAnt.Tasks {
             if (RemoveIntChecks) {
                 writer.WriteLine("/removeintchecks");
             }	
+            if (OptionOptimize) {
+                writer.WriteLine("/optimize");
+            }	
             if (_rootNamespace != null) {
                 writer.WriteLine("/rootnamespace:{0}", _rootNamespace);
             }
         }        
+        protected override string GetExtension(){ return "vb";}
     }
 }

@@ -61,5 +61,6 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "define", "TRACE");
             }
         }
+        protected override string GetExtension(){ return "cs";}
     }
 }

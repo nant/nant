@@ -17,15 +17,19 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
+// Ian MacLean ( ian_maclean@another.com )
 
 using System;
 using System.Collections.Specialized;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 
 using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace SourceForge.NAnt.Tasks 
+{
 
     /// <summary>Provides the abstract base class for a Microsoft compiler task.</summary>
     public abstract class CompilerBase : ExternalProgramBase {
@@ -39,9 +43,10 @@ namespace SourceForge.NAnt.Tasks {
         string _define = null;       
         string _win32icon = null;      
         FileSet _references = new FileSet();        
-        FileSet _resources = new FileSet();       
+        ResourceFileSet _resources = new ResourceFileSet();       
         FileSet _modules = new FileSet();       
-        FileSet _sources = new FileSet();
+        FileSet _sources = new FileSet();        
+        ResGenTask _resgenTask = null;
 
         /// <summary>Output directory for the compilation target.</summary>
         [TaskAttribute("output", Required=true)]
@@ -69,8 +74,11 @@ namespace SourceForge.NAnt.Tasks {
         public FileSet References   { get { return _references; } set { _references = value; }}
 
         /// <summary>Set resources to embed.</summary>
+        ///<remarks>This can be a combination of resx files and file resources. .resx files will be compiled by resgen and then embedded into the 
+        ///resulting executable. The Prefix attribute is used to make up the resourcename added to the assembly manifest for non resx files. For resx files the namespace from the matching source file is used as the prefix. 
+        ///This matches the behaviour of Visual Studio </remarks>
         [FileSet("resources")]
-        public FileSet Resources    { get { return _resources; } set { _resources = value; }}
+        public ResourceFileSet Resources    { get { return _resources; } set { _resources = value; }}
 
         /// <summary>Link the specified modules into this assembly.</summary>
         [FileSet("modules")]
@@ -212,9 +220,30 @@ namespace SourceForge.NAnt.Tasks {
                     foreach (string fileName in Modules.FileNames) {
                         WriteOption(writer, "addmodule", fileName);                        
                     }
-                    foreach (string fileName in Resources.FileNames) {
-                        WriteOption(writer, "resource", fileName);                        
+                    
+                    // compile resources
+                    if( Resources.ResxFiles.FileNames.Count > 0 ) {
+                        CompileResxResources( Resources.ResxFiles );
                     }
+                    
+                    // Resx args
+                    foreach (string fileName in Resources.ResxFiles.FileNames ) {
+                        string prefix = GetFormNamespace(fileName);
+                        string actualFileName = Path.GetFileNameWithoutExtension(fileName);
+                        string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
+                        string manifestResourceName = Path.GetFileName(tmpResourcePath).Replace(actualFileName, prefix + "." + actualFileName );          
+                        string resourceoption = tmpResourcePath + "," + manifestResourceName;    
+                        WriteOption(writer, "resource", resourceoption);          
+                    }
+                    
+                    // other resources
+                    foreach (string fileName in Resources.NonResxFiles.FileNames ) {                                                                                                        
+                        string actualFileName = Path.GetFileNameWithoutExtension(fileName);                                                                                  
+                        string manifestResourceName = Path.GetFileName(fileName).Replace(actualFileName, Resources.Prefix + "." + actualFileName );                      
+                        string resourceoption = fileName + "," + manifestResourceName;                                                                                                                   
+                        WriteOption(writer, "resource", resourceoption);     
+                    }
+
                     foreach (string fileName in Sources.FileNames) {                      
                        writer.WriteLine("\"" + fileName + "\"");
                     }
@@ -234,13 +263,75 @@ namespace SourceForge.NAnt.Tasks {
                     // call base class to do the work
                     base.ExecuteTask();
 
+                    // clean up generated resources.
+                    if (_resgenTask != null )
+                        _resgenTask.RemoveOutputs();
+
                 } finally {
                     // make sure we delete response file even if an exception is thrown
                     writer.Close(); // make sure stream is closed or file cannot be deleted
-                    File.Delete(_responseFileName);
+                    File.Delete(_responseFileName);                    
                     _responseFileName = null;
                 }
             }
+        }
+        /// <summary>
+        /// To be overidden by derived classes. Used to determine the file Extension required by the current compiler
+        /// </summary>
+        /// <returns></returns>
+        protected abstract string GetExtension();
+                
+        /// <summary>
+        /// Open matching source file to find the correct namespace. This may need to be overidden by 
+        /// the particular compiler if the namespace syntax is different for that language 
+        /// </summary>
+        /// <param name="resxPath"></param>
+        /// <returns></returns>
+        protected virtual string GetFormNamespace(string resxPath){
+        
+            // Determine Extension for compiler type
+            string extension = GetExtension();
+            string retnamespace = "";
+            
+            // open matching source file if it exists
+            string sourceFile = resxPath.Replace( "resx", extension );
+
+            StreamReader sr = File.OpenText( sourceFile );
+                         
+            while ( sr.Peek() > -1 ) {                               
+                string str = sr.ReadLine();
+                string matchnamespace =  @"namespace ((\w+.)*)";   		    		
+                Regex matchNamespaceRE = new Regex(matchnamespace);
+                
+                if (matchNamespaceRE.Match(str).Success ){
+                    Match namematch = matchNamespaceRE.Match(str);
+                    retnamespace = namematch.Groups[1].Value; 
+                    retnamespace = retnamespace.Replace( "{", "" );
+                    break;
+                }
+            }
+            sr.Close();
+            return retnamespace;
+        }
+
+        /// <summary>
+        /// Compile the resx files to temp .resources files
+        /// </summary>
+        /// <param name="resourceFileSet"></param>
+        protected void CompileResxResources(FileSet resourceFileSet ) {
+            ResGenTask resgen = new ResGenTask();                                     
+            resgen.Resources = resourceFileSet; // set the fileset
+            resgen.Verbose = false; 
+            resgen.Parent = this.Parent;
+            resgen.Project = this.Project;     
+            resgen.ToDirectory = this.BaseDirectory;
+                      
+            _resgenTask = resgen;
+            
+            // Fix up the indent level --
+            Log.IndentLevel++;
+            resgen.Execute();
+            Log.IndentLevel--;
         }
     }
 }

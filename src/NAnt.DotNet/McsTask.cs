@@ -63,5 +63,6 @@ namespace SourceForge.NAnt.Tasks
                 writer.WriteLine("--{0} {1}", name, arg);
             }
         }
+        protected override string GetExtension(){ return "cs";}
     }
 }
