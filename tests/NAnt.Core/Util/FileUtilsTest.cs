@@ -42,6 +42,12 @@ namespace Tests.NAnt.Core.Util {
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_GetFullPath_Whitespace() {
+            FileUtils.GetFullPath(" ");    
+        }
+
+        [Test]
         public void Test_GetFullPath() {
             if (PlatformHelper.IsWin32) {
                 Assert.AreEqual(@"Z:\", FileUtils.GetFullPath("Z:"), "#1");
