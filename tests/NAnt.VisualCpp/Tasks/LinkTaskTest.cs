@@ -32,7 +32,7 @@ using Tests.NAnt.Core.Util;
 namespace Tests.NAnt.VisualCpp.Tasks
 {
     [TestFixture]
-    public class LinkTaskTest_HelloWorld : BuildTestBase {
+    public class LinkTaskTest_HelloWorld : VisualCppTestBase {
         string _binDir;
         string _objDir;
         string _sourceDir;
@@ -70,6 +70,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure simple compile works.</summary>
         [Test]
         public void Test_HelloWorld() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             string result = RunBuild(_test_build);
             Assertion.Assert("Object file not created.", File.Exists(Path.Combine(_objDir, "HelloWorld.obj")));
             Assertion.Assert("Binary file not created.", File.Exists(Path.Combine(_binDir, "HelloWorld.exe")));
@@ -77,7 +81,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
     }
 
     [TestFixture]
-    public class LinkTaskTest_CompileOnDemand : BuildTestBase  {
+    public class LinkTaskTest_CompileOnDemand : VisualCppTestBase {
         const int _sourceCount = 3;
 
         string _binDir;
@@ -166,6 +170,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure compiling all files.</summary>
         [Test]
         public void Test_BuildAll() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             CleanAllObjs();
             CleanAllBins();
             string result = RunBuild(_test_build);
@@ -175,6 +183,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure not to compile when everything is up to date.</summary>
         [Test]
         public void Test_BuildNothingChanged() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             string result;
 
             CleanAllObjs();
@@ -187,6 +199,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure compiling happens when source files change.</summary>
         [Test]
         public void Test_BuildSourceChanged() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             Test_BuildAll();
             for (int i = 0; i < _sourceCount; ++i) {
                 File.SetLastWriteTime(_objPathName[i], DateTime.Now);

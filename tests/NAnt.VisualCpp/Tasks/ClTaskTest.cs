@@ -31,7 +31,7 @@ using Tests.NAnt.Core.Util;
 namespace Tests.NAnt.VisualCpp.Tasks
 {
     [TestFixture]
-    public class ClTaskTest_HelloWorld : BuildTestBase {
+    public class ClTaskTest_HelloWorld : VisualCppTestBase {
         string _objDir;
         string _sourceDir;
         string _sourcePathName;
@@ -67,7 +67,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
     }
 
     [TestFixture]
-    public class ClTaskTest_CompileOnDemand : BuildTestBase {
+    public class ClTaskTest_CompileOnDemand : VisualCppTestBase {
         const int _sourceCount = 3;
 
         string _objDir;
@@ -135,6 +135,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure compiling all files.</summary>
         [Test]
         public void Test_BuildAll() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             CleanAllObjs();
             string result = RunBuild(_test_build);
             for (int i = 0; i < _sourceCount; ++i) {
@@ -145,6 +149,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure not to compile when everything is up to date.</summary>
         [Test]
         public void Test_BuildNothingChanged() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             string result;
 
             CleanAllObjs();
@@ -156,6 +164,10 @@ namespace Tests.NAnt.VisualCpp.Tasks
         /// <summary>Test to make sure compiling happens when source files change.</summary>
         [Test]
         public void Test_BuildSourceChanged() {
+            if (!CanCompileAndLink) {
+                return;
+            }
+
             Test_BuildAll();
 
             for (int i = 0; i < _sourceCount; ++i) {
