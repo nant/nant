@@ -25,8 +25,11 @@
 // TODO: review interface for future compatibility/customizations issues
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -76,8 +79,22 @@ namespace NAnt.VisualCpp.Tasks {
         private OptionCollection _undefines = new OptionCollection();
         private string _objectFile;
         private string _pdbFile;
+        private Hashtable _resolvedIncludes;
+        private Regex _includeRegex;
 
         #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClTask" /> class.
+        /// </summary>
+        public ClTask() {
+            _resolvedIncludes = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _includeRegex = new Regex("^[\\S\\s]*#include[\\S\\s]*\"(?'includefile'[^\"]+)\"[\\S\\s]*$");
+        }
+
+        #endregion Public Instance Constructors
 
         #region Public Instance Properties
 
@@ -264,93 +281,6 @@ namespace NAnt.VisualCpp.Tasks {
 
         #endregion Override implementation of ExternalProgramBase
 
-        /// <summary>
-        /// Determines whether the precompiled header file is up-to-date.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true" /> if no precompiled header file was specified;
-        /// otherwise, <see langword="false" />.
-        /// </returns>
-        /// <remarks>
-        /// In order to determine accurately whether the precompile header file
-        /// is up-to-date, we'd need scan all the header files that are pulled 
-        /// in. As this is not implemented right now, its safer to always
-        /// recompile.
-        /// </remarks>
-        private bool IsPchfileUpToDate() {
-            // if no pch file, then then it is theoretically up to date
-            if (PchFile == null) {
-                return true;
-            }
-
-            // if pch file declared, but doesn't exist, it must be stale
-            FileInfo pchFileInfo = new FileInfo(PchFile);
-            if (!pchFileInfo.Exists) {
-                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
-                    pchFileInfo.FullName);
-                return false;
-            }
-
-            // if sources fresher than pch file,
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, "'{0}' is newer than pch file, recompiling.", 
-                    fileName);
-                return false;
-            }
-
-            // for now, always return false, thereby forcing recompile
-            return false;
-        }
-
-        private bool IsObjUpToDate(string srcFileName) {
-            // if obj file doesn't exist, it must be stale
-            string objFileName = Path.ChangeExtension(Path.Combine(OutputDir.FullName, 
-                Path.GetFileName(srcFileName)), ".obj");
-            FileInfo objFileInfo = new FileInfo(objFileName);
-            if (!objFileInfo.Exists) {
-                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
-                    objFileName);
-                return false;
-            }
-
-            // if obj file is older the source file, it is stale
-            string fileName = FileSet.FindMoreRecentLastWriteTime(srcFileName, objFileInfo.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, "'{0}' is out of date, recompiling.", 
-                    fileName);
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool AreObjsUpToDate() {
-            foreach(string filename in Sources.FileNames) {
-                if (!IsObjUpToDate(filename)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool AreSourcesUpToDate() {
-            //$ TODO:   Add code here that parses the C/CPP files to determine
-            //          file dependencies.
-            //$ TODO:   To prevent perpetual reparsing, need to figure out
-            //          a place to cache the results of the dependency checks
-            //          and do test to validate the cache.
-            return true;
-        }
-
-        /// <summary>
-        /// Determines if the sources need compiling.
-        /// </summary>
-        protected virtual bool NeedsCompiling() {
-            return !(IsPchfileUpToDate() && AreObjsUpToDate() && AreSourcesUpToDate());
-        }
-
         #region Override implementation of Task
 
         /// <summary>
@@ -496,6 +426,187 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         #endregion Override implementation of Task
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Determines if the sources need to be compiled.
+        /// </summary>
+        protected virtual bool NeedsCompiling() {
+            return !(IsPchfileUpToDate() && AreObjsUpToDate());
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Determines whether the precompiled header file is up-to-date.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if no precompiled header file was specified;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// In order to determine accurately whether the precompile header file
+        /// is up-to-date, we'd need scan all the header files that are pulled 
+        /// in. As this is not implemented right now, its safer to always
+        /// recompile.
+        /// </remarks>
+        private bool IsPchfileUpToDate() {
+            // if no pch file, then then it is theoretically up to date
+            if (PchFile == null) {
+                return true;
+            }
+
+            // if pch file declared, but doesn't exist, it must be stale
+            FileInfo pchFileInfo = new FileInfo(PchFile);
+            if (!pchFileInfo.Exists) {
+                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                    pchFileInfo.FullName);
+                return false;
+            }
+
+            // if sources fresher than pch file,
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' is newer than pch file, recompiling.", 
+                    fileName);
+                return false;
+            }
+
+            // for now, always return false, thereby forcing recompile
+            return false;
+        }
+
+        private bool IsObjUpToDate(string srcFileName) {
+            // if obj file doesn't exist, it must be stale
+            string objFileName = Path.ChangeExtension(Path.Combine(OutputDir.FullName, 
+                Path.GetFileName(srcFileName)), ".obj");
+            FileInfo objFileInfo = new FileInfo(objFileName);
+            if (!objFileInfo.Exists) {
+                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                    objFileName);
+                return false;
+            }
+
+            // if obj file is older than the source file, it is stale
+            string fileName = FileSet.FindMoreRecentLastWriteTime(srcFileName, objFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
+                return false;
+            }
+
+            // check if included headers in source are modified after obj was compiled
+            fileName = FindUpdatedInclude(srcFileName, objFileInfo.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool AreObjsUpToDate() {
+            foreach (string filename in Sources.FileNames) {
+                // if the source file does not exist, then we'll consider it
+                // not up-to-date
+                if (!File.Exists(filename)) {
+                    Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                        filename);
+                    return false;
+                }
+
+                if (!IsObjUpToDate(filename)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Determines whether any file that are includes in the specified
+        /// source file has been updated after the obj was compiled.
+        /// </summary>
+        /// <param name="srcFileName">The source file to check.</param>
+        /// <param name="objLastWriteTime">The last write time of the compiled obj.</param>
+        /// <returns>
+        /// The full path to the include file that was modified after the obj
+        /// was compiled, or <see langword="null" /> if no include files were
+        /// modified since the obj was compiled.
+        /// </returns>
+        /// <remarks>
+        ///   <para>
+        ///   To determine what includes are defined in a source file, conditional
+        ///   directives are not honored.
+        ///   </para>
+        ///   <para>
+        ///   If a given include cannot be resolved to an existing file, then
+        ///   it will be considered stable.
+        ///   </para>
+        /// </remarks>
+        private string FindUpdatedInclude(string srcFileName, DateTime objLastWriteTime) {
+            // quick and dirty code to check whether includes have been modified
+            // after the source was last modified
+
+            // holds the line we're parsing
+            string line;
+
+            // locate include directives in source file
+            using (StreamReader sr = new StreamReader(srcFileName, true)) {
+                while ((line = sr.ReadLine()) != null) {
+                    Match match = _includeRegex.Match(line);
+                    if (match.Groups.Count != 2) {
+                        continue;
+                    }
+
+                    string includeFile = match.Groups["includefile"].Value;
+
+                    string resolvedInclude = _resolvedIncludes[includeFile] as string;
+                    if (resolvedInclude == null) {
+                        foreach (string includeDir in IncludeDirs.DirectoryNames) {
+                            string foundIncludeFile = FileUtils.CombinePaths(includeDir, includeFile);
+                            if (File.Exists(foundIncludeFile)) {
+                                resolvedInclude = foundIncludeFile;
+                                break;
+                            }
+                        }
+
+                        // if we could not locate include in include dirs,
+                        // then try to locate include in INCLUDE env var
+                        if (resolvedInclude == null) {
+                            PathScanner pathScanner = new PathScanner();
+                            pathScanner.Add(includeFile);
+                            StringCollection includes = pathScanner.Scan("INCLUDE");
+                            if (includes.Count > 0) {
+                                resolvedInclude = includes[0];
+                            }
+                        }
+
+                        if (resolvedInclude != null) {
+                            _resolvedIncludes.Add(includeFile, resolvedInclude);
+                        }
+                    }
+
+                    if (resolvedInclude != null) {
+                        if (File.GetLastWriteTime(resolvedInclude) > objLastWriteTime) {
+                            return resolvedInclude;
+                        }
+                    }
+
+                    // TODO: what do we do if the include cannot be located ?
+                    //
+                    // for now we'll consider the obj file to be up-to-date
+                }
+            }
+
+            return null;
+        }
+
+        #endregion Private Instance Methods
 
         #region Public Static Methods
 
