@@ -284,6 +284,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Attributes\BuildElementCollectionAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Attributes\ElementNameAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
