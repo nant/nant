@@ -37,23 +37,21 @@ namespace NAnt.Core.Util {
 
         private static ResourceManager _sharedResourceManager;
         private static Hashtable _resourceManagerDictionary = new Hashtable();
-
+        
         #endregion private fields
-
-        #region public methods
-
+        
+        #region private constructors
         
         /// <summary>
-        /// 
+        /// Prevents the ResourceUtils class from being instantiated
+        /// explicitly.
         /// </summary>
-        /// <param name="assembly"></param>
-        public static void RegisterAssembly(Assembly assembly) {
-            lock (_resourceManagerDictionary) {
-                _resourceManagerDictionary.Add(assembly.GetName().Name,
-                    new ResourceManager("Strings", assembly));
-            }        
-        }
+        private ResourceUtils() {}
+        
+        #endregion private constructors
 
+        #region public methods
+        
         /// <summary>
         /// Register the assemlby to be used as the fallback if resources
         /// aren't found in the local satellite assembly.
@@ -64,6 +62,7 @@ namespace NAnt.Core.Util {
             _sharedResourceManager = new ResourceManager(assembly.GetName().Name, assembly); 
             
         }
+        
         /// <summary>
         /// Returns the value of the specified string resource.
         /// </summary>
@@ -75,6 +74,22 @@ namespace NAnt.Core.Util {
         /// A <see cref="System.String" /> that contains the value of the
         /// resource localized for the current culture.
         /// </returns>
+        /// <remarks>
+        /// The returned resource is localized for the cultural settings of the
+        /// current <see cref="System.Threading.Thread" />.
+        /// <note>
+        /// The <c>GetString</c> method is thread-safe.
+        /// </note>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates the <c>GetString</c> method using
+        /// the cultural settings of the current <see cref="System.Threading.Thread" />.
+        /// <code>
+        /// <![CDATA[
+        /// string localizedString = ResourceUtils.GetString("String_HelloWorld");
+        /// ]]>
+        /// </code>
+        /// </example>
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static string GetString(string name) {
             Assembly assembly = Assembly.GetCallingAssembly();
@@ -91,6 +106,21 @@ namespace NAnt.Core.Util {
         /// A <see cref="System.String" /> that contains the value of the
         /// resource localized for the specified culture. 
         ///</returns>
+        /// <remarks>
+        /// <note>
+        /// The <c>GetString</c> method is thread-safe.
+        /// </note>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates the <c>GetString</c> method using
+        /// a specific culture.
+        /// <code>
+        /// <![CDATA[
+        /// CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+        /// string localizedString = ResourceUtils.GetString("String_HelloWorld", culture);
+        /// ]]>
+        /// </code>
+        /// </example>
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static string GetString(string name, CultureInfo culture ) {
             Assembly assembly = Assembly.GetCallingAssembly();
@@ -116,19 +146,30 @@ namespace NAnt.Core.Util {
         /// A <see cref="System.String" /> that contains the value of the
         /// resource localized for the specified culture.
         /// </returns>
+        /// <remarks>
+        /// <note>
+        /// The <c>GetString</c> method is thread-safe.
+        /// </note>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates the <c>GetString</c> method using
+        /// specific culture and assembly.
+        /// <code>
+        /// <![CDATA[
+        /// CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+        /// Assembly assembly = Assembly.GetCallingAssembly();
+        /// string localizedString = ResourceUtils.GetString("String_HelloWorld", culture, assembly);
+        /// ]]>
+        /// </code>
+        /// </example>
         public static string GetString(string name, CultureInfo culture, Assembly assembly) {
             string localizedString = null;
             
-            ResourceManager resourceManager = null;
-            
             if ( ! _resourceManagerDictionary.Contains(assembly.GetName().Name ) )  {
-                lock (_resourceManagerDictionary) 
-                {
-                    RegisterAssembly(assembly);
-                }
+                RegisterAssembly(assembly);
             }
             // get the required Manager
-            resourceManager = _resourceManagerDictionary[assembly.GetName().Name] as ResourceManager;
+            ResourceManager resourceManager = _resourceManagerDictionary[assembly.GetName().Name] as ResourceManager;
             localizedString = resourceManager.GetString(name, culture);
             
             // try the shared resources if we didn't find it in the specific resource manager
@@ -136,10 +177,24 @@ namespace NAnt.Core.Util {
                 return _sharedResourceManager.GetString(name, culture);
             }
             return localizedString;
-
         }
         
         #endregion public methods
+        
+        #region private methods
+        /// <summary>
+        /// Registers the specified assembly.
+        /// </summary>
+        /// <param name="assembly">
+        /// A <see cref="System.Reflection.Assembly" /> that represents the
+        /// assembly to register.
+        /// </param>
+        private static void RegisterAssembly(Assembly assembly) {
+            lock (_resourceManagerDictionary) {
+                _resourceManagerDictionary.Add(assembly.GetName().Name,
+                    new ResourceManager("Strings", assembly));
+            }
+        }
+        #endregion private methods
     }
-
 }
