@@ -33,7 +33,6 @@ namespace NAnt.VSNet {
 
         public void UploadFile(string localFileName, string remoteFileName) {
             WebRequest request = WebRequest.Create(_webProjectBaseUrl + "/" + remoteFileName);
-            Console.WriteLine(request.RequestUri.ToString());
             request.Method = "PUT";
             request.Headers.Add("Translate: f");
             request.Credentials = CredentialCache.DefaultCredentials;
@@ -69,7 +68,6 @@ namespace NAnt.VSNet {
 
         public void DeleteFile(string localFileName, string remoteFileName) {
             WebRequest request = WebRequest.Create(_webProjectBaseUrl + "/" + remoteFileName);
-            Console.WriteLine(request.RequestUri.ToString());
             request.Method = "DELETE";
             request.Headers.Add("Translate: f");
             request.Credentials = CredentialCache.DefaultCredentials;
@@ -80,7 +78,6 @@ namespace NAnt.VSNet {
 
         public void DownloadFile(string localFileName, string remoteFileName) {
             WebRequest request = WebRequest.Create(_webProjectBaseUrl + "/" + remoteFileName);
-            Console.WriteLine(request.RequestUri.ToString());
             request.Method = "GET";
             request.Headers.Add("Translate: f");
             request.Credentials = CredentialCache.DefaultCredentials;
@@ -106,7 +103,6 @@ namespace NAnt.VSNet {
 
         public string GetFileContents(string remoteFileName) {
             WebRequest request = WebRequest.Create(_webProjectBaseUrl + "/" + remoteFileName);
-            Console.WriteLine(request.RequestUri.ToString());
             request.Method = "GET";
             request.Headers.Add("Translate: f");
             request.Credentials = CredentialCache.DefaultCredentials;
@@ -122,7 +118,6 @@ namespace NAnt.VSNet {
 
         public static string GetFileContentsStatic(string remoteFileName) {
             WebRequest request = WebRequest.Create(remoteFileName);
-            Console.WriteLine(request.RequestUri.ToString());
             request.Method = "GET";
             request.Headers.Add("Translate: f");
             request.Credentials = CredentialCache.DefaultCredentials;
