@@ -31,7 +31,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.Tests\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -63,36 +63,43 @@
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Private = "False"
                 />
                 <Reference
                     Name = "NAnt.DotNetTasks"
                     Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Private = "False"
                 />
                 <Reference
                     Name = "NAnt.NUnit1Tasks"
                     Project = "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Private = "False"
                 />
                 <Reference
                     Name = "NAnt.NUnit2Tasks"
                     Project = "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+					Private = "False"
                 />
                 <Reference
-                    Name = "NAnt.NUnitFormatters"
+                    Name = "NAnt.NUnit"
                     Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+					Private = "False"
                 />
                 <Reference
                     Name = "NAnt.VisualCppTasks"
                     Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+					Private = "False"                    
                 />
                 <Reference
                     Name = "NAnt.CompressionTasks"
                     Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+					Private = "False"                    
                 />
             </References>
         </Build>

@@ -32,7 +32,7 @@
                     IncrementalBuild = "true"
                     NoWarn = "0618"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.DotNet\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -51,7 +51,7 @@
                     IncrementalBuild = "true"
                     NoWarn = "0618"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.DotNet\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -69,7 +69,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.DotNet\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -92,12 +92,14 @@
                 <Reference
                     Name = "NDoc.Core"
                     AssemblyName = "NDoc.Core"
-                    HintPath = "..\..\bin\lib\net\1.0\NDoc.Core.dll"
+                    HintPath = "..\..\lib\net\1.0\NDoc.Core.dll"
+                    Private = "True"
                 />
                 <Reference
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Private = "False"
                 />
             </References>
         </Build>

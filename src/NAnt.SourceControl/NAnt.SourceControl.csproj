@@ -31,7 +31,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.SourceControl\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -49,7 +49,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.SourceControl\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -66,21 +66,6 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "log4net"
-                    AssemblyName = "log4net"
-                    HintPath = "..\..\bin\log4net.dll"
-                />
-                <Reference
-                    Name = "ICSharpCode.SharpCvsLib"
-                    AssemblyName = "ICSharpCode.SharpCvsLib"
-                    HintPath = "..\..\bin\lib\ICSharpCode.SharpCvsLib.dll"
-                />
-                <Reference
-                    Name = "ICSharpCode.SharpZipLib"
-                    AssemblyName = "ICSharpCode.SharpZipLib"
-                    HintPath = "..\..\bin\lib\ICSharpCode.SharpZipLib.dll"
-                />
-                <Reference
                     Name = "System.Data"
                     AssemblyName = "System.Data"
                 />
@@ -93,6 +78,24 @@
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                     Private = "False"
+                />
+                <Reference
+                    Name = "log4net"
+                    AssemblyName = "log4net"
+                    HintPath = "..\..\lib\log4net.dll"
+                    Private = "True"
+                />
+                <Reference
+                    Name = "ICSharpCode.SharpCvsLib"
+                    AssemblyName = "ICSharpCode.SharpCvsLib"
+                    HintPath = "..\..\lib\ICSharpCode.SharpCvsLib.dll"
+                    Private = "True"
+                />
+                <Reference
+                    Name = "ICSharpCode.SharpZipLib"
+                    AssemblyName = "ICSharpCode.SharpZipLib"
+                    HintPath = "..\..\lib\ICSharpCode.SharpZipLib.dll"
+                    Private = "True"
                 />
             </References>
         </Build>

@@ -32,7 +32,7 @@
                     IncrementalBuild = "true"
                     NoWarn = "0618"
                     Optimize = "false"
-                    OutputPath = "..\..\..\build.VS.Net\"
+                    OutputPath = "..\..\..\build.VS.NET\NAnt.NUnit2\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -75,17 +75,20 @@
                 <Reference
                     Name = "nunit.util"
                     AssemblyName = "nunit.util"
-                    HintPath = "..\..\..\bin\lib\net\1.0\nunit.util.dll"
+                    HintPath = "..\..\..\lib\net\1.0\nunit.util.dll"
+                    Private = "True"
                 />
                 <Reference
                     Name = "nunit.core"
                     AssemblyName = "nunit.core"
-                    HintPath = "..\..\..\bin\lib\net\1.0\nunit.core.dll"
+                    HintPath = "..\..\..\lib\net\1.0\nunit.core.dll"
+                    Private = "True"
                 />
                 <Reference
                     Name = "nunit.framework"
                     AssemblyName = "nunit.framework"
-                    HintPath = "..\..\..\bin\lib\net\1.0\nunit.framework.dll"
+                    HintPath = "..\..\..\lib\net\1.0\nunit.framework.dll"
+                    Private = "True"
                 />
             </References>
         </Build>
@@ -99,6 +102,7 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

@@ -31,7 +31,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "..\..\..\build.VS.Net\"
+                    OutputPath = "..\..\..\build.VS.NET\NAnt.NUnit1\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -68,7 +68,7 @@
                 <Reference
                     Name = "NUnitCore"
                     AssemblyName = "NUnitCore"
-                    HintPath = "..\..\..\bin\lib\NUnitCore.dll"
+                    HintPath = "..\..\..\lib\NUnitCore.dll"
                 />
             </References>
         </Build>
@@ -82,6 +82,7 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

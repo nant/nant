@@ -32,7 +32,7 @@
                     IncrementalBuild = "true"
                     NoWarn = "0618,1591"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.Core\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -51,7 +51,7 @@
                     IncrementalBuild = "true"
                     NoWarn = "0618,1591"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
+                    OutputPath = "..\..\build.VS.NET\NAnt.Core\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -78,7 +78,8 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\bin\log4net.dll"
+                    HintPath = "..\..\lib\log4net.dll"
+                    Private = "True"
                 />
             </References>
         </Build>
@@ -774,17 +775,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Types\XsltParameter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Types\XsltParameterCollection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                
-                  <File
                     RelPath = "Types\XsltExtensionObject.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -794,7 +784,16 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
-                
+                <File
+                    RelPath = "Types\XsltParameter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\XsltParameterCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
                 <File
                     RelPath = "Util\AssemblyResolver.cs"
                     SubType = "Code"
