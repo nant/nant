@@ -275,7 +275,8 @@ namespace NAnt.NUnit2.Tasks {
             ArrayList results = new ArrayList();
 
             foreach (string assembly in assemblies) {
-                TestResult res = RunSingleRemoteTest(test, assembly, listener);
+                TestResult res = RunSingleRemoteTest(test, new FileInfo(assembly), 
+                    listener);
                 if (res != null) {
                     results.Add(res);
                 }
@@ -284,16 +285,16 @@ namespace NAnt.NUnit2.Tasks {
             return (TestResult[]) results.ToArray(typeof(TestResult));
         }
 
-        private TestResult RunSingleRemoteTest(NUnit2Test test, string testAssembly, EventListener listener) {
+        private TestResult RunSingleRemoteTest(NUnit2Test test, FileInfo testAssembly, EventListener listener) {
             try {
                 LogWriter writer = new LogWriter(this, Level.Info, LogPrefix, CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
                 return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, listener);
             } catch (Exception ex) {
                 if (HaltOnError) {
-                    throw new BuildException("NUnit 2.0 Error: ", ex);
+                    throw new BuildException("NUnit error.", Location, ex);
                 }
-                Log(Level.Error, LogPrefix + "NUnit 2.0 Error: " + ex.ToString());
+                Log(Level.Error, LogPrefix + "NUnit error :" + ex.ToString());
                 return null;
             }
         }
@@ -308,17 +309,18 @@ namespace NAnt.NUnit2.Tasks {
         
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
-            if (test.TransformFile == null) {
+            if (test.XsltFile == null) {
                 Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
                 ResourceManager resourceManager = new ResourceManager("NUnit.Framework.Transform", assembly);
-                string xmlData = (string)resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
+                string xmlData = (string) resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
                 transformReader = new XmlTextReader(new StringReader(xmlData));
             } else {
-                FileInfo xsltInfo = new FileInfo(test.TransformFile);
-                if (!xsltInfo.Exists) {
-                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Transform file: {0} does not exist", xsltInfo.FullName));
+                if (!test.XsltFile.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Transform file '{0}' does not exist.", test.XsltFile.FullName), 
+                        Location);
                 }
-                transformReader = new XmlTextReader(xsltInfo.FullName);
+                transformReader = new XmlTextReader(test.XsltFile.FullName);
             }
             
             return transformReader;

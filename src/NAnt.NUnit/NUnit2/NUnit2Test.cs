@@ -36,12 +36,12 @@ namespace NAnt.NUnit2.Types {
     public class NUnit2Test : Element {
         #region Private Instance Fields
 
-        private string _assemblyName = null;
-        private string _testname = null;
+        private FileInfo _assemblyFile;
+        private string _testname;
         private bool _haltOnFailure = true;
-        private string _transformFile;
+        private FileInfo _xsltFile;
         private FileSet _assemblies = new FileSet();
-        private string _appConfigFile = null;
+        private FileInfo _appConfigFile;
 
         #endregion Private Instance Fields
 
@@ -51,9 +51,9 @@ namespace NAnt.NUnit2.Types {
         /// Name of the assembly to search for tests.
         /// </summary>
         [TaskAttribute("assemblyname")]
-        public string AssemblyName {
-            get { return (_assemblyName != null) ? Project.GetFullPath(_assemblyName) : null; }
-            set { _assemblyName = value; }
+        public FileInfo AssemblyFile {
+            get { return _assemblyFile; }
+            set { _assemblyFile = value; }
         }
         
         /// <summary>
@@ -89,17 +89,17 @@ namespace NAnt.NUnit2.Types {
         /// formatter.
         /// </summary>
         [TaskAttribute("transformfile")]
-        public string TransformFile {
-            get { return _transformFile; }
-            set { _transformFile = value; }
+        public FileInfo XsltFile {
+            get { return _xsltFile; }
+            set { _xsltFile = value; }
         }
 
         /// <summary>
         /// The application configuration file to use for the NUnit test domain.
         /// </summary>
         [TaskAttribute("appconfig")]
-        public string AppConfigFile {
-            get { return Project.GetFullPath(_appConfigFile); }
+        public FileInfo AppConfigFile {
+            get { return _appConfigFile; }
             set { _appConfigFile = value; }
         }
 
@@ -113,8 +113,8 @@ namespace NAnt.NUnit2.Types {
             get {
                 StringCollection files = new StringCollection();
 
-                if (AssemblyName != null) {
-                    files.Add(AssemblyName);
+                if (AssemblyFile != null) {
+                    files.Add(AssemblyFile.FullName);
                 } else {
                     // fix references to system assemblies
                     if (Project.CurrentFramework != null) {

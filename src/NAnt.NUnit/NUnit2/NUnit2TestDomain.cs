@@ -47,23 +47,20 @@ namespace NAnt.NUnit2.Tasks {
         /// </summary>
         /// <param name="testcase">The test to run, or <see langword="null" /> if running all tests.</param>
         /// <param name="assemblyFile">The test assembly.</param>
-        /// <param name="configFilePath">The application configuration file for the test domain.</param>
+        /// <param name="configFile">The application configuration file for the test domain.</param>
         /// <param name="listener">An <see cref="EventListener" />.</param>
         /// <returns>
         /// The result of the test.
         /// </returns>
-        public TestResult RunTest(string testcase, string assemblyFile, string configFilePath, EventListener listener) {
-            // get full path to directory containing test assembly
-            string assemblyDir = Path.GetFullPath(Path.GetDirectoryName(assemblyFile));
-
+        public TestResult RunTest(string testcase, FileInfo assemblyFile, FileInfo configFile, EventListener listener) {
             // create test domain
-            AppDomain domain = CreateDomain(assemblyDir, configFilePath);
+            AppDomain domain = CreateDomain(assemblyFile.Directory, configFile);
 
             // store current directory
             string currentDir = Directory.GetCurrentDirectory();
 
             // change current dir to directory containing test assembly
-            Directory.SetCurrentDirectory(assemblyDir);
+            Directory.SetCurrentDirectory(assemblyFile.DirectoryName);
 
             try {
                 // create testrunner
@@ -72,7 +69,7 @@ namespace NAnt.NUnit2.Tasks {
                 // set the file name of the test assembly without directory 
                 // information, as the current directory is already set to the 
                 // directory containing the assembly
-                runner.TestFileName = Path.GetFileName(assemblyFile);
+                runner.TestFileName = assemblyFile.Name;
 
                 // check whether an individual testcase should be run
                 if (testcase != null) {
@@ -97,12 +94,14 @@ namespace NAnt.NUnit2.Tasks {
 
         #region Private Instance Methods
 
-        private AppDomain CreateDomain(string basedir, string configFilePath) {
+        private AppDomain CreateDomain(DirectoryInfo basedir, FileInfo configFile) {
             // spawn new domain in specified directory
             AppDomainSetup domSetup = new AppDomainSetup();
-            domSetup.ApplicationBase = basedir;
-            domSetup.ConfigurationFile = configFilePath;
-            domSetup.ApplicationName = "NAnt NUnit2.1 Remote Domain";
+            domSetup.ApplicationBase = basedir.FullName;
+            if (configFile != null) {
+                domSetup.ConfigurationFile = configFile.FullName;
+            }
+            domSetup.ApplicationName = "NAnt NUnit Remote Domain";
          
             return AppDomain.CreateDomain( 
                 domSetup.ApplicationName, 
