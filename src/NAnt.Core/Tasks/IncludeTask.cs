@@ -123,7 +123,7 @@ namespace NAnt.Core.Tasks {
                 buildFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not include build file '{0}'.", buildFileName),
+                    "Could not include build file '{0}'.", BuildFileName),
                     Location, ex);
             }
 
