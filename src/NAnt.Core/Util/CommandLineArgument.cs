@@ -110,7 +110,8 @@ namespace NAnt.Core.Util {
         /// Gets a value indicating whether the argument is required.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument is required; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument is required; otherwise, 
+        /// <see langword="false" />.
         /// </value>
         public bool IsRequired {
             get { return 0 != (_argumentType & CommandLineArgumentTypes.Required); }
@@ -121,8 +122,8 @@ namespace NAnt.Core.Util {
         /// was already found.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a matching command-line argument was already
-        /// found; otherwise, <c>false</c>.
+        /// <see langword="true" /> if a matching command-line argument was 
+        /// already found; otherwise, <see langword="false" />.
         /// </value>
         public bool SeenValue {
             get { return _seenValue; }
@@ -133,8 +134,8 @@ namespace NAnt.Core.Util {
         /// times.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument may be specified multiple times;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument may be specified multiple 
+        /// times; otherwise, <see langword="false" />.
         /// </value>
         public bool AllowMultiple {
             get { return (IsCollection || IsArray) && (0 != (_argumentType & CommandLineArgumentTypes.Multiple)); }
@@ -145,8 +146,8 @@ namespace NAnt.Core.Util {
         /// with a certain value.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument should always have a unique value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument should always have a unique 
+        /// value; otherwise, <see langword="false" />.
         /// </value>
         public bool Unique {
             get { return 0 != (_argumentType & CommandLineArgumentTypes.Unique); }
@@ -168,7 +169,8 @@ namespace NAnt.Core.Util {
         /// Gets a value indicating whether the argument is collection-based.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument is collection-based; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument is collection-based; otherwise, 
+        /// <see langword="false" />.
         /// </value>
         public bool IsCollection {
             get { return IsCollectionType(Type); }
@@ -178,7 +180,8 @@ namespace NAnt.Core.Util {
         /// Gets a value indicating whether the argument is array-nased.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument is array-based; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument is array-based; otherwise, 
+        /// <see langword="false" />.
         /// </value>
         public bool IsArray {
             get { return IsArrayType(Type); }
@@ -188,7 +191,8 @@ namespace NAnt.Core.Util {
         /// Gets a value indicating whether the argument is the default argument.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument is the default argument; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument is the default argument; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         public bool IsDefault {
             get { return (_attribute != null && _attribute is DefaultCommandLineArgumentAttribute); }
@@ -199,8 +203,8 @@ namespace NAnt.Core.Util {
         /// other arguments.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the argument cannot be combined with other arguments; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if the argument cannot be combined with other 
+        /// arguments; otherwise, <see langword="false" />.
         /// </value>
         public bool IsExclusive {
             get { return 0 != (_argumentType & CommandLineArgumentTypes.Exclusive); }

@@ -30,13 +30,15 @@ namespace NAnt.Core.Tasks {
     /// Checks if a resource is available at runtime.
     /// </summary>
     /// <remarks>
-    /// The specified property is set to <c>true</c> if the requested resource 
-    /// is available at runtime, and <c>false</c> if the resource is not available.
+    /// The specified property is set to <see langword="true" /> if the requested 
+    /// resource is available at runtime, and <see langword="false" /> if the 
+    /// resource is not available.
     /// </remarks>
     /// <example>
     ///   <para>
-    ///   Sets the <c>myfile.present</c> property to <c>true</c> if the file is 
-    ///   available on the filesystem and <c>false</c> if the file is not available.
+    ///   Sets the <c>myfile.present</c> property to <see langword="true" /> if the 
+    ///   file is available on the filesystem and <see langword="false" /> if the 
+    ///   file is not available.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -44,9 +46,9 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Sets the <c>build.dir.present</c> property to <c>true</c> if the 
-    ///   directory is available on the filesystem and <c>false</c> if the 
-    ///   directory is not available.
+    ///   Sets the <c>build.dir.present</c> property to <see langword="true" /> 
+    ///   if the directory is available on the filesystem and <see langword="false" /> 
+    ///   if the directory is not available.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -54,9 +56,9 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Sets the <c>mono-0.21.framework.present</c> property to <c>true</c> 
+    ///   Sets the <c>mono-0.21.framework.present</c> property to <see langword="true" /> 
     ///   if the Mono 0.21 framework is available on the current system and 
-    ///   <c>false</c> if the framework is not available.
+    ///   <see langword="false" /> if the framework is not available.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -64,9 +66,9 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Sets the <c>net-1.1.frameworksdk.present</c> property to <c>true</c> 
+    ///   Sets the <c>net-1.1.frameworksdk.present</c> property to <see langword="true" /> 
     ///   if the .NET 1.1 Framework SDK is available on the current system and 
-    ///   <c>false</c> if the SDK is not available.
+    ///   <see langword="false" /> if the SDK is not available.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -148,8 +150,8 @@ namespace NAnt.Core.Tasks {
         /// <remarks>
         /// <para>
         /// Sets the property identified by <see cref="PropertyName" /> to 
-        /// <c>true</c> when the resource exists and to <c>false</c> when the 
-        /// resource doesn't exist.
+        /// <see langword="true" /> when the resource exists and to <see langword="false" /> 
+        /// when the resource doesn't exist.
         /// </para>
         /// </remarks>
         /// <exception cref="BuildException">The availability of the resource could not be evaluated.</exception>
@@ -165,7 +167,8 @@ namespace NAnt.Core.Tasks {
         /// Evaluates the availability of a resource.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the resource is available; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the resource is available; otherwise, 
+        /// <see langword="false" />.
         /// </returns>
         /// <exception cref="BuildException">The availability of the resource could not be evaluated.</exception>
         protected virtual bool Evaluate() {
@@ -204,7 +207,7 @@ namespace NAnt.Core.Tasks {
         /// available on the filesystem.
         /// </summary>
         /// <returns>
-        /// <c>true</c> when the file exists; otherwise, <c>false</c>.
+        /// <see langword="true" /> when the file exists; otherwise, <see langword="false" />.
         /// </returns>
         private bool CheckFile() {
             try {
@@ -223,7 +226,7 @@ namespace NAnt.Core.Tasks {
         /// property is available on the filesystem.
         /// </summary>
         /// <returns>
-        /// <c>true</c> when the directory exists; otherwise, <c>false</c>.
+        /// <see langword="true" /> when the directory exists; otherwise, <see langword="false" />.
         /// </returns>
         private bool CheckDirectory() {
             try {
@@ -242,7 +245,8 @@ namespace NAnt.Core.Tasks {
         /// property is available on the current system.
         /// </summary>
         /// <returns>
-        /// <c>true</c> when the framework is available, <c>false</c> otherwise.
+        /// <see langword="true" /> when the framework is available; otherwise,
+        /// <see langword="false" />.
         /// </returns>
         private bool CheckFramework() {
             return Project.FrameworkInfoDictionary.Contains(Resource);
@@ -253,8 +257,8 @@ namespace NAnt.Core.Tasks {
         /// property is available on the current system.
         /// </summary>
         /// <returns>
-        /// <c>true</c> when the SDK for the specified framework is available; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> when the SDK for the specified framework is 
+        /// available; otherwise, <see langword="false" />.
         /// </returns>
         private bool CheckFrameworkSDK() {
             FrameworkInfo framework = Project.FrameworkInfoDictionary[Resource];

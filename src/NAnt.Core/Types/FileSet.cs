@@ -86,9 +86,9 @@ namespace NAnt.Core.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// When set to <c>true</c>, causes the fileset element to throw a 
-        /// ValidationException when no files match the includes and excludes 
-        /// criteria. Default is <c>false</c>.
+        /// When set to <see langword="true" />, causes the fileset element to 
+        /// throw a <see cref="ValidationException" /> when no files match the 
+        /// includes and excludes criteria. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("failonempty")]
         [BooleanValidator()]
@@ -99,7 +99,7 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// Indicates whether default excludes should be used or not. 
-        /// Default is <c>true</c>.
+        /// The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("defaultexcludes")]
         [BooleanValidator()]
@@ -343,8 +343,8 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// If <c>true</c> then the pattern will be included; otherwise skipped. 
-            /// Default is <c>true</c>.
+            /// If <see langword="true" /> then the pattern will be included; 
+            /// otherwise, skipped. The default is <see langword="true" />.
             /// </summary>
             [TaskAttribute("if")]
             [BooleanValidator()]
@@ -354,8 +354,8 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// Opposite of if. If <c>false</c> then the pattern will be included; 
-            /// otherwise skipped. Default is <c>false</c>.
+            /// Opposite of if. If <see langword="false" /> then the pattern will 
+            /// be included; otherwise, skipped. Default is <see langword="false" />.
             /// </summary>
             [TaskAttribute("unless")]
             [BooleanValidator()]
@@ -378,8 +378,9 @@ namespace NAnt.Core.Types {
             #region Public Instance Properties
 
             /// <summary>
-            /// If <c>true</c> then the file name will be added to the fileset 
-            /// without pattern matching or checking if the file exists.
+            /// If <see langword="true" /> then the file name will be added to 
+            /// the fileset without pattern matching or checking if the file 
+            /// exists.
             /// </summary>
             [TaskAttribute("asis")]
             [BooleanValidator()]
@@ -389,7 +390,8 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// If <c>true</c> then the file will be searched for on the path.
+            /// If <see langword="true" /> then the file will be searched for 
+            /// on the path.
             /// </summary>
             [TaskAttribute("frompath")]
             [BooleanValidator()]

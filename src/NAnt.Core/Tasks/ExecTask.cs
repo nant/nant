@@ -101,11 +101,11 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether the external program should be executed using a 
-        /// runtime engine, if configured. Default is <c>false</c>.
+        /// runtime engine, if configured. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the external program should be executed using a 
-        /// runtime engine; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the external program should be executed 
+        /// using a runtime engine; otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("useruntimeengine")]
         [FrameworkConfigurable("useruntimeengine")]
@@ -167,11 +167,11 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Gets or sets a value indicating whether output should be appended 
-        /// to the output file. Default value is <c>false</c>.
+        /// to the output file. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if output should be appended to the <see cref="OutputFile" />; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if output should be appended to the <see cref="OutputFile" />; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("append", Required=false)]
         public override bool OutputAppend {

@@ -78,8 +78,9 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// Indicates if the import should be generated. 
         /// </summary>
-        /// <value><c>true</c> if the import should be generated; otherwise,
-        /// <c>false</c>.
+        /// <value>
+        /// <see langword="true" /> if the import should be generated; otherwise,
+        /// <see langword="false" />.
         /// </value>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -91,8 +92,9 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// Indicates if the import should be not generated. 
         /// </summary>
-        /// <value><c>true</c> if the import should be not generated; 
-        /// otherwise, <c>false</c>.
+        /// <value>
+        /// <see langword="true" /> if the import should be not generated; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("unless")]
         [BooleanValidator()]

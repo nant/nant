@@ -24,9 +24,10 @@ using System.IO;
 using System.Text;
 
 using NAnt.Core;
-using NAnt.Core.Types;
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Win32.Tasks {
     /// <summary>
@@ -83,13 +84,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("output", Required=true)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _output = value;
-                } else {
-                    _output = null;
-                }
-            }
+            set { _output = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -102,13 +97,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("namespace")]
         public string Namespace {
             get { return _namespace; }
-            set {
-                if (value != null && value.Trim().Length != 0) {
-                    _namespace = value;
-                } else {
-                    _namespace = null;
-                }
-            }
+            set { _namespace = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -128,22 +117,16 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("asmversion")]
         public string AsmVersion {
             get { return _asmVersion; }
-            set {
-                if (value != null && value.Trim().Length != 0) {
-                    _asmVersion = value;
-                } else {
-                    _asmVersion = null;
-                }
-            }
+            set { _asmVersion = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
         /// Specifies whether the resulting assembly should be signed with a 
-        /// strong name using delayed signing.
+        /// strong name using delayed signing. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the resulting assembly should be signed with a strong 
-        /// name using delayed signing; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the resulting assembly should be signed 
+        /// with a strong name using delayed signing; otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("delaysign")]
@@ -155,11 +138,11 @@ namespace NAnt.Win32.Tasks {
 
         /// <summary>
         /// Specifies whether a primary interop assembly should be produced for 
-        /// the specified type library.
+        /// the specified type library. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a primary interop assembly should be produced; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if a primary interop assembly should be 
+        /// produced; otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("primary")]
@@ -181,13 +164,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("publickey")]
         public string PublicKey {
             get { return (_publicKey != null) ? Project.GetFullPath(_publicKey) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _publicKey = value;
-                } else {
-                    _publicKey = null;
-                }
-            }
+            set { _publicKey = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -201,13 +178,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("keyfile")]
         public string KeyFile {
             get { return (_keyFile != null) ? Project.GetFullPath(_keyFile) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _keyFile = value;
-                } else {
-                    _keyFile = null;
-                }
-            }
+            set { _keyFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -223,13 +194,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("keycontainer")]
         public string KeyContainer {
             get { return _keyContainer; }
-            set {
-                if (value != null && value.Trim().Length != 0) {
-                    _keyContainer = value;
-                } else {
-                    _keyContainer = null;
-                }
-            }
+            set {_keyContainer = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -250,11 +215,11 @@ namespace NAnt.Win32.Tasks {
         /// <summary>
         /// Specifies whether a type library should not be imported if all 
         /// references within the current assembly or the reference assemblies 
-        /// cannot be resolved.
+        /// cannot be resolved. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a type library should not be imported if all reference 
-        /// cannot be resolved; otherwise, <c>false</c>.
+        /// <see langword="true" /> if a type library should not be imported if 
+        /// all references cannot be resolved; otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("strictref")]
@@ -266,11 +231,12 @@ namespace NAnt.Win32.Tasks {
 
         /// <summary>
         /// Specifies whether to import a COM style SafeArray as a managed 
-        /// System.Array class type.
+        /// <see cref="System.Array" /> class type. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a COM style SafeArray should be imported as a managed
-        /// System.Array class type; otherwise, <c>false</c>.
+        /// <see langword="true" /> if a COM style SafeArray should be imported 
+        /// as a managed <see cref="System.Array" /> class type; otherwise, 
+        /// <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("sysarray")]
@@ -292,22 +258,16 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("typelib", Required=true)]
         public string TypeLib {
             get { return (_typelib != null) ? Project.GetFullPath(_typelib) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _typelib = value;
-                } else {
-                    _typelib = null;
-                }
-            }
+            set { _typelib = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
         /// Specifies whether interfaces should be produced without .NET Framework 
-        /// security checks. 
+        /// security checks. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if interface without .NET Framework security checks 
-        /// should be produced; otherwise, <c>false</c>.
+        /// <see langword="true" /> if interfaces without .NET Framework security 
+        /// checks should be produced; otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("unsafe")]
@@ -341,10 +301,10 @@ namespace NAnt.Win32.Tasks {
         /// Imports the type library to a .NET assembly.
         /// </summary>
         protected override void ExecuteTask() {
-            //Check to see if any of the underlying interop dlls or the typelibs have changed
-            //Otherwise, it's not necessary to reimport.
+            // check to see if any of the underlying interop dlls or the typelibs have changed
+            // otherwise, it's not necessary to reimport.
             if (NeedsCompiling()) {
-                //Using a stringbuilder vs. StreamWriter since this program will not accept response files.
+                // using a stringbuilder vs. StreamWriter since this program will not accept response files.
                 _argumentBuilder = new StringBuilder();
 
                 if (References.BaseDirectory == null) {
@@ -353,7 +313,7 @@ namespace NAnt.Win32.Tasks {
 
                 _argumentBuilder.Append("\"" + _typelib + "\"");
 
-                // Any option that specifies a file name must be wrapped in quotes
+                // any option that specifies a file name must be wrapped in quotes
                 // to handle cases with spaces in the path.
                 _argumentBuilder.AppendFormat(" /out:\"{0}\"", Output);
 
@@ -425,8 +385,8 @@ namespace NAnt.Win32.Tasks {
         /// Determines whether the type library needs to be imported again.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the type library needs to be imported; otherwise, 
-        /// <c>false</c>.
+        /// <see langword="true" /> if the type library needs to be imported; 
+        /// otherwise, <see langword="false" />.
         /// </returns>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile

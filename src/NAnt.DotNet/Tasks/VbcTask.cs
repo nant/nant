@@ -119,8 +119,8 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <value>
         /// <c>text</c>, <c>binary</c>, or an empty string.  If the value is 
-        /// <c>false</c> or an empty string, the option will not be passed to 
-        /// the compiler.
+        /// <see langword="false" /> or an empty string, the option will not be 
+        /// passed to the compiler.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfOptioncompareSpecifyHowStringsAreCompared.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("optioncompare")]
@@ -131,11 +131,11 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the <c>/optionexplicit</c> option gets passed to 
-        /// the compiler. Default is <c>false</c>.
+        /// the compiler. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the option should be passed to the compiler; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the option should be passed to the compiler; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfOptionexplicitRequireExplicitDeclarationOfVariables.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("optionexplicit")]
@@ -147,11 +147,11 @@ namespace NAnt.DotNet.Tasks {
         
         /// <summary>
         /// Specifies whether the <c>/optimize</c> option gets passed to the 
-        /// compiler. Default is <c>false</c>.
+        /// compiler. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the option should be passed to the compiler; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the option should be passed to the compiler; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfoptimizeenabledisableoptimizations.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("optionoptimize")]
@@ -163,11 +163,11 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the <c>/optionstrict</c> option gets passed to 
-        /// the compiler. Default is <c>false</c>.
+        /// the compiler. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the option should be passed to the compiler; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the option should be passed to the compiler; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfOptionstrictEnforceStrictTypeSemantics.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("optionstrict")]
@@ -179,11 +179,11 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the <c>/removeintchecks</c> option gets passed to 
-        /// the compiler. Default is <c>false</c>.
+        /// the compiler. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// The value of this attribute must be either <c>true</c> or <c>false</c>.  
-        /// If <c>false</c>, the switch is omitted.
+        /// <see langword="true" /> if the option should be passed to the compiler; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfRemoveintchecksRemoveInteger-OverflowChecks.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("removeintchecks")]

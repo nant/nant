@@ -103,7 +103,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the archive attribute. Default is <c>false</c>.
+        /// Set the archive attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("archive")]
         [BooleanValidator()]
@@ -113,7 +113,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the hidden attribute. Default is <c>false</c>.
+        /// Set the hidden attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("hidden")]
         [BooleanValidator()]
@@ -124,7 +124,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Set the normal file attributes. This attribute is only valid if used 
-        /// alone. Default is <c>false</c>.
+        /// alone. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("normal")]
         [BooleanValidator()]
@@ -134,7 +134,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the read-only attribute. Default is <c>false</c>.
+        /// Set the read-only attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("readonly")]
         [BooleanValidator()]
@@ -144,7 +144,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the system attribute. Default is <c>false</c>.
+        /// Set the system attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("system")]
         [BooleanValidator()]

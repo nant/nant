@@ -116,9 +116,15 @@ namespace NAnt.NUnit1.Tasks {
         /// <summary>
         /// Determines if the unit test needs running.
         /// </summary>
-        /// <returns><c>true</c> if unit test needs running, otherwise returns <c>false</c>.</returns>
+        /// <returns>
+        /// <see langword="true" /> if unit test needs running, otherwise,
+        /// <see langword="false" />.
+        /// </returns>
         /// <remarks>
-        ///   <para>Determines if the test needs running by looking at the data stamp of the test assembly and the test results log.</para>
+        ///   <para>
+        ///   Determines if the test needs running by looking at the date stamp 
+        ///   of the test assembly and the test results log.
+        ///   </para>
         /// </remarks>
         public bool NeedsRunning() {
             // assume we need to run unless proven otherwise

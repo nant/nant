@@ -28,7 +28,10 @@ namespace NAnt.Core.Tasks {
     /// Runs NAnt on a supplied build file. This can be used to build subprojects.
     /// </summary>
     /// <example>
-    ///   <para>Build a project located in a different directory if the <c>debug</c> property is not <c>true</c>.</para>
+    ///   <para>
+    ///   Build a project located in a different directory if the <c>debug</c> 
+    ///   property is not <see langword="true" />.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <nant buildfile="${src.dir}/Extras/BuildServer/BuildServer.build" unless="${debug}" />
@@ -74,7 +77,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether current property values should be inherited by 
-        /// the executed project. Default is <c>false</c>.
+        /// the executed project. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("inheritall"), BooleanValidator()]
         public bool InheritAll {

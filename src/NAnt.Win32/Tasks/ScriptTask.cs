@@ -30,6 +30,7 @@ using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -130,7 +131,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("language", Required=true)]
         public string Language {
             get { return _language; }
-            set { _language = value; }
+            set { _language = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("mainclass", Required=false)]
         public string MainClass {
             get { return _mainClass; }
-            set { _mainClass = value; }
+            set { _mainClass = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -223,7 +224,7 @@ namespace NAnt.Core.Tasks {
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
                 try {
-                    if (asm.Location != null && asm.Location.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(asm.Location)) {
                         options.ReferencedAssemblies.Add(asm.Location);
                     }
                 } catch (NotSupportedException) {
@@ -236,7 +237,7 @@ namespace NAnt.Core.Tasks {
             }
 
             foreach (string assemblyName in References.Includes) {
-                if (assemblyName != null &&  assemblyName.Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(assemblyName)) {
                     options.ReferencedAssemblies.Add(assemblyName);
                 }
             }
@@ -265,7 +266,7 @@ namespace NAnt.Core.Tasks {
             }
 
             string mainClass = _rootClassName;
-            if (MainClass != null && MainClass.Length != 0) {
+            if (!StringUtils.IsNullOrEmpty(MainClass)) {
                 mainClass += "+" + MainClass;
             }
 

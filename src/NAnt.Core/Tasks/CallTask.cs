@@ -70,7 +70,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Force a execute even if the target has already been executed.
-        /// Default is <c>false</c>.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("force")]
         public bool ForceExecute {

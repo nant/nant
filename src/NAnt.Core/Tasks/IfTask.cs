@@ -27,7 +27,8 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Checks the conditional attributes and executes the children if <c>true</c>.
+    /// Checks the conditional attributes and executes the children if
+    /// <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -74,7 +75,7 @@ namespace NAnt.Core.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Check that a property exists and is <c>true</c> (uses multiple conditions).
+    ///   Check that a property exists and is <see langword="true" /> (uses multiple conditions).
     ///   </para>
     ///   <code>
     ///     <![CDATA[

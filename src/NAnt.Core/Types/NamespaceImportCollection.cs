@@ -122,8 +122,8 @@ namespace NAnt.Core.Types {
         /// </summary>
         /// <param name="item">The <see cref="NamespaceImport"/> to locate in the collection.</param> 
         /// <returns>
-        /// <c>true</c> if <paramref name="item"/> is found in the collection;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if <paramref name="item"/> is found in the 
+        /// collection; otherwise, <see langword="false" />.
         /// </returns>
         public bool Contains(NamespaceImport item) {
             return base.List.Contains(item);
@@ -135,9 +135,9 @@ namespace NAnt.Core.Types {
         /// </summary>
         /// <param name="value">The argument value to locate in the collection.</param> 
         /// <returns>
-        /// <c>true</c> if a <see cref="NamespaceImport" /> with value 
-        /// <paramref name="value"/> is found in the collection; otherwise, 
-        /// <c>false</c>.
+        /// <see langword="true" /> if a <see cref="NamespaceImport" /> with 
+        /// value <paramref name="value"/> is found in the collection; otherwise, 
+        /// <see langword="false" />.
         /// </returns>
         public bool Contains(string value) {
             return this[value] != null;
@@ -231,8 +231,9 @@ namespace NAnt.Core.Types {
         /// Advances the enumerator to the next element of the collection.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the enumerator was successfully advanced to the next element; 
-        /// <c>false</c> if the enumerator has passed the end of the collection.
+        /// <see langword="true" /> if the enumerator was successfully advanced 
+        /// to the next element; <see langword="false" /> if the enumerator has 
+        /// passed the end of the collection.
         /// </returns>
         public bool MoveNext() {
             return _baseEnumerator.MoveNext();

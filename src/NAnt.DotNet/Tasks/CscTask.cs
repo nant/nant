@@ -76,8 +76,8 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Instructs the compiler not to import mscorlib.dll. Default is 
-        /// <c>false</c>.
+        /// Instructs the compiler not to import mscorlib.dll. The default is 
+        /// <see langword="false" />.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -86,6 +86,7 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [FrameworkConfigurable("nostdlib")]
         [TaskAttribute("nostdlib")]
+        [BooleanValidator()]
         public bool NoStdLib {
             get { return _nostdlib; }
             set { _nostdlib = value; }
@@ -93,7 +94,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Instructs the compiler not to use implicit references to assemblies.
-        /// Default is <c>false</c>.
+        /// The default is <see langword="false" />.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -102,6 +103,7 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [FrameworkConfigurable("noconfig")]
         [TaskAttribute("noconfig")]
+        [BooleanValidator()]
         public bool NoConfig {
             get { return _noconfig; }
             set { _noconfig = value; }
@@ -111,7 +113,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies whether an integer arithmetic statement that is not in 
         /// the scope of the <c>checked</c> or <c>unchecked</c> keywords and 
         /// that results in a value outside the range of the data type should 
-        /// cause a run-time exception. Default is <c>false</c>.
+        /// cause a run-time exception. The default is <see langword="false" />.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -119,6 +121,7 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("checked")]
+        [BooleanValidator()]
         public bool Checked {
             get { return _checked; }
             set { _checked = value; }
@@ -126,7 +129,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Instructs the compiler to allow code that uses the <c>unsafe</c> 
-        /// keyword. Default is <c>false</c>.
+        /// keyword. The default is <see langword="false" />.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -134,6 +137,7 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("unsafe")]
+        [BooleanValidator()]
         public bool Unsafe {
             get { return _unsafe; }
             set { _unsafe = value; }
@@ -141,12 +145,12 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the compiler should perform optimizations to the 
-        /// make output files smaller, faster, and more effecient. Default is 
-        /// <c>false</c>.
+        /// make output files smaller, faster, and more effecient. The default 
+        /// is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the compiler should perform optimizations; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the compiler should perform optimizations; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         /// <remarks>
         /// <para>

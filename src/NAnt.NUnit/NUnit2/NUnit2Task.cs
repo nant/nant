@@ -35,6 +35,7 @@ using NUnit.Framework;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Types;
 
@@ -51,8 +52,8 @@ namespace NAnt.NUnit2.Tasks {
     ///   The <see cref="HaltOnFailure" /> or <see cref="HaltOnError" /> 
     ///   attributes are only used to stop more than one test suite to stop 
     ///   running.  If any test suite fails, a build error will be thrown.  
-    ///   Set <see cref="Task.FailOnError" /> to <c>false</c> to ignore test 
-    ///   errors and continue the build.
+    ///   Set <see cref="Task.FailOnError" /> to <see langword="false" /> to 
+    ///   ignore test errors and continue the build.
     ///   </para>
     /// </remarks>
     /// <example>
@@ -97,7 +98,7 @@ namespace NAnt.NUnit2.Tasks {
         #region Public Instance Properties
        
         /// <summary>
-        /// Stop the build process if a test fails. Default is <c>false</c>.
+        /// Stop the build process if a test fails. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
@@ -107,7 +108,7 @@ namespace NAnt.NUnit2.Tasks {
         }
 
         /// <summary>
-        /// Build fails on error. Default is <c>true</c>.
+        /// Build fails on error. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("haltonerror")]
         [BooleanValidator()]
@@ -352,7 +353,7 @@ namespace NAnt.NUnit2.Tasks {
 
 
             public override void Close() {
-                if (_message.Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(_message)) {
                     _task.Log(Level.Info, _message);
                 }
                 base.Close ();

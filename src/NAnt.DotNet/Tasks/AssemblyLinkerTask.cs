@@ -253,8 +253,8 @@ namespace NAnt.DotNet.Tasks {
         /// uptodate.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the assembly manifest needs compiling; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the assembly manifest needs compiling; 
+        /// otherwise, <see langword="false" />.
         /// </returns>
         protected virtual bool NeedsCompiling() {
             FileInfo outputFileInfo = new FileInfo(Output);

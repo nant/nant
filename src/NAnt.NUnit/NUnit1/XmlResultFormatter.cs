@@ -26,6 +26,8 @@ using System.Xml;
 
 using NUnit.Framework;
 
+using NAnt.Core.Util;
+
 namespace NAnt.NUnit1.Types {
     /// <summary>
     /// Prints detailed information about running tests in XML format.
@@ -73,7 +75,7 @@ namespace NAnt.NUnit1.Types {
             // if this is a testsuite, use it's name
             //
             string suiteName = suite.Suite.ToString();
-            if (suiteName == null || suiteName.Length == 0) {
+            if (StringUtils.IsNullOrEmpty(suiteName)) {
                 suiteName = "test"; 
             }
             _suiteElement.SetAttribute(AttributeName, suiteName );

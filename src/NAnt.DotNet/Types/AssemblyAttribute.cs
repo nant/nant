@@ -74,13 +74,13 @@ namespace NAnt.DotNet.Types {
         }
 
         /// <summary>
-        /// If <c>true</c> then the value of the attribute will be set as is, 
-        /// without actually looking for a matching constructor or named 
-        /// properties.  The default value is <c>false</c>.
+        /// If <see langword="true" /> then the value of the attribute will be 
+        /// set as is, without actually looking for a matching constructor or 
+        /// named properties. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the attribute should be set as is;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if the value of the attribute should be set 
+        /// as is; otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("asis")]
         [BooleanValidator()]
@@ -92,8 +92,9 @@ namespace NAnt.DotNet.Types {
         /// <summary>
         /// Indicates if the attribute should be generated. 
         /// </summary>
-        /// <value><c>true</c> if the attribute should be generated; otherwise,
-        /// <c>false</c>.
+        /// <value>
+        /// <see langword="true" /> if the attribute should be generated; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -105,8 +106,9 @@ namespace NAnt.DotNet.Types {
         /// <summary>
         /// Indicates if the attribute should be not generated. 
         /// </summary>
-        /// <value><c>true</c> if the attribute should be not generated; otherwise,
-        /// <c>false</c>.
+        /// <value>
+        /// <see langword="true" /> if the attribute should be not generated; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("unless")]
         [BooleanValidator()]

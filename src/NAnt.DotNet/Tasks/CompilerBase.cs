@@ -79,10 +79,10 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Generate debug output. Default is <c>false</c>.
+        /// Generate debug output. The default is <see langword="false" />.
         /// </summary>
-        [BooleanValidator()]
         [TaskAttribute("debug")]
+        [BooleanValidator()]
         public bool Debug {
             get { return _debug; }
             set { _debug = value; }
@@ -117,21 +117,21 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Instructs the compiler to treat all warnings as errors. Default is 
-        /// <c>false</c>.
+        /// Instructs the compiler to treat all warnings as errors. The default 
+        /// is <see langword="false" />.
         /// </summary>
         /// <remarks>
         /// <para>
         /// Corresponds to the <c>/warnaserror[+|-]</c> flag of the compiler.
         /// </para>
         /// <para>
-        /// When this property is set to <c>true</c>, any messages that would 
-        /// ordinarily be reported as warnings will instead be reported as 
-        /// errors.
+        /// When this property is set to <see langword="true" />, any messages 
+        /// that would ordinarily be reported as warnings will instead be 
+        /// reported as errors.
         /// </para>
         /// </remarks>
-        [BooleanValidator()]
         [TaskAttribute("warnaserror")]
+        [BooleanValidator()]
         public bool WarnAsError {
             get { return _warnAsError; }
             set { _warnAsError = value; }
@@ -147,8 +147,8 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// <para>
         /// Use this property when creating an executable file. If this property 
-        /// is set to <c>false</c>, the compiler searches for a valid Main method 
-        /// in all public classes.
+        /// is not set, the compiler searches for a valid Main method in all 
+        /// public classes.
         /// </para>
         /// </remarks>
         [TaskAttribute("main")]
@@ -314,7 +314,7 @@ namespace NAnt.DotNet.Tasks {
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames) {
                             string prefix = GetFormNamespace(fileName); // try and get it from matching form
-                            if (prefix == null || prefix.Length == 0) {
+                            if (StringUtils.IsNullOrEmpty(prefix)) {
                                 prefix = resources.Prefix;
                             }
                             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
@@ -332,7 +332,7 @@ namespace NAnt.DotNet.Tasks {
                                 manifestResourceName = manifestResourceName.Replace(".ascx", "");
                                 actualFileName = actualFileName.Replace(".ascx", "");
                             }
-                            if(prefix != null && prefix.Length != 0) {
+                            if (!StringUtils.IsNullOrEmpty(prefix)) {
                                 manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName);
                             }
                             string resourceoption = tmpResourcePath + "," + manifestResourceName;

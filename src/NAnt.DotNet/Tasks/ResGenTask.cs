@@ -214,8 +214,8 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="input">The input file.</param>
         /// <param name="output">The output file.</param>
         /// <returns>
-        /// <c>true</c> if the input file need to be compiled; otherwise 
-        /// <c>false</c>.
+        /// <see langword="true" /> if the input file need to be compiled; 
+        /// otherwise <see langword="false" />.
         /// </returns>
         protected virtual bool NeedsCompiling(string input, string output) {
               FileInfo outputFileInfo = new FileInfo(output);

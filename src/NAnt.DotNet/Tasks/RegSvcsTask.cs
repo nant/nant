@@ -173,10 +173,10 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Uses an existing type library. Default is <c>false</c>.
+        /// Uses an existing type library. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("existingtlb")]
-        [BooleanValidator]
+        [BooleanValidator()]
         public bool ExistingTypeLibrary {
             get { return _existingTlb; }
             set { _existingTlb = value; }
@@ -184,10 +184,10 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Do not reconfigure an existing target application. 
-        /// Default is <c>false</c>.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("noreconfig")]
-        [BooleanValidator]
+        [BooleanValidator()]
         public bool NoReconfig {
             get { return _noreconfig; }
             set {_noreconfig = value; }
@@ -195,20 +195,20 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Configures components only; ignores methods and interfaces.
-        /// Default is <c>false</c>.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("componentsonly")]
-        [BooleanValidator]
+        [BooleanValidator()]
         public bool ComponentsOnly {
             get { return _componentsOnly; }
             set { _componentsOnly = value; }
         }
 
         /// <summary>
-        /// Expect an existing application. Default is <c>false</c>.
+        /// Expect an existing application. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("existingapp")]
-        [BooleanValidator]
+        [BooleanValidator()]
         public bool ExistingApplication {
             get { return _existingApplication; }
             set { _existingApplication = value; }

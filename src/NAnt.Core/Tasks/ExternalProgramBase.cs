@@ -31,6 +31,7 @@ using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -120,8 +121,8 @@ namespace NAnt.Core.Tasks {
         /// <see cref="OutputFile" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if output should be appended to the <see cref="OutputFile" />; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if output should be appended to the <see cref="OutputFile" />; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         public virtual bool OutputAppend {
             get { return false; } 
@@ -166,11 +167,11 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether the external program should be executed using a 
-        /// runtime engine, if configured. Default is <c>false</c>.
+        /// runtime engine, if configured. The Default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the external program should be executed using a 
-        /// runtime engine; otherwise, <c>false</c>.
+        /// <see langword="true" /> if the external program should be executed 
+        /// using a runtime engine; otherwise, <see langword="false" />.
         /// </value>
         [FrameworkConfigurable("useruntimeengine")]
         public virtual bool UseRuntimeEngine {
@@ -353,7 +354,7 @@ namespace NAnt.Core.Tasks {
                     //do not print LogPrefix, just pad that length.
                     Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
-                    if (OutputFile != null && OutputFile.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(OutputFile)) {
                         StreamWriter writer = new StreamWriter(OutputFile, doAppend);
                         writer.WriteLine(strLogContents);
                         doAppend = true;
@@ -378,7 +379,7 @@ namespace NAnt.Core.Tasks {
                     //do not print LogPrefix, just pad that length.
                     Log(Level.Info, new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
-                    if (OutputFile != null && OutputFile.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(OutputFile)) {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
                         writer.Write(strLogContents);
                         writer.Close();

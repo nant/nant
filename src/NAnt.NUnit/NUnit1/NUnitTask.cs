@@ -41,8 +41,8 @@ namespace NAnt.NUnit1.Tasks {
     ///   The <see cref="HaltOnFailure" /> or <see cref="HaltOnError" /> 
     ///   attributes are only used to stop more than one test suite to stop 
     ///   running.  If any test suite fails a build error will be thrown.  
-    ///   Set <see cref="Task.FailOnError" /> to <c>false</c> to ignore test 
-    ///   errors and continue build.
+    ///   Set <see cref="Task.FailOnError" /> to <see langword="false" /> to 
+    ///   ignore test errors and continue build.
     ///   </para>
     /// </remarks>
     /// <example>
@@ -81,7 +81,8 @@ namespace NAnt.NUnit1.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Stops running tests when a test causes an error. Default is <c>false</c>.
+        /// Stops running tests when a test causes an error. The default is 
+        /// <see langword="false" />.
         /// </summary>
         /// <remarks>
         /// Implies haltonfailure.
@@ -94,7 +95,8 @@ namespace NAnt.NUnit1.Tasks {
         }
 
         /// <summary>
-        /// Stops running tests if a test fails (errors are considered failures as well).  Default is <c>false</c>.
+        /// Stops running tests if a test fails (errors are considered failures 
+        /// as well). The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
@@ -104,7 +106,8 @@ namespace NAnt.NUnit1.Tasks {
         }
 
         /// <summary>
-        /// Cancel the individual tests if they do not finish in the specified time (measured in milliseconds). Ignored if fork is disabled.
+        /// Cancel the individual tests if they do not finish in the specified 
+        /// time (measured in milliseconds). Ignored if fork is disabled.
         /// </summary>
         [TaskAttribute("timeout")]
         public int Timeout {

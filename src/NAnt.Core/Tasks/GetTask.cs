@@ -92,7 +92,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Log errors but don't treat as fatal. Default is <c>false</c>.
+        /// Log errors but don't treat as fatal. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("ignoreerrors")]
         [BooleanValidator()]
@@ -103,7 +103,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Conditionally download a file based on the timestamp of the local 
-        /// copy. HTTP only. Default is <c>false</c>.
+        /// copy. HTTP only. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("usetimestamp")]
         [BooleanValidator()]

@@ -108,7 +108,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Overwrite existing files even if the destination files are newer. 
-        /// Defaults to <c>false</c>.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("overwrite")]
         [BooleanValidator()]

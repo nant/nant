@@ -83,7 +83,7 @@ namespace NAnt.Core.Util {
                 object[] productAttributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false);
                 if (productAttributes.Length > 0) {
                     AssemblyProductAttribute productAttribute = (AssemblyProductAttribute) productAttributes[0];
-                    if (productAttribute.Product != null && productAttribute.Product.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(productAttribute.Product)) {
                         logoBanner.Append(productAttribute.Product);
                     }
                 } else {
@@ -95,7 +95,7 @@ namespace NAnt.Core.Util {
                 object[] informationalVersionAttributes = assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
                 if (informationalVersionAttributes.Length > 0) {
                     AssemblyInformationalVersionAttribute versionAttribute = (AssemblyInformationalVersionAttribute) informationalVersionAttributes[0];
-                    if (versionAttribute.InformationalVersion != null && versionAttribute.InformationalVersion.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(versionAttribute.InformationalVersion)) {
                         logoBanner.Append(" version " + versionAttribute.InformationalVersion);
                     }
                 } else {
@@ -108,7 +108,7 @@ namespace NAnt.Core.Util {
                 object[] copyrightAttributes = assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
                 if (copyrightAttributes.Length > 0) {
                     AssemblyCopyrightAttribute copyrightAttribute = (AssemblyCopyrightAttribute) copyrightAttributes[0];
-                    if (copyrightAttribute.Copyright != null && copyrightAttribute.Copyright.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(copyrightAttribute.Copyright)) {
                         logoBanner.Append(" " + copyrightAttribute.Copyright);
                     }
                 }
@@ -120,7 +120,7 @@ namespace NAnt.Core.Util {
                 object[] companyAttributes = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
                 if (companyAttributes.Length > 0) {
                     AssemblyCompanyAttribute companyAttribute = (AssemblyCompanyAttribute) companyAttributes[0];
-                    if (companyAttribute.Company != null && companyAttribute.Company.Length != 0) {
+                    if (!StringUtils.IsNullOrEmpty(companyAttribute.Company)) {
                         logoBanner.Append(companyAttribute.Company);
                         logoBanner.Append('\n');
                     }

@@ -227,8 +227,8 @@ namespace NAnt.DotNet.Tasks {
                 // build documentation
                 try {
                     documenter.Build(project);
-                } catch (Exception e) {
-                    throw new BuildException(LogPrefix + "Error building documentation.", Location, e);
+                } catch (Exception ex) {
+                    throw new BuildException(LogPrefix + "Error building documentation.", Location, ex);
                 }
             }
         }
@@ -266,13 +266,15 @@ namespace NAnt.DotNet.Tasks {
             if (project == null) {
                 project = new NDoc.Core.Project();
             }
+
             foreach (IDocumenter d in project.Documenters) {
                 // ignore case when comparing documenter names
-                if (String.Compare(d.Name, documenterName, true, CultureInfo.InvariantCulture) == 0) {
+                if (string.Compare(d.Name, documenterName, true, CultureInfo.InvariantCulture) == 0) {
                     documenter = (IDocumenter) d;
                     break;
                 }
             }
+
             return documenter;
         }
 

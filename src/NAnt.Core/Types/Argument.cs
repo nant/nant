@@ -77,8 +77,8 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// Indicates if the argument should be passed to the external program. 
-        /// If <c>true</c> then the argument will be passed; otherwise skipped. 
-        /// Default is <c>true</c>.
+        /// If <see langword="true" /> then the argument will be passed; 
+        /// otherwise, skipped. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -89,8 +89,8 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// Indicates if the argument should not be passed to the external 
-        /// program. If <c>false</c> then the argument will be passed; otherwise 
-        /// skipped. Default is <c>false</c>.
+        /// program. If <see langword="false" /> then the argument will be 
+        /// passed; otherwise, skipped. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]

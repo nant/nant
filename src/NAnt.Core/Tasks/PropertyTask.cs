@@ -33,7 +33,7 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>
-    ///   Define a <c>debug</c> property with value <c>true</c>.
+    ///   Define a <c>debug</c> property with value <see langword="true" />.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -91,7 +91,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether the property is read-only or not. 
-        /// Default is <c>false</c>.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
@@ -103,7 +103,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Specifies whether the value of a property should be overwritten if
         /// the property already exists (unless the property is readonly). 
-        /// Default is <c>true</c>.
+        /// The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("overwrite", Required=false)]
         [BooleanValidator()]

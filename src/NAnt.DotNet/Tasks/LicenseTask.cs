@@ -51,10 +51,10 @@ namespace NAnt.DotNet.Tasks {
     public class LicenseTask : Task {
         #region Private Instance Fields
 
-        FileSet _assemblies;
-        string _input;
-        string _output;
-        string _strTarget;
+        private FileSet _assemblies;
+        private string _input;
+        private string _output;
+        private string _strTarget;
 
         #endregion Private Instance Fields
 

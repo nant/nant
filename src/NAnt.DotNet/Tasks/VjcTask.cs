@@ -57,13 +57,13 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Specifies whether package-scoped members are accessible outside of the assembly.
-        /// In other words, package scope is treated as assembly scope when emitting metadata.
-        /// Default is <c>false</c>.
+        /// Specifies whether package-scoped members are accessible outside of 
+        /// the assembly. In other words, package scope is treated as assembly 
+        /// scope when emitting metadata. The default is <see langword="false" />.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the option should be passed to the compiler; otherwise,
-        /// <c>false</c>.
+        /// <see langword="true" /> if the option should be passed to the compiler; 
+        /// otherwise, <see langword="false" />.
         /// </value>
         /// <remarks>
         /// <para>
@@ -114,13 +114,15 @@ namespace NAnt.DotNet.Tasks {
        
         /// <summary>
         /// Specifies the location of assemblies referenced by way of the <c>/reference</c> flag.
-        /// <para>Corresponds to the <c>/libpath:dir[;dir2]</c> flag.</para>
         /// </summary>
-        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrflibpathspecifyassemblyreferencelocations.htm">See the Visual J# Reference for details.</a></remarks>
-        /// <value>
-        /// <para>The value of this property must exist or an empty string.</para>
-        /// <para>If <c>false</c>, or an empty string, the switch is omitted.</para>
-        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to the <c>/libpath:dir[;dir2]</c> flag.
+        /// </para>
+        /// <para>
+        /// <a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrflibpathspecifyassemblyreferencelocations.htm">See the Visual J# Reference for details.</a>
+        /// </para>
+        /// </remarks>
         [TaskAttribute("libpath")]
         public string LibPath {
             get { return _libPath; }
@@ -129,12 +131,19 @@ namespace NAnt.DotNet.Tasks {
        
         /// <summary>
         /// Associate Java-language/COM package names.
-        /// <para>Corresponds to the <c>/jcpa:package=namespace</c> and <c>/jcpa:@filename</c> flags.</para>
         /// </summary>
-        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfjcpaassociatejava-compackages.htm">See the Visual J# Reference for details.</a></remarks>
         /// <value>
-        /// <para>The value of this propery. must be <c>package=namespace</c>, <c>@filename</c>, or an empty string.</para>
+        /// The value of this propery. must be <c>package=namespace</c>, <c>@filename</c>, 
+        /// or an empty string.
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to the <c>/jcpa:package=namespace</c> and <c>/jcpa:@filename</c> flags.
+        /// </para>
+        /// <para>
+        /// <a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfjcpaassociatejava-compackages.htm">See the Visual J# Reference for details.</a>
+        /// </para>
+        /// </remarks>
         /// <example>
         /// <para>Map package 'x' to namespace 'y':<c><![CDATA[
         /// <vjc jcpa='x=y'/>

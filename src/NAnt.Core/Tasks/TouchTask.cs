@@ -24,6 +24,7 @@ using System.Globalization;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -164,7 +165,7 @@ namespace NAnt.Core.Tasks {
         private DateTime GetDateTime(string dateText){
             DateTime touchDateTime = new DateTime();
 
-            if (dateText.Length != 0) {
+            if (!StringUtils.IsNullOrEmpty(dateText)) {
                 touchDateTime = DateTime.Parse(dateText, CultureInfo.InvariantCulture);
             } else {
                 touchDateTime = DateTime.Now;

@@ -22,9 +22,10 @@ using System.IO;
 using System.Text;
 
 using NAnt.Core;
-using NAnt.Core.Types;
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Win32.Tasks {
     /// <summary>
@@ -68,13 +69,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("assembly", Required=false)]
         public string Assembly {
             get { return (_assembly != null) ? Project.GetFullPath(_assembly) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _assembly = value;
-                } else {
-                    _assembly = null;
-                }
-            }
+            set { _assembly = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -87,13 +82,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("output", Required=true)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _output = value;
-                } else {
-                    _output = null;
-                }
-            }
+            set { _output = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -107,13 +96,7 @@ namespace NAnt.Win32.Tasks {
         [TaskAttribute("names")]
         public string Names {
             get { return (_names != null) ? Project.GetFullPath(_names) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _names = value;
-                } else {
-                    _names = null;
-                }
-            }
+            set { _names = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -182,8 +165,8 @@ namespace NAnt.Win32.Tasks {
         /// library again.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the assembly needs to be exported to a type library; 
-        /// otherwise, <c>false</c>.
+        /// <see langword="true" /> if the assembly needs to be exported to a 
+        /// type library; otherwise, <see langword="false" />.
         /// </returns>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
