@@ -7,7 +7,7 @@
     -->
     <target name="build"> 
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.dll" doc="${build.dir}/bin/NAnt.ZipTasks.xml">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.dll" doc="${build.dir}/bin/NAnt.ZipTasks.xml">
             <sources>
                 <includes name="NAnt.ZipTasks/**/*.cs" />
                 <!-- common assembly-level attributes -->
