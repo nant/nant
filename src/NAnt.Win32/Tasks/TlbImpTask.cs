@@ -30,20 +30,22 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Win32.Tasks {
     /// <summary>
-    /// Imports a type library to a .NET assembly (wraps Microsoft's tlbimp.exe).
+    /// Imports a type library to a .NET assembly (wraps Microsoft's <c>tlbimp.exe</c>).
     /// </summary>
     /// <remarks>
     /// <para>
     /// This task lets you easily create interop assemblies.  By default, it will 
     /// not reimport if the underlying COM TypeLib or reference has not changed.
     /// </para>
-    /// <para><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></para>
+    /// <para>
+    /// <a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a>
+    /// </para>
     /// </remarks>
     /// <example>
     ///   <para>Import <c>LegacyCOM.dll</c> to <c>DotNetAssembly.dll</c>.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <tlbimp typelib="LegacyCOM.dll" output="DotNetAssembly.dll"/>
+    /// <tlbimp typelib="LegacyCOM.dll" output="DotNetAssembly.dll" />
     ///     ]]>
     ///   </code>
     /// </example>

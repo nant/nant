@@ -63,8 +63,8 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the name of the executable that should be used to launch 
-        /// the external program.
+        /// The name of the executable that should be used to launch the 
+        /// external program.
         /// </summary>
         /// <value>
         /// The name of the executable that should be used to launch the external

@@ -99,7 +99,7 @@ namespace NAnt.Core.Tasks {
     /// <sysinfo prefix="" />
     ///     ]]>
     ///   </code>
-    ///   <para>Register properties and display a summary</para>
+    ///   <para>Register properties and display a summary.</para>
     ///   <code>
     ///     <![CDATA[
     /// <sysinfo verbose="true" />
@@ -108,7 +108,13 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("sysinfo")]
     public class SysInfoTask : Task {
+        #region Private Instance Fields
+
         private string _prefix = "sys.";
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
        
         /// <summary>
         /// The string to prefix the property names with. Default is <c>sys.</c>.
@@ -118,6 +124,10 @@ namespace NAnt.Core.Tasks {
             get { return _prefix; }
             set { _prefix = value; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "Setting system information properties under " + Prefix + "*");
@@ -152,5 +162,7 @@ namespace NAnt.Core.Tasks {
                 }
             }
         }
+
+        #endregion Override implementation of Task
     }
 }

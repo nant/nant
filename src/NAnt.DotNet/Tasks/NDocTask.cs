@@ -39,7 +39,10 @@ namespace NAnt.DotNet.Tasks {
     ///   <para>See the <a href="http://ndoc.sf.net">NDoc home page</a> for more information.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Document two assemblies using the MSDN documenter.  The namespaces are documented in <c>NamespaceSummary.xml</c></para>
+    ///   <para>
+    ///   Document two assemblies using the MSDN documenter. The namespaces are 
+    ///   documented in <c>NamespaceSummary.xml</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <ndoc>
@@ -77,7 +80,7 @@ namespace NAnt.DotNet.Tasks {
     /// </ndoc>
     ///     ]]>
     ///   </code>
-    ///   <para><c>NamespaceSummary.xml</c> contents</para>
+    ///   <para>Content of <c>NamespaceSummary.xml</c> :</para>
     ///   <code>
     ///     <![CDATA[
     /// <namespaces>

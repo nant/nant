@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,42 +45,60 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("sleep")]
     public class SleepTask : Task {
+        #region Private Instance Fields
        
-        int _hours = 0;
-        int _minutes = 0;
-        int _seconds = 0;
-        int _milliseconds = 0;
+        private int _hours = 0;
+        private int _minutes = 0;
+        private int _seconds = 0;
+        private int _milliseconds = 0;
 
-        /// <summary>Hours to add to the sleep time.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Hours to add to the sleep time.
+        /// </summary>
         [TaskAttribute("hours")]
         [Int32Validator(0, Int32.MaxValue)]
-        public int Hours                  { get { return _hours; } set {_hours = value; } }
+        public int Hours {
+            get { return _hours; }
+            set { _hours = value; }
+        }
         
-        /// <summary>Minutes to add to the sleep time.</summary>
+        /// <summary>
+        /// Minutes to add to the sleep time.
+        /// </summary>
         [TaskAttribute("minutes")]
         [Int32Validator(0, Int32.MaxValue)]
-        public int Minutes                { get { return _minutes; } set {_minutes = value; } }
+        public int Minutes {
+            get { return _minutes; }
+            set {_minutes = value; }
+        }
         
-        /// <summary>Seconds to add to the sleep time.</summary>
+        /// <summary>
+        /// Seconds to add to the sleep time.
+        /// </summary>
         [TaskAttribute("seconds")]
         [Int32Validator(0, Int32.MaxValue)]
-        public int Seconds                { get { return _seconds; } set {_seconds = value; } }
+        public int Seconds {
+            get { return _seconds; }
+            set { _seconds = value; }
+        }
         
-        /// <summary>Milliseconds to add to the sleep time.</summary>
+        /// <summary>
+        /// Milliseconds to add to the sleep time.
+        /// </summary>
         [TaskAttribute("milliseconds")]
         [Int32Validator(0, Int32.MaxValue)]
-        public int Milliseconds           { get { return _milliseconds; } set {_milliseconds = value; } }
-
-        /// <summary>Return time to sleep.</summary>
-        private int GetSleepTime() {
-            return ((((int) Hours * 60) + Minutes) * 60 + Seconds) * 1000 + Milliseconds;
+        public int Milliseconds {
+            get { return _milliseconds; }
+            set { _milliseconds = value; }
         }
 
-        /// <summary>Sleep the specified number of milliseconds.</summary>
-        /// <param name="millis">Milliseconds to sleep.</param>
-        private void DoSleep(int millis ) {
-            Thread.Sleep(millis);
-        }
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         /// <summary>
         ///  Verify parameters.
@@ -97,5 +115,26 @@ namespace NAnt.Core.Tasks {
             Log(Level.Info, LogPrefix + "Sleeping for {0} milliseconds.", sleepTime);
             DoSleep(sleepTime);
         }
+
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Return time to sleep.
+        /// </summary>
+        private int GetSleepTime() {
+            return ((((int) Hours * 60) + Minutes) * 60 + Seconds) * 1000 + Milliseconds;
+        }
+
+        /// <summary>
+        /// Sleeps for the specified number of milliseconds.
+        /// </summary>
+        /// <param name="millis">Number of milliseconds to sleep.</param>
+        private void DoSleep(int millis ) {
+            Thread.Sleep(millis);
+        }
+
+        #endregion Private Instance Methods
     }
 }

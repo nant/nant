@@ -90,8 +90,8 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// The code language in which the AssemblyInfo file should be 
-        /// generated - either <see cref="F:CodeLanguage.CSharp" />  or 
-        /// <see cref="F:CodeLanguage.VB" />.
+        /// generated - either <see cref="CodeLanguage.CSharp" />  or 
+        /// <see cref="CodeLanguage.VB" />.
         /// </summary>
         /// <value>
         /// The code language in which the AssemblyInfo file should be 

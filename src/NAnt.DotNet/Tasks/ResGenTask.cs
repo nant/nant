@@ -30,15 +30,19 @@ using NAnt.Core.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
-    /// Converts files from one resource format to another.
-    /// <note>
-    ///     <para>
-    ///         If no todir is specified, the resource file will be created next to the input file.
-    ///     </para>
-    /// </note>
+    ///   <para>
+    ///   Converts files from one resource format to another.
+    ///   </para>
+    ///   <note>
+    ///   If no <see cref="ToDirectory" /> is specified, the resource file will 
+    ///   be created next to the input file.
+    ///   </note>
     /// </summary>
     /// <example>
-    ///   <para>Convert a resource file from the <c>.resx</c> to the <c>.resources</c> format.</para>
+    ///   <para>
+    ///   Convert a resource file from the <c>.resx</c> to the <c>.resources</c> 
+    ///   format.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <resgen input="translations.resx" output="translations.resources" />
@@ -46,10 +50,12 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Convert a fileset of <c>.resx</c> files to the <c>.resources</c> format.</para>
+    ///   <para>
+    ///   Convert a set of <c>.resx</c> files to the <c>.resources</c> format.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <resgen todir="." >
+    /// <resgen todir=".">
     ///     <resources>
     ///         <includes name="*.resx" />
     ///     </resources>

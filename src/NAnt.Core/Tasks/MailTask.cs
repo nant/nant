@@ -29,7 +29,7 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks { 
     /// <summary>
-    /// A task to send an SMTP message.
+    /// Sends an SMTP message.
     /// </summary>
     /// <remarks>
     /// Text and text files to include in the message body may be specified as 

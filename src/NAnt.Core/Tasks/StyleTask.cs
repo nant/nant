@@ -33,13 +33,15 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// <para>
-    ///     Processes a document via XSLT.</para>
-    /// <para>
-    ///     This is useful for building views of XML based documentation, or in generating code.</para>
-    /// <para>
-    ///     Note: <![CDATA[<param name="" expression=""/>]]> are allowed.
-    /// </para>
+    ///   <para>
+    ///   Processes a document via XSLT.</para>
+    ///   <para>
+    ///   This is useful for building views of XML based documentation, or for 
+    ///   generating code.
+    ///   </para>
+    ///   <note>
+    ///   <![CDATA[<param name="" expression="" />]]> are allowed.
+    ///   </note>
     /// </summary>
     /// <example>
     ///   <para>Create a report in HTML.</para>
@@ -70,13 +72,13 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    /// <para>Create a some code based on a directory of templates.</para>
+    /// <para>Create some code based on a directory of templates.</para>
     ///   <code>
     ///     <![CDATA[
     /// <style style="CodeGenerator.xsl" extension="java">
-    ///   <infiles>
-    ///     <includes name="*.xml" />
-    ///   </infiles>
+    ///     <infiles>
+    ///         <includes name="*.xml" />
+    ///     </infiles>
     /// <style>
     ///     ]]>
     ///   </code>
@@ -99,34 +101,71 @@ namespace NAnt.Core.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>Where to find the source XML file, default is the project's basedir.</summary>
+        /// <summary>
+        /// Where to find the source XML file, default is the project's basedir.
+        /// </summary>
         [TaskAttribute("basedir", Required=false)]
-        public string BaseDir                  { get { return _baseDir; } set { _baseDir = value; } }
+        public string BaseDir {
+            get { return _baseDir; }
+            set { _baseDir = value; }
+        }
         
-        /// <summary>Directory in which to store the results.</summary>
+        /// <summary>
+        /// Directory in which to store the results.
+        /// </summary>
         [TaskAttribute("destdir", Required=false)]
-        public string DestDir                  { get { return _destDir; } set { _destDir = value; } }
+        public string DestDir {
+            get { return _destDir; }
+            set { _destDir = value; }
+        }
         
-        /// <summary>Desired file extension to be used for the targets. Default is <c>html</c>.</summary>
+        /// <summary>
+        /// Desired file extension to be used for the targets. Default is <c>html</c>.
+        /// </summary>
         [TaskAttribute("extension", Required=false)]
-        public string Extension                { get { return _extension; } set { _extension = value; } }
+        public string Extension {
+            get { return _extension; }
+            set { _extension = value; }
+        }
         
-        /// <summary>Name of the stylesheet to use - given either relative to the project's basedir or as an absolute path.</summary>
+        /// <summary>
+        /// Name of the stylesheet to use - given either relative to the project's 
+        /// basedir or as an absolute path.
+        /// </summary>
         [TaskAttribute("style", Required=true)]
-        public string StyleSheet               { get { return _xsltFile; } set { _xsltFile = value; } }
+        public string StyleSheet {
+            get { return _xsltFile; }
+            set { _xsltFile = value; }
+        }
         
-        /// <summary>Specifies a single XML document to be styled. Should be used with the out attribute.</summary>
+        /// <summary>
+        /// Specifies a single XML document to be styled. Should be used with 
+        /// the <see cref="OutputFile" /> attribute.
+        /// </summary>
         [TaskAttribute("in", Required=false)]
-        public string SrcFile                  { get { return _srcFile; } set { _srcFile = value; } }
+        public string SrcFile {
+            get { return _srcFile; }
+            set { _srcFile = value; }
+        }
         
-        /// <summary>Specifies the output name for the styled result from the in attribute.</summary>
+        /// <summary>
+        /// Specifies the output name for the styled result from the <see cref="SrcFile" /> 
+        /// attribute.
+        /// </summary>
         [TaskAttribute("out", Required=false)]
-        public string OutputFile               { get { return _outputFile; } set { _outputFile = value; } }
+        public string OutputFile {
+            get { return _outputFile; }
+            set { _outputFile = value; }
+        }
 
-       
-        /// <summary>Specifies a group of input files to which to apply the stylesheet.</summary>
+        /// <summary>
+        /// Specifies a group of input files to which to apply the stylesheet.
+        /// </summary>
         [FileSet("infiles")]
-        public FileSet InFiles                 { get { return _inFiles; } set { _inFiles = value; } }
+        public FileSet InFiles {
+            get { return _inFiles; }
+            set { _inFiles = value; }
+        }
 
         #region Override implementation of Task
 

@@ -32,19 +32,26 @@ namespace NAnt.Core.Tasks {
     ///   <note>NAnt uses a number of predefined properties.</note>
     /// </remarks>
     /// <example>
-    ///   <para>Define a <c>debug</c> property with value <c>true</c>.</para>
+    ///   <para>
+    ///   Define a <c>debug</c> property with value <c>true</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <property name="debug" value="true" />
     ///     ]]>
     ///   </code>
-    ///   <para>Use the user-defined <c>debug</c> property.</para>
+    ///   <para>
+    ///   Use the user-defined <c>debug</c> property.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <property name="trace" value="${debug}" />
     ///     ]]>
     ///   </code>
-    ///   <para>Define a read-only property.</para><para>This is just like passing in the param on the command line.</para>
+    ///   <para>
+    ///   Define a read-only property. This is just like passing in the param 
+    ///   on the command line.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <property name="do_not_touch_ME" value="hammer" readonly="true" />
@@ -112,9 +119,9 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             // Special check for framework setting.
             // TODO design framework for handling special properties
-            if (_name == "nant.settings.currentframework") {
-                if (Project.FrameworkInfoDictionary.Contains(_value)) {
-                    Project.CurrentFramework = Project.FrameworkInfoDictionary[_value];
+            if (PropertyName == "nant.settings.currentframework") {
+                if (Project.FrameworkInfoDictionary.Contains(Value)) {
+                    Project.CurrentFramework = Project.FrameworkInfoDictionary[Value];
                 } else {
                     ArrayList validvalues = new ArrayList();
                     foreach (FrameworkInfo framework in Project.FrameworkInfoDictionary) {
@@ -127,7 +134,7 @@ namespace NAnt.Core.Tasks {
                     }
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Error setting current Framework. '{0}' is not a valid framework identifier. {1}", 
-                        _value, validvaluesare), Location);
+                        Value, validvaluesare), Location);
                 }
             }
 

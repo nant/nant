@@ -48,10 +48,11 @@ namespace NAnt.NUnit2.Tasks {
     ///   information.
     ///   </para>
     ///   <para>
-    ///   The <c>haltonfailure</c> or <c>haltonerror</c> properties are only 
-    ///   used to stop more than one test suite to stop running.  If any test 
-    ///   suite fails, a build error will be thrown.  Set <c>failonerror</c> 
-    ///   to <c>false</c> to ignore test errors and continue the build.
+    ///   The <see cref="HaltOnFailure" /> or <see cref="HaltOnError" /> 
+    ///   attributes are only used to stop more than one test suite to stop 
+    ///   running.  If any test suite fails, a build error will be thrown.  
+    ///   Set <see cref="Task.FailOnError" /> to <c>false</c> to ignore test 
+    ///   errors and continue the build.
     ///   </para>
     /// </remarks>
     /// <example>
@@ -122,7 +123,7 @@ namespace NAnt.NUnit2.Tasks {
         }
 
         /// <summary>
-        /// Formatters to output results of unit tests 
+        /// Formatters to output results of unit tests.
         /// </summary>
         [BuildElementArray("formatter")]
         public FormatterElementCollection FormatterElements {
@@ -262,7 +263,7 @@ namespace NAnt.NUnit2.Tasks {
 
         /// <summary>
         /// Implements a <see cref="TextWriter" /> for writing information to 
-        /// the Nant logging infrastructure.
+        /// the NAnt logging infrastructure.
         /// </summary>
         private class LogWriter : TextWriter {
             #region Public Instance Constructors

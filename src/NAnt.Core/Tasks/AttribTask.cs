@@ -20,8 +20,8 @@
 
 using System;
 using System.Collections.Specialized;
-using System.IO;
 using System.Globalization;
+using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -31,23 +31,30 @@ namespace NAnt.Core.Tasks {
     /// Changes the file attributes of a file or set of files.
     /// </summary>
     /// <remarks>
-    ///   <para>The <c>attrib</c> task does not have the concept of turning file attributes off.  Instead you specify all the attributes that you want turned on and the rest are turned off by default.</para>
-    ///   <para>Refer to the <a href="ms-help://MS.NETFrameworkSDK/cpref/html/frlrfSystemIOFileAttributesClassTopic.htm">FileAttributes</a> enumeration in the .NET SDK for more information about file attributes.</para>
+    /// <para>
+    /// <see cref="AttribTask" /> does not have the concept of turning file 
+    /// attributes off.  Instead you specify all the attributes that you want 
+    /// turned on and the rest are turned off by default.
+    /// </para>
+    /// <para>
+    /// Refer to the <see cref="FileAttributes" /> enumeration in the .NET SDK 
+    /// for more information about file attributes.
+    /// </para>
     /// </remarks>
     /// <example>
-    ///   <para>Set the read-only attribute for the specified file in the project directory.</para>
+    ///   <para>Set the <c>read-only</c> file attribute for the specified file in the project directory.</para>
     ///   <code>
     ///     <![CDATA[
     /// <attrib file="myfile.txt" readonly="true" />
     ///     ]]>
     ///   </code>
-    ///   <para>Set the normal file attributes to the specified file.</para>
+    ///   <para>Set the <c>normal</c> file attribute for the specified file.</para>
     ///   <code>
     ///     <![CDATA[
     /// <attrib file="myfile.txt" normal="true" />
     ///     ]]>
     ///   </code>
-    ///   <para>Set the normal file attributes to all executable files in the current project directory and sub-directories.</para>
+    ///   <para>Set the <c>normal</c> file attribute for all executable files in the current project directory and sub-directories.</para>
     ///   <code>
     ///     <![CDATA[
     /// <attrib normal="true">
@@ -81,7 +88,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("file")]
         public string FileName {
-            get { return _fileName; }
+            get { return _fileName != null ? Project.GetFullPath(_fileName) : null; }
             set { _fileName = SetStringValue(value); }
         }
 
@@ -115,7 +122,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the normal file attributes. This attribute is valid only if used 
+        /// Set the normal file attributes. This attribute is only valid if used 
         /// alone. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("normal")]
@@ -152,13 +159,7 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             // add the shortcut filename to the file set
             if (FileName != null) {
-                try {
-                    string path = Project.GetFullPath(FileName);
-                    AttribFileSet.Includes.Add(path);
-                } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", FileName);
-                    throw new BuildException(msg, Location, e);
-                }
+                AttribFileSet.Includes.Add(FileName);
             }
 
             // gather the information needed to perform the operation
@@ -186,10 +187,10 @@ namespace NAnt.Core.Tasks {
                 } else {
                     throw new FileNotFoundException();
                 }
-            } catch (Exception e) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot set file attributes for '{0}'", path);
+            } catch (Exception ex) {
+                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot set file attributes for '{0}'.", path);
                 if (FailOnError) {
-                    throw new BuildException(msg, Location, e);
+                    throw new BuildException(msg, Location, ex);
                 } else {
                     Log(Level.Verbose, LogPrefix + msg);
                 }
@@ -198,6 +199,7 @@ namespace NAnt.Core.Tasks {
 
         private FileAttributes GetFileAttributes() {
             FileAttributes fileAttributes = 0;
+
             if (NormalAttrib) {
                 fileAttributes = FileAttributes.Normal;
             } else {
@@ -214,9 +216,11 @@ namespace NAnt.Core.Tasks {
                     fileAttributes |= FileAttributes.System;
                 }
             }
-            if (fileAttributes == 0) {
+
+            if (!Enum.IsDefined(typeof(FileAttributes), fileAttributes)) {
                 fileAttributes = FileAttributes.Normal;
             }
+
             return fileAttributes;
         }
 

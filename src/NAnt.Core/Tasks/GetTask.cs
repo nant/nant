@@ -37,7 +37,10 @@ namespace NAnt.Core.Tasks {
     ///   <note>This timestamp facility only works on downloads using the HTTP protocol.</note>
     /// </remarks>
     /// <example>
-    ///   <para>Gets the index page of the NAnt home page, and stores it in the file help/index.html.</para>
+    ///   <para>
+    ///   Gets the index page of the NAnt home page, and stores it in the file 
+    ///   <c>help/index.html</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <get src="http://nant.sourceforge.org/" dest="help/index.html" />

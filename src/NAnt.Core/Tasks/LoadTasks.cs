@@ -31,28 +31,30 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Loads tasks form a given assembly or all assemblies in given directories.
+    /// Loads tasks form a given assembly or all assemblies in a given directory
+    /// or <see cref="FileSet" />.
     /// </summary>
     /// <remarks></remarks>
      /// <example>
     ///   <para>
-    ///   Load tasks from a single assembly 
+    ///   Load tasks from a single assembly.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <loadtasks assembly="C:foo\NAnt.Contrib.Tasks.dll" />
+    /// <loadtasks assembly="c:foo\NAnt.Contrib.Tasks.dll" />
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Scan a single directory for task assemblies 
+    ///   Scan a single directory for task assemblies.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <loadtasks path="C:\foo" />
+    /// <loadtasks path="c:\foo" />
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Use a fileset containing both directories and assembly paths
+    ///   Use a <see cref="TaskFileSet" /> containing both a directory and an 
+    ///   assembly.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -69,25 +71,40 @@ namespace NAnt.Core.Tasks {
     public class LoadTasksTask : Task {
         #region Private Instance Fields
 
-        string _assembly = null;
-        string _path = null;
-        FileSet _fileset = new FileSet();
+        private string _assembly = null;
+        private string _path = null;
+        private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
         
         #region Public Instance Properties
 
-        /// <summary>An assembly to load tasks from.</summary>
+        /// <summary>
+        /// An assembly to load tasks from.
+        /// </summary>
         [TaskAttribute("assembly")]
-        public string AssemblyPath      { get { return _assembly; } set {_assembly = value; } }
+        public string AssemblyPath {
+            get { return _assembly; }
+            set { _assembly = value; }
+        }
 
-        /// <summary>A directory to scan for task assemblies.</summary>
+        /// <summary>
+        /// A directory to scan for task assemblies.
+        /// </summary>
         [TaskAttribute("path")]
-        public string Path              { get { return _path; } set {_path = value; } }
+        public string Path {
+            get { return _path; }
+            set { _path = value; }
+        }
         
-         /// <summary>Filesets are used to select which directories or individual assemblies to scan.</summary>
+         /// <summary>
+         /// Used to select which directories or individual assemblies to scan.
+         /// </summary>
         [FileSet("fileset")]
-        public FileSet TaskFileSet      { get { return _fileset; } set {_fileset = value; } }
+        public FileSet TaskFileSet {
+            get { return _fileset; }
+            set { _fileset = value; }
+        }
         
         #endregion Public Instance Properties
 

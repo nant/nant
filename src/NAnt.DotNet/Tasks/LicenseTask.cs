@@ -31,17 +31,19 @@ using NAnt.Core.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
-    /// Task to generate a .licence file from a .licx file.
+    /// Generates a <c>.licence</c> file from a <c>.licx</c> file.
     /// </summary>
     /// <remarks>
-    /// If no output file is specified, the default filename is the name of the target file with the extension 
-    /// ".licenses" appended.
+    /// If no output file is specified, the default filename is the name of the 
+    /// target file with the extension <c>.licenses</c> appended.
     /// </remarks>
     /// <example>
-    ///   <para>Generate the file <c>component.exe.licenses</c> file from <c>component.licx</c>.</para>
+    ///   <para>
+    ///   Generate the file <c>component.exe.licenses</c> file from <c>component.licx</c>.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    ///         <license input="component.licx" licensetarget="component.exe" />
+    /// <license input="component.licx" licensetarget="component.exe" />
     ///     ]]>
     ///   </code>
     /// </example> 

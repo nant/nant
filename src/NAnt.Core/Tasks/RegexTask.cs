@@ -37,34 +37,44 @@ namespace NAnt.Core.Tasks {
     /// <note>The named grouping construct must not contain any punctuation and it cannot begin with a number.</note>
     /// </remarks>
     /// <example>
-    ///   <para>Finds the last word in the given string and stores it property lastword.</para>
+    ///   <para>Find the last word in the given string and stores it in the property <c>lastword</c>.</para>
     ///   <code>
     ///     <![CDATA[
     /// <regex pattern="(?'lastword'\w+)$" input="This is a test sentence" />
     /// <echo message="${lastword}" />
     ///     ]]>
     ///   </code>
-    ///   <para>Splits the full filename and extension of a filename.</para>
+    ///   <para>Split the full filename and extension of a filename.</para>
     ///   <code>
     ///     <![CDATA[
     /// <regex pattern="^(?'filename'.*)\.(?'extension'\w+)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
     ///     ]]>
     ///   </code>
-    ///   <para>Splits the path and the filename. (This checks for "/" or "\" as the path sep.).</para>
+    ///   <para>Split the path and the filename. (This checks for <c>/</c> or <c>\</c> as the path separator).</para>
     ///   <code>
     ///     <![CDATA[
     /// <regex pattern="^(?'path'.*(\\|/)|(/|\\))(?'file'.*)$" input="d:\Temp\SomeDir\SomeDir\bla.xml" />
     ///     ]]>
     ///   </code>
-    ///   <para>Results in path=d:\Temp\SomeDir\SomeDir\ , file=bla.xml.</para>
+    ///   <para>Results in path=<c>d:\Temp\SomeDir\SomeDir\</c> and file=<c>bla.xml</c>.</para>
     /// </example>
     [TaskName("regex")]
     public class RegexTask : Task {
+        #region Private Instance Fields
+
         private string _pattern = null;
         private string _input = null;
 
-        /// <summary>Represents the regular expression to be evalued.</summary>
-        /// <value>Represents the regular expression to be evalued.</value>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Represents the regular expression to be evalued.
+        /// </summary>
+        /// <value>
+        /// Represents the regular expression to be evalued.
+        /// </value>
         /// <remarks>
         /// The pattern must contain one or more named constructs, which may 
         /// not contain any punctuation and cannot begin with a number.
@@ -75,13 +85,21 @@ namespace NAnt.Core.Tasks {
             set { _pattern = value; }
         }
 
-        /// <summary>Represents the input for the regular expression.</summary>
-        /// <value>Represents the input for the regular expression.</value>
+        /// <summary>
+        /// Represents the input for the regular expression.
+        /// </summary>
+        /// <value>
+        /// Represents the input for the regular expression.
+        /// </value>
         [TaskAttribute("input", Required=true)]
         public string Input {
             get { return _input;}
             set { _input = value; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         /// <summary>
         /// Executes the task.
@@ -105,5 +123,7 @@ namespace NAnt.Core.Tasks {
                 Properties [ groupName ] = match.Groups[groupName].Value;
             }
         }
+
+        #endregion Override implementation of Task
     }
 }

@@ -31,11 +31,19 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Copies a file or fileset to a new file or directory.
+    /// Copies a file or set of files to a new file or directory.
     /// </summary>
     /// <remarks>
-    ///   <para>Files are only copied if the source file is newer than the destination file, or if the destination file does not exist. However, you can explicitly overwrite files with the overwrite attribute.</para>
-    ///   <para>Filesets are used to select files to copy. To use a fileset, the todir attribute must be set.</para>
+    ///   <para>
+    ///   Files are only copied if the source file is newer than the destination 
+    ///   file, or if the destination file does not exist.  However, you can 
+    ///   explicitly overwrite files with the <see cref="Overwrite" /> attribute.
+    ///   </para>
+    ///   <para>
+    ///   A <see cref="FileSet" /> can be used to select files to copy. To use 
+    ///   a <see cref="FileSet" />, the <see cref="ToDirectory" /> attribute 
+    ///   must be set.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Copy a single file.</para>
@@ -74,7 +82,7 @@ namespace NAnt.Core.Tasks {
         /// The file to copy.
         /// </summary>
         [TaskAttribute("file")]
-        public string SourceFile {
+        public virtual string SourceFile {
             get { return (_sourceFile != null) ? Project.GetFullPath(_sourceFile) : null; }
             set { _sourceFile = SetStringValue(value); }
         }
@@ -83,7 +91,7 @@ namespace NAnt.Core.Tasks {
         /// The file to copy to.
         /// </summary>
         [TaskAttribute("tofile")]
-        public string ToFile {
+        public virtual string ToFile {
             get { return (_toFile != null) ? Project.GetFullPath(_toFile) : null; }
             set { _toFile = SetStringValue(value); }
         }
@@ -92,7 +100,7 @@ namespace NAnt.Core.Tasks {
         /// The directory to copy to.
         /// </summary>
         [TaskAttribute("todir")]
-        public string ToDirectory {
+        public virtual string ToDirectory {
             get { return Project.GetFullPath(_toDirectory); }
             set { _toDirectory = SetStringValue(value); }
         }
@@ -109,11 +117,11 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Filesets are used to select files to copy. To use a fileset, the 
-        /// <see cref="ToDirectory" /> attribute must be set.
+        /// Used to select the files to copy. To use a <see cref="FileSet" />, 
+        /// the <see cref="ToDirectory" /> attribute must be set.
         /// </summary>
         [FileSet("fileset")]
-        public FileSet CopyFileSet {
+        public virtual FileSet CopyFileSet {
             get { return _fileset; }
             set {_fileset = value; }
         }

@@ -57,7 +57,7 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Output directory for the compilation target.
+        /// The name of the output file created by the compiler. 
         /// </summary>
         [TaskAttribute("output", Required=true)]
         public string Output {

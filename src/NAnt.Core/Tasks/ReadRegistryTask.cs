@@ -28,31 +28,17 @@ using NAnt.Core.Attributes;
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum , Unrestricted=true)]
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// A task that reads a value or set of values from the Windows Registry into one or 
+    /// Reads a value or set of values from the Windows Registry into one or 
     /// more NAnt properties.
     /// </summary>
-    /// <remarks>
-    ///     <p>
-    ///         Do not use a leading slash on the key value.
-    ///     </p>
-    ///     <p>
-    ///         Hive values can be one of the following values from the RegistryHive enum<see cref="Microsoft.Win32.RegistryHive"/>
-    ///         <table>
-    ///             <tr><td>LocalMachine</td><td></td></tr>
-    ///             <tr><td>CurrentUser</td><td></td></tr>
-    ///             <tr><td>Users</td><td></td></tr>
-    ///             <tr><td>ClassesRoot</td><td></td></tr>
-    ///         </table>
-    ///     </p>
-    /// </remarks>
     /// <example>
-    ///   <para>Reads a single value from the registry</para>
+    ///   <para>Read a single value from the registry.</para>
     ///   <code>
     ///     <![CDATA[
     /// <readregistry property="sdkRoot" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />
     ///     ]]>
     ///   </code>
-    ///   <para>Reads all the registry values in a key</para>
+    ///   <para>Read all the registry values in a key.</para>
     ///   <code>
     ///     <![CDATA[
     /// <readregistry prefix="dotNetFX" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />
@@ -87,17 +73,17 @@ namespace NAnt.Core.Tasks {
         /// The prefix to use for the specified registry key values.
         /// </summary>
         [TaskAttribute("prefix")]
-        public virtual string PropertyPrefix{
+        public virtual string PropertyPrefix {
             get { return _propPrefix; }
             set { _propPrefix = value; }
         }
 
         /// <summary>
-        /// The registry key to read.
+        /// The registry key to read (without a leading slash).
         /// </summary>
         [TaskAttribute("key", Required=true)]
         public virtual string RegistryKey {
-            get { return this._regKey; }
+            get { return _regKey; }
             set {
                 string[] pathParts = value.Split("\\".ToCharArray(0,1)[0]);
                 _regKeyValueName = pathParts[pathParts.Length - 1];
@@ -106,14 +92,14 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The registry hive to use.
+        /// The registry hive to use - either <see cref="RegistryHive.LocalMachine" />,
+        /// <see cref="RegistryHive.Users" />, <see cref="RegistryHive.CurrentUser" /> or
+        /// <see cref="RegistryHive.ClassesRoot" />. 
+        /// Default is <see cref="RegistryHive.LocalMachine" />.
         /// </summary>
         /// <remarks>
-        /// <seealso cref="Microsoft.Win32.RegistryHive" />
+        /// <seealso cref="RegistryHive" />
         /// </remarks>
-        /// <value>
-        /// The enum of type <see cref="Microsoft.Win32.RegistryHive"/> values including LocalMachine, Users, CurrentUser and ClassesRoot.
-        /// </value>
         [TaskAttribute("hive")]
         public virtual string RegistryHiveName {
             get { return _regHiveString; }

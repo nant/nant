@@ -27,7 +27,7 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Touches a file and/or fileset(s) -- corresponds to the Unix touch command.
+    /// Touches a file or set of files -- corresponds to the Unix touch command.
     /// </summary>
     /// <example>
     ///   <para>Touch the <c>Main.cs</c> file.  The current time is used.</para>
@@ -52,30 +52,52 @@ namespace NAnt.Core.Tasks {
     public class TouchTask : Task {
         #region Private Instance Fields
 
-        string _file = null;
-        string _millis = null;
-        string _datetime = null;
-        FileSet _fileset = new FileSet();
+        private string _file = null;
+        private string _millis = null;
+        private string _datetime = null;
+        private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        /// <summary>Assembly Filename (required unless a fileset is specified).</summary>
+        /// <summary>
+        /// Assembly filename (required unless a <see cref="FileSet" /> is specified).
+        /// </summary>
         [TaskAttribute("file")]
-        public string FileName  { get { return _file; } set { _file = value; } }
+        public string FileName {
+            get { return _file; }
+            set { _file = value; }
+        }
 
-        /// <summary>Specifies the new modification time of the file in milliseconds since midnight Jan 1 1970.</summary>
+        /// <summary>
+        /// Specifies the new modification time of the file(s) in milliseconds 
+        /// since midnight Jan 1 1970.
+        /// </summary>
         [TaskAttribute("millis")]
-        public string Millis    { get { return _millis; } set { _millis = value; } }
+        public string Millis {
+            get { return _millis; }
+            set { _millis = value; }
+        }
 
-        /// <summary>Specifies the new modification time of the file in the format MM/DD/YYYY HH:MM AM_or_PM.</summary>
+        /// <summary>
+        /// Specifies the new modification time of the file in the format 
+        /// MM/DD/YYYY HH:MM AM_or_PM.
+        /// </summary>
         [TaskAttribute("datetime")]
-        public string Datetime  { get { return _datetime; }  set { _datetime = value; } }
+        public string Datetime {
+            get { return _datetime; }
+            set { _datetime = value; }
+        }
 
-        /// <summary>Fileset to use instead of single file.</summary>
+        /// <summary>
+        /// Used to select files that should be touched.
+        /// </summary>
         [FileSet("fileset")]
-        public FileSet TouchFileSet { get { return _fileset; } set {_fileset = value; } }
+        public FileSet TouchFileSet {
+            get { return _fileset; }
+            set { _fileset = value; }
+        }
 
         #endregion Public Instance Properties
 

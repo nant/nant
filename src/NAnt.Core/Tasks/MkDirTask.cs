@@ -26,16 +26,16 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Creates a directory and any non-existent parent directories if necessary.
+    /// Creates a directory and any non-existent parent directory if necessary.
     /// </summary>
     /// <example>
-    ///   <para>Create the directory &quot;build&quot;.</para>
+    ///   <para>Create the directory <c>build</c>.</para>
     ///   <code>
     ///     <![CDATA[
     /// <mkdir dir="build" />
     ///     ]]>
     ///   </code>
-    ///   <para>Create the directory tree &quot;one/two/three&quot;.</para>
+    ///   <para>Create the directory tree <c>one/two/three</c>.</para>
     ///   <code>
     ///     <![CDATA[
     /// <mkdir dir="one/two/three" />

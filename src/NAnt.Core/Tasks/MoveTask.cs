@@ -23,15 +23,23 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Moves a file or fileset to a new file or directory.
+    /// Moves a file or set of files to a new file or directory.
     /// </summary>
     /// <remarks>
-    ///   <para>Moves a file or fileset to a new file or directory. Files are only moved if the source file is newer than the destination file, or if the destination file does not exist.</para>
-    ///   <note>You can explicitly overwrite files with the overwrite attribute.</note>
-    ///   <para>Filesets are used to select files to move. To use a fileset, the todir attribute must be set.</para>
+    ///   <para>
+    ///   Files are only moved if the source file is newer than the destination 
+    ///   file, or if the destination file does not exist.  However, you can 
+    ///   explicitly overwrite files with the <see cref="CopyTask.Overwrite" /> attribute.
+    ///   </para>
+    ///   <para>
+    ///   A <see cref="FileSet" /> can be used to select files to move. To use 
+    ///   a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" /> attribute 
+    ///   must be set.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Move a single file.</para>
@@ -54,6 +62,43 @@ namespace NAnt.Core.Tasks {
     [TaskName("move")]
     public class MoveTask : CopyTask {
         #region Override implementation of CopyTask
+
+        /// <summary>
+        /// The file to move.
+        /// </summary>
+        [TaskAttribute("file")]
+        public override string SourceFile {
+            get { return base.SourceFile; }
+            set { base.SourceFile = value; }
+        }
+
+        /// <summary>
+        /// The file to move to.
+        /// </summary>
+        [TaskAttribute("tofile")]
+        public override string ToFile {
+            get { return base.ToFile; }
+            set { base.ToFile = value; }
+        }
+
+        /// <summary>
+        /// The directory to move to.
+        /// </summary>
+        [TaskAttribute("todir")]
+        public override string ToDirectory {
+            get { return base.ToDirectory; }
+            set { base.ToDirectory = value; }
+        }
+
+        /// <summary>
+        /// Used to select the files to move. To use a <see cref="FileSet" />, 
+        /// the <see cref="ToDirectory" /> attribute must be set.
+        /// </summary>
+        [FileSet("fileset")]
+        public override FileSet CopyFileSet {
+            get { return base.CopyFileSet; }
+            set { base.CopyFileSet = value; }
+        }
 
         /// <summary>
         /// Actually does the file (and possibly empty directory) moves.

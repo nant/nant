@@ -33,8 +33,17 @@ namespace NAnt.NUnit1.Tasks {
     /// Runs tests using the NUnit framework.
     /// </summary>
     /// <remarks>
-    ///   <para>See the <a href="http://nunit.sf.net">NUnit home page</a> for more information.</para>
-    ///   <para>The <c>haltonfailure</c> or <c>haltonerror</c> are only used to stop more than one test suite to stop running.  If any test suite fails a build error will be thrown.  Use <c>failonerror="false"</c> to ignore test errors and continue build.</para>
+    ///   <para>
+    ///   See the <a href="http://nunit.sf.net">NUnit home page</a> for more 
+    ///   information.
+    ///   </para>
+    ///   <para>
+    ///   The <see cref="HaltOnFailure" /> or <see cref="HaltOnError" /> 
+    ///   attributes are only used to stop more than one test suite to stop 
+    ///   running.  If any test suite fails a build error will be thrown.  
+    ///   Set <see cref="Task.FailOnError" /> to <c>false</c> to ignore test 
+    ///   errors and continue build.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Run tests in the <c>MyProject.Tests.dll</c> assembly.</para>
@@ -53,33 +62,49 @@ namespace NAnt.NUnit1.Tasks {
     public class NUnitTask : Task {
         #region Private Instance Fields
 
-        bool _haltOnError = false;
-        bool _haltOnFailure = false;
-        int _timeout = 0;
-        bool _failuresPresent = false;
-        bool _errorsPresent = false;
-
-        NUnitTestCollection _tests = new NUnitTestCollection();
-        FormatterElementCollection _formatterElements = new FormatterElementCollection();
+        private bool _haltOnError = false;
+        private bool _haltOnFailure = false;
+        private int _timeout = 0;
+        private bool _failuresPresent = false;
+        private bool _errorsPresent = false;
+        private NUnitTestCollection _tests = new NUnitTestCollection();
+        private FormatterElementCollection _formatterElements = new FormatterElementCollection();
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        /// <summary>Stops running tests when a test causes an error.  Default is "false".</summary>
-        /// <remarks>Implies haltonfailure.</remarks>
+        /// <summary>
+        /// Stops running tests when a test causes an error. Default is <c>false</c>.
+        /// </summary>
+        /// <remarks>
+        /// Implies haltonfailure.
+        /// </remarks>
         [TaskAttribute("haltonerror")]
         [BooleanValidator()]
-        public bool HaltOnError         { get { return _haltOnError; }set { _haltOnError = value; } }
+        public bool HaltOnError {
+            get { return _haltOnError; }
+            set { _haltOnError = value; }
+        }
 
-        /// <summary>Stops running tests if a test fails (errors are considered failures as well).  Default is "false".</summary>
+        /// <summary>
+        /// Stops running tests if a test fails (errors are considered failures as well).  Default is <c>false</c>.
+        /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
-        public bool HaltOnFailure       { get { return _haltOnFailure; } set { _haltOnFailure = value; }}
+        public bool HaltOnFailure {
+            get { return _haltOnFailure; }
+            set { _haltOnFailure = value; }
+        }
 
-        /// <summary>Cancel the individual tests if they do not finish in the specified time (measured in milliseconds). Ignored if fork is disabled.</summary>
+        /// <summary>
+        /// Cancel the individual tests if they do not finish in the specified time (measured in milliseconds). Ignored if fork is disabled.
+        /// </summary>
         [TaskAttribute("timeout")]
-        public int  Timeout             { get { return _timeout; } set { _timeout = value; } }
+        public int Timeout {
+            get { return _timeout; }
+            set { _timeout = value; }
+        }
 
         /// <summary>
         /// Tests to run.
@@ -90,7 +115,7 @@ namespace NAnt.NUnit1.Tasks {
         }
 
         /// <summary>
-        /// Formatters to output results of unit tests 
+        /// Formatters to output results of unit tests.
         /// </summary>
         [BuildElementArray("formatter")]
         public FormatterElementCollection FormatterElements {

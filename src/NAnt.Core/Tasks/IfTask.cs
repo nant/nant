@@ -26,27 +26,35 @@ using NAnt.Core.Types;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Checks the conditional attributes and executes the children if true.
+    /// Checks the conditional attributes and executes the children if <c>true</c>.
     /// </summary>
     /// <remarks>
-    ///     <para>If no conditions are checked, all child tasks are executed. 
-    ///     <c>True</c> is the default condition result (with no conditions specified).</para>
-    ///     <para>If more than one attribute is used, they are &amp;&amp;'d. The first to fail stops the check.</para>
-    ///     <para>The order of condition evaluation is, target, propertyexists, propertytrue, uptodate.</para>
+    ///     <para>
+    ///     If no conditions are checked, all child tasks are executed. 
+    ///     </para>
+    ///     <para>
+    ///     If more than one attribute is used, they are &amp;&amp;'d. The first 
+    ///     to fail stops the check.
+    ///     </para>
+    ///     <para>
+    ///     The order of condition evaluation is, <see cref="TargetNameExists" />, 
+    ///     <see cref="PropertyNameExists" />, <see cref="PropertyNameTrue" />, 
+    ///     <see cref="PrimaryFile" />.
+    ///     </para>
     /// </remarks>
     /// <example>
-    ///   <para>Check that a target exists</para>
+    ///   <para>Check that a target exists.</para>
     ///   <code>
     ///   <![CDATA[
-    ///   <target name="myTarget" />
-    ///   <if targetexists="myTarget">
+    /// <target name="myTarget" />
+    /// <if targetexists="myTarget">
     ///     <echo message="myTarget exists" />
-    ///   </if>
+    /// </if>
     ///   ]]>
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Check existence of a property</para>
+    ///   <para>Check existence of a property.</para>
     ///   <code>
     ///     <![CDATA[
     /// <if propertyexists="myProp">
@@ -54,7 +62,7 @@ namespace NAnt.Core.Tasks {
     /// </if>
     ///     ]]>
     ///   </code>
-    ///   <para>Check that a property value is true</para>
+    ///   <para>Check that a property value is true.</para>
     ///   <code>
     ///     <![CDATA[
     /// <if propertytrue="myProp">
@@ -64,7 +72,9 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Check that a property exists and is <c>true</c> (uses multiple conditions)</para>
+    ///   <para>
+    ///   Check that a property exists and is <c>true</c> (uses multiple conditions).
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <if propertyexists="myProp" propertytrue="myProp">
@@ -83,13 +93,10 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
-    /// <para>
-    ///     Note: For dates you probably want to use <ifnot/>. 
-    ///     That way you can say, if these files aren't uptodate, then do this. 
-    ///     Because if they are uptodate, you probably don't want to do anything.
-    /// </para>
     /// <example>
-    ///   <para>Checks file dates. If myfile.dll is uptodate, then do stuff.</para>
+    ///   <para>
+    ///   Check file dates. If <c>myfile.dll</c> is uptodate, then do stuff.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <if uptodatefile="myfile.dll" comparefile="myfile.cs">
@@ -146,7 +153,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The FileSet that contains the comparison files for the uptodateFile.
+        /// The <see cref="FileSet" /> that contains the comparison files for 
+        /// the <see cref="PrimaryFile" /> check.
         /// </summary>
         [FileSet("comparefiles")]
         public FileSet CompareFiles {
@@ -257,30 +265,31 @@ namespace NAnt.Core.Tasks {
     /// The opposite of the <c>if</c> task.
     /// </summary>
     /// <example>
-    ///   <para>Checks for the existence of a property</para>
+    ///   <para>Check that a property does not exist.</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <ifnot propertyexists="myProp">
+    ///     <![CDATA[
+    /// <ifnot propertyexists="myProp">
     ///     <echo message="myProp does not exist."/>
-    ///   </if>
-    ///   ]]>
+    /// </if>
+    ///     ]]>
     ///   </code>
-    ///   <para>Checks that a property value is not true</para>
+    ///   <para>Check that a property value is not true.</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <ifnot propertytrue="myProp">
+    ///     <![CDATA[
+    /// <ifnot propertytrue="myProp">
     ///     <echo message="myProp is not true."/>
-    ///   </if>
-    ///   ]]></code>
+    /// </if>
+    ///     ]]>
+    ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Checks that a target does not exist</para>
+    ///   <para>Check that a target does not exist.</para>
     ///   <code>
-    ///   <![CDATA[
-    ///   <ifnot targetexists="myTarget">
+    ///     <![CDATA[
+    /// <ifnot targetexists="myTarget">
     ///     <echo message="myTarget does not exist."/>
-    ///   </if>
-    ///   ]]>
+    /// </if>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("ifnot")]

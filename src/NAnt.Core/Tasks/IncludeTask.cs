@@ -32,13 +32,28 @@ namespace NAnt.Core.Tasks {
     /// Includes an external build file.
     /// </summary>
     /// <remarks>
-    ///   <para>This task is used to break your build file into smaller chunks.  You can load a partial build file and have it included into the build file.</para>
-    ///   <note>Any global (project level) tasks in the included build file are executed when this task is executed.  Tasks in target elements are only executed if that target is executed.</note>
-    ///   <note>The project element attributes are ignored.</note>
-    ///   <note>This task can only be in the global (project level) section of the build file.</note>
+    ///   <para>
+    ///   This task is used to break your build file into smaller chunks.  You 
+    ///   can load a partial build file and have it included into the build file.
+    ///   </para>
+    ///   <note>
+    ///   Any global (project level) tasks in the included build file are executed 
+    ///   when this task is executed.  Tasks in target elements are only executed 
+    ///   if that target is executed.
+    ///   </note>
+    ///   <note>
+    ///   The project element attributes are ignored.
+    ///   </note>
+    ///   <note>
+    ///   This task can only be in the global (project level) section of the 
+    ///   build file.
+    ///   </note>
     /// </remarks>
     /// <example>
-    ///   <para>Include the script task that fetches the project version from the file "GetProjectVersion.include".</para>
+    ///   <para>
+    ///   Include a task that fetches the project version from the 
+    ///   <c>GetProjectVersion.include</c> build file.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <include buildfile="GetProjectVersion.include" />

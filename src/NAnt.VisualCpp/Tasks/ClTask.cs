@@ -33,10 +33,10 @@ using NAnt.Core.Types;
 
 namespace NAnt.VisualCpp.Tasks {
     /// <summary>
-    /// Compiles C/C++ programs using cl, Microsoft's C/C++ compiler.
+    /// Compiles C/C++ programs using <c>cl.exe</c>, Microsoft's C/C++ compiler.
     /// </summary>
     /// <remarks>
-    ///   <para>This task is intended for version 13.00.9466 of cl.exe.</para>
+    ///   <para>This task is intended for version 13.00.9466 of <c>cl.exe</c>.</para>
     /// </remarks>
     /// <example>
     ///   <para>Compiles <c>helloworld.cpp</c> for the Common Language Runtime.</para>
@@ -44,7 +44,7 @@ namespace NAnt.VisualCpp.Tasks {
     ///     <![CDATA[
     /// <cl outputdir="build" options="/clr">
     ///     <sources>
-    ///         <includes name="helloworld.cpp"/>
+    ///         <includes name="helloworld.cpp" />
     ///     </sources>
     /// </cl>
     ///     ]]>
@@ -54,12 +54,12 @@ namespace NAnt.VisualCpp.Tasks {
     public class ClTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _responseFileName;
-        string _outputdir = null;
-        string _pchfile = null;
-        FileSet _sources = new FileSet();
-        FileSet _includes = new FileSet();
-        string _options = null;
+        private string _responseFileName;
+        private string _outputdir = null;
+        private string _pchfile = null;
+        private FileSet _sources = new FileSet();
+        private FileSet _includes = new FileSet();
+        private string _options = null;
 
         #endregion Private Instance Fields
 

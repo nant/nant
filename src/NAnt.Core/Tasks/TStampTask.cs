@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,17 +29,31 @@ namespace NAnt.Core.Tasks {
     /// Sets properties with the current date and time.
     /// </summary>
     /// <remarks>
-    ///   <para>By default tstamp displays the current date and time and sets the following properties:</para>
+    ///   <para>
+    ///   By default the <see cref="TStampTask" /> displays the current date 
+    ///   and time and sets the following properties:
+    ///   </para>
     ///   <list type="bullet">
     ///     <item><description>tstamp.date to yyyyMMdd</description></item>
     ///     <item><description>tstamp.time to HHmm</description></item>
     ///     <item><description>tstamp.now using the default DateTime.ToString() method</description></item>
     ///   </list>
-    ///   <para>To set an additional property with a custom date/time use the property and pattern attributes.  To set a number of additional properties all with the exact same date and time use the formatter nested element (see example).</para>
-    ///   <para>The date and time string displayed the tstamp uses the computer's default long date and time string format.  You might consider setting these to the <a href="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO 8601 standard for date and time notation</a>.</para>
+    ///   <para>
+    ///   To set an additional property with a custom date/time use the 
+    ///   <see cref="Property" /> and <see cref="Pattern" /> attributes.  
+    ///   To set a number of additional properties with the exact same date and 
+    ///   time use the <see cref="Formatters" /> nested element (see example).
+    ///   </para>
+    ///   <para>
+    ///   The date and time string displayed by the <see cref="TStampTask" /> 
+    ///   uses the computer's default long date and time string format.  You 
+    ///   might consider setting these to the 
+    ///   <a href="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO 8601 standard 
+    ///   for date and time notation</a>.
+    ///   </para>
     /// </remarks>
     /// <example>
-    ///   <para>Set the build.date property.</para>
+    ///   <para>Set the <c>build.date</c> property.</para>
     ///   <code>
     ///     <![CDATA[
     /// <tstamp property="build.date" pattern="yyyyMMdd" verbose="true" />
@@ -60,9 +74,9 @@ namespace NAnt.Core.Tasks {
     public class TStampTask : Task {
         #region Private Instance Fields
 
-        string _property = null;
-        string _pattern = null;
-        FormatterCollection _formatters = new FormatterCollection();
+        private string _property = null;
+        private string _pattern = null;
+        private FormatterCollection _formatters = new FormatterCollection();
 
         #endregion Private Instance Fields
 

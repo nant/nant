@@ -18,61 +18,103 @@
 // Ian MacLean (ian_maclean@another.com)
 // Gert Driesen (gert.driesen@ardatis.com)
 
+using System;
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 
+using NAnt.NUnit1.Tasks;
+
 namespace NAnt.NUnit1.Types {
     /// <summary>
-    /// Represents a test element of an NUnit task.
+    /// Represents a test element of an <see cref="NUnitTask" />.
     /// </summary>
     [ElementName("test")]
     public class NUnitTest : Element {
         #region Private Instance Fields
 
-        string _class = null;
-        string _assembly = null;
-        bool _fork = false;
-        bool _haltonerror = false;
-        bool _haltonfailure = false;
-        string _appConfigFile = null;
-        string _todir = null;
-        string _outfile = null;
+        private string _class = null;
+        private string _assembly = null;
+        private bool _fork = false;
+        private bool _haltonerror = false;
+        private bool _haltonfailure = false;
+        private string _appConfigFile = null;
+        private string _todir = null;
+        private string _outfile = null;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
-        /// <summary>Base name of the test result. The full filename is determined by this attribute and the extension of formatter</summary>
+        /// <summary>
+        /// Base name of the test result. The full filename is determined by this 
+        /// attribute and the extension of formatter.
+        /// </summary>
         [TaskAttribute("outfile")]
-        public string OutFile { get { return _outfile; } set {_outfile = value;} }
+        public string OutFile {
+            get { return _outfile; }
+            set { _outfile = value; }
+        }
         
         /// <summary>Directory to write the reports to.</summary>
         [TaskAttribute("todir")]
-        public string ToDir { get { return _todir; } set {_todir = value;} }
+        public string ToDir {
+            get { return _todir; }
+            set { _todir = value; }
+        }
 
-        /// <summary>Class Name of the test</summary>
+        /// <summary>
+        /// Class Name of the test.
+        /// </summary>
         [TaskAttribute("class", Required=true)]
-        public string Class             { get { return _class; } set { _class = value; } }
+        public string Class {
+            get { return _class; }
+            set { _class = value; }
+        }
         
-        /// <summary>Assembly to Load the test from</summary>
+        /// <summary>
+        /// Assembly to load the test from.
+        /// </summary>
         [TaskAttribute("assembly", Required=true)]
-        public string Assembly          { get { return Project.GetFullPath(_assembly); } set { _assembly = value; } }
+        public string Assembly {
+            get { return Project.GetFullPath(_assembly); }
+            set { _assembly = value; }
+        }
         
-        /// <summary>Run the tests in a separate AppDomain</summary>
+        /// <summary>
+        /// Run the tests in a separate <see cref="AppDomain" />.
+        /// </summary>
         [TaskAttribute("fork")]
         [BooleanValidator()]
-        public bool Fork                { get { return _fork; } set { _fork = value; } }
+        public bool Fork {
+            get { return _fork; }
+            set { _fork = value; }
+        }
         
-        /// <summary>Stop the build process if an error occurs during the test run</summary>
+        /// <summary>
+        /// Stop the build process if an error occurs during the test run.
+        /// </summary>
         [TaskAttribute("haltonerror")]
         [BooleanValidator()]
-        public bool HaltOnError         { get { return _haltonerror; } set { _haltonerror = value; } }
+        public bool HaltOnError {
+            get { return _haltonerror; }
+            set { _haltonerror = value; }
+        }
         
-        /// <summary>Stop the build process if a test fails (errors are considered failures as well).</summary>
+        /// <summary>
+        /// Stop the build process if a test fails (errors are considered failures 
+        /// as well).
+        /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
-        public bool HaltOnFailure       { get { return _haltonfailure; } set { _haltonfailure = value; }}
+        public bool HaltOnFailure {
+            get { return _haltonfailure; }
+            set { _haltonfailure = value; }
+        }
 
+        /// <summary>
+        /// The application configuration file to use for the NUnit test domain.
+        /// </summary>
         [TaskAttribute("appconfig")]
         public string AppConfigFile {
             get { return _appConfigFile; }

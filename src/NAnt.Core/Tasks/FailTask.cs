@@ -23,12 +23,9 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Exits the current build.
-    /// </summary>
-    /// <remarks>
     /// Exits the current build by throwing a <see cref="BuildException" />, 
     /// optionally printing additional information.
-    /// </remarks>
+    /// </summary>
     /// <example>
     ///   <para>Exits the current build without giving further information.</para>
     ///   <code>

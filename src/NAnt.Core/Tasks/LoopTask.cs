@@ -28,20 +28,28 @@ namespace NAnt.Core.Tasks {
     /// Loops over a set of items.
     /// </summary>
     /// <remarks>
-    ///   <para>Loop over items in a set. Can loop over files in directory, lines in a file, etc.</para>
-    ///   <para>The Property value is stored before the loop is done, and restored when the loop is finished. 
-    ///   The Property is returned to its normal value once it is used.  Read-only parameters cannot be overridden in this loop.</para>
+    ///   <para>
+    ///   Can loop over files in directory, lines in a file, etc.
+    ///   </para>
+    ///   <para>
+    ///   The property value is stored before the loop is done, and restored 
+    ///   when the loop is finished.
+    ///   </para>
+    ///   <para>
+    ///   The property is returned to its normal value once it is used. Read-only 
+    ///   parameters cannot be overridden in this loop.
+    ///   </para>
     /// </remarks>
     /// <example>
-    ///   <para>Loops over the files in C:\</para>
+    ///   <para>Loops over the files in <c>c:\</c>.</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="File" in="c:\" property="filename">
     ///     <echo message="${filename}" />
-    /// </foreach>    
+    /// </foreach>
     ///     ]]>
     ///   </code>
-    ///   <para>Loops over all files in C:\</para>
+    ///   <para>Loops over all files in the project directory.</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="File" property="filename">
@@ -56,7 +64,7 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
-    ///   <para>Loops over the folders in C:\</para>
+    ///   <para>Loops over the folders in <c>c:\</c>.</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="Folder" in="c:\" property="foldername">
@@ -64,7 +72,7 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
-    ///   <para>Loops over all folders in C:\</para>
+    ///   <para>Loops over all folders in the project directory.</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="Folder" property="foldername">
@@ -79,7 +87,7 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
-    ///   <para>Loops over a list</para>
+    ///   <para>Loops over a list.</para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="String" in="1 2,3" delim=" ," property="count">
@@ -87,7 +95,10 @@ namespace NAnt.Core.Tasks {
     /// </foreach>
     ///     ]]>
     ///   </code>
-    ///   <para>Loops over lines in the file "properties.csv", where each line is of the format name,value.</para>
+    ///   <para>
+    ///   Loops over lines in the file <c>properties.csv</c>, where each line 
+    ///   is of the format name,value.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <foreach item="Line" in="properties.csv" delim="," property="x,y">

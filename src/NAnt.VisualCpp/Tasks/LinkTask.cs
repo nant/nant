@@ -31,31 +31,33 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
 namespace NAnt.VisualCpp.Tasks {
-    /// <summary>Links files using link, Microsoft's Incremental Linker.</summary>
+    /// <summary>Links files using <c>link.exe</c>, Microsoft's Incremental Linker.</summary>
     /// <remarks>
-    ///   <para>This task is intended for version 7.00.9466 of link.exe.</para>
+    ///   <para>This task is intended for version 7.00.9466 of <c>link.exe</c>.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Combine all object files in the current directory into <c>helloworld.exe</c>.</para>
+    ///   <para>
+    ///   Combine all object files in the current directory into <c>helloworld.exe</c>.
+    ///   </para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <link output="helloworld.exe">
     ///     <sources>
-    ///         <includes name="*.obj"/>
+    ///         <includes name="*.obj" />
     ///     </sources>
     /// </link>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("link")]
     public class LinkTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _responseFileName;
-        string _output = null;
-        FileSet _sources = new FileSet();
-        FileSet _libdirs = new FileSet();
-        string _options = null;
+        private string _responseFileName;
+        private string _output = null;
+        private FileSet _sources = new FileSet();
+        private FileSet _libdirs = new FileSet();
+        private string _options = null;
 
         #endregion Private Instance Fields
 

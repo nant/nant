@@ -117,7 +117,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Gets or sets the password for logging in to the CVS repository.
+        /// The password for logging in to the CVS repository.
         /// </summary>
         /// <value>
         /// The password for logging in to the CVS repository.

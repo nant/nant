@@ -31,28 +31,28 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
 namespace NAnt.VisualCpp.Tasks {
-    /// <summary>Run lib.exe, Microsoft's Library Manager.</summary>
+    /// <summary>Run <c>lib.exe</c>, Microsoft's Library Manager.</summary>
     /// <example>
     ///   <para>Create a library.</para>
     ///   <code>
-    /// <![CDATA[
+    ///     <![CDATA[
     /// <lib output="library.lib">
     ///     <sources>
-    ///         <includes name="library.obj"/>
+    ///         <includes name="library.obj" />
     ///     </sources>
     /// </lib>
-    /// ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     [TaskName("lib")]
     public class LibTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _responseFileName;
-        string _output = null;
-        FileSet _sources = new FileSet();
-        FileSet _libdirs = new FileSet();
-        string _options = null;
+        private string _responseFileName;
+        private string _output = null;
+        private FileSet _sources = new FileSet();
+        private FileSet _libdirs = new FileSet();
+        private string _options = null;
 
         #endregion Private Instance Fields
 

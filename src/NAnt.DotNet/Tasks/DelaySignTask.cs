@@ -31,24 +31,21 @@ namespace NAnt.DotNet.Tasks {
     /// </summary>
     /// <remarks>
     /// The delay-signing mechanism takes a fileset (named targets)
-    /// and either a 'keyfile' attribute for a file containing the
-    /// public and private keys, or 'container' to name a key container.
-    /// 
-    /// The attribute 'quiet' indicates whether the full output should be
-    /// displayed. The default is to suppress all non-error output.
+    /// and either a <see cref="KeyFile" /> attribute for a file containing the
+    /// public and private keys, or <see cref="KeyContainer" /> to name a key 
+    /// container.
     /// </remarks>
     /// <example>
-    ///   <para>Sign partially-signed <c>foo.dll</c> with <c>bar.snk</c></para>
+    ///   <para>Sign partially-signed <c>foo.dll</c> with <c>bar.snk</c>.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <delay-sign keyfile="bar.snk" quiet="false">
-    ///   <targets>
-    ///     <includes name="foo.dll" />
-    ///   </targets>
+    /// <delay-sign keyfile="bar.snk" verbose="false">
+    ///     <targets>
+    ///         <includes name="foo.dll" />
+    ///     </targets>
     /// </delay-sign>
     ///     ]]>
     ///   </code>
-    ///   <para>The parameter keycontainer can also be used.</para>
     /// </example>
     [TaskName("delay-sign")]
     [ProgramLocation(LocationType.FrameworkSdkDir)]

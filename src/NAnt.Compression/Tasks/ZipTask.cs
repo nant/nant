@@ -98,7 +98,7 @@ namespace NAnt.Zip.Tasks {
         }
         
         /// <summary>
-        /// Desired level of compression (default is 6).
+        /// Desired level of compression (default is <c>6</c>).
         /// </summary>
         /// <value>0 - 9 (0 - STORE only, 1-9 DEFLATE (1-lowest, 9-highest))</value>
         [TaskAttribute("ziplevel", Required=false)]
@@ -109,7 +109,8 @@ namespace NAnt.Zip.Tasks {
         }
         
         /// <summary>
-        /// Include empty directories in the generated zip file. Defaults to "false".
+        /// Include empty directories in the generated zip file. Defaults to 
+        /// <c>false</c>.
         /// </summary>
         [TaskAttribute("includeemptydirs", Required=false)]
         [BooleanValidator()]

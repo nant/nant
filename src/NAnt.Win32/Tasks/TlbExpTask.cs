@@ -29,14 +29,20 @@ using NAnt.Core.Attributes;
 namespace NAnt.Win32.Tasks {
     /// <summary>
     /// Exports a .NET assembly to a type library that can be used from unmanaged 
-    /// code (wraps Microsoft's tlbexp.exe).
+    /// code (wraps Microsoft's <c>tlbexp.exe</c>).
     /// </summary>
     /// <remarks>
-    ///   <para><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></para>
+    ///   <para>
+    ///   <a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryexportertlbexpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a>
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Export <c>DotNetAssembly.dll</c> to <c>LegacyCOM.dll</c>.</para>
-    ///   <code><![CDATA[<tlbexp assembly="DotNetAssembly.dll" output="LegacyCOM.dll"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <tlbexp assembly="DotNetAssembly.dll" output="LegacyCOM.dll" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("tlbexp")]
     [ProgramLocation(LocationType.FrameworkSdkDir)]

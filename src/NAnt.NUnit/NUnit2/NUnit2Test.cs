@@ -24,9 +24,11 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
+using NAnt.NUnit2.Tasks;
+
 namespace NAnt.NUnit2.Types {
     /// <summary>
-    /// Represents a test element of an NUnit2 task.
+    /// Represents a test element of an <see cref="NUnit2Task" />.
     /// </summary>
     [ElementName("test")]
     public class NUnit2Test : Element {
@@ -48,13 +50,7 @@ namespace NAnt.NUnit2.Types {
         /// </summary>
         [TaskAttribute("assemblyname")]
         public string AssemblyName {
-            get {
-                if (_assemblyName != null) {
-                    return Project.GetFullPath(_assemblyName);
-                } else {
-                    return null;
-                }
-            } 
+            get { return (_assemblyName != null) ? Project.GetFullPath(_assemblyName) : null; }
             set { _assemblyName = value; }
         }
         

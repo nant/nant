@@ -29,9 +29,19 @@ namespace NAnt.Core.Tasks {
     /// Deletes a file, fileset or directory.
     /// </summary>
     /// <remarks>
-    ///   <para>Deletes either a single file, all files in a specified directory and its sub-directories, or a set of files specified by one or more filesets.</para>
-    ///   <note>If the file attribute is set then the fileset contents will be ignored.  To delete the files in the file set ommit the file attribute in the delete element.</note>
-    ///   <note>Read-only files cannot be deleted.  Use the <see cref="AttribTask" /> first to remove the read-only attribute.</note>
+    ///   <para>
+    ///   Deletes either a single file, all files in a specified directory and 
+    ///   its sub-directories, or a set of files specified by one or more filesets.
+    ///   </para>
+    ///   <note>
+    ///   If the <see cref="FileName" /> attribute is set then the fileset contents 
+    ///   will be ignored. To delete the files in the fileset ommit the 
+    ///   <see cref="FileName" /> attribute in the <c>&lt;delete&gt;</c> element.
+    ///   </note>
+    ///   <note>
+    ///   Read-only files cannot be deleted.  Use the <see cref="AttribTask" /> first 
+    ///   to remove the read-only attribute.
+    ///   </note>
     /// </remarks>
     /// <example>
     ///   <para>Delete a single file.</para>
@@ -40,13 +50,19 @@ namespace NAnt.Core.Tasks {
     /// <delete file="myfile.txt" />
     ///     ]]>
     ///   </code>
-    ///   <para>Delete a directory and the contents within.  If the directory does not exist the task does nothing.</para>
+    ///   <para>
+    ///   Delete a directory and the contents within. If the directory does not 
+    ///   exist, the task does nothing.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <delete dir="${build.dir}" failonerror="false" />
     ///     ]]>
     ///   </code>
-    ///   <para>Delete a set of files.  Note the lack of file attribute in the delete element.</para>
+    ///   <para>
+    ///   Delete a set of files.  Note the lack of <see cref="FileName" /> 
+    ///   attribute in the <c>&lt;delete&gt;</c> element.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <delete>

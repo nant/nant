@@ -37,41 +37,59 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <c>script</c> element must contain a single <c>code</c> element, which in turn contains the script code.
+    ///     The <see cref="ScriptTask" /> must contain a single <c>code</c> 
+    ///     element, which in turn contains the script code.
     ///     </para>
     ///     <para>
-    ///         A static entry point named <c>ScriptMain</c> is required.   It must have a single <see cref="Project"/> parameter.
+    ///     A static entry point named <c>ScriptMain</c> is required. It must 
+    ///     have a single <see cref="Project"/> parameter.
     ///     </para>
     ///     <para>
     ///         The following namespaces are loaded by default:
-    ///         System,
-    ///         System.Collections,
-    ///         System.Collections.Specialized,
-    ///         System.IO,
-    ///         System.Text,
-    ///         System.Text.RegularExpressions and
-    ///         NAnt.Core.
+    ///         <list type="bullet">
+    ///             <item>
+    ///                 <description>System</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>System.Collections</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>System.Collections.Specialized</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>System.IO</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>System.Text</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>System.Text.RegularExpressions</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>NAnt.Core</description>
+    ///             </item>
+    ///         </list>
     ///     </para>
     /// </remarks>
     /// <example>
-    ///   <para>Run C# code.</para>
+    ///   <para>Run C# code that writes a message to the build log.</para>
     ///   <code>
     ///         &lt;script language=&quot;C#&quot;&gt;
     ///             &lt;code&gt;&lt;![CDATA[
     ///                 public static void ScriptMain(Project project) {
-    ///                     System.Console.WriteLine(&quot;Hello World from a script task using C#&quot;); 
+    ///                     project.Log(Level.Info, &quot;Hello World from a script task using C#&quot;); 
     ///                 }
     ///             ]]&gt;&lt;/code&gt;
     ///         &lt;/script&gt;
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Run Visual Basic.NET code.</para>
+    ///   <para>Run Visual Basic.NET code that writes a message to the build log.</para>
     ///   <code>
     ///         &lt;script language=&quot;VB&quot;&gt;
     ///             &lt;code&gt;&lt;![CDATA[
     ///                 Public Shared Sub ScriptMain(project As Project)
-    ///                     System.Console.WriteLine(&quot;Hello World from a script task using Visual Basic.NET&quot;)
+    ///                     project.Log(Level.Info, &quot;Hello World from a script task using Visual Basic.NET&quot;)
     ///                 End Sub
     ///             ]]&gt;&lt;/code&gt;
     ///         &lt;/script&gt;

@@ -34,7 +34,11 @@ namespace NAnt.SourceControl.Tasks {
     ///   <para>Checkout NAnt.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvs-checkout destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant"/>
+    /// <cvs-checkout 
+    ///     destination="c:\src\nant\" 
+    ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    ///     password="" 
+    ///     module="nant" />
     ///     ]]>
     ///   </code>
     /// </example>

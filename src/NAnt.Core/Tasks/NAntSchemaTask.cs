@@ -35,7 +35,10 @@ namespace NAnt.Core.Tasks {
     /// Creates an XSD File for all available tasks.
     /// </summary>
     /// <remarks>
-    ///   <para>This can be used in conjuntion with the command-line option to do XSD Schema validation on the build file.</para>
+    ///   <para>
+    ///   This can be used in conjuntion with the command-line option to do XSD 
+    ///   Schema validation on the build file.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Creates a <c>NAnt.xsd</c> file in the current project directory.</para>
@@ -49,7 +52,7 @@ namespace NAnt.Core.Tasks {
     public class NAntSchemaTask : Task {
         #region Private Instance Fields
 
-        private string _file = null;
+        private string _outputFile = null;
         private string _forType = null;
         private string _targetNamespace = null;
 
@@ -63,18 +66,28 @@ namespace NAnt.Core.Tasks {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// The name of the output file to which the XSD should be written.
+        /// </summary>
         [TaskAttribute("output", Required=true)]
-        public virtual string FileName {
-            get { return _file; }
-            set { _file = SetStringValue(value); }
+        public virtual string OutputFile {
+            get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
+            set { _outputFile = SetStringValue(value); }
         }
 
+        /// <summary>
+        /// The target namespace for the output.
+        /// </summary>
         [TaskAttribute("target-ns", Required=false)]
-        public virtual string TargetNamespace{
+        public virtual string TargetNamespace {
             get { return _targetNamespace; }
             set { _targetNamespace = SetStringValue(value); }
         }
 
+        /// <summary>
+        /// The <see cref="Type" /> for which an XSD should be created. If not
+        /// specified, an XSD will be created for all available tasks.
+        /// </summary>
         [TaskAttribute("class", Required=false)]
         public virtual string ForType {
             get { return _forType; }
@@ -89,25 +102,25 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             ArrayList taskTypes;
 
-            if(_forType == null) {
+            if (ForType == null) {
                 taskTypes = new ArrayList(TypeFactory.TaskBuilders.Count);
 
-                foreach(TaskBuilder tb in TypeFactory.TaskBuilders) {
+                foreach (TaskBuilder tb in TypeFactory.TaskBuilders) {
                     taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
                 }
             } else {
                 taskTypes = new ArrayList(1);
-                taskTypes.Add(Type.GetType(_forType, true, true));
+                taskTypes.Add(Type.GetType(ForType, true, true));
             }
 
-            FileStream file = File.Open(Project.GetFullPath(_file), FileMode.Create, FileAccess.Write, FileShare.Read);
+            using (FileStream file = File.Open(OutputFile, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+                WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)), TargetNamespace);
 
-            WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)),_targetNamespace);
+                file.Flush();
+                file.Close();
+            }
 
-            file.Flush();
-            file.Close();
-
-            Log(Level.Info, "Wrote schema to: {0}.", _file);
+            Log(Level.Info, "Wrote schema to '{0}'.", OutputFile);
         }
 
         #endregion Override implementation of Task
@@ -338,7 +351,7 @@ namespace NAnt.Core.Tasks {
             /// </param>
             public NAntSchemaGenerator(Type[] tasks, string targetNS) {
                 //setup namespace stuff
-                if(targetNS != null && targetNS.Length != 0) {
+                if (targetNS != null) {
                     _nantSchema.TargetNamespace = targetNS;
                     _nantSchema.Namespaces.Add("nant", _nantSchema.TargetNamespace);
                     _namespaceURI = targetNS;
@@ -426,8 +439,8 @@ namespace NAnt.Core.Tasks {
             #region Public Instance Properties
 
             public XmlSchema Schema {
-                get{
-                    if(!_nantSchema.IsCompiled) {
+                get {
+                    if (!_nantSchema.IsCompiled) {
                         Compile();
                     }
                     return _nantSchema;
@@ -447,9 +460,9 @@ namespace NAnt.Core.Tasks {
             #region Protected Instance Methods
 
             protected void ValidationEH(object sender, ValidationEventArgs args) {
-                if(args.Severity == XmlSeverityType.Warning) {
+                if (args.Severity == XmlSeverityType.Warning) {
                     logger.Info("WARNING: ");
-                } else if(args.Severity == XmlSeverityType.Error) {
+                } else if (args.Severity == XmlSeverityType.Error) {
                     logger.Error("ERROR: ");
                 }
 
@@ -457,13 +470,13 @@ namespace NAnt.Core.Tasks {
 
                 logger.Info(args.ToString());
 
-                if(source != null) {
+                if (source != null) {
                     logger.Info(string.Format(CultureInfo.InvariantCulture, "{0}({1})", source.Name, source.Id));
                 }
             }
 
             protected XmlSchemaComplexType FindComplexTypeByID(string id) {
-                if(_nantComplexTypes.Contains(id)) {
+                if (_nantComplexTypes.Contains(id)) {
                     return (XmlSchemaComplexType)_nantComplexTypes[id];
                 }
                 return null;
@@ -486,19 +499,23 @@ namespace NAnt.Core.Tasks {
             protected XmlSchemaComplexType CreateComplexType(Type t, string name, bool useRefs) {
                 XmlSchemaComplexType ct = null;
 
-                if(useRefs) {
+                if (useRefs) {
                     //lookup the type to see if we have done this already.
                     ct = FindComplexTypeByID(GenerateIDFromType(t));
                 }
 
-                if(ct != null) return ct;
+                if (ct != null) {
+                    return ct;
+                }
 
                 ct = CreateXsdComplexType(name, GenerateIDFromType(t), null);
 
                 XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
 
-                foreach(MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
-                    if(memInfo.DeclaringType.Equals(typeof(object))) continue;
+                foreach (MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
+                    if (memInfo.DeclaringType.Equals(typeof(object))) {
+                        continue;
+                    }
                    
                     //Check for any return type that is derived from Element
 
@@ -506,14 +523,16 @@ namespace NAnt.Core.Tasks {
                     TaskAttributeAttribute taskAttrAttr = (TaskAttributeAttribute)Attribute.GetCustomAttribute(memInfo, typeof(TaskAttributeAttribute), true);
                     BuildElementAttribute  buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute ), true);
 
-                    if(taskAttrAttr != null) {
+                    if (taskAttrAttr != null) {
                         XmlSchemaAttribute newAttr = CreateXsdAttribute(taskAttrAttr.Name, taskAttrAttr.Required);
                         ct.Attributes.Add(newAttr);
-                    } else if(buildElemAttr != null) {
+                    } else if (buildElemAttr != null) {
                         // Create individial choice for any individual child Element
                         Decimal min = 0;
 
-                        if(buildElemAttr.Required) min = 1;
+                        if (buildElemAttr.Required) {
+                            min = 1;
+                        }
 
                         XmlSchemaGroupBase elementGroup = CreateXsdSequence(min, Decimal.MaxValue);
                         XmlSchemaElement childElement = new XmlSchemaElement();
@@ -522,16 +541,16 @@ namespace NAnt.Core.Tasks {
                         Type childType;
 
                         // We will only process child elements if they are defined for Properties or Fields, this should be enforced by the AttributeUsage on the Attribute class
-                        if(memInfo is PropertyInfo) {
-                            childType = ((PropertyInfo)memInfo).PropertyType;
-                        } else if(memInfo is FieldInfo) {
-                            childType = ((FieldInfo)memInfo).FieldType;
+                        if (memInfo is PropertyInfo) {
+                            childType = ((PropertyInfo) memInfo).PropertyType;
+                        } else if (memInfo is FieldInfo) {
+                            childType = ((FieldInfo) memInfo).FieldType;
                         } else {
                             throw new ApplicationException("Member Type != Field/Property");
                         }
 
                         //In xsd we use choices to define the array property. So we should treat this as the element type, not an array.
-                        if(childType.IsArray) {
+                        if (childType.IsArray) {
                             childType = childType.GetElementType();
                         }
 
@@ -543,7 +562,9 @@ namespace NAnt.Core.Tasks {
                     }
                 }
 
-                if(group1.Items.Count > 0) ct.Particle = group1;
+                if (group1.Items.Count > 0) {
+                    ct.Particle = group1;
+                }
 
                 Schema.Items.Add(ct);
 
