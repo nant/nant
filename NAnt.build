@@ -46,19 +46,17 @@
 
 
 	<target name="dist" depends="build">
-		<copy todir="${dir.dist}\src">
-			<fileset basedir="src">
-				<includes name="**"/>
-			</fileset>
-		</copy>
-<!--
 		<copy file="${dir.build}\NAnt.exe" todir="${dir.dist}\bin"/>
 		<copy todir="${dir.dist}\doc">
 			<fileset basedir="doc">
 				<includes name="**"/>
 			</fileset>
 		</copy>
-
+		<copy todir="${dir.dist}\src">
+			<fileset basedir="src">
+				<includes name="**"/>
+			</fileset>
+		</copy>
 		<copy todir="${dir.dist}">
 			<fileset>
 				<includes name="NAnt.build"/>
@@ -67,6 +65,7 @@
 				<includes name="COPYING.txt"/>
 			</fileset>
 		</copy>
+<!--
 		<nant buildfile="examples\examples.build" target="clean"/>
 		<copy todir="${dir.dist}\examples">
 			<fileset basedir="examples">
