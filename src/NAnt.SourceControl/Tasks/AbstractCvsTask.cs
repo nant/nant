@@ -301,7 +301,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("module", Required=false)]
         [StringValidator(AllowEmpty=true)]
-        public string Module {
+        public virtual string Module {
             get { 
                 if (null == _module) {
                     try {

@@ -91,6 +91,15 @@ namespace NAnt.SourceControl.Tasks
         #region Public Instance Properties
 
         /// <summary>
+        /// Not used
+        /// </summary>
+        public override string Module {
+            get { return null; }
+            set { /* module not used for cvs-tag */ }
+        }
+
+
+        /// <summary>
         /// The name of the tag to assign or remove.
         /// </summary>
         /// <value>
