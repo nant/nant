@@ -13,9 +13,6 @@
                 <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="../CommonAssemblyInfo.cs" />
-                <!-- extra tasks that only build on win32 -->
-                <includes name="../NAnt.Core/Tasks/ScriptTask.cs" />
-                <includes name="../NAnt.DotNet/Tasks/LicenseTask.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
