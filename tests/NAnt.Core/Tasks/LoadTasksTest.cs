@@ -55,7 +55,7 @@ namespace SourceForge.NAnt.Tests {
                 Assertion.Fail("Invalid assembly path did not generate an exception");
             }
             catch(BuildException be) { 
-                if( be.Message.IndexOf("'does not exist") == -1) {
+                if( be.Message.IndexOf("'does not exist") != -1) {
                     Assertion.Fail("Wrong type of exception; does not contain words 'does not exist'!\n " + be.ToString()); 
                 }
             }
