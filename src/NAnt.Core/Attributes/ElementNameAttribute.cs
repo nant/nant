@@ -29,17 +29,37 @@ namespace SourceForge.NAnt.Attributes {
     /// with any other element already in use.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
-    public class ElementNameAttribute : Attribute {
+    public sealed class ElementNameAttribute : Attribute {
+        #region Private Instance Fields
 
         string _name;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElementNameAttribute" /> with the 
+        /// specified name.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
         public ElementNameAttribute(string name) {
             _name = name;
         }
 
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the name of the attribute.
+        /// </summary>
+        /// <value>The name of the attribute.</value>
         public string Name {
             get { return _name; }
             set { _name = value; }
         }
+
+        #endregion Public Instance Properties
     }
 }

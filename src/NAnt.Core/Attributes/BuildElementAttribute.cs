@@ -17,34 +17,56 @@
 //
 // Ian MacLean ( ian@maclean.ms )
 
-namespace SourceForge.NAnt.Attributes 
-{
+namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
     /// <summary>Indicates that field should be treated as a xml file set for the task.</summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public class BuildElementAttribute : Attribute 
-    {
+    public abstract class BuildElementAttribute : Attribute {
+        #region Private Instance Fields
 
         string _name;
         bool _required;
 
-        public BuildElementAttribute(string name) 
-        {
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildElementAttribute" /> with the 
+        /// specified name.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
+        public BuildElementAttribute(string name) {
             Name = name;
         }
 
-        public string Name 
-        {
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the name of the attribute.
+        /// </summary>
+        /// <value>The name of the attribute.</value>
+        public string Name {
             get { return _name; }
             set { _name = value; }
         }
-        public bool Required 
-        {
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the attribute is required.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the attribute is required; otherwise, <c>false</c>. 
+        /// The default is <c>false</c>.
+        /// </value>
+        public bool Required {
             get { return _required; }
             set { _required = value; }
         }
+
+        #endregion Public Instance Properties
     }
 }

@@ -20,13 +20,19 @@
 namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
     /// <summary>Indicates that field should be treated as a xml option set for the task.</summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
-    public class OptionSetAttribute : BuildElementAttribute {     
+    public sealed class OptionSetAttribute : BuildElementAttribute {     
+        #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OptionSetAttribute" /> class
+        /// with the specified name.
+        /// </summary>
         public OptionSetAttribute(string name) : base(name) {        
         }      
+
+        #endregion Public Instance Constructors
     }
 }

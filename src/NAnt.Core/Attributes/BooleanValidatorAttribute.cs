@@ -17,19 +17,35 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.Reflection;
-using System.Globalization;
-
 namespace SourceForge.NAnt.Attributes {
 
-    /// <summary>Indicates that field should be able to be converted into a Boolean.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property    , Inherited=true)]
-    public class BooleanValidatorAttribute : ValidatorAttribute {
+    using System;
+    using System.Globalization;
 
+    /// <summary>
+    /// Used to indicate that a field should be able to be converted into a <see cref="bool" />.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
+    public sealed class BooleanValidatorAttribute : ValidatorAttribute {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BooleanValidatorAttribute" /> class.
+        /// </summary>
         public BooleanValidatorAttribute() {
         }
 
+        #endregion Public Instance Constructors
+
+        #region Override implementation of ValidatorAttribute
+
+        /// <summary>
+        /// Checks if the specified value can be converted to a <see cref="bool" />.
+        /// </summary>
+        /// <param name="value">The value to be checked.</param>
+        /// <returns>
+        /// <c>true</c> if the value can be converted to a <see cref="bool" />; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Validate(object value) {
             try {
                 Convert.ToBoolean(value);
@@ -38,5 +54,7 @@ namespace SourceForge.NAnt.Attributes {
             }
             return true;
         }
+
+        #endregion Override implementation of ValidatorAttribute
     }
 }

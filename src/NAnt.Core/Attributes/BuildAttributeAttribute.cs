@@ -20,7 +20,6 @@
 namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
     /// <summary>Indicates that field should be treated as a xml attribute for the task.</summary>
     /// <example>
@@ -49,29 +48,64 @@ namespace SourceForge.NAnt.Attributes {
     /// all the macros with the current values.
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field , Inherited=true)]
-    public class BuildAttributeAttribute : Attribute {
+    public abstract class BuildAttributeAttribute : Attribute {
+        #region Private Instance Fields
 
         string _name;
         bool _required = false;
         bool _expandProperties = true;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildAttributeAttribute" /> with the 
+        /// specified name.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
         public BuildAttributeAttribute(string name) {
             _name = name;
         }
 
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the name of the xml attribute.
+        /// </summary>
+        /// <value>The name of the xml attribute.</value>
         public string Name {
             get { return _name; }
             set { _name = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the attribute is required.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the attribute is required; otherwise, <c>false</c>. 
+        /// The default is <c>false</c>.
+        /// </value>
         public bool Required {
             get { return _required; }
             set { _required = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether property references should 
+        /// be expanded.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if properties should be expanded; otherwise <c>false</c>.
+        /// The default is <c>true</c>.
+        /// </value>
         public bool ExpandProperties {
             get { return _expandProperties; }
             set { _expandProperties = value; }
         }
+
+        #endregion Public Instance Properties
     }
 }

@@ -20,15 +20,21 @@
 namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
+    /// <summary>
+    /// Base class for all validator attributes.
+    /// </summary>
     public abstract class ValidatorAttribute : Attribute {
+        #region Public Instance Methods
+
         /// <summary>
-        /// Validates the object.
+        /// Validates the specified value.
         /// </summary>
-        /// <param name="value">The object to be validated</param>
-        /// <remarks> Throws a ValidationException when validation fails.</remarks>
-        /// <returns> Returns an indication of the result.</returns>
+        /// <param name="value">The value to be validated.</param>
+        /// <returns><c>true</c> if the validation succeeds.</returns>
+        /// <exception cref="ValidationException">The validation fails.</exception>
         public abstract bool Validate(object value);
+
+        #endregion Public Instance Methods
     }
 }

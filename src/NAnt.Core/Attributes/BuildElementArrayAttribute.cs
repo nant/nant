@@ -20,14 +20,20 @@
 namespace SourceForge.NAnt.Attributes 
 {
     using System;
-    using System.Reflection;
 
     /// <summary>Indicates that property should be treated as a xml arrayList for the task.</summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public class BuildElementArrayAttribute : BuildElementAttribute {
-        
-        public BuildElementArrayAttribute(string name) : base(name)    {
-            
+    public sealed class BuildElementArrayAttribute : BuildElementAttribute {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildElementArrayAttribute" /> with the 
+        /// specified name.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
+        public BuildElementArrayAttribute(string name) : base(name) {
         }                
+
+        #endregion Public Instance Constructors
     }
 }

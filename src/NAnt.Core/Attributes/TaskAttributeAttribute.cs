@@ -20,7 +20,6 @@
 namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
     /// <summary>Indicates that field should be treated as a xml attribute for the task.</summary>
     /// <example>
@@ -49,10 +48,17 @@ namespace SourceForge.NAnt.Attributes {
     /// all the macros with the current values.
     /// </example>
     [AttributeUsage( AttributeTargets.Property, Inherited=true)]
-    public class TaskAttributeAttribute : BuildAttributeAttribute {
+    public sealed class TaskAttributeAttribute : BuildAttributeAttribute {
+        #region Public Instance Constructors
        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskAttributeAttribute" />
+        /// with the specified attribute name.
+        /// </summary>
+        /// <param name="name">The name of the task attribute.</param>
         public TaskAttributeAttribute(string name) : base(name){          
         }
-       
+
+        #endregion Public Instance Constructors
     }
 }

@@ -21,13 +21,22 @@
 namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
-    /// <summary>Indicates that field should be treated as a xml file set for the task.</summary>
+    /// <summary>
+    /// Indicates that a field should be treated as a xml file set for the task.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
-    public class FileSetAttribute : BuildElementAttribute {     
+    public sealed class FileSetAttribute : BuildElementAttribute {     
+        #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileSetAttribute" /> with the
+        /// specified name.
+        /// </summary>
+        /// <param name="name">The name of the attribute.</param>
         public FileSetAttribute(string name) : base(name) {        
         }      
+
+        #endregion Public Instance Constructors
     }
 }

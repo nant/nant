@@ -20,7 +20,6 @@
 namespace SourceForge.NAnt.Attributes {
 
     using System;
-    using System.Reflection;
 
     /// <summary>Indicates that class should be treated as a task.</summary>
     /// <remarks>
@@ -29,17 +28,37 @@ namespace SourceForge.NAnt.Attributes {
     /// with any other task already in use.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
-    public class TaskNameAttribute : Attribute {
+    public sealed class TaskNameAttribute : Attribute {
+        #region Private Instance Fields
 
         string _name;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskNameAttribute" /> class
+        /// with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the task.</param>
         public TaskNameAttribute(string name) {            
             _name = name;
         }
 
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the name of the task.
+        /// </summary>
+        /// <value>The name of the task.</value>
         public string Name {
             get { return _name; }
             set { _name = value; }
         }
+
+        #endregion Public Instance Properties
     }
 }
