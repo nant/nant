@@ -18,6 +18,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -41,6 +42,7 @@ namespace NAnt.NUnit2.Tasks {
         #endregion Public Instance Constructors
 
         #region Public Instance Methods
+
         /// <summary>
         /// Runs a single testcase.
         /// </summary>
@@ -54,24 +56,32 @@ namespace NAnt.NUnit2.Tasks {
         public TestResult RunTest(string testcase, FileInfo assemblyFile, FileInfo configFile, EventListener listener) {
             // create test domain
             AppDomain domain = CreateDomain(assemblyFile.Directory, configFile);
+
+            // assemble directories which can be probed for missing unresolved 
+            // assembly references
+            StringCollection probePaths = new StringCollection();
             
-            // get the path to the copy of nunit.framework residing in nants bin dir
-            string nunitpath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "nunit.framework.dll");
-            
-            if (File.Exists(nunitpath)) {
-                // create an instance of our custom Assembly Resolver in the target domain.
-                ObjectHandle oh = domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
-                        typeof(AssemblyResolveHandler).FullName,
-                        false, 
-                        BindingFlags.Public | BindingFlags.Instance,
-                        null,
-                        new object[] {nunitpath},
-                        CultureInfo.InvariantCulture,
-                        null,
-                        AppDomain.CurrentDomain.Evidence);     
+            if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
+                foreach (string path in AppDomain.CurrentDomain.SetupInformation.PrivateBinPath.Split(';')) {
+                    // path is relative to base directory of AppDomain, so 
+                    // resolve to full path
+                    probePaths.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path));
+                }
             }
+
+            // add base directory of current AppDomain as probe path
+            probePaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+
+            // create an instance of our custom Assembly Resolver in the target domain.
+            ObjectHandle oh = domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
+                    typeof(AssemblyResolveHandler).FullName,
+                    false, 
+                    BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    new object[] {probePaths},
+                    CultureInfo.InvariantCulture,
+                    null,
+                    AppDomain.CurrentDomain.Evidence);     
             
             // store current directory
             string currentDir = Directory.GetCurrentDirectory();
@@ -160,7 +170,7 @@ namespace NAnt.NUnit2.Tasks {
         private class AssemblyResolveHandler {
             #region Private Instance Fields
 
-            private string _nunitPath;
+            private StringCollection _probePaths;
 
             #endregion Private Instance Fields
         
@@ -170,12 +180,11 @@ namespace NAnt.NUnit2.Tasks {
             /// Initializes an instanse of the <see cref="AssemblyResolveHandler" /> 
             /// class.
             /// </summary>
-            public AssemblyResolveHandler(string nunitpath) {
-                _nunitPath = nunitpath;
-                ResolveEventHandler resolveHandler = new ResolveEventHandler(ResolveAssembly);
+            public AssemblyResolveHandler(StringCollection probePaths) {
+                _probePaths = probePaths;
             
                 // attach our handler for the current domain.
-                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(resolveHandler);
+                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveAssembly);
             }
 
             #endregion Public Instance Constructors
@@ -193,11 +202,22 @@ namespace NAnt.NUnit2.Tasks {
             /// <see langword="null" />.
             /// </returns>
             public Assembly ResolveAssembly(Object sender, ResolveEventArgs args) {
-                // check whether the nunit.framework assembly should be resolved
-                if (args.Name.IndexOf("nunit.framework") != -1) {
-                    return Assembly.LoadFrom(_nunitPath);
-                }          
-                // if its not the nunit.framework assembly then we don't know about it
+                foreach (string path in _probePaths) {
+                    if (!Directory.Exists(path)) {
+                        continue;
+                    }
+
+                    string[] assemblies = Directory.GetFiles(path, "*.dll");
+
+                    foreach (string assemblyFile in assemblies) {
+                        try {
+                            AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                            if (assemblyName.FullName == args.Name) {
+                                return Assembly.LoadFrom(assemblyFile);
+                            }
+                        } catch {}
+                    }
+                }
                 return null;
             }
 
