@@ -21,6 +21,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -32,14 +33,15 @@ namespace NAnt.Core {
     public class FrameworkInfo {
         #region Private Instance Fields
 
-        private string _name;
-        private string _description;
-        private string _version;
-        private DirectoryInfo _frameworkDirectory;
-        private DirectoryInfo _sdkDirectory;
-        private DirectoryInfo _frameworkAssemblyDirectory;
-        private FileInfo _runtimEngine;
-        private PropertyDictionary _properties = new PropertyDictionary();
+        private readonly string _name;
+        private readonly string _description;
+        private readonly string _version;
+        private readonly DirectoryInfo _frameworkDirectory;
+        private readonly DirectoryInfo _sdkDirectory;
+        private readonly DirectoryInfo _frameworkAssemblyDirectory;
+        private readonly FileInfo _runtimEngine;
+        private readonly PropertyDictionary _properties;
+        private EnvironmentVariableCollection _environmentVariables;
 
         #endregion Private Instance Fields
 
@@ -217,6 +219,21 @@ namespace NAnt.Core {
         /// </remarks>
         public PropertyDictionary Properties {
             get { return _properties; }
+        }
+
+        /// <summary>
+        /// Gets or sets the collection of environment variables that should be 
+        /// passed to external programs that are launched in the runtime engine 
+        /// of the current framework.
+        /// </summary>
+        /// <value>
+        /// The collection of environment variables that should be passed to 
+        /// external programs that are launched in the runtime engine of the
+        /// current framework.
+        /// </value>
+        public EnvironmentVariableCollection EnvironmentVariables {
+            get { return _environmentVariables; }
+            set { _environmentVariables = value; }
         }
 
         #endregion Public Instance Properties

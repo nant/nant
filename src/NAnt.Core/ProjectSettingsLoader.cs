@@ -32,6 +32,7 @@ using System.Xml;
 
 using Microsoft.Win32;
 
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -253,7 +254,14 @@ namespace NAnt.Core {
                         runtimeEngine, 
                         frameworkProperties);
 
-                    // framework is valid, so add it for framework dictionary
+                    // get framework-specific environment nodes
+                    XmlNodeList environmentNodes = frameworkNode.SelectNodes("environment/env");
+
+                    // process framework environment nodes
+                    info.EnvironmentVariables = ProcessFrameworkEnvironmentVariables(
+                        environmentNodes, info);
+
+                    // framework is valid, so add it to framework dictionary
                     Project.FrameworkInfoDictionary.Add(info.Name, info);
                 } catch (Exception ex) {
                     string msg = string.Format(CultureInfo.InvariantCulture, 
@@ -332,6 +340,37 @@ namespace NAnt.Core {
             }
 
             return frameworkProperties;
+        }
+
+        /// <summary>
+        /// Processes the framework environment variables.
+        /// </summary>
+        /// <param name="environmentNodes">An <see cref="XmlNodeList" /> representing framework environment variables.</param>
+        /// <param name="framework">The <see cref="FrameworkInfo" /> to obtain framework-specific information from.</param>
+        private EnvironmentVariableCollection ProcessFrameworkEnvironmentVariables(XmlNodeList environmentNodes, FrameworkInfo framework) {
+            EnvironmentVariableCollection frameworkEnvironment = null;
+
+            // initialize framework-specific environment variables
+            frameworkEnvironment = new EnvironmentVariableCollection();
+
+            foreach (XmlNode environmentNode in environmentNodes) {
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(environmentNode.NodeType == XmlNodeType.Element)) {
+                    continue;	
+                }
+
+                // initialize element
+                EnvironmentVariable environmentVariable = new EnvironmentVariable();
+                environmentVariable.Project = Project;
+
+                // configure using xml node
+                environmentVariable.Initialize(environmentNode, framework.Properties, framework);
+
+                // add to collection of environment variables
+                frameworkEnvironment.Add(environmentVariable);
+            }
+
+            return frameworkEnvironment;
         }
 
         #endregion Private Instance Methods

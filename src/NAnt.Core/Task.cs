@@ -253,7 +253,8 @@ namespace NAnt.Core {
 
                 if (frameworkAttribute != null) {
                     // locate XML configuration node for current attribute
-                    attributeNode = GetAttributeConfigurationNode(frameworkAttribute.Name);
+                    attributeNode = GetAttributeConfigurationNode(
+                        Project.CurrentFramework, frameworkAttribute.Name);
 
                     if (attributeNode != null) {
                         // get the configured value
