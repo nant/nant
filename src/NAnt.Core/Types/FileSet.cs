@@ -142,6 +142,16 @@ namespace NAnt.Core.Types {
     ///     </item>
     ///     <item>
     ///         <description>
+    ///         **/_svn
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         **/_svn/**
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
     ///         **/SCCS
     ///         </description>
     ///     </item>
@@ -584,6 +594,8 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/CVS/**");
                 Excludes.Add("**/.svn");
                 Excludes.Add("**/.svn/**");
+                Excludes.Add("**/_svn");
+                Excludes.Add("**/_svn/**");
                 Excludes.Add("**/.cvsignore");
                 Excludes.Add("**/SCCS");
                 Excludes.Add("**/SCCS/**");
