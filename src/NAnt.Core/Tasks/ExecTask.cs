@@ -23,6 +23,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -59,7 +60,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("program", Required=true)]
         public string FileName {
             get { return _program; }
-            set { _program = SetStringValue(value); }
+            set { _program = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("commandline")]
         public string CommandLineArguments {
             get { return _commandline; }
-            set { _commandline = SetStringValue(value); }
+            set { _commandline = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("workingdir")]
         public string WorkingDirectory {
             get { return Project.GetFullPath(_workingDirectory); }
-            set { _workingDirectory = SetStringValue(value); }
+            set { _workingDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -149,7 +150,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("basedir")]
         public override string BaseDirectory {
             get { return Project.GetFullPath(_baseDirectory); }
-            set { _baseDirectory = SetStringValue(value); }
+            set { _baseDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("output", Required=false)]
         public override string OutputFile {
             get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
-            set { _outputFile = SetStringValue(value); }
+            set { _outputFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>

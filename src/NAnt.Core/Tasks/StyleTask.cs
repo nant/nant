@@ -30,6 +30,7 @@ using System.Xml.XPath;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -173,7 +174,7 @@ namespace NAnt.Core.Tasks {
         protected override void InitializeTask(XmlNode taskNode) {
             // Load parameters
             foreach (XmlNode node in taskNode) {
-                if(node.Name.Equals("param")) {
+                if (node.Name.Equals("param")) {
                     string paramname = Project.ExpandProperties(node.Attributes["name"].Value, Location );
                     string paramval = Project.ExpandProperties(node.Attributes["expression"].Value, Location);
                     _params[paramname] = paramval;
@@ -183,18 +184,18 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             StringCollection srcFiles = null;
-            if(SrcFile != null && SrcFile.Length > 0) {
+            if (!StringUtils.IsNullOrEmpty(SrcFile)) {
                 srcFiles = new StringCollection();
                 srcFiles.Add(SrcFile);
-            } else if(InFiles.FileNames.Count > 0) {
-                if(OutputFile != null && OutputFile.Trim().Length > 0) {
+            } else if (InFiles.FileNames.Count > 0) {
+                if (!StringUtils.IsNullOrEmpty(OutputFile)) {
                     string msg = String.Format(CultureInfo.InvariantCulture, "The \"out\" attribute is not allowed when \"infiles\" is used.");
                     throw new BuildException(msg, Location);
                 }
                 srcFiles = InFiles.FileNames;
             }
 
-            if(srcFiles == null || srcFiles.Count == 0) {
+            if (srcFiles == null || srcFiles.Count == 0) {
                 string msg = String.Format(CultureInfo.InvariantCulture, "No source files indicates; use \"in\" or \"infiles\".");
                 throw new BuildException(msg, Location);
             }
@@ -209,7 +210,7 @@ namespace NAnt.Core.Tasks {
             }           
             foreach(string srcFile in srcFiles) {
                 string destFile = OutputFile;
-                if (destFile == null || destFile.Length == 0) {
+                if (StringUtils.IsNullOrEmpty(destFile)) {
                     // TODO: use System.IO.Path (gs)
                     // append extension if necessary
                     string ext = Extension.IndexOf(".") > -1 ? Extension : "." + Extension;
@@ -265,14 +266,19 @@ namespace NAnt.Core.Tasks {
     
                         Log(Level.Info, LogPrefix + "Processing {0} to {1}.", Path.GetFullPath(srcPath), Path.GetFullPath(destPath));
                         xslt.Transform(xml, scriptargs, writer);
-    
                     } catch (Exception e) {
                         throw new BuildException("Could not perform XSLT transformation.", Location, e);
                     } finally {
                         // Ensure file handles are closed
-                        if (xmlReader != null) { xmlReader.Close(); }
-                        if (xslReader != null) { xslReader.Close(); }
-                        if (writer != null) { writer.Close(); }
+                        if (xmlReader != null) {
+                            xmlReader.Close();
+                        }
+                        if (xslReader != null) {
+                            xslReader.Close();
+                        }
+                        if (writer != null) {
+                            writer.Close();
+                        }
                     }
                 }
             }
@@ -294,7 +300,7 @@ namespace NAnt.Core.Tasks {
             TextWriter writer = null;
 
             string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
-            if (targetDir != null && targetDir.Length > 0 && !Directory.Exists(targetDir)) {
+            if (!StringUtils.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
                 Directory.CreateDirectory(targetDir);
             }
             // UTF-8 encoding will be used

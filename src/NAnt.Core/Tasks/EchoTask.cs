@@ -23,6 +23,7 @@ using System.Globalization;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -76,8 +77,8 @@ namespace NAnt.Core.Tasks {
         public string Message {
             get { return _message; }
             set {
-                if (value != null && value.Trim().Length > 0) {
-                    if (Contents != null) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
+                    if (!StringUtils.IsNullOrEmpty(Contents)) {
                         throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
                     } else {
                         _message = value;
@@ -98,8 +99,8 @@ namespace NAnt.Core.Tasks {
         public string Contents {
             get { return _contents; }
             set { 
-                if (value != null && value.Trim().Length > 0) {
-                    if (Message != null) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
+                    if (!StringUtils.IsNullOrEmpty(Message)) {
                         throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
                     } else {
                         _contents = value;
@@ -136,9 +137,9 @@ namespace NAnt.Core.Tasks {
         /// Outputs the message to the build log.
         /// </summary>
         protected override void ExecuteTask() {
-            if (Message != null) {
+            if (!StringUtils.IsNullOrEmpty(Message)) {
                 Log(MessageLevel, LogPrefix + Message);
-            } else if (Contents != null) {
+            } else if (!StringUtils.IsNullOrEmpty(Contents)) {
                 Log(MessageLevel, LogPrefix + Contents);
             } else {
                 Log(MessageLevel, LogPrefix);

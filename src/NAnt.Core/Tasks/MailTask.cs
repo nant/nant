@@ -26,6 +26,7 @@ using System.Web.Mail;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks { 
     /// <summary>
@@ -83,7 +84,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("from", Required=true)]
         public string From {
             get { return _from; }
-            set { _from = SetStringValue(value); }
+            set { _from = StringUtils.ConvertEmptyToNull(value); }
         }
         
         /// <summary>
@@ -93,7 +94,7 @@ namespace NAnt.Core.Tasks {
         public string ToList {
             get { return _toList.Replace("," , ";"); }
             set { 
-                if (value != null && value.Trim().Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     // convert to semicolon delimited
                     _toList = value.Replace("," , ";"); 
                 } else {
@@ -109,7 +110,7 @@ namespace NAnt.Core.Tasks {
         public string CcList { 
             get { return _ccList; }
             set { 
-                if (value != null && value.Trim().Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     // convert to semicolon delimited
                     _ccList = value.Replace("," , ";");
                 } else {
@@ -125,7 +126,7 @@ namespace NAnt.Core.Tasks {
         public string BccList { 
             get { return _bccList; } 
             set { 
-                if (value != null && value.Trim().Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     // convert to semicolon delimited
                     _bccList = value.Replace("," , ";"); 
                 } else {
@@ -140,7 +141,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("mailhost")]
         public string Mailhost {
             get { return _mailHost; }
-            set { _mailHost = SetStringValue(value); }
+            set { _mailHost = StringUtils.ConvertEmptyToNull(value); }
         }
   
         /// <summary>
@@ -149,7 +150,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("message")]
         public string Message {
             get { return _message; }
-            set { _message = value; }
+            set { _message = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -158,7 +159,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("subject")]
         public string Subject {
             get { return _subject; }
-            set { _subject = value; }
+            set { _subject = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -185,7 +186,7 @@ namespace NAnt.Core.Tasks {
         public string Files {
             get { return _files; }
             set { 
-                if (value != null && value.Trim().Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     // convert to semicolon delimited
                     _files = value.Replace("," , ";");
                 } else {
@@ -202,7 +203,7 @@ namespace NAnt.Core.Tasks {
         public string Attachments { 
             get { return _attachments; }
             set { 
-                if (value != null && value.Trim().Length != 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     // convert to semicolon delimited
                     _attachments = value.Replace("," , ";");
                 } else {
@@ -220,12 +221,10 @@ namespace NAnt.Core.Tasks {
         ///</summary>
         ///<param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-            if (From == null) {
-                throw new BuildException("Mail attribute \"from\" is required.", Location);
-            }
-
-            if (ToList == null && CcList == null && BccList == null) {
-                throw new BuildException("Mail must provide at least one of these attributes: \"tolist\", \"cclist\" or \"bcclist\".", Location);
+            if (StringUtils.IsNullOrEmpty(ToList) && StringUtils.IsNullOrEmpty(CcList) && StringUtils.IsNullOrEmpty(BccList)) {
+                throw new BuildException("At least one of the following attributes" +
+                    " of the <mail> task should be specified : \"tolist\", \"cclist\"" +
+                    " or \"bcclist\".", Location);
             }
         }
 
@@ -245,13 +244,13 @@ namespace NAnt.Core.Tasks {
             // Begin build message body
             StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
             
-            if (Message != null && Message.Length > 0) {
+            if (!StringUtils.IsNullOrEmpty(Message)) {
                 bodyWriter.WriteLine(Message);
                 bodyWriter.WriteLine();
             }
 
             // Append file(s) to message body
-            if (Files != null && Files.Length > 0) {
+            if (!StringUtils.IsNullOrEmpty(Files)) {
                 string[] fileList = Files.Split(new char[]{';'});
                 string content;
                 if (fileList.Length == 1) {
@@ -275,12 +274,10 @@ namespace NAnt.Core.Tasks {
             string bodyText = bodyWriter.ToString();
             if (bodyText.Length != 0) {
                 mailMessage.Body = bodyText;
-            } else {
-                throw new BuildException("Mail attribute \"file\" or \"message\" is required.");
             }
 
             // Append file(s) to message body
-            if (Attachments != null && Attachments.Length > 0) {
+            if (!StringUtils.IsNullOrEmpty(Attachments)) {
                 string[] attachList = Attachments.Split(new char[]{';'});
                 foreach (string fileName in attachList) {
                     try {
@@ -289,8 +286,10 @@ namespace NAnt.Core.Tasks {
                         MailAttachment attach = new MailAttachment(fileInfo.FullName);
                         mailMessage.Attachments.Add(attach);
                     } catch {
-                        string msg = "WARNING! File \"" + fileName + "\" NOT attached to message. File does not exist or cannot be accessed. Check: " + Location.ToString() + "attachments=\"" + Attachments + "\"";
-                        Log(Level.Info, LogPrefix + msg);
+                        string msg = "File \"" + fileName + "\" NOT attached to message. File does not exist or cannot be accessed. Check: " + Location.ToString() + "attachments=\"" + Attachments + "\"";
+                        Log(Level.Warning, LogPrefix + string.Format(CultureInfo.InvariantCulture,
+                            "File '{0}' NOT attached to message. File does not exist or cannot be" +
+                            " accessed. ", fileName));
                     }
                 }
             }
@@ -300,13 +299,11 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Info, LogPrefix + "Sending mail to {0}.", mailMessage.To);
                 SmtpMail.SmtpServer = this.Mailhost;
                 SmtpMail.Send(mailMessage);
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
                 msg.Append(LogPrefix + "Error enountered while sending mail message.\n");
                 msg.Append(LogPrefix + "Make sure that mailhost=" + this.Mailhost + " is valid\n");
-                msg.Append(LogPrefix + "Stack Trace:\n");
-                msg.Append(e.ToString() + "\n");
-                throw new BuildException("Error sending mail:\n " + msg.ToString());
+                throw new BuildException("Error sending mail:\n " + msg.ToString(), Location, ex);
             }
         }
 

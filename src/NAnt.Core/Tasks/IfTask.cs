@@ -23,6 +23,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -136,7 +137,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("uptodatefile")]
         public string PrimaryFile {
             get { return (_primaryFile != null) ? Project.GetFullPath(_primaryFile) : null; }
-            set { _primaryFile = SetStringValue(value); }
+            set { _primaryFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -145,7 +146,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("comparefile")]
         public string CompareFile {
             set { 
-                if(_compareFiles == null) {
+                if (_compareFiles == null) {
                     _compareFiles = new FileSet();                    _compareFiles.Parent = this;                    _compareFiles.Project = this.Project;                }
                 _compareFiles.Includes.Add(value); 
 
@@ -168,7 +169,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("propertytrue")]
         public string PropertyNameTrue {
             get { return _propNameTrue; }
-            set { _propNameTrue = SetStringValue(value); }
+            set { _propNameTrue = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -177,7 +178,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("propertyexists")]
         public string PropertyNameExists {
             get { return _propNameExists;}
-            set { _propNameExists = SetStringValue(value); }
+            set { _propNameExists = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -186,7 +187,7 @@ namespace NAnt.Core.Tasks {
        [TaskAttribute("targetexists")]
         public string TargetNameExists {
             get { return _targetName; }
-            set { _targetName = SetStringValue(value); }
+            set { _targetName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

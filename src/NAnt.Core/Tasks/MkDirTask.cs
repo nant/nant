@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -57,27 +58,28 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("dir", Required=true)]
         public string Dir {
-            get { return Project.GetFullPath(_dir); }
-            set { _dir = SetStringValue(value); }
+            get { return (_dir != null) ? Project.GetFullPath(_dir) : null; }
+            set { _dir = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Creates the directory specified by the <see cref="Dir" /> property.
+        /// </summary>
+        /// <exception cref="BuildException">The directory could not be created.</exception>
         protected override void ExecuteTask() {
             try {
                 string directory = Dir;
                 if (!Directory.Exists(directory)) {
                     Log(Level.Info, LogPrefix + "Creating directory {0}.", directory);
-                    DirectoryInfo result = Directory.CreateDirectory(directory);
-                    if (result == null) {
-                        string msg = String.Format(CultureInfo.InvariantCulture, "Unknown error creating directory '{0}'.", directory);
-                        throw new BuildException(msg, Location);
-                    }
+                    Directory.CreateDirectory(directory);
                 }
-            } catch (Exception e) {
-                throw new BuildException(LogPrefix + "Failed", Location, e);
+            } catch (Exception ex) {
+                throw new BuildException(LogPrefix + string.Format(CultureInfo.InvariantCulture, 
+                    "Directory '{0}' could not be created.", Dir), Location, ex);
             }
         }
 

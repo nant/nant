@@ -20,6 +20,7 @@
 using System;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -56,7 +57,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("message")]
         public string Message {
             get { return _message; }
-            set {_message = SetStringValue(value); }
+            set { _message = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

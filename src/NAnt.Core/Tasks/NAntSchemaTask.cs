@@ -29,6 +29,7 @@ using System.Xml;
 using System.Xml.Schema;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -72,7 +73,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("output", Required=true)]
         public virtual string OutputFile {
             get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
-            set { _outputFile = SetStringValue(value); }
+            set { _outputFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("target-ns", Required=false)]
         public virtual string TargetNamespace {
             get { return _targetNamespace; }
-            set { _targetNamespace = SetStringValue(value); }
+            set { _targetNamespace = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("class", Required=false)]
         public virtual string ForType {
             get { return _forType; }
-            set { _forType = SetStringValue(value); }
+            set { _forType = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

@@ -26,6 +26,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -104,7 +105,7 @@ namespace NAnt.Core.Tasks {
             if (Parent != null && !(Parent is Project)) {
                 throw new BuildException("Task not allowed in targets.  Must be at project level.", Location);
             }
-            if (_currentBasedir == null || _currentBasedir.Length == 0 || _nestinglevel == 0) {
+            if (StringUtils.IsNullOrEmpty(_currentBasedir) || _nestinglevel == 0) {
                 _currentBasedir = Project.BaseDirectory;
             }
             // Check for recursive include
@@ -118,10 +119,10 @@ namespace NAnt.Core.Tasks {
         } 
 
         protected override void ExecuteTask() {
-            string includedFileName =  Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
+            string includedFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
            
             // has this file already been mapped ?
-            if ( Project.LocationMap.FileIsMapped( includedFileName )) {
+            if (Project.LocationMap.FileIsMapped(includedFileName)) {
                 Log(Level.Verbose, LogPrefix + "Duplicate include of file {0}.", includedFileName);
                 return;
             }
