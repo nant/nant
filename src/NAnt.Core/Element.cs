@@ -417,19 +417,13 @@ namespace SourceForge.NAnt {
 
         }
 
-        /// <summary>
-        /// Creates a child BuildElement using property set/get methods.
-        /// </summary>
-        /// <param name="propInf">The PropertyInfo object that represents the property of the current class</param>
-        /// <param name="xml">The XMLNode used to init the new object</param>
-        /// <returns>Returns the Element child.</returns>
+        /// <summary>        /// Creates a child BuildElement using property set/get methods.        /// </summary>        /// <param name="propInf">The PropertyInfo object that represents the property of the current class</param>        /// <param name="xml">The XMLNode used to init the new object</param>        /// <returns>Returns the Element child.</returns>
         private Element CreateChildBuildElement(PropertyInfo propInf, XmlNode xml) {
             MethodInfo setter, getter;
             setter = propInf.GetSetMethod(true);
             getter = propInf.GetGetMethod(true);
 
             Element childElement = null;
-            
             
             //if there is a getter, then get the current instance of the object, and use that.
             if(getter != null) {
@@ -443,7 +437,6 @@ namespace SourceForge.NAnt {
                     getter = null;
                     logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}_get() returned null; will go the route of set method to populate.", propInf.Name));
                 }
-
             }
             
             //create a new instance of the object if there is not a get method. (or the get object returned null... see above)
@@ -460,12 +453,13 @@ namespace SourceForge.NAnt {
             childElement.Initialize(xml);
 
             //call the set method if we created the object
-            if(setter != null && getter == null)
+            if(setter != null && getter == null) {
                 setter.Invoke(this,new object[] {childElement});
+            }
             
             //return the new/used object
             return childElement;
         }
-        #endregion Private Instance Methods            
+        #endregion Private Instance Methods
     }
 }
