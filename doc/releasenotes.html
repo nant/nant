@@ -42,9 +42,13 @@
                 framework. By default, NAnt will run on .NET 2.0 Beta 1 (if available).
             </li>
             <li>
-                Expression support !!</li>
+                This release of NAnt introduces support for expressions. More information is 
+                available <a href="help/fundamentals/expressions.html">here</a>.
+            </li>
             <li>
-                FilterChain support !!</li>
+                <a href="help/types/filterchain.html">FilterChain</a> support has finally been 
+                introduced to NAnt.
+            </li>
             <li>
                 Enums that are used in tasks or types now have their own doc pages.
             </li>
@@ -52,24 +56,26 @@
                 Overwriting of read-only properties will now result in a build failure.
             </li>
             <li>
-                Output of XmlLogger is now buffered until build has finished, and XmlLogger can now
-                also be used as a listener.
+                Output of XmlLogger is now buffered until build has finished, and XmlLogger can 
+                now also be used as a listener.
             </li>
             <li>
-                Added support for <a href="help/fundamentals/targets.html#wild-targets">wild targets</a>.
+                Added support for <a href="help/fundamentals/targets.html#wild-targets">wild 
+                    targets</a>.
             </li>
             <li>
-                By default, NAnt targets the framework on which its running. 
-                Previous versions of NAnt targeted the .NET Framework 1.0 by default.
+                By default, NAnt targets the framework on which its running. Previous versions 
+                of NAnt targeted the .NET Framework 1.0 by default.
             </li>
             <li>
-                Improved framework detection !!
+                NAnt will now report unknown attributes and child elements.
             </li>
         </ul>
         <h4>Commandline changes</h4>
         <ul>
             <li>
-                Added "-emacs" option.
+                Added "-emacs" option, which can be used to produce logging information without 
+                adornments.
             </li>
             <li>
                 Added "-ext[ension]" option to allow loading of external assemblies. As a 
@@ -138,7 +144,8 @@
         <h5>&lt;csc&gt;</h5>
         <ul>
             <li>
-                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file 
+                regardless of the file timestamps.
             </li>
             <li>
                 "nowarn" attribute has been deprecated in favor of the <code>&lt;nowarn&gt;</code>
@@ -169,7 +176,8 @@
             <li>
                 Documentation updates.
             </li>
-            <li>Added "passfile" attribute</li>
+            <li>
+                Added "passfile" attribute</li>
         </ul>
         <h5>&lt;exec&gt;</h5>
         <ul>
@@ -194,7 +202,8 @@
                 Added support for package references. [Mono]
             </li>
             <li>
-                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file 
+                regardless of the file timestamps.
             </li>
         </ul>
         <h5>&lt;license&gt;</h5>
@@ -220,7 +229,8 @@
         <h5>&lt;nant&gt;</h5>
         <ul>
             <li>
-                Added <code>&lt;fileset&gt;</code> support for specifiying build files to execute.
+                Added <code>&lt;fileset&gt;</code> support for specifiying build files to 
+                execute.
             </li>
         </ul>
         <h5>&lt;ndoc&gt;</h5>
@@ -267,7 +277,8 @@
         <h5>&lt;solution&gt;</h5>
         <ul>
             <li>
-                WebMaps are now case-insensitive (and added attribute to enable case-sensitivity).
+                WebMaps are now case-insensitive (and added attribute to enable 
+                case-sensitivity).
             </li>
             <li>
                 Added "enablewebdav" attribute to allow WebDAV access for web projects.
@@ -303,7 +314,8 @@
                 VB.NET specific settings are now processed.
             </li>
             <li>
-                Improved support for precompiled headers, better grouping of files that should be compiled in one go.
+                Improved support for precompiled headers, better grouping of files that should 
+                be compiled in one go.
             </li>
             <li>
                 Added support for empty projects.
@@ -322,6 +334,10 @@
             </li>
             <li>
                 Zero-byte resx files are now skipped to match VS.NET.
+            </li>
+            <li>
+                Support for nmake projects has been introduced to the <code>&lt;solution&gt;</code>
+                task.
             </li>
             <li>
                 Added support for web projects nested in Enterprise Template Projects.
@@ -351,7 +367,8 @@
                 Added support for package references. [Mono]
             </li>
             <li>
-                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file 
+                regardless of the file timestamps.
             </li>
             <li>
                 Added <code>&lt;imports&gt;</code> child element, and deprecated "imports" 
@@ -374,7 +391,8 @@
                 child element on <code>&lt;references&gt;</code> element.
             </li>
             <li>
-                Added "rebuild" attribute, which instructs NAnt to recompile the output file regardless of the file timestamps.
+                Added "rebuild" attribute, which instructs NAnt to recompile the output file 
+                regardless of the file timestamps.
             </li>
             <li>
                 Added support for /baseaddress compiler option.
@@ -385,11 +403,11 @@
             <li>
                 Added support for XPath expressions with namespace prefixes.
             </li>
-        </ul>        
+        </ul>
         <h5>&lt;zip&gt; / &lt;unzip&gt;</h5>
         <ul>
             <li>
-                Upgraded #ziplib to 0.60.
+                Upgraded #ziplib to v0.80.
             </li>
         </ul>
         <h4>New types</h4>
