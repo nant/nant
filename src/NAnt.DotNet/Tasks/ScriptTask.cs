@@ -203,8 +203,8 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The language of the script block. Possible values are "VB", "C#",
-        /// "JS", "VJS" or a fully-qualified name for a class implementing 
+        /// The language of the script block. Possible values are "VB", "vb", "VISUALBASIC", "C#", "c#", "CSHARP".
+        /// "JS", "js", "JSCRIPT" "VJS", "vjs", "JSHARP" or a fully-qualified name for a class implementing 
         /// <see cref="System.CodeDom.Compiler.CodeDomProvider" />.
         /// </summary>
         [TaskAttribute("language", Required=true)]
@@ -432,6 +432,7 @@ namespace NAnt.DotNet.Tasks {
                             "Microsoft.CSharp.CSharpCodeProvider",
                             "System, Culture=neutral");
                         break;
+                    case "js":
                     case "JS":
                     case "JSCRIPT":
                         languageId = LanguageId.JScript;
@@ -439,6 +440,7 @@ namespace NAnt.DotNet.Tasks {
                             "Microsoft.JScript.JScriptCodeProvider",
                             "Microsoft.JScript, Culture=neutral");
                         break;
+                    case "vjs":
                     case "VJS":
                     case "JSHARP":
                         languageId = LanguageId.JSharp;
