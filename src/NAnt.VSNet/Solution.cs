@@ -56,7 +56,8 @@ namespace NAnt.VSNet {
                 // translate URLs to physical paths if using a webmap
                 string map = _webMaps.FindBestMatch(project);
                 if (map != null) {
-                    Log(Level.Debug, LogPrefix + "Found webmap match: " + map);
+                    Log(Level.Debug, LogPrefix + "Found webmap match '{0}' for '{1}.", 
+                        map, project);
                     project = map;
                 }
 
@@ -202,8 +203,35 @@ namespace NAnt.VSNet {
                 // check if we're dealing with project or assembly reference
                 if (projectGuidNode != null) {
                     string subProjectFilename = node.SelectSingleNode("FILE").InnerText;
-                    string fullPath = Path.Combine(Path.GetDirectoryName(fileName), 
-                        subProjectFilename);
+                    string fullPath;
+
+                    // translate URLs to physical paths if using a webmap
+                    string map = _webMaps.FindBestMatch(subProjectFilename);
+                    if (map != null) {
+                        Log(Level.Debug, LogPrefix + "Found webmap match '{0}' for '{1}.", 
+                            map, subProjectFilename);
+                        subProjectFilename = map;
+                    }
+
+                    try {
+                        Uri uri = new Uri(subProjectFilename);
+                        if (uri.Scheme == Uri.UriSchemeFile) {
+                            fullPath = Path.Combine(Path.GetDirectoryName(fileName), uri.LocalPath);
+                        } else {
+                            fullPath = subProjectFilename;
+
+                            if (!_solutionTask.EnableWebDav) {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                    "Cannot build web project '{0}'.  Please use" 
+                                    + " <webmap> to map the given URL to a project-relative" 
+                                    + " path, or specify enablewebdav=\"true\" on the" 
+                                    + " <solution> task element to use WebDAV.", fullPath));
+                            }
+                        }
+                    } catch (UriFormatException) {
+                        fullPath = Path.Combine(Path.GetDirectoryName(fileName), subProjectFilename);
+                    }
+
                     if (Project.IsEnterpriseTemplateProject(fullPath)) {
                         RecursiveLoadTemplateProject(fullPath);
                     } else {
