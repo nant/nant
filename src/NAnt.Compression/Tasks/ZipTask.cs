@@ -198,6 +198,11 @@ namespace NAnt.Zip.Tasks {
                             entryName = ZipFileSet.Prefix + entryName;
                         }
 
+                        // ensure directory separators are understood on linux
+                        if (Path.DirectorySeparatorChar == '\\') {
+                            entryName = entryName.Replace(@"\", "/");
+                        }
+
                         // create zip entry
                         ZipEntry entry = new ZipEntry(entryName);
 
@@ -248,10 +253,20 @@ namespace NAnt.Zip.Tasks {
                         // determine zip entry name
                         string entryName = directory.Substring(basePath.Length + 1);
 
+                        // add prefix if specified
                         if (ZipFileSet.Prefix != null) {
+                            entryName = ZipFileSet.Prefix + entryName;
+                        }
+
+                        // ensure directory separators are understood on linux
+                        if (Path.DirectorySeparatorChar == '\\') {
+                            entryName = entryName.Replace(@"\", "/");
+                        }
+
+                        if (!entryName.EndsWith("/")) {
                             // trailing directory signals to #ziplib that we're
                             // dealing with directory entry
-                            entryName = ZipFileSet.Prefix + entryName + "/";
+                            entryName += "/";
                         }
 
                         // create directory entry
