@@ -515,7 +515,8 @@ namespace NAnt.VSNet {
                 clTask.OutputDir.Refresh();
             }
 
-            string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
+            string includeDirs = MergeCompilerToolSetting(baseConfig, fileConfig, 
+                "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
                 foreach (string includeDir in includeDirs.Split(',', ';')) {
                     if (includeDir.Length == 0) {
@@ -526,7 +527,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string metadataDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalUsingDirectories");
+            string metadataDirs = MergeCompilerToolSetting(baseConfig, fileConfig, 
+                "AdditionalUsingDirectories");
             if (!StringUtils.IsNullOrEmpty(metadataDirs)) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
                     if (metadataDir.Length == 0) {
@@ -537,7 +539,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string forcedUsingFiles = fileConfig.GetToolSetting(compilerTool, "ForcedUsingFiles");
+            string forcedUsingFiles = MergeCompilerToolSetting(baseConfig, fileConfig, 
+                "ForcedUsingFiles");
             if (!StringUtils.IsNullOrEmpty(forcedUsingFiles)) {
                 foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
                     if (forcedUsingFile.Length == 0) {
@@ -1119,6 +1122,26 @@ namespace NAnt.VSNet {
             } else {
                 settingValue = settingValue.Remove(settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
             }
+
+            // individual values are separated by ';'
+            string[] values = settingValue.Split(';');
+
+            // holds filtered setting value
+            settingValue = string.Empty;
+
+            // filter duplicate setting values
+            Hashtable filteredValues = CollectionsUtil.CreateCaseInsensitiveHashtable(values.Length);
+            foreach (string value in values) {
+                if (!filteredValues.ContainsKey(value)) {
+                    filteredValues.Add(value, null);
+
+                    if (settingValue.Length != 0) {
+                        settingValue += ';';
+                    }
+                    settingValue += value;
+                }
+            }
+
             return settingValue;
         }
 
