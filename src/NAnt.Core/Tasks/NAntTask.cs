@@ -161,7 +161,7 @@ namespace NAnt.Core.Tasks {
                 RunBuild(BuildFile);
             } else {
                 if (BuildFiles.FileNames.Count == 0) {
-                    Log(Level.Info, "No matching buildfiles found to run.");
+                    Log(Level.Warning, "No matching build files found to run.");
                     return;
                 }
 
