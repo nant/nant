@@ -41,7 +41,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_ArgOption() {            
             string result = "";
-            if ( PlatformHelper.IsWindows ) {
+            if (PlatformHelper.IsWin32) {
                 result = RunBuild(FormatBuildFile("program='cmd.exe'", "<arg value='/c echo Hello, World!'/>"));
             } else {
                 result = RunBuild(FormatBuildFile("program='echo'", "<arg value='Hello, World!'/>"));
@@ -66,7 +66,7 @@ namespace Tests.NAnt.Core.Tasks {
             TempFile.Create(tempFileName);
 
             string result = "";
-            if ( PlatformHelper.IsWindows ) {
+            if (PlatformHelper.IsWin32) {
                 result = RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type " + tempFileName + "'", ""));
             } else {
                 result = RunBuild(FormatBuildFile("program='cat' commandline=' " + tempFileName + "'", ""));
