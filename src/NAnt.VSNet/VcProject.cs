@@ -499,26 +499,25 @@ namespace NAnt.VSNet {
             // set task properties
             clTask.OutputDir = new DirectoryInfo(intermediateDir);
 
+            // TODO: add support for disabling specific warnings !!!
+
             // check if precompiled headers are used
             if (fileConfig.UsePrecompiledHeader != UsePrecompiledHeader.No && fileConfig.UsePrecompiledHeader != UsePrecompiledHeader.Unspecified) {
                 // get location of precompiled header file
                 string pchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
                 if (pchFile == null) {
-                    pchFile = "$(IntDir)/$(TargetName).pch";
+                    pchFile = fileConfig.ExpandMacros("$(IntDir)/$(TargetName).pch");
                 }
 
                 // we must set an absolute path for the PCH location file, 
                 // otherwise <cl> assumes a location relative to the output 
                 // directory - not the project directory.
-                clTask.PchFile = Path.Combine(ProjectDirectory.FullName,
-                    fileConfig.ExpandMacros(pchFile));
+                clTask.PchFile = Path.Combine(ProjectDirectory.FullName, pchFile);
 
                 // check if a header file is specified for the precompiled header 
-                // file
-                string headerThrough = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderThrough");
-                if (headerThrough == null) {
-                    headerThrough = "StdAfx.h";
-                } 
+                // file, use "StdAfx.h" as default value
+                string headerThrough = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderThrough",
+                    "StdAfx.h");
                 clTask.PchThroughFile = headerThrough;
 
                 switch (fileConfig.UsePrecompiledHeader) {
@@ -544,7 +543,7 @@ namespace NAnt.VSNet {
 
             string includeDirs = MergeCompilerToolSetting(baseConfig, fileConfig, 
                 "AdditionalIncludeDirectories");
-            if (!StringUtils.IsNullOrEmpty(includeDirs)) {
+            if (includeDirs != null) {
                 foreach (string includeDir in includeDirs.Split(',', ';')) {
                     if (includeDir.Length == 0) {
                         continue;
@@ -556,7 +555,7 @@ namespace NAnt.VSNet {
 
             string metadataDirs = MergeCompilerToolSetting(baseConfig, fileConfig, 
                 "AdditionalUsingDirectories");
-            if (!StringUtils.IsNullOrEmpty(metadataDirs)) {
+            if (metadataDirs != null) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
                     if (metadataDir.Length == 0) {
                         continue;
@@ -568,7 +567,7 @@ namespace NAnt.VSNet {
 
             string forcedUsingFiles = MergeCompilerToolSetting(baseConfig, fileConfig, 
                 "ForcedUsingFiles");
-            if (!StringUtils.IsNullOrEmpty(forcedUsingFiles)) {
+            if (forcedUsingFiles != null) {
                 foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
                     if (forcedUsingFile.Length == 0) {
                         continue;
@@ -587,6 +586,26 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // set name of program database file
+            //
+            // we must set an absolute path for the program database file, 
+            // otherwise <cl> assumes a location relative to the output 
+            // directory - not the project directory.
+            string pdbFile = fileConfig.GetToolSetting(compilerTool, "ProgramDataBaseFileName",
+                "$(IntDir)/vc70.pdb");
+            clTask.ProgramDatabaseFile = Path.Combine(ProjectDirectory.FullName, 
+                pdbFile);
+
+
+            // set name of object file
+            //
+            // we must set an absolute path for the object file, otherwise <cl> 
+            // assumes a location relative to the output directory - not the 
+            // project directory.
+            string objectFile = fileConfig.GetToolSetting(compilerTool, "ObjectFile",
+                "$(IntDir)/");
+            clTask.ObjectFile = Path.Combine(ProjectDirectory.FullName, objectFile);
+
             string asmOutput = fileConfig.GetToolSetting(compilerTool, "AssemblerOutput");
             string asmListingLocation = fileConfig.GetToolSetting(compilerTool, "AssemblerListingLocation");
             if (asmOutput != null && asmOutput != "0" && asmListingLocation != null) {
@@ -601,7 +620,7 @@ namespace NAnt.VSNet {
             }
 
             string preprocessorDefs = MergeCompilerToolSetting(baseConfig, fileConfig, "PreprocessorDefinitions");
-            if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
+            if (preprocessorDefs != null) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     if (def.Length != 0) {
                         Option op = new Option();
@@ -612,11 +631,11 @@ namespace NAnt.VSNet {
             }
 
             string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
-            if (!StringUtils.IsNullOrEmpty(undefinePreprocessorDefs)) { 
+            if (undefinePreprocessorDefs != null) { 
                 foreach (string def in undefinePreprocessorDefs.Split(';', ',')) { 
                     Option op = new Option();
                     op.OptionName = def;
-                    clTask.Defines.Add(op);
+                    clTask.Undefines.Add(op);
                 }
             }
 
@@ -625,7 +644,7 @@ namespace NAnt.VSNet {
                 using (StringReader reader = new StringReader(addOptions)) {
                     string addOptionsLine = reader.ReadLine();
                     while (addOptionsLine != null) {
-                        foreach(string addOption in addOptionsLine.Split(' '))  {
+                        foreach (string addOption in addOptionsLine.Split(' '))  {
                             clTask.Arguments.Add(new Argument(addOption));
                         }
                         addOptionsLine = reader.ReadLine();
@@ -656,7 +675,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            if (IsOutputDll(fileConfig)) {
+            if (fileConfig.Type == VcConfiguration.ConfigurationType.DynamicLibrary) {
                 clTask.Arguments.Add(new Argument("/D"));
                 clTask.Arguments.Add(new Argument("_WINDLL"));
             }
@@ -666,8 +685,10 @@ namespace NAnt.VSNet {
             }
 
             Hashtable compilerArgs = fileConfig.GetToolArguments(compilerTool, _clArgMap);   
-            foreach (string key in compilerArgs.Keys) {
-                clTask.Arguments.Add(new Argument((string) compilerArgs[key]));
+            foreach (string arg in compilerArgs.Values) {
+                Argument compilerArg = new Argument();
+                compilerArg.Line = arg;
+                clTask.Arguments.Add(compilerArg);
             }
 
             // check for shared MFC
@@ -756,7 +777,7 @@ namespace NAnt.VSNet {
             }
 
             string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
-            if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
+            if (preprocessorDefs != null) {
                 foreach (string preprocessorDef in preprocessorDefs.Split(';')) {
                     if (preprocessorDef.Length == 0) {
                         continue;
@@ -773,7 +794,7 @@ namespace NAnt.VSNet {
             }
 
             string addIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
-            if (!StringUtils.IsNullOrEmpty(addIncludeDirs)) {
+            if (addIncludeDirs != null) {
                 foreach (string addIncludeDir in addIncludeDirs.Split(';')) {
                     if (addIncludeDir.Length == 0) {
                         continue;
@@ -851,7 +872,7 @@ namespace NAnt.VSNet {
             // If outputDirectory is not supplied in the configuration, assume 
             // it's the project directory
             string outputDirectory = fileConfig.GetToolSetting(compilerTool, "OutputDirectory");
-            if (StringUtils.IsNullOrEmpty(outputDirectory)) {
+            if (outputDirectory == null) {
                 outputDirectory = fileConfig.ProjectDir.FullName;
             }
 
@@ -859,7 +880,7 @@ namespace NAnt.VSNet {
             midlTask.Arguments.Add(new Argument(outputDirectory));
 
             string typeLibraryName = fileConfig.GetToolSetting(compilerTool, "TypeLibraryName");
-            if (!StringUtils.IsNullOrEmpty(typeLibraryName)) {
+            if (typeLibraryName != null)) {
                 midlTask.Tlb = new FileInfo(Path.Combine(outputDirectory, typeLibraryName));
             } else {
                 // if typeLibraryName is not supplied in the configuration, 
@@ -871,31 +892,31 @@ namespace NAnt.VSNet {
             }
 
             string proxyFileName = fileConfig.GetToolSetting(compilerTool, "ProxyFileName");
-            if (!StringUtils.IsNullOrEmpty(proxyFileName)) {
+            if (proxyFileName != null) {
                 midlTask.Proxy = new FileInfo(Path.Combine(outputDirectory, 
                     proxyFileName));
             }
 
             string interfaceIdentifierFileName = fileConfig.GetToolSetting(compilerTool, "InterfaceIdentifierFileName");
-            if (!StringUtils.IsNullOrEmpty(interfaceIdentifierFileName)) {
+            if (interfaceIdentifierFileName != null) {
                 midlTask.Iid = new FileInfo(Path.Combine(outputDirectory, 
                     interfaceIdentifierFileName));
             }
 
             string dllDataFileName = fileConfig.GetToolSetting(compilerTool, "DLLDataFileName");
-            if (!StringUtils.IsNullOrEmpty(dllDataFileName)) {
+            if (dllDataFileName != null) {
                 midlTask.DllData = new FileInfo(Path.Combine(outputDirectory, 
                     dllDataFileName));
             }
 
             string headerFileName = fileConfig.GetToolSetting(compilerTool, "HeaderFileName");
-            if (!StringUtils.IsNullOrEmpty(headerFileName)) {
+            if (headerFileName != null) {
                 midlTask.Header = new FileInfo(Path.Combine(outputDirectory, 
                     headerFileName));
             }
 
             string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
-            if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
+            if (preprocessorDefs != null) {
                 foreach (string preprocessorDef in preprocessorDefs.Split(';')) {
                     if (preprocessorDef.Length == 0) {
                         continue;
@@ -907,7 +928,7 @@ namespace NAnt.VSNet {
             }
 
             string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
-            if (!StringUtils.IsNullOrEmpty(undefinePreprocessorDefs)) {
+            if (undefinePreprocessorDefs != null) {
                 foreach (string undefinePreprocessorDef in undefinePreprocessorDefs.Split(';')) {
                     if (undefinePreprocessorDef.Length == 0) {
                         continue;
@@ -919,7 +940,7 @@ namespace NAnt.VSNet {
             }
 
             string additionalIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
-            if (!StringUtils.IsNullOrEmpty(additionalIncludeDirs)) {
+            if (additionalIncludeDirs != null) {
                 foreach (string additionalIncludeDir in additionalIncludeDirs.Split(';')) {
                     if (additionalIncludeDir.Length == 0) {
                         continue;
@@ -929,7 +950,7 @@ namespace NAnt.VSNet {
             }
 
             string cPreprocessOptions = fileConfig.GetToolSetting(compilerTool, "CPreprocessOptions");
-            if (!StringUtils.IsNullOrEmpty(cPreprocessOptions)) {
+            if (cPreprocessOptions != null) {
                 foreach (string cPreprocessOption in cPreprocessOptions.Split(';')) {
                     if (cPreprocessOption.Length == 0) {
                         continue;
@@ -948,7 +969,9 @@ namespace NAnt.VSNet {
                         midlTask.Char = (string) midlArgs[key];
                         break;
                     default:
-                        midlTask.Arguments.Add(new Argument((string) midlArgs[key]));
+                        Argument midlArg = new Argument();
+                        midlArg.Line = (string) midlArgs[key];
+                        midlTask.Arguments.Add(midlArg);
                         break;
                 }
             }
@@ -1028,38 +1051,116 @@ namespace NAnt.VSNet {
             // set parent of child elements
             linkTask.Sources.Parent = linkTask;
             linkTask.LibDirs.Parent = linkTask;
+            linkTask.Modules.Parent = linkTask;
+            linkTask.EmbeddedResources.Project = linkTask.Project;
 
             // inherit project from solution task for child elements
             linkTask.Sources.Project = linkTask.Project;
             linkTask.LibDirs.Project = linkTask.Project;
+            linkTask.Modules.Project = linkTask.Project;
+            linkTask.EmbeddedResources.Project = linkTask.Project;
 
             // inherit namespace manager from parent
             linkTask.Sources.NamespaceManager = linkTask.NamespaceManager;
             linkTask.LibDirs.NamespaceManager = linkTask.NamespaceManager;
+            linkTask.Modules.NamespaceManager = linkTask.NamespaceManager;
+            linkTask.EmbeddedResources.NamespaceManager = linkTask.NamespaceManager;
 
-            // set task properties
+            // set base directory of filesets
+            linkTask.Sources.BaseDirectory = baseConfig.ProjectDir;
+            linkTask.LibDirs.BaseDirectory = baseConfig.ProjectDir;
+            linkTask.Modules.BaseDirectory = baseConfig.ProjectDir;
+            linkTask.EmbeddedResources.BaseDirectory = baseConfig.ProjectDir;
+
+            // output file name
             string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");
-            string pdbFile = baseConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
             if (OutputDir != null) {
                 linkTask.OutputFile = new FileInfo(Path.Combine(OutputDir.FullName, 
                     Path.GetFileName(outFile)));
-                if (!StringUtils.IsNullOrEmpty(pdbFile)) {
-                    pdbFile = Path.Combine(OutputDir.FullName, Path.GetFileName(pdbFile));
-                }
             } else {
                 linkTask.OutputFile = new FileInfo(Path.Combine(
                     ProjectDirectory.FullName, outFile));
-                if (!StringUtils.IsNullOrEmpty(pdbFile)) {
+            }
+
+            // generation of debug information
+            linkTask.Debug = bool.Parse(baseConfig.GetToolSetting(linkerTool, "GenerateDebugInformation", "FALSE"));
+
+            string pdbFile = baseConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
+            if (pdbFile == null && linkTask.Debug) {
+                pdbFile = baseConfig.ExpandMacros("$(OutDir)/$(ProjectName).pdb");
+            }
+            if (pdbFile != null) {
+                if (OutputDir != null) {
+                    pdbFile = Path.Combine(OutputDir.FullName, Path.GetFileName(pdbFile));
+                } else {
                     pdbFile = Path.Combine(ProjectDirectory.FullName, pdbFile);
                 }
+                linkTask.ProgramDatabaseFile = new FileInfo(pdbFile);
             }
 
-            if (!StringUtils.IsNullOrEmpty(pdbFile)) {
-                linkTask.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture, 
-                    "/PDB:\"{0}\"", pdbFile)));
+            // generation of import library
+            string importLibrary = baseConfig.GetToolSetting(linkerTool, "ImportLibrary");
+            if (importLibrary != null) {
+                if (OutputDir != null) {
+                    importLibrary = Path.Combine(OutputDir.FullName, Path.GetFileName(importLibrary));
+                } else {
+                    importLibrary = Path.Combine(ProjectDirectory.FullName, importLibrary);
+                }
+
+                Argument importLibraryArg = new Argument();
+                importLibraryArg.Line = "/IMPLIB:" + LinkTask.QuoteArgumentValue(
+                    importLibrary);
+                linkTask.Arguments.Add(importLibraryArg);
             }
 
-            if (IsOutputDll(baseConfig)) {
+            // generation of map file during linking
+            bool generateMapFile = bool.Parse(baseConfig.GetToolSetting(linkerTool, "GenerateMapFile", "FALSE"));
+            if (generateMapFile) {
+                Argument mapArg = new Argument();
+
+                string mapFileName = baseConfig.GetToolSetting(linkerTool, "MapFileName");
+                if (mapFileName != null) {
+                    mapArg.Line = "/MAP:" + LinkTask.QuoteArgumentValue(mapFileName);;
+                } else {
+                    mapArg.Line = "/MAP";
+                }
+
+                linkTask.Arguments.Add(mapArg);
+            }
+
+            // total heap allocation size
+            string heapReserveSize = baseConfig.GetToolSetting(linkerTool, "HeapReserveSize");
+            if (heapReserveSize != null) {
+                Argument heapArg = new Argument();
+
+                string heapCommitSize = baseConfig.GetToolSetting(linkerTool, "HeapCommitSize");
+                if (heapCommitSize != null) {
+                    heapArg.Line = string.Format(CultureInfo.InvariantCulture, 
+                        "/HEAP:{0},{1}", heapReserveSize, heapCommitSize);
+                } else {
+                    heapArg.Line = "/HEAP:" + heapReserveSize;
+                }
+
+                linkTask.Arguments.Add(heapArg);
+            }
+
+            // total stack allocation size
+            string stackReserveSize = baseConfig.GetToolSetting(linkerTool, "StackReserveSize");
+            if (stackReserveSize != null) {
+                Argument stackArg = new Argument();
+
+                string stackCommitSize = baseConfig.GetToolSetting(linkerTool, "StackCommitSize");
+                if (stackCommitSize != null) {
+                    stackArg.Line = string.Format(CultureInfo.InvariantCulture, 
+                        "/STACK:{0},{1}", stackReserveSize, stackCommitSize);
+                } else {
+                    stackArg.Line = "/STACK:" + stackReserveSize;
+                }
+
+                linkTask.Arguments.Add(stackArg);
+            }
+
+            if (baseConfig.Type == VcConfiguration.ConfigurationType.DynamicLibrary) {
                 linkTask.Arguments.Add(new Argument("/DLL"));
             }
 
@@ -1067,7 +1168,7 @@ namespace NAnt.VSNet {
                 linkTask.Sources.FileNames.Add(objFile);
             }
 
-            string addDeps = baseConfig.ExpandMacros(baseConfig.GetToolSetting(linkerTool, "AdditionalDependencies"));
+            string addDeps = baseConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
             if (addDeps != null) {
                 foreach (string addDep in addDeps.Split(' ')) {
                     linkTask.Sources.FileNames.Add(addDep);
@@ -1088,9 +1189,27 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // links to modules
+            string modules = baseConfig.GetToolSetting(linkerTool, "AddModuleNamesToAssembly");
+            if (modules != null) {
+                foreach (string module in modules.Split(';')) {
+                    linkTask.Modules.FileNames.Add(module);
+                }
+            }
+
+            // embedded resources
+            string embeddedResources = baseConfig.GetToolSetting(linkerTool, "EmbedManagedResourceFile");
+            if (embeddedResources != null) {
+                foreach (string embeddedResource in embeddedResources.Split(';')) {
+                    linkTask.EmbeddedResources.FileNames.Add(embeddedResource);
+                }
+            }
+
             Hashtable linkerArgs = baseConfig.GetToolArguments(linkerTool, _linkerArgMap);
             foreach (string arg in linkerArgs.Values) {
-                linkTask.Arguments.Add(new Argument(arg));
+                Argument linkArg = new Argument();
+                linkArg.Line = (string) arg;
+                linkTask.Arguments.Add(linkArg);
             }
 
             string addOptions = baseConfig.GetToolSetting(linkerTool, "AdditionalOptions");
@@ -1114,16 +1233,7 @@ namespace NAnt.VSNet {
             ExecuteInProjectDirectory(linkTask);
         }
 
-        private bool IsOutputDll(VcConfiguration config) {
-            string outFile = config.GetToolSetting("VCLinkerTool", "OutputFile");
-            if (outFile == null) {
-                return false;
-            }
-            string ext = Path.GetExtension(outFile).ToLower(CultureInfo.InvariantCulture);
-            return ext == ".dll" || ext == ".ocx";
-        }
-
-        private void ExecuteInProjectDirectory(NAnt.Core.Task task) {
+        private void ExecuteInProjectDirectory(Task task) {
             string oldBaseDir = SolutionTask.Project.BaseDirectory;
             SolutionTask.Project.BaseDirectory = ProjectDirectory.FullName;
 
@@ -1160,7 +1270,10 @@ namespace NAnt.VSNet {
             }
 
             if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
-                settingValue += ";" + baseConfig.GetToolSetting(compilerTool, setting);
+                string baseSettingValue = baseConfig.GetToolSetting(compilerTool, setting);
+                if (baseSettingValue != null) {
+                    settingValue += ";" + baseSettingValue;
+                }
             } else {
                 settingValue = settingValue.Remove(settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
             }
@@ -1184,7 +1297,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            return settingValue;
+            return StringUtils.ConvertEmptyToNull(settingValue);
         }
 
         #endregion Private Instance Methods
@@ -1339,7 +1452,8 @@ namespace NAnt.VSNet {
 
         private static string[] _defaultLibraries = new string[] { 
                                                                      "kernel32.lib", "user32.lib", "gdi32.lib", "winspool.lib", "comdlg32.lib",
-                                                                     "advapi32.lib", "shell32.lib", "ole32.lib", "oleaut32.lib", "uuid.lib"
+                                                                     "advapi32.lib", "shell32.lib", "ole32.lib", "oleaut32.lib", "uuid.lib", 
+                                                                     "odbc32.lib", "odbccp32.lib"
                                                                  };
 
         #endregion Private Static Fields
