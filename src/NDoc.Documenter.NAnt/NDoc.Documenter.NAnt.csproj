@@ -30,7 +30,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoWarn = "0618"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
@@ -49,7 +48,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoWarn = "0618"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
@@ -76,16 +74,16 @@
                     AssemblyName = "NDoc.Core"
                     HintPath = "..\..\lib\net\1.0\NDoc.Core.dll"
                 />
-                <Reference   
-                     Name = "System.Drawing"   
-                     AssemblyName = "System.Drawing"   
-                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Drawing.dll"   
-                 />   
-                 <Reference   
-                     Name = "System.Windows.Forms"   
-                     AssemblyName = "System.Windows.Forms"   
-                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Windows.Forms.dll"   
-                 /> 
+                <Reference
+                    Name = "System.Drawing"
+                    AssemblyName = "System.Drawing"
+                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Drawing.dll"
+                />
+                <Reference
+                    Name = "System.Windows.Forms"
+                    AssemblyName = "System.Windows.Forms"
+                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.Windows.Forms.dll"
+                />
                 <Reference
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
@@ -104,6 +102,7 @@
                 <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -135,6 +134,14 @@
                 />
                 <File
                     RelPath = "Resources\task-index.xslt"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Resources\type-doc.xslt"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Resources\type-index.xslt"
                     BuildAction = "Content"
                 />
             </Include>

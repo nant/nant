@@ -41,6 +41,8 @@ namespace NDoc.Documenter.NAnt {
 
         private XslTransform _xsltTaskIndex;
         private XslTransform _xsltTaskDoc;
+        private XslTransform _xsltTypeIndex;
+        private XslTransform _xsltTypeDoc;        
         private XmlDocument _xmlDocumentation;
         private string _resourceDirectory;
         private StringDictionary _fileNames = new StringDictionary();
@@ -139,7 +141,7 @@ namespace NDoc.Documenter.NAnt {
 
             // create a xml document that will get transformed by xslt
             _xmlDocumentation = new XmlDocument();
-            _xmlDocumentation.LoadXml(Document.OuterXml); 
+            _xmlDocumentation.LoadXml( XmlBuffer); 
 
             // build the file mapping
             OnDocBuildingStep(25, "Building mapping...");
@@ -147,6 +149,9 @@ namespace NDoc.Documenter.NAnt {
 
             // transform nant task index page transform (requires no arguments)
             TransformAndWriteResult(_xsltTaskIndex, "index.html");
+            
+            // transform nant type index page transform (requires no arguments)
+            TransformAndWriteResult(_xsltTypeIndex, "type-index.html");
 
             // generate a page for each marked task
             XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
@@ -157,7 +162,9 @@ namespace NDoc.Documenter.NAnt {
                 arguments.AddParam("class-id", String.Empty, classID);
 
                 // add extension object for NAnt utilities
-                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, _namespaceNames, _assemblyNames, _taskNames, LinkToSdkDocVersion);
+                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, 
+                                                                    _namespaceNames, _assemblyNames, 
+                                                                    _taskNames, LinkToSdkDocVersion);
                 arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
                 // generate filename for page
@@ -166,6 +173,28 @@ namespace NDoc.Documenter.NAnt {
 
                 // create the page
                 TransformAndWriteResult(_xsltTaskDoc, arguments, filename);
+            }
+            
+            // generate a page for each marked type
+            XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.ElementNameAttribute']");
+            foreach (XmlNode node in typeAttrNodes) {
+                // create arguments for nant task page transform
+                XsltArgumentList arguments = new XsltArgumentList();
+                string classID = node.ParentNode.Attributes["id"].Value;
+                arguments.AddParam("class-id", String.Empty, classID);
+                
+                // add extension object for NAnt utilities
+                NAntXsltUtilities utilities = new NAntXsltUtilities(_fileNames, _elementNames, 
+                                                                    _namespaceNames, _assemblyNames, 
+                                                                    _taskNames, LinkToSdkDocVersion);
+                arguments.AddExtensionObject("urn:NAntUtil", utilities);
+                
+                // generate filename for page
+                XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
+                string filename = propNode.Attributes["value"].Value.ToLower(CultureInfo.InvariantCulture) + "type.html";;    
+
+                // create the page
+                TransformAndWriteResult(_xsltTypeDoc, arguments, filename);
             }
         }
 
@@ -178,12 +207,20 @@ namespace NDoc.Documenter.NAnt {
 
             _xsltTaskIndex = new XslTransform();
             _xsltTaskDoc = new XslTransform();
+            _xsltTypeIndex = new XslTransform();
+            _xsltTypeDoc = new XslTransform();
 
-            OnDocBuildingProgress(50);
+            OnDocBuildingProgress(25);
             MakeTransform(_xsltTaskIndex, "task-index.xslt");
 
-            OnDocBuildingProgress(100);
+            OnDocBuildingProgress(50);
             MakeTransform(_xsltTaskDoc, "task-doc.xslt");
+            
+            OnDocBuildingProgress(75);
+            MakeTransform(_xsltTypeIndex, "type-index.xslt");
+
+            OnDocBuildingProgress(100);
+            MakeTransform(_xsltTypeDoc, "type-doc.xslt");
         }
 
 
