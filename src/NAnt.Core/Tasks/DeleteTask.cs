@@ -52,31 +52,46 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("delete")]
     public class DeleteTask : Task {
-        
+        #region Private Instance Fields
+
         string _file = null;
         string _dir = null;
         FileSet _fileset = new FileSet();
 
-        /// <summary>The file to delete.</summary>
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The file to delete.
+        /// </summary>
         [TaskAttribute("file")]
         public string FileName {
             get { return _file; }
             set {_file = value; }
         }
         
-        /// <summary>The directory to delete.</summary>
+        /// <summary>
+        /// The directory to delete.
+        /// </summary>
         [TaskAttribute("dir")]
         public string DirectoryName {
             get { return _dir; }
             set {_dir = value; }
         }
 
-        /// <summary>All the files in the file set will be deleted.</summary>
+        /// <summary>
+        /// All the files in the file set will be deleted.
+        /// </summary>
         [FileSet("fileset")]
         public FileSet DeleteFileSet {
             get { return _fileset; }
             set {_fileset = value; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             // limit task to deleting either a file or a directory or a file set
@@ -104,8 +119,7 @@ namespace NAnt.Core.Tasks {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", DirectoryName);
                     throw new BuildException(msg, Location, e);
                 }
-                if (!Directory.Exists(path))
-                {
+                if (!Directory.Exists(path)) {
                     string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}. The directory does not exist.", path);
                     throw new BuildException(msg, Location);
                 }
@@ -114,24 +128,30 @@ namespace NAnt.Core.Tasks {
                 RecursiveDeleteDirectory(path);
             } else {
                 // delete files in fileset
-                if (DeleteFileSet.DirectoryNames.Count == 0)
+                if (DeleteFileSet.DirectoryNames.Count == 0) {
                     Log(Level.Info, LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
-                else if ( DeleteFileSet.FileNames.Count == 0 )
+                } else if (DeleteFileSet.FileNames.Count == 0) {
                     Log(Level.Info, LogPrefix + "Deleting {0} directories.", DeleteFileSet.DirectoryNames.Count);
-                else
+                } else {
                     Log(Level.Info, LogPrefix + "Deleting {0} files and {1} directories.", DeleteFileSet.FileNames.Count, DeleteFileSet.DirectoryNames.Count);
+                }
 
                 foreach (string path in DeleteFileSet.FileNames) {
                     DeleteFile(path, Verbose);
                 }
                 foreach (string path in DeleteFileSet.DirectoryNames) {
-                    if (Directory.Exists(path))
+                    if (Directory.Exists(path)) {
                         RecursiveDeleteDirectory(path);
+                    }
                 }
             }
         }
 
-        void RecursiveDeleteDirectory(string path) {
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        private void RecursiveDeleteDirectory(string path) {
             try {
                 // First, recursively delete all directories in the directory
                 string[] dirs = Directory.GetDirectories(path);
@@ -142,13 +162,10 @@ namespace NAnt.Core.Tasks {
                 string[] files = Directory.GetFiles(path);
                 foreach (string file in files) {
                     try {
-                        #if ! mono  
-                            File.SetAttributes(file, FileAttributes.Normal);
-                        #endif
+                        File.SetAttributes(file, FileAttributes.Normal);
                         Log(Level.Verbose, LogPrefix + "Deleting file {0}.", file);
                         File.Delete(file);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", file);
                         if (FailOnError) {
                             throw new BuildException(msg, Location, e);
@@ -158,9 +175,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // Finally, delete the directory
-                #if ! mono  
-                    File.SetAttributes(path, FileAttributes.Normal);
-                #endif
+                File.SetAttributes(path, FileAttributes.Normal);
                 Log(Level.Verbose, LogPrefix + "Deleting directory {0}.", path);
                 Directory.Delete(path);
             } catch (BuildException e) {
@@ -174,17 +189,15 @@ namespace NAnt.Core.Tasks {
             }
         }
 
-        void DeleteFile(string path, bool verbose) {
+        private void DeleteFile(string path, bool verbose) {
             try {
-                FileInfo deleteInfo = new FileInfo( path );
-                if (deleteInfo.Exists)  {
+                FileInfo deleteInfo = new FileInfo(path);
+                if (deleteInfo.Exists) {
                     if (verbose) {
                         Log(Level.Info, LogPrefix + "Deleting file {0}.", path);
                     }
-                    if ( deleteInfo.Attributes != FileAttributes.Normal ) {
-                        #if ! mono  
-                            File.SetAttributes( deleteInfo.FullName, FileAttributes.Normal );
-                        #endif
+                    if (deleteInfo.Attributes != FileAttributes.Normal) {
+                        File.SetAttributes(deleteInfo.FullName, FileAttributes.Normal);
                     }
                     File.Delete(path);
                 } else {
@@ -198,5 +211,7 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Verbose, LogPrefix + msg);
             }
         }
+
+        #endregion Private Instance Methods
     }
 }
