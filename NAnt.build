@@ -1,279 +1,273 @@
 <?xml version="1.0"?>
-<project name="NAnt" default="test">
-    <tstamp/>
-    <property name="debug" value="true"/>
-    <property name="project.name" value="nant"/>
-    <property name="project.FormalName" value="NAnt"/>
+<project name="nant" default="test">
+    <!-- global project settings -->
+    <property name="project.name"          value="nant"/>
+    <property name="project.version"       value="0.9.0"/>
+    <property name="project.html-help.dir" value="C:\Program Files\HTML Help Workshop"/>
 
-    <property name="src.dir" value="src"/>
-    <property name="build.dir" value="build"/>
-    <property name="dist.dir" value="${project.name}"/>
+    <!-- default configuration -->
+    <property name="project.config"        value="debug"/> <!-- debug|release -->
 
-    <property name="backup.name" value="..\${project.name}-backup-${tstamp.date}-${tstamp.time}.zip" />
-    <property name="project.version" value="x.x"/>
-    
-    <target name="release" description="makes a release, usage: 'nant clean release build'">
-        <property name="debug" value="false"/>
-
-        <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
-        <script language="C#">
-            <code><![CDATA[
-            public static void ScriptMain(Project project) {
-                string sourcePath = Path.Combine(project.BaseDirectory, Path.Combine(project.Properties["src.dir"], project.Properties["project.FormalName"]));
-                string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
-                StreamReader reader = File.OpenText(assemblyInfoFileName);
-
-                try {
-                    // Regular expression built with Regex: http://www.organicbit.com/regex/
-                    Regex expression = new Regex(@"^\[assembly: AssemblyVersion\(\""([0-9]+)\.([0-9]+)");
-                    string line = reader.ReadLine();
-                    while (line != null) {
-                        Match match = expression.Match(line);
-                        if (match.Success) {
-                            project.Properties["project.version"] = match.Result("$1.$2");
-                            break;
-                        }
-                        line = reader.ReadLine();
-                    }
-                } finally {
-                    // must remember to close the file or the compile may not work
-                    reader.Close();
-                }
-            }
-        ]]></code>
-        </script>
-        <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
-        <echo message="Building ${project.name}-${project.version} (release)"/>
+    <!-- named project configurations (used by self-test and self-doc tasks) -->
+    <target name="debug" description="Perform a 'debug' build">
+        <property name="project.config" value="debug"/>
+        <property name="build.debug"    value="true"/>
+        <property name="build.dir"      value="${nant.project.basedir}/build/${project.name}-${project.version}-${project.config}"/>
     </target>
 
-    <target name="clean" description="cleans up everything">
-        <delete dir="${build.dir}" failonerror="false"/>
-        <delete dir="${dist.dir}" failonerror="false"/>
-        <if propertyexists="dist.name">
-			<delete file="${dist.name}" failonerror="false"/>
-        </if>
+    <target name="release" description="Perform a 'release' build">
+        <property name="project.config" value="release"/>
+        <property name="build.debug"    value="false"/>
+        <property name="build.dir"      value="${nant.project.basedir}/build/${project.name}-${project.version}"/>
     </target>
 
-    <target name="build" description="compiles the source code">
-        <mkdir dir="${build.dir}"/>
-        <!-- copy the assemblies required to build NAnt to the build folder -->
-        <copy todir="${build.dir}">
+    <!-- build tasks -->
+    <target name="init" description="Initializes build properties">
+        <call target="${project.config}"/>
+    </target>
+
+    <target name="clean" depends="init" description="Deletes current build configuration">
+        <delete verbose="true" dir="${build-dir}" failonerror="false"/>
+    </target>
+
+    <target name="cleanall" description="Deletes every build configuration">
+        <echo message="Deleting all builds from all configurations"/>
+        <delete verbose="true" dir="build" failonerror="false"/>
+    </target>
+
+    <target name="build" depends="init" description="Builds current configuration">
+		<!-- prepare build directory -->
+        <mkdir dir="${build.dir}/bin"/>
+        <copy todir="${build.dir}/bin">
             <fileset basedir="bin">
                 <includes name="NDoc.Core.dll"/>
                 <includes name="NDoc.Documenter.Msdn.dll"/>
                 <includes name="NUnitCore.dll"/>
                 <includes name="SharpZipLib.dll"/>
-                <includes name="CollectionGen.dll"/>
             </fileset>
         </copy>
 
-        <!-- compile NAnt.Core.dll -->
-        <csc target="library" output="${build.dir}\${project.FormalName}.Core.dll" debug="${debug}" doc="${build.dir}\${project.FormalName}.Core.xml">
-            <sources basedir="${src.dir}\${project.FormalName}">
+		<!-- build NAnt.Core -->
+        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
+            <sources basedir="src/NAnt.Core">
                 <includes name="**/*.cs"/>
-                <excludes name="NAnt.cs"/>
             </sources>
-            <references>
-                <includes name="${build.dir}/NDoc.Core.dll"/>
-                <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
-                <includes name="${build.dir}/NUnitCore.dll"/>
-                <includes name="${build.dir}/SharpZipLib.dll"/>
-                <includes name="${build.dir}/CollectionGen.dll"/>
+            <references basedir="${build.dir}/bin">
                 <includes name="Microsoft.JScript.dll" asis="true"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
 
-        <!-- compile NAnt.exe -->
-        <csc target="exe" output="${build.dir}\${project.FormalName}.exe" debug="${debug}" doc="${build.dir}\${project.FormalName}.xml">
-            <sources basedir="${src.dir}\${project.FormalName}">
-                <includes name="AssemblyInfo.cs"/>
-                <includes name="NAnt.cs"/>
-            </sources>
-            <references>
-                <includes name="${build.dir}/${project.FormalName}.Core.dll"/>                
-            </references>
-			<arg value="/resource:${src.dir}\${project.FormalName}\xslt\projecthelp.xslt,Nant.xslt.projecthelp.xslt" /> 
-            <arg value="/nowarn:1591"/>
-        </csc>
-        
-        <!-- compile NAnt.Documenter.dll -->
-        <csc target="library" output="${build.dir}\${project.FormalName}.Documenter.dll" debug="${debug}">
-            <sources basedir="${src.dir}\${project.FormalName}.Documenter">
-                <includes name="*.cs"/>               
-            </sources>
-            <references>              
-                <includes name="System.dll" match="false" />
-                <includes name="System.Design.dll" />
-                <includes name="System.Windows.Forms.dll" />
-                <includes name="System.Xml.dll" />   
-                
-                <includes name="${build.dir}\NDoc.Core.dll" />
-            </references>
-            
-            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\css\NAntDoc.css,Documenter.css.NAntDoc.css" />
-            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\html\index.html,Documenter.html.index.html" />
-            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\html\NAntTaskRef.html,Documenter.html.NAntTaskRef.html" />
-            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\xslt\tags.xslt,Documenter.xslt.tags.xslt" />
-            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\xslt\task-doc.xslt,Documenter.xslt.task-doc.xslt" />
-            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\xslt\task-index.xslt,Documenter.xslt.task-index.xslt" />
-        </csc>
-        
-        <!-- compile NAnt.Tests.dll -->
-        <csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
-            <sources basedir="${src.dir}\${project.FormalName}.Tests">
+		<!-- build NAnt.Core.Tests -->
+        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
+            <sources basedir="src/NAnt.Core.Tests">
                 <includes name="**/*.cs"/>
-                <!-- these tests should not be run during integration because they use third party network resources -->
                 <excludes name="**/GetTaskTest.cs"/>
                 <excludes name="**/MailTaskTest.cs"/>
+                <excludes name="**/TouchTaskTest.cs"/>
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NUnitCore.dll"/>
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+
+
+		<!-- build NAnt.Console -->
+        <csc target="exe" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.exe" doc="${build.dir}/bin/NAnt.Console.xml">
+            <sources basedir="src/NAnt.Console">
+                <includes name="**/*.cs"/>
+            </sources>
+            <resources basedir="src/NAnt.Console/Resources">
+                <includes name="**/*"/>
+            </resources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+
+        <!-- compile NAnt.Console.Tests -->
+        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
+            <sources basedir="src/NAnt.Console.Tests">
+                <includes name="**/*.cs"/>
+            </sources>
+            <references basedir="${build.dir}/bin">
+                <includes name="NAnt.Console.exe"/>
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NAnt.Core.Tests.dll"/>
+                <includes name="NUnitCore.dll"/>
+            </references>
+            <arg value="/nowarn:1591"/>
+        </csc>
+
+        <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
+            <nant buildfile="src/${filename}.build" target="build"/>
+        </foreach>
+    </target>
+
+    <target name="test" depends="build" description="Tests current configuration">
+        <echo message="Running unit tests with just built version of NAnt."/>
+        <exec program="${build.dir}/bin/NAnt.Console.exe">
+			<arg value="-indent:1"/>
+			<arg value="-buildfile:NAnt.build"/>
+			<arg value="${project.config}"/>
+			<arg value="self-test"/>
+		</exec>
+    </target>
+
+    <target name="self-test" depends="init">
+        <nunit>
+            <formatter type="Xml"/>
+            <test class="NAnt.Core.Tests.AllTests"        assembly="${build.dir}/bin/NAnt.Core.Tests.dll"        outfile="${build.dir}/bin/NAnt.Core.Tests.Results" />
+            <test class="NAnt.Console.Tests.AllTests"     assembly="${build.dir}/bin/NAnt.Console.Tests.dll"     outfile="${build.dir}/bin/NAnt.Console.Tests.Results" />
+        </nunit>
+        <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
+            <nant buildfile="src/${filename}.build" target="test"/>
+        </foreach>
+    </target>
+
+    <target name="userdoc" depends="build" description="Builds user documentation">
+		<!-- build the documenter -->
+        <csc target="library" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll" debug="${build.debug}">
+            <sources basedir="src/NDoc.Documenter.NAnt">
+                <includes name="**/*.cs"/>
             </sources>
             <references>
-                <includes name="${build.dir}/NUnitCore.dll"/>
-                <includes name="${build.dir}/${project.FormalName}.Core.dll"/>
-                <includes name="${build.dir}/${project.FormalName}.exe"/>
+                <includes name="${build.dir}/bin/NDoc.Core.dll" />
             </references>
+            <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\tags.xslt,Documenter.xslt.tags.xslt" />
+            <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\task-doc.xslt,Documenter.xslt.task-doc.xslt" />
+            <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\task-index.xslt,Documenter.xslt.task-index.xslt" />
         </csc>
-    </target>
-
-    <!--
-        Perform unit tests.  If a unit test fails, the build fails.
-        The base directory is set to the Test directory so that tests can easily
-        load external data files wihtout having to worry about complicated paths.
-        
-        NOTE: The tests are run from the newly built nant version.
-    -->
-    <target name="test"  depends="build" description="run unit tests">
-        <!-- call the newly built executable and tests it. -->
-        <echo message="************************************************************************************"/>
-        <echo message="** Running newly built NAnt.exe with tests."/>
-        <exec program="${nant.project.basedir}\${build.dir}\${project.FormalName}.exe">
+        <echo message="Documenting NAnt with just built version of NAnt.Documenter."/>
+        <exec program="${build.dir}/bin/NAnt.Console.exe">
 			<arg value="-indent:1"/>
-			<arg value="-buildfile:${nant.project.buildfile}"/>
-			<arg value="test.nunit"/>
+			<arg value="-buildfile:NAnt.build"/>
+			<arg value="${project.config}"/>
+			<arg value="self-userdoc"/>
 		</exec>
-        <echo message="** End of Tests"/>
-        <echo message="************************************************************************************"/>
-    </target>
-    
-    <!-- Called from above target only.-->
-    <target name="test.nunit" description="Do Not Call Directly">
-        <nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltonerror="true" haltonfailure="true">
-            <formatter type="Xml"/>
-            <formatter type="Plain"/>
-            <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" outfile="${build.dir}\${project.FormalName}.Tests.Results" />
-        </nunit>
-    </target>
-
-    <target name="examples" depends="build" description="Build Examples">
-        <nant buildfile="examples\examples.build" target="build"/>
-    </target>
-
-    <target name="doc" depends="build" description="build documentation">
-        <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
-        <ndoc failonerror="false">
-            <assemblies basedir="${build.dir}">
-                <includes name="NAnt.exe"/>
-                <includes name="NAnt.Core.dll"/>
-            </assemblies>
-            <documenters>
-                <documenter name="MSDN">
-                    <property name="OutputDirectory" value="${build.dir}\docs\MSDN" />
-                    <property name="HtmlHelpName" value="NAnt" />
-                    <property name="HtmlHelpCompilerFilename" value="hhc.exe" />
-                    <property name="IncludeFavorites" value="False" />
-                    <property name="Title" value="An NDoc Documented Class Library" />
-                    <property name="SplitTOCs" value="False" />
-                    <property name="DefaulTOC" value="" />
-                    <property name="ShowVisualBasic" value="True" />
-                    <property name="ShowMissingSummaries" value="True" />
-                    <property name="ShowMissingRemarks" value="True" />
-                    <property name="ShowMissingParams" value="True" />
-                    <property name="ShowMissingReturns" value="True" />
-                    <property name="ShowMissingValues" value="True" />
-                    <property name="DocumentInternals" value="False" />
-                    <property name="DocumentProtected" value="True" />
-                    <property name="DocumentPrivates" value="False" />
-                    <property name="DocumentEmptyNamespaces" value="False" />
-                    <property name="IncludeAssemblyVersion" value="False" />
-                    <property name="CopyrightText" value="" />
-                    <property name="CopyrightHref" value="" />
-                 </documenter>             
-            </documenters> 
-        </ndoc>
-        <copy file="${build.dir}/docs/MSDN/NAnt.chm" todir="${build.dir}"/>
-    </target>
-
-    <target name="userdoc" depends="build" description="build documentation">
-        <!-- copy required files for task documentation -->
-        <copy file="doc\style.css" todir="${build.dir}\docs" />
-        <copy file="doc\arrow.gif" todir="${build.dir}\docs\images" />
-
+	</target>
+	<target name="self-userdoc" depends="init">
+		<!-- use ndoc and NAnt.Documenter to build user doc -->
         <ndoc>
-            <assemblies basedir="${build.dir}">
+            <assemblies basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
+                <includes name="NAnt.*Tasks.dll"/>
             </assemblies>
             <documenters>
                 <documenter name="NAntTask">
-                    <property name="OutputDirectory" value="${build.dir}\docs\tasks" />                                                            
-                    <property name="ShowMissingSummaries" value="False" />
-                    <property name="ShowMissingRemarks" value="True" />
-                    <property name="ShowMissingParams" value="True" />
-                    <property name="ShowMissingReturns" value="True" />
+                    <property name="OutputDirectory" value="${build.dir}/doc/help/tasks" />                                                      
+                    <property name="ShowMissingSummaries" value="${build.debug}" />
+                    <property name="ShowMissingRemarks" value="False" />
+                    <property name="ShowMissingParams" value="False" />
+                    <property name="ShowMissingReturns" value="False" />
                     <property name="ShowMissingValues" value="False" />
-                    <property name="DocumentInternals" value="True" />
+                    <property name="DocumentInternals" value="False" />
                     <property name="DocumentProtected" value="True" />
-                    <property name="DocumentPrivates" value="True" />
+                    <property name="DocumentPrivates" value="False" />
                     <property name="DocumentEmptyNamespaces" value="True" />
                     <property name="IncludeAssemblyVersion" value="False" />
-                    <property name="CopyrightText" value="" />
-                    <property name="CopyrightHref" value="" />
                     <property name="SkipNamespacesWithoutSummaries" value="False" />
-                    
+                    <property name="CopyrightText" value="Copyright (C) 2001-2002 Gerry Shaw" />
+                    <property name="CopyrightHref" value="http://nant.sourceforge.net" />
                 </documenter>
-            </documenters> 
+            </documenters>
+        </ndoc>
+        <!-- copy images so we can preview userdoc and have it look right -->
+        <copy file="doc/style.css" todir="${build.dir}/doc" />
+        <copy file="doc/arrow.gif" todir="${build.dir}/doc" />
+        <echo message="Preview task references: file://${build.dir}/doc/help/tasks/index.html"/>
+    </target>
+
+    <target name="sdkdoc" depends="build" description="Builds SDK documentation">
+        <echo message="Documenting NAnt with just built version of NAnt."/>
+        <exec program="${build.dir}/bin/NAnt.Console.exe">
+			<arg value="-indent:1"/>
+			<arg value="-buildfile:NAnt.build"/>
+			<arg value="${project.config}"/>
+			<arg value="self-sdkdoc"/>
+		</exec>
+
+        <!-- delete everything but the .chm -->
+        <delete>
+            <fileset basedir="${build.dir}/doc/sdk">
+                <includes name="**/*"/>
+                <excludes name="NAnt-SDK.chm"/>
+            </fileset>
+        </delete>
+	</target>
+
+    <target name="self-sdkdoc" depends="init">
+        <ndoc failonerror="false">
+            <assemblies basedir="${build.dir}/bin">
+                <includes name="NAnt.Core.dll"/>
+                <includes name="NAnt.*Tasks.dll"/>
+            </assemblies>
+            <documenters>
+                <documenter name="MSDN">
+                    <property name="OutputDirectory" value="${build.dir}/doc/sdk" />
+                    <property name="HtmlHelpName" value="NAnt-SDK"/>
+                    <property name="HtmlHelpCompilerFilename" value="${project.html-help.dir}\hhc.exe" />
+                    <property name="IncludeFavorites" value="False" />
+                    <property name="Title" value="NAnt SDK Documentation" />
+                    <property name="SplitTOCs" value="False" />
+                    <property name="DefaulTOC" value="" />
+                    <property name="ShowVisualBasic" value="True" />
+                    <property name="ShowMissingSummaries" value="${build.debug}" />
+                    <property name="ShowMissingRemarks" value="${build.debug}" />
+                    <property name="ShowMissingParams" value="${build.debug}" />
+                    <property name="ShowMissingReturns" value="${build.debug}" />
+                    <property name="ShowMissingValues" value="${build.debug}" />
+                    <property name="DocumentInternals" value="False" />
+                    <property name="DocumentPrivates" value="False" />
+                    <property name="DocumentProtected" value="True" />
+                    <property name="DocumentEmptyNamespaces" value="False" />
+                    <property name="IncludeAssemblyVersion" value="False" />
+                    <property name="CopyrightText" value="Copyright (C) 2001-2002 Gerry Shaw" />
+                    <property name="CopyrightHref" value="http://nant.sourceforge.net" />
+                 </documenter>
+            </documenters>
         </ndoc>
     </target>
 
-    <target name="backup" depends="clean" description="make local backup">
-        <echo message="Creating backup ${backup.name}"/>
-        <zip zipfile="${backup.name}">
-            <fileset basedir=".">
-                <includes name="**"/>
+	<!--
+		use the following command line to create a debug package:
+		nant debug package
+	-->
+    <target name="package" depends="cleanall release test userdoc sdkdoc" description="Creates a package zip file.">
+        <!-- rename NAnt.Console.exe to nant.exe -->
+        <move file="${build.dir}/bin/NAnt.Console.exe" tofile="${build.dir}/bin/nant.exe"/>
+
+        <!-- remove non-release files -->
+        <delete>
+            <fileset basedir="${build.dir}/bin">
+                <includes name="*.Tests.*"/>
+                <includes name="NAnt.Documenter.*"/>
+                <includes name="NAnt.Console.*"/>
             </fileset>
-        </zip>
-    </target>
+        </delete>
 
-    <target name="dist" depends="clean" description="create release distribution">
-        <!-- build a clean release distribution for release -->
-        <property name="debug" value="false"/>
-        <echo message="Debug = ${debug}"/>
-        <call target="build"/>
-        <call target="test"/>
-        <copy file="${build.dir}\NAnt.exe" todir="${dist.dir}\bin"/>
-        <copy file="${build.dir}\NAnt.xml" todir="${dist.dir}\bin"/>
-
-        <!-- build developer documentation -->
-        <call target="doc"/>
-        <copy file="${build.dir}\NAnt.chm" todir="${dist.dir}\doc"/>
-
-        <copy todir="${dist.dir}">
+        <!-- copy project files -->
+        <copy todir="${build.dir}">
             <fileset>
-                <includes name="bin/**"/>
                 <includes name="doc/**"/>
                 <includes name="src/**"/>
                 <includes name="examples/**"/>
-                <includes name="NAnt.build"/>
-                <includes name="NAnt.key"/>
-                <includes name="README.txt"/>
-                <includes name="COPYING.txt"/>
+                <includes name="*"/>
             </fileset>
         </copy>
 
-        <delete file="${dist.name}" failonerror="false"/>
-        <zip zipfile="${dist.name}">
-            <fileset basedir="${dist.dir}">
-                <includes name="**"/>
+        <!-- create zip file -->
+        <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip"/>
+        <zip zipfile="${project.zip-path}">
+            <fileset basedir="${build.dir}">
+                <includes name="**/*"/>
             </fileset>
         </zip>
+
+		<echo message="Created a '${project.config}' package at file://${project.zip-path}"/>
     </target>
+
 </project>

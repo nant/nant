@@ -1,0 +1,54 @@
+// NAnt - A .NET build tool
+// Copyright (C) 2002 Scott Hernandez (ScottHernandez@hotmail.com)
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+// Scott Hernandez (ScottHernandez@hotmail.com)
+
+using System;
+using System.IO;
+using System.Text;
+using System.Xml;
+
+using NUnit.Framework;
+using SourceForge.NAnt.Tasks;
+
+namespace SourceForge.NAnt.Tests {
+
+    public class ZipTaskTest : BuildTestBase {
+
+        const string _projectXML = @"<?xml version='1.0'?>
+            <project>
+                <zip zipfile='test.zip'>
+                    <fileset basedir='src'>
+                        <includes name='**'/>
+                    </fileset>
+                </zip>
+            </project>";
+
+
+        public ZipTaskTest(String name) : base(name) {
+        }
+
+
+        /// <summary>Test to make sure debug option works.</summary>
+        public void Test_ReleaseBuild() {
+            CreateTempDir("src");
+            CreateTempFile("src\\temp1.file","hello");
+            string result = RunBuild(_projectXML);
+            Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName,"test.zip")));
+        }
+    }
+}
