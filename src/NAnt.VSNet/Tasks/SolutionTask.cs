@@ -33,6 +33,7 @@ using Microsoft.Win32;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -388,17 +389,14 @@ namespace NAnt.VSNet.Tasks {
                 if (basePath != null && Directory.Exists(basePath)) {
                     Log(Level.Debug, "Cleaning up temp folder '{0}'.", basePath); 
 
-                    // force all files to have normal attributes to allow deletion
-                    DirectoryInfo di = new DirectoryInfo(basePath);
-                    foreach (FileInfo info in di.GetFiles()) {
-                        if (info.Attributes != FileAttributes.Normal) {
-                            Log(Level.Debug, "File {0} has other than normal attributes.  Fixing.", info.FullName);
-                            File.SetAttributes(info.FullName, FileAttributes.Normal);
-                        }
-                    }
-
-                    // delete directory recursively
-                    Directory.Delete(basePath, true);
+                    // delete temporary directory and all files in it
+                    DeleteTask deleteTask = new DeleteTask();
+                    deleteTask.Project = Project;
+                    deleteTask.Parent = this;
+                    deleteTask.InitializeTaskConfiguration();
+                    deleteTask.Directory = new DirectoryInfo(basePath);
+                    deleteTask.Threshold = Level.None; // no output in build log
+                    deleteTask.Execute();
                 }
             }
         }

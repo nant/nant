@@ -61,6 +61,28 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Get the directory in which intermediate build output will be stored 
+        /// for this configuration.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a directory relative to the project directory named 
+        /// <c>obj\&lt;configuration name&gt;</c>.
+        /// </para>
+        /// <para>
+        /// <c>.resx</c> and <c>.licx</c> files will only be recompiled if the
+        /// compiled resource files in the <see cref="ObjectDir" /> are not 
+        /// uptodate.
+        /// </para>
+        /// </remarks>
+        public virtual DirectoryInfo ObjectDir {
+            get { 
+                return new DirectoryInfo(Path.Combine(Project.ObjectDir.FullName, 
+                    Name));
+            }
+        }
+
+        /// <summary>
         /// Gets the output directory.
         /// </summary>
         public abstract DirectoryInfo OutputDir {

@@ -88,26 +88,16 @@ namespace NAnt.VSNet {
             return (XmlDocument) _cachedProjectXml[path];
         }    
 
-        public static ProjectBase LoadProject(SolutionBase sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir, string path) {
+        public static ProjectBase LoadProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
             
-            // check if this a new project?
+            // check if this a new project
             if (!_cachedProjects.Contains(path)) {
-                if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                    Project p = new Project(slnTask, tfc, gacCache, refResolver, outputDir);
-                    p.Load(sln, path);
-                    _cachedProjects[path] = p;
-                } else if (projectExt == ".vcproj") {
-                    VcProject p = new VcProject(slnTask, tfc, gacCache, refResolver, outputDir);
-                    p.Load(sln, path);
-                    _cachedProjects[path] = p;
-                } else {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Unknown project file extension '{0}'.", projectExt),
-                        Location.UnknownLocation);
-                }
+                ProjectBase project = CreateProject(solution, solutionTask, 
+                    tfc, gacCache, referencesResolver, outputDir, path);
+                _cachedProjects[path] = project;
             }
 
             return (ProjectBase) _cachedProjects[path];
@@ -143,7 +133,7 @@ namespace NAnt.VSNet {
             if (!_cachedProjectGuids.Contains(fileName)) {
                 if (projectExt == ".vbproj" || projectExt == ".csproj") {
                     // add project GUID to cache
-                    _cachedProjectGuids[fileName] = Project.LoadGuid(fileName);
+                    _cachedProjectGuids[fileName] = ManagedProjectBase.LoadGuid(fileName);
                 } else if (projectExt == ".vcproj") {
                     // add project GUID to cache
                     _cachedProjectGuids[fileName] = VcProject.LoadGuid(fileName);
@@ -161,6 +151,60 @@ namespace NAnt.VSNet {
         #endregion Public Static Methods
 
         #region Private Static Methods
+
+        private static ProjectBase CreateProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string projectPath) {
+            // determine the filename of the project
+            string projectFileName = ProjectFactory.GetProjectFileName(projectPath);
+
+            // determine the extension of the project file
+            string projectExt = Path.GetExtension(projectFileName).ToLower(
+                CultureInfo.InvariantCulture);
+
+            // holds the XML definition of the project
+            XmlElement xmlDefinition;
+
+            try {
+                XmlDocument doc = LoadProjectXml(projectPath);
+                xmlDefinition = doc.DocumentElement;
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading project '{0}'.", projectPath), Location.UnknownLocation, 
+                    ex);
+            }
+
+            // first identify project based on known file extensions
+            switch (projectExt) {
+                case ".vbproj":
+                    return new VBProject(solution, projectPath, xmlDefinition, 
+                        solutionTask, tfc, gacCache, referencesResolver, 
+                        outputDir);
+                case ".csproj":
+                    return new CSharpProject(solution, projectPath, xmlDefinition, 
+                        solutionTask, tfc, gacCache, referencesResolver, 
+                        outputDir);
+                case ".vcproj":
+                    return new VcProject(solution, projectPath, xmlDefinition, 
+                        solutionTask, tfc, gacCache, referencesResolver, 
+                        outputDir);
+            }
+
+            // next, identify project based on XML definition
+            if (VBProject.IsSupported(xmlDefinition)) {
+                return new VBProject(solution, projectPath, xmlDefinition, 
+                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
+            } else if (CSharpProject.IsSupported(xmlDefinition)) {
+                return new CSharpProject(solution, projectPath, xmlDefinition, 
+                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
+            } else if (VcProject.IsSupported(xmlDefinition)) {
+                return new CSharpProject(solution, projectPath, xmlDefinition, 
+                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
+            }
+
+            // either the project file is invalid or we don't support it
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Project '{0}' is invalid or not supported (at this time).",
+                projectPath), Location.UnknownLocation);
+        }
 
         private static string GetProjectFileName(string fileName) {
             string projectPath = null;

@@ -27,6 +27,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
+using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;
 
@@ -102,9 +103,15 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public abstract DirectoryInfo GetBaseDirectory(ConfigurationSettings config);
-
-        public abstract string GetOutputFile(ConfigurationBase config);
+        /// <summary>
+        /// Gets the output path of the reference, without taking the "copy local"
+        /// setting into consideration.
+        /// </summary>
+        /// <param name="config">The project configuration.</param>
+        /// <returns>
+        /// The full output path of the reference.
+        /// </returns>
+        public abstract string GetPrimaryOutputFile(ConfigurationBase config);
 
         /// <summary>
         /// Gets the complete set of output files of the reference for the 
@@ -195,6 +202,15 @@ namespace NAnt.VSNet {
 
         public static Hashtable GetRelatedFiles(string file) {
             Hashtable relatedFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+            // determine directory of specified file
+            string directory = Path.GetDirectoryName(file);
+
+            // check whether the directory of the specified file actually 
+            // exists
+            if (StringUtils.ConvertEmptyToNull(directory) == null || !Directory.Exists(directory)) {
+                return relatedFiles;
+            }
 
             // pattern indicating what files to scan
             string relatedFilesPattern = Path.GetFileName(Path.ChangeExtension(file, ".*"));

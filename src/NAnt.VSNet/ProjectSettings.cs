@@ -31,7 +31,7 @@ namespace NAnt.VSNet {
     public class ProjectSettings {
         #region Public Instance Constructors
 
-        public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, Project project) {
+        public ProjectSettings(XmlElement elemRoot, XmlElement elemSettings, ManagedProjectBase project) {
             _elemSettings = elemSettings;
             _project = project;
             _settings = new ArrayList();
@@ -43,12 +43,6 @@ namespace NAnt.VSNet {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Project file '{0}' is not valid.", Project.ProjectPath),
                     Location.UnknownLocation);
-            }
-
-            if (elemRoot.FirstChild.Name == "VisualBasic") {
-                _type = ProjectType.VBNet;
-            } else {
-                _type = ProjectType.CSharp;
             }
 
             _guid = ProjectSettings.GetProjectGuid(project.ProjectPath,
@@ -107,7 +101,7 @@ namespace NAnt.VSNet {
             if (elemSettings.Attributes["RootNamespace"] != null) {
                 _rootNamespace = StringUtils.ConvertEmptyToNull(
                     elemSettings.Attributes["RootNamespace"].Value);
-                if (RootNamespace != null && Type == ProjectType.VBNet) {
+                if (RootNamespace != null && Project.Type == ProjectType.VB) {
                     _settings.Add("/rootnamespace:" + _rootNamespace);
                 }
             }
@@ -122,7 +116,7 @@ namespace NAnt.VSNet {
             }
 
             // process VB.NET specific project settings
-            if (_type == ProjectType.VBNet) {
+            if (Project.Type == ProjectType.VB) {
                 if (elemSettings.Attributes["OptionExplicit"] != null) {
                     if (elemSettings.Attributes ["OptionExplicit"].Value == "Off") {
                         _settings.Add("/optionexplicit-");
@@ -213,10 +207,6 @@ namespace NAnt.VSNet {
             get { return _guid; }
         }
 
-        public ProjectType Type {
-            get { return _type; }
-        }
-
         /// <summary>
         /// Designates when the <see cref="PostBuildEvent" /> command line should
         /// be run. Possible values are "OnBuildSuccess", "Always" or 
@@ -250,7 +240,7 @@ namespace NAnt.VSNet {
 
         #region Private Instance Properties
 
-        private Project Project {
+        private ManagedProjectBase Project {
             get { return _project; }
         }
 
@@ -293,7 +283,7 @@ namespace NAnt.VSNet {
 
         private ArrayList _settings;
         private FileInfo _applicationIcon;
-        private Project _project;
+        private ManagedProjectBase _project;
         private string _assemblyName;
         private string _assemblyOriginatorKeyFile;
         private string _outputExtension;
@@ -303,13 +293,7 @@ namespace NAnt.VSNet {
         private string _preBuildEvent;
         private string _postBuildEvent;
         private XmlElement _elemSettings;
-        private ProjectType _type;
 
         #endregion Private Instance Fields
-    }
-
-    public enum ProjectType {
-        VBNet = 0,
-        CSharp = 1
     }
 }

@@ -31,7 +31,7 @@ namespace NAnt.VSNet {
     public class ConfigurationSettings : ConfigurationBase {
         #region Public Instance Constructors
 
-        public ConfigurationSettings(Project project, XmlElement elemConfig, DirectoryInfo outputDir) : base(project) {
+        public ConfigurationSettings(ManagedProjectBase project, XmlElement elemConfig, DirectoryInfo outputDir) : base(project) {
             _settings = new ArrayList();
             if (outputDir == null) {
                 _relativeOutputDir = elemConfig.Attributes["OutputPath"].Value;
@@ -82,13 +82,13 @@ namespace NAnt.VSNet {
             htStringSettings["FileAlignment"] = "/filealign:{0}";
             htStringSettings["DefineConstants"] = "/define:{0}";
 
-            switch (project.ProjectSettings.Type) {
+            switch (project.Type) {
                 case ProjectType.CSharp:
                     htStringSettings["WarningLevel"] = "/warn:{0}";
                     htStringSettings["NoWarn"] = "/nowarn:{0}";
                     htBooleanSettings["IncrementalBuild"] = "/incremental";
                     break;
-                case ProjectType.VBNet:
+                case ProjectType.VB:
                     htStringSettings["DefineDebug"] = "/d:DEBUG={0}";
                     htStringSettings["DefineTrace"] = "/d:TRACE={0}";
                     break;
@@ -156,33 +156,10 @@ namespace NAnt.VSNet {
             get { return _outputDir; }
         }
 
-        /// <summary>
-        /// Get the directory in which compiled resource files will be stored
-        /// for this configuration.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This is a directory relative to the project directory named 
-        /// <c>obj\&lt;configuration name&gt;</c>.
-        /// </para>
-        /// <para>
-        /// <c>.resx</c> and <c>.licx</c> files will only be recompiled if the
-        /// compiled resource files in the <see cref="ObjectDir" /> are not 
-        /// uptodate.
-        /// </para>
-        /// </remarks>
-        public DirectoryInfo ObjectDir {
-            get { 
-                return new DirectoryInfo(Path.Combine(
-                    Path.Combine(Project.ProjectDirectory.FullName, "obj"),
-                    Name));
-            }
-        }
-
         public override string OutputPath {
             get { 
                 return Path.Combine(OutputDir.FullName, 
-                    ((Project) Project).ProjectSettings.OutputFileName);
+                    ((ManagedProjectBase) Project).ProjectSettings.OutputFileName);
             }
         }
 

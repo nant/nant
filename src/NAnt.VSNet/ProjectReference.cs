@@ -118,11 +118,15 @@ namespace NAnt.VSNet {
             get { return false; }
         }
 
-        public override DirectoryInfo GetBaseDirectory(ConfigurationSettings config) {
-            return Project.GetConfiguration(config.Name).OutputDir;
-        }
-
-        public override string GetOutputFile(ConfigurationBase config) {
+        /// <summary>
+        /// Gets the output path of the reference, without taking the "copy local"
+        /// setting into consideration.
+        /// </summary>
+        /// <param name="config">The project configuration.</param>
+        /// <returns>
+        /// The output path of the reference.
+        /// </returns>
+        public override string GetPrimaryOutputFile(ConfigurationBase config) {
             return Project.GetOutputPath(config.Name);
         }
 
@@ -151,13 +155,38 @@ namespace NAnt.VSNet {
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this project.
         /// </returns>
+        /// <remarks>
+        /// <para>
+        /// Apparently, there's some hack in VB.NET that allows a type to be used
+        /// that derives from a type in an assembly that is not referenced by the
+        /// project.
+        /// </para>
+        /// <para>
+        /// When building from the command line (using vbc), the following error
+        /// is reported "error BC30007: Reference required to assembly 'X' 
+        /// containing the base class 'X'. Add one to your project".
+        /// </para>
+        /// <para>
+        /// Somehow VB.NET can workaround this issue, without actually adding a
+        /// reference to that assembly. I verified this with both VS.NET 2003 and
+        /// VS.NET 2005.
+        /// </para>
+        /// <para>
+        /// For now, we have no other option than to return all assembly 
+        /// references of the referenced project if the parent is a VB.NET 
+        /// project.
+        /// </para>
+        /// </remarks>
         public override StringCollection GetAssemblyReferences(ConfigurationBase config) {
-            // if we're dealing with a project reference, then we need to
-            // reference all assembly references of that project
-            StringCollection assemblyReferences = Project.GetAssemblyReferences(
-                config.Name);
+            StringCollection assemblyReferences = null;
 
-            // and the project output file itself
+            // check if parent is a VB.NET project
+            if (typeof(VBProject).IsAssignableFrom(Parent.GetType())) {
+                assemblyReferences = Project.GetAssemblyReferences(config.Name);
+            } else {
+                assemblyReferences = new StringCollection();
+            }
+
             string projectOutputFile = Project.GetConfiguration(
                 config.Name).OutputPath;
             if (!File.Exists(projectOutputFile)) {
@@ -165,7 +194,11 @@ namespace NAnt.VSNet {
                     "Output file '{0}' of project '{1}' does not exist.",
                     projectOutputFile, Project.Name), Location.UnknownLocation);
             }
+
+            // add primary output to list of reference assemblies
             assemblyReferences.Add(projectOutputFile);
+
+            // return assembly references
             return assemblyReferences;
         }
 

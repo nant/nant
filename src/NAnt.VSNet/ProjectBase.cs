@@ -26,6 +26,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;
@@ -63,6 +64,16 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Gets the type of the project.
+        /// </summary>
+        /// <value>
+        /// The type of the project.
+        /// </value>
+        public abstract ProjectType Type {
+            get;
+        }
+
+        /// <summary>
         /// Gets the path of the VS.NET project.
         /// </summary>
         public abstract string ProjectPath {
@@ -74,6 +85,23 @@ namespace NAnt.VSNet {
         /// </summary>
         public abstract DirectoryInfo ProjectDirectory {
             get;
+        }
+
+        /// <summary>
+        /// Get the directory in which intermediate build output that is not 
+        /// specific to the build configuration will be stored.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a directory relative to the project directory named 
+        /// <c>obj\</c>.
+        /// </para>
+        /// </remarks>
+        public virtual DirectoryInfo ObjectDir {
+            get { 
+                return new DirectoryInfo(
+                    Path.Combine(ProjectDirectory.FullName, "obj"));
+            }
         }
         
         /// <summary>
@@ -168,9 +196,10 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public bool Compile(string configuration) {
-            ConfigurationBase configurationSettings = (ConfigurationBase) ProjectConfigurations[configuration];
-            if (configurationSettings == null) {
-                Log(Level.Info, "Configuration '{0}' does not exist. Skipping.", configuration);
+            ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
+            if (config == null) {
+                Log(Level.Info, "Configuration '{0}' does not exist. Skipping.", 
+                    configuration);
                 return true;
             }
 
@@ -182,13 +211,89 @@ namespace NAnt.VSNet {
             Log(Level.Info, "Building '{0}' [{1}] ...", Name, configuration);
 
             // ensure output directory exists
-            if (!configurationSettings.OutputDir.Exists) {
-                configurationSettings.OutputDir.Create();
-                configurationSettings.OutputDir.Refresh();
+            if (!config.OutputDir.Exists) {
+                config.OutputDir.Create();
+                config.OutputDir.Refresh();
             }
 
+            // ensure project-level object directory exists
+            if (!ObjectDir.Exists) {
+                ObjectDir.Create();
+                ObjectDir.Refresh();
+            }
+
+            // prepare the project for build
+            Prepare(config);
+
             // build the project            
-            return Build(configurationSettings);
+            return Build(config);
+        }
+
+        /// <summary>
+        /// Prepares the project for building built.
+        /// </summary>
+        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <remarks>
+        /// The default implementation will ensure that none of the output files 
+        /// are marked read-only.
+        /// </remarks>
+        public virtual void Prepare(ConfigurationBase config) {
+            // determine the output files of the project
+            Hashtable outputFiles = GetOutputFiles(config.Name);
+
+            // use the <attrib> task to ensure none of the output files are
+            // marked read-only
+            AttribTask attribTask = new AttribTask();
+
+            // parent is solution task
+            attribTask.Parent = SolutionTask;
+
+            // inherit project from solution task
+            attribTask.Project = SolutionTask.Project;
+
+            // inherit namespace manager from solution task
+            attribTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // inherit verbose setting from solution task
+            attribTask.Verbose = SolutionTask.Verbose;
+
+            // only output warning messages or higher, unless 
+            // we're running in verbose mode
+            if (!attribTask.Verbose) {
+                attribTask.Threshold = Level.Warning;
+            }
+
+            // make sure framework specific information is set
+            attribTask.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            attribTask.AttribFileSet.Parent = attribTask;
+
+            // inherit project for child elements from containing task
+            attribTask.AttribFileSet.Project = attribTask.Project;
+
+            // inherit namespace manager from containing task
+            attribTask.AttribFileSet.NamespaceManager = attribTask.NamespaceManager;
+
+            // we want to reset the read-only attribute of all output files
+            attribTask.ReadOnlyAttrib = false;
+
+            // add all output files to the <attrib> fileset
+            foreach (DictionaryEntry de in outputFiles) {
+                attribTask.AttribFileSet.Includes.Add(Path.Combine(
+                    config.OutputDir.FullName, (string) de.Value));
+            }
+
+            // increment indentation level
+            attribTask.Project.Indent();
+
+            try {
+                // execute task
+                attribTask.Execute();
+            } finally {
+                // restore indentation level
+                attribTask.Project.Unindent();
+            }
         }
 
         public string GetOutputPath(string configuration) {
@@ -199,8 +304,6 @@ namespace NAnt.VSNet {
 
             return config.OutputPath;
         }
-
-        public abstract void Load(SolutionBase sln, string fileName);
 
         public ConfigurationBase GetConfiguration(string configuration) {
             return (ConfigurationBase) ProjectConfigurations[configuration];
@@ -271,13 +374,6 @@ namespace NAnt.VSNet {
             // determine output file of project
             string projectOutputFile = config.OutputPath;
 
-            // ensure output file exists
-            if (!File.Exists(projectOutputFile)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Couldn't find output file '{0}' for project '{1}'.",
-                    projectOutputFile, Name), Location.UnknownLocation);
-            }
-
             // get list of files related to project output file (eg. debug symbols,
             // xml doc, ...), this will include the project output file itself
             Hashtable relatedFiles = ReferenceBase.GetRelatedFiles(projectOutputFile);
@@ -336,7 +432,7 @@ namespace NAnt.VSNet {
 
         #region Protected Instance Methods
 
-        protected abstract bool Build(ConfigurationBase configurationSettings);
+        protected abstract bool Build(ConfigurationBase config);
 
         /// <summary>
         /// Logs a message with the given priority.
@@ -393,5 +489,25 @@ namespace NAnt.VSNet {
         private Hashtable _extraOutputFiles;
 
         #endregion Private Instance Fields
+    }
+
+    /// <summary>
+    /// Specifies the type of the project.
+    /// </summary>
+    public enum ProjectType {
+        /// <summary>
+        /// A Visual Basic.NET project.
+        /// </summary>
+        VB = 0,
+
+        /// <summary>
+        /// A Visual C# project.
+        /// </summary>
+        CSharp = 1,
+
+        /// <summary>
+        /// A Visual C++ project.
+        /// </summary>
+        VisualC = 2
     }
 }

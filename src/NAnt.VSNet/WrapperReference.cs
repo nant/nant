@@ -30,7 +30,9 @@ using System.Xml;
 using Microsoft.Win32;
 
 using NAnt.Core;
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
+using NAnt.Core.Types;
 
 using NAnt.Win32.Tasks;
 
@@ -59,11 +61,12 @@ namespace NAnt.VSNet {
             }
             _wrapperTool = toolAttribute.Value;
 
-
             // determine if there's a primary interop assembly for the typelib
             _primaryInteropAssembly = GetPrimaryInteropAssembly(
                 GetTypeLibVersionKey(XmlDefinition));
 
+            // determine filename of wrapper assembly
+            _wrapperAssembly = ResolveWrapperAssembly();
         }
 
         #endregion Public Instance Constructors
@@ -79,7 +82,7 @@ namespace NAnt.VSNet {
         /// Assembly; otherwise, <see langword="true" />.
         /// </value>
         public override bool CopyLocal {
-            get { return (WrapperTool == "primary"); }
+            get { return (WrapperTool != "primary"); }
         }
 
         /// <summary>
@@ -105,13 +108,16 @@ namespace NAnt.VSNet {
             get { return false; }
         }
 
-        public override DirectoryInfo GetBaseDirectory(ConfigurationSettings config) {
-            return new DirectoryInfo(Path.GetDirectoryName(ResolveWrapperImport(
-                config)));
-        }
-
-        public override string GetOutputFile(ConfigurationBase config) {
-            return ResolveWrapperImport(config);
+        /// <summary>
+        /// Gets the path of the reference, without taking the "copy local"
+        /// setting into consideration.
+        /// </summary>
+        /// <param name="config">The project configuration.</param>
+        /// <returns>
+        /// The output path of the reference.
+        /// </returns>
+        public override string GetPrimaryOutputFile(ConfigurationBase config) {
+            return WrapperAssembly;
         }
 
         /// <summary>
@@ -163,7 +169,7 @@ namespace NAnt.VSNet {
         /// The timestamp of the reference.
         /// </returns>
         public override DateTime GetTimestamp(ConfigurationBase config) {
-            return GetTimestamp(ResolveWrapperImport(config));
+            return GetTimestamp(WrapperAssembly);
         }
 
         #endregion Override implementation of ReferenceBase
@@ -176,6 +182,20 @@ namespace NAnt.VSNet {
 
         private string WrapperTool {
             get { return _wrapperTool; }
+        }
+
+        /// <summary>
+        /// Gets the path of the wrapper assembly.
+        /// </summary>
+        /// <value>
+        /// The path of the wrapper assembly.
+        /// </value>
+        /// <remarks>
+        /// The wrapper assembly is stored in the object directory of the 
+        /// project.
+        /// </remarks>
+        private string WrapperAssembly {
+            get { return _wrapperAssembly; }
         }
 
         /// <summary>
@@ -202,11 +222,14 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         private string CreateWrapper(ConfigurationBase config) {
-            string outFile = ResolveWrapperImport(config);
-
+            // if wrapper assembly was created during the current build, then
+            // there's no need to create it again
             if (IsCreated) {
-                return outFile;
+                return WrapperAssembly;
             }
+
+            // synchronize build and output directory
+            Sync(config);
 
             switch (WrapperTool) {
                 case "primary":
@@ -224,6 +247,9 @@ namespace NAnt.VSNet {
 
                     TlbImpTask tlbImp = new TlbImpTask();
 
+                    // parent is solution task
+                    tlbImp.Parent = SolutionTask;
+
                     // inherit project from solution task
                     tlbImp.Project = SolutionTask.Project;
 
@@ -237,7 +263,7 @@ namespace NAnt.VSNet {
                     tlbImp.InitializeTaskConfiguration();
 
                     tlbImp.TypeLib = new FileInfo(GetTypeLibrary());
-                    tlbImp.OutputFile = new FileInfo(outFile);
+                    tlbImp.OutputFile = new FileInfo(WrapperAssembly);
                     tlbImp.Namespace = Name;
 
                     // according to "COM Programming with Microsoft .NET" (page 59)
@@ -263,6 +289,9 @@ namespace NAnt.VSNet {
                 case "aximp":
                     AxImpTask axImp = new AxImpTask();
 
+                    // parent is solution task
+                    axImp.Parent = SolutionTask;
+
                     // inherit project from solution task
                     axImp.Project = SolutionTask.Project;
 
@@ -276,7 +305,7 @@ namespace NAnt.VSNet {
                     axImp.InitializeTaskConfiguration();
 
                     axImp.OcxFile = new FileInfo(GetTypeLibrary());
-                    axImp.OutputFile = new FileInfo(outFile);
+                    axImp.OutputFile = new FileInfo(WrapperAssembly);
 
                     if (ProjectSettings.AssemblyOriginatorKeyFile != null) {
                         axImp.KeyFile = new FileInfo(Path.Combine(Parent.ProjectDirectory.FullName, 
@@ -288,7 +317,7 @@ namespace NAnt.VSNet {
                         // if no primary interop assembly is provided for ActiveX control,
                         // trust the fact that VS.NET uses Interop.<name of the tlbimp reference>.dll
                         // for the imported typelibrary
-                        rcw = Path.Combine(config.OutputDir.FullName, 
+                        rcw = Path.Combine(Parent.ObjectDir.FullName, 
                             "Interop." + Name.Substring(2, Name.Length - 2) 
                             + ".dll");
                     }
@@ -315,40 +344,67 @@ namespace NAnt.VSNet {
             // mark wrapper as completed
             _isCreated = true;
 
-            return outFile;
+            return WrapperAssembly;
         }
 
-        private string ResolveWrapperImport(ConfigurationBase config) {
-            // check if wrapper was resolved before
-            if (_resolvedAssemblyFile != null) {
-                // return cached assembly file
-                return _resolvedAssemblyFile;
-            }
+        private string ResolveWrapperAssembly() {
+            string wrapperAssembly = null;
 
             switch (WrapperTool) {
                 case "primary":
-                    _resolvedAssemblyFile = PrimaryInteropAssembly;
-                    if (_resolvedAssemblyFile == null) {
+                    wrapperAssembly = PrimaryInteropAssembly;
+                    if (wrapperAssembly == null) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Couldn't find Primary Interop Assembly '{0}'.", 
                             Name), Location.UnknownLocation);
                     }
 
-                    return _resolvedAssemblyFile;
+                    return wrapperAssembly;
                 case "aximp":
-                    _resolvedAssemblyFile = "AxInterop." + Name.Substring(2, 
+                    wrapperAssembly = "AxInterop." + Name.Substring(2, 
                         Name.Length - 2) + ".dll";
                     break;
                 default:
-                    _resolvedAssemblyFile = "Interop." + Name + ".dll";
+                    wrapperAssembly = "Interop." + Name + ".dll";
                     break;
             }
 
             // resolve to full path
-            _resolvedAssemblyFile = Path.Combine(config.OutputDir.FullName,
-                _resolvedAssemblyFile);
+            return Path.Combine(Parent.ObjectDir.FullName,
+                wrapperAssembly);
+        }
 
-            return _resolvedAssemblyFile;
+        /// <summary>
+        /// Removes wrapper assembly from build directory, if wrapper assembly 
+        /// no longer exists in output directory or is not in sync with build 
+        /// directory, to force rebuild.
+        /// </summary>
+        /// <param name="config">The project configuration.</param>
+        private void Sync(ConfigurationBase config) {
+            if (!CopyLocal || !File.Exists(WrapperAssembly)) {
+                // nothing to synchronize
+                return;
+            }
+
+            // determine path where wrapper assembly should be deployed to
+            string outputFile = Path.Combine(config.OutputDir.FullName,
+                Path.GetFileName(WrapperAssembly));
+
+            // determine last modification date/time of built wrapper assembly
+            DateTime wrapperModTime = File.GetLastWriteTime(WrapperAssembly);
+
+            // rebuild wrapper assembly if output assembly is more recent, 
+            // or have been removed (by the user) to force a rebuild
+            if (FileSet.FindMoreRecentLastWriteTime(outputFile, wrapperModTime) != null) {
+                // remove wrapper assembly to ensure a rebuild is performed
+                DeleteTask deleteTask = new DeleteTask();
+                deleteTask.Project = SolutionTask.Project;
+                deleteTask.Parent = SolutionTask;
+                deleteTask.InitializeTaskConfiguration();
+                deleteTask.File = new FileInfo(WrapperAssembly);
+                deleteTask.Threshold = Level.None; // no output in build log
+                deleteTask.Execute();
+            }
         }
 
         private string GetTypeLibVersionKey(XmlElement elemReference) {
@@ -449,10 +505,10 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private string _resolvedAssemblyFile;
         private bool _isCreated;
         private readonly string _name = string.Empty;
         private readonly string _wrapperTool;
+        private readonly string _wrapperAssembly;
         private readonly ProjectSettings _projectSettings;
         private readonly string _primaryInteropAssembly;
         

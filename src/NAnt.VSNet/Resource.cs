@@ -39,7 +39,7 @@ namespace NAnt.VSNet {
     public class Resource {
         #region Public Instance Constructors
 
-        public Resource(Project project, FileInfo resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask, GacCache gacCache) {
+        public Resource(ManagedProjectBase project, FileInfo resourceSourceFile, string resourceSourceFileRelativePath, string dependentFile, SolutionTask solutionTask, GacCache gacCache) {
             _project = project;
             _resourceSourceFile = resourceSourceFile;
             _resourceSourceFileRelativePath = resourceSourceFileRelativePath;
@@ -74,7 +74,7 @@ namespace NAnt.VSNet {
             get { return _resourceSourceFile; }
         }
 
-        public Project Project {
+        public ManagedProjectBase Project {
             get { return _project; }
         }
 
@@ -97,18 +97,18 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public void Compile(ConfigurationSettings configurationSettings) {
+        public void Compile(ConfigurationSettings config) {
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
-                    _manifestResourceName = GetManifestResourceName(configurationSettings);
-                    _compiledResourceFile = CompileResx(configurationSettings);
+                    _manifestResourceName = GetManifestResourceName(config);
+                    _compiledResourceFile = CompileResx(config);
                     break;
                 case ".licx":
-                    _manifestResourceName = GetManifestResourceName(configurationSettings);
-                    _compiledResourceFile = CompileLicx(configurationSettings);
+                    _manifestResourceName = GetManifestResourceName(config);
+                    _compiledResourceFile = CompileLicx(config);
                     break;
                 default:
-                    _manifestResourceName = GetManifestResourceName(configurationSettings);
+                    _manifestResourceName = GetManifestResourceName(config);
                     _compiledResourceFile = CompileResource();
                     break;
             }
@@ -119,14 +119,14 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         private string GetManifestResourceName(ConfigurationSettings configSettings) {
-            switch (Project.ProjectSettings.Type) {
+            switch (Project.Type) {
                 case ProjectType.CSharp:
                     return GetManifestResourceNameCSharp(configSettings, _dependentFile);
-                case ProjectType.VBNet:
+                case ProjectType.VB:
                     return GetManifestResourceNameVB(configSettings, _dependentFile);
                 default:
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                        "Unsupported project type '{0}'.", Project.ProjectSettings.Type));
+                        "Unsupported project type '{0}'.", Project.Type));
             }
         }
 
@@ -181,7 +181,7 @@ namespace NAnt.VSNet {
             return InputFile.FullName;
         }
 
-        private string CompileLicx(ConfigurationSettings configurationSettings) {
+        private string CompileLicx(ConfigurationSettings config) {
             string outputFileName = Project.ProjectSettings.OutputFileName;
 
             // create instance of License task
@@ -216,7 +216,7 @@ namespace NAnt.VSNet {
 
             // set task properties
             lt.InputFile = InputFile;
-            lt.OutputFile = new FileInfo(Path.Combine(configurationSettings.ObjectDir.FullName, 
+            lt.OutputFile = new FileInfo(Path.Combine(config.ObjectDir.FullName, 
                 outputFileName + ".licenses"));
             // convert target to uppercase to match VS.NET
             lt.Target = Path.GetFileName(outputFileName).ToUpper(
@@ -225,7 +225,7 @@ namespace NAnt.VSNet {
             // inherit non-GAC assembly references from project
             foreach (ReferenceBase reference in Project.References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    configurationSettings);
+                    config);
                 foreach (string assemblyFile in assemblyReferences) {
                     if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
                         lt.Assemblies.Includes.Add(assemblyFile);
@@ -246,9 +246,9 @@ namespace NAnt.VSNet {
             return lt.OutputFile.FullName;
         }
 
-        private string CompileResx(ConfigurationSettings configurationSettings) {
+        private string CompileResx(ConfigurationSettings config) {
             FileInfo outputFile = new FileInfo(Path.Combine(
-                configurationSettings.ObjectDir.FullName, ManifestResourceName));
+                config.ObjectDir.FullName, ManifestResourceName));
 
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
@@ -287,7 +287,7 @@ namespace NAnt.VSNet {
             // inherit assembly references from project
             foreach (ReferenceBase reference in Project.References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    configurationSettings);
+                    config);
                 foreach (string assemblyFile in assemblyReferences) {
                     if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
                         rt.Assemblies.Includes.Add(assemblyFile);
@@ -318,7 +318,7 @@ namespace NAnt.VSNet {
         private string _dependentFile;
         private string _resourceSourceFileRelativePath;
         private string _manifestResourceName;
-        private Project _project;
+        private ManagedProjectBase _project;
         private SolutionTask _solutionTask;
         private GacCache _gacCache;
 

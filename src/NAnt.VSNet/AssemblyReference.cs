@@ -99,12 +99,15 @@ namespace NAnt.VSNet {
             }
         }
 
-        public override DirectoryInfo GetBaseDirectory(ConfigurationSettings config) {
-            return new DirectoryInfo(Path.GetDirectoryName(
-                ResolveAssemblyReference()));
-        }
-
-        public override string GetOutputFile(ConfigurationBase config) {
+        /// <summary>
+        /// Gets the path of the reference, without taking the "copy local"
+        /// setting into consideration.
+        /// </summary>
+        /// <param name="config">The project configuration.</param>
+        /// <returns>
+        /// The output path of the reference.
+        /// </returns>
+        public override string GetPrimaryOutputFile(ConfigurationBase config) {
             return ResolveAssemblyReference();
         }
 
@@ -135,7 +138,7 @@ namespace NAnt.VSNet {
         /// </returns>
         public override StringCollection GetAssemblyReferences(ConfigurationBase config) {
             // if we're dealing with an assembly reference, then we only 
-            // need to reference that assembly itself as VS.NET forced users
+            // need to reference that assembly itself as VS.NET forces users
             // to add all dependent assemblies to the project itself
 
             // ensure referenced assembly actually exists
@@ -315,7 +318,6 @@ namespace NAnt.VSNet {
                 if (resolvedAssemblyFile != null) {
                     return resolvedAssemblyFile;
                 }
-
 
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "Reference to assembly '{0}' could not be resolved.",

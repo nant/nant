@@ -49,7 +49,7 @@ namespace NAnt.VSNet.Rainier {
                 string fullProjectPath = TranslateProjectPath(solutionTask.SolutionFile.DirectoryName,
                     project);
 
-                if (Project.IsEnterpriseTemplateProject(fullProjectPath)) {
+                if (ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath)) {
                     RecursiveLoadTemplateProject(fullProjectPath);
                 } else {
                     // only C#, VB.NET and C++ projects are supported at this moment

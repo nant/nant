@@ -142,7 +142,7 @@ namespace NAnt.VSNet {
                         fullPath = Path.Combine(Path.GetDirectoryName(fileName), subProjectFilename);
                     }
 
-                    if (Project.IsEnterpriseTemplateProject(fullPath)) {
+                    if (ManagedProjectBase.IsEnterpriseTemplateProject(fullPath)) {
                         RecursiveLoadTemplateProject(fullPath);
                     } else {
                         _htProjectFiles[projectGuidNode.InnerText] = fullPath;
@@ -244,7 +244,8 @@ namespace NAnt.VSNet {
                                 // If we want a different behaviour, this 
                                 // should be controlled by a flag
 
-                                string outputFile = reference.GetOutputFile(projectConfig);
+                                string outputFile = reference.GetPrimaryOutputFile(
+                                    projectConfig);
                                 if (_htOutputFiles.Contains(outputFile)) {
                                     ProjectBase projectRef = (ProjectBase) _htProjects[
                                         (string) _htOutputFiles[outputFile]];
@@ -385,9 +386,9 @@ namespace NAnt.VSNet {
 
             FileSet excludes = _solutionTask.ExcludeProjects;
 
-            // _htProjectFiles contains project GUIDs read from the sln file as 
-            // keys and the corresponding full path to the project file as the 
-            // value
+            // _htProjectFiles contains project GUIDs read from the solution 
+            // file as keys and the corresponding full path to the project file 
+            // as the value
             foreach (DictionaryEntry de in _htProjectFiles) {
                 string projectPath = (string) de.Value;
 
@@ -420,10 +421,11 @@ namespace NAnt.VSNet {
                     p.Guid = FindGuidFromPath(projectPath);
                 }
 
-                // If the project GUID from the sln file doesn't match the project GUID
-                // from the project file we will run into problems. Alert the user to fix this
-                // as it is basically a corruption probably caused by user manipulation of the sln
-                // included projects. I.e. copy and paste issue.
+                // if the project GUID from the solution file doesn't match the 
+                // project GUID from the project file we will run into problems. 
+                // Alert the user to fix this as it is basically a corruption 
+                // probably caused by user manipulation of the solution file
+                // i.e. copy and paste
                 if (!p.Guid.Equals(de.Key.ToString())) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "GUID corruption detected for project '{0}'. GUID values" 
@@ -482,7 +484,8 @@ namespace NAnt.VSNet {
                         ConfigurationBase projectConfig = (ConfigurationBase) 
                             project.ProjectConfigurations[buildConfig];
                         if (projectConfig != null) {
-                            string outputFile = reference.GetOutputFile(projectConfig);
+                            string outputFile = reference.GetPrimaryOutputFile(
+                                projectConfig);
                             if (_htOutputFiles.Contains(outputFile)) {
                                 AddProjectDependency(projectGuid, (string) _htOutputFiles[outputFile]);
                             } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {

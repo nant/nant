@@ -41,13 +41,71 @@ namespace NAnt.VSNet {
     public class VcProject: ProjectBase {
         #region Public Instance Constructors
         
-        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, refResolver, outputDir) {
+        public VcProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, refResolver, outputDir) {
+            // ensure the specified project is actually supported by this class
+            if (!IsSupported(xmlDefinition)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project '{0}' is not a valid Visual C++ project.", ProjectPath),
+                    Location.UnknownLocation);
+            }
+
+            if (projectPath == null) {
+                throw new ArgumentNullException("projectPath");
+            }
+
+            if (xmlDefinition == null) {
+                throw new ArgumentNullException("xmlDefinition");
+            }
+
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _references = new ArrayList();
             _clArgMap = VcArgumentMap.CreateCLArgumentMap();
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
             _objFiles = new ArrayList();
+            _projectPath = Path.GetFullPath(projectPath);
+
+            _name = xmlDefinition.GetAttribute("Name");
+            _guid = xmlDefinition.GetAttribute("ProjectGUID");
+            _rootNamespace = xmlDefinition.GetAttribute("RootNamespace");
+
+            XmlNodeList configurationNodes = xmlDefinition.SelectNodes("//Configurations/Configuration");
+            foreach (XmlElement configElem in configurationNodes) {
+                VcConfiguration config = new VcConfiguration(configElem, this, solution, OutputDir);
+                ProjectConfigurations[config.Name] = config;
+                _htPlatformConfigurations[config.FullName] = config;
+            }
+
+            XmlNodeList projectReferences = xmlDefinition.SelectNodes("//References/ProjectReference");
+            foreach (XmlElement referenceElem in projectReferences) {
+                ReferenceBase reference = ReferenceFactory.CreateReference(solution, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                _references.Add(reference);
+            }
+
+            XmlNodeList assemblyReferences = xmlDefinition.SelectNodes("//References/AssemblyReference");
+            foreach (XmlElement referenceElem in assemblyReferences) {
+                ReferenceBase reference = ReferenceFactory.CreateReference(solution, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
+                _references.Add(reference);
+            }
+
+            XmlNodeList fileNodes = xmlDefinition.SelectNodes("//File");
+            foreach (XmlElement fileElem in fileNodes) {
+                string relPath = fileElem.GetAttribute("RelativePath");
+                
+                Hashtable htFileConfigurations = null;
+                XmlNodeList fileConfigList = fileElem.GetElementsByTagName("FileConfiguration");
+                if (fileConfigList.Count > 0) {
+                    htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                    foreach (XmlElement fileConfigElem in fileConfigList) {
+                        string fileConfigName = fileConfigElem.GetAttribute("Name");
+                        VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations[fileConfigName];
+                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, solution, baseConfig, OutputDir);
+                        htFileConfigurations [fileConfig.Name] = fileConfig;
+                    }
+                }
+
+                _htFiles [relPath] = htFileConfigurations;
+            }
         }
 
         #endregion Public Instance Constructors
@@ -59,6 +117,16 @@ namespace NAnt.VSNet {
         /// </summary>
         public override string Name {
             get { return _name; }
+        }
+
+        /// <summary>
+        /// Gets the type of the project.
+        /// </summary>
+        /// <value>
+        /// The type of the project.
+        /// </value>
+        public override ProjectType Type {
+            get { return ProjectType.VisualC; }
         }
 
         /// <summary>
@@ -76,6 +144,23 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Get the directory in which intermediate build output that is not 
+        /// specific to the build configuration will be stored.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a directory relative to the project directory named 
+        /// <c>temp\</c>.
+        /// </para>
+        /// </remarks>
+        public override DirectoryInfo ObjectDir {
+            get { 
+                return new DirectoryInfo(
+                    Path.Combine(ProjectDirectory.FullName, "temp"));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the unique identifier of the Visual C++ project.
         /// </summary>
         public override string Guid {
@@ -87,10 +172,10 @@ namespace NAnt.VSNet {
             get { return _references; }
         }
 
-        protected override bool Build(ConfigurationBase configurationSettings) {
+        protected override bool Build(ConfigurationBase config) {
             _objFiles.Clear();
             
-            VcConfiguration baseConfig = (VcConfiguration) configurationSettings;
+            VcConfiguration baseConfig = (VcConfiguration) config;
 
             // initialize hashtable for holding all build configuration
             Hashtable buildConfigs = new Hashtable();
@@ -133,8 +218,9 @@ namespace NAnt.VSNet {
                 return true;
             }
 
-            foreach (VcConfiguration config in buildConfigs.Keys) {
-                BuildCPPFiles((ArrayList) buildConfigs[config], baseConfig, config);
+            foreach (VcConfiguration buildConfig in buildConfigs.Keys) {
+                BuildCPPFiles((ArrayList) buildConfigs[buildConfig], baseConfig, 
+                    buildConfig);
             }
 
             string libOutput = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
@@ -151,66 +237,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Override implementation of ProjectBase
-
-        #region Public Instance Methods
-
-        public override void Load(SolutionBase sln, string projectPath) {
-            _projectPath = Path.GetFullPath(projectPath);
-            XmlDocument doc = null;
-
-            try {
-                doc = LoadXmlDocument(_projectPath);
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Error loading project '{0}'.", _projectPath), 
-                    Location.UnknownLocation, ex);
-            }
-
-            XmlElement elem = doc.DocumentElement;
-            _name = elem.GetAttribute("Name");
-            _guid = elem.GetAttribute("ProjectGUID");
-            _rootNamespace = elem.GetAttribute("RootNamespace");
-
-            XmlNodeList configurationNodes = elem.SelectNodes("//Configurations/Configuration");
-            foreach (XmlElement configElem in configurationNodes) {
-                VcConfiguration config = new VcConfiguration(configElem, this, sln, OutputDir);
-                ProjectConfigurations[config.Name] = config;
-                _htPlatformConfigurations[config.FullName] = config;
-            }
-
-            XmlNodeList projectReferences = elem.SelectNodes("//References/ProjectReference");
-            foreach (XmlElement referenceElem in projectReferences) {
-                ReferenceBase reference = ReferenceFactory.CreateReference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
-                _references.Add(reference);
-            }
-
-            XmlNodeList assemblyReferences = elem.SelectNodes("//References/AssemblyReference");
-            foreach (XmlElement referenceElem in assemblyReferences) {
-                ReferenceBase reference = ReferenceFactory.CreateReference(sln, null, referenceElem, GacCache, ReferencesResolver, this, OutputDir);
-                _references.Add(reference);
-            }
-
-            XmlNodeList fileNodes = elem.SelectNodes("//File");
-            foreach (XmlElement fileElem in fileNodes) {
-                string relPath = fileElem.GetAttribute("RelativePath");
-                
-                Hashtable htFileConfigurations = null;
-                XmlNodeList fileConfigList = fileElem.GetElementsByTagName("FileConfiguration");
-                if (fileConfigList.Count > 0) {
-                    htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
-                    foreach (XmlElement fileConfigElem in fileConfigList) {
-                        string fileConfigName = fileConfigElem.GetAttribute("Name");
-                        VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations[fileConfigName];
-                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, sln, baseConfig, OutputDir);
-                        htFileConfigurations [fileConfig.Name] = fileConfig;
-                   }
-                }
-
-                _htFiles [relPath] = htFileConfigurations;
-            }
-        }
-
-        #endregion Public Instance Methods
 
         #region Protected Internal Instance Methods
 
@@ -610,6 +636,53 @@ namespace NAnt.VSNet {
                     Location.UnknownLocation, ex);
             }
         }
+
+        #region Public Static Methods
+
+        /// <summary>
+        /// Returns a value indicating whether the project represented by the
+        /// specified XML fragment is supported by <see cref="VcProject" />.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if <see cref="VcProject" /> supports the 
+        /// specified project; otherwise, <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// A project is identified as as Visual C++ project, if the XML 
+        /// fragment at least has the following information:
+        /// </para>
+        /// <code>
+        ///   <![CDATA[
+        /// <VisualStudioProject
+        ///     ProjectType="Visual C++"
+        ///     ...
+        ///     >
+        /// </VisualStudioProject>
+        ///   ]]>
+        /// </code>
+        /// </remarks>
+        public static bool IsSupported(XmlElement docElement) {
+            if (docElement == null) {
+                return false;
+            }
+
+            if (docElement.Name != "VisualStudioProject") {
+                return false;
+            }
+
+            XmlAttribute projectTypeAttribute = docElement.Attributes["ProjectType"];
+            if (projectTypeAttribute == null || projectTypeAttribute.Value != "Visual C++") {
+                return false;
+            }
+
+            // TODO: add Version check once we add more specific implementation 
+            // classes
+            return true;
+        }
+
+        #endregion Public Static Methods
 
         #endregion Public Static Methods
 
