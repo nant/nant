@@ -39,18 +39,18 @@
 
     <xsl:template match="/">
         <html>
-			<xsl:comment> Documenting <xsl:value-of select="$class-id"/> </xsl:comment>
+            <xsl:comment> Documenting <xsl:value-of select="$class-id"/> </xsl:comment>
             <xsl:apply-templates select="//class[@id = $class-id]" mode="TypeDoc"/>
         </html>
     </xsl:template>
     
     <xsl:template match="class" mode="TypeDoc">
-		<xsl:variable name="name">
-			<xsl:choose>
-				<xsl:when test="attribute/property[@name = 'Name']">&lt;<xsl:value-of select="attribute/property[@name = 'Name']/@value" />&gt;</xsl:when>
-				<xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
-			</xsl:choose> 
-		</xsl:variable>
+        <xsl:variable name="name">
+            <xsl:choose>
+                <xsl:when test="attribute/property[@name = 'Name']">&lt;<xsl:value-of select="attribute/property[@name = 'Name']/@value" />&gt;</xsl:when>
+                <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
+            </xsl:choose> 
+        </xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
@@ -74,16 +74,16 @@
     
             <h1><xsl:value-of select="$name" /> <xsl:value-of select="$refType"/></h1>
             <xsl:apply-templates select=".">
-				<xsl:with-param name="propertyElements" select="$childrenElements" />
+                <xsl:with-param name="propertyElements" select="$childrenElements" />
             </xsl:apply-templates>
             
         </body>
 
     </xsl:template>
 
-	<!-- match class tag for info about a type -->
+    <!-- match class tag for info about a type -->
     <xsl:template match="class">
-	
+    
         <xsl:param name="propertyElements" select="'null'"/>
         <!-- output whether type is deprecated -->
         <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
@@ -109,7 +109,7 @@
                         <th style="text-align: center;">Required</th>
                     </tr>
                     <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TaskAttribute">
-						<!-- sort order: any property declared from the documented class, then by required, last by name-->
+                        <!-- sort order: any property declared from the documented class, then by required, last by name-->
                         <xsl:sort select="@declaringType" />
                         <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Required']/@value" order="descending" />
                         <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Name']/@value" />
@@ -137,9 +137,9 @@
         </xsl:if>
         
         <!-- nested elements -->
-		<xsl:call-template name="NestedElements">
-			<xsl:with-param name="nestedElements" select="$propertyElements" />
-		</xsl:call-template>
+        <xsl:call-template name="NestedElements">
+            <xsl:with-param name="nestedElements" select="$propertyElements" />
+        </xsl:call-template>
 
         <!-- Example -->
         <xsl:if test="count(documentation/example) != 0">
@@ -150,7 +150,7 @@
 
     <!-- nested elements section of the Task/Type/Element docs -->     
     <xsl:template name="NestedElements">
-		<xsl:param name="nestedElements" select="'null'" />
+        <xsl:param name="nestedElements" select="'null'" />
     
         <xsl:variable name="filesets" select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]"/>
         <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
@@ -158,9 +158,9 @@
         <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]"/>
         <xsl:if test="count($filesets) != 0 or count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
             <h3>Nested Elements:</h3>
-			<xsl:apply-templates select="property/attribute" mode="TaskElements">
-				<xsl:with-param name="typeNodes" select="$nestedElements"/>
-			</xsl:apply-templates>
+            <xsl:apply-templates select="property/attribute" mode="TaskElements">
+                <xsl:with-param name="typeNodes" select="$nestedElements"/>
+            </xsl:apply-templates>
         </xsl:if>
     </xsl:template>
     
@@ -168,9 +168,9 @@
     <xsl:template match="class/property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" mode="TaskAttribute">
         <xsl:variable name="Required" select="attribute/property[@name = 'Required']/@value"/>
         <xsl:element name="tr">
-			<xsl:if test="$Required = 'True'">
-				<xsl:attribute name="class">required</xsl:attribute>
-			</xsl:if>
+            <xsl:if test="$Required = 'True'">
+                <xsl:attribute name="class">required</xsl:attribute>
+            </xsl:if>
         
             <td valign="top"><xsl:value-of select="attribute/property[@name = 'Name']/@value"/> </td>
             <td style="text-align: center;">
@@ -179,16 +179,16 @@
                 </xsl:call-template>
             </td>
             <td>
-				<xsl:apply-templates mode="docstring" select="." />
-				<xsl:if test="attribute/property[@name='ExpandProperties' and @value='False']">
-					<br />
-					<b>Note:</b> This attribute's propeties will not be automatically expanded!
-					<br />
-				</xsl:if>
-				
+                <xsl:apply-templates mode="docstring" select="." />
+                <xsl:if test="attribute/property[@name='ExpandProperties' and @value='False']">
+                    <br />
+                    <b>Note:</b> This attribute's propeties will not be automatically expanded!
+                    <br />
+                </xsl:if>
+                
             </td>
             <td style="text-align: center;"><xsl:value-of select="string($Required)"/></td>
-		</xsl:element>
+        </xsl:element>
     </xsl:template>
 
     <!-- match FrameworkConfigurable property tag -->

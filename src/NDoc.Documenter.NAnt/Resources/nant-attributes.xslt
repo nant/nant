@@ -20,69 +20,67 @@
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
-	
-	<!-- match attribute by names -->
+    
+    <!-- match attribute by names -->
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute']" mode="TaskElements">
-		<xsl:param name="typeNodes" select="''"/>
-		
-		<xsl:call-template name="EmitSingleNestedElement">
-			<xsl:with-param name="typeNodes" select="$typeNodes"/>
-			<xsl:with-param name="typeName" select="'Element'"/>
-		</xsl:call-template>
+        <xsl:param name="typeNodes" select="''"/>
+        
+        <xsl:call-template name="EmitSingleNestedElement">
+            <xsl:with-param name="typeNodes" select="$typeNodes"/>
+            <xsl:with-param name="typeName" select="'Element'"/>
+        </xsl:call-template>
     </xsl:template>
     
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.FileSetAttribute']" mode="TaskElements">
-		<xsl:param name="typeNodes" select="''"/>
-		
-		<xsl:call-template name="EmitSingleNestedElement">
-			<xsl:with-param name="typeNodes" select="$typeNodes"/>
-			<xsl:with-param name="typeName" select="'FileSet'"/>
-		</xsl:call-template>
+        <xsl:param name="typeNodes" select="''"/>
+        
+        <xsl:call-template name="EmitSingleNestedElement">
+            <xsl:with-param name="typeNodes" select="$typeNodes"/>
+            <xsl:with-param name="typeName" select="'FileSet'"/>
+        </xsl:call-template>
     </xsl:template>
 
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute']" mode="TaskElements">
-		<xsl:param name="typeNodes" select="''"/>
-		
-		<xsl:call-template name="EmitSingleNestedElement">
-			<xsl:with-param name="typeNodes" select="$typeNodes"/>
-			<xsl:with-param name="typeName" select="'Array'"/>
-		</xsl:call-template>
+        <xsl:param name="typeNodes" select="''"/>
+        
+        <xsl:call-template name="EmitSingleNestedElement">
+            <xsl:with-param name="typeNodes" select="$typeNodes"/>
+            <xsl:with-param name="typeName" select="'Array'"/>
+        </xsl:call-template>
     </xsl:template>
 
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute']" mode="TaskElements">
-		<xsl:param name="typeNodes" select="''"/>
-		<xsl:call-template name="EmitSingleNestedElement">
-			<xsl:with-param name="typeNodes" select="$typeNodes"/>
-			<xsl:with-param name="typeName" select="'Collection'"/>
-		</xsl:call-template>
+        <xsl:param name="typeNodes" select="''"/>
+        <xsl:call-template name="EmitSingleNestedElement">
+            <xsl:with-param name="typeNodes" select="$typeNodes"/>
+            <xsl:with-param name="typeName" select="'Collection'"/>
+        </xsl:call-template>
     </xsl:template>
 
     <xsl:template name="EmitSingleNestedElement">
-		<xsl:param name="typeNodes" select="''"/>
-		<xsl:param name="typeName" select="''" />
-		
-		<xsl:variable name="typeid" select="translate(concat('T:',../@type),'[]','')"/>
-		<xsl:variable name="href" select="concat('../',string(NAntUtil:GetHRef($typeid)))" />
-
-
-		<table>
-			<tr>
-				<td align="left"><h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4></td>
-				<td align="right">(<xsl:value-of select="$typeName"/>) Required:<xsl:value-of select="property[@name='Required']/@value"/></td>
-			</tr>
-		</table>
-		<div class="nested-element">
-			
-			<xsl:apply-templates select=".." mode="docstring" />
-			
-			<!--
-				Put nested element class doc inline
-			-->
-			<xsl:variable name="typeNode" select="$typeNodes/class[@id=$typeid]"/>
-			<xsl:if test="$typeNode">
-				
-					<xsl:apply-templates select="$typeNode"/>
-			</xsl:if>    
-		</div>
+        <xsl:param name="typeNodes" select="''"/>
+        <xsl:param name="typeName" select="''" />
+        
+        <xsl:variable name="typeid" select="translate(concat('T:',../@type),'[]','')"/>
+        <xsl:variable name="href" select="concat('../',string(NAntUtil:GetHRef($typeid)))" />
+        
+        <table>
+            <tr>
+                <td align="left"><h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4></td>
+                <td align="right">(<xsl:value-of select="$typeName"/>) Required:<xsl:value-of select="property[@name='Required']/@value"/></td>
+            </tr>
+        </table>
+        <div class="nested-element">
+            
+            <xsl:apply-templates select=".." mode="docstring" />
+            
+            <!--
+                Put nested element class doc inline
+            -->
+            <xsl:variable name="typeNode" select="$typeNodes/class[@id=$typeid]"/>
+            <xsl:if test="$typeNode"> 
+                <xsl:apply-templates select="$typeNode"/>
+            </xsl:if>    
+        </div>
     </xsl:template>
 </xsl:stylesheet>

@@ -53,7 +53,7 @@
                             <th>Summary</th>
                         </tr>
                         <xsl:apply-templates select="//class[attribute/@name='NAnt.Core.Attributes.ElementNameAttribute']">
-	                            <xsl:sort select="attribute/property[@name='Name']/@value" />
+                            <xsl:sort select="attribute/property[@name='Name']/@value" />
                         </xsl:apply-templates>
                     </table>
                 </div>
