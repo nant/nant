@@ -47,8 +47,10 @@ namespace NAnt.Core.Functions {
         /// <summary>
         ///  Gets the Version of the given assembly file as a string.
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
+        /// <returns>
+        /// The full version in string form.
+        /// </returns>
         [Function("get-version")]
         public static string GetVersion(string fileName) {
             return AssemblyName.GetAssemblyName(fileName).Version.ToString(); 
@@ -57,7 +59,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the value of the major component of the version number for the given assembly file.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// Major version.
         /// </returns>
@@ -69,7 +71,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the value of the minor component of the version number for the given assembly file.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// Minor version.
         /// </returns>
@@ -81,7 +83,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the value of the revision component of the version number for the given assembly file.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// Revision version.
         /// </returns>
@@ -93,7 +95,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the value of the build component of the version number for the given assembly file.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// Build version.
         /// </returns>
@@ -105,7 +107,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the full name of the assembly, also known as the display name.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// The full name.
         /// </returns>
@@ -117,7 +119,7 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the simple, unencrypted name of the assembly.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// Simple name.</returns>
         [Function("get-name")]
@@ -126,9 +128,9 @@ namespace NAnt.Core.Functions {
         }
         
         /// <summary>
-        /// Gets the culture supported by the assembly..
+        /// Gets the culture supported by the assembly.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
         /// Display name of the assemblies culture.
         /// </returns>

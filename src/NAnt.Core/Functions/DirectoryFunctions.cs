@@ -57,15 +57,13 @@ namespace NAnt.Core.Functions {
             }
 
             return Directory.GetCreationTime(dirPath);
-        }
-
+        }       
         /// <summary>
         /// Gets the current working directory.
         /// </summary>
-        /// <value>
-        /// A <see cref="string" /> containing the path of the current working 
+        /// <returns>A <see cref="string" /> containing the path of the current working 
         /// directory.
-        /// </value>
+        ///</returns>
         [Function("get-current-directory")]
         public static string GetCurrentDirectory() {
             return Directory.GetCurrentDirectory();
