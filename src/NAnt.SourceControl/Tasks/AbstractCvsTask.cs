@@ -54,7 +54,6 @@ namespace NAnt.SourceControl.Tasks {
         private OptionCollection _commandOptions = new OptionCollection();
         private OptionCollection _globalOptions = new OptionCollection();
 
-
         #endregion Private Instance Fields
 
         #region Private Static Fields

@@ -75,7 +75,7 @@ namespace NAnt.SourceControl.Tasks {
             Log(Level.Debug, LogPrefix + "Cvs Version Info: " + this.GetCvsVersion(fileName));
 
             String commandLine = this.CreateCommandLine();
-            Log(Level.Debug, LogPrefix + "Executing command line: " + commandLine);
+            Log(Level.Debug, LogPrefix + "Executing command line: " + fileName + " " + commandLine);
 
             // Create new process
             ProcessStartInfo cvsProcessInfo = 
@@ -88,13 +88,15 @@ namespace NAnt.SourceControl.Tasks {
             // Run the process
             Process cvsProcess = new Process();
             cvsProcess.StartInfo = cvsProcessInfo;
+            string output;
             try {
                 cvsProcess.Start();
             } catch (Exception) {
                 throw new Exception ("Unable to start process: " + fileName);
+            } finally {
+                output = cvsProcess.StandardOutput.ReadToEnd();
             }
 
-            string output = cvsProcess.StandardOutput.ReadToEnd();
             Log(Level.Debug, LogPrefix + output);
             cvsProcess.WaitForExit();
         }
@@ -125,9 +127,11 @@ namespace NAnt.SourceControl.Tasks {
         private String GetFileName () {
             String fileName;
             if (this.UseSharpCvsLib) {
+                Log(Level.Debug, LogPrefix + "Using sharpcvslib.");
                 fileName = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "cvs.exe");
             } else {
                 fileName = this.GetCvsFromPath();
+                Log(Level.Debug, LogPrefix + "NOT using sharpcvslib - binary: " + fileName);
             }
             return fileName;
         }
@@ -194,7 +198,7 @@ namespace NAnt.SourceControl.Tasks {
             if (null != commandArgs && String.Empty != commandArgs) {
                 commandLine.Append(commandArgs);
                 commandLine.Append(" ");
-            }
+            } 
 
             commandLine.Append(this.Module);
 
