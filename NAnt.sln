@@ -52,6 +52,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit1", "src\NAnt.NUn
 		{00F5C075-9874-4BCE-909A-99C1F600E047} = {00F5C075-9874-4BCE-909A-99C1F600E047}
 	EndProjectSection
 EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Resources", "src\NAnt.Resources\NAnt.Resources.csproj", "{5B612A85-0BCF-4115-846B-B9F4B838052B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
+	EndProjectSection
+EndProject
+
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.SourceControl", "src\NAnt.SourceControl\NAnt.SourceControl.csproj", "{6B2EC648-8D69-4096-B4F9-6EDC0B2F98EF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
