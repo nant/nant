@@ -118,10 +118,16 @@
     </target>
     <target name="self-test" depends="init">
         <copy file="${nant.location}nant.exe.config" tofile="${nant.location}nant.tests.config" />
+        
+        <!-- make sure the config file is writable -->
+        <attrib file="${nant.location}nant.tests.config" readonly="false" />
+        
+        <!-- ensure the tests target the current framework -->
         <xmlpoke filename="${nant.location}nant.tests.config"
                  xpath="//configuration/nant/frameworks/platform[@name='${nant.platform.name}']/@default"
                  value="${nant.settings.currentframework}"/>
 
+        <!-- output the config file that will be used to run the tests -->
         <echo message="testing with config '${nant.location}nant.tests.config'"/>
 
         <!-- test NAnt.Console assembly -->
