@@ -36,7 +36,7 @@ namespace NAnt.DotNet.Tasks {
     ///   <para>Example build file using this task.</para>
     ///   <code>
     ///     <![CDATA[
-    ///<project name="Hello World" default="build" basedir=".">
+    /// <project name="Hello World" default="build" basedir=".">
     ///   <property name="basename" value="HelloWorld" />
     ///   <property name="debug" value="true" />
     ///   <target name="clean">
@@ -57,7 +57,7 @@ namespace NAnt.DotNet.Tasks {
     ///         </sources>
     ///      </vbc>
     ///   </target>
-    ///</project>
+    /// </project>
     ///    ]]>
     ///   </code>
     /// </example>
@@ -222,20 +222,34 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of CompilerBase
 
         /// <summary>
-        /// Local override to ensure the Rootnamespace is prefixed
+        /// Finds the correct namespace/classname for a resource file from the 
+        /// given dependent source file, and ensure the <see cref="RootNamespace" />
+        /// is prefixed.
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        protected override ResourceLinkage GetFormResourceLinkage(string fileName ) {
-            ResourceLinkage resourceLinkage = base.GetFormResourceLinkage(fileName); // try and get it from matching form
-          
-            if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
-                if (!StringUtils.IsNullOrEmpty(resourceLinkage.NamespaceName )) {
-                    resourceLinkage.NamespaceName = RootNamespace + "." + resourceLinkage.NamespaceName;
-                } else {
-                    resourceLinkage.NamespaceName =  RootNamespace;
+        /// <param name="dependentFile">The file from which the resource linkage of the resource file should be determined.</param>
+        /// <param name="resourceCulture">The culture of the resource file for which the resource linkage should be determined.</param>
+        /// <returns>
+        /// The namespace/classname of the source file matching the resource or
+        /// <see langword="null" /> if the dependent source file does not exist.
+        /// </returns>
+        protected override ResourceLinkage GetResourceLinkage(string dependentFile, CultureInfo resourceCulture) {
+            // determine resource linkage from dependent file
+            ResourceLinkage resourceLinkage = base.GetResourceLinkage(dependentFile, resourceCulture);
+
+            // check if resource linkage could be determined at all
+            if (resourceLinkage == null) {
+                if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
+                    resourceLinkage = new ResourceLinkage(RootNamespace, null);
                 }
-            } 
+            } else {
+                if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
+                    if (resourceLinkage.HasNamespaceName) {
+                        resourceLinkage.NamespaceName = RootNamespace + "." + resourceLinkage.NamespaceName;
+                    } else {
+                        resourceLinkage.NamespaceName = RootNamespace;
+                    }
+                }
+            }
             return resourceLinkage;
         }
 
