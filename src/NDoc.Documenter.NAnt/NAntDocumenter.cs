@@ -256,10 +256,6 @@ namespace NDoc.Documenter.NAnt {
             //Console.Write(classID);
             //Console.WriteLine(" filename is " + filename);
 
-            
-            //create a temp node with all the children we document.
-            XmlNode childElementNodes = _xmlDocumentation.CreateElement("elements");
-
             // Process all sub-elements and generate docs for them. :)
             // Just look for properties with attributes to narrow down the foreach loop. 
             // (This is a restriction of NAnt.Core.Attributes.BuildElementAttribute)
@@ -292,16 +288,9 @@ namespace NDoc.Documenter.NAnt {
                     if (elementNode == null) {
                         //Console.WriteLine(elementType + " not found in document");
                     } else {
-                        // When I didn't use the Clone() call the node was not found in the document after this point. 
-                        // I'm guessing that the appendchild call is removing it from the prev parent.
-                        childElementNodes.AppendChild(elementNode.Clone());
                         DocumentType(elementNode, type);
                     }
                 }
-            }
-            if (childElementNodes.ChildNodes.Count > 0) {
-                arguments.AddParam("childrenElements", string.Empty, childElementNodes.CreateNavigator().Select("."));
-                //Console.WriteLine( classID + " has " + childElementNodes.ChildNodes.Count + " Elements");
             }
 
             // create the page

@@ -33,7 +33,6 @@
 
     <!-- helper values for adjusting the paths -->
     <xsl:param name="refType">Type</xsl:param>
-    <xsl:param name="childrenElements" select="''"/>
 
     <xsl:template match="/">
         <html>
@@ -71,10 +70,7 @@
             </table>
     
             <h1><xsl:value-of select="$name" /> <xsl:value-of select="$refType"/></h1>
-            <xsl:apply-templates select=".">
-                <xsl:with-param name="propertyElements" select="$childrenElements" />
-            </xsl:apply-templates>
-            
+            <xsl:apply-templates select="."/>            
         </body>
 
     </xsl:template>
@@ -82,7 +78,6 @@
     <!-- match class tag for info about a type -->
     <xsl:template match="class">
     
-        <xsl:param name="propertyElements" select="'null'"/>
         <!-- output whether type is deprecated -->
         <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
         <xsl:if test="count($ObsoleteAttribute) > 0">
@@ -135,15 +130,14 @@
         </xsl:if>
         
         <!-- nested elements -->
-        <xsl:variable name="filesets" select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]"/>
         <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
         <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
         <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]"/>
 
-        <xsl:if test="count($filesets) != 0 or count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
+        <xsl:if test="count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
             <h3>Nested Elements:</h3>
             <xsl:apply-templates select="property/attribute" mode="NestedElements">
-                <xsl:with-param name="typeNodes" select="$propertyElements"/>
+                <xsl:sort select="property[@name='Required' and @value='True']"/>
             </xsl:apply-templates>
         </xsl:if>
 

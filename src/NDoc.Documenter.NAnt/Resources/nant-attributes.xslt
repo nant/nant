@@ -23,74 +23,79 @@
     
     <!-- match attribute by names -->
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute']" mode="NestedElements">
-        <xsl:param name="typeNodes" select="''"/>
 
         <xsl:comment>Element</xsl:comment>
 
         <xsl:call-template name="NestedElement">
-            <xsl:with-param name="typeNodes" select="$typeNodes"/>
-            <xsl:with-param name="typeName" select="'Element'"/>
+            <xsl:with-param name="elementTypeParam" select="../@type"/>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.FileSetAttribute']" mode="NestedElements">
-        <xsl:param name="typeNodes" select="''"/>
-
-        <xsl:comment>Fileset</xsl:comment>
-        
-        <xsl:call-template name="NestedElement">
-            <xsl:with-param name="typeNodes" select="$typeNodes"/>
-            <xsl:with-param name="typeName" select="'FileSet'"/>
-        </xsl:call-template>
-    </xsl:template>
-
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute']" mode="NestedElements">
-        <xsl:param name="typeNodes" select="''"/>
 
         <xsl:comment>Array</xsl:comment>
         
         <xsl:call-template name="NestedElement">
-            <xsl:with-param name="typeNodes" select="$typeNodes"/>
-            <xsl:with-param name="typeName" select="'Array'"/>
+            <xsl:with-param name="elementTypeParam">
+                <xsl:choose>
+                    <xsl:when test="property[@name='ElementType']/@value != ''">
+                        <xsl:value-of select="property[@name='ElementType']/@value"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="../@type"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:with-param>
+            
         </xsl:call-template>
     </xsl:template>
 
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute']" mode="NestedElements">
-        <xsl:param name="typeNodes" select="''"/>
 
         <xsl:comment>Collection</xsl:comment>
 
         <xsl:call-template name="NestedElement">
-            <xsl:with-param name="typeNodes" select="$typeNodes"/>
-            <xsl:with-param name="typeName" select="'Collection'"/>
+            <xsl:with-param name="elementTypeParam">
+                <xsl:choose>
+                    <xsl:when test="property[@name='ElementType']/@value != ''">
+                        <xsl:value-of select="property[@name='ElementType']/@value"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="../@type"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 
     <xsl:template name="NestedElement">
-        <xsl:param name="typeNodes" select="''"/>
-        <xsl:param name="typeName" select="''" />
+        <xsl:param name="elementTypeParam" select="'#'" />
         
-        <xsl:variable name="typeid" select="translate(concat('T:',../@type),'[]','')"/>
+        <xsl:variable name="elementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')"/>
         
-        <xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$typeid"/></xsl:comment>
-        <xsl:variable name="href" select="concat('../',string(NAntUtil:GetHRef($typeid)))" />
+        <xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$elementType"/></xsl:comment>
+        <xsl:variable name="href" select="concat('../',string(NAntUtil:GetHRef($elementType)))" />
+        
+        <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)"/>
         
         <table>
             <tr>
                 <td align="left"><h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4></td>
-                <td align="right">(<xsl:value-of select="$typeName"/>) Required:<xsl:value-of select="property[@name='Required']/@value"/></td>
+                <td align="right">Required:<xsl:value-of select="property[@name='Required']/@value"/></td>
             </tr>
         </table>
         <div class="nested-element">
             
+            <!-- generates docs from summary xmldoc comments -->
             <xsl:apply-templates select=".." mode="docstring" />
             
             <!--
-                Put nested element class doc inline
+                Put nested element class docs inline, if not derived from DateTypeBase
             -->
-            <xsl:variable name="typeNode" select="$typeNodes/class[@id=$typeid]"/>
-            <xsl:if test="$typeNode"> 
-                <xsl:apply-templates select="$typeNode[position() = 1]"/>
+            <xsl:variable name="DataTypeBase" select="$typeNode[./descendant::base/@type='NAnt.Core.DataTypeBase']"/>
+            
+            <xsl:if test="$typeNode and not($DataTypeBase)"> 
+                <xsl:apply-templates select="$typeNode"/>
             </xsl:if>
         </div>
     </xsl:template>

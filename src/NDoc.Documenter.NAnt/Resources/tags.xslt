@@ -230,19 +230,19 @@
     <xsl:template name="get-a-href">
         <xsl:param name="cref" />
         
-        <xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$cref"/></xsl:comment>
+        <!--<xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$cref"/></xsl:comment>-->
         <xsl:variable name="href" select="concat('../', string(NAntUtil:GetHRef($cref)))" />
         <xsl:choose>
             <xsl:when test="$href = '../'">
                 <xsl:choose>
                     <!-- if this is a task add the href-->
                     <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
-                        <xsl:comment>NAntUtil: Getting TaskName for <xsl:value-of select="$cref"/></xsl:comment>
+                        <!-- <xsl:comment>NAntUtil: Getting TaskName for <xsl:value-of select="$cref"/></xsl:comment> -->
                         <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
                         <code><xsl:value-of select="$taskName" /></code><xsl:text> </xsl:text>task
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:comment>NAntUtil: Getting Name for <xsl:value-of select="$cref"/></xsl:comment>
+                        <!-- <xsl:comment>NAntUtil: Getting Name for <xsl:value-of select="$cref"/></xsl:comment> -->
                     
                         <code><xsl:value-of select="string(NAntUtil:GetName($cref))" /></code>
                     </xsl:otherwise>
@@ -258,13 +258,13 @@
                             <xsl:value-of select="." />
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:comment>NAntUtil: Getting name for <xsl:value-of select="$cref"/></xsl:comment>
+                            <!-- <xsl:comment>NAntUtil: Getting name for <xsl:value-of select="$cref"/></xsl:comment> -->
                             <xsl:value-of select="string(NAntUtil:GetName($cref))" />
                         </xsl:otherwise>
                     </xsl:choose>
                 </a>
                 <!-- if this is a task add suffix task-->
-                <xsl:comment>NAntUtil: Getting taskname for <xsl:value-of select="$cref"/></xsl:comment>
+                <!-- <xsl:comment>NAntUtil: Getting taskname for <xsl:value-of select="$cref"/></xsl:comment> -->
                 <xsl:if test="boolean(NAntUtil:GetTaskName($cref))">
                     <xsl:text> </xsl:text>task
                 </xsl:if>
