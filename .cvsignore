@@ -1,5 +1,5 @@
 build
-obj
+nant
 *.dat
 *.sln
 *.suo
