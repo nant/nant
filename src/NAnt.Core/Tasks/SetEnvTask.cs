@@ -205,7 +205,6 @@ namespace NAnt.Core.Tasks {
             string envVar = m.ToString();
             
             Match match = Regex.Match(m.ToString(), @"[a-zA-Z][a-zA-Z0-9_]+");
-            string foo = match.ToString();
             string envName = match.Captures[0].ToString();
             string envValue = Environment.GetEnvironmentVariable(envName);
             if (envValue != null) {
