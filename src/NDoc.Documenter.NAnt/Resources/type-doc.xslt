@@ -131,7 +131,7 @@
         
         <!-- nested elements -->
         <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />
-        <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />
+        <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute' ]" />
         <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]" />
 
         <xsl:if test="count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
