@@ -253,12 +253,8 @@ namespace SourceForge.NAnt.Tasks {
                     }
                     
                     // other resources
-                    foreach (string fileName in Resources.NonResxFiles.FileNames ) {                                                                                                        
-                        string actualFileName = Path.GetFileNameWithoutExtension(fileName);                                                                                  
-                        string manifestResourceName = Path.GetFileName(fileName);
-                        if(Resources.Prefix != "")
-                            manifestResourceName = manifestResourceName.Replace(actualFileName, Resources.Prefix + "." + actualFileName );                       
-                        string resourceoption = fileName + "," + manifestResourceName;                                                                                                                   
+                    foreach (string fileName in Resources.NonResxFiles.FileNames ) {                                                                                                                           
+                        string resourceoption = fileName + "," + Resources.GetManifestResourceName(fileName);                                                                                  
                         WriteOption(writer, "resource", resourceoption);     
                     }
 
