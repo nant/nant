@@ -18,6 +18,7 @@
 // Serge (serge@wildwestsoftware.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
+// Tim Noll (tim.noll@gmail.com)
 
 using System;
 using System.Collections;
@@ -83,6 +84,18 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>Create a report in HTML, with an extension object.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <style style="report.xsl" in="data.xml" out="report.html">
+    ///     <extensionobjects>
+    ///         <extensionobject namespaceuri="urn:Formatter" typename="XsltExtensionObjects.Formatter" assembly="XsltExtensionObjects.dll" />
+    ///     </extensionobjects>
+    /// </style>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("style")]
     public class StyleTask : Task {
         #region Private Instance Fields
@@ -94,6 +107,7 @@ namespace NAnt.Core.Tasks {
         private FileInfo _outputFile;
         private FileSet _inFiles = new FileSet();
         private XsltParameterCollection _xsltParameters = new XsltParameterCollection();
+        private XsltExtensionObjectCollection _xsltExtensions = new XsltExtensionObjectCollection();
 
         #endregion Private Instance Fields
 
@@ -169,6 +183,14 @@ namespace NAnt.Core.Tasks {
         [BuildElementCollection("parameters", "parameter")]
         public XsltParameterCollection Parameters {
             get { return _xsltParameters; }
+        }
+
+        /// <summary>
+        /// XSLT extension objects to be passed to the XSLT transformation.
+        /// </summary>
+        [BuildElementCollection("extensionobjects", "extensionobject")]
+        public XsltExtensionObjectCollection ExtensionObjects {
+            get { return _xsltExtensions; }
         }
 
         #endregion Public Instance Properties
@@ -300,6 +322,23 @@ namespace NAnt.Core.Tasks {
                                     parameter.NamespaceUri, parameter.Value);
                             }
                         }
+                        
+                        // set the xslt parameters
+                        foreach (XsltParameter parameter in Parameters) {
+                            if (parameter.IfDefined && !parameter.UnlessDefined) {
+                                xsltArgs.AddParam(parameter.ParameterName, 
+                                    parameter.NamespaceUri, parameter.Value);
+                            }
+                        }
+
+                        // create extension objects
+                        foreach (XsltExtensionObject extensionObject in ExtensionObjects) {
+                            if (extensionObject.IfDefined && !extensionObject.UnlessDefined) {
+                                object extensionInstance = extensionObject.CreateInstance();
+                                xsltArgs.AddExtensionObject(extensionObject.NamespaceUri,
+                                    extensionInstance);
+                            }
+                        }
 
                         // initialize XSLT transform
                         XslTransform xslt = new XslTransform();
@@ -376,3 +415,4 @@ namespace NAnt.Core.Tasks {
         #endregion Protected Instance Methods
     }
 }
+
