@@ -244,8 +244,14 @@ namespace NAnt.DotNet.Tasks {
                 // parent is current task
                 ct.Parent = this;
 
-                // only output warning messages or higher
-                ct.Threshold = Level.Warning;
+                // inherit verbose setting from license task
+                ct.Verbose = Verbose;
+
+                // only output warning messages or higher, unless we're running
+                // in verbose mode
+                if (!ct.Verbose) {
+                    ct.Threshold = Level.Warning;
+                }
 
                 // make sure framework specific information is set
                 ct.InitializeTaskConfiguration();
