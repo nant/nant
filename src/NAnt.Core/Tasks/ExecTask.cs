@@ -76,7 +76,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Environment variables to pass to the program.
         /// </summary>
-        [BuildElementCollection("environment", "option", typeof(Option))]
+        [BuildElementCollection("environment", "option")]
         public OptionCollection Environment {
             get { return _environment; }
         }
@@ -197,10 +197,12 @@ namespace NAnt.Core.Tasks {
             }
 
             foreach (Option option in Environment) {
-                if (option.Value == null) {
-                    process.StartInfo.EnvironmentVariables[option.OptionName] = "";
-                } else {
-                    process.StartInfo.EnvironmentVariables[option.OptionName] = option.Value;
+                if (option.IfDefined && !option.UnlessDefined) {
+                    if (option.Value == null) {
+                        process.StartInfo.EnvironmentVariables[option.OptionName] = "";
+                    } else {
+                        process.StartInfo.EnvironmentVariables[option.OptionName] = option.Value;
+                    }
                 }
             }
         }
