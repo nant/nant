@@ -21,7 +21,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (gert.driesen@ardatis.com)
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns="http://www.w3.org/1999/xhtml"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:template name="value">
         <xsl:param name="type" />
         <xsl:variable name="namespace">
@@ -109,4 +109,17 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
+    
+    <!-- strip these elements, leave the text... -->
+    <xsl:template match="summary" mode="slashdoc" >
+        <xsl:apply-templates mode="slashdoc"/>
+    </xsl:template>
+    
+    <xsl:template match="remarks" mode="slashdoc" >
+        <xsl:apply-templates mode="slashdoc"/>
+    </xsl:template>
+    
+    <xsl:template match="example" mode="slashdoc" >
+        <xsl:apply-templates mode="slashdoc"/>
+    </xsl:template>    
 </xsl:stylesheet>

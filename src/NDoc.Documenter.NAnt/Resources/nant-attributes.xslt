@@ -20,7 +20,7 @@
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
+<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <!-- match attribute by names -->
     <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute']" mode="NestedElements">
         <xsl:comment>Element</xsl:comment>
@@ -64,18 +64,40 @@
     <xsl:template name="NestedElement">
         <xsl:param name="elementTypeParam" select="'#'" />
         
+
+        
         <xsl:variable name="elementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')"/>
+
+        <xsl:comment>
+            Doing nested element for <xsl:value-of select="$elementType" />.
+        </xsl:comment>
         
         <xsl:comment>NAntUtil: Getting HRef for <xsl:value-of select="$elementType"/></xsl:comment>
         <xsl:variable name="href" select="concat('../',string(NAntUtil:GetHRef($elementType)))" />
         
         <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)"/>
         
+        <xsl:variable name="childElementName">
+            <xsl:choose>
+                <xsl:when test="property[@name='ChildElementName'] and not(property[@name='ChildElementName']/@value = '')"><xsl:value-of select="property[@name='ChildElementName']/@value"/></xsl:when>
+                <xsl:when test="property[@name='ChildElementName']">???</xsl:when>
+                <xsl:otherwise></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+
+        <xsl:comment>
+            Doing nested element for <xsl:value-of select="$elementType" />.
+        </xsl:comment>
+
         <h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4>
         
-        <!--
-           Required:<xsl:value-of select="property[@name='Required']/@value"/>
-        -->           
+        <!-- Required:<xsl:value-of select="property[@name='Required']/@value"/> -->
+        
+        <xsl:if test="not($childElementName = '')">
+            <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value"/> ... /&gt;</h5>        
+            <br/>
+        </xsl:if>
+        
         <div class="nested-element">
             <!-- generates docs from summary xmldoc comments -->
             <xsl:apply-templates select=".." mode="docstring" />
@@ -90,6 +112,14 @@
             </xsl:if>
             <br />
         </div>
+        
+        <xsl:if test="not($childElementName = '')">
+            <h5>&lt;<xsl:value-of select="property[@name='ChildElementName']/@value"/> ... /&gt;</h5>
+            <h5>...</h5>
+        </xsl:if>        
+        
+        <h4>&lt;/<xsl:value-of select="property[@name='Name']/@value"/>&gt;</h4>
+
     </xsl:template>
     
     <!-- match TaskAttribute property tag -->

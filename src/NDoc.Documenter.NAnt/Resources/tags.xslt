@@ -22,7 +22,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://ndoc.sf.net/doc" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="doc NAntUtil">
+<xsl:stylesheet version="1.0" xmlns="http://www.w3.org/1999/xhtml"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://ndoc.sf.net/doc" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="doc NAntUtil">
     <!--
      | Identity Template
      +-->

@@ -257,6 +257,17 @@ namespace NDoc.Documenter.NAnt {
             return GetTaskNameForType(GetTypeByID(cref));
         }
 
+        /// <summary>
+        /// Returns the NAnt element name for a given cref.
+        /// </summary>
+        /// <param name="cref">The cref for the element name will be looked up.</param>
+        /// <returns>
+        /// The NAnt element name for the specified cref.
+        /// </returns>
+        public string GetElementName(string cref) {
+            return GetElementNameForType(GetTypeByID(cref));
+        }
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
@@ -426,7 +437,7 @@ namespace NDoc.Documenter.NAnt {
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {
-                return "tasks\\" + taskName + ".html";
+                return "tasks/" + taskName + ".html";
             }
 
             // check if type derives from NAnt.Core.DataTypeBase
@@ -434,12 +445,12 @@ namespace NDoc.Documenter.NAnt {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
-                    return "types\\" + elementNameAttribute.Value + ".html";
+                    return "types/" + elementNameAttribute.Value + ".html";
                 }
             }
 
 
-            return "elements\\" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
+            return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
                 
 

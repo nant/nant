@@ -21,12 +21,24 @@
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
 -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
+<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:include href="nant-attributes.xslt" />
     
-    <xsl:output method="html" indent="yes" />
+    <!--=<xsl:output method="html" indent="yes" /> -->
+    <xsl:output 
+        method="xml" 
+        indent="yes" 
+        encoding="utf-8" 
+        version="1.0"  
+        doctype-public="-//w3c//dtd xhtml 1.1 strict//en" 
+        doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
+        omit-xml-declaration="yes"
+        standalone="yes"
+        />
+
+        
 
     <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
     <xsl:param name="class-id">T:NAnt.Core.Types.FileSet</xsl:param>
@@ -35,7 +47,7 @@
     <xsl:param name="refType">Type</xsl:param>
 
     <xsl:template match="/">
-        <html>
+        <html xmlns="http://www.w3.org/1999/xhtml" >
             <xsl:comment> Documenting <xsl:value-of select="$class-id"/> </xsl:comment>
             <xsl:apply-templates select="//class[@id = $class-id]" mode="TypeDoc"/>
         </html>
@@ -47,6 +59,13 @@
                 <xsl:when test="attribute/property[@name = 'Name']">&lt;<xsl:value-of select="attribute/property[@name = 'Name']/@value" />&gt;</xsl:when>
                 <xsl:otherwise><xsl:value-of select="@name" /></xsl:otherwise>
             </xsl:choose> 
+        </xsl:variable>
+        <xsl:variable name="parentPage">
+            <xsl:choose>
+                <xsl:when test="$refType = 'Task'">../tasks/index.html</xsl:when>
+                <xsl:when test="$refType = 'Type'">../types/index.html</xsl:when>
+                <xsl:when test="$refType = 'Element'">../index.html</xsl:when>
+            </xsl:choose>
         </xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
@@ -62,9 +81,12 @@
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
-                        <a href="../tasks.html"><xsl:value-of select="$refType"/> Reference</a>
+                        <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                         <xsl:value-of select="$name" /> <xsl:value-of select="$refType"/>
+                        <td class="NavBar-Cell" align="right" width="100%">
+                            <xsl:value-of select="ancestor::assembly/@name" />(<xsl:value-of select="ancestor::assembly/@version" />)
+                        </td>
                     </td>
                 </tr>
             </table>
@@ -146,6 +168,7 @@
             <h3>Examples</h3>
             <xsl:apply-templates select="documentation/example" mode="slashdoc"/>
         </xsl:if>
+        
     </xsl:template>
 
     <!-- returns the summary doc string for a given class property (called from the property templates )-->

@@ -137,11 +137,13 @@ namespace NDoc.Documenter.NAnt {
             buildStepProgress += 10;
             OnDocBuildingStep(buildStepProgress, "Merging XML documentation...");
 
+            // load the stylesheets that will convert the master xml into html pages
+            MakeTransforms();
+            
             // crate the master xml document that contains all the documentation
             MakeXml(project);
 
-            // load the stylesheets that will convert the master xml into html pages
-            MakeTransforms();
+
 
             // create a xml document that will get transformed by xslt
             _xmlDocumentation = new XmlDocument();
