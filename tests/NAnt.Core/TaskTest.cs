@@ -70,8 +70,8 @@ namespace Tests.NAnt.Core {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            Log(Level.Info, LogPrefix + "TestTask executed");
-            Log(Level.Verbose, LogPrefix + "Verbose message");
+            Log(Level.Info, "TestTask executed");
+            Log(Level.Verbose, "Verbose message");
             if (Fail) {
                 throw new BuildException("TestTask failed");
             }
