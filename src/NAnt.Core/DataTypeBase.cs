@@ -27,9 +27,8 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>
-    /// Provides the abstract base class for tasks.
+    /// Provides the abstract base class for types.
     /// </summary>
-    /// <remarks>A task is a piece of code that can be executed.</remarks>
     public abstract class DataTypeBase : Element {
         #region Private Instance Fields
 
@@ -40,18 +39,14 @@ namespace NAnt.Core {
 
         #region Public Instance Properties
 
-        /// <summary>
-        /// The id used to be referenced later.
-        /// </summary>
+        /// <summary>        /// The ID used to be referenced later.        /// </summary>
         [TaskAttribute("id" )]
         public string ID {
             get { return _id; }
             set { _id = StringUtils.ConvertEmptyToNull(value); }
         }
 
-        /// <summary>
-        /// The id to use as the reference.
-        /// </summary>
+        /// <summary>        /// The ID to use as the reference.        /// </summary>
         [TaskAttribute("refid")]
         public string RefID {
             get { return _refID; }
