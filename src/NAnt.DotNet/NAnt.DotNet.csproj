@@ -142,6 +142,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\IlasmTask.cs"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\JscTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -188,6 +192,16 @@
                 />
                 <File
                     RelPath = "Types\AssemblyFileSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\Package.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\PackageCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
