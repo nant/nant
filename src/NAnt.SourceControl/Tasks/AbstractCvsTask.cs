@@ -248,14 +248,15 @@ namespace NAnt.SourceControl.Tasks {
 		/// The module to perform an operation on.
 		/// </summary>
 		/// <value>
-		/// The module to perform an operation on.
+		/// The module to perform an operation on.  This is a normal file/ folder
+		///     name without path information.
 		/// </value>
 		/// <example>
 		///   <para>In Nant the module name would be:</para>
 		///   <code>nant</code>
 		/// </example>
 		[TaskAttribute("module", Required=true)]
-		[StringValidator(AllowEmpty=false)]
+		[StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
 		public string Module {
 			get { return _module; }
 			set { _module = StringUtils.ConvertEmptyToNull(value); }
