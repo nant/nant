@@ -372,6 +372,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Win32Tasks.Tests\ScriptTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.ZipTasks.Tests\ZipTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -380,4 +385,3 @@
         </Files>
     </CSHARP>
 </VisualStudioProject>
-
