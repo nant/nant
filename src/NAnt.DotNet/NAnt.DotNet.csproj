@@ -72,7 +72,7 @@
                 <Reference
                     Name = "NDoc.Core"
                     AssemblyName = "NDoc.Core"
-                    HintPath = "..\..\bin\NDoc.Core.dll"
+                    HintPath = "..\..\lib\net\1.0\NDoc.Core.dll"
                 />
                 <Reference
                     Name = "NAnt.Core"
@@ -151,4 +151,3 @@
         </Files>
     </CSHARP>
 </VisualStudioProject>
-
