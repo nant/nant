@@ -48,7 +48,6 @@ namespace NAnt.SourceControl.Tasks {
     ///                    start="2004/06/01"
     ///                    end="2004/07/25"
     ///                    xmlfile="e:/test/nant/sourcecontrol/changelog-nant.xml" 
-    ///                    xslfile="c:/test/changelog.xsl"
     ///                    />
     ///     ]]>
     ///   </code>
@@ -109,15 +108,6 @@ namespace NAnt.SourceControl.Tasks {
         public DateTime EndDate {
             get {return Convert.ToDateTime(((Option)CommandOptions["end"]).Value);}
             set {SetCommandOption("end", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
-        }
-
-        /// <summary>
-        /// The xsl style sheet to apply to the cvs log.
-        /// </summary>
-        [TaskAttribute("xslfile", Required=false)]
-        public string Xsl {
-            get {return ((Option)CommandOptions["xsl"]).Value;}
-            set {SetCommandOption("xsl", String.Format(CultureInfo.InvariantCulture,"-xsl \"{0}\"", value), true);}
         }
 
         #endregion
