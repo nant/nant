@@ -94,6 +94,8 @@ namespace NAnt.NUnit2.Tasks {
     /// </nunit2>
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>
     ///   Run all tests in files listed in the <c>tests.txt</c> file.
     ///   </para>
