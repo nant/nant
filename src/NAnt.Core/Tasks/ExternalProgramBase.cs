@@ -121,7 +121,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <returns>new Process with information about programs to run, etc.</returns>
         protected virtual void PrepareProcess(ref Process process){
             // create process (redirect standard output to temp buffer)
-            if (UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
+            if (Project.CurrentFramework != null && UsesRuntimeEngine && Project.CurrentFramework.RuntimeEngine != null) {
                 process.StartInfo.FileName = Project.CurrentFramework.RuntimeEngine.FullName;
                 process.StartInfo.Arguments = ProgramFileName + " " + GetCommandLine();
             } else {
@@ -159,9 +159,7 @@ namespace SourceForge.NAnt.Tasks {
             return p;
         }
 
-        /// <summary>
-        /// Read from the stream until the external program is ended
-        /// </summary>
+        /// <summary>        /// Read from the stream until the external program is ended        /// </summary>
         private void StreamReaderThread_Output() {
             StreamReader reader = ( StreamReader )_htThreadStream[ Thread.CurrentThread.Name ];
             while ( true ) {                        
@@ -184,9 +182,7 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        /// <summary>
-        /// Read from the stream until the external program is ended
-        /// </summary>
+        /// <summary>        /// Read from the stream until the external program is ended        /// </summary>
         private void StreamReaderThread_Error() {
             StreamReader reader = ( StreamReader )_htThreadStream[ Thread.CurrentThread.Name ];
             while ( true ) {                        
