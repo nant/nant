@@ -809,7 +809,6 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
-
             if (ForceRebuild) {
                 Log(Level.Verbose, LogPrefix + "'rebuild' attribute set to true, recompiling.");
                 return true;
@@ -863,12 +862,17 @@ namespace NAnt.DotNet.Tasks {
             foreach (Argument argument in Arguments) {
                 if (argument.IfDefined && !argument.UnlessDefined) {
                     string argumentValue = argument.Value;
+                    // check whether argument specified resource file to embed
                     if (argumentValue != null && (argumentValue.StartsWith("/res:") || argumentValue.StartsWith("/resource:"))) {
+                        // determine path to resource file
                         string path = argumentValue.Substring(argumentValue.IndexOf(':') + 1);
                         int indexOfComma = path.IndexOf(',');
                         if (indexOfComma != -1) {
                             path = path.Substring(0, indexOfComma);
                         }
+                        // resolve path to full path (relative to project base dir)
+                        path = Project.GetFullPath(path);
+                        // add path to collection of resource files
                         resourceFileNames.Add(path);
                     }
                 }
