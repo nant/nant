@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="NAnt.VisualCppTasks" default="test">
+<project name="NAnt.VSNet" default="test">
     <!--
         Required properties:
             * build.dir     - (path) root level to build to, assemblies will go in ${build.dir}/bin
@@ -7,25 +7,28 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" debug="${build.debug}"
-        	output="${build.dir}/bin/${nant.project.name}.dll"
+        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}"
+            output="${build.dir}/bin/${nant.project.name}.dll"
             doc="${build.dir}/bin/${nant.project.name}.xml">
             <sources>
-                <includes name="${nant.project.name}/**/*.cs" />
+                <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
+                <includes name="NAnt.DotNetTasks.dll" />
+                <includes name="NAnt.Win32Tasks.dll"/>
+                <includes name="NDoc.Core.dll"/>
             </references>
         </csc>
         <!-- build test assembly -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" 
-        	output="${build.dir}/bin/${nant.project.name}.Tests.dll">
-            <sources>
-                <includes name="${nant.project.name}.Tests/**/*.cs" />
+            output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+            <sources  basedir="../../tests/${nant.project.name}" >
+                <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../../src/CommonAssemblyInfo.cs" />
                 <excludes name="**/AllTests.cs" />
             </sources>
             <references basedir="${build.dir}/bin">

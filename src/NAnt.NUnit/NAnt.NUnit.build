@@ -9,7 +9,7 @@
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
             <sources>
-                <includes name="NAnt.NUnitTasks/*.cs"/>
+                <includes name="*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>
@@ -21,7 +21,7 @@
         </csc>
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
             <sources>
-                <includes name="NAnt.NUnitTasks/NUnit1/*.cs"/>
+                <includes name="NUnit1/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>
@@ -34,7 +34,7 @@
         </csc>
         <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
             <sources>
-                <includes name="NAnt.NUnitTasks/NUnit2/*.cs"/>
+                <includes name="NUnit2/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>

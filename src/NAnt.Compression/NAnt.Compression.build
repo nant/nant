@@ -9,7 +9,7 @@
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.dll" doc="${build.dir}/bin/NAnt.ZipTasks.xml">
             <sources>
-                <includes name="NAnt.ZipTasks/**/*.cs" />
+                <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>
@@ -20,10 +20,10 @@
         </csc> 
         <!-- build test assembly -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.ZipTasks.Tests.dll">
-            <sources>
-                <includes name="NAnt.ZipTasks.Tests/**/*.cs" />
+            <sources basedir="../../tests/NAnt.Zip">
+                <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../../src/CommonAssemblyInfo.cs" />
                 <excludes name="**/AllTests.cs" />
             </sources>
             <references basedir="${build.dir}/bin">

@@ -9,7 +9,7 @@
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.dll" doc="${build.dir}/bin/NAnt.Win32Tasks.xml">
             <sources>
-                <includes name="NAnt.Win32Tasks/**/*.cs"/>
+                <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <includes name="CommonAssemblyInfo.cs" />
             </sources>
@@ -21,11 +21,11 @@
         </csc>
         <!-- build test assembly -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Win32Tasks.Tests.dll">
-            <sources>
-                <includes name="NAnt.Win32Tasks.Tests/**/*.cs"/>
+            <sources basedir="../../tests/NAnt.Win32">
+                <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
-                <excludes name="NAnt.Win32Tasks.Tests/**/MailTaskTest.cs"/>
+                <includes name="../../src/CommonAssemblyInfo.cs" />
+                <excludes name="/**/MailTaskTest.cs"/>
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>

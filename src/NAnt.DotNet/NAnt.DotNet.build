@@ -9,9 +9,9 @@
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.dll" doc="${build.dir}/bin/NAnt.DotNetTasks.xml">
             <sources>
-                <includes name="NAnt.DotNetTasks/**/*.cs"/>
+                <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
@@ -20,15 +20,15 @@
         </csc>
         <!-- build test assembly -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll">
-            <sources>
-                <includes name="NAnt.DotNetTasks.Tests/**/*.cs"/>
+            <sources basedir="../../tests/NAnt.DotNet">
+                <includes name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
-                <includes name="CommonAssemblyInfo.cs" />
+                <includes name="../../src/CommonAssemblyInfo.cs" />
                 
-                <excludes name="NAnt.DotNetTasks.Tests/**/GetTaskTest.cs"/>
-                <excludes name="NAnt.DotNetTasks.Tests/**/MailTaskTest.cs"/>
-                <excludes name="NAnt.DotNetTasks.Tests/**/TouchTaskTest.cs"/>
-                <excludes name="NAnt.DotNetTasks.Tests/**/AllTests.cs"/>
+                <excludes name="/**/GetTaskTest.cs"/>
+                <excludes name="/**/MailTaskTest.cs"/>
+                <excludes name="/**/TouchTaskTest.cs"/>
+                <excludes name="/**/AllTests.cs"/>
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>

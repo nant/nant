@@ -84,6 +84,7 @@
                 <includes name="src/NAnt.Core/**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="src/CommonAssemblyInfo.cs" />
+                <excludes name="src/NAnt.Core/Tasks/ScriptTask.cs"/>
             </sources>
             <resources basedir="src/NAnt.Core/Resources">
                 <includes name="**/*" />
@@ -96,15 +97,16 @@
         </csc>
         <!-- build NAnt.Core.Tests -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
-            <sources failonempty="true">
-                <includes name="src/NAnt.Core.Tests/**/*.cs" />
+            <sources failonempty="true" basedir="tests/NAnt.Core">
+                <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="src/CommonAssemblyInfo.cs" />
+                <includes name="../../src/CommonAssemblyInfo.cs" />
                 <!-- requires internet access and server resources -->
-                <excludes name="src/NAnt.Core.Tests/**/GetTaskTest.cs" />
-                <excludes name="src/NAnt.Core.Tests/**/MailTaskTest.cs" />
+                <excludes name="/**/GetTaskTest.cs" />
+                <excludes name="/**/MailTaskTest.cs" />
                 <!-- ??? why excluded ??? -->
-                <excludes name="src/NAnt.Core.Tests/**/TouchTaskTest.cs" />
+                <excludes name="/**/TouchTaskTest.cs" />
+                <excludes name="/**/ScriptTest.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
@@ -128,10 +130,10 @@
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/${sourceconfig}" />
         <!-- compile NAnt.Console.Tests -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
-            <sources failonempty="true">
-                <includes name="src/NAnt.Console.Tests/**/*.cs" />
+            <sources failonempty="true" basedir="tests/NAnt.Console">
+                <includes name="**/*.cs" />
                 <!-- common assembly-level attributes -->
-                <includes name="src/CommonAssemblyInfo.cs" />
+                <includes name="../../src/CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
@@ -141,12 +143,12 @@
             </references>
         </csc>
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
-            <nant buildfile="src/${filename}.build" target="build" />
+            <nant buildfile="src/${filename}/${filename}.build" target="build" />
         </foreach>
 
         <!-- build win32 specific assemblies is we are on win32 -->
         <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
-            <nant buildfile="src/${filename}.build" target="build" unless="${mono}"/>
+            <nant buildfile="src/${filename}/${filename}.build" target="build" unless="${mono}"/>
         </foreach>
     </target>
 

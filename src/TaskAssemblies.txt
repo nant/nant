@@ -1,3 +1,3 @@
-NAnt.DotNetTasks
-NAnt.ZipTasks
-NAnt.NUnitTasks
+NAnt.DotNet
+NAnt.Zip
+NAnt.NUnit
