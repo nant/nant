@@ -40,7 +40,8 @@ namespace NAnt.VSNet {
         /// class.
         /// </summary>
         public ReferenceGacCache() {
-            _appDomain = AppDomain.CreateDomain("temporaryDomain");
+            _appDomain = AppDomain.CreateDomain("temporaryDomain", 
+                AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
             _gacResolver = 
                 ((GacResolver) _appDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
                 typeof(GacResolver).FullName).Unwrap());
