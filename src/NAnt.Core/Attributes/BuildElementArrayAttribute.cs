@@ -36,5 +36,29 @@ namespace SourceForge.NAnt.Attributes {
         }                
 
         #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the underlying object type of the element array or 
+        /// collection.
+        /// </summary>
+        /// <value>The underlying object type of the element</value>
+        /// <remarks>
+        /// When the <see cref="ElementType" /> is not specified, the underlying
+        /// object type should be determined using reflection.
+        /// </remarks>
+        public Type ElementType {
+            get { return _elementType; }
+            set { _elementType = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Private Instance Fields
+
+        private Type _elementType = null;
+
+        #endregion Private Instance Fields
     }
 }
