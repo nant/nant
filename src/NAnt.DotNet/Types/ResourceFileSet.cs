@@ -132,10 +132,10 @@ namespace NAnt.DotNet.Types {
                 string filedir = Path.GetDirectoryName(fileName);
                 string filePathRelativeToBaseDir = string.Empty;
                 if (filedir != basedir) {
-                    filePathRelativeToBaseDir = filedir.Substring(basedir.Length+1);
+                    filePathRelativeToBaseDir = filedir.Substring(basedir.Length + 1);
                 }
                 string relativePrefix = filePathRelativeToBaseDir.Replace(Path.DirectorySeparatorChar, '.').Replace(Path.AltDirectorySeparatorChar, '.');
-                if(prefix.Length > 0) {
+                if (prefix.Length > 0) {
                     prefix.Append(".");
                 }
                 prefix.Append(relativePrefix);
@@ -148,9 +148,9 @@ namespace NAnt.DotNet.Types {
                                              
             int firstindex = Path.GetFileName(fileName).IndexOf(actualFileName, 0 );
             
-            StringBuilder result =  new StringBuilder(Path.GetFileName(fileName));
-            result.Remove( firstindex, actualFileName.Length );
-            result.Insert( firstindex, prefix.ToString());
+            StringBuilder result = new StringBuilder(Path.GetFileName(fileName));
+            result.Remove(firstindex, actualFileName.Length );
+            result.Insert(firstindex, prefix.ToString());
             return result.ToString();
         }
 
