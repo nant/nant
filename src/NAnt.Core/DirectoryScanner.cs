@@ -786,7 +786,7 @@ namespace NAnt.Core {
 
             // Convert NAnt pattern characters to regular expression patterns.
 
-            // Start with ? - it's used below            
+            // Start with ? - it's used below
             pattern.Replace("?", "[^" + seperator + "]?");
 
             // SPECIAL CASE: any *'s directory between slashes or at the end of the
@@ -794,11 +794,15 @@ namespace NAnt.Core {
             // This ensures that C:\*foo* matches C:\foo and C:\* won't match C:.
             pattern = new StringBuilder(Regex.Replace(pattern.ToString(), "(?<=" + seperator + ")\\*(?=($|" + seperator + "))", "[^" + seperator + "]+"));
             
-            // SPECIAL CASE: to match subdirectory OR current directory.  If
-            // we don't do this then we can write something like 'src/**/*.cs'
+            // SPECIAL CASE: to match subdirectory OR current directory, If
+            // we do this then we can write something like 'src/**/*.cs'
             // to match all the files ending in .cs in the src directory OR
             // subdirectories of src.
-            pattern.Replace("**" + seperator, ".|" + seperator + "?");
+            pattern.Replace("**" + seperator, "(?:.+" + seperator + ")|");
+
+            // SPECIAL CASE: to have a pattern like 'bin/**' match subdirectories 
+            // or files, and the directory itself
+            pattern.Replace(seperator + "**", "(?:" + seperator + ".+)|");
 
             // | is a place holder for * to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
