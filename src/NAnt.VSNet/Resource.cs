@@ -29,6 +29,7 @@ using NAnt.Core;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 using NAnt.DotNet.Tasks;
+using NAnt.DotNet.Types;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -85,7 +86,7 @@ namespace NAnt.VSNet {
 
         private string GetDependentResourceName(string dependentFile) {
             string extension = Path.GetExtension(dependentFile);
-
+        
             switch (extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".cs":
                     return GetDependentResourceNameCSharp(dependentFile);
@@ -98,89 +99,18 @@ namespace NAnt.VSNet {
         }
 
         private string GetDependentResourceNameCSharp(string dependentFile) {
-            Regex re = new Regex(@"
-                (?>namespace(?<ns>(.|\s)*?){)
-                    |
-                (?>class(?<class>.*?):)
-                    |
-                }
-            ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.Compiled);
-
-            Match m;
-            using (StreamReader sr = new StreamReader(dependentFile)) {
-                m = re.Match(sr.ReadToEnd());
-            }
-
-            Stack st = new Stack();
-
-            while (m.Success) {
-                string value = m.Value;
-                if (value.StartsWith("namespace")) {
-                    st.Push(m.Result("${ns}").Trim());
-                } else if (value.StartsWith("class")) {
-                    st.Push(m.Result("${class}").Trim());
-                    break;
-                } else if (value == "}") {
-                    if (st.Count > 0) {
-                        st.Pop();
-                    }
-                }
-                
-                m = m.NextMatch();
-            }
-        
-            Stack stReverse = new Stack();
-            while (st.Count > 0) {
-                stReverse.Push(st.Pop());
-            }
-
-            ArrayList al = new ArrayList(stReverse.ToArray());
-
-            string className = string.Join(".", (string[]) al.ToArray(typeof(string)));
-            return className + ".resources";
+            // defer to the resource management code in CscTask
+            CscTask csc = new CscTask();      
+            csc.Project = _solutionTask.Project;
+            return csc.GetManifestResourceName(new ResourceFileSet(), _resourceSourceFile, dependentFile );                                 
         }
 
         private string GetDependentResourceNameVB(string dependentFile) {
-            Regex re = new Regex(@"
-                (?>^\s*?(?!End)\s*Namespace\s*(?<ns>.*)\s*?$)
-                    |
-                (?>^(?>\s*)(?!End)([\w\s](?=(?!$)))*Class\s*(?<class>.*?)\s*?$)
-                    |
-                ^\s*End\s*(?:(Class|Namespace))\s*?$
-            ", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.Compiled);
-
-            Match m;
-            using (StreamReader sr = new StreamReader(dependentFile)) {
-                m = re.Match(sr.ReadToEnd());
-            }
-
-            Stack st = new Stack();
-
-            while (m.Success) {
-                string value = m.Value.Trim();
-                if (value.StartsWith("End ")) {
-                    if (st.Count > 0) {
-                        st.Pop();
-                    }
-                } else if (value.StartsWith("Namespace")) {
-                    st.Push(m.Result("${ns}").Trim());
-                } else if (value.IndexOf("Class") >= 0) {
-                    st.Push(m.Result("${class}").Trim());
-                    break;
-                }
-                
-                m = m.NextMatch();
-            }
-        
-            Stack stReverse = new Stack();
-            while (st.Count > 0) {
-                stReverse.Push(st.Pop());
-            }
-
-            ArrayList al = new ArrayList(stReverse.ToArray());
-
-            string className = string.Join(".", (string[]) al.ToArray(typeof(string)));
-            return Project.ProjectSettings.RootNamespace + "." + className + ".resources";
+            // defer to the resource management code in VbcTask
+            VbcTask vbc = new VbcTask();
+            vbc.Project = _solutionTask.Project;
+            vbc.RootNamespace = Project.ProjectSettings.RootNamespace;
+            return vbc.GetManifestResourceName(new ResourceFileSet(), _resourceSourceFile, dependentFile );            
         }
 
         private string CompileResource() {
