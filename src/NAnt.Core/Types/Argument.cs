@@ -54,6 +54,14 @@ namespace NAnt.Core.Types {
             _value = value;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Argument" /> class
+        /// with the given file.
+        /// </summary>
+        public Argument(FileInfo value) {
+            _file = value;
+        }
+
         #endregion Public Instance Constructors
 
         #region Override implementation of Object
