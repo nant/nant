@@ -53,64 +53,88 @@ namespace NAnt.VSNet.Tasks {
     /// </para>
     /// </remarks>
     /// <example>
-    ///   <para>Compiles all of the projects in <c>test.sln</c>, in relase mode, in the proper order.</para>
+    ///   <para>
+    ///   Compiles all of the projects in <c>test.sln</c>, in release mode, in 
+    ///   the proper order.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution configuration="release" solutionfile="test.sln">
-    ///    </solution>
+    /// <solution configuration="release" solutionfile="test.sln" />
     ///     ]]>
     ///   </code>
-    ///   <para>Compiles all of the projects in <c>projects.txt</c>, in the proper order.</para>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Compiles all of the projects in <c>projects.txt</c>, in the proper 
+    ///   order.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution configuration="release">
-    ///        <projects>
-    ///            <includesList name="projects.txt" />
-    ///        </projects>
-    ///    </solution>
+    /// <solution configuration="release">
+    ///     <projects>
+    ///         <includesList name="projects.txt" />
+    ///    </projects>
+    /// </solution>
     ///     ]]>
     ///   </code>
-    ///   <para>Compiles projects A, B and C, using the output of project X as a reference.</para>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Compiles projects A, B and C, using the output of project X as a 
+    ///   reference.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution configuration="release">
-    ///        <projects>
-    ///            <includes name="A\A.csproj" />
-    ///            <includes name="B\b.vbproj" />
-    ///            <includes name="C\c.csproj" />
-    ///        </projects>
+    /// <solution configuration="release">
+    ///     <projects>
+    ///         <includes name="A\A.csproj" />
+    ///         <includes name="B\b.vbproj" />
+    ///         <includes name="C\c.csproj" />
+    ///     </projects>
     ///     <referenceprojects>
     ///         <includes name="X\x.csproj" />
     ///     </referenceprojects>
-    ///    </solution>
+    /// </solution>
     ///     ]]>
     ///   </code>
-    ///   <para>Compiles all of the projects in the solution except for project A.</para>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Compiles all of the projects in the solution except for project A.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution solutionfile="test.sln" configuration="release">
-    ///        <excludeprojects>
-    ///            <includes name="A\A.csproj" />
-    ///        </excludeprojects>
-    ///    </solution>
+    /// <solution solutionfile="test.sln" configuration="release">
+    ///     <excludeprojects>
+    ///         <includes name="A\A.csproj" />
+    ///     </excludeprojects>
+    /// </solution>
     ///     ]]>
     ///   </code>
-    ///   <para>Compiles all of the projects in the solution mapping the project at
-    ///   http://localhost/A/A.csproj to c:\inetpub\wwwroot\A\A.csproj.  This allows
-    ///   the build to work without WebDAV.</para>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Compiles all of the projects in the solution mapping the project at
+    ///   http://localhost/A/A.csproj to c:\inetpub\wwwroot\A\A.csproj.  This 
+    ///   allows the build to work without WebDAV.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution solutionfile="test.sln" configuration="release">
-    ///        <webmap>
-    ///            <map url="http://localhost/A/A.csproj c:\inetpub\wwwroot\A\A.csproj" />
-    ///        </webmap>
-    ///    </solution>
+    /// <solution solutionfile="test.sln" configuration="release">
+    ///     <webmap>
+    ///         <map url="http://localhost/A/A.csproj" path="c:\inetpub\wwwroot\A\A.csproj" />
+    ///     </webmap>
+    /// </solution>
     ///     ]]>
     ///   </code>
-    ///   <para>Compiles all of the projects in the solution placing compiled outputs in c:\temp.</para>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Compiles all of the projects in the solution placing compiled outputs 
+    ///   in <c>c:\temp</c>.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <solution solutionfile="test.sln" configuration="release" outputdir="c:\temp"/>
+    /// <solution solutionfile="test.sln" configuration="release" outputdir="c:\temp" />
     ///     ]]>
     ///   </code>
     /// </example>
