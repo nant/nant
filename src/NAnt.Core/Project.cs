@@ -232,7 +232,9 @@ namespace SourceForge.NAnt {
                     newBaseDir = Environment.CurrentDirectory;
                 }
             } else {
-                if ( BuildFileLocalName != null) {
+            
+                // if basedir attribute is set to a relative path the resolve it relative to the build file path
+                if ( BuildFileLocalName != null && ! Path.IsPathRooted(newBaseDir) ) { 
                     newBaseDir = Path.GetDirectoryName(Path.Combine( Path.GetDirectoryName(BuildFileLocalName), newBaseDir ) );
                 }
             }
