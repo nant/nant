@@ -633,7 +633,7 @@
         <echo message="Created '${project.config}' binary packages at file://${project.zip-path.bin}" />
     </target>
 
-    <target name="package" depends="package-src, package-bin" description="Creates a binary and source distribution package." />
+    <target name="package" depends="package-help, package-src, package-bin" description="Creates a binary and source distribution package." />
     
     <!-- Copies files to the bin folder. -->
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
