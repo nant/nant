@@ -11,7 +11,7 @@
 
     <property name="backup.name" value="..\${project.name}-backup-${tstamp.date}-${tstamp.time}.zip" />
     <property name="project.version" value="x.x"/>
-
+    
     <target name="release" description="makes a release, usage: 'nant clean release build'">
         <property name="debug" value="false"/>
 
@@ -62,7 +62,7 @@
                 <includes name="NDoc.Core.dll"/>
                 <includes name="NDoc.Documenter.Msdn.dll"/>
                 <includes name="NUnitCore.dll"/>
-                <includes name="NZipLib.dll"/>
+                <includes name="SharpZipLib.dll"/>
                 <includes name="CollectionGen.dll"/>
             </fileset>
         </copy>
@@ -77,7 +77,7 @@
                 <includes name="${build.dir}/NDoc.Core.dll"/>
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
-                <includes name="${build.dir}/NZipLib.dll"/>
+                <includes name="${build.dir}/SharpZipLib.dll"/>
                 <includes name="${build.dir}/CollectionGen.dll"/>
                 <includes name="Microsoft.JScript.dll" asis="true"/>
             </references>
