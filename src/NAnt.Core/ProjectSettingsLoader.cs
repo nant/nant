@@ -241,16 +241,21 @@ namespace NAnt.Core {
                     Project frameworkProject = null;
 
                     try {
+                        // write project to file
                         writer = new XmlTextWriter(tempBuildFile, Encoding.UTF8);
                         writer.WriteStartDocument(true);
                         writer.WriteRaw(projectNode.OuterXml);
                         writer.Flush();
                         writer.Close();
 
+                        // use StreamReader to load build file from to avoid
+                        // having location information as part of the error
+                        // messages
                         using (StreamReader sr = new StreamReader(new FileStream(tempBuildFile, FileMode.Open, FileAccess.Read, FileShare.Write), Encoding.UTF8)) {
                             XmlDocument projectDoc = new XmlDocument();
                             projectDoc.Load(sr);
 
+                            // create and execute project
                             frameworkProject = new Project(projectDoc, Level.None, 0, (XmlNode) null);
                             frameworkProject.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                             frameworkProject.Execute();
