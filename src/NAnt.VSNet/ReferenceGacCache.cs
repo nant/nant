@@ -22,8 +22,9 @@ using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Remoting.Lifetime;
 
 using NAnt.Core;
 
@@ -90,7 +91,7 @@ namespace NAnt.VSNet {
                 return (bool) _gacQueryCache[assemblyFilePath];
             }
 
-            _gacQueryCache[assemblyFilePath] = _gacResolver.IsAssemblyInGAC(assemblyFilePath);
+            _gacQueryCache[assemblyFilePath] = _gacResolver.IsAssemblyInGac(assemblyFilePath);
             return (bool) _gacQueryCache[assemblyFilePath];
         }
 
@@ -117,7 +118,31 @@ namespace NAnt.VSNet {
 
         #endregion Private Instance Fields
 
-        public class GacResolver : MarshalByRefObject {
+        private class GacResolver : MarshalByRefObject {
+            #region Override implementation of MarshalByRefObject
+
+            /// <summary>
+            /// Obtains a lifetime service object to control the lifetime policy for 
+            /// this instance.
+            /// </summary>
+            /// <returns>
+            /// An object of type <see cref="ILease" /> used to control the lifetime 
+            /// policy for this instance. This is the current lifetime service object 
+            /// for this instance if one exists; otherwise, a new lifetime service 
+            /// object initialized with a lease that will never time out.
+            /// </returns>
+            public override Object InitializeLifetimeService() {
+                ILease lease = (ILease) base.InitializeLifetimeService();
+                if (lease.CurrentState == LeaseState.Initial) {
+                    lease.InitialLeaseTime = TimeSpan.Zero;
+                }
+                return lease;
+            }
+
+            #endregion Override implementation of MarshalByRefObject
+
+            #region Public Instance Methods
+
             /// <summary>
             /// Determines whether an assembly is installed in the Global
             /// Assembly Cache given its file name or path.
@@ -128,7 +153,7 @@ namespace NAnt.VSNet {
             /// installed in the Global Assembly Cache; otherwise, 
             /// <see langword="false" />.
             /// </returns>
-            public bool IsAssemblyInGAC(string assemblyFile) {
+            public bool IsAssemblyInGac(string assemblyFile) {
                 try {
                     AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
                     Assembly assembly = Assembly.Load(assemblyName);
@@ -137,6 +162,8 @@ namespace NAnt.VSNet {
                     return false;
                 }
             }
+
+            #endregion Public Instance Methods
         }
     }
 }
