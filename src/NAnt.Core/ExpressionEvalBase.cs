@@ -184,11 +184,21 @@ namespace NAnt.Core {
                             return o.Equals(o2);
                         } else if (o is int && o2 is int) {
                             return o.Equals(o2);
+                        } else if (o is int && o2 is long) {
+                            return (Convert.ToInt64(o)).Equals(o2);
                         } else if (o is int && o2 is double) {
+                            return (Convert.ToDouble(o)).Equals(o2);
+                        } else if (o is long && o2 is long) {
+                            return o.Equals(o2);
+                        } else if (o is long && o2 is int) {
+                            return (o.Equals(Convert.ToInt64(o2)));
+                        } else if (o is long && o2 is double) {
                             return (Convert.ToDouble(o)).Equals(o2);
                         } else if (o is double && o2 is double) {
                             return o.Equals(o2);
                         } else if (o is double && o2 is int) {
+                            return o.Equals(Convert.ToDouble(o2));
+                        } else if (o is double && o2 is long) {
                             return o.Equals(Convert.ToDouble(o2));
                         } else if (o is DateTime && o2 is DateTime) {
                             return o.Equals(o2);
@@ -207,11 +217,21 @@ namespace NAnt.Core {
                             return !o.Equals(o2);
                         } else if (o is int && o2 is int) {
                             return !o.Equals(o2);
+                        } else if (o is int && o2 is long) {
+                            return !(Convert.ToInt64(o)).Equals(o2);
                         } else if (o is int && o2 is double) {
+                            return !(Convert.ToDouble(o)).Equals(o2);
+                        } else if (o is long && o2 is long) {
+                            return !o.Equals(o2);
+                        } else if (o is long && o2 is int) {
+                            return !(o.Equals(Convert.ToInt64(o2)));
+                        } else if (o is long && o2 is double) {
                             return !(Convert.ToDouble(o)).Equals(o2);
                         } else if (o is double && o2 is double) {
                             return !o.Equals(o2);
                         } else if (o is double && o2 is int) {
+                            return !o.Equals(Convert.ToDouble(o2));
+                        } else if (o is double && o2 is long) {
                             return !o.Equals(Convert.ToDouble(o2));
                         } else if (o is DateTime && o2 is DateTime) {
                             return !o.Equals(o2);
@@ -231,11 +251,21 @@ namespace NAnt.Core {
                             return ((IComparable) o).CompareTo(o2) < 0;
                         } else if (o is int && o2 is int) {
                             return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is int && o2 is long) {
+                            return ((IComparable) Convert.ToInt64(o)).CompareTo(o2) < 0;
                         } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) < 0;
+                        } else if (o is long && o2 is long) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is long && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToInt64(o2)) < 0;
+                        } else if (o is long && o2 is double) {
                             return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) < 0;
                         } else if (o is double && o2 is double) {
                             return ((IComparable) o).CompareTo(o2) < 0;
                         } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) < 0;
+                        } else if (o is double && o2 is long) {
                             return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) < 0;
                         } else if (o is DateTime && o2 is DateTime) {
                             return ((IComparable) o).CompareTo(o2) < 0;
@@ -255,11 +285,21 @@ namespace NAnt.Core {
                             return ((IComparable) o).CompareTo(o2) > 0;
                         } else if (o is int && o2 is int) {
                             return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is int && o2 is long) {
+                            return ((IComparable) Convert.ToInt64(o)).CompareTo(o2) > 0;
                         } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) > 0;
+                        } else if (o is long && o2 is long) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is long && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToInt64(o2)) > 0;
+                        } else if (o is long && o2 is double) {
                             return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) > 0;
                         } else if (o is double && o2 is double) {
                             return ((IComparable) o).CompareTo(o2) > 0;
                         } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) > 0;
+                        } else if (o is double && o2 is long) {
                             return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) > 0;
                         } else if (o is DateTime && o2 is DateTime) {
                             return ((IComparable) o).CompareTo(o2) > 0;
@@ -279,11 +319,21 @@ namespace NAnt.Core {
                             return ((IComparable) o).CompareTo(o2) <= 0;
                         } else if (o is int && o2 is int) {
                             return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is int && o2 is long) {
+                            return ((IComparable) Convert.ToInt64(o)).CompareTo(o2) <= 0;
                         } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) <= 0;
+                        } else if (o is long && o2 is long) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is long && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToInt64(o2)) <= 0;
+                        } else if (o is long && o2 is double) {
                             return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) <= 0;
                         } else if (o is double && o2 is double) {
                             return ((IComparable) o).CompareTo(o2) <= 0;
                         } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) <= 0;
+                        } else if (o is double && o2 is long) {
                             return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) <= 0;
                         } else if (o is DateTime && o2 is DateTime) {
                             return ((IComparable) o).CompareTo(o2) <= 0;
@@ -303,11 +353,21 @@ namespace NAnt.Core {
                             return ((IComparable) o).CompareTo(o2) >= 0;
                         } else if (o is int && o2 is int) {
                             return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is int && o2 is long) {
+                            return ((IComparable) Convert.ToInt64(o)).CompareTo(o2) >= 0;
                         } else if (o is int && o2 is double) {
+                            return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) >= 0;
+                        } else if (o is long && o2 is long) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is long && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToInt64(o2)) >= 0;
+                        } else if (o is long && o2 is double) {
                             return ((IComparable) Convert.ToDouble(o)).CompareTo(o2) >= 0;
                         } else if (o is double && o2 is double) {
                             return ((IComparable) o).CompareTo(o2) >= 0;
                         } else if (o is double && o2 is int) {
+                            return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) >= 0;
+                        } else if (o is double && o2 is long) {
                             return ((IComparable) o).CompareTo(Convert.ToDouble(o2)) >= 0;
                         } else if (o is DateTime && o2 is DateTime) {
                             return ((IComparable) o).CompareTo(o2) >= 0;
@@ -341,12 +401,22 @@ namespace NAnt.Core {
                             o = (string) o + (string) o2;
                         } else if (o is int && o2 is int) {
                             o = (int) o + (int) o2;
+                        } else if (o is int && o2 is long) {
+                            o = (int) o + (long) o2;
                         } else if (o is int && o2 is double) {
                             o = (int) o + (double) o2;
+                        } else if (o is long && o2 is long) {
+                            o = (long) o + (long) o2;
+                        } else if (o is long && o2 is int) {
+                            o = (long) o + (int) o2;
+                        } else if (o is long && o2 is double) {
+                            o = (long) o + (double) o2;
                         } else if (o is double && o2 is double) {
                             o = (double) o + (double) o2;
                         } else if (o is double && o2 is int) {
                             o = (double) o + (int) o2;
+                        } else if (o is double && o2 is long) {
+                            o = (double) o + (long) o2;
                         } else if (o is DateTime && o2 is TimeSpan) {
                             o = (DateTime) o + (TimeSpan) o2;
                         } else if (o is TimeSpan && o2 is TimeSpan) {
@@ -368,12 +438,22 @@ namespace NAnt.Core {
                     if (!SyntaxCheckOnly()) {
                         if (o is int && o2 is int) {
                             o = (int) o - (int) o2;
+                        } else if (o is int && o2 is long) {
+                            o = (int) o - (long) o2;
                         } else if (o is int && o2 is double) {
                             o = (int) o - (double) o2;
+                        } else if (o is long && o2 is long) {
+                            o = (long) o - (long) o2;
+                        } else if (o is long && o2 is int) {
+                            o = (long) o - (int) o2;
+                        } else if (o is long && o2 is double) {
+                            o = (long) o - (double) o2;
                         } else if (o is double && o2 is double) {
                             o = (double) o - (double) o2;
                         } else if (o is double && o2 is int) {
                             o = (double) o - (int) o2;
+                        } else if (o is double && o2 is long) {
+                            o = (double) o - (long) o2;
                         } else if (o is DateTime && o2 is DateTime) {
                             o = (DateTime) o - (DateTime) o2;
                         } else if (o is DateTime && o2 is TimeSpan) {
@@ -410,12 +490,22 @@ namespace NAnt.Core {
                     if (!SyntaxCheckOnly()) {
                         if (o is int && o2 is int) {
                             o = (int) o * (int) o2;
+                        } else if (o is int && o2 is long) {
+                            o = (int) o * (long) o2;
                         } else if (o is int && o2 is double) {
                             o = (int) o * (double) o2;
+                        } else if (o is long && o2 is long) {
+                            o = (long) o * (long) o2;
+                        } else if (o is long && o2 is int) {
+                            o = (long) o * (int) o2;
+                        } else if (o is long && o2 is double) {
+                            o = (long) o * (double) o2;
                         } else if (o is double && o2 is double) {
                             o = (double) o * (double) o2;
                         } else if (o is double && o2 is int) {
                             o = (double) o * (int) o2;
+                        } else if (o is double && o2 is long) {
+                            o = (double) o * (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                         "Operator '*' cannot be applied to arguments of type '{0}' and '{1}'.", 
@@ -437,6 +527,13 @@ namespace NAnt.Core {
                             }
 
                             o = (int) o / (int) o2;
+                        } else if (o is int && o2 is long) {
+                            if ((long) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (int) o / (long) o2;
                         } else if (o is int && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -444,6 +541,27 @@ namespace NAnt.Core {
                             }
 
                             o = (int) o / (double) o2;
+                        } else if (o is long && o2 is long) {
+                            if ((long) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (long) o / (long) o2;
+                        } else if (o is long && o2 is int) {
+                            if ((int) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (long) o / (int) o2;
+                        } else if (o is long && o2 is double) {
+                            if ((double) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (long) o / (double) o2;
                         } else if (o is double && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -458,6 +576,13 @@ namespace NAnt.Core {
                             }
 
                             o = (double) o / (int) o2;
+                        } else if (o is double && o2 is long) {
+                            if ((long) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (double) o / (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                 "Operator '/' cannot be applied to arguments of type '{0}' and '{1}'.", 
@@ -479,6 +604,13 @@ namespace NAnt.Core {
                             }
 
                             o = (int) o % (int) o2;
+                        } else if (o is int && o2 is long) {
+                            if ((long) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (int) o % (long) o2;
                         } else if (o is int && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -486,6 +618,27 @@ namespace NAnt.Core {
                             }
 
                             o = (int) o % (double) o2;
+                        } else if (o is long && o2 is long) {
+                            if ((long) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (long) o % (long) o2;
+                        } else if (o is long && o2 is int) {
+                            if ((int) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (long) o % (int) o2;
+                        } else if (o is long && o2 is double) {
+                            if ((double) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (long) o % (double) o2;
                         } else if (o is double && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -500,6 +653,13 @@ namespace NAnt.Core {
                             }
 
                             o = (double) o % (int) o2;
+                        } else if (o is double && o2 is long) {
+                            if ((long) o2 == 0) {
+                                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                                    "Attempt to divide by zero."), p2, p3);
+                            }
+
+                            o = (double) o % (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                 "Operator '%' cannot be applied to arguments of type '{0}' and '{1}'.", 
@@ -615,8 +775,12 @@ namespace NAnt.Core {
                     try {
                         return Int32.Parse(number, CultureInfo.InvariantCulture);
                     } catch (OverflowException) {
-                        throw BuildParseError("Value was either too large or too"
-                            + " small for type 'int'.", p0, p1);
+                        try {
+                            return long.Parse(number, CultureInfo.InvariantCulture);
+                        } catch (OverflowException) {
+                            throw BuildParseError("Value was either too large or too"
+                                + " small for type 'long'.", p0, p1);
+                        }
                     }
                 }
             }
@@ -631,6 +795,9 @@ namespace NAnt.Core {
                 if (!SyntaxCheckOnly()) {
                     if (v is int) {
                         return -((int) v);
+                    }
+                    if (v is long) {
+                        return -((long) v);
                     }
                     if (v is double) {
                         return -((double) v);
