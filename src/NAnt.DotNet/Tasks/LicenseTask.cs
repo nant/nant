@@ -213,10 +213,21 @@ namespace NAnt.DotNet.Tasks {
                 ArrayList assemblies = new ArrayList();
 
                 // create assembly resolver
-                AssemblyResolver assemblyResolver = new AssemblyResolver();
+                AssemblyResolver assemblyResolver = new AssemblyResolver(licenseTask);
 
                 // attach assembly resolver to the current domain
                 assemblyResolver.Attach();
+
+                // TO-DO : remove debug code
+                // output currently loaded assembly for troubleshooting purposes
+                Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
+                    + "Currently loaded assemblies:");
+                foreach (Assembly assembly in loadedAssemblies) {
+                    licenseTask.Log(Level.Debug, licenseTask.LogPrefix 
+                        + assembly.FullName);
+                }
+                // END TO-DO
 
                 licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
                     + "Loading assemblies ...");
@@ -352,6 +363,11 @@ namespace NAnt.DotNet.Tasks {
                                         "Failed to create license for type '{0}'.", tp.FullName), 
                                         licenseTask.Location, ex);
                                 }
+
+                                // TO-DO : remove debug code
+                                licenseTask.Log(Level.Debug, "LicenseManager.CreateWithContext failed: "
+                                    + ex.ToString());
+                                // END TO-DO
 
                                 // do not directly pass the exception as inner 
                                 // exception to BuildException as the exception
