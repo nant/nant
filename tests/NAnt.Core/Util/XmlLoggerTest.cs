@@ -58,23 +58,23 @@ namespace Tests.NAnt.Core.Util {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage), "#1");
 
             formattedMessage = "\t[foo] " + baseMessage;
-            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage), "#2");
 
             formattedMessage = "\t\0[foo] " + baseMessage;
-            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage), "#3");
 
             formattedMessage = "\t\0[foo] \0" + baseMessage + '\0';
-            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage), "#4");
 
             formattedMessage = "\t\t[foo] " + baseMessage;
-            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(baseMessage, _log.StripFormatting(formattedMessage), "#5");
 
             string timestamp = "Thursday, August 01, 2002 12:52:54 AM";
             formattedMessage = String.Format(CultureInfo.InvariantCulture, "\t\t\t[tstamp] {0}", timestamp);
-            Assert.AreEqual(timestamp, _log.StripFormatting(formattedMessage));
+            Assert.AreEqual(timestamp, _log.StripFormatting(formattedMessage), "#6");
         }
 
         [Test]
