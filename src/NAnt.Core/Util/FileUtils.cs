@@ -156,7 +156,7 @@ namespace NAnt.Core.Util {
             }
 
             char separatorChar = Path.DirectorySeparatorChar;
-            char splitChars = new char[] {'/', separatorChar};
+            char[] splitChars = new char[] {'/', separatorChar};
 
             // Now we split the Path by the Path Separator
             String[] path2Parts = path2.Split(splitChars);
