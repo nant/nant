@@ -74,7 +74,7 @@
                 <Reference
                     Name = "ICSharpCode.SharpZipLib"
                     AssemblyName = "ICSharpCode.SharpZipLib"
-                    HintPath = "..\..\bin\ICSharpCode.SharpZipLib.dll"
+                    HintPath = "..\..\lib\ICSharpCode.SharpZipLib.dll"
                 />
             </References>
         </Build>
@@ -90,11 +90,7 @@
                     Link = "..\CommonAssemblyInfo.cs"
                     BuildAction = "Compile"
                 />
-                <File
-                    RelPath = "NAnt.Zip.build"
-                    BuildAction = "None"
-                />
-                <File
+                <File                    RelPath = "NAnt.Zip.build"                    BuildAction = "None"                />                <File
                     RelPath = "Tasks\UnZipTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
