@@ -70,19 +70,6 @@
                     AssemblyName = "System.Xml"
                 />
                 <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                />
-                <Reference
-                    Name = "System.Web"
-                    AssemblyName = "System.Web"
-                />
-                <Reference
-                    Name = "NUnitCore"
-                    AssemblyName = "NUnitCore"
-                    HintPath = "..\..\bin\NUnitCore.dll"
-                />
-                <Reference
                     Name = "NDoc.Core"
                     AssemblyName = "NDoc.Core"
                     HintPath = "..\..\bin\NDoc.Core.dll"
@@ -91,7 +78,6 @@
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                    Private = "False"
                 />
             </References>
         </Build>
