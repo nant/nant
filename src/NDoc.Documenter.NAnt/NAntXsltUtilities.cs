@@ -365,7 +365,7 @@ namespace NDoc.Documenter.NAnt {
         /// </remarks>
         internal static string GetTaskNameForType(XmlNode typeNode) {
             if (typeNode == null) {
-                return string.Empty;
+                return null;
             }
 
             // make sure the type actually derives from NAnt.Core.Task
@@ -434,6 +434,10 @@ namespace NDoc.Documenter.NAnt {
         ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
         /// </returns>
         internal static string GetFileNameForType(XmlNode typeNode) {
+            if (typeNode == null) {
+                return null;
+            }
+
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {

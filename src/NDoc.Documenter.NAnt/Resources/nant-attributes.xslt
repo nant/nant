@@ -74,8 +74,15 @@
                 <xsl:otherwise></xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4>
-        
+        <xsl:choose>
+            <!-- only output link when we have a href -->
+            <xsl:when test="$href = ''">
+                <h4>&lt;<xsl:value-of select="property[@name='Name']/@value"/>&gt;</h4>
+            </xsl:when>
+            <xsl:otherwise>
+                <h4>&lt;<a href="{$href}"><xsl:value-of select="property[@name='Name']/@value"/></a>&gt;</h4>
+            </xsl:otherwise>
+        </xsl:choose>
         <!-- Required:<xsl:value-of select="property[@name='Required']/@value"/> -->
        
         <xsl:if test="not($childElementName = '')">

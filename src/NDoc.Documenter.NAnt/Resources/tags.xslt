@@ -242,7 +242,6 @@
                 <xsl:choose>
                     <!-- if this is a task add the href-->
                     <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
-                        <!-- <xsl:comment>NAntUtil: Getting TaskName for <xsl:value-of select="$cref"/></xsl:comment> -->
                         <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
                         <code><xsl:value-of select="$taskName" /></code><xsl:text> </xsl:text>task
                     </xsl:when>

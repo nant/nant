@@ -25,8 +25,6 @@
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:include href="nant-attributes.xslt" />
-    
-    <!--=<xsl:output method="html" indent="yes" /> -->
     <xsl:output 
         method="xml" 
         indent="yes" 
