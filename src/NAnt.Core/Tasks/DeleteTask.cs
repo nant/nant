@@ -78,9 +78,9 @@ namespace NAnt.Core.Tasks {
     public class DeleteTask : Task {
         #region Private Instance Fields
 
-        string _file = null;
-        string _dir = null;
-        FileSet _fileset = new FileSet();
+        private string _file = null;
+        private string _dir = null;
+        private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -92,7 +92,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("file")]
         public string FileName {
             get { return _file; }
-            set {_file = value; }
+            set { _file = value; }
         }
         
         /// <summary>
@@ -101,7 +101,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("dir")]
         public string DirectoryName {
             get { return _dir; }
-            set {_dir = value; }
+            set { _dir = value; }
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace NAnt.Core.Tasks {
         [FileSet("fileset")]
         public FileSet DeleteFileSet {
             get { return _fileset; }
-            set {_fileset = value; }
+            set { _fileset = value; }
         }
 
         #endregion Public Instance Properties
@@ -120,38 +120,47 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             // limit task to deleting either a file or a directory or a file set
             if (FileName != null && DirectoryName != null) {
-                throw new BuildException("Cannot specify 'file' and 'dir' in the same delete task.", Location);
+                throw new BuildException("Cannot specify both 'file' and 'dir' attribute in the same <delete> task.", Location);
             }
 
+            // delete a single file
             if (FileName != null) {
-                // try to delete specified file
-                string path = null;
-                try {
-                    path = Project.GetFullPath(FileName);
-                } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", FileName);
-                    throw new BuildException(msg, Location, e);
-                }
-                DeleteFile(path, true);
+                string filePath = null;
 
-            } else if (DirectoryName != null) {
-                // try to delete specified directory
-                string path = null;
                 try {
-                    path = Project.GetFullPath(DirectoryName);
-                } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", DirectoryName);
-                    throw new BuildException(msg, Location, e);
+                    // determine full path
+                    filePath = Project.GetFullPath(FileName);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Could not determine path from {0}.", FileName), 
+                        Location, ex);
                 }
-                if (!Directory.Exists(path)) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}. The directory does not exist.", path);
-                    throw new BuildException(msg, Location);
+
+                // delete the file in verbose mode
+                DeleteFile(filePath, true);
+            }
+
+            // delete the directory
+            if (DirectoryName != null) {
+                string dirPath = null;
+
+                try {
+                    dirPath = Project.GetFullPath(DirectoryName);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Could not determine path from {0}.", DirectoryName), 
+                        Location, ex);
+                }
+
+                if (!Directory.Exists(dirPath)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Cannot delete directory {0}. The directory does not exist.", 
+                        dirPath), Location);
                 }
                 
-                Log(Level.Info, LogPrefix + "Deleting directory {0}.", path);
-                RecursiveDeleteDirectory(path);
+                Log(Level.Info, LogPrefix + "Deleting directory {0}.", dirPath);
+                RecursiveDeleteDirectory(dirPath);
             } else {
-                // delete files in fileset
                 if (DeleteFileSet.DirectoryNames.Count == 0) {
                     Log(Level.Info, LogPrefix + "Deleting {0} files.", DeleteFileSet.FileNames.Count);
                 } else if (DeleteFileSet.FileNames.Count == 0) {
@@ -163,6 +172,7 @@ namespace NAnt.Core.Tasks {
                 foreach (string path in DeleteFileSet.FileNames) {
                     DeleteFile(path, Verbose);
                 }
+
                 foreach (string path in DeleteFileSet.DirectoryNames) {
                     if (Directory.Exists(path)) {
                         RecursiveDeleteDirectory(path);
@@ -177,37 +187,38 @@ namespace NAnt.Core.Tasks {
 
         private void RecursiveDeleteDirectory(string path) {
             try {
-                // First, recursively delete all directories in the directory
+                // first, recursively delete all directories in the directory
                 string[] dirs = Directory.GetDirectories(path);
-                foreach (string dir in dirs)
+                foreach (string dir in dirs) {
                     RecursiveDeleteDirectory(dir);
+                }
 
-                // Next, delete all files in the directory
+                // next, delete all files in the directory
                 string[] files = Directory.GetFiles(path);
                 foreach (string file in files) {
                     try {
                         File.SetAttributes(file, FileAttributes.Normal);
                         Log(Level.Verbose, LogPrefix + "Deleting file {0}.", file);
                         File.Delete(file);
-                    } catch (Exception e) {
-                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", file);
+                    } catch (Exception ex) {
+                        string msg = string.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", file);
                         if (FailOnError) {
-                            throw new BuildException(msg, Location, e);
+                            throw new BuildException(msg, Location, ex);
                         }
                         Log(Level.Verbose, LogPrefix + msg);
                     }
                 }
 
-                // Finally, delete the directory
+                // finally, delete the directory
                 File.SetAttributes(path, FileAttributes.Normal);
                 Log(Level.Verbose, LogPrefix + "Deleting directory {0}.", path);
                 Directory.Delete(path);
-            } catch (BuildException e) {
-                throw e;
-            } catch (Exception e) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}.", path);
+            } catch (BuildException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                string msg = string.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}.", path);
                 if (FailOnError) {
-                    throw new BuildException(msg, Location, e);
+                    throw new BuildException(msg, Location, ex);
                 }
                 Log(Level.Verbose, LogPrefix + msg);
             }
@@ -227,10 +238,10 @@ namespace NAnt.Core.Tasks {
                 } else {
                     throw new FileNotFoundException();
                 }
-            } catch (Exception e) {
-                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", path);
+            } catch (Exception ex) {
+                string msg = string.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}.", path);
                 if (FailOnError) {
-                    throw new BuildException(msg, Location, e);
+                    throw new BuildException(msg, Location, ex);
                 }
                 Log(Level.Verbose, LogPrefix + msg);
             }
