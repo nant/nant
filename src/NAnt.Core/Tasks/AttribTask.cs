@@ -260,7 +260,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {
-                    Log(Level.Verbose, msg);
+                    Log(Level.Verbose, msg + " " + ex.Message);
                 }
             }
         }
@@ -300,7 +300,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 } else {
-                    Log(Level.Verbose, msg);
+                    Log(Level.Verbose, msg + " " + ex.Message);
                 }
             }
         }

@@ -209,7 +209,7 @@ namespace NAnt.Core.Tasks {
                         if (FailOnError) {
                             throw new BuildException(msg, Location, ex);
                         }
-                        Log(Level.Verbose, msg);
+                        Log(Level.Verbose, msg + " " + ex.Message);
                     }
                 }
 
