@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Resources;
 using System.Globalization;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace NAnt.Core.Util {
     /// <summary>
@@ -74,6 +75,7 @@ namespace NAnt.Core.Util {
         /// A <see cref="System.String" /> that contains the value of the
         /// resource localized for the current culture.
         /// </returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static string GetString(string name) {
             Assembly assembly = Assembly.GetCallingAssembly();
             return GetString(name, null, assembly);
@@ -89,6 +91,7 @@ namespace NAnt.Core.Util {
         /// A <see cref="System.String" /> that contains the value of the
         /// resource localized for the specified culture. 
         ///</returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static string GetString(string name, CultureInfo culture ) {
             Assembly assembly = Assembly.GetCallingAssembly();
             return GetString(name, culture, assembly);
