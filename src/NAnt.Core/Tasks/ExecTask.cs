@@ -155,8 +155,8 @@ namespace NAnt.Core.Tasks {
         /// <see langword="false" />.
         /// </para>
         /// <para>
-		/// If the exit code of the program is "-1000" then the program could 
-		/// not be started, or did not exit (in time).
+        /// If the exit code of the program is "-1000" then the program could 
+        /// not be started, or did not exit (in time).
         /// </para>
         /// </summary>
         [TaskAttribute("resultproperty")]

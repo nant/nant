@@ -288,8 +288,8 @@ namespace NAnt.Core.Tasks {
                 CopyFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-			// Clear previous copied files
-			_fileCopyMap = new Hashtable();
+            // Clear previous copied files
+            _fileCopyMap = new Hashtable();
 
             // copy a single file.
             if (SourceFile != null) {

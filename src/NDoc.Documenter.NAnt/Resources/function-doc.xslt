@@ -144,21 +144,21 @@
             </div>
         </body>
     </xsl:template>
-	<xsl:template name="exceptions-section">
-		<xsl:if test="documentation/exception">
-			<h3>Exceptions</h3>
-			The function will fail in any of the following circumstances:
+    <xsl:template name="exceptions-section">
+        <xsl:if test="documentation/exception">
+            <h3>Exceptions</h3>
+            The function will fail in any of the following circumstances:
             <div style="margin-left: 40px;">
                 <ul>
-				    <xsl:for-each select="documentation/exception">
-					    <xsl:sort select="@name" />
-					    <li>
+                    <xsl:for-each select="documentation/exception">
+                        <xsl:sort select="@name" />
+                        <li>
                             <xsl:apply-templates select="./node()" mode="slashdoc" />
-							<xsl:if test="not(./node())">&#160;</xsl:if>
-					    </li>
-				    </xsl:for-each>
-				</ul>
-			</div>
-		</xsl:if>
-	</xsl:template>
+                            <xsl:if test="not(./node())">&#160;</xsl:if>
+                        </li>
+                    </xsl:for-each>
+                </ul>
+            </div>
+        </xsl:if>
+    </xsl:template>
 </xsl:stylesheet>

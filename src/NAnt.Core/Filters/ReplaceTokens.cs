@@ -37,9 +37,9 @@ namespace NAnt.Core.Filters {
     /// This filter replaces all token surrounded by a beginning and ending
     /// token. The default beginning and ending tokens both default to '@'. The 
     /// optional <see cref="BeginToken" /> and <see cref="EndToken" /> attributes
-	/// can be specified to change either token. By default string 
-	/// comparisons are case sensitive but this can be changed by setting the 
-	/// optional <see cref="IgnoreCase"/> attribute to <see langword="true" />.
+    /// can be specified to change either token. By default string 
+    /// comparisons are case sensitive but this can be changed by setting the 
+    /// optional <see cref="IgnoreCase"/> attribute to <see langword="true" />.
     /// </para>
     /// <para>
     /// Tokens are specified by using the <see cref="Token" /> element. It is 
@@ -97,7 +97,7 @@ namespace NAnt.Core.Filters {
         private int _bufferPosition = 0;
         private bool _unknownToken = true;
         private bool _tokenNotFound = true;
-		private bool _ignoreCase = false;
+        private bool _ignoreCase = false;
 
         //Methods used for Read and Peek
         private AcquireCharDelegate ReadChar = null;
@@ -136,16 +136,16 @@ namespace NAnt.Core.Filters {
             set { _tokens = value; }
         }
 
-		/// <summary>
-		/// Determines if case will be ignored.
-		/// The default is <see langword="false" />.
-		/// </summary>
-		[TaskAttribute("ignorecase", Required=false)]
-		[BooleanValidator()]
-		public bool IgnoreCase 	{
-			get { return _ignoreCase; }
-			set { _ignoreCase = value; }
-		}
+        /// <summary>
+        /// Determines if case will be ignored.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("ignorecase", Required=false)]
+        [BooleanValidator()]
+        public bool IgnoreCase {
+            get { return _ignoreCase; }
+            set { _ignoreCase = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -294,8 +294,7 @@ namespace NAnt.Core.Filters {
 
                     //Return the replacment value to output
                     return replacementValue;
-                } else //We don't know about the token
-                {
+                } else { //We don't know about the token
                     //The token was not in the list so just output it but add then ending
                     //token character back.
                     tokenNotFound = true;
@@ -377,22 +376,22 @@ namespace NAnt.Core.Filters {
         }
 
 
-		/// <summary>
-		/// Compares to characters taking into account the _ignoreCase flag.
-		/// </summary>
-		/// <param name="char1"></param>
-		/// <param name="char2"></param>
-		/// <returns></returns>
-		private bool CompareCharacters(int char1, int char2) {
-			//Compare chars with or without case
-			if (_ignoreCase == true) {
+        /// <summary>
+        /// Compares to characters taking into account the _ignoreCase flag.
+        /// </summary>
+        /// <param name="char1"></param>
+        /// <param name="char2"></param>
+        /// <returns></returns>
+        private bool CompareCharacters(int char1, int char2) {
+            //Compare chars with or without case
+            if (_ignoreCase == true) {
                     
-				return (char.ToUpper((char)char1) == char.ToUpper((char)char2));
-			}
-			else {
-				return char1 == char2;
-			}
-		}
+                return (char.ToUpper((char)char1) == char.ToUpper((char)char2));
+            }
+            else {
+                return char1 == char2;
+            }
+        }
 
         #endregion Private Instance Methods
     }

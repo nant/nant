@@ -281,15 +281,15 @@ namespace NAnt.Core.Filters {
 
                     _stringNotFound = false;
 
-					//Do nothing if _to is null; otherwise output _to
-					if (_to==string.Empty) {
-						_outputBuffer = null;
-						return GetNextCharacter(AcquireChar);
-					}
-					else {
-						_outputBuffer = _to;
-						_bufferPosition = 1;
-					}
+                    //Do nothing if _to is null; otherwise output _to
+                    if (_to==string.Empty) {
+                        _outputBuffer = null;
+                        return GetNextCharacter(AcquireChar);
+                    }
+                    else {
+                        _outputBuffer = _to;
+                        _bufferPosition = 1;
+                    }
 
                     return _to[0];
                 } else {

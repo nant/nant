@@ -44,7 +44,7 @@ namespace NAnt.Core.Types {
         [StringValidator(AllowEmpty=false)]
         public string Key {
             get { return _key; }
-            set	{ _key = value; }
+            set { _key = value; }
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace NAnt.Core.Types {
         [TaskAttribute("value", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Value {
-            get { return _value;  }
-            set	{ _value = value; }
+            get { return _value; }
+            set { _value = value; }
         }
 
         /// <summary>

@@ -373,8 +373,8 @@ namespace NAnt.VSNet.Tasks {
                             typeof(ReferencesResolver).FullName).Unwrap());
 
                         using (GacCache gacCache = new GacCache(this.Project)) {
-							SolutionBase sln = SolutionFactory.LoadSolution(this, 
-								tfc, gacCache, referencesResolver);
+                            SolutionBase sln = SolutionFactory.LoadSolution(this, 
+                                tfc, gacCache, referencesResolver);
                             if (!sln.Compile(Configuration)) {
                                 throw new BuildException("Project build failed.", Location);
                             }
@@ -502,8 +502,7 @@ namespace NAnt.VSNet.Tasks {
 
         private FileSet FindDefaultAssemblyFolders() {
             // Have we cached the default assembly folders?
-            if (_defaultAssemblyFolders == null)
-            {
+            if (_defaultAssemblyFolders == null) {
                 FileSet fsFolders = new FileSet();
 
                 try {

@@ -293,7 +293,7 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <example>
         ///   <para>Check whether the &quot;debug&quot; property exists.</para>
-        ///	  <code>property::exists('debug')</code>
+        ///   <code>property::exists('debug')</code>
         /// </example>
         [Function("exists")]
         public bool Exists(string name) {
@@ -308,10 +308,10 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the specified property is read-only; 
         /// otherwise, <see langword="false" />.
         /// </returns>
-		/// <example>
-		///   <para>Check whether the &quot;debug&quot; property is read-only.</para>
-		///	  <code>property::is-readonly('debug')</code>
-		/// </example>
+        /// <example>
+        ///   <para>Check whether the &quot;debug&quot; property is read-only.</para>
+        ///   <code>property::is-readonly('debug')</code>
+        /// </example>
         /// <exception cref="ArgumentException">Property <paramref name="name" /> has not been set.</exception>
         [Function("is-readonly")]
         public bool IsReadOnly(string name) {
@@ -332,12 +332,12 @@ namespace NAnt.Core.Functions {
         /// property; otherwise, <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentException">Property <paramref name="name" /> has not been set.</exception>
-		/// <example>
-		///   <para>
-		///   Check whether the &quot;debug&quot; property is a dynamic property.
-		///   </para>
-		///	  <code>property::is-dynamic('debug')</code>
-		/// </example>
+        /// <example>
+        ///   <para>
+        ///   Check whether the &quot;debug&quot; property is a dynamic property.
+        ///   </para>
+        ///   <code>property::is-dynamic('debug')</code>
+        /// </example>
         [Function("is-dynamic")]
         public bool IsDynamic(string name) {
             if (!Project.Properties.Contains(name)) {

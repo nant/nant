@@ -261,78 +261,78 @@ namespace NAnt.Core.Tasks {
         ///   <para>The exit code of the external process indicates a failure.</para>
         /// </exception>
         protected override void ExecuteTask() {
-			Thread outputThread = null;
-			Thread errorThread = null;
+            Thread outputThread = null;
+            Thread errorThread = null;
 
-			try {
-				// Start the external process
-				Process process = StartProcess();
-				outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));
-				errorThread = new Thread(new ThreadStart(StreamReaderThread_Error));
-                
-				_stdOut = process.StandardOutput;
-				_stdError = process.StandardError;
+            try {
+                // Start the external process
+                Process process = StartProcess();
+                outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));
+                errorThread = new Thread(new ThreadStart(StreamReaderThread_Error));
 
-				outputThread.Start();
-				errorThread.Start();
+                _stdOut = process.StandardOutput;
+                _stdError = process.StandardError;
 
-				// Wait for the process to terminate
-				process.WaitForExit(TimeOut);
+                outputThread.Start();
+                errorThread.Start();
 
-				// Wait for the threads to terminate
-				outputThread.Join(2000);
-				errorThread.Join(2000); 
+                // Wait for the process to terminate
+                process.WaitForExit(TimeOut);
 
-				if (!process.HasExited) {
-					try {
-						process.Kill();
-					} catch {
-						// ignore possible exceptions that are thrown when the
-						// process is terminated
-					}
+                // Wait for the threads to terminate
+                outputThread.Join(2000);
+                errorThread.Join(2000); 
 
-					throw new BuildException(
-						String.Format(CultureInfo.InvariantCulture, 
-						"External Program {0} did not finish within {1} milliseconds.", 
-						ProgramFileName, 
-						TimeOut), 
-						Location);
-				}
+                if (!process.HasExited) {
+                    try {
+                        process.Kill();
+                    } catch {
+                        // ignore possible exceptions that are thrown when the
+                        // process is terminated
+                    }
 
-				_exitCode = process.ExitCode;
+                    throw new BuildException(
+                        String.Format(CultureInfo.InvariantCulture, 
+                        "External Program {0} did not finish within {1} milliseconds.", 
+                        ProgramFileName, 
+                        TimeOut), 
+                        Location);
+                }
 
-				if (process.ExitCode != 0) {
-					throw new BuildException(
-						String.Format(CultureInfo.InvariantCulture, 
-						"External Program Failed: {0} (return code was {1})", 
-						ProgramFileName, 
-						process.ExitCode), 
-						Location);
-				}
-			} catch (BuildException e) {
-				if (FailOnError) {
-					throw;
-				} else {
-					logger.Error("Execution Error", e);
-					Log(Level.Error, e.Message);
-				}
-			} catch (Exception e) {
-				logger.Error("Execution Error", e);
-                
-				throw new BuildException(
-					string.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors. Please see log4net log.", GetType().ToString(), ProgramFileName), 
-					Location, 
-					e);
-			} finally {
-				// ensure outputThread is always aborted
-				if (outputThread != null && outputThread.IsAlive) {
-					outputThread.Abort();
-				}
-				// ensure errorThread is always aborted
-				if (errorThread != null && errorThread.IsAlive) {
-					errorThread.Abort();
-				}
-			}
+                _exitCode = process.ExitCode;
+
+                if (process.ExitCode != 0) {
+                    throw new BuildException(
+                        String.Format(CultureInfo.InvariantCulture, 
+                        "External Program Failed: {0} (return code was {1})", 
+                        ProgramFileName, 
+                        process.ExitCode), 
+                        Location);
+                }
+            } catch (BuildException e) {
+                if (FailOnError) {
+                    throw;
+                } else {
+                    logger.Error("Execution Error", e);
+                    Log(Level.Error, e.Message);
+                }
+            } catch (Exception e) {
+                logger.Error("Execution Error", e);
+
+                throw new BuildException(
+                    string.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors. Please see log4net log.", GetType().ToString(), ProgramFileName), 
+                    Location, 
+                    e);
+            } finally {
+                // ensure outputThread is always aborted
+                if (outputThread != null && outputThread.IsAlive) {
+                    outputThread.Abort();
+                }
+                // ensure errorThread is always aborted
+                if (errorThread != null && errorThread.IsAlive) {
+                    errorThread.Abort();
+                }
+            }
         }
 
         #endregion Override implementation of Task
@@ -500,9 +500,9 @@ namespace NAnt.Core.Tasks {
                 if ((programLocationAttribute.LocationType == LocationType.FrameworkDir || 
                     programLocationAttribute.LocationType == LocationType.FrameworkSdkDir) &&
                     (Project.TargetFramework == null)) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "The '{0}' task cannot be executed, as it relies on an" 
-                            + " active framework." + Environment.NewLine, Name));
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "The '{0}' task cannot be executed, as it relies on an" 
+                        + " active framework." + Environment.NewLine, Name));
                 }
 
                 switch (programLocationAttribute.LocationType) {
@@ -513,8 +513,8 @@ namespace NAnt.Core.Tasks {
                         } else {
                             throw new BuildException(
                                 string.Format(CultureInfo.InvariantCulture, 
-                                 "The framework directory for the '{0}' framework is not available or not configured.", 
-                                 Project.TargetFramework.Name));
+                                "The framework directory for the '{0}' framework is not available or not configured.", 
+                                Project.TargetFramework.Name));
                         }
                         break;
                     case LocationType.FrameworkSdkDir:

@@ -33,70 +33,70 @@ using NAnt.VSNet;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet.Everett {
-	/// <summary>
-	/// Analyses Microsoft Visual Studio .NET 2003 (Everett) solution files.
-	/// </summary>
-	public class Solution : SolutionBase {
-		public Solution(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) : base(solutionTask, tfc, gacCache, refResolver) {
-			Regex reProjects = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""(?<all>[\s\S]*?)EndProject", RegexOptions.Multiline);
-			MatchCollection projectMatches = reProjects.Matches(solutionContent);
+    /// <summary>
+    /// Analyses Microsoft Visual Studio .NET 2003 (Everett) solution files.
+    /// </summary>
+    public class Solution : SolutionBase {
+        public Solution(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) : base(solutionTask, tfc, gacCache, refResolver) {
+            Regex reProjects = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""(?<all>[\s\S]*?)EndProject", RegexOptions.Multiline);
+            MatchCollection projectMatches = reProjects.Matches(solutionContent);
 
-			foreach (Match projectMatch in projectMatches) {
-				string project = projectMatch.Groups["project"].Value;
-				string guid = projectMatch.Groups["guid"].Value;
-				
-				// translate partial project path or URL to absolute path
-				string fullProjectPath = TranslateProjectPath(solutionTask.SolutionFile.DirectoryName,
-					project);
+            foreach (Match projectMatch in projectMatches) {
+                string project = projectMatch.Groups["project"].Value;
+                string guid = projectMatch.Groups["guid"].Value;
 
-				if (Project.IsEnterpriseTemplateProject(fullProjectPath)) {
-					RecursiveLoadTemplateProject(fullProjectPath);
-				} else {
-					// only C#, VB.NET and C++ projects are supported at this moment
-					if (!ProjectFactory.IsSupportedProjectType(project)) {
-						// output a warning message in the build log
-						Log(Level.Warning, "Only C#, VB.NET and C++ projects" +
-							" are supported.  Skipping project '{0}'.", project);
-						// skip the project
-						continue;
-					}
+                // translate partial project path or URL to absolute path
+                string fullProjectPath = TranslateProjectPath(solutionTask.SolutionFile.DirectoryName,
+                    project);
 
-					// add project path to collection
-					ProjectFiles[guid] = fullProjectPath;
-				}
+                if (Project.IsEnterpriseTemplateProject(fullProjectPath)) {
+                    RecursiveLoadTemplateProject(fullProjectPath);
+                } else {
+                    // only C#, VB.NET and C++ projects are supported at this moment
+                    if (!ProjectFactory.IsSupportedProjectType(project)) {
+                        // output a warning message in the build log
+                        Log(Level.Warning, "Only C#, VB.NET and C++ projects" +
+                            " are supported.  Skipping project '{0}'.", project);
+                        // skip the project
+                        continue;
+                    }
 
-				// set-up project dependencies
-				Regex reDependencies = new Regex(@"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline);
-				MatchCollection dependencyMatches = reDependencies.Matches(projectMatch.Value);
+                    // add project path to collection
+                    ProjectFiles[guid] = fullProjectPath;
+                }
 
-				foreach (Match dependencyMatch in dependencyMatches) {
-					string dependency = dependencyMatch.Groups["dep"].Value;
-					AddProjectDependency(guid, dependency);
-				}
+                // set-up project dependencies
+                Regex reDependencies = new Regex(@"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline);
+                MatchCollection dependencyMatches = reDependencies.Matches(projectMatch.Value);
 
-				// set-up project configuration
-				Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[a-zA-Z]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
-				MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
+                foreach (Match dependencyMatch in dependencyMatches) {
+                    string dependency = dependencyMatch.Groups["dep"].Value;
+                    AddProjectDependency(guid, dependency);
+                }
 
-				// initialize hashtable that will hold the project build configurations
-				Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                // set-up project configuration
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[a-zA-Z]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
+                MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
 
-				if (projectBuildMatches.Count > 0) {
-					foreach (Match projectBuildMatch in projectBuildMatches) {
-						string configuration = projectBuildMatch.Groups["configuration"].Value;
-						projectBuildConfiguration[configuration] = null;
-					}
-				}
+                // initialize hashtable that will hold the project build configurations
+                Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
-				// add project build configuration, this signals that project was 
-				// loaded in context of solution file
-				ProjectBuildConfigurations[guid] = projectBuildConfiguration;
-			}
+                if (projectBuildMatches.Count > 0) {
+                    foreach (Match projectBuildMatch in projectBuildMatches) {
+                        string configuration = projectBuildMatch.Groups["configuration"].Value;
+                        projectBuildConfiguration[configuration] = null;
+                    }
+                }
 
-			LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
-			LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
-			LoadProjects(gacCache, refResolver);
-			GetDependenciesFromProjects();
-		}
-	}
+                // add project build configuration, this signals that project was 
+                // loaded in context of solution file
+                ProjectBuildConfigurations[guid] = projectBuildConfiguration;
+            }
+
+            LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
+            LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
+            LoadProjects(gacCache, refResolver);
+            GetDependenciesFromProjects();
+        }
+    }
 }

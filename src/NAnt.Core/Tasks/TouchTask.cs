@@ -60,7 +60,7 @@ namespace NAnt.Core.Tasks {
     [TaskName("touch")]
     public class TouchTask : Task {
         #region Private Instance Fields
-	    
+
         private FileInfo _file;
         private string _millis;
         private string _datetime;

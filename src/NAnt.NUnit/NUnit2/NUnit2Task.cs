@@ -77,10 +77,10 @@ namespace NAnt.NUnit2.Tasks {
     /// </configuration>
     ///     ]]>
     ///   </code>
-	///   <para>
-	///   See the <see href="http://nunit.sf.net">NUnit home page</see> for more 
-	///   information.
-	///   </para>
+    ///   <para>
+    ///   See the <see href="http://nunit.sf.net">NUnit home page</see> for more 
+    ///   information.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>
@@ -221,11 +221,11 @@ namespace NAnt.NUnit2.Tasks {
                         // re-throw build exceptions
                         throw;
                     } catch (Exception ex) {
-						if (!FailOnError) {
-							// just log error and continue with next test
-							Log(Level.Error, LogPrefix + "NUnit Error: " + ex.ToString());
-							continue;
-						}
+                        if (!FailOnError) {
+                            // just log error and continue with next test
+                            Log(Level.Error, LogPrefix + "NUnit Error: " + ex.ToString());
+                            continue;
+                        }
 
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Failure executing test(s). If you assembly is not built using"

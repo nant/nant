@@ -230,10 +230,10 @@ namespace NAnt.Core.Util {
             public bool IsAssemblyInGac(string assemblyFile) {
                 try {
                     AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-					// the assembly can't be in the GAC if it has no public key
-					if (assemblyName.GetPublicKeyToken() == null) {
-						return false;
-					}
+                    // the assembly can't be in the GAC if it has no public key
+                    if (assemblyName.GetPublicKeyToken() == null) {
+                        return false;
+                    }
                     Assembly assembly = Assembly.Load(assemblyName);
                     return assembly.GlobalAssemblyCache;
                 } catch {

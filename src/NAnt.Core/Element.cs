@@ -714,7 +714,7 @@ namespace NAnt.Core {
                                     Location);
                             } else {
                                 Element.Log(Level.Warning, Location.ToString() 
-									+ " " + obsoleteMessage);
+                                    + " " + obsoleteMessage);
                             }
                         }
                     } else {
@@ -887,7 +887,7 @@ namespace NAnt.Core {
                                     Location);
                             } else {
                                 Element.Log(Level.Warning, Location.ToString() 
-									+ " " + obsoleteMessage);
+                                    + " " + obsoleteMessage);
                             }
                         }
 
@@ -940,7 +940,7 @@ namespace NAnt.Core {
                                     Location);
                             } else {
                                 Element.Log(Level.Warning, Location.ToString() 
-									+ " " + obsoleteMessage);
+                                    + " " + obsoleteMessage);
                             }
                         }
 
@@ -1065,15 +1065,15 @@ namespace NAnt.Core {
                 }
 
                 // will hold the XML node
-				XmlNode nestedElementNode;
+                XmlNode nestedElementNode;
 
-				// when element is initialized from application configuration file,
-				// there's no DocumentElement
-				if (ElementXml.OwnerDocument.DocumentElement == null) {
-					nestedElementNode = ElementXml[buildElementAttribute.Name]; 
-				} else {
-					nestedElementNode = ElementXml[buildElementAttribute.Name, ElementXml.OwnerDocument.DocumentElement.NamespaceURI]; 
-				}
+                // when element is initialized from application configuration file,
+                // there's no DocumentElement
+                if (ElementXml.OwnerDocument.DocumentElement == null) {
+                    nestedElementNode = ElementXml[buildElementAttribute.Name]; 
+                } else {
+                    nestedElementNode = ElementXml[buildElementAttribute.Name, ElementXml.OwnerDocument.DocumentElement.NamespaceURI]; 
+                }
 
                 // check if its required
                 if (nestedElementNode == null && buildElementAttribute.Required) {

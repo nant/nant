@@ -27,15 +27,15 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-	/// <summary>
-	/// Supports grouping of individual projects, and treating them as a solution.
-	/// </summary>
-	public class GenericSolution : SolutionBase {
-		#region Public Instance Constructors
+    /// <summary>
+    /// Supports grouping of individual projects, and treating them as a solution.
+    /// </summary>
+    public class GenericSolution : SolutionBase {
+        #region Public Instance Constructors
 
-		public GenericSolution(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) : base(solutionTask, tfc, gacCache, refResolver) {
-		}
+        public GenericSolution(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) : base(solutionTask, tfc, gacCache, refResolver) {
+        }
 
-		#endregion Public Instance Constructors
-	}
+        #endregion Public Instance Constructors
+    }
 }

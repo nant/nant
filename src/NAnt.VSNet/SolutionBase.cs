@@ -38,14 +38,14 @@ namespace NAnt.VSNet {
         #region Protected Instance Constructors
 
         protected SolutionBase(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) : this(tfc, solutionTask) {
-			if (solutionTask.SolutionFile != null) {
-				_file = solutionTask.SolutionFile;
-			} else {
-				LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
-				LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
-				LoadProjects(gacCache, refResolver);
-				GetDependenciesFromProjects();
-			}
+            if (solutionTask.SolutionFile != null) {
+                _file = solutionTask.SolutionFile;
+            } else {
+                LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
+                LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
+                LoadProjects(gacCache, refResolver);
+                GetDependenciesFromProjects();
+            }
         }
 
         #endregion Protected Instance Constructors
@@ -80,22 +80,22 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
-	
-		#region Protected Instance Properties {
 
-		protected WebMapCollection WebMaps {
-			get { return _webMaps; }
-		}
+        #region Protected Instance Properties {
 
-		protected Hashtable ProjectFiles {
-			get { return _htProjectFiles; }
-		}
+        protected WebMapCollection WebMaps {
+            get { return _webMaps; }
+        }
 
-		protected Hashtable ProjectBuildConfigurations {
-			get { return _htProjectBuildConfigurations; }
-		}
+        protected Hashtable ProjectFiles {
+            get { return _htProjectFiles; }
+        }
 
-		#endregion Protected Instance Properties {
+        protected Hashtable ProjectBuildConfigurations {
+            get { return _htProjectBuildConfigurations; }
+        }
+
+        #endregion Protected Instance Properties {
 
         #region Public Instance Methods
 
@@ -342,7 +342,7 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Methods
 
-		#region Protected Instance Methods
+        #region Protected Instance Methods
 
         /// <summary>
         /// Logs a message with the given priority.
@@ -373,192 +373,192 @@ namespace NAnt.VSNet {
             }
         }
 
-		protected void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
-			foreach (string projectFileName in projects) {
-				string projectGuid = ProjectFactory.LoadGuid(projectFileName);
-				if (_htProjectFiles[projectGuid] != null) {
-					throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-						"Error loading project {0}. " 
-						+ " Project GUID {1} already exists! Conflicting project is {2}.", 
-						projectFileName, projectGuid, _htProjectFiles[projectGuid]));
-				}
-				_htProjectFiles[projectGuid] = projectFileName;
-				if (isReferenceProject)
-					_htReferenceProjects[projectGuid] = null;
-			}
-		}
+        protected void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
+            foreach (string projectFileName in projects) {
+                string projectGuid = ProjectFactory.LoadGuid(projectFileName);
+                if (_htProjectFiles[projectGuid] != null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Error loading project {0}. " 
+                        + " Project GUID {1} already exists! Conflicting project is {2}.", 
+                        projectFileName, projectGuid, _htProjectFiles[projectGuid]));
+                }
+                _htProjectFiles[projectGuid] = projectFileName;
+                if (isReferenceProject)
+                    _htReferenceProjects[projectGuid] = null;
+            }
+        }
 
-		protected void AddProjectDependency(string projectGuid, string dependencyGuid) {
-			if (!_htProjectDependencies.Contains(projectGuid)) {
-				_htProjectDependencies[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
-			}
+        protected void AddProjectDependency(string projectGuid, string dependencyGuid) {
+            if (!_htProjectDependencies.Contains(projectGuid)) {
+                _htProjectDependencies[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            }
 
-			((Hashtable) _htProjectDependencies[projectGuid])[dependencyGuid] = null;
-		}
+            ((Hashtable) _htProjectDependencies[projectGuid])[dependencyGuid] = null;
+        }
 
-		/// <summary>
-		/// Loads the projects from the file system and stores them in an 
-		/// instance variable.
-		/// </summary>
-		/// <param name="gacCache"><see cref="GacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
-		/// <param name="refResolver"><see cref="ReferencesResolver" /> instance to use to determine location and references of assemblies.</param>
-		/// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
-		protected void LoadProjects(GacCache gacCache, ReferencesResolver refResolver) {
-			Log(Level.Verbose, "Loading projects...");
+        /// <summary>
+        /// Loads the projects from the file system and stores them in an 
+        /// instance variable.
+        /// </summary>
+        /// <param name="gacCache"><see cref="GacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
+        /// <param name="refResolver"><see cref="ReferencesResolver" /> instance to use to determine location and references of assemblies.</param>
+        /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
+        protected void LoadProjects(GacCache gacCache, ReferencesResolver refResolver) {
+            Log(Level.Verbose, "Loading projects...");
 
-			FileSet excludes = _solutionTask.ExcludeProjects;
+            FileSet excludes = _solutionTask.ExcludeProjects;
 
-			// _htProjectFiles contains project GUIDs read from the sln file as 
-			// keys and the corresponding full path to the project file as the 
-			// value
-			foreach (DictionaryEntry de in _htProjectFiles) {
-				string projectPath = (string) de.Value;
+            // _htProjectFiles contains project GUIDs read from the sln file as 
+            // keys and the corresponding full path to the project file as the 
+            // value
+            foreach (DictionaryEntry de in _htProjectFiles) {
+                string projectPath = (string) de.Value;
 
-				// determine whether project is on case-sensitive filesystem,
-				bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
+                // determine whether project is on case-sensitive filesystem,
+                bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
 
-				// indicates whether the project should be skipped (excluded)
-				bool skipProject = false;
+                // indicates whether the project should be skipped (excluded)
+                bool skipProject = false;
 
-				// check whether project should be excluded from build
-				foreach (string excludedProjectFile in excludes.FileNames) {
-					if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
-						Log(Level.Verbose, "Excluding project '{0}'.", 
-							projectPath);
-						// do not load project
-						skipProject = true;
-						// we have a match, so quit looking
-						break;
-					}
-				}
+                // check whether project should be excluded from build
+                foreach (string excludedProjectFile in excludes.FileNames) {
+                    if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
+                        Log(Level.Verbose, "Excluding project '{0}'.", 
+                            projectPath);
+                        // do not load project
+                        skipProject = true;
+                        // we have a match, so quit looking
+                        break;
+                    }
+                }
 
-				if (skipProject) {
-					// project was excluded, move on to next project
-					continue;
-				}
+                if (skipProject) {
+                    // project was excluded, move on to next project
+                    continue;
+                }
 
-				Log(Level.Verbose, "Loading project '{0}'.", projectPath);
-				ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, refResolver, _outputDir, projectPath);
-				if (p.Guid == null || p.Guid == string.Empty) {
-					p.Guid = FindGuidFromPath(projectPath);
-				}
+                Log(Level.Verbose, "Loading project '{0}'.", projectPath);
+                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, refResolver, _outputDir, projectPath);
+                if (p.Guid == null || p.Guid == string.Empty) {
+                    p.Guid = FindGuidFromPath(projectPath);
+                }
 
-				// If the project GUID from the sln file doesn't match the project GUID
-				// from the project file we will run into problems. Alert the user to fix this
-				// as it is basically a corruption probably caused by user manipulation of the sln
-				// included projects. I.e. copy and paste issue.
-				if (!p.Guid.Equals(de.Key.ToString())) {
-					throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-						"GUID corruption detected for project '{0}'. GUID values" 
-						+ " in project file and solution file do not match ('{1}'" 
-						+ " and '{2}'). Please correct this manually.", p.Name, 
-						p.Guid, de.Key.ToString()), Location.UnknownLocation);
-				}
+                // If the project GUID from the sln file doesn't match the project GUID
+                // from the project file we will run into problems. Alert the user to fix this
+                // as it is basically a corruption probably caused by user manipulation of the sln
+                // included projects. I.e. copy and paste issue.
+                if (!p.Guid.Equals(de.Key.ToString())) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "GUID corruption detected for project '{0}'. GUID values" 
+                        + " in project file and solution file do not match ('{1}'" 
+                        + " and '{2}'). Please correct this manually.", p.Name, 
+                        p.Guid, de.Key.ToString()), Location.UnknownLocation);
+                }
 
-				// set project build configuration
-				SetProjectBuildConfiguration(p);
+                // set project build configuration
+                SetProjectBuildConfiguration(p);
 
-				// add project to hashtable
-				_htProjects[de.Key] = p;
-			}
-		}
+                // add project to hashtable
+                _htProjects[de.Key] = p;
+            }
+        }
 
-		protected void GetDependenciesFromProjects() {
-			Log(Level.Verbose, "Gathering additional dependencies...");
+        protected void GetDependenciesFromProjects() {
+            Log(Level.Verbose, "Gathering additional dependencies...");
 
-			// first get all of the output files
-			foreach (DictionaryEntry de in _htProjects) {
-				string projectGuid = (string) de.Key;
-				ProjectBase p = (ProjectBase) de.Value;
+            // first get all of the output files
+            foreach (DictionaryEntry de in _htProjects) {
+                string projectGuid = (string) de.Key;
+                ProjectBase p = (ProjectBase) de.Value;
 
-				foreach (string configuration in p.Configurations) {
-					_htOutputFiles[p.GetOutputPath(configuration)] = projectGuid;
-				}
-			}
+                foreach (string configuration in p.Configurations) {
+                    _htOutputFiles[p.GetOutputPath(configuration)] = projectGuid;
+                }
+            }
 
-			// if one of output files resides in reference search path - circle began
-			// we must build project with that outputFile before projects referencing it
-			// (similar to project dependency) VS.NET 7.0/7.1 do not address this problem
+            // if one of output files resides in reference search path - circle began
+            // we must build project with that outputFile before projects referencing it
+            // (similar to project dependency) VS.NET 7.0/7.1 do not address this problem
 
-			// build list of output which reside in such folders
-			Hashtable outputsInAssemblyFolders = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            // build list of output which reside in such folders
+            Hashtable outputsInAssemblyFolders = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
-			foreach (DictionaryEntry de in _htOutputFiles) {
-				string outputfile = (string)de.Key;
-				string folder = Path.GetDirectoryName(outputfile);
+            foreach (DictionaryEntry de in _htOutputFiles) {
+                string outputfile = (string)de.Key;
+                string folder = Path.GetDirectoryName(outputfile);
 
-				if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemblyFolders.DirectoryNames.Contains(folder)) {
-					outputsInAssemblyFolders[Path.GetFileName(outputfile)] = de.Value;
-				}
-			}
+                if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemblyFolders.DirectoryNames.Contains(folder)) {
+                    outputsInAssemblyFolders[Path.GetFileName(outputfile)] = de.Value;
+                }
+            }
 
-			// build the dependency list
-			foreach (DictionaryEntry de in _htProjects) {
-				string projectGuid = (string) de.Key;
-				ProjectBase project = (ProjectBase) de.Value;
+            // build the dependency list
+            foreach (DictionaryEntry de in _htProjects) {
+                string projectGuid = (string) de.Key;
+                ProjectBase project = (ProjectBase) de.Value;
 
-				foreach (Reference reference in project.References) {
-					if (reference.IsProjectReference) {
-						AddProjectDependency(projectGuid, reference.Project.Guid);
-					} else if (_htOutputFiles.Contains(reference.Filename)) {
-						AddProjectDependency(projectGuid, (string) _htOutputFiles[reference.Filename]);
-					} else if (outputsInAssemblyFolders.Contains(Path.GetFileName(reference.Filename))) {
-						AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(reference.Filename)]);
-					}
-				}
-			}
-		}
+                foreach (Reference reference in project.References) {
+                    if (reference.IsProjectReference) {
+                        AddProjectDependency(projectGuid, reference.Project.Guid);
+                    } else if (_htOutputFiles.Contains(reference.Filename)) {
+                        AddProjectDependency(projectGuid, (string) _htOutputFiles[reference.Filename]);
+                    } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(reference.Filename))) {
+                        AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(reference.Filename)]);
+                    }
+                }
+            }
+        }
 
-		/// <summary>
-		/// Translates a project path, in the form of a relative file path or
-		/// a URL, to an absolute file path.
-		/// </summary>
-		/// <param name="solutionDir">The directory of the solution.</param>
-		/// <param name="projectPath">The project path to translate to an absolute file path.</param>
-		/// <returns>
-		/// The project path translated to an absolute file path.
-		/// </returns>
-		protected string TranslateProjectPath(string solutionDir, string projectPath) {
-			if (solutionDir == null) {
-				throw new ArgumentNullException("solutionDir");
-			}
-			if (projectPath == null) {
-				throw new ArgumentNullException("projectPath");
-			}
+        /// <summary>
+        /// Translates a project path, in the form of a relative file path or
+        /// a URL, to an absolute file path.
+        /// </summary>
+        /// <param name="solutionDir">The directory of the solution.</param>
+        /// <param name="projectPath">The project path to translate to an absolute file path.</param>
+        /// <returns>
+        /// The project path translated to an absolute file path.
+        /// </returns>
+        protected string TranslateProjectPath(string solutionDir, string projectPath) {
+            if (solutionDir == null) {
+                throw new ArgumentNullException("solutionDir");
+            }
+            if (projectPath == null) {
+                throw new ArgumentNullException("projectPath");
+            }
 
-			string translatedPath = null;
+            string translatedPath = null;
 
-			// translate URLs to physical paths if using a webmap
-			string map = WebMaps.FindBestMatch(projectPath);
-			if (map != null) {
-				Log(Level.Debug, "Found webmap match '{0}' for '{1}.", 
-					map, projectPath);
-				translatedPath = map;
-			} else {
-				translatedPath = projectPath;
-			}
+            // translate URLs to physical paths if using a webmap
+            string map = WebMaps.FindBestMatch(projectPath);
+            if (map != null) {
+                Log(Level.Debug, "Found webmap match '{0}' for '{1}.", 
+                    map, projectPath);
+                translatedPath = map;
+            } else {
+                translatedPath = projectPath;
+            }
 
-			try {
-				Uri uri = new Uri(translatedPath);
-				if (uri.Scheme == Uri.UriSchemeFile) {
-					translatedPath = Path.Combine(solutionDir, uri.LocalPath);
-				} else {
-					if (!_solutionTask.EnableWebDav) {
-						throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-							"Cannot build web project '{0}'.  Please use" 
-							+ " <webmap> to map the given URL to a project-relative" 
-							+ " path, or specify enablewebdav=\"true\" on the" 
-							+ " <solution> task element to use WebDAV.", translatedPath));
-					}
-				}
-			} catch (UriFormatException) {
-				translatedPath = Path.Combine(solutionDir, translatedPath);
-			}
+            try {
+                Uri uri = new Uri(translatedPath);
+                if (uri.Scheme == Uri.UriSchemeFile) {
+                    translatedPath = Path.Combine(solutionDir, uri.LocalPath);
+                } else {
+                    if (!_solutionTask.EnableWebDav) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Cannot build web project '{0}'.  Please use" 
+                            + " <webmap> to map the given URL to a project-relative" 
+                            + " path, or specify enablewebdav=\"true\" on the" 
+                            + " <solution> task element to use WebDAV.", translatedPath));
+                    }
+                }
+            } catch (UriFormatException) {
+                translatedPath = Path.Combine(solutionDir, translatedPath);
+            }
 
-			return translatedPath;
-		}
+            return translatedPath;
+        }
 
-		#endregion Protected Instance Methods
+        #endregion Protected Instance Methods
 
         #region Private Instance Methods
 
