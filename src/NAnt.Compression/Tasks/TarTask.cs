@@ -141,8 +141,9 @@ namespace NAnt.Compression.Tasks {
                 archive = TarArchive.CreateOutputTarArchive(outstream, 
                     TarBuffer.DefaultBlockFactor);
 
-                // allow line endings of text files to be converted to \n
-                archive.SetAsciiTranslation(true);
+                // do not use convert line endings of text files to \n, as this
+                // converts all content to ASCII
+                archive.SetAsciiTranslation(false);
 
                 // process all filesets
                 foreach (TarFileSet fileset in TarFileSets) {
