@@ -34,7 +34,10 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectBase" /> class.
         /// </summary>
-        protected ProjectBase() {
+        protected ProjectBase(SolutionTask solutionTask, TempFileCollection tempFiles, string outputDir) {
+            _solutionTask = solutionTask;
+            _tempFiles = tempFiles;
+            _outputDir = outputDir;
         }
 
         #endregion Protected Instance Constructors
@@ -72,6 +75,22 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
+        protected SolutionTask SolutionTask {
+            get { return _solutionTask; }
+        }
+
+        protected TempFileCollection TempFiles {
+            get { return _tempFiles; }
+        }
+
+        protected string OutputDir {
+            get { return _outputDir; }
+        }
+
+        #endregion Protected Instance Properties
 
         #region Public Instance Methods
 
@@ -112,5 +131,13 @@ namespace NAnt.VSNet {
         }
 
         #endregion Protected Static Methods
+
+        #region Private Instance Fields
+
+        private SolutionTask _solutionTask;
+        private TempFileCollection _tempFiles;
+        private string _outputDir;
+
+        #endregion Private Instance Fields
     }
 }

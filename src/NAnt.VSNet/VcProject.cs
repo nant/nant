@@ -39,18 +39,13 @@ namespace NAnt.VSNet {
     public class VcProject: ProjectBase {
         #region Public Instance Constructors
         
-        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) {
-            _htConfigurations         = CollectionsUtil.CreateCaseInsensitiveHashtable();
+        public VcProject(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) : base(solutionTask, tfc, outputDir) {
+            _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htFiles                  = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htReferences             = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            
-            _solutionTask = solutionTask;
-            _outputDir    = outputDir;
-
-            _clArgMap     = VcArgumentMap.CreateCLArgumentMap();
+            _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _clArgMap = VcArgumentMap.CreateCLArgumentMap();
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
-
             _objFiles = new ArrayList();
         }
 
@@ -180,14 +175,14 @@ namespace NAnt.VSNet {
 
             XmlNodeList configurationNodes = elem.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
-                VcConfiguration config = new VcConfiguration(configElem, this, sln, _outputDir);
+                VcConfiguration config = new VcConfiguration(configElem, this, sln, OutputDir);
                 _htConfigurations [config.Name] = config;
                 _htPlatformConfigurations [config.FullName] = config;
             }
 
             XmlNodeList referenceNodes = elem.SelectNodes("//References/ProjectReference");
             foreach (XmlElement referenceElem in referenceNodes) {
-                Reference reference = new Reference(sln, null, referenceElem, _solutionTask, _outputDir);
+                Reference reference = new Reference(sln, null, referenceElem, SolutionTask, OutputDir);
                 _htReferences[referenceElem.Attributes["Name"].Value] = reference;
             }
 
@@ -202,7 +197,7 @@ namespace NAnt.VSNet {
                     foreach (XmlElement fileConfigElem in fileConfigList) {
                         string fileConfigName = fileConfigElem.GetAttribute("Name");
                         VcConfiguration baseConfig = (VcConfiguration) _htPlatformConfigurations [fileConfigName];
-                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, sln, baseConfig, _outputDir);
+                        VcConfiguration fileConfig = new VcConfiguration(fileConfigElem, this, sln, baseConfig, OutputDir);
                         htFileConfigurations [fileConfig.Name] = fileConfig;
                    }
                 }
@@ -235,13 +230,13 @@ namespace NAnt.VSNet {
             ClTask clTask = new ClTask();
 
             // inherit project from solution task
-            clTask.Project = _solutionTask.Project;
+            clTask.Project = SolutionTask.Project;
 
             // inherit parent from solution task
-            clTask.Parent = _solutionTask.Parent;
+            clTask.Parent = SolutionTask.Parent;
 
             // inherit verbose setting from solution task
-            clTask.Verbose = _solutionTask.Verbose;
+            clTask.Verbose = SolutionTask.Verbose;
 
             // make sure framework specific information is set
             clTask.InitializeTaskConfiguration();
@@ -340,13 +335,13 @@ namespace NAnt.VSNet {
             LibTask libTask = new LibTask();
 
             // inherit project from solution task
-            libTask.Project = _solutionTask.Project;
+            libTask.Project = SolutionTask.Project;
 
             // inherit parent from solution task
-            libTask.Parent = _solutionTask.Parent;
+            libTask.Parent = SolutionTask.Parent;
 
             // inherit verbose setting from solution task
-            libTask.Verbose = _solutionTask.Verbose;
+            libTask.Verbose = SolutionTask.Verbose;
 
             // make sure framework specific information is set
             libTask.InitializeTaskConfiguration();
@@ -376,13 +371,13 @@ namespace NAnt.VSNet {
             LinkTask linkTask = new LinkTask();
 
             // inherit project from solution task
-            linkTask.Project = _solutionTask.Project;
+            linkTask.Project = SolutionTask.Project;
 
             // inherit parent from solution task
-            linkTask.Parent = _solutionTask.Parent;
+            linkTask.Parent = SolutionTask.Parent;
 
             // inherit verbose setting from solution task
-            linkTask.Verbose = _solutionTask.Verbose;
+            linkTask.Verbose = SolutionTask.Verbose;
 
             // make sure framework specific information is set
             linkTask.InitializeTaskConfiguration();
@@ -398,10 +393,10 @@ namespace NAnt.VSNet {
             // set task properties
             string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");
             string pdbFile = baseConfig.GetToolSetting(linkerTool, "ProgramDatabaseFile");
-            if (!StringUtils.IsNullOrEmpty(_outputDir)) {
-                linkTask.Output = Path.Combine(_outputDir, Path.GetFileName(outFile));
+            if (!StringUtils.IsNullOrEmpty(OutputDir)) {
+                linkTask.Output = Path.Combine(OutputDir, Path.GetFileName(outFile));
                 if (!StringUtils.IsNullOrEmpty(pdbFile)) {
-                    pdbFile = Path.Combine(_outputDir, Path.GetFileName(pdbFile));
+                    pdbFile = Path.Combine(OutputDir, Path.GetFileName(pdbFile));
                 }
             }
             else {
@@ -470,17 +465,17 @@ namespace NAnt.VSNet {
         }
 
         private void ExecuteInProjectDirectory(NAnt.Core.Task task) {
-            string oldBaseDir = _solutionTask.Project.BaseDirectory;
-            _solutionTask.Project.BaseDirectory = _projectDirectory;
+            string oldBaseDir = SolutionTask.Project.BaseDirectory;
+            SolutionTask.Project.BaseDirectory = _projectDirectory;
 
             try {
                 task.Execute();
             } finally {
-                _solutionTask.Project.BaseDirectory = oldBaseDir;
+                SolutionTask.Project.BaseDirectory = oldBaseDir;
             }
         }
 
-        #endregion
+        #endregion Private Instance Methods
 
         #region Private Instance Fields
 
@@ -488,13 +483,11 @@ namespace NAnt.VSNet {
         private string _projectPath;
         private string _guid;
         private string _projectDirectory;
-        private string _outputDir;
         private Hashtable _htConfigurations;
         private Hashtable _htReferences;
         private Hashtable _htPlatformConfigurations;
         private Hashtable _htFiles;
-        private SolutionTask _solutionTask;
-        private ArrayList    _objFiles;
+        private ArrayList _objFiles;
         private VcArgumentMap _clArgMap;
         private VcArgumentMap _linkerArgMap;
 

@@ -37,10 +37,7 @@ namespace NAnt.VSNet {
     public class Project : ProjectBase {
         #region Public Instance Constructors
 
-        public Project(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) {
-            _solutionTask = solutionTask;
-            _tfc = tfc;
-            _outputDir = outputDir;
+        public Project(SolutionTask solutionTask, TempFileCollection tfc, string outputDir) : base(solutionTask, tfc, outputDir) {
             _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -118,8 +115,8 @@ namespace NAnt.VSNet {
 
         private string LogPrefix {
             get { 
-                if (_solutionTask != null) {
-                    return _solutionTask.LogPrefix;
+                if (SolutionTask != null) {
+                    return SolutionTask.LogPrefix;
                 }
 
                 return string.Empty;
@@ -161,7 +158,7 @@ namespace NAnt.VSNet {
         public override void Load(Solution sln, string projectPath) {
             XmlDocument doc = LoadXmlDocument(projectPath);
 
-            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), _tfc);
+            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), TempFiles);
             _projectPath = projectPath;
 
             _isWebProject = IsUrl(projectPath);
@@ -188,13 +185,13 @@ namespace NAnt.VSNet {
 
             nlConfigurations = doc.SelectNodes("//Config");
             foreach (XmlElement elemConfig in nlConfigurations) {
-                ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, _solutionTask, _outputDir);
+                ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, SolutionTask, OutputDir);
                 _htConfigurations[elemConfig.Attributes["Name"].Value] = cs;
             }
 
             nlReferences = doc.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
-                Reference reference = new Reference(sln, _projectSettings, elemReference, _solutionTask, _outputDir);
+                Reference reference = new Reference(sln, _projectSettings, elemReference, SolutionTask, OutputDir);
                 _htReferences[elemReference.Attributes["Name"].Value] = reference;
             }
 
@@ -221,7 +218,7 @@ namespace NAnt.VSNet {
                     if (buildAction == "Compile") {
                         _htFiles[fi.FullName] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        Resource r = new Resource(this, fi.FullName, elemFile.Attributes["RelPath"].Value, fi.DirectoryName + @"\" + elemFile.Attributes["DependentUpon"].Value, _solutionTask);
+                        Resource r = new Resource(this, fi.FullName, elemFile.Attributes["RelPath"].Value, fi.DirectoryName + @"\" + elemFile.Attributes["DependentUpon"].Value, SolutionTask);
                         _htResources[r.InputFile] = r;
                     }
                 } else {
@@ -238,7 +235,7 @@ namespace NAnt.VSNet {
                     } else if (buildAction == "EmbeddedResource") {
                         string resourceFilename = Path.Combine(_projectSettings.RootDirectory, sourceFile);
                         string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(new FileInfo(resourceFilename).DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                        Resource r = new Resource(this, resourceFilename, elemFile.Attributes["RelPath"].Value, dependentOn, _solutionTask);
+                        Resource r = new Resource(this, resourceFilename, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask);
                         _htResources[r.InputFile] = r;
                     }
                 }
@@ -263,9 +260,9 @@ namespace NAnt.VSNet {
             }
 
             // ensure the temp dir exists
-            Directory.CreateDirectory(_tfc.BasePath);
+            Directory.CreateDirectory(TempFiles.BasePath);
 
-            string tempResponseFile = Path.Combine(_tfc.BasePath, Project.CommandFile);
+            string tempResponseFile = Path.Combine(TempFiles.BasePath, Project.CommandFile);
 
             using (StreamWriter sw = File.CreateText(tempResponseFile)) {
                 if (CheckUpToDate(cs)) {
@@ -319,13 +316,13 @@ namespace NAnt.VSNet {
                             CopyTask ct = new CopyTask();
 
                             // inherit project from solution task
-                            ct.Project = _solutionTask.Project;
+                            ct.Project = SolutionTask.Project;
 
                             // inherit parent from solution task
-                            ct.Parent = _solutionTask.Parent;
+                            ct.Parent = SolutionTask.Parent;
 
                             // inherit verbose setting from solution task
-                            ct.Verbose = _solutionTask.Verbose;
+                            ct.Verbose = SolutionTask.Verbose;
 
                             // make sure framework specific information is set
                             ct.InitializeTaskConfiguration();
@@ -334,7 +331,7 @@ namespace NAnt.VSNet {
                             ct.CopyFileSet.Parent = ct;
 
                             // inherit project from solution task for child elements
-                            ct.CopyFileSet.Project = _solutionTask.Project;
+                            ct.CopyFileSet.Project = SolutionTask.Project;
 
                             // set task properties
                             foreach (string file in fromFilenames) {
@@ -343,9 +340,9 @@ namespace NAnt.VSNet {
                             ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
                             ct.ToDirectory = cs.OutputDir;
 
-                            _solutionTask.Project.Indent();
+                            ct.Project.Indent();
                             ct.Execute();
-                            _solutionTask.Project.Unindent();
+                            ct.Project.Unindent();
                         }
                     }
                     sw.WriteLine(reference.Setting);
@@ -376,11 +373,11 @@ namespace NAnt.VSNet {
             Log(Level.Verbose, LogPrefix + "Starting compiler...");
             ProcessStartInfo psi = null;
             if (_projectSettings.Type == ProjectType.CSharp) {
-                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
+                psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
             }
 
             if (_projectSettings.Type == ProjectType.VBNet) {
-                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
+                psi = new ProcessStartInfo(Path.Combine(SolutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
             }
 
             psi.UseShellExecute = false;
@@ -402,7 +399,7 @@ namespace NAnt.VSNet {
                     }
                 }
             } else {
-                _solutionTask.Project.Indent();
+                SolutionTask.Project.Indent();
                 while (true) {
                     string logContents = p.StandardOutput.ReadLine();
                     if (logContents == null) {
@@ -410,7 +407,7 @@ namespace NAnt.VSNet {
                     }
                     Log(Level.Info, "      [compile] " + logContents);
                 }
-                _solutionTask.Project.Unindent();
+                SolutionTask.Project.Unindent();
             }
 
             p.WaitForExit();
@@ -627,8 +624,8 @@ namespace NAnt.VSNet {
 
                 // The solution tag allows the specification of a bunch of projects with no
                 // reference to a solution file. $(Solution... macros will not work then.
-                if (_solutionTask.SolutionFile != null) {
-                    solutionPath = Path.GetFullPath(_solutionTask.SolutionFile);
+                if (SolutionTask.SolutionFile != null) {
+                    solutionPath = Path.GetFullPath(SolutionTask.SolutionFile);
                 }
                 // As long there are new macros...
                 while (startPosition > -1) {
@@ -765,8 +762,8 @@ namespace NAnt.VSNet {
         /// The actual logging is delegated to the underlying task.
         /// </remarks>
         private void Log(Level messageLevel, string message) {
-            if (_solutionTask != null) {
-                _solutionTask.Log(messageLevel, message);
+            if (SolutionTask != null) {
+                SolutionTask.Log(messageLevel, message);
             }
         }
 
@@ -780,8 +777,8 @@ namespace NAnt.VSNet {
         /// The actual logging is delegated to the underlying task.
         /// </remarks>
         private void Log(Level messageLevel, string message, params object[] args) {
-            if (_solutionTask != null) {
-                _solutionTask.Log(messageLevel, message, args);
+            if (SolutionTask != null) {
+                SolutionTask.Log(messageLevel, message, args);
             }
         }
 
@@ -800,9 +797,6 @@ namespace NAnt.VSNet {
         private string _projectDirectory;
         private string _webProjectBaseUrl;
         private ProjectSettings _projectSettings;
-        private SolutionTask _solutionTask;
-        private TempFileCollection _tfc;
-        private string _outputDir;
 
         #endregion Private Instance Fields
 
