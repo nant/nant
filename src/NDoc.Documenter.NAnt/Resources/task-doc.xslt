@@ -87,10 +87,12 @@
             </div>
         </xsl:if>
         <xsl:variable name = "filesets" select="property[attribute/@name = 'SourceForge.NAnt.Attributes.FileSetAttribute' ]"/>
-        <xsl:if test="count($filesets) != 0">
+        <xsl:variable name = "elementarrays" select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementArrayAttribute' ]"/>
+        <xsl:if test="count($filesets) != 0 or count($elementarrays) != 0">
             <h3>Nested Elements</h3>
             <!-- now do filesets -->
             <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.FileSetAttribute' ]" mode="FileSet"/>
+            <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementArrayAttribute' ]" mode="BuildElementArrayAttribute"/>
         </xsl:if> 
 
         <!-- Example -->
@@ -105,13 +107,13 @@
 <xsl:template match="property" mode="TaskAttribute">
     <xsl:variable name = "TaskAttr" select="attribute[@name='SourceForge.NAnt.Attributes.TaskAttributeAttribute']"/>
     <xsl:if test="count($TaskAttr) = 1">
-         <xsl:variable name = "documentation" >        
-                <xsl:call-template name="docstring" >         
+         <xsl:variable name = "documentation" >
+                <xsl:call-template name="docstring" >
                 </xsl:call-template>
             </xsl:variable> 
-        <xsl:variable name = "Required" select="$TaskAttr/property[@name='Required']/@value"/>        
+        <xsl:variable name = "Required" select="$TaskAttr/property[@name='Required']/@value"/>
         <tr>
-            <td class="Table-Cell" valign="top"><xsl:value-of select="$TaskAttr/property[@name='Name']/@value"/> </td>                       
+            <td class="Table-Cell" valign="top"><xsl:value-of select="$TaskAttr/property[@name='Name']/@value"/> </td>
             <td class="Table-Cell"><xsl:value-of select="string($documentation)"/></td>
             <td class="Table-Cell" align="center"><xsl:value-of select="string($Required)"/></td>
         </tr>
@@ -119,16 +121,26 @@
 </xsl:template>
 
 <!-- match fileset property tag -->
-<xsl:template match="property" mode="FileSet">               
+<xsl:template match="property" mode="FileSet">
     <xsl:variable name = "FileSetAttr" select="attribute[@name='SourceForge.NAnt.Attributes.FileSetAttribute']"/>
-    <xsl:variable name = "documentation" >        
-        <xsl:call-template name="docstring" >         
+    <xsl:variable name = "documentation" >
+        <xsl:call-template name="docstring" >
         </xsl:call-template>
-    </xsl:variable>     
+    </xsl:variable>
     <!-- @name -->
     <h4><xsl:value-of select="$FileSetAttr/property[@name='Name']/@value" /> (FileSet)</h4>
     <p> <xsl:value-of select="$documentation" /></p> 
-    
+</xsl:template> 
+
+<!-- match BuildElementArray property tag -->
+<xsl:template match="property" mode="BuildElementArrayAttribute">
+    <xsl:variable name = "BuildElementArrayAttr" select="attribute[@name='SourceForge.NAnt.Attributes.BuildElementArrayAttribute']"/>
+    <xsl:variable name = "documentation" >
+        <xsl:call-template name="docstring" />
+    </xsl:variable>
+    <!-- @name -->
+    <h4><xsl:value-of select="$BuildElementArrayAttr/property[@name='Name']/@value" /> (Array)</h4>
+    <p><xsl:value-of select="$documentation" /></p> 
 </xsl:template> 
 
 <!-- returns the doc string for a given value (called from the property templates )-->
