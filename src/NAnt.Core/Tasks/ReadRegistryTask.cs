@@ -79,20 +79,24 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
+            object regKeyValue = null;
+
             if(_regKey == null)
                 throw new BuildException("Missing registry key!");
 
             RegistryKey mykey = null;
             if (_propName != null) {
-                mykey = LookupRegKey(_regKey, _regHive);
-                string val = mykey.GetValue(_regKeyValueName).ToString();
-                if(val != null)
+                mykey = LookupRegKey(_regKey, _regHive, Verbose);
+                regKeyValue = mykey.GetValue(_regKeyValueName);
+                if (regKeyValue != null) {
+                    string val = regKeyValue.ToString();
                     Properties[_propName] = val;
-                else
-                    throw new BuildException(string.Format("Registry Value Not Found! - key='{0}';hive='{1}';", _regKey + "\\" + _regKeyValueName, _regHiveString ));
+                } else {
+                    throw new BuildException(string.Format( "Registry Value Not Found! - key='{0}';hive='{1}';", _regKey + "\\" + _regKeyValueName, _regHiveString ));
+                }
             }
             else if (_propName == null && _propPrefix != null ) {
-                mykey = LookupRegKey(_regKey, _regHive);
+                mykey = LookupRegKey(_regKey, _regHive, Verbose);
                 foreach(string name in mykey.GetValueNames()) {
                     Properties[_propPrefix + "." + name] = mykey.GetValue(name).ToString();
                 }
@@ -102,13 +106,13 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        protected static RegistryKey LookupRegKey(string key, RegistryHive[] registries) {
+        protected static RegistryKey LookupRegKey(string key, RegistryHive[] registries, bool verbose) {
             foreach(RegistryHive hive in registries){
-                Log.WriteLine("Opening {0}:{1}", hive.ToString(), key);
+                Log.WriteLineIf(verbose, "Opening {0}:{1}", hive.ToString(), key);
                 RegistryKey returnkey = GetHiveKey(hive).OpenSubKey(key, false);
-                if(returnkey != null)
+                if(returnkey != null) {
                     return returnkey;
-                Log.WriteLine("Key not found! Looking for {0}:{1}", hive.ToString(), key);
+                }
             }
             throw new BuildException(string.Format("Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
         }
