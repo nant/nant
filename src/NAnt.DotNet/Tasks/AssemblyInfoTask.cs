@@ -121,7 +121,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// The assembly-level attributes to generate.
         /// </value>
-        [BuildElementCollection("attributes", "attribute", typeof(Assembly))]
+        [BuildElementCollection("attributes", "attribute", typeof(AssemblyAttribute))]
         public AssemblyAttributeCollection AssemblyAttributes {
             get { return _attributes; }
         }
