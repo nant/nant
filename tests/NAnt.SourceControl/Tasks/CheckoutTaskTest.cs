@@ -17,6 +17,7 @@
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
+using System;
 using System.Globalization;
 using System.IO;
 
@@ -37,11 +38,11 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private string destination;
 
-        private readonly string MODULE = "sharpcvslib-test-repository";
-        private readonly string CHECK_FILE = "test-file.txt";
+        private readonly string MODULE = "sharpcvslib";
+        private readonly string CHECK_FILE = "lib/ICSharpCode.SharpZipLib.dll";
 
         private readonly string CVSROOT = 
-            ":pserver:anonymous@linux.sporadicism.com:/home/cvs/src";
+            ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib";
 
         private readonly string _projectXML = @"<?xml version='1.0'?>
             <project>
@@ -49,7 +50,19 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 cvsroot='{1}'
                                 destination='{2}'
                                 password='{3}'
-                                tag='{4}' />
+                                tag='{4}' 
+                                usesharpcvslib='false'/>
+            </project>";
+
+        private readonly string _checkoutByDateProjectXML = @"<?xml version='1.0'?>
+            <project>
+                <cvs-checkout   module='{0}' 
+                                cvsroot='{1}'
+                                destination='{2}'
+                                password='{3}'
+                                date='{4}'
+                                overridedir='{5}'
+                                usesharpcvslib='false' />
             </project>";
 
 /*		private readonly string _useSharpCvsLibProjectXML = @"<?xml version='1.0'?>
@@ -61,6 +74,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 password='{4}' />
             </project>";
 */
+
         #endregion Private Instance Fields
 
         #region Override implementation of BuildTestBase
@@ -105,12 +119,37 @@ namespace Tests.NAnt.SourceControl.Tasks {
                 File.Exists(checkFilePath));
         }
 
+        /// <summary>
+        /// Test that a checkout is performed for the given date.
+        /// </summary>
+        [Test]
+        public void TestCheckoutDate () {
+            object[] args = { 
+                 MODULE, CVSROOT, this.destination, string.Empty, "2003/08/16", "2003_08_16"};
+
+            string checkoutPath = Path.Combine(this.destination, "2003_08_16");
+            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+
+            string result = 
+                this.RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
+            Assertion.Assert(String.Format("File {0} does not exist.", checkFilePath), 
+                File.Exists(checkFilePath));
+        }
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
 
         private string FormatBuildFile(string baseFile, object[] args) {
             return string.Format(CultureInfo.InvariantCulture, baseFile, args);
+        }
+
+        /// <summary>
+        /// Test that the validations for the module attribute are carried out
+        ///     correctly.
+        /// </summary>
+        public void TestModuleValidation() {
+            
         }
 
         #endregion Private Instance Methods
