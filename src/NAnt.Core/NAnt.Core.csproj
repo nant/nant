@@ -136,11 +136,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "DirectoryListScanner.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "DirectoryScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -485,11 +480,6 @@
                 />
                 <File
                     RelPath = "Types\Credential.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Types\FileList.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
