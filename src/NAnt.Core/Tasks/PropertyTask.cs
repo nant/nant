@@ -66,7 +66,13 @@ namespace NAnt.Core.Tasks {
                 if (  Project.FrameworkInfoDictionary.Contains(_value)) {
                     Project.CurrentFramework  = Project.FrameworkInfoDictionary[_value];
                 } else {
-                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier.", _value ), Location );
+					System.Collections.ArrayList validvalues = new System.Collections.ArrayList();
+					foreach (FrameworkInfo fi in Project.FrameworkInfoDictionary)
+						validvalues.Add(fi.Name);
+					string validvaluesare = String.Empty;
+					if (validvalues.Count > 0)
+						validvaluesare = String.Format(CultureInfo.InvariantCulture, "Valid values are: {0}.", String.Join(", ", (string[])validvalues.ToArray(typeof(string))));
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier. {1}", _value, validvaluesare ), Location );
                 }          
             }        
             if(_ro)

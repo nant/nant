@@ -56,7 +56,7 @@ namespace NAnt.DotNet.Tasks {
                     } else {
                         throw new BuildException(
                             string.Format(CultureInfo.InvariantCulture, 
-                            "The SDK for the ({0} framework is not available or not configured.", 
+                            "The SDK directory for the {0} framework is not available or not configured.", 
                             Project.CurrentFramework.Name));
                     }
                 } else {

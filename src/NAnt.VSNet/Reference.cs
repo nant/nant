@@ -38,14 +38,14 @@ namespace NAnt.VSNet.Tasks {
             _bIsSystem = false;
 
             _bIsCreated = false;
-            FileInfo fiGAC = new FileInfo( new Uri( typeof( System.Object ).Assembly.CodeBase ).PathAndQuery );
+            DirectoryInfo diGAC = new DirectoryInfo( nanttask.Project.CurrentFramework.FrameworkDirectory.FullName );
             _strName = ( string )elemReference.Attributes[ "Name" ].Value;
 
             if ( elemReference.Attributes[ "Project" ] != null ) {
                 if ( sln == null )
                     throw new Exception( "External reference found, but no solution specified: " + _strName );
 
-                Project p = new Project( _nanttask );
+                Project p = new Project( _nanttask, ps.TemporaryFiles );
                 string strFile = sln.GetProjectFileFromGUID( elemReference.GetAttribute( "Project" ) );
                 if ( strFile == null )
                     throw new Exception( "External reference found, but project was not loaded: " + _strName );
@@ -76,10 +76,10 @@ namespace NAnt.VSNet.Tasks {
             else {
                 _strReferenceFile = elemReference.Attributes[ "AssemblyName" ].Value + ".dll";
                 
-                string strGACFile = Path.Combine( fiGAC.Directory.FullName, _strReferenceFile );
+                string strGACFile = Path.Combine( diGAC.FullName, _strReferenceFile );
                 if ( File.Exists( strGACFile ) ) {
                     // This file is in the GAC
-                    _strBaseDirectory = fiGAC.DirectoryName;
+                    _strBaseDirectory = diGAC.FullName;
                     _bCopyLocal = _bPrivateSpecified ? _bIsPrivate : false;
                     _strReferenceFile = strGACFile;
                     _bIsSystem = true;
