@@ -15,7 +15,12 @@
     <property name="current.build.defines" value="${build.defines}" />
     <property name="linux" value="false" />
     <property name="sourceconfig" value="NAnt.Console.exe.config" />
-
+    
+    <!-- Win32TaskAssemblies (tas.win32) These will be built in order-->
+    <property name="tas.win32" value="NAnt.Win32,NAnt.VisualCpp,NAnt.VSNet" />
+    <!-- CoreTaskAssemblies (tas.core) These will be built in order-->
+    <property name="tas.core" value="NAnt.DotNet,NAnt.Zip,NAnt.NUnit,NAnt.SourceControl" />
+	
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
@@ -72,12 +77,12 @@
         <nant buildfile="src/NAnt.Console/NAnt.Console.build" target="build" />
 
         <!-- build task assemblies -->
-        <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
+        <foreach item="String" delim="," property="filename" in="${tas.core}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" />
         </foreach>
 
         <!-- build win32 specific task assemblies if we are on win32 -->
-        <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
+        <foreach item="String" delim="," property="filename" in="${tas.win32}">
             <nant buildfile="src/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
         </foreach>
 
@@ -88,12 +93,12 @@
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
 
         <!-- build tests for task assemblies -->
-        <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
+        <foreach item="String" delim="," property="filename" in="${tas.core}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
         </foreach>
 
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
-        <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
+        <foreach item="String" delim="," property="filename" in="${tas.win32}">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>

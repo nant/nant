@@ -1,3 +1,0 @@
-NAnt.Win32
-NAnt.VisualCpp
-NAnt.VSNet
