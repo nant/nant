@@ -20,6 +20,8 @@
 using System;
 using System.Collections;
 
+using NAnt.Core.Util;
+
 namespace NAnt.Core.Types {
     /// <summary>
     /// Contains a collection of <see cref="NamespaceImport" /> elements.
@@ -51,7 +53,7 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Public Instance Constructors
-        
+
         #region Public Instance Properties
 
         /// <summary>
@@ -84,6 +86,35 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Public Instance Properties
+
+        #region Override implementation of Object
+
+        /// <summary>
+        /// Returns a comma-delimited list of namespace imports.
+        /// </summary>
+        /// <returns>
+        /// A comma-delimited list of namespace imports, or an empty 
+        /// <see cref="string" /> if there are no namespace imports.
+        /// </returns>
+        public override string ToString() {
+            string imports = string.Empty;
+
+            foreach (NamespaceImport import in base.List) {
+                if (import.IfDefined && !import.UnlessDefined) {
+                    // add comma delimited if its not the first import
+                    if (!StringUtils.IsNullOrEmpty(imports)) {
+                        imports += ",";
+                    }
+
+                    imports += import.Namespace;
+                }
+            }
+
+            return imports;
+        }
+
+        #endregion Override implementation of Object
+
 
         #region Public Instance Methods
         
