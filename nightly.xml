@@ -193,15 +193,13 @@
     </target>
     <!-- copies NAnt to install dir -->
     <target name="install" depends="set-net-1.0-runtime-configuration, package">
-        <ifnot propertyexists="install.dir">
-            <echo level="Error">Please specify the directory to where NAnt should be installed on the commandline.</echo>
-            <fail />
-        </ifnot>
-        <!-- make sure the install directory exists -->
-        <available property="temp.installdir.exists" resource="${install.dir}" type="Directory" />
-        <ifnot propertyexists="temp.installdir.exists" propertytrue="temp.installdir.exists">
-            <mkdir dir="${install.dir}" />
-        </ifnot>
+        <!-- ensure install directory was specified -->
+        <if test="${not(nant::property-exists('install.dir'))}">
+            <fail>Please specify the directory to where NAnt should be installed on the commandline.</fail>
+        </if>
+        <!-- ensure the install directory exists -->
+        <mkdir dir="${install.dir}" if="${not(directory::exists(install.dir))}"/>
+        <!-- copy files to install directory -->
         <copy todir="${install.dir}" overwrite="true">
             <fileset basedir="${build.dir}">
                 <includes name="**/**" />
