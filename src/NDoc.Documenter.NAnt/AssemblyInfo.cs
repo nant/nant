@@ -28,7 +28,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright (C) 2001-2002 Gerry Shaw")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.8.*")]
+[assembly: AssemblyVersion("0.8.2.*")]
 
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]

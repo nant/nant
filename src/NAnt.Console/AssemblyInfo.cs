@@ -29,7 +29,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright (C) 2001-2003 Gerry Shaw")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.8.01.*")]
+[assembly: AssemblyVersion("0.8.2.*")]
 
 // This will not compile with Visual Studio.  If you want to build a signed
 // executable use the NAnt build file.  To build under Visual Studio just
