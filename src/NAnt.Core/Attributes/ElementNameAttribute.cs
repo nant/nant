@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ namespace NAnt.Core.Attributes {
     /// with any other element already in use.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
-    public sealed class ElementNameAttribute : Attribute {
+    public class ElementNameAttribute : Attribute {
         #region Public Instance Constructors
 
         /// <summary>
@@ -64,7 +64,10 @@ namespace NAnt.Core.Attributes {
         /// </value>
         public string Name {
             get { return _name; }
-            set { _name = value; }
+            set { 
+
+                _name = value.Trim(); 
+            }
         }
 
         #endregion Public Instance Properties
@@ -74,5 +77,9 @@ namespace NAnt.Core.Attributes {
         private string _name;
 
         #endregion Private Instance Fields
+    
+        public override bool IsDefaultAttribute() {
+            return false;
+        }
     }
 }

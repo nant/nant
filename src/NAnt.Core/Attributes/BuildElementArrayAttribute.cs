@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Ian MacLean ( ian@maclean.ms )
+// Scott Hernandez (ScottHernandez_at_HOtMail_dot_dot_dot_com?)
 
 using System;
 
@@ -50,6 +51,8 @@ namespace NAnt.Core.Attributes {
         /// with the specified name.
         /// </summary>
         /// <param name="name">The name of the attribute.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public BuildElementArrayAttribute(string name) : base(name) {
         }
 
@@ -72,9 +75,15 @@ namespace NAnt.Core.Attributes {
         /// reflection.
         /// </para>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
         public Type ElementType {
             get { return _elementType; }
-            set { _elementType = value; }
+            set { 
+                if(value == null) {
+                    throw new ArgumentNullException("ElementType");
+                }
+                _elementType = value; 
+            }
         }
 
         #endregion Public Instance Properties

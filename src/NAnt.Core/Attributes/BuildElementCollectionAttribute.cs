@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gert Driesen (gert.driesen@ardatis.com)
+// Scott Hernandez (ScottHernandez_at_HOtMail_dot_dot_dot_com?)
 
 using System;
 
@@ -58,6 +59,9 @@ namespace NAnt.Core.Attributes {
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public BuildElementCollectionAttribute(string collectionName, string childName) : base(collectionName) {
+            if(childName == null) { 
+                throw new ArgumentNullException("childName"); 
+            }
             _elementName = childName;
         }
 

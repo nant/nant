@@ -58,7 +58,7 @@ namespace NAnt.Core.Attributes {
                 throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
             }
 
-            _name = name;
+            Name = name;
         }
 
         #endregion Public Instance Constructors
@@ -71,7 +71,7 @@ namespace NAnt.Core.Attributes {
         /// <value>The name of the framework configuration attribute.</value>
         public string Name {
             get { return _name; }
-            set { _name = value; }
+            set { _name = value.Trim(); }
         }
 
         /// <summary>

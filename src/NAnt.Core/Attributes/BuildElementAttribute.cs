@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Ian MacLean ( ian@maclean.ms )
+// Scott Hernandez (ScottHernandez_at_HOtMail_dot_dot_dot_com?)
 
 using System;
 
@@ -53,15 +54,7 @@ namespace NAnt.Core.Attributes {
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public BuildElementAttribute(string name) {
-            if (name == null) {
-                throw new ArgumentNullException("name");
-            }
-
-            if (name.Trim().Length == 0) {
-                throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
-            }
-
-            _name = name;
+            Name = name;
         }
 
         #endregion Protected Instance Constructors
@@ -74,9 +67,22 @@ namespace NAnt.Core.Attributes {
         /// <value>
         /// The name of the attribute.
         /// </value>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public string Name {
             get { return _name; }
-            set { _name = value; }
+            set { 
+                if (value == null) {
+                    throw new ArgumentNullException("name", "name cannot be null!");
+                }
+                
+                //Set value. XML Element names cannot have whitspaces at the begging, or end.
+                _name = value.Trim(); 
+
+                if (_name.Length == 0) {
+                    throw new ArgumentOutOfRangeException("name", _name, "A zero-length string is not an allowed value.");
+                }
+            }
         }
 
         /// <summary>
@@ -99,5 +105,10 @@ namespace NAnt.Core.Attributes {
         private bool _required;
 
         #endregion Private Instance Fields
+
+        public override bool IsDefaultAttribute() {
+            return false;
+        }
+
     }
 }
