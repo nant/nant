@@ -707,14 +707,14 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "{0} Attribute '{1}' for <{2} ... /> is deprecated.  {3}", 
-                                Location, buildAttribute.Name, Name, 
-                                obsoleteAttribute.Message);
+                                "Attribute '{0}' for <{1} ... /> is deprecated.  {2}", 
+                                buildAttribute.Name, Name, obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 throw new BuildException(obsoleteMessage, 
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, obsoleteMessage);
+                                Element.Log(Level.Warning, Location.ToString() 
+									+ " " + obsoleteMessage);
                             }
                         }
                     } else {
@@ -879,14 +879,15 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
-                                Location, buildElementCollectionAttribute.Name, Name, 
+                                "Element <{0}... /> for <{1}... /> is deprecated. {2}", 
+                                buildElementCollectionAttribute.Name, Name, 
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, obsoleteMessage);
+                                Element.Log(Level.Warning, Location.ToString() 
+									+ " " + obsoleteMessage);
                             }
                         }
 
@@ -931,14 +932,15 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "{0} Element <{1}... /> for <{2}... /> is deprecated. {3}", 
-                                Location, buildElementArrayAttribute.Name, Name, 
+                                "Element <{0}... /> for <{1}... /> is deprecated. {2}", 
+                                buildElementArrayAttribute.Name, Name, 
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, obsoleteMessage);
+                                Element.Log(Level.Warning, Location.ToString() 
+									+ " " + obsoleteMessage);
                             }
                         }
 
