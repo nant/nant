@@ -67,6 +67,15 @@ namespace NAnt.VSNet {
                 _managedExtensions = _parentConfig.ManagedExtensions;
             }
 
+            // get configuration type
+            string type = GetXmlAttributeValue(elem, "ConfigurationType");
+            if (type != null) {
+                _type = (ConfigurationType) Enum.ToObject(typeof(ConfigurationType), 
+                    int.Parse(type, CultureInfo.InvariantCulture));
+            } else if (_parentConfig != null) {
+                _type = _parentConfig.Type;
+            }
+
             string wholeProgramOptimization = GetXmlAttributeValue(elem, "WholeProgramOptimization");
             if (wholeProgramOptimization != null) {
                 _wholeProgramOptimization = wholeProgramOptimization.Trim().ToUpper(CultureInfo.InvariantCulture) == "TRUE";
@@ -321,6 +330,10 @@ namespace NAnt.VSNet {
 
         #region Public Instance Properties
 
+        public ConfigurationType Type {
+            get { return _type; }
+        }
+
         public DirectoryInfo ProjectDir {
             get { 
                 return new DirectoryInfo(Path.GetDirectoryName(
@@ -463,6 +476,9 @@ namespace NAnt.VSNet {
             if (toolSettings != null) {
                 setting = (string) toolSettings[settingName];
                 if (setting != null) {
+                    // convert empty settings to null
+                    setting = StringUtils.ConvertEmptyToNull(setting);
+                    // expand macros
                     return ExpandMacros(setting);
                 }
             }
@@ -505,6 +521,7 @@ namespace NAnt.VSNet {
         private readonly VcConfiguration _parentConfig;
         private readonly Hashtable _htTools = CollectionsUtil.CreateCaseInsensitiveHashtable();
         private DirectoryInfo _outputDir;
+        private readonly ConfigurationType _type;
         private readonly string _relativeOutputDir;
         private readonly string _intermediateDir;
         private readonly bool _wholeProgramOptimization;
@@ -516,5 +533,35 @@ namespace NAnt.VSNet {
         private readonly UseOfATL _useOfATL = UseOfATL.NotUsing;
 
         #endregion Private Instance Fields
+
+        /// <summary>
+        /// The type of output for a given configuration.
+        /// </summary>
+        public enum ConfigurationType {
+            /// <summary>
+            /// A Makefile.
+            /// </summary>
+            Makefile = 0,
+
+            /// <summary>
+            /// Application (.exe).
+            /// </summary>
+            Application = 1,
+
+            /// <summary>
+            /// Dynamic Library (.dll).
+            /// </summary>
+            DynamicLibrary = 2,
+
+            /// <summary>
+            /// Static Library (.lib).
+            /// </summary>
+            StaticLibrary = 3,
+
+            /// <summary>
+            /// Utility.
+            /// </summary>
+            Utility = 4
+        }
     }
 }
