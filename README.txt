@@ -27,6 +27,47 @@ Documentation
 Documentation is available in HTML format, in the doc/ directory.
 
 
+Compilation and Installation
+-------------------------------
+
+   a. Build Requirements
+   --------------------
+   To build NAnt, you will need the following components:
+   on Windows
+       either
+       * A version of the Microsoft .Net framework 
+         Available from http://msdn.microsoft.com/netframework/
+         
+         you will need the framework sdk as well as the runtime components if 
+         you intend to compile programs.
+         note that NAnt currently supports versions 1.0, 1.1 and 2.0 of 
+         Microsofts .Net framework installation. 
+       or
+       * mono for windows ( version 1.0 or higher )
+         Available from http://www.mono-project.com/downloads/
+   
+   Linux/Unix
+       * GNU toolchain - including GNU make
+       * pkg-config
+           Available from: http://www.freedesktop.org/Software/pkgconfig
+       * A working Mono installation and development libraries ( version 1.0 or higher )
+           Available from: http://www.mono-project.com/downloads/
+           
+    b. Building the Software
+    ------------------------
+      
+    Windows ( with microsoft .net )
+        bin\nant
+        bin\nant install -D:install.prefix=c:\program files
+        
+    Windows ( with mono )
+        mono bin\NAnt.exe
+        mono bin\nant install -D:install.prefix=c:\program files
+    
+    Linux/Unix
+        make
+        make install prefix=/usr/local
+
 License
 -------
 Copyright (C) 2001-2003 Gerry Shaw
