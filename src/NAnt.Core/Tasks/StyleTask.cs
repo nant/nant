@@ -273,13 +273,28 @@ namespace NAnt.Core.Tasks {
                             srcInfo.FullName);
                         xmlReader = CreateXmlReader(srcInfo.FullName);
                         XPathDocument xml = new XPathDocument(xmlReader);
-    
-                        // load the stylesheet
-                        Log(Level.Verbose, LogPrefix + "Loading stylesheet '{0}'.", 
-                            XsltFile.FullName);
-                        xslReader = CreateXmlReader(XsltFile.FullName);
+
+                        // store current directory
+                        string originalCurrentDirectory = Directory.GetCurrentDirectory();
+
+                        // initialize XSLT transform
                         XslTransform xslt = new XslTransform();
-                        xslt.Load(xslReader);
+
+                        try {
+                            // change current directory to directory containing
+                            // XSLT file, to allow includes to be resolved 
+                            // correctly
+                            Directory.SetCurrentDirectory(XsltFile.DirectoryName);
+
+                            // load the stylesheet
+                            Log(Level.Verbose, LogPrefix + "Loading stylesheet '{0}'.", 
+                                XsltFile.FullName);
+                            xslReader = CreateXmlReader(XsltFile.FullName);
+                            xslt.Load(xslReader);
+                        } finally {
+                            // restore original current directory
+                            Directory.SetCurrentDirectory(originalCurrentDirectory);
+                        }
 
                         // initialize xslt parameters
                         XsltArgumentList xsltArgs = new XsltArgumentList();
