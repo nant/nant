@@ -75,8 +75,8 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). 
-        /// Default is <c>&quot;false&quot;</c>.
+        /// Instructs the compiler not to import mscorlib.dll. Default is 
+        /// <c>false</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -91,8 +91,8 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Instructs the compiler not to use implicit references to assemblies 
-        /// (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// Instructs the compiler not to use implicit references to assemblies.
+        /// Default is <c>false</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -110,8 +110,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies whether an integer arithmetic statement that is not in 
         /// the scope of the <c>checked</c> or <c>unchecked</c> keywords and 
         /// that results in a value outside the range of the data type should 
-        /// cause a run-time exception (<c>true</c>/<c>false</c>).
-        /// Default is <c>&quot;false&quot;</c>.
+        /// cause a run-time exception. Default is <c>false</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -126,7 +125,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Instructs the compiler to allow code that uses the <c>unsafe</c> 
-        /// keyword (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c>.
+        /// keyword. Default is <c>false</c>.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -141,8 +140,8 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the compiler should perform optimizations to the 
-        /// make output files smaller, faster, and more effecient. 
-        /// Default is <c>&quot;false&quot;</c>.
+        /// make output files smaller, faster, and more effecient. Default is 
+        /// <c>false</c>.
         /// </summary>
         /// <value>
         /// <c>true</c> if the compiler should perform optimizations; otherwise,
@@ -162,7 +161,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies the warning level for the compiler to display. Valid values 
-        /// are 0-4. Default is 4.
+        /// are <c>0</c>-<c>4</c>. Default is <c>4</c>.
         /// </summary>
         /// <value>
         /// The warning level for the compiler to display.

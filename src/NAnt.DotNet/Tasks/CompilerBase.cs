@@ -37,20 +37,20 @@ namespace NAnt.DotNet.Tasks {
     public abstract class CompilerBase : ExternalProgramBase {
         #region Private Instance Fields
 
-        string _responseFileName;
-        string _output = null;
-        string _target = null;
-        bool _debug = false;
-        string _define = null;
-        string _win32icon = null;
-        bool _warnAsError = false;
-        string _mainType = null;
-        FileSet _references = new FileSet();
-        ResourceFileSet _resources = new ResourceFileSet();
-        FileSet _modules = new FileSet();
-        FileSet _sources = new FileSet();
-        ResGenTask _resgenTask = null;
-        ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
+        private string _responseFileName;
+        private string _output = null;
+        private string _target = null;
+        private bool _debug = false;
+        private string _define = null;
+        private string _win32icon = null;
+        private bool _warnAsError = false;
+        private string _mainType = null;
+        private FileSet _references = new FileSet();
+        private ResourceFileSet _resources = new ResourceFileSet();
+        private FileSet _modules = new FileSet();
+        private FileSet _sources = new FileSet();
+        private ResGenTask _resgenTask = null;
+        private ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
 
         #endregion Private Instance Fields
 
@@ -62,30 +62,21 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("output", Required=true)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _output = value;
-                } else {
-                    _output = null;
-                }
-            }
-        }
-
-        /// <summary>Output type (<c>library</c> or <c>exe</c>).</summary>
-        [TaskAttribute("target", Required=true)]
-        public string OutputTarget  {
-            get { return _target; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _target = value;
-                } else {
-                    _target = null;
-                }
-            }
+            set { _output = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Generate debug output (<c>true</c>/<c>false</c>).
+        /// Output type. Possible values are <c>exe</c>, <c>winexe</c>, 
+        /// <c>library</c> or <c>module</c>.
+        /// </summary>
+        [TaskAttribute("target", Required=true)]
+        public string OutputTarget  {
+            get { return _target; }
+            set { _target = SetStringValue(value); }
+        }
+
+        /// <summary>
+        /// Generate debug output. Default is <c>false</c>.
         /// </summary>
         [BooleanValidator()]
         [TaskAttribute("debug")]
@@ -95,44 +86,45 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Define conditional compilation symbol(s). Corresponds to <c>/d[efine]:</c> flag.
+        /// Define conditional compilation symbol(s).
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to <c>/d[efine]:</c> flag.
+        /// </para>
+        /// </remarks>
         [TaskAttribute("define")]
         public string Define {
             get { return _define; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _define = value;
-                } else {
-                    _define = null;
-                }
-            }
+            set { _define = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Icon to associate with the application. Corresponds to <c>/win32icon:</c> flag.
+        /// Icon to associate with the application.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to <c>/win32icon:</c> flag.
+        /// </para>
+        /// </remarks>
         [TaskAttribute("win32icon")]
         public string Win32Icon {
             get { return (_win32icon != null) ? Project.GetFullPath(_win32icon) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _win32icon = value;
-                } else {
-                    _win32icon = null;
-                }
-            }
+            set { _win32icon = SetStringValue(value); }
         }
 
         /// <summary>
-        /// Instructs the compiler to treat all warnings as errors (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// Instructs the compiler to treat all warnings as errors. Default is 
+        /// <c>false</c>.
+        /// </summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/warnaserror[+|-]</c> flag of the compiler.
+        /// Corresponds to the <c>/warnaserror[+|-]</c> flag of the compiler.
         /// </para>
         /// <para>
-        /// When this attribute is set to <c>true</c>, any messages that would ordinarily be reported 
-        /// as warnings will instead be reported as errors.
+        /// When this property is set to <c>true</c>, any messages that would 
+        /// ordinarily be reported as warnings will instead be reported as 
+        /// errors.
         /// </para>
         /// </remarks>
         [BooleanValidator()]
@@ -143,28 +135,23 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Specifies which type contains the Main method that you want to use as the entry point into 
-        /// the program.
+        /// Specifies which type contains the Main method that you want to use 
+        /// as the entry point into the program.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This attribute corresponds to the <c>/m[ain]:</c> flag of the compiler.
+        /// Corresponds to the <c>/m[ain]:</c> flag of the compiler.
         /// </para>
         /// <para>
-        /// Use this attribute when creating an executable file. If this attribute is omitted, the 
-        /// compiler searches for a valid Main in all public classes.
+        /// Use this property when creating an executable file. If this property 
+        /// is set to <c>false</c>, the compiler searches for a valid Main method 
+        /// in all public classes.
         /// </para>
         /// </remarks>
         [TaskAttribute("main")]
         public string MainType {
             get { return _mainType; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _mainType = value;
-                } else {
-                    _mainType = null;
-                }
-            }
+            set { _mainType = SetStringValue(value); }
         }
 
         /// <summary>
@@ -184,16 +171,16 @@ namespace NAnt.DotNet.Tasks {
         /// This can be a combination of resx files and file resources.
         /// </para>
         /// <para>
-        /// .resx files will be compiled by resgen and then embedded into the 
-        /// resulting executable.
+        /// .resx files will be compiled by <see cref="ResGenTask" /> and then 
+        /// embedded into the resulting executable.
         /// </para>
         /// <para>
         /// The <see cref="ResourceFileSet.Prefix" /> property is used to make 
-        /// up the resource name added to the assembly manifest for non resx 
+        /// up the resource name added to the assembly manifest for non-resx 
         /// files.
         /// </para>
         /// <para>
-        /// For resx files the namespace from the matching source file is used 
+        /// For .resx files the namespace from the matching source file is used 
         /// as prefix. This matches the behaviour of Visual Studio. 
         /// </para>
         /// <para>
@@ -231,7 +218,9 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Gets the file extension required by the current compiler.
         /// </summary>
-        /// <value>The file extension required by the current compiler.</value>
+        /// <value>
+        /// The file extension required by the current compiler.
+        /// </value>
         protected abstract string Extension {
             get;
         }
@@ -276,13 +265,17 @@ namespace NAnt.DotNet.Tasks {
                     // specific compiler options
                     WriteOptions(writer);
 
-                    // Microsoft common compiler options
+                    //  suppresses display of the sign-on banner 
                     WriteOption(writer, "nologo");
+
+                    // specify output file format
                     WriteOption(writer, "target", OutputTarget);
+
                     if (Define != null) {
                         WriteOption(writer, "define", Define);
                     }
 
+                    // the name of the output file
                     WriteOption(writer, "out", Output);
 
                     if (Win32Icon != null) {
@@ -295,27 +288,20 @@ namespace NAnt.DotNet.Tasks {
                         WriteOption(writer, "main", this.MainType);
                     }
 
-
                     // Writes the option that specifies whether the compiler should consider warnings
                     // as errors.
                     if (this.WarnAsError) {
                         WriteOption(writer, "warnaserror");
                     }
 
-                    //TODO: I changed the References.FileNames to References.Includes
-                    //      Otherwise the system dlls never make it into the references.
-                    //      Not too sure of the other implications of this change, but the
-                    //      new Nant can run it's own build in addition to the VB6 stuff 
-                    //      I've thrown at it.
-                    // gs: This will not work when the user gives a reference in terms of a pattern.
-                    // The problem is with the limitaions of the FileSet scanner.
-                    // I've changed it back to .FileNames for now
                     foreach (string fileName in References.FileNames) {
                         WriteOption(writer, "reference", fileName);
                     }
+
                     foreach (string fileName in Modules.FileNames) {
                         WriteOption(writer, "addmodule", fileName);
                     }
+
                     // compile resources
                     foreach (ResourceFileSet resources in ResourcesList) {
                         if(resources.ResxFiles.FileNames.Count > 0) {
