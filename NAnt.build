@@ -542,7 +542,7 @@
         <!-- make environment variables and special folders available as properties -->
         <sysinfo failonerror="false" />
         <property name="install.realprefix" value="${sys.os.folder.programfiles}" />
-        <if test="${property::exists('install.prefix') and string::get-length('install.prefix') != 0}">
+        <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
             <property name="install.realprefix" value="${install.prefix}" />
         </if>
         <property name="install.copylocation" value="${path::combine(install.realprefix, 'NAnt')}"/>
@@ -561,7 +561,7 @@
     
     <target name="install-linux" depends="build">
         <property name="install.realprefix" value="/usr/local" />
-        <if test="${property::exists('install.prefix') and string::get-length('install.prefix') != 0}">
+        <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
             <property name="install.realprefix" value="${install.prefix}" />
         </if>
         <property name="install.bindir" value="${path::combine(install.realprefix, 'bin')}"/>
@@ -580,9 +580,7 @@
             </fileset>
         </copy>
         <echo message="Installing NAnt wrapper script to '${install.bindir}' ..." />
-        <echo file="${path::combine(install.bindir, 'nant')}">
-#!/bin/sh
-
+        <echo file="${path::combine(install.bindir, 'nant')}">#!/bin/sh
 exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'bin')}/NAnt.exe "$@"
         </echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
