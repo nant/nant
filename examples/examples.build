@@ -1,27 +1,10 @@
 <?xml version="1.0"?>
 <project name="NAnt Examples" default="build">
-    <target name="clean">
-        <nant target="clean">
+    <target name="*">
+        <nant target="${target::get-current-target()}">
             <buildfiles>
                 <include name="**/*.build" />
                 <exclude name="ScriptTask/script-sample.build" />
-                <exclude name="examples.build" />
-            </buildfiles>
-        </nant>
-    </target>
-    <target name="build">
-        <nant target="build">
-            <buildfiles>
-                <include name="**/*.build" />
-                <exclude name="ScriptTask/script-sample.build" />
-                <exclude name="examples.build" />
-            </buildfiles>
-        </nant>
-    </target>
-    <target name="run">
-        <nant target="run">
-            <buildfiles>
-                <include name="**/*.build" />
                 <exclude name="examples.build" />
             </buildfiles>
         </nant>
