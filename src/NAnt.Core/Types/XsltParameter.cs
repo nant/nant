@@ -31,11 +31,11 @@ namespace NAnt.Core.Types {
     public class XsltParameter : DataTypeBase {
         #region Private Instance Fields
 
-        private string _name = null;
-        private string _namespaceUri = null;
-        private string _value = null;
+        private string _name = string.Empty;
+        private string _namespaceUri = string.Empty;
+        private string _value = string.Empty;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 
@@ -53,27 +53,39 @@ namespace NAnt.Core.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// Name of the XSLT parameter.
+        /// The name of the XSLT parameter.
         /// </summary>
+        /// <value>
+        /// The name of the XSLT parameter, or <see cref="string.Empty" /> if 
+        /// not set.
+        /// </value>
         [TaskAttribute("name", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string ParameterName {
             get { return _name; }
-            set { _name = StringUtils.ConvertEmptyToNull(value); }
+            set { _name = value; }
         }
 
         /// <summary>
         /// The namespace URI to associate with the parameter.
         /// </summary>
+        /// <value>
+        /// The namespace URI to associate with the parameter, or 
+        /// <see cref="string.Empty" /> if not set.
+        /// </value>
         [TaskAttribute("namespaceuri")]
         public string NamespaceUri {
             get { return _namespaceUri; }
-            set { _namespaceUri = StringUtils.ConvertEmptyToNull(value); }
+            set { _namespaceUri = value; }
         }
 
         /// <summary>
-        /// Value of the XSLT parameter.
+        /// The value of the XSLT parameter.
         /// </summary>
+        /// <value>
+        /// The value of the XSLT parameter, or <see cref="string.Empty" /> if 
+        /// not set.
+        /// </value>
         [TaskAttribute("value", Required=true)]
         public string Value {
             get { return _value; }
