@@ -24,11 +24,12 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
+using NAnt.NUnit.Types;
 using NAnt.NUnit2.Tasks;
 
 namespace NAnt.NUnit2.Types {
     /// <summary>
-    /// Represents a test element of an <see cref="NUnit2Task" />.
+    /// Represents a <c>test</c> element of an <see cref="NUnit2Task" />.
     /// </summary>
     [ElementName("test")]
     public class NUnit2Test : Element {
@@ -83,7 +84,8 @@ namespace NAnt.NUnit2.Types {
         }
 
         /// <summary>
-        /// XSLT transform file to use when using the Xml formatter.
+        /// XSLT transform file to use when using the <see cref="FormatterType.Xml" /> 
+        /// formatter.
         /// </summary>
         [TaskAttribute("transformfile")]
         public string TransformFile {
