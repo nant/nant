@@ -34,22 +34,14 @@ namespace NAnt.Core.Attributes {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ElementNameAttribute" /> with the 
-        /// specified name.
+        /// Initializes a new instance of the <see cre="ElementNameAttribute" /> 
+        /// with the specified name.
         /// </summary>
-        /// <param name="name">The name of the attribute.</param>
+        /// <param name="name">The name of the element.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public ElementNameAttribute(string name) {
-            if (name == null) {
-                throw new ArgumentNullException("name");
-            }
-
-            if (name.Trim().Length == 0) {
-                throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
-            }
-
-            _name = name;
+            Name = name;
         }
 
         #endregion Public Instance Constructors
@@ -57,15 +49,25 @@ namespace NAnt.Core.Attributes {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the name of the attribute.
+        /// Gets or sets the name of the element.
         /// </summary>
         /// <value>
-        /// The name of the attribute.
+        /// The name of the element.
         /// </value>
         public string Name {
             get { return _name; }
             set { 
+                if (value == null) {
+                    throw new ArgumentNullException("name");
+                }
+
+                // Element names cannot have whitespace at the beginning, 
+                // or end.
                 _name = value.Trim(); 
+
+                if (_name.Length == 0) {
+                    throw new ArgumentOutOfRangeException("name", value, "A zero-length string is not an allowed value.");
+                }
             }
         }
 
@@ -76,9 +78,5 @@ namespace NAnt.Core.Attributes {
         private string _name;
 
         #endregion Private Instance Fields
-    
-        public override bool IsDefaultAttribute() {
-            return false;
-        }
     }
 }

@@ -34,10 +34,10 @@ namespace NAnt.Core.Attributes {
     /// <code>
     ///     <![CDATA[
     /// <task>
-    ///     <elementName .../>
-    ///     <elementName .../>
-    ///     <elementName .../>
-    ///     <elementName .../>
+    ///     <elementName ... />
+    ///     <elementName ... />
+    ///     <elementName ... />
+    ///     <elementName ... />
     /// </task>]]>
     /// </code>
     /// </para>
@@ -79,7 +79,7 @@ namespace NAnt.Core.Attributes {
         public Type ElementType {
             get { return _elementType; }
             set { 
-                if(value == null) {
+                if (value == null) {
                     throw new ArgumentNullException("ElementType");
                 }
                 _elementType = value; 

@@ -31,7 +31,18 @@ namespace NAnt.Core.Attributes {
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
     public sealed class TaskNameAttribute : ElementNameAttribute {
-        public TaskNameAttribute(string name) : base(name) {}
-        //yeah.
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskNameAttribute" /> 
+        /// with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the task.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
+        public TaskNameAttribute(string name) : base(name) {
+        }
+
+        #endregion Public Instance Constructors
     }
 }

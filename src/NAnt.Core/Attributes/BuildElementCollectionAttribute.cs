@@ -36,10 +36,10 @@ namespace NAnt.Core.Attributes {
     ///     <![CDATA[
     /// <task>
     ///     <collectionName>
-    ///         <elementName .../>
-    ///         <elementName .../>
-    ///         <elementName .../>
-    ///         <elementName .../>
+    ///         <elementName ... />
+    ///         <elementName ... />
+    ///         <elementName ... />
+    ///         <elementName ... />
     ///     </collectionName>
     /// </task>
     ///     ]]>
@@ -56,13 +56,18 @@ namespace NAnt.Core.Attributes {
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="childName">The name of the child elements in the collection</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="childName" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="childName" /> is a zero-length <see cref="string" />.</exception>
         public BuildElementCollectionAttribute(string collectionName, string childName) : base(collectionName) {
-            if(childName == null) { 
+            if (childName == null) { 
                 throw new ArgumentNullException("childName"); 
             }
-            _elementName = childName;
+
+            _elementName = childName.Trim();
+
+            if (_elementName.Length == 0) {
+                throw new ArgumentOutOfRangeException("childName", childName, "A zero-length string is not an allowed value.");
+            }
         }
 
         #endregion Public Instance Constructors

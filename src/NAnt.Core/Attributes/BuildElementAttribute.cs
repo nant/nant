@@ -22,7 +22,8 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that the property should be treated as an XML element and further processing should be done.
+    /// Indicates that the property should be treated as an XML element and 
+    /// further processing should be done.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -67,20 +68,19 @@ namespace NAnt.Core.Attributes {
         /// <value>
         /// The name of the attribute.
         /// </value>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public string Name {
             get { return _name; }
             set { 
                 if (value == null) {
-                    throw new ArgumentNullException("name", "name cannot be null!");
+                    throw new ArgumentNullException("name");
                 }
                 
-                //Set value. XML Element names cannot have whitspaces at the begging, or end.
+                // XML element names cannot have whitespace at the beginning, 
+                // or end.
                 _name = value.Trim(); 
 
                 if (_name.Length == 0) {
-                    throw new ArgumentOutOfRangeException("name", _name, "A zero-length string is not an allowed value.");
+                    throw new ArgumentOutOfRangeException("name", value, "A zero-length string is not an allowed value.");
                 }
             }
         }
@@ -96,30 +96,28 @@ namespace NAnt.Core.Attributes {
             get { return _required; }
             set { _required = value; }
         }
+
         /// <summary>
-        /// Used to specify how this element will be handled as the xml is parsed and given to the element.
+        /// Used to specify how this element will be handled as the XML is parsed 
+        /// and given to the element.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if xml should be processed; otherwise 
+        /// <see langword="true" /> if XML should be processed; otherwise 
         /// <see langword="false" />. The default is <see langword="true" />.
         /// </value>
-        public bool ProcessXML {
-            get { return _processXML; }
-            set { _processXML = value; }
+        public bool ProcessXml {
+            get { return _processXml; }
+            set { _processXml = value; }
         }
+
         #endregion Public Instance Properties
 
         #region Private Instance Fields
 
         private string _name;
         private bool _required = false;
-        private bool _processXML = true;
+        private bool _processXml = true;
 
         #endregion Private Instance Fields
-
-        public override bool IsDefaultAttribute() {
-            return false;
-        }
-
     }
 }

@@ -50,14 +50,6 @@ namespace NAnt.Core.Attributes {
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is a <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
         public FrameworkConfigurableAttribute(string name) {
-            if (name == null) {
-                throw new ArgumentNullException("name");
-            }
-
-            if (name.Trim().Length == 0) {
-                throw new ArgumentOutOfRangeException("name", name, "A zero-length string is not an allowed value.");
-            }
-
             Name = name;
         }
 
@@ -71,7 +63,19 @@ namespace NAnt.Core.Attributes {
         /// <value>The name of the framework configuration attribute.</value>
         public string Name {
             get { return _name; }
-            set { _name = value.Trim(); }
+            set { 
+                if (value == null) {
+                    throw new ArgumentNullException("name");
+                }
+                
+                // attribute names cannot have whitespace at the beginning, 
+                // or end.
+                _name = value.Trim();
+
+                if (_name.Length == 0) {
+                    throw new ArgumentOutOfRangeException("name", value, "A zero-length string is not an allowed value.");
+                }
+            }
         }
 
         /// <summary>

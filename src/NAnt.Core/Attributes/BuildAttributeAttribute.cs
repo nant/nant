@@ -96,14 +96,15 @@ namespace NAnt.Core.Attributes {
             get { return _name; }
             set { 
                 if (value == null) {
-                    throw new ArgumentNullException("name", "name cannot be null!");
+                    throw new ArgumentNullException("name");
                 }
                 
-                //Set value. XML Attribute names cannot have whitspaces at the begging, or end.
+                // XML attribute names cannot have whitespace at the beginning, 
+                // or end.
                 _name = value.Trim(); 
 
                 if (_name.Length == 0) {
-                    throw new ArgumentOutOfRangeException("name", _name, "A zero-length string is not an allowed value.");
+                    throw new ArgumentOutOfRangeException("name", value, "A zero-length string is not an allowed value.");
                 }
             }
         }
@@ -134,15 +135,16 @@ namespace NAnt.Core.Attributes {
         }
 
         /// <summary>
-        /// Used to specify how this element will be handled as the xml is parsed and given to the element.
+        /// Used to specify how this attribute will be handled as the XML is 
+        /// parsed and given to the element.
         /// </summary>
         /// <value>
-        /// <see langword="true" /> if xml should be processed; otherwise 
+        /// <see langword="true" /> if XML should be processed; otherwise 
         /// <see langword="false" />. The default is <see langword="true" />.
         /// </value>
-        public bool ProcessXML {
-            get { return _processXML; }
-            set { _processXML = value; }
+        public bool ProcessXml {
+            get { return _processXml; }
+            set { _processXml = value; }
         }
 
         #endregion Public Instance Properties
@@ -152,14 +154,8 @@ namespace NAnt.Core.Attributes {
         private string _name;
         private bool _required = false;
         private bool _expandProperties = true;
-        private bool _processXML = true;
-
+        private bool _processXml = true;
 
         #endregion Private Instance Fields
-
-        public override bool IsDefaultAttribute() {
-            return false;
-        }
-
     }
 }

@@ -23,7 +23,8 @@ using System;
 
 namespace NAnt.Core.Attributes {
     /// <summary>
-    /// Indicates that a property should be treated as a XML file set for the task.
+    /// Indicates that a property should be treated as a XML file set for the 
+    /// task.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     [Obsolete("Please use a BuildElement attribute instead. This class will be removed soon.", false)]
