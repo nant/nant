@@ -133,6 +133,22 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    /// <para>Tests the value of a property using expressions.</para>
+    /// <code>
+    /// <if test="${build.configuration='release'}">
+    ///     <echo>Build release configuration</echo>
+    /// </if>
+    /// </code>
+    /// </example>
+    /// <example>
+    /// <para>Tests the the output of a function.</para>
+    /// <code>
+    /// <if test="${not file::exists(filename) or file::get-length(filename) = 0}">
+    ///     <echo message="The version file ${filename} doesn't exist or is empty!" />
+    /// </if>
+    /// </code>
+    /// </example>
     [TaskName("if")]
     public class IfTask : TaskContainer {
         #region Private Instance Fields
