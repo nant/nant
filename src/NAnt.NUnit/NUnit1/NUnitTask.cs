@@ -34,7 +34,7 @@ namespace NAnt.NUnit1.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   See the <a href="http://nunit.sf.net">NUnit home page</a> for more 
+    ///   See the <see href="http://nunit.sf.net">NUnit home page</see> for more 
     ///   information.
     ///   </para>
     ///   <para>
