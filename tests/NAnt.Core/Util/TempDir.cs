@@ -42,7 +42,7 @@ namespace SourceForge.NAnt.Tests {
             // create the new empty directory
             Directory.CreateDirectory(path);
             if (!Directory.Exists(path)) {
-                throw new AssertionFailedError("TempDir: " + path + " does not exists.");
+                throw new AssertionException("TempDir: " + path + " does not exists.");
             }
             return path;
         }
@@ -57,7 +57,7 @@ namespace SourceForge.NAnt.Tests {
             }
             finally {
                 if (Directory.Exists(path)) {
-                    throw new AssertionFailedError("TempDir: "+ path + " exists.");
+                    throw new AssertionException("TempDir: "+ path + " exists.");
                 }
             }
         }

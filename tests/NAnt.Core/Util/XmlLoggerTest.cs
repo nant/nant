@@ -26,15 +26,17 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class XmlLoggerTest : TestCase {
+	[TestFixture]
+    public class XmlLoggerTest  {
         XmlLogger _log; 
     	
-        public XmlLoggerTest(string name) : base(name) { }
-		
-        protected override void SetUp() {
+
+	[SetUp]
+        protected void SetUp() {
             _log = CreateXmlLogger();
         }
 	
+        [Test]
         public void Test_StripFormatting() {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
@@ -52,13 +54,15 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(timestamp, _log.StripFormatting(formattedMessage));
         }
 
+		[Test]
         public void Test_StripFormattingMultiline() {
             string baseMessage = "this is a typical message.\nMultiline message that is.";
             string formattedMessage = "[foo] " + baseMessage;
 
             Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
         }
-		
+
+		[Test]
         public void Test_IsJustWhiteSpace() {
             string message = "";
             Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
@@ -84,7 +88,8 @@ namespace SourceForge.NAnt.Tests {
             message = "\t\t\thello";
             Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
         }
-		
+
+		[Test]
         public void Test_WriteLine() {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
@@ -95,7 +100,8 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(expected, _log.ToString());
 
         }
-		
+
+		[Test]
         public void Test_Write() {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
@@ -122,7 +128,8 @@ namespace SourceForge.NAnt.Tests {
             expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
-		
+
+		[Test]
         public void Test_WriteStrangeCharacters() {
             string baseMessage = "this message has !@!)$)(&^%^%$$##@@}{[]\"';:<<>/+=-_. in it.";
             string formattedMessage = "[foo] " + baseMessage;
@@ -133,6 +140,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(expected, _log.ToString());
         }
 		
+		[Test]
         public void Test_WriteEmbeddedMathFormulas() {
             string baseMessage = "this message has: x < 20 = y in it.";
             string formattedMessage = "[foo] " + baseMessage;
@@ -143,6 +151,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
+		[Test]
         public void Test_WriteTextWithEmbeddedCDATATag() {
             string message = @"some stuff with <xml> <![CDATA[more stuff]]> and more <![CDATA[cdata]]>";
             string expected = @"<message><![CDATA[some stuff with <xml> more stuff and more cdata]]></message>";
@@ -151,6 +160,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
+		[Test]
         public void Test_WriteXmlWithDeclaration() {
             string message = @"<?xml version=""1.0"" encoding=""utf-16""?><test><a></a></test>";
             string expected = @"<message><test><a></a></test></message>";
@@ -159,6 +169,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
+		[Test]
         public void Test_WriteXmlWithLeadingWhitespace() {
             string message = @"            <?xml version=""1.0"" encoding=""utf-16""?><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/>";
             string expected = @"<message><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/></message>";
@@ -166,7 +177,8 @@ namespace SourceForge.NAnt.Tests {
             _log.Write(message);
             Assertion.AssertEquals(expected, _log.ToString());
         }
-        
+
+		[Test]        
         public void Test_WriteEmbeddedXml() {
             string baseMessage = "<a><b><![CDATA[message]]></b></a>";
             string expected = String.Format("<message>{0}</message>", baseMessage);
@@ -175,6 +187,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
+		[Test]
         public void Test_WriteEmbeddedMalformedXml() {
             string baseMessage = "<a>malformed<b>";
             string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
@@ -182,7 +195,8 @@ namespace SourceForge.NAnt.Tests {
             _log.Write(baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
-		
+
+		[Test]
         public void Test_BuildStartedAndBuildFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);
@@ -192,7 +206,8 @@ namespace SourceForge.NAnt.Tests {
             _log.BuildFinished(this, args);
             Assertion.AssertEquals(expected, _log.ToString());
         }
-		
+
+		[Test]
         public void Test_TargetStartedAndTargetFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);
@@ -202,7 +217,8 @@ namespace SourceForge.NAnt.Tests {
             _log.TargetFinished(this, args);
             Assertion.AssertEquals(expected, _log.ToString());
         }
-		
+
+		[Test]
         public void Test_TaskStartedAndTaskFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);

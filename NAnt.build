@@ -43,12 +43,19 @@
             <fileset basedir="bin">
                 <includes name="NDoc.Core.dll"/>
                 <includes name="NDoc.Documenter.Msdn.dll"/>
+                <includes name="nunit.framework.dll"/>
                 <includes name="NUnitCore.dll"/>
                 <includes name="SharpZipLib.dll"/>
             </fileset>
         </copy>
-
-		<!-- build NAnt.Core -->
+        
+       <!-- <copy todir="${build.dir}/bin">
+        	<fileset basedir="d:\program files\nunit v2.0\bin">
+        		<includes name="nunit.framework.dll"/>
+        	</fileset>
+        </copy> -->
+        
+	<!-- build NAnt.Core -->
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
             <sources basedir="src/NAnt.Core">
                 <includes name="**/*.cs"/>
@@ -66,10 +73,11 @@
                 <excludes name="**/GetTaskTest.cs"/>
                 <excludes name="**/MailTaskTest.cs"/>
                 <excludes name="**/TouchTaskTest.cs"/>
+                <excludes name="**/AllTests.cs"/>
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
-                <includes name="NUnitCore.dll"/>
+                <includes name="nunit.framework.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
@@ -88,17 +96,24 @@
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
+        
+        <copy todir="${build.dir}/bin">
+        	<fileset basedir="src/NAnt.Console">
+        		<includes name="NAnt.Console.exe.config"/>
+        	</fileset>
+        </copy>
 
         <!-- compile NAnt.Console.Tests -->
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
             <sources basedir="src/NAnt.Console.Tests">
                 <includes name="**/*.cs"/>
+                <excludes name="**/AllTests.cs"/>
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Console.exe"/>
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NAnt.Core.Tests.dll"/>
-                <includes name="NUnitCore.dll"/>
+                <includes name="nunit.framework.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
@@ -119,15 +134,17 @@
     </target>
 
     <target name="self-test" depends="init">
-        <nunit>
-            <formatter type="Xml"/>
-            <test class="NAnt.Core.Tests.AllTests"        assembly="${build.dir}/bin/NAnt.Core.Tests.dll"        outfile="${build.dir}/bin/NAnt.Core.Tests.Results" />
-            <test class="NAnt.Console.Tests.AllTests"     assembly="${build.dir}/bin/NAnt.Console.Tests.dll"     outfile="${build.dir}/bin/NAnt.Console.Tests.Results" />
-        </nunit>
+        <nunit2>
+	        <test assemblyname="${build.dir}/bin/NAnt.Core.Tests.dll"/>
+	        <test assemblyname="${build.dir}/bin/NAnt.Console.Tests.dll"/>
+        </nunit2>
+        
+        
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
             <nant buildfile="src/${filename}.build" target="test"/>
         </foreach>
     </target>
+
 
     <target name="userdoc" depends="build" description="Builds user documentation">
 		<!-- build the documenter -->
@@ -227,6 +244,7 @@
     <target name="package" depends="cleanall release test userdoc sdkdoc" description="Creates a package zip file.">
         <!-- rename NAnt.Console.exe to nant.exe -->
         <move file="${build.dir}/bin/NAnt.Console.exe" tofile="${build.dir}/bin/nant.exe"/>
+        <move file="${build.dir}/bin/NAnt.Console.exe.config" tofile="${build.dir}/bin/nant.exe.config"/>
 
         <!-- remove non-release files -->
         <delete>

@@ -29,6 +29,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]		
     public class TargetTest : BuildTestBase {
 
         const string _format = @"
@@ -47,35 +48,37 @@ namespace SourceForge.NAnt.Tests {
                 </target>
             </project>";
 
-		public TargetTest(String name) : base(name) {
-        }
 
+		[Test]
         public void Test_Normal() {
             string result = RunBuild(FormatBuildFile("false", "true"));
-            Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
-            Assert("Target2 should not have executed.\n" + result, result.IndexOf("Target2 executed") == -1);
-            Assert("Target3 should not have executed.\n" + result, result.IndexOf("Target3 executed") == -1);
+            Assertion.Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
+            Assertion.Assert("Target2 should not have executed.\n" + result, result.IndexOf("Target2 executed") == -1);
+            Assertion.Assert("Target3 should not have executed.\n" + result, result.IndexOf("Target3 executed") == -1);
         }
 
+		[Test]
         public void Test_If() {
             string result = RunBuild(FormatBuildFile("true", "true"));
-            Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
-            Assert("Target2 should have executed.\n" + result, result.IndexOf("Target2 executed") != -1);
-            Assert("Target3 should not have executed.\n" + result, result.IndexOf("Target3 executed") == -1);
+            Assertion.Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
+            Assertion.Assert("Target2 should have executed.\n" + result, result.IndexOf("Target2 executed") != -1);
+            Assertion.Assert("Target3 should not have executed.\n" + result, result.IndexOf("Target3 executed") == -1);
         }
 
+		[Test]
         public void Test_Unless() {
             string result = RunBuild(FormatBuildFile("false", "false"));
-            Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
-            Assert("Target2 should not have executed.\n" + result, result.IndexOf("Target2 executed") == -1);
-            Assert("Target3 should have executed.\n" + result, result.IndexOf("Target3 executed") != -1);
+            Assertion.Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
+            Assertion.Assert("Target2 should not have executed.\n" + result, result.IndexOf("Target2 executed") == -1);
+            Assertion.Assert("Target3 should have executed.\n" + result, result.IndexOf("Target3 executed") != -1);
         }
 
+		[Test]
         public void Test_Depends() {
             string result = RunBuild(FormatBuildFile("true", "false"));
-            Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
-            Assert("Target2 should have executed.\n" + result, result.IndexOf("Target2 executed") != -1);
-            Assert("Target3 should have executed.\n" + result, result.IndexOf("Target3 executed") != -1);
+            Assertion.Assert("Target1 should have executed.\n" + result, result.IndexOf("Target1 executed") != -1);
+            Assertion.Assert("Target2 should have executed.\n" + result, result.IndexOf("Target2 executed") != -1);
+            Assertion.Assert("Target3 should have executed.\n" + result, result.IndexOf("Target3 executed") != -1);
         }
 
         private string FormatBuildFile(string a, string b) {

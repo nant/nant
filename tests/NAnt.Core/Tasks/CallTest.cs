@@ -29,10 +29,15 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class CallTest : BuildTestBase {
-        public CallTest(String name) : base(name) {
-        }
+    
+    	[SetUp]
+    	protected override void SetUp() {
+    		base.SetUp();
+    	}
 
+		[Test]
         public void Test_Call() {
             string _xml = @"
                     <project>
@@ -42,7 +47,7 @@ namespace SourceForge.NAnt.Tests {
                         <call target='one'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assert("Target not called.\n" + result, result.IndexOf("one--") != -1);
+            Assertion.Assert("Target not called.\n" + result, result.IndexOf("one--") != -1);
         }
     }
 }

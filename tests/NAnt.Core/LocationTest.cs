@@ -26,50 +26,54 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class LocationTest : TestCase {
-
-        public LocationTest(String name) : base(name) {
-        }
+	[TestFixture]
+    public class LocationTest {
 
         string _tempFileName = null;
 
-        protected override void SetUp() {
+		[SetUp]
+        protected void SetUp() {
             _tempFileName = TempFile.Create();
         }
 
-        protected override void TearDown() {
+		[TearDown]
+        protected void TearDown() {
             File.Delete(_tempFileName);
-            Assert(_tempFileName + " exists.", !File.Exists(_tempFileName));
+            Assertion.Assert(_tempFileName + " exists.", !File.Exists(_tempFileName));
         }
 
+		[Test]
         public void Test_Constructor_FileName() {
             Location l = new Location(_tempFileName);
-            AssertNotNull(l);
-            AssertEquals(0, l.LineNumber);
-            AssertEquals(0, l.ColumnNumber);
-            AssertEquals(_tempFileName, l.FileName);
+            Assertion.AssertNotNull(l);
+            Assertion.AssertEquals(0, l.LineNumber);
+            Assertion.AssertEquals(0, l.ColumnNumber);
+            Assertion.AssertEquals(_tempFileName, l.FileName);
         }
 
+		[Test]
         public void Test_Constructor_FileNameLineColumn() {
             Location l = new Location(_tempFileName, 2, 5);
-            AssertNotNull(l);
-            AssertEquals(2, l.LineNumber);
-            AssertEquals(5, l.ColumnNumber);
-            AssertEquals(_tempFileName, l.FileName);
+            Assertion.AssertNotNull(l);
+            Assertion.AssertEquals(2, l.LineNumber);
+            Assertion.AssertEquals(5, l.ColumnNumber);
+            Assertion.AssertEquals(_tempFileName, l.FileName);
         }
 
+		[Test]
         public void Test_Constructor_UriFileName() {
             Uri uri = new Uri("file://" + _tempFileName);
             Location l = new Location(uri.ToString(), 3, 6);
-            AssertNotNull(l);
-            AssertEquals(3, l.LineNumber);
-            AssertEquals(6, l.ColumnNumber);
-            AssertEquals(_tempFileName, l.FileName);
+            Assertion.AssertNotNull(l);
+            Assertion.AssertEquals(3, l.LineNumber);
+            Assertion.AssertEquals(6, l.ColumnNumber);
+            Assertion.AssertEquals(_tempFileName, l.FileName);
         }
 
+		[Test]
         public void Test_ToString() {
             // NOTE: This regular expression will fail on file systems that do not use '\' as the directory seperator.
-            AssertEquals('\\', Path.DirectorySeparatorChar);
+            Assertion.AssertEquals('\\', Path.DirectorySeparatorChar);
 
             // This expression will extract the name, line and column from the location ToString result.
             // Created using RegEx http://www.organicbit.com/regex/
@@ -77,10 +81,10 @@ namespace SourceForge.NAnt.Tests {
 
             Location location = new Location(_tempFileName, 2, 5);
             Match match = Regex.Match(location.ToString(), expression);
-            Assert("match should have been successful", match.Success);
+            Assertion.Assert("match should have been successful", match.Success);
             string expected = _tempFileName + " 2 5";
             string actual = match.Result("${fileName} ${line} ${column}");
-            AssertEquals(expected, actual);
+            Assertion.AssertEquals(expected, actual);
         }
     }
 }

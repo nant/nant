@@ -31,13 +31,10 @@ namespace SourceForge.NAnt.Tests {
     /// <remarks>
     ///   <para>Provides support for quickly running a build and capturing the output.</para>
     /// </remarks>
-    public abstract class BuildTestBase : TestCase {
+    public abstract class BuildTestBase {
 
         string _tempDirName = null;
        
-        public BuildTestBase(string name) : base(name) {
-        }
-
         /// <summary>
         /// The Temp Directory name for this test case. Should be in the form %temp%\ClassName (ex. c:\temp\SourceForge.NAnt.Test.BuildTestBase).
         /// </summary>
@@ -48,14 +45,15 @@ namespace SourceForge.NAnt.Tests {
         /// <remarks>
         ///   <para>Super classes that override SetUp must call the base class first.</para>
         /// </remarks>
-        protected override void SetUp() {
+        [SetUp]
+        protected virtual void SetUp() {
             _tempDirName = TempDir.Create(this.GetType().FullName);
         }
 
         /// <remarks>
         ///   <para>Super classes that override must call the base class last.</para>
         /// </remarks>
-        protected override void TearDown() {
+        protected virtual void TearDown() {
             TempDir.Delete(_tempDirName);
         }
 

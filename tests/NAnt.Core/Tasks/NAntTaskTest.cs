@@ -30,6 +30,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class NAntTaskTest : BuildTestBase {
 
         const string _format = @"
@@ -60,35 +61,37 @@ namespace SourceForge.NAnt.Tests {
 
         string _externalBuildFileName;
 
-        public NAntTaskTest(String name) : base(name) {
-        }
-
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
             _externalBuildFileName = Path.Combine(TempDirName, "external.build");
             TempFile.CreateWithContents(_externalBuildFile, _externalBuildFileName);
         }
 
+		[Test]		
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(""));
-            Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
-            Assert("External target should not have executed.\n" + result, result.IndexOf("External target executed") == -1);
+            Assertion.Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
+            Assertion.Assert("External target should not have executed.\n" + result, result.IndexOf("External target executed") == -1);
         }
 
+		[Test]
         public void Test_SingleTarget() {
             string result = RunBuild(FormatBuildFile("target='test'"));
-            Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
-            Assert("External target should have executed.\n" + result, result.IndexOf("External target executed") != -1);
+            Assertion.Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
+            Assertion.Assert("External target should have executed.\n" + result, result.IndexOf("External target executed") != -1);
         }
 
+		[Test]
         public void Test_MultipleTargets() {
             string result = RunBuild(FormatBuildFile("target='test t2 t3'"));
-            Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
-            Assert("External target should have executed.\n" + result, result.IndexOf("External target executed") != -1);
-            Assert("Second target should have executed.\n" + result, result.IndexOf("Second target executed") != -1);
-            Assert("Third target should have executed.\n" + result, result.IndexOf("Third target executed") != -1);
+            Assertion.Assert("External build should have executed.\n" + result, result.IndexOf("External build file executed") != -1);
+            Assertion.Assert("External target should have executed.\n" + result, result.IndexOf("External target executed") != -1);
+            Assertion.Assert("Second target should have executed.\n" + result, result.IndexOf("Second target executed") != -1);
+            Assertion.Assert("Third target should have executed.\n" + result, result.IndexOf("Third target executed") != -1);
         }
 
+		[Test]
         public void Test_PropertyInherit() {
             string _xml = @"
                 <project>
@@ -101,15 +104,15 @@ namespace SourceForge.NAnt.Tests {
             
             //check inheritance.
             result = RunBuild(String.Format(_xml, _externalBuildFileName, "inheritall='true'","${test}"));
-            Assert("Property should be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") != -1);
-            Assert("Property should be inherited, and updatable.\n" + result, result.IndexOf("testprop=2nd") != -1);
-            Assert("Property should not be changed by inherited nant project.\n" + result, result.IndexOf("after=1st") != -1);
+            Assertion.Assert("Property should be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") != -1);
+            Assertion.Assert("Property should be inherited, and updatable.\n" + result, result.IndexOf("testprop=2nd") != -1);
+            Assertion.Assert("Property should not be changed by inherited nant project.\n" + result, result.IndexOf("after=1st") != -1);
 
             //check to make sure inheritance isn't working.
             result = RunBuild(String.Format(_xml, _externalBuildFileName, "inheritall='false'","${test}"));
-            Assert("Property should not be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") == -1);
-            Assert("Property is definable.\n" + result, result.IndexOf("testprop=2nd") != -1);
-            Assert("Property defined in called project should not affect the caller.\n" + result, result.IndexOf("after=1st") != -1);
+            Assertion.Assert("Property should not be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") == -1);
+            Assertion.Assert("Property is definable.\n" + result, result.IndexOf("testprop=2nd") != -1);
+            Assertion.Assert("Property defined in called project should not affect the caller.\n" + result, result.IndexOf("after=1st") != -1);
             
 
         }

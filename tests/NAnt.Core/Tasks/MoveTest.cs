@@ -31,6 +31,7 @@ namespace SourceForge.NAnt.Tests {
     /// <summary>
     /// <para>Tests move task.</para>
     /// </summary>
+    [TestFixture]
     public class MoveTest : BuildTestBase {
         const string _xmlProjectTemplate = @"
             <project>
@@ -40,23 +41,22 @@ namespace SourceForge.NAnt.Tests {
         string tempDirDest;
         string tempFileSrc;
 
-        public MoveTest(String name) : base(name) {
-        }
-
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
             tempDirDest = CreateTempDir("foob");
             tempFileSrc = CreateTempFile("foo.xml");
         }
 
+		[Test]
         public void Test_Move() {
-            Assert("File should have been created:" + tempDirDest, File.Exists(tempFileSrc));
-            Assert("Dir should have been created:" + tempDirDest, Directory.Exists(tempDirDest));
+            Assertion.Assert("File should have been created:" + tempDirDest, File.Exists(tempFileSrc));
+            Assertion.Assert("Dir should have been created:" + tempDirDest, Directory.Exists(tempDirDest));
 
             string result = RunBuild(String.Format(_xmlProjectTemplate, Path.Combine(tempDirDest,"foo.xml"), tempFileSrc));
             
-            Assert("File should have been removed (during move):" + result, !File.Exists(tempFileSrc));
-            Assert("File should have been added (during move):" + result, File.Exists(Path.Combine(tempDirDest, "foo.xml")));
+            Assertion.Assert("File should have been removed (during move):" + result, !File.Exists(tempFileSrc));
+            Assertion.Assert("File should have been added (during move):" + result, File.Exists(Path.Combine(tempDirDest, "foo.xml")));
 
             //hopefully this file won't be there, if things worked
             File.Delete(tempFileSrc);

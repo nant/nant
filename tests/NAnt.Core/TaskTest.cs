@@ -51,6 +51,7 @@ namespace SourceForge.NAnt.Tests {
         }
     }
 
+	[TestFixture]
     public class TaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0' ?>
@@ -61,49 +62,57 @@ namespace SourceForge.NAnt.Tests {
                 </target>
             </project>";
 
-		  public TaskTest(String name) : base(name) {
-        }
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
         }
+        
+        [Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(""));
-            Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
+		[Test]
         public void Test_Verbose() {
             string result = RunBuild(FormatBuildFile("verbose='true'"));
-            Assert("Verbose message should have been displayed.\n" + result, result.IndexOf("Verbose message") != -1);
+            Assertion.Assert("Verbose message should have been displayed.\n" + result, result.IndexOf("Verbose message") != -1);
         }
 
+		[Test]
         public void Test_FailOnError() {
             string result = RunBuild(FormatBuildFile("fail='true' failonerror='false'"));
-            Assert("Task should have failed.\n" + result, result.IndexOf("TestTask failed") != -1);
+            Assertion.Assert("Task should have failed.\n" + result, result.IndexOf("TestTask failed") != -1);
         }
 
+		[Test]
         public void Test_If_True() {
             string result = RunBuild(FormatBuildFile("if='true'"));
-            Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
+		[Test]
         public void Test_If_False() {
             string result = RunBuild(FormatBuildFile("if='false'"));
-            Assert("Task should not have executed.\n" + result, result.IndexOf("TestTask executed") == -1);
+            Assertion.Assert("Task should not have executed.\n" + result, result.IndexOf("TestTask executed") == -1);
         }
 
+		[Test]
         public void Test_Unless_False() {
             string result = RunBuild(FormatBuildFile("unless='false'"));
-            Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
+		[Test]
         public void Test_Unless_True() {
             string result = RunBuild(FormatBuildFile("unless='true'"));
-            Assert("Task should not have executed.\n" + result, result.IndexOf("TestTask executed") == -1);
+            Assertion.Assert("Task should not have executed.\n" + result, result.IndexOf("TestTask executed") == -1);
         }
 
+		[Test]
         public void Test_Mixture() {
             string result = RunBuild(FormatBuildFile("verbose='true' if='true' unless='false'"));
-            Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
 /*

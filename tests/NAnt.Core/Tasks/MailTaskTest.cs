@@ -27,7 +27,8 @@ using SourceForge.NAnt.Tasks;
 using NUnit.Framework;
 namespace SourceForge.NAnt.Tests {
     
-    public class MailTaskTest : TestCase {
+    [TestFixture]
+    public class MailTaskTest  {
 
         string _from = "";
         string _tolist = "";
@@ -44,10 +45,8 @@ namespace SourceForge.NAnt.Tests {
         StringCollection _fileList = new StringCollection();
         string _baseDirectory = @"c:\Temp\MailTest";
 
-        public MailTest(String name) : base(name) {
-        }
-        
-        protected override void SetUp() {
+		[SetUp]
+        protected void SetUp() {
 
             _emailAddress1 = "nAnt1@sourceforge.net";
             _emailAddress2 = "nAnt2@sourceforge.net";
@@ -80,7 +79,8 @@ namespace SourceForge.NAnt.Tests {
 
         }
 
-        protected override void TearDown() {
+		[TearDown]
+        protected void TearDown() {
             try {
                 Directory.Delete(_baseDirectory, true);
             } catch {
@@ -100,6 +100,7 @@ namespace SourceForge.NAnt.Tests {
         ///     
         /// </remarks>
 
+		[Test]
         public void testSimpleMessage() {
 
             MailTask mailTask = new MailTask();
@@ -122,7 +123,7 @@ namespace SourceForge.NAnt.Tests {
 
                 mailTask.Execute();
             } catch (Exception e) {
-                Assert(_subject + ": " + e.Message, false);
+                Assertion.Assert(_subject + ": " + e.Message, false);
             }
         }
 
@@ -139,6 +140,7 @@ namespace SourceForge.NAnt.Tests {
             ///     
             /// </remarks>          
 
+			[Test]
             public void testMultiToList() {
 
                 MailTask mailTask = new MailTask();
@@ -161,7 +163,7 @@ namespace SourceForge.NAnt.Tests {
 
                     mailTask.Execute();
                 } catch (Exception e) {
-                    Assert(_subject + ": " + e.Message, false);
+                    Assertion.Assert(_subject + ": " + e.Message, false);
                 }
         }
 
@@ -178,6 +180,7 @@ namespace SourceForge.NAnt.Tests {
         ///     
         /// </remarks>          
 
+		[Test]
         public void testMultiBccList() {
 
             MailTask mailTask = new MailTask();
@@ -200,7 +203,7 @@ namespace SourceForge.NAnt.Tests {
 
                 mailTask.Execute();
             } catch (Exception e) {
-                Assert(_subject + ": " + e.Message, false);
+                Assertion.Assert(_subject + ": " + e.Message, false);
             }
         }
 
@@ -217,6 +220,7 @@ namespace SourceForge.NAnt.Tests {
         ///     
         /// </remarks>          
 
+		[Test]
         public void testMultiCcList() {
 
             MailTask mailTask = new MailTask();
@@ -239,7 +243,7 @@ namespace SourceForge.NAnt.Tests {
 
                 mailTask.Execute();
             } catch (Exception e) {
-                Assert(_subject + ": " + e.Message, false);
+                Assertion.Assert(_subject + ": " + e.Message, false);
             }
         }
 
@@ -258,6 +262,7 @@ namespace SourceForge.NAnt.Tests {
         ///     
         /// </remarks>          
 
+		[Test]
         public void testAllLists() {
 
             MailTask mailTask = new MailTask();
@@ -282,7 +287,7 @@ namespace SourceForge.NAnt.Tests {
 
                 mailTask.Execute();
             } catch (Exception e) {
-                Assert(_subject + ": " + e.Message, false);
+                Assertion.Assert(_subject + ": " + e.Message, false);
             }
         }
 
@@ -299,6 +304,7 @@ namespace SourceForge.NAnt.Tests {
         ///     
         /// </remarks>          
 
+		[Test]
         public void testFilesAsBody() {
 
             MailTask mailTask = new MailTask();
@@ -326,7 +332,7 @@ namespace SourceForge.NAnt.Tests {
 
                 mailTask.Execute();
             } catch (Exception e) {
-                Assert(_subject + ": " + e.Message, false);
+                Assertion.Assert(_subject + ": " + e.Message, false);
             }
         }
 
@@ -344,7 +350,7 @@ namespace SourceForge.NAnt.Tests {
         ///     
         /// </remarks>          
 
-
+		[Test]
         public void testFilesAsAttach() {
 
             MailTask mailTask = new MailTask();
@@ -379,7 +385,7 @@ namespace SourceForge.NAnt.Tests {
 
                 mailTask.Execute();
             } catch (Exception e) {
-                Assert(_subject + ": " + e.Message, false);
+                Assertion.Assert(_subject + ": " + e.Message, false);
             }
         }
 

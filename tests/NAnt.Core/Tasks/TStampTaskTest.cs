@@ -28,6 +28,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class TStampTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0' ?>
@@ -35,29 +36,30 @@ namespace SourceForge.NAnt.Tests {
                 <tstamp {0}>{1}</tstamp>
             </project>";
 
-		public TStampTaskTest(String name) : base(name) {
-        }
-
+		[Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(_format, "", ""));
-            Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
         }
 
+		[Test]
         public void Test_Custom() {
             string result = RunBuild(String.Format(_format, " verbose='true' property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
-            Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
-            Assert("build.date property should have been set.\n" + result, result.IndexOf("build.date") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
+            Assertion.Assert("build.date property should have been set.\n" + result, result.IndexOf("build.date") != -1);
         }
 
+		[Test]
         public void Test_NoVerbose() {
             string result = RunBuild(String.Format(_format, "property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
-            Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
-            Assert("build.date property should not have been printed to log.\n" + result, result.IndexOf("build.date") == -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
+            Assertion.Assert("build.date property should not have been printed to log.\n" + result, result.IndexOf("build.date") == -1);
         }
 
+		[Test]
         public void Test_Formatter() {
             string result = RunBuild(String.Format(_format, "verbose='true'", "<formatter property='TODAY' pattern='dd MMM yyyy'/><formatter property='DSTAMP' pattern='yyyyMMdd'/><formatter property='TSTAMP' pattern='HHmm'/>"));
-            Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
         }
     }
 }

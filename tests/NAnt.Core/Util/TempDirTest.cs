@@ -25,17 +25,17 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class TempDirTest : TestCase {
+	[TestFixture]
+    public class TempDirTest {
 
-        public TempDirTest(String name) : base(name) {
-        }
 
+		[Test]
         public void Test_CreateAndDestroy() {
             string path = TempDir.Create("foobar");
-            Assert(path + " does not exists.", Directory.Exists(path));
-            Assert(path + " does not end with 'foobar'.", path.EndsWith("foobar"));
+            Assertion.Assert(path + " does not exists.", Directory.Exists(path));
+            Assertion.Assert(path + " does not end with 'foobar'.", path.EndsWith("foobar"));
             TempDir.Delete(path);
-            Assert(path + " exists.", !Directory.Exists(path));
+            Assertion.Assert(path + " exists.", !Directory.Exists(path));
         }
     }
 }

@@ -26,7 +26,7 @@ using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
 
 namespace SourceForge.NAnt.Tests {
-
+	[TestFixture]
     public class ZipTaskTest : BuildTestBase {
 
         const string _projectXML = @"<?xml version='1.0'?>
@@ -39,16 +39,14 @@ namespace SourceForge.NAnt.Tests {
             </project>";
 
 
-        public ZipTaskTest(String name) : base(name) {
-        }
-
 
         /// <summary>Test to make sure debug option works.</summary>
+        [Test]
         public void Test_ReleaseBuild() {
             CreateTempDir("src");
             CreateTempFile("src\\temp1.file","hello");
             string result = RunBuild(_projectXML);
-            Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName,"test.zip")));
+            Assertion.Assert("Zip File not created.", File.Exists(Path.Combine(TempDirName,"test.zip")));
         }
     }
 }

@@ -27,26 +27,26 @@ using SourceForge.NAnt.Tasks;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class ExecTaskTest : BuildTestBase {
-
         const string _format = @"<?xml version='1.0' ?>
             <project>
                 <exec {0}>{1}</exec>
             </project>";
 
-		public ExecTaskTest(String name) : base(name) {
-        }
 
         /// <summary>Test <arg> option.</summary>
+        [Test]
         public void Test_ArgOption() {
             string result = RunBuild(FormatBuildFile("program='cmd.exe'", "<arg value='/c echo Hello, World!'/>"));
-            Assert("Could not find expected text from external program, <arg> element is not working correctly.", result.IndexOf("Hello, World!") != -1);
+            Assertion.Assert("Could not find expected text from external program, <arg> element is not working correctly.", result.IndexOf("Hello, World!") != -1);
         }
 
         /// <summary>Regression test for bug #461732 - ExternalProgramBase.ExecuteTask() hanging</summary>
         /// <remarks>
         /// http://sourceforge.net/tracker/index.php?func=detail&aid=461732&group_id=31650&atid=402868
         /// </remarks>
+        [Test]
         public void Test_ReadLargeAmountFromStdout() {
 
             // create a text file with A LOT of data

@@ -25,45 +25,40 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class TempFileTest : TestCase {
+	[TestFixture]
+    public class TempFileTest {
 
-        public TempFileTest(String name) : base(name) {
-        }
-
-        protected override void SetUp() {
-        }
-
-        protected override void TearDown() {
-        }
-
+		[Test]
         public void Test_Create() {
             string fileName = TempFile.Create();
-            Assert(fileName + " does not exists.", File.Exists(fileName));
+            Assertion.Assert(fileName + " does not exists.", File.Exists(fileName));
 
             TimeSpan diff = DateTime.Now - File.GetCreationTime(fileName);
-            Assert("Creation time should be less than 10 seconds ago.", diff.TotalSeconds < 10.0);
+            Assertion.Assert("Creation time should be less than 10 seconds ago.", diff.TotalSeconds < 10.0);
 
             File.Delete(fileName);
-            Assert(fileName + " exists.", !File.Exists(fileName));
+            Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
         }
 
+		[Test]
         public void Test_Create_NullArgument() {
             try {
                 TempFile.Create(null);
-                Fail("Exception not thrown.");
+                Assertion.Fail("Exception not thrown.");
             } catch {
             }
         }
 
+		[Test]
         public void Test_Create_WithContents() {
             string expected = "Line 1\nLine Two\n\nLine Three";
             string fileName = TempFile.CreateWithContents(expected);
             string actual = TempFile.Read(fileName);
-            AssertEquals(expected, actual);
+            Assertion.AssertEquals(expected, actual);
 
             // delete the temp file
             File.Delete(fileName);
-            Assert(fileName + " exists.", !File.Exists(fileName));
+            Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
         }
     }
 }

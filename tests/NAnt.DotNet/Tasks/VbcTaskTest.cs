@@ -27,6 +27,7 @@ using SourceForge.NAnt.Tasks;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class VbcTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0'?>
@@ -50,9 +51,7 @@ namespace SourceForge.NAnt.Tests {
 
         string _sourceFileName;
 
-        public VbcTaskTest(String name) : base(name) {
-        }
-
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
 			_sourceFileName = Path.Combine(TempDirName, "HelloWorld.vb");
@@ -60,17 +59,19 @@ namespace SourceForge.NAnt.Tests {
 		}
 
         /// <summary>Test to make sure debug option works.</summary>
+        [Test]
         public void Test_DebugBuild() {
             string result = RunBuild(FormatBuildFile("debug='true'"));
-            Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
-            Assert(_sourceFileName + ".pdb does not exists, program did compile with debug switch.", File.Exists(_sourceFileName + ".pdb"));
+            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
+            Assertion.Assert(_sourceFileName + ".pdb does not exists, program did compile with debug switch.", File.Exists(_sourceFileName + ".pdb"));
         }
 
         /// <summary>Test to make sure debug option works.</summary>
+        [Test]
         public void Test_ReleaseBuild() {
             string result = RunBuild(FormatBuildFile("debug='false'"));
-            Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
-            Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
+            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
+            Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
         }
 
         private string FormatBuildFile(string attributes) {

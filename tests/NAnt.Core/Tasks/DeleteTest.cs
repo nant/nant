@@ -39,6 +39,7 @@ namespace SourceForge.NAnt.Tests {
     /// </para>
     /// </summary>
     /// <remarks>This test should also test for failures, like permission errors, and filesets</remarks>
+    [TestFixture]
     public class DeleteTest : BuildTestBase {
         const string _xmlProjectTemplate = @"
             <project>
@@ -51,9 +52,7 @@ namespace SourceForge.NAnt.Tests {
         string tempDir;
         string tempFileInTempDirDir;
 
-        public DeleteTest(String name) : base(name) {
-        }
-
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
             tempFile = CreateTempFile("a.b");
@@ -62,16 +61,17 @@ namespace SourceForge.NAnt.Tests {
             CreateTempFile(Path.Combine(tempFileInTempDirDir, "ha.he"));
         }
 
+		[Test]
         public void Test_Delete() {
-            Assert("File should have been created:" + tempFile, File.Exists(tempFile));
-            Assert("Dir should have been created:" + tempDir, Directory.Exists(tempDir));
-            Assert("Dir should have been created:" + tempFileInTempDirDir, Directory.Exists(tempFileInTempDirDir));
+            Assertion.Assert("File should have been created:" + tempFile, File.Exists(tempFile));
+            Assertion.Assert("Dir should have been created:" + tempDir, Directory.Exists(tempDir));
+            Assertion.Assert("Dir should have been created:" + tempFileInTempDirDir, Directory.Exists(tempFileInTempDirDir));
 
             string result = RunBuild(String.Format(_xmlProjectTemplate, tempFile, tempDir, tempFileInTempDirDir));
             
-            Assert("File should have been deleted:" + result, !File.Exists(tempFile));
-            Assert("Dir should have been deleted:" + result, !Directory.Exists(tempDir));
-            Assert("Dir should have been deleted:" + result, !Directory.Exists(tempFileInTempDirDir));
+            Assertion.Assert("File should have been deleted:" + result, !File.Exists(tempFile));
+            Assertion.Assert("Dir should have been deleted:" + result, !Directory.Exists(tempDir));
+            Assertion.Assert("Dir should have been deleted:" + result, !Directory.Exists(tempFileInTempDirDir));
         }
     }
 }

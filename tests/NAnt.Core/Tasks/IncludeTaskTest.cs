@@ -29,6 +29,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class IncludeTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0'?>
@@ -46,21 +47,21 @@ namespace SourceForge.NAnt.Tests {
 
         string _includeFileName;
 
-		public IncludeTaskTest(String name) : base(name) {
-        }
-
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
 			_includeFileName = Path.Combine(TempDirName, "include.xml");
             TempFile.CreateWithContents(_includedBuildFile, _includeFileName);
 		}
 
+		[Test]
         public void Test_Simple() {
             string result = RunBuild(FormatBuildFile(_format));
-            Assert("Global task should have executed.\n" + result, result.IndexOf("Task executed") != -1);
-            Assert("Target should have executed.\n" + result, result.IndexOf("Target executed") != -1);
+            Assertion.Assert("Global task should have executed.\n" + result, result.IndexOf("Task executed") != -1);
+            Assertion.Assert("Target should have executed.\n" + result, result.IndexOf("Target executed") != -1);
         }
 
+		[Test]
         public void Test_NestedTask() {
             const string formatNestedTask = @"<?xml version='1.0' ?>
                <project basedir='{0}' default='test'>
@@ -71,12 +72,13 @@ namespace SourceForge.NAnt.Tests {
 
             try {
                 RunBuild(formatNestedTask);
-                Fail("Task appears in target element but BuildException not thrown.");
+                Assertion.Fail("Task appears in target element but BuildException not thrown.");
             } catch (BuildException e) {
-                Assert("Build exception should have been because of a nested task.\n" + e.Message, e.Message.IndexOf("Task not allowed in targets.") != -1);
+                Assertion.Assert("Build exception should have been because of a nested task.\n" + e.Message, e.Message.IndexOf("Task not allowed in targets.") != -1);
             }
         }
 
+		[Test]
         public void Test_RecursiveInclude() {
             // modify included build file to recursively include itself
             string recursiveIncludedBuildFile = @"<?xml version='1.0'?><project><include buildfile='include.xml'/></project>";
@@ -85,9 +87,9 @@ namespace SourceForge.NAnt.Tests {
 
             try {
                 RunBuild(FormatBuildFile(_format));
-                Fail("Task appears in target element but BuildException not thrown.");
+                Assertion.Fail("Task appears in target element but BuildException not thrown.");
             } catch (BuildException e) {
-                Assert("Build exception should have been because of a recursive include.\n" + e.Message, e.Message.IndexOf("Recursive includes are not allowed.") != -1);
+                Assertion.Assert("Build exception should have been because of a recursive include.\n" + e.Message, e.Message.IndexOf("Recursive includes are not allowed.") != -1);
             }
         }
 

@@ -52,11 +52,10 @@ namespace SourceForge.NAnt.Tests {
     /// 6) If the exception has private fields, it overrides the Message property.
     /// 7) The exception is marked as serializable.
     /// </remarks>
-    public class ExceptionTest : TestCase {
+    [TestFixture]
+    public class ExceptionTest {
 
-        public ExceptionTest(String name) : base(name) {
-        }
-
+		[Test]
         public void Test_AllExceptions() {
             // For each assembly we want to check instantiate an object from that assembly
             // and use the type to get the assembly.
@@ -84,15 +83,15 @@ namespace SourceForge.NAnt.Tests {
 
         void CheckConstructor(Type t, string description, params Type[] parameters) {
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
-            AssertNotNull(t.Name + description + " is a required constructor.", ci);
-            Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
-            Assert(t.Name + description + " is internal, must be public or protected.", !ci.IsFamily);
+            Assertion.AssertNotNull(t.Name + description + " is a required constructor.", ci);
+            Assertion.Assert(t.Name + description + " is private, must be public or protected.", !ci.IsPrivate);
+            Assertion.Assert(t.Name + description + " is internal, must be public or protected.", !ci.IsFamily);
         }
 
         void CheckException(Assembly assembly, Type t) {
             // check to see that the exception is correctly named, with "Exception" at the end
             bool validName = t.Name.EndsWith("Exception");
-            Assert(t.Name + " class name must end with Exception.", t.Name.EndsWith("Exception"));
+            Assertion.Assert(t.Name + " class name must end with Exception.", t.Name.EndsWith("Exception"));
 
             // Does the exception have the 3 standard constructors?
 
@@ -112,13 +111,13 @@ namespace SourceForge.NAnt.Tests {
                     typeof(System.Runtime.Serialization.StreamingContext));
 
             // check to see if the type is market as serializable
-            Assert(t.Name + " is not serializable, missing [Serializable]?", t.IsSerializable);
+            Assertion.Assert(t.Name + " is not serializable, missing [Serializable]?", t.IsSerializable);
 
             // check to see if there are any public fields. These should be properties instead...
             FieldInfo[] publicFields = t.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
             if (publicFields.Length != 0) {
                 foreach (FieldInfo fieldInfo in publicFields) {
-                    Fail(t.Name + "." + fieldInfo.Name + " is a public field, should be exposed through property instead.");
+                    Assertion.Fail(t.Name + "." + fieldInfo.Name + " is a public field, should be exposed through property instead.");
                 }
             }
 
@@ -127,11 +126,11 @@ namespace SourceForge.NAnt.Tests {
             FieldInfo[] fields = t.GetFields(BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             if (fields.Length != 0) {
                 if (t.GetMethod("GetObjectData", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) == null) {
-                    Fail(t.Name + " does not implement GetObjectData but has private fields.");
+                    Assertion.Fail(t.Name + " does not implement GetObjectData but has private fields.");
                 }
 
                 // Make sure Message is overridden if there are private fields.
-                Assert(t.Name + " does not override the Message property.", t.GetProperty("Message", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) != null);
+                Assertion.Assert(t.Name + " does not override the Message property.", t.GetProperty("Message", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance) != null);
             }
         }
 

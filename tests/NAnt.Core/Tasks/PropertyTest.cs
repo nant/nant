@@ -28,11 +28,9 @@ using SourceForge.NAnt.Tasks;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
-
+	[TestFixture]
     public class PropertyTest : BuildTestBase {
-        public PropertyTest(String name) : base(name) {
-        }
-
+		[Test]
         public void Test_PropCreate() {
             string _xml = @"
                     <project name='PropTests'>
@@ -40,9 +38,10 @@ namespace SourceForge.NAnt.Tests {
                         <echo message='I Love ${foo}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assert("Property value not set.\n" + result, result.IndexOf("I Love you") != -1);
+            Assertion.Assert("Property value not set.\n" + result, result.IndexOf("I Love you") != -1);
         }
 
+		[Test]
         public void Test_PropReset() {
             string _xml = @"
                     <project name='PropTests'>
@@ -52,9 +51,10 @@ namespace SourceForge.NAnt.Tests {
                         <echo message='I Love ${foo}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assert("Property value not re-set.\n" + result, result.IndexOf("I Love me") != -1);
+            Assertion.Assert("Property value not re-set.\n" + result, result.IndexOf("I Love me") != -1);
         }
         
+        [Test]
         public void Test_ROSet() {
 /*
             XmlDocument doc = new XmlDocument();
@@ -74,7 +74,7 @@ namespace SourceForge.NAnt.Tests {
                         <echo message='nant.filename=${nant.filename}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assert("RO Property value was set.\n" + result, result.IndexOf("nant.filename=you") == -1);
+            Assertion.Assert("RO Property value was set.\n" + result, result.IndexOf("nant.filename=you") == -1);
         }
     }
 }

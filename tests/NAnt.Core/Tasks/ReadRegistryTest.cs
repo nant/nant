@@ -25,11 +25,10 @@ namespace SourceForge.NAnt.Tests {
     /// <summary>
     /// Tests the ReadRegistryTask.
     /// </summary>
+    [TestFixture]
     public class ReadRegistryTest : BuildTestBase {
         
-        public ReadRegistryTest(String name) : base(name) {
-        }
-
+		[Test]
         public void Test_Read_Defaults() {
             string _xml = @"
                     <project name='PropTests'>
@@ -38,15 +37,16 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             try {
                 string result = RunBuild(_xml);
-                Assert("Fail message missing:\n" + result, result.IndexOf("productID=;") == -1);
+                Assertion.Assert("Fail message missing:\n" + result, result.IndexOf("productID=;") == -1);
             }
             catch (BuildException be) {
-                Fail("\n" + be.ToString());
+                Assertion.Fail("\n" + be.ToString());
             }
         }
         /// <summary>
         /// Makes sure invalid path throws and exception
         /// </summary>
+        [Test]
         public void Test_BadPath() {
             string _xml = @"
                     <project name='foo'>
@@ -55,15 +55,15 @@ namespace SourceForge.NAnt.Tests {
             try {
                 string result = RunBuild(_xml);
                 Console.WriteLine(result);
-                Fail("Invalid key did not generate an exception");
+                Assertion.Fail("Invalid key did not generate an exception");
             }
             catch (BuildException be) {
                 //no op, good.
                 if(be.ToString().IndexOf("missing") != -1)
-                    Fail("Wrong type of exception; does not contain word 'missing'!\n" + be.ToString());
+                    Assertion.Fail("Wrong type of exception; does not contain word 'missing'!\n" + be.ToString());
             }
             catch {
-                Fail("Other exception!");
+                Assertion.Fail("Other exception!");
             }
         }
     }

@@ -29,10 +29,10 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class LoopTest : BuildTestBase {
-        public LoopTest(String name) : base(name) {
-        }
-
+    
+    	[Test]
         public void Test_Loop_String_Default_Delim() {
             string _xml = @"
                     <project>
@@ -42,12 +42,13 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("Count:1") != -1);
-            Assert(result.IndexOf("Count:2") != -1);
-            Assert(result.IndexOf("Count:3") != -1);
-            Assert(result.IndexOf("Count:4") != -1);
+            Assertion.Assert(result.IndexOf("Count:1") != -1);
+            Assertion.Assert(result.IndexOf("Count:2") != -1);
+            Assertion.Assert(result.IndexOf("Count:3") != -1);
+            Assertion.Assert(result.IndexOf("Count:4") != -1);
         }
         
+        [Test]
         public void Test_Loop_Files() {
             string _xml = @"
                     <project>
@@ -57,9 +58,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("test.build") != -1);
+            Assertion.Assert(result.IndexOf("test.build") != -1);
         }
 
+		[Test]
         public void Test_Loop_Folders() {
             string _xml = @"
                     <project>
@@ -71,10 +73,11 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("foo") != -1);
-            Assert(result.IndexOf("bar") != -1);
+            Assertion.Assert(result.IndexOf("foo") != -1);
+            Assertion.Assert(result.IndexOf("bar") != -1);
         }
 
+		[Test]
         public void Test_Loop_Lines() {
             string _xml = @"
                     <project>
@@ -85,7 +88,7 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("Hello") != -1);
+            Assertion.Assert(result.IndexOf("Hello") != -1);
         }
     }
 }

@@ -27,10 +27,10 @@ using SourceForge.NAnt.Tasks;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class TouchTaskTest : TestCase {
+	[TestFixture]
+    public class TouchTaskTest {
 
-        public TouchTaskTest(String name): base(name) {}
-
+		[Test]
         public void Test_Foobar() {
             TouchTask touch = new TouchTask();
         }
@@ -39,7 +39,8 @@ namespace SourceForge.NAnt.Tests {
         string _baseDirectory = null;
 
         /// <summary>Create the text fixture.</summary>
-        protected override void SetUp() {
+        [SetUp]
+        protected void SetUp() {
             // create test directory structure
             _baseDirectory = TempDir.Create("NAnt.Tests.TouchTest");
 
@@ -64,10 +65,12 @@ namespace SourceForge.NAnt.Tests {
         }
 
         /// <summary>Destroy the text fixture.</summary>
-        protected override void TearDown() {
+        [TearDown]
+        protected void TearDown() {
             TempDir.Delete(_baseDirectory);
         }
 
+		[Test]
         public void Test_File_DateTime() {
 
             TouchTask touch = new TouchTask();
@@ -86,16 +89,17 @@ namespace SourceForge.NAnt.Tests {
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
 
-            Assert(xmlString, newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert(xmlString, newTouchDate.Equals(lastTouchDate));
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
         }
 
+		[Test]
         public void Test_File_Millis() {
             TouchTask touch = new TouchTask();
             touch.Project = CreateEmptyProject();
@@ -114,16 +118,17 @@ namespace SourceForge.NAnt.Tests {
             DateTime lastTouchDate = file.LastWriteTime;
             DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
 
-            Assert(xmlString, newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert(xmlString, newTouchDate.Equals(lastTouchDate));
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
         }
 
+		[Test]
        public void Test_File_Default() {
             // sleep for a bit or this test will intermittently fail on fast machines
             System.Threading.Thread.Sleep(2000);
@@ -144,16 +149,17 @@ namespace SourceForge.NAnt.Tests {
             DateTime lastTouchDate = file.LastWriteTime;
 
             // Can only ensure that Now() is greater or equal to the file date
-            Assert(xmlString, lastTouchDate.CompareTo(newTouchDate) >= 0);
+            Assertion.Assert(xmlString, lastTouchDate.CompareTo(newTouchDate) >= 0);
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
         }
 
+		[Test]
         public void Test_FileSet_DateTime() {
             TouchTask touch = new TouchTask();
             touch.Project = CreateEmptyProject();
@@ -174,10 +180,11 @@ namespace SourceForge.NAnt.Tests {
                 FileInfo file = new FileInfo(_fileList[i]);
                 DateTime lastTouchDate = file.LastWriteTime;
 
-                Assert("Touch: fileset, datetime, " + _fileList[i], newTouchDate.Equals(lastTouchDate));
+                Assertion.Assert("Touch: fileset, datetime, " + _fileList[i], newTouchDate.Equals(lastTouchDate));
             }
         }
 
+		[Test]
         public void Test_FileSet_Millis() {
 
             TouchTask touch = new TouchTask();
@@ -202,11 +209,12 @@ namespace SourceForge.NAnt.Tests {
                 FileInfo file = new FileInfo(_fileList[i]);
                 DateTime lastTouchDate = file.LastWriteTime;
 
-                Assert("Touch: fileset, millis, " + _fileList[i], newTouchDate.Equals(lastTouchDate));
+                Assertion.Assert("Touch: fileset, millis, " + _fileList[i], newTouchDate.Equals(lastTouchDate));
             }
 
         }
 
+		[Test]
         public void Test_FileSet_Default() {
             TouchTask touch = new TouchTask();
             touch.Project = CreateEmptyProject();
@@ -226,7 +234,7 @@ namespace SourceForge.NAnt.Tests {
                 FileInfo file = new FileInfo(_fileList[i]);
                 DateTime lastTouchDate = file.LastWriteTime;
 
-                Assert("Touch: fileset ONLY, " + _fileList[i], lastTouchDate.CompareTo(newTouchDate) >= 0);
+                Assertion.Assert("Touch: fileset ONLY, " + _fileList[i], lastTouchDate.CompareTo(newTouchDate) >= 0);
             }
         }
 

@@ -27,18 +27,10 @@ using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class GetTaskTest : TestCase {
+	[TestFixture]
+    public class GetTaskTest {
 
         string _proxy = null;
-
-        public GetTaskTest(String name) : base(name) {
-        }
-
-        protected override void SetUp() {
-        }
-
-        protected override void TearDown() {
-        }
 
         /// <summary>
         /// Fetch a page from a FTP site.
@@ -52,6 +44,7 @@ namespace SourceForge.NAnt.Tests {
         ///    verbose="true"
         ///    usetimestamp="false"/></c>
         /// </remarks>
+        [Test]
         public void Test_GetFtpFile() {
             GetTask getTask = new GetTask();
             getTask.Project = new Project();
@@ -63,7 +56,7 @@ namespace SourceForge.NAnt.Tests {
             if (File.Exists(destination)) {
                 File.Delete(destination);
             }
-            Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
 
             getTask.Source = source;
             getTask.Destination = destination;
@@ -77,7 +70,7 @@ namespace SourceForge.NAnt.Tests {
             }
 
             // after FTP support is added, do the assert
-            //Assert(destination + " should exist, but doesn't.", File.Exists(destination));
+            //Assertion.Assert(destination + " should exist, but doesn't.", File.Exists(destination));
         }
 
         /// <summary>
@@ -93,6 +86,7 @@ namespace SourceForge.NAnt.Tests {
         ///    verbose="true"
         ///    usetimestamp="true"/></c>
         /// </remarks>
+        [Test]
         public void Test_GetLittleFile() {
             string source = "http://nant.sourceforge.net/arrow.gif";
             string destination = Path.GetTempFileName() + ".gif";
@@ -105,7 +99,7 @@ namespace SourceForge.NAnt.Tests {
                 if (File.Exists(destination)) {
                     File.Delete(destination);
                 }
-                Assert(destination + " exists, but shouldn't", !File.Exists(destination));
+                Assertion.Assert(destination + " exists, but shouldn't", !File.Exists(destination));
 
                 getTask.Source = source;
                 getTask.Destination = destination;
@@ -114,7 +108,7 @@ namespace SourceForge.NAnt.Tests {
                 getTask.Verbose = true;;
                 getTask.Execute();
 
-                Assert(destination + " doesn't exist, but should", File.Exists(destination));
+                Assertion.Assert(destination + " doesn't exist, but should", File.Exists(destination));
             }
 
             // check for file exists using TimeStampEqual
@@ -123,7 +117,7 @@ namespace SourceForge.NAnt.Tests {
                 getTask.Project = new Project();
                 getTask.Proxy = _proxy;
 
-                Assert(destination + " does not exist, but should", File.Exists(destination));
+                Assertion.Assert(destination + " does not exist, but should", File.Exists(destination));
 
                 DateTime fileDateTime = File.GetLastWriteTime(destination);
 
@@ -134,7 +128,7 @@ namespace SourceForge.NAnt.Tests {
                 getTask.Verbose = true;;
                 getTask.Execute();
 
-                Assert(destination + " lastModified times are different", fileDateTime.Equals(File.GetLastWriteTime(destination)));
+                Assertion.Assert(destination + " lastModified times are different", fileDateTime.Equals(File.GetLastWriteTime(destination)));
             }
 
             // Test_FileExists_UseTimeStamp
@@ -143,7 +137,7 @@ namespace SourceForge.NAnt.Tests {
                 getTask.Project = new Project();
                 getTask.Proxy = _proxy;
 
-                Assert(destination + " doesn't exist", File.Exists(destination));
+                Assertion.Assert(destination + " doesn't exist", File.Exists(destination));
                 File.SetLastWriteTime(destination, DateTime.Parse("01/01/2000 00:00"));
                 DateTime fileDateTime = File.GetLastWriteTime(destination);
 
@@ -154,7 +148,7 @@ namespace SourceForge.NAnt.Tests {
                 getTask.Verbose = true;;
                 getTask.Execute();
 
-                Assert(destination + " was not fetched", !fileDateTime.Equals(File.GetLastWriteTime(destination)));
+                Assertion.Assert(destination + " was not fetched", !fileDateTime.Equals(File.GetLastWriteTime(destination)));
             }
 
             // cleanup 
@@ -177,6 +171,7 @@ namespace SourceForge.NAnt.Tests {
         /// </remarks>
         #if false
         // This is a really slow test.
+        [Test]
         public void Test_GetBigFile() {
             GetTask getTask = new GetTask();
             getTask.Project = new Project();
@@ -189,7 +184,7 @@ namespace SourceForge.NAnt.Tests {
                 File.Delete(destination);
             }
 
-            Assert(destination + " exists, but shouldn't", !File.Exists(destination));
+            Assertion.Assert(destination + " exists, but shouldn't", !File.Exists(destination));
 
             getTask.Source = source;
             getTask.Destination = destination;
@@ -198,13 +193,13 @@ namespace SourceForge.NAnt.Tests {
             getTask.Verbose = true;;
             getTask.Execute();
 
-            Assert(destination + " doesn't exist.", File.Exists(destination));
+            Assertion.Assert(destination + " doesn't exist.", File.Exists(destination));
 
             // cleanup 
             if (File.Exists(destination)) {
                 File.Delete(destination);
             }
-            Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
         }
         #endif
 
@@ -220,6 +215,7 @@ namespace SourceForge.NAnt.Tests {
         ///    verbose="true"
         ///    usetimestamp="false"/></c>
         /// </remarks>
+        [Test]
         public void Test_GetHtmlFile() {
             GetTask getTask = new GetTask();
             getTask.Project = new Project();
@@ -232,7 +228,7 @@ namespace SourceForge.NAnt.Tests {
                 File.Delete(destination);
             }
 
-            Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
 
             getTask.Source = source;
             getTask.Destination = destination;
@@ -241,18 +237,19 @@ namespace SourceForge.NAnt.Tests {
             getTask.Verbose = true;;
             getTask.Execute();
 
-            Assert(destination + " should exist, but doesn't.", File.Exists(destination));
+            Assertion.Assert(destination + " should exist, but doesn't.", File.Exists(destination));
 
             // cleanup 
             if (File.Exists(destination)) {
                 File.Delete(destination);
             }
-            Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
         }
 
         /// <summary>
         /// Test Object Accessors
         /// </summary>
+        [Test]
         public void Test_Accessors() {
 
             GetTask getTask = new GetTask();
@@ -260,39 +257,39 @@ namespace SourceForge.NAnt.Tests {
 
             string proxy = _proxy;
             getTask.Proxy = proxy;
-            Assert("Proxy accessor bug", getTask.Proxy == proxy);
+            Assertion.Assert("Proxy accessor bug", getTask.Proxy == proxy);
 
             string source = "http://nant.sourceforge.net/arrow.gif";
             getTask.Source = source;
-            Assert("Source accessor bug", getTask.Source == source);
+            Assertion.Assert("Source accessor bug", getTask.Source == source);
 
             string destination = Path.GetTempFileName();
             getTask.Destination = destination;
-            Assert("Destination accessor bug", getTask.Destination == destination);
+            Assertion.Assert("Destination accessor bug", getTask.Destination == destination);
 
             bool ignoreErrors = true;
             getTask.ignoreErrors = ignoreErrors;
-            Assert("ignoreErrors=true accessor bug", getTask.ignoreErrors == ignoreErrors);
+            Assertion.Assert("ignoreErrors=true accessor bug", getTask.ignoreErrors == ignoreErrors);
 
             ignoreErrors = false;
             getTask.ignoreErrors = ignoreErrors;
-            Assert("ignoreErrors=false accessor bug", getTask.ignoreErrors == ignoreErrors);
+            Assertion.Assert("ignoreErrors=false accessor bug", getTask.ignoreErrors == ignoreErrors);
 
             bool useTimeStamp = true;
             getTask.useTimeStamp = useTimeStamp;
-            Assert("useTimeStamp=true accessor bug", getTask.useTimeStamp == useTimeStamp);
+            Assertion.Assert("useTimeStamp=true accessor bug", getTask.useTimeStamp == useTimeStamp);
 
             useTimeStamp = false;
             getTask.useTimeStamp = useTimeStamp;
-            Assert("useTimeStamp=false accessor bug", getTask.useTimeStamp == useTimeStamp);
+            Assertion.Assert("useTimeStamp=false accessor bug", getTask.useTimeStamp == useTimeStamp);
 
             bool verbose = true;
             getTask.Verbose = verbose;
-            Assert("Verbose=true accessor bug", getTask.Verbose == verbose);
+            Assertion.Assert("Verbose=true accessor bug", getTask.Verbose == verbose);
 
             verbose = false;
             getTask.Verbose = verbose;
-            Assert("Verbose=false accessor bug", getTask.Verbose == verbose);
+            Assertion.Assert("Verbose=false accessor bug", getTask.Verbose == verbose);
         }
     }
 }

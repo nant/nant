@@ -30,6 +30,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class SysInfoTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0' ?>
@@ -37,20 +38,20 @@ namespace SourceForge.NAnt.Tests {
                 <sysinfo {0}/>
             </project>";
 
-		public SysInfoTaskTest(String name) : base(name) {
-        }
-
+		[Test]
         public void Test_Normal() {
             string result = RunBuild(String.Format(_format, ""));
-            Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
         }
 
+		[Test]
         public void Test_Verbose() {
             string result = RunBuild(String.Format(_format, "verbose='true'"));
-            Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
+            Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
         }
 
 
+	[Test]
         public void Test_DuplicateTasks() {
             //
             // ensure we can call sysinfo twice in during a buildfile
@@ -65,11 +66,12 @@ namespace SourceForge.NAnt.Tests {
               string result = RunBuild(xml);
 
            } catch(BuildException e) {
-              Fail("Duplicate sysinfo tasks should've worked\n" + e.ToString());
+              Assertion.Fail("Duplicate sysinfo tasks should've worked\n" + e.ToString());
            }
         }
     
-       
+
+	[Test]       
         public void Test_PropertiesNotReadOnly() {
             //
             // ensure properties set by sysinfo task are not readonly
@@ -84,7 +86,7 @@ namespace SourceForge.NAnt.Tests {
             string result = RunBuild(xml);
             string expression = @"test.clr.version = 44.32.23";
             Match match = Regex.Match(result, expression);
-            Assert("SysInfo property should've been modified!\n" + result, match.Success);
+            Assertion.Assert("SysInfo property should've been modified!\n" + result, match.Success);
         }
  
     }

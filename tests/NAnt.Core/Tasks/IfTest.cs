@@ -29,10 +29,10 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class IfTest : BuildTestBase {
-        public IfTest(String name) : base(name) {
-        }
 
+		[Test]
         public void Test_IF_PropExists_Positive() {
             string _xml = @"
                     <project>
@@ -43,9 +43,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("line=hi") != -1);
+            Assertion.Assert(result.IndexOf("line=hi") != -1);
         }
 
+		[Test]
         public void Test_IF_PropExists_Negative() {
             string _xml = @"
                     <project>
@@ -55,9 +56,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("line=") == -1);
+            Assertion.Assert(result.IndexOf("line=") == -1);
         }
 
+		[Test]
         public void Test_IF_PropTrue_Positive() {
             string _xml = @"
                     <project>
@@ -68,9 +70,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("Hello") != -1);
+            Assertion.Assert(result.IndexOf("Hello") != -1);
         }
 
+		[Test]
         public void Test_IF_PropTrue_Negative() {
             string _xml = @"
                     <project>
@@ -81,9 +84,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("Hello") == -1);
+            Assertion.Assert(result.IndexOf("Hello") == -1);
         }
         
+        [Test]
         public void Test_IF_Target_Positive() {
             string _xml = @"
                     <project>
@@ -96,9 +100,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("called") != -1);
+            Assertion.Assert(result.IndexOf("called") != -1);
         }
 
+		[Test]
         public void Test_IF_Target_Negative() {
             string _xml = @"
                     <project>
@@ -108,7 +113,7 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             string result = RunBuild(_xml);
             //Log.WriteLine(result);
-            Assert(result.IndexOf("failed") == -1);
+            Assertion.Assert(result.IndexOf("failed") == -1);
         }
     }
 }

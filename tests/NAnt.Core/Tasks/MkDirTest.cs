@@ -31,10 +31,10 @@ namespace SourceForge.NAnt.Tests {
     /// <summary>
     /// Tests mkdir Tasks. <para>Creates a temp directory and deletes it.</para>
     /// </summary>
+    [TestFixture]
     public class MkDirTest : BuildTestBase {
-        public MkDirTest(String name) : base(name) {
-        }
 
+		[Test]
         public void Test_CreateDirectory() {
             string _xml= @"
             <project>
@@ -44,7 +44,7 @@ namespace SourceForge.NAnt.Tests {
             string tempDir = Path.Combine(TempDirName, "goo");
             string result = RunBuild(String.Format(_xml, tempDir));
             
-            Assert("Dir should have been created:" + result, Directory.Exists(tempDir));
+            Assertion.Assert("Dir should have been created:" + result, Directory.Exists(tempDir));
             
         }
     }

@@ -28,11 +28,11 @@ namespace SourceForge.NAnt.Tests {
     /// <summary>
     /// Tests the Echo test.
     /// </summary>
+    [TestFixture]
     public class FailTest : BuildTestBase {
         
-        public FailTest(String name) : base(name) {
-        }
 
+		[Test]
         public void Test_Fail() {
             string _xml = @"
                     <project>
@@ -40,10 +40,10 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             try {
                 string result = RunBuild(_xml);            
-                Assert("Fail message missing:" + result, result.IndexOf("Death Sucks!") != -1);
+                Assertion.Assert("Fail message missing:" + result, result.IndexOf("Death Sucks!") != -1);
             }
             catch (BuildException be) {
-                Assert("Did not fail from Test!", be.ToString().IndexOf("Death Sucks!") != -1);
+                Assertion.Assert("Did not fail from Test!", be.ToString().IndexOf("Death Sucks!") != -1);
             }
         }
     }

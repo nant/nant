@@ -25,13 +25,12 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
+	[TestFixture]
     public class FileSetTest : BuildTestBase {
 
         FileSet _fileSet;
 
-        public FileSetTest(String name) : base(name) {
-        }
-
+		[SetUp]
         protected override void SetUp() {
             base.SetUp();
 
@@ -50,23 +49,26 @@ namespace SourceForge.NAnt.Tests {
             TempFile.Create(Path.Combine(sub1Path, "sub.one"));
         }
 
+		[Test]
         public void Test_AsIs() {
             _fileSet.AsIs.Add("foo");
             _fileSet.AsIs.Add("bar");
             AssertMatch("foo", false);
             AssertMatch("bar", false);
-            AssertEquals(2, _fileSet.FileNames.Count);
+            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
+		[Test]
         public void Test_IncludesAndAsIs() {
             _fileSet.Includes.Add("foo");
             _fileSet.AsIs.Add("foo");
             _fileSet.AsIs.Add("bar");
             AssertMatch("foo", false);
             AssertMatch("bar", false);
-            AssertEquals(2, _fileSet.FileNames.Count);
+            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
+		[Test]
         public void Test_Includes_All() {
             _fileSet.Includes.Add("**/*");
             AssertMatch("sub1" + Path.DirectorySeparatorChar + "sub.one");
@@ -74,27 +76,30 @@ namespace SourceForge.NAnt.Tests {
             AssertMatch("world.war");
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
-            AssertEquals(5, _fileSet.FileNames.Count);
+            Assertion.AssertEquals(5, _fileSet.FileNames.Count);
         }
 
+		[Test]
         public void Test_Includes_Wildcards1() {
             _fileSet.Includes.Add("world.*");
             AssertMatch("world.peace");
             AssertMatch("world.war");
-            AssertEquals(2, _fileSet.FileNames.Count);
+            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
+		[Test]
         public void Test_Includes_Wildcards2() {
             _fileSet.Includes.Add("*.?addness");
             AssertMatch("reefer.maddness");
             AssertMatch("reefer.saddness");
-            AssertEquals(2, _fileSet.FileNames.Count);
+            Assertion.AssertEquals(2, _fileSet.FileNames.Count);
         }
 
+		[Test]
         public void Test_Includes_Sub1() {
             _fileSet.Includes.Add("sub?/sub*");
             AssertMatch("sub1" + Path.DirectorySeparatorChar + "sub.one");
-            AssertEquals(1, _fileSet.FileNames.Count);
+            Assertion.AssertEquals(1, _fileSet.FileNames.Count);
         }
 
         void AssertMatch(string fileName) {
@@ -105,7 +110,7 @@ namespace SourceForge.NAnt.Tests {
             if (prefixBaseDir && !Path.IsPathRooted(fileName)) {
                 fileName = Path.Combine(_fileSet.BaseDirectory, fileName);
             }
-            Assert(fileName + " should have been in file set.", _fileSet.FileNames.IndexOf(fileName) != -1);
+            Assertion.Assert(fileName + " should have been in file set.", _fileSet.FileNames.IndexOf(fileName) != -1);
         }
     }
 }

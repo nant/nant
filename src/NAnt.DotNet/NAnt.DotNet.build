@@ -17,7 +17,6 @@
                 <includes name="Microsoft.JScript.dll" asis="true"/>
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NDoc.Core.dll"/>
-                <includes name="NUnitCore.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
@@ -29,21 +28,21 @@
                 <excludes name="**/GetTaskTest.cs"/>
                 <excludes name="**/MailTaskTest.cs"/>
                 <excludes name="**/TouchTaskTest.cs"/>
+                <excludes name="**/AllTests.cs"/>
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NAnt.Core.Tests.dll"/>
                 <includes name="NAnt.DotNetTasks.dll"/>
-                <includes name="NUnitCore.dll"/>
+                <includes name="nunit.framework.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
     </target>
 
     <target name="test" depends="build">
-        <nunit>
-            <formatter type="Xml"/>
-            <test class="NAnt.DotNetTasks.Tests.AllTests" assembly="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" outfile="${build.dir}/bin/NAnt.DotNetTasks.Tests.Results" />
-        </nunit>
+         <nunit2>
+         	<test assemblyname="${build.dir}/bin/NAnt.DotNetTasks.Tests.dll" type="Plain"/>
+         </nunit2>
     </target>
 </project>

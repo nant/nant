@@ -28,11 +28,15 @@ namespace SourceForge.NAnt.Tests {
     /// <summary>
     /// Tests the Echo test.
     /// </summary>
+    [TestFixture]
     public class EchoTest : BuildTestBase {
+    
+    	[SetUp]
+    	protected override void SetUp() {
+    		base.SetUp();
+    	}
         
-        public EchoTest(String name) : base(name) {
-        }
-
+        [Test]
         public void Test_Echo() {
             //TODO: Use this once we have fixed the LocationMap issue
             /*
@@ -52,7 +56,7 @@ namespace SourceForge.NAnt.Tests {
                         <echo message='Go Away!'/>
                     </project>";
             string result = RunBuild(_xml);            
-            Assert("Echo message missing:" + result, result.IndexOf("Go Away!") != -1);
+            Assertion.Assert("Echo message missing:" + result, result.IndexOf("Go Away!") != -1);
         }
     }
 }

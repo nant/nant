@@ -25,10 +25,8 @@ using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-    public class DirectoryScannerTest : TestCase {
-
-        public DirectoryScannerTest(String name) : base(name) {
-        }
+	[TestFixture]
+    public class DirectoryScannerTest {
 
         string _tempDir;
         string _folder1;
@@ -36,7 +34,8 @@ namespace SourceForge.NAnt.Tests {
         string _folder3;
         DirectoryScanner _scanner;
 
-        protected override void SetUp() {
+		[SetUp]
+        protected void SetUp() {
             _tempDir = TempDir.Create("NAnt.Tests.DirectoryScannerTest");
 
             _folder1 = Path.Combine(_tempDir, "folder1");
@@ -50,7 +49,8 @@ namespace SourceForge.NAnt.Tests {
             _scanner.BaseDirectory = _tempDir;
         }
 
-        protected override void TearDown() {
+		[TearDown]
+        protected void TearDown() {
             TempDir.Delete(_tempDir);
         }
 
@@ -70,10 +70,10 @@ namespace SourceForge.NAnt.Tests {
             // Make sure only the included file names were picked up in the scan
             // and none of the excluded.
             foreach (string fileName in includedFileNames) {
-                Assert(fileName + " not included.", _scanner.FileNames.IndexOf(fileName) != -1);
+                Assertion.Assert(fileName + " not included.", _scanner.FileNames.IndexOf(fileName) != -1);
             }
             foreach (string fileName in excludedFileNames) {
-                Assert(fileName + " included.", _scanner.FileNames.IndexOf(fileName) == -1);
+                Assertion.Assert(fileName + " included.", _scanner.FileNames.IndexOf(fileName) == -1);
             }
         }
 
@@ -82,6 +82,7 @@ namespace SourceForge.NAnt.Tests {
         ///   Matches all the files in the folder2 directory that being with Foo 
         ///   and one extra character and end with .txt.
         /// </remarks>
+        [Test]
         public void Test_WildcardMatching1() {
             string[] includedFileNames = new string[] {
                 Path.Combine(_folder2, "Foo.txt"),
@@ -102,6 +103,7 @@ namespace SourceForge.NAnt.Tests {
         /// <remarks>
         ///   Matches all the files in base directory that end with .txt.
         /// </remarks>
+        [Test]
         public void Test_WildcardMatching2() {
             string[] includedFileNames = new string[] {
                 Path.Combine(_tempDir, "Foo1.txt"),
@@ -120,6 +122,7 @@ namespace SourceForge.NAnt.Tests {
         /// <remarks>
         ///   Matches everything in the base directory and sub directories.
         /// </remarks>
+        [Test]
         public void Test_RecursiveWildcardMatching1() {
             string[] includedFileNames = new string[] {
                 Path.Combine(_tempDir, "Foo1.txt"),
@@ -138,6 +141,7 @@ namespace SourceForge.NAnt.Tests {
         ///   Matches everything in the base directory and sub directories that
         ///   ends with .txt.
         /// </remarks>
+        [Test]
         public void Test_RecursiveWildcardMatching2() {
             string[] includedFileNames = new string[] {
                 Path.Combine(_tempDir, "Foo1.txt"),
@@ -160,6 +164,7 @@ namespace SourceForge.NAnt.Tests {
         ///   Matches all files/dirs that start with "XYZ" and where there is a 
         ///   parent directory called 'folder3' (e.g. "abc\folder3\def\ghi\XYZ123").
         /// </remarks>
+        [Test]
         public void Test_RecursiveWildcardMatching3() {
             string[] includedFileNames = new string[] {
                 Path.Combine(_folder3, "XYZ.txt"),

@@ -44,18 +44,15 @@ namespace SourceForge.NAnt.Tests {
 
     }
 
+	[TestFixture]
     public class ElementTest : BuildTestBase {
 
-		  public ElementTest(String name) : base(name) {
-        }
-        protected override void SetUp() {
-            base.SetUp();
-        }
         
         /// <summary>
         /// Test that a read-only property with an element doesn't 
         /// return null when the getter is invoked
         /// </summary>
+        [Test]
         public void Test_Null_Element_Prop_Value() {
             const string build = @"<?xml version='1.0' ?>
                <project name='testing' default='test'>

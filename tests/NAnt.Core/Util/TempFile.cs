@@ -50,7 +50,7 @@ namespace SourceForge.NAnt.Tests {
             }
 
             if (!File.Exists(fileName)) {
-                throw new AssertionFailedError("TempFile: " + fileName + " wasn't created.");
+                throw new AssertionException("TempFile: " + fileName + " wasn't created.");
             }
 
             return fileName;
