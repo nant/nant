@@ -111,7 +111,7 @@ namespace SourceForge.NAnt.Tests {
             string buildFileName = Path.Combine(TempDirName, "test.build");
             TempFile.CreateWithContents(xml, buildFileName);
 
-            return new Project(buildFileName, false);
+            return new Project(buildFileName, Level.Info);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace SourceForge.NAnt.Tests {
         protected Project CreateEmptyProject() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.AppendChild(doc.CreateElement("project"));
-            return new Project(doc, false);
+            return new Project(doc, Level.Info);
         }
 
         /// <summary>

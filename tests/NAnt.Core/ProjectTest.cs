@@ -64,7 +64,7 @@ namespace SourceForge.NAnt.Tests {
             // create the build file in the temp folder
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
 
-            Project p = new Project(_buildFileName, false );
+            Project p = new Project(_buildFileName, Level.Info);
 
             Assertion.AssertNotNull("Property ('nant.version') not defined.", p.Properties["nant.version"]);
             Assertion.AssertNotNull("Property ('nant.location') not defined.", p.Properties["nant.location"]);
@@ -82,7 +82,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_Initialization_DOMBuildFile() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, false);
+            Project p = new Project(doc, Level.Info);
 
             Assertion.AssertNotNull("Property not defined.", p.Properties["nant.version"]);
 
@@ -128,13 +128,14 @@ namespace SourceForge.NAnt.Tests {
             return String.Format(CultureInfo.InvariantCulture, _format, TempDirName, globalTasks, targetTasks);
         }
 
-        class MockBuildEventConsumer : IBuildEventConsumer {
+        class MockBuildEventListener : IBuildListener {
             public bool _buildStarted = false;
             public bool _buildFinished = false;
             public bool _targetStarted = false;
             public bool _targetFinished = false;
             public bool _taskStarted = false;
             public bool _taskFinished = false;
+            public bool _messageLogged = false;
 
             public void BuildStarted(object sender, BuildEventArgs e) {
                 _buildStarted = true;
@@ -159,66 +160,95 @@ namespace SourceForge.NAnt.Tests {
             public void TaskFinished(object sender, BuildEventArgs e) {
                 _taskFinished = true;
             }
+
+            public void MessageLogged(object sender, BuildEventArgs e) {
+                _messageLogged = true;
+            }
         }
 
 		[Test]
         public void Test_OnBuildStarted() {
-            MockBuildEventConsumer b = new MockBuildEventConsumer();
+            MockBuildEventListener b = new MockBuildEventListener();
 
-            Project.BuildStarted += new BuildEventHandler(b.BuildStarted);
-            Project.OnBuildStarted(this, new BuildEventArgs("notused"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", ""));
+            Project p = new Project(doc, Level.Info);
+
+            p.BuildStarted += new BuildEventHandler(b.BuildStarted);
+            p.OnBuildStarted(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._buildStarted);
         }
 
 		[Test]
         public void Test_OnBuildFinished() {
-            MockBuildEventConsumer b = new MockBuildEventConsumer();
+            MockBuildEventListener b = new MockBuildEventListener();
 
-            Project.BuildFinished += new BuildEventHandler(b.BuildFinished);
-            Project.OnBuildFinished(this, new BuildEventArgs("notused"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", ""));
+            Project p = new Project(doc, Level.Info);
+
+            p.BuildFinished += new BuildEventHandler(b.BuildFinished);
+            p.OnBuildFinished(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._buildFinished);
         }
 
 		[Test]
         public void Test_OnTargetStarted() {
-            MockBuildEventConsumer b = new MockBuildEventConsumer();
+            MockBuildEventListener b = new MockBuildEventListener();
 
-            Project.TargetStarted += new BuildEventHandler(b.TargetStarted);
-            Project.OnTargetStarted(this, new BuildEventArgs("notused"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", ""));
+            Project p = new Project(doc, Level.Info);
+
+            p.TargetStarted += new BuildEventHandler(b.TargetStarted);
+            p.OnTargetStarted(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._targetStarted);
         }
 
 		[Test]
         public void Test_OnTargetFinished() {
-            MockBuildEventConsumer b = new MockBuildEventConsumer();
+            MockBuildEventListener b = new MockBuildEventListener();
 
-            Project.TargetFinished += new BuildEventHandler(b.TargetFinished);
-            Project.OnTargetFinished(this, new BuildEventArgs("notused"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", ""));
+            Project p = new Project(doc, Level.Info);
+
+            p.TargetFinished += new BuildEventHandler(b.TargetFinished);
+            p.OnTargetFinished(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._targetFinished);
         }
         
 		[Test]
         public void Test_OnTaskStarted() {
-            MockBuildEventConsumer b = new MockBuildEventConsumer();
+            MockBuildEventListener b = new MockBuildEventListener();
 
-            Project.TaskStarted += new BuildEventHandler(b.TaskStarted);
-            Project.OnTaskStarted(this, new BuildEventArgs("notused"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", ""));
+            Project p = new Project(doc, Level.Info);
+
+            p.TaskStarted += new BuildEventHandler(b.TaskStarted);
+            p.OnTaskStarted(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._taskStarted);
         }
 
 		[Test]
         public void Test_OnTaskFinished() {
-            MockBuildEventConsumer b = new MockBuildEventConsumer();
+            MockBuildEventListener b = new MockBuildEventListener();
 
-            Project.TaskFinished += new BuildEventHandler(b.TaskFinished);
-            Project.OnTaskFinished(this, new BuildEventArgs("notused"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", ""));
+            Project p = new Project(doc, Level.Info);
+
+            p.TaskFinished += new BuildEventHandler(b.TaskFinished);
+            p.OnTaskFinished(this, new BuildEventArgs(p));
 
             Assertion.Assert(b._taskFinished);
         }
     }
 }
+

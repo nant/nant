@@ -23,20 +23,37 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
+
 using SourceForge.NAnt;
+using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tests {
 
-	[TestFixture]
-    public class XmlLoggerTest  {
+    [TestFixture]
+    public class XmlLoggerTest {
         XmlLogger _log; 
+        string _tempDir;
+
+        string _format = @"<?xml version='1.0'?>
+            <project name='{3}' default='test' basedir='{0}'>
+                {1}
+                <target name='test'>
+                    {2}
+                </target>
+            </project>";
     	
 
-	[SetUp]
+        [SetUp]
         protected void SetUp() {
             _log = CreateXmlLogger();
+            _tempDir = TempDir.Create("NAnt.Tests.XmlLoggerTest");
         }
 	
+        [TearDown]
+        protected void TearDown() {
+            TempDir.Delete(_tempDir);
+        }
+
         [Test]
         public void Test_StripFormatting() {
             string baseMessage = "this is a typical message.";
@@ -55,7 +72,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(timestamp, _log.StripFormatting(formattedMessage));
         }
 
-		[Test]
+        [Test]
         public void Test_StripFormattingMultiline() {
             string baseMessage = "this is a typical message.\nMultiline message that is.";
             string formattedMessage = "[foo] " + baseMessage;
@@ -63,7 +80,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
         }
 
-		[Test]
+        [Test]
         public void Test_IsJustWhiteSpace() {
             string message = "";
             Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
@@ -90,140 +107,218 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
         }
 
-		[Test]
+        [Test]
         public void Test_WriteLine() {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            _log.WriteLine(formattedMessage);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = formattedMessage;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
 
             string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
-
         }
 
-		[Test]
+        [Test]
         public void Test_Write() {
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            _log.Write(formattedMessage);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = formattedMessage;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
+
             string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             string unformattedMessage = "message:";
             _log = CreateXmlLogger();
-            _log.Write(unformattedMessage);
+
+            args.Message = unformattedMessage;
+            _log.MessageLogged(this, args);
             expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "message with no tag in front.";
             _log = CreateXmlLogger();
-            _log.Write(unformattedMessage);
+            args.Message = unformattedMessage;
+            _log.MessageLogged(this, args);
             expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "BUILD SUCCESSFUL";
             _log = CreateXmlLogger();
-            _log.Write(unformattedMessage);
+            args.Message = unformattedMessage;
+            _log.MessageLogged(this, args);
             expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_WriteStrangeCharacters() {
             string baseMessage = "this message has !@!)$)(&^%^%$$##@@}{[]\"';:<<>/+=-_. in it.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            _log.Write(formattedMessage);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = formattedMessage;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
 
             string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 		
-		[Test]
+        [Test]
         public void Test_WriteEmbeddedMathFormulas() {
             string baseMessage = "this message has: x < 20 = y in it.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            _log.Write(formattedMessage);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = formattedMessage;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
 
             string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_WriteTextWithEmbeddedCDATATag() {
             string message = @"some stuff with <xml> <![CDATA[more stuff]]> and more <![CDATA[cdata]]>";
             string expected = @"<message><![CDATA[some stuff with <xml> more stuff and more cdata]]></message>";
 
-            _log.Write(message);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = message;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
+
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_WriteXmlWithDeclaration() {
             string message = @"<?xml version=""1.0"" encoding=""utf-16""?><test><a></a></test>";
             string expected = @"<message><test><a></a></test></message>";
 
-            _log.Write(message);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = message;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
+
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_WriteXmlWithLeadingWhitespace() {
             string message = @"            <?xml version=""1.0"" encoding=""utf-16""?><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/>";
             string expected = @"<message><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/></message>";
 
-            _log.Write(message);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = message;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
+
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]        
+        [Test]        
         public void Test_WriteEmbeddedXml() {
             string baseMessage = "<a><b><![CDATA[message]]></b></a>";
             string expected = String.Format(CultureInfo.InvariantCulture, "<message>{0}</message>", baseMessage);
 
-            _log.Write(baseMessage);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = baseMessage;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
+
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_WriteEmbeddedMalformedXml() {
             string baseMessage = "<a>malformed<b>";
             string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
 
-            _log.Write(baseMessage);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            args.Message = baseMessage;
+            args.MessageLevel = Level.Info;
+            _log.MessageLogged(this, args);
+
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_BuildStartedAndBuildFinished() {
-            string name = "foo";
-            BuildEventArgs args = new BuildEventArgs(name);
-            string expected = String.Format(CultureInfo.InvariantCulture, "<buildresults project=\"{0}\" />", name);
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(FormatBuildFile("", "", "testproject"));
+            Project p = new Project(doc, Level.Info);
+
+            BuildEventArgs args = new BuildEventArgs(p);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<buildresults project=\"{0}\" />", "testproject");
 
             _log.BuildStarted(this, args);
             _log.BuildFinished(this, args);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_TargetStartedAndTargetFinished() {
-            string name = "foo";
-            BuildEventArgs args = new BuildEventArgs(name);
-            string expected = String.Format(CultureInfo.InvariantCulture, @"<target name=""{0}"" />", name);
+            Target target = new Target();
+            target.Name = "foo";
+
+            BuildEventArgs args = new BuildEventArgs(target);
+            string expected = String.Format(CultureInfo.InvariantCulture, @"<target name=""{0}"" />", target.Name);
 
             _log.TargetStarted(this, args);
             _log.TargetFinished(this, args);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
-		[Test]
+        [Test]
         public void Test_TaskStartedAndTaskFinished() {
-            string name = "foo";
-            BuildEventArgs args = new BuildEventArgs(name);
-            string expected = String.Format(CultureInfo.InvariantCulture, @"<task name=""{0}"" />", name);
+            Task task = new TestTask();
+
+            BuildEventArgs args = new BuildEventArgs(task);
+            string expected = String.Format(CultureInfo.InvariantCulture, @"<task name=""{0}"" />", "testtask");
 
             _log.TaskStarted(this, args);
             _log.TaskFinished(this, args);
@@ -232,7 +327,20 @@ namespace SourceForge.NAnt.Tests {
 
         private XmlLogger CreateXmlLogger() {
             StringWriter _log = new StringWriter();
-            return new XmlLogger(_log);
+            XmlLogger logger = new XmlLogger();
+            logger.OutputWriter = _log;
+            return logger;
+        }
+
+        private string FormatBuildFile(string globalTasks, string targetTasks, string projectName) {
+            return String.Format(CultureInfo.InvariantCulture, _format, _tempDir, globalTasks, targetTasks, projectName);
+        }
+
+        [TaskName("testtask")]
+        private class TestTask : Task {
+            protected override void ExecuteTask() {
+            }
         }
     }
 }
+

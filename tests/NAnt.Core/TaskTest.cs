@@ -44,8 +44,8 @@ namespace SourceForge.NAnt.Tests {
         }
 
         protected override void ExecuteTask() {
-            Log.WriteLine(LogPrefix + "TestTask executed");
-            Log.WriteLineIf(Verbose, LogPrefix + "Verbose message");
+            Log(Level.Info, LogPrefix + "TestTask executed");
+            Log(Level.Verbose, LogPrefix + "Verbose message");
             if (Fail) {
                 throw new BuildException("TestTask failed");
             }
@@ -74,7 +74,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("TestTask executed") != -1);
         }
 
-		[Test]
+        [Test]
         public void Test_Verbose() {
             string result = RunBuild(FormatBuildFile("verbose='true'"));
             Assertion.Assert("Verbose message should have been displayed.\n" + result, result.IndexOf("Verbose message") != -1);
