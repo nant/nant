@@ -26,29 +26,45 @@ using System.Text;
 namespace NAnt.Core {
 
     /// <summary>
-    /// Stores the file name, line number and column number to record a position in a text file.
+    /// Stores the file name, line number and column number to record a position 
+    /// in a text file.
     /// </summary>
     [Serializable]
     public class Location {
-        string _fileName = null;
-        int _lineNumber = 0;
-        int _columnNumber = 0;
+		#region Private Instance Fields
+
+        private string _fileName;
+        private int _lineNumber;
+        private int _columnNumber;
+
+		#endregion Private Instance Fields
 
         public static readonly Location UnknownLocation = new Location();
 
-        /// <summary>Creates a location consisting of a file name, line number and column number.</summary>
-        /// <remarks>fileName can be a local URI resource, e.g., file:///C:/WINDOWS/setuplog.txt</remarks>
+        /// <summary>
+        /// Creates a location consisting of a file name, line number and 
+        /// column number.
+        /// </summary>
+        /// <remarks>
+        /// <paramref name="fileName" /> can be a local URI resource, e.g., file:///C:/WINDOWS/setuplog.txt.
+        /// </remarks>
         public Location(string fileName, int lineNumber, int columnNumber) {
             Init(fileName, lineNumber, columnNumber);
         }
 
-        /// <summary>Creates a location consisting of a file name.</summary>
-        /// <remarks>fileName can be a local URI resource, e.g., file:///C:/WINDOWS/setuplog.txt</remarks>
+        /// <summary>
+        /// Creates a location consisting of a file name.
+        /// </summary>
+        /// <remarks>
+        /// <paramref name="fileName" /> can be a local URI resource, e.g., file:///C:/WINDOWS/setuplog.txt.
+        /// </remarks>
         public Location(string fileName) {
             Init(fileName, 0, 0);
         }
 
-        /// <summary>Creates an "unknown" location.</summary>
+        /// <summary>
+        /// Creates an "unknown" location.
+        /// </summary>
         private Location() {
             Init(null, 0, 0);
         }
@@ -70,20 +86,32 @@ namespace NAnt.Core {
             _columnNumber = columnNumber;
         }
 
-        /// <summary>Gets a string containing the file name for the location.</summary>
-        /// <remarks>The file name includes both the file path and the extension.</remarks>
+        /// <summary>
+        /// Gets a string containing the file name for the location.
+        /// </summary>
+        /// <remarks>
+        /// The file name includes both the file path and the extension.
+        /// </remarks>
         public string FileName {
             get { return _fileName; }
         }
 
-        /// <summary>Gets the line number for the location.</summary>
-        /// <remarks>Lines start at 1.  Will be zero if not specified.</remarks>
+        /// <summary>
+        /// Gets the line number for the location.
+        /// </summary>
+        /// <remarks>
+        /// Lines start at 1.  Will be zero if not specified.
+        /// </remarks>
         public int LineNumber {
             get { return _lineNumber; }
         }
 
-        /// <summary>Gets the column number for the location.</summary>
-        /// <remarks>Columns start a 1.  Will be zero if not specified.</remarks>
+        /// <summary>
+        /// Gets the column number for the location.
+        /// </summary>
+        /// <remarks>
+        /// Columns start a 1.  Will be zero if not specified.
+        /// </remarks>
         public int ColumnNumber {
             get { return _columnNumber; }
         }
