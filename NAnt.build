@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
-    <echo message="Using '${framework::get-target-framework()}' framework on '${platform::get-name()}' platform." />
     <!-- set build.date property to current date in format yyyy-MM-dd -->
     <tstamp property="build.date" pattern="yyyy-MM-dd" />
     <!-- global project settings -->
