@@ -67,9 +67,9 @@ namespace Tests.NAnt.Core.Tasks {
 
             string result = "";
             if (PlatformHelper.IsWin32) {
-                result = RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type " + tempFileName + "'", ""));
+                result = RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type &quot;" + tempFileName + "&quot;'", ""));
             } else {
-                result = RunBuild(FormatBuildFile("program='cat' commandline=' " + tempFileName + "'", ""));
+                result = RunBuild(FormatBuildFile("program='cat' commandline=' &quot;" + tempFileName + "&quot;'", ""));
             }
             // if we get here then we passed, ie, no hang = bug fixed
         }
