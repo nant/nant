@@ -328,7 +328,7 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // suppresses display of the sign-on banner
-                    // (this has no in response file)
+                    // (this has no effect in response file)
                     this.Arguments.Add(new Argument("/nologo "));
 
                     // call base class to do the actual work
