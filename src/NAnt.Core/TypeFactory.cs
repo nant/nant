@@ -84,7 +84,7 @@ namespace NAnt.Core {
 
             // intialize tasks found in assemblies that end in Tasks.dll
             DirectoryScanner scanner = new DirectoryScanner();
-            scanner.BaseDirectory = path;
+            scanner.BaseDirectory = new DirectoryInfo(path);
             scanner.Includes.Add("*Tasks.dll");
 
             //needed for testing

@@ -101,7 +101,7 @@ namespace NAnt.Core {
 
         // set to current directory in Scan if user doesn't specify something first.
         // keeping it null, lets the user detect if it's been set or not.
-        private string _baseDirectory = null; 
+        private DirectoryInfo _baseDirectory; 
 
         // holds the nant patterns (absolute or relative paths)
         private DirScannerStringCollection _includes = new DirScannerStringCollection();
@@ -144,8 +144,17 @@ namespace NAnt.Core {
             get { return _excludes; }
         }
 
-        public string BaseDirectory {
-            get { return _baseDirectory; }
+        /// <summary>
+        /// The base directory to scan. The default is the 
+        /// <see cref="Environment.CurrentDirectory">current directory</see>.
+        /// </summary>
+        public DirectoryInfo BaseDirectory {
+            get { 
+                if (_baseDirectory == null) {
+                    _baseDirectory = new DirectoryInfo(Environment.CurrentDirectory);
+                }
+                return _baseDirectory; 
+            }
             set { _baseDirectory = value; }
         }
 
@@ -198,10 +207,6 @@ namespace NAnt.Core {
         ///     <change date="20020221" author="Ari Hännikäinen">Changed it again because of performance reasons</change>
         /// </history>
         public void Scan() {
-            if (BaseDirectory == null) {
-                BaseDirectory = Environment.CurrentDirectory;
-            }
-    
             _includePatterns = new DirScannerStringCollection();
             _excludePatterns = new DirScannerStringCollection();
             _fileNames = new DirScannerStringCollection();
@@ -324,7 +329,8 @@ namespace NAnt.Core {
                 searchDirectory = new DirectoryInfo(s).FullName;
             } else {
                 //We also (correctly) get to this branch of code when s.Length == 0
-                searchDirectory = new DirectoryInfo(Path.Combine(BaseDirectory, s)).FullName;
+                searchDirectory = new DirectoryInfo(Path.Combine(
+                    BaseDirectory.FullName, s)).FullName;
             }
             
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
