@@ -206,7 +206,10 @@ namespace NAnt.DotNet.Tasks {
                     if (Culture != null) {
                         writer.Write(" /culture:{0}", Culture);
                     }
-
+                    
+                    // suppresses display of the sign-on banner                    
+                    writer.Write(" /nologo" );
+                    
                     if (Template != null) {
                         writer.Write(" /template:\"{0}\"", Template);
                     }
