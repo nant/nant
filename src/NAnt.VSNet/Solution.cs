@@ -180,8 +180,29 @@ namespace NAnt.VSNet {
             }
         }
 
+        /// <summary>
+        /// Gets the project file of the project with the given unique identifier.
+        /// </summary>
+        /// <param name="projectGuid">The unique identifier of the project for which the project file should be retrieves.</param>
+        /// <returns>
+        /// The project file of the project with the given unique identifier.
+        /// </returns>
+        /// <exception cref="BuildException">No project with unique identifier <paramref name="projectGuid" /> could be located.</exception>
         public string GetProjectFileFromGuid(string projectGuid) {
-            return (string) _htProjectFiles[projectGuid];
+            // locate project file using the project guid
+            string projectFile = (string) _htProjectFiles[projectGuid];
+
+            // TODO : as an emergency patch throw a build error when a GUID fails
+            // to return a project file. This should be sanity checked when the 
+            // HashTable is populated and not at usage time to avoid internal 
+            // errors during build.
+            if (projectFile == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project with GUID '{0}' must be included for the build to" 
+                    + " work.", projectGuid), Location.UnknownLocation);
+            }
+
+            return projectFile;
         }
 
         public ProjectBase GetProjectFromGuid(string projectGuid) {
