@@ -396,6 +396,9 @@
         <h5><a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
         <ul>
             <li>
+                Added support for Visual J# projects.
+            </li>
+            <li>
                 WebMaps are now case-insensitive (and added attribute to enable
                 case-sensitivity).
             </li>
@@ -455,8 +458,7 @@
                 Zero-byte resx files are now skipped to match VS.NET.
             </li>
             <li>
-                Support for nmake projects has been introduced to the <code>&lt;solution&gt;</code>
-                task.
+                Introduced support for nmake projects.
             </li>
             <li>
                 Added support for web projects nested in Enterprise Template Projects.
@@ -466,7 +468,7 @@
                 directory relative to project directory. The compiled resource files will not
                 be removed when the task finishes, by doing this resource files will now only
                 be recompiled if the compiled resource file in the object directory is no
-                longer uptodate. This matches the behaviour of VS.NET.
+                longer up-to-date. This matches the behaviour of VS.NET.
             </li>
             <li>
                 Added support for deploying App.config to output directory.
