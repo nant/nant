@@ -7,7 +7,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}" output="${build.dir}/bin/NAnt.VisualCppTasks.dll"
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VisualCppTasks.dll"
             doc="${build.dir}/bin/NAnt.VisualCppTasks.xml">
             <sources>
                 <includes name="NAnt.VisualCppTasks/**/*.cs" />
