@@ -19,17 +19,19 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
-using System.IO;
-using System.Xml;
-using System.Xml.Xsl;
-using System.Xml.XPath;
-using System.Collections;
-using System.Text.RegularExpressions;
-using SourceForge.NAnt.Attributes;
-using System.Globalization;
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System;
+    using System.Collections;
+    using System.Globalization;
+    using System.IO;
+    using System.Text.RegularExpressions;
+    using System.Xml;
+    using System.Xml.Xsl;
+    using System.Xml.XPath;
+
+    using SourceForge.NAnt.Attributes;
+
 
     /// <summary>
     /// <para>
@@ -108,7 +110,7 @@ namespace SourceForge.NAnt.Tasks {
             TextWriter writer = null;
 
             string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
-            if (targetDir != null && targetDir != "" && !Directory.Exists(targetDir)) {
+            if (targetDir != null && targetDir.Length != 0 && !Directory.Exists(targetDir)) {
                 Directory.CreateDirectory(targetDir);
             }
             // UTF-8 encoding will be used
@@ -135,7 +137,7 @@ namespace SourceForge.NAnt.Tasks {
         protected override void ExecuteTask() {
             string destFile = OutputFile;
             // TODO handle filesets
-            if (destFile == null || destFile == "") {
+            if (destFile == null || destFile.Length == 0) {
                 // TODO: use System.IO.Path (gs)
                 // append extension if necessary
                 string ext = Extension[0]=='.'

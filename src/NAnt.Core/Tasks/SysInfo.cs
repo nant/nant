@@ -17,14 +17,15 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.Collections;
-using System.Diagnostics;
-using System.IO;
-
-using SourceForge.NAnt.Attributes;
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System;
+    using System.Collections;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+
+    using SourceForge.NAnt.Attributes;
  
     /// <summary>Set properties with system information.</summary>
     /// <remarks>
@@ -70,7 +71,7 @@ namespace SourceForge.NAnt.Tasks {
 
             // set properties
             Properties[Prefix + "clr.version"] = Environment.Version.ToString();
-            Properties[Prefix + "os.platform"] = Environment.OSVersion.Platform.ToString();
+            Properties[Prefix + "os.platform"] = Environment.OSVersion.Platform.ToString(CultureInfo.InvariantCulture);
             Properties[Prefix + "os.version"]  = Environment.OSVersion.Version.ToString();
             Properties[Prefix + "os.folder.applicationdata"] = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);  
             Properties[Prefix + "os.folder.commonapplicationData"] = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);  

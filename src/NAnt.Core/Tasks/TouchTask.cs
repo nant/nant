@@ -18,12 +18,13 @@
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-using System.IO;
-using SourceForge.NAnt.Attributes;
-using System.Globalization;
-
 namespace SourceForge.NAnt.Tasks {
+
+    using System;
+    using System.IO;
+    using System.Globalization;
+
+    using SourceForge.NAnt.Attributes;
 
     /// <summary>
     /// Touch a file and/or fileset(s) -- corresponds to the Unix touch command.
@@ -45,11 +46,16 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("touch")]
     public class TouchTask : Task {
-        
+        #region Private Instance Fields
+
         string _file = null;
         string _millis = null;
         string _datetime = null;
         FileSet _fileset = new FileSet();
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>Assembly Filename (required unless a fileset is specified).</summary>
         [TaskAttribute("file")]
@@ -67,6 +73,10 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("fileset")]
         public FileSet TouchFileSet { get { return _fileset; } }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         ///<summary>Initializes task and ensures the supplied attributes are valid.</summary>
         ///<param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
@@ -77,10 +87,10 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void ExecuteTask() {
-
             DateTime touchDateTime = DateTime.Now;
+
             if (_millis != null) {
-                touchDateTime = GetDateTime(Convert.ToInt32(_millis));
+                touchDateTime = GetDateTime(Convert.ToInt32(_millis, CultureInfo.InvariantCulture));
             }
 
             if (_datetime != null) {
@@ -93,12 +103,11 @@ namespace SourceForge.NAnt.Tasks {
                 try {
                     path = Project.GetFullPath(FileName);
                 } catch (Exception e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", FileName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}.", FileName);
                     throw new BuildException(msg, Location, e);
                 }
                 // touch file(s)
                 TouchFile(path, touchDateTime);
-
             } else {
                 // touch files in fileset
                 // only use the file set if file attribute has NOT been set
@@ -108,10 +117,14 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        void TouchFile(string path, DateTime touchDateTime) {
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        private void TouchFile(string path, DateTime touchDateTime) {
             try {
                 if (File.Exists(path)) {
-                    Log.WriteLineIf(Verbose, LogPrefix + "Touching file {0} with {1}", path, touchDateTime.ToString());
+                    Log.WriteLineIf(Verbose, LogPrefix + "Touching file {0} with {1}", path, touchDateTime.ToString(CultureInfo.InvariantCulture));
                     File.SetLastWriteTime(path, touchDateTime);
                 } else {
                     throw new FileNotFoundException();
@@ -124,19 +137,20 @@ namespace SourceForge.NAnt.Tasks {
 
         private DateTime GetDateTime(string dateText){
             DateTime touchDateTime = new DateTime();
-            if (dateText != "") {
-                touchDateTime = DateTime.Parse(dateText);
-            }
-            else {
+
+            if (dateText.Length != 0) {
+                touchDateTime = DateTime.Parse(dateText, CultureInfo.InvariantCulture);
+            } else {
                 touchDateTime = DateTime.Now;
             }
             return touchDateTime;
         }
 
         private DateTime GetDateTime(int milliSeconds) {
-
-            DateTime touchDateTime = DateTime.Parse("01/01/1970 00:00:00").AddMilliseconds(milliSeconds);
+            DateTime touchDateTime = DateTime.Parse("01/01/1970 00:00:00", CultureInfo.InvariantCulture).AddMilliseconds(milliSeconds);
             return touchDateTime;
         }
+
+        #endregion Private Instance Methods
     }
 }
