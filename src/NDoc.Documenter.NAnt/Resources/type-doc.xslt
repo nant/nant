@@ -26,6 +26,7 @@
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:include href="nant-attributes.xslt" />
+
     <xsl:output 
         method="xml" 
         indent="yes" 
@@ -36,6 +37,9 @@
         omit-xml-declaration="yes"
         standalone="yes"
         />
+
+    <xsl:param name="productName"></xsl:param>
+    <xsl:param name="productVersion"></xsl:param>
 
     <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
     <xsl:param name="class-id">T:NAnt.Core.Types.FileSet</xsl:param>
@@ -78,7 +82,7 @@
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                 <tr>
                     <td class="NavBar-Cell">
-                        <a href="../../index.html"><b><xsl:value-of select="string(NAntUtil:GetApplicationName())" /></b></a>
+                        <a href="../../index.html"><b><xsl:value-of select="$productName" /></b></a>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
@@ -94,12 +98,16 @@
                         <xsl:value-of select="$name" />
                     </td>
                     <td class="NavBar-Cell" align="right">
-                        <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
+                        <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
                     </td>
                 </tr>
             </table>
             <h1><xsl:value-of select="$name" /></h1>
             <xsl:apply-templates select="." />
+            <h3>Requirements</h3>
+            <div style="margin-left: 20px;">
+                <b>Assembly:</b><xsl:text> </xsl:text><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
+            </div>
         </body>
     </xsl:template>
 
@@ -210,7 +218,7 @@
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                 <tr>
                     <td class="NavBar-Cell">
-                        <a href="../../index.html"><b><xsl:value-of select="string(NAntUtil:GetApplicationName())" /></b></a>
+                        <a href="../../index.html"><b><xsl:value-of select="$productName" /></b></a>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
@@ -219,7 +227,7 @@
                         <xsl:value-of select="$name" />
                     </td>
                     <td class="NavBar-Cell" align="right">
-                        <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
+                        <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
                     </td>
                 </tr>
             </table>

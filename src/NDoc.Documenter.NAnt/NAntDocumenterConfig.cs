@@ -35,7 +35,8 @@ namespace NDoc.Documenter.NAnt {
 
         private string _outputDirectory = @"doc/help/tasks";
         private bool _sdkLinksOnWeb;
-        private string _applicationName = "NAnt";
+        private string _productName = "NAnt";
+        private string _productVersion = "";
         private string _nantBaseUri = "";
         private string _namespaceFilter = "";
 
@@ -101,19 +102,39 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets the name of the application for which documentation 
+        /// Gets or sets the name of the product for which documentation 
         /// should be generated.
         /// </summary>
         /// <value>
-        /// The name of the application for which documentation should be 
+        /// The name of the product for which documentation should be 
+        /// generated. The default is "NAnt".
+        /// </value>
+        [Category("Output")]
+        [Description("The name of the product for which documentation should be generated.")]
+        [DefaultValue("NAnt")]
+        public string ProductName {
+            get { return _productName; }
+            set { 
+                _productName = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the version of the product for which documentation 
+        /// should be generated.
+        /// </summary>
+        /// <value>
+        /// The version of the product for which documentation should be 
         /// generated.
         /// </value>
         [Category("Output")]
-        [Description("The name of the application for which documentation should be generated.")]
-        public string ApplicationName {
-            get { return _applicationName; }
+        [Description("The version of the product for which documentation should be generated.")]
+        [DefaultValue("")]
+        public string ProductVersion {
+            get { return _productVersion; }
             set { 
-                _applicationName = value;
+                _productVersion = value;
                 SetDirty();
             }
         }

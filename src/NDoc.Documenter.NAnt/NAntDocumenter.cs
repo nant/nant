@@ -91,6 +91,34 @@ namespace NDoc.Documenter.NAnt {
             }
         }
 
+        /// <summary>
+        /// Gets the name of the product for which documentation should be
+        /// generated.
+        /// </summary>
+        /// <value>
+        /// The name of the product for which documentation should be
+        /// generated.
+        /// </value>
+        public string ProductName { 
+            get {
+                return ((NAntDocumenterConfig) Config).ProductName;
+            } 
+        }
+
+        /// <summary>
+        /// Gets the version of the product for which documentation should be
+        /// generated.
+        /// </summary>
+        /// <value>
+        /// The version of the product for which documentation should be
+        /// generated.
+        /// </value>
+        public string ProductVersion { 
+            get {
+                return ((NAntDocumenterConfig) Config).ProductVersion;
+            } 
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of IDocumenter
@@ -175,7 +203,7 @@ namespace NDoc.Documenter.NAnt {
                 OnDocBuildingStep(buildStepProgress, "Building mapping...");
 
                 // create arguments for nant index page transform
-                XsltArgumentList indexArguments = new XsltArgumentList();
+                XsltArgumentList indexArguments = CreateXsltArgumentList();
 
                 // add extension object for NAnt utilities
                 NAntXsltUtilities indexUtilities = NAntXsltUtilities.CreateInstance(
@@ -268,7 +296,7 @@ namespace NDoc.Documenter.NAnt {
             }
 
             // create arguments for nant task page transform (valid args are class-id, refType, imagePath, relPathAdjust)
-            XsltArgumentList arguments = new XsltArgumentList();
+            XsltArgumentList arguments = CreateXsltArgumentList();
             arguments.AddParam("class-id", String.Empty, classID);
 
             string refTypeString;
@@ -363,7 +391,7 @@ namespace NDoc.Documenter.NAnt {
             string methodID = functionElement.GetAttribute("id");
             string filename = NAntXsltUtilities.GetFileNameForFunction(functionElement);
 
-            XsltArgumentList arguments = new XsltArgumentList();
+            XsltArgumentList arguments = CreateXsltArgumentList();
 
             arguments.AddParam("method-id", string.Empty, methodID);
             arguments.AddParam("refType", string.Empty, "Function");
@@ -403,6 +431,13 @@ namespace NDoc.Documenter.NAnt {
         private void MakeTransform(XslTransform transform, string fileName) {
             transform.Load(Path.Combine(Path.Combine(_resourceDirectory, "xslt"), 
                 fileName));
+        }
+
+        private XsltArgumentList CreateXsltArgumentList() {
+            XsltArgumentList arguments = new XsltArgumentList();
+            arguments.AddParam("productName", string.Empty, ProductName);
+            arguments.AddParam("productVersion", string.Empty, ProductVersion);
+            return arguments;
         }
 
         private void TransformAndWriteResult(XslTransform transform, XsltArgumentList arguments, string filename) {

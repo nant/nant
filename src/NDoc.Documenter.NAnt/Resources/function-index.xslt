@@ -24,9 +24,13 @@
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
     <xsl:output method="html" indent="yes" />
+
+    <xsl:param name="productName"></xsl:param>
+    <xsl:param name="productVersion"></xsl:param>
+
     <!-- 
     this stylesheet uses 'unique' trick published at:
-    
+
     http://sources.redhat.com/ml/xsl-list/2001-06/msg00066.html
 
     we use it to traverse a unique list of categories ordered by name
@@ -46,16 +50,19 @@
             <body>
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
-                        <td class="NavBar-Cell" width="100%">
+                        <td class="NavBar-Cell">
                             <a href="../../index.html">
                                 <b>
-                                    <xsl:value-of select="string(NAntUtil:GetApplicationName())" />
+                                    <xsl:value-of select="$productName" />
                                 </b>
                             </a>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
                             <img alt="->" src="../images/arrow.gif" />
                             Function Reference
+                        </td>
+                        <td class="NavBar-Cell" align="right">
+                            <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
                         </td>
                     </tr>
                 </table>

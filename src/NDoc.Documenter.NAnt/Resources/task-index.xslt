@@ -24,6 +24,7 @@
     xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
+
     <xsl:output 
         method="xml"
         indent="yes"
@@ -34,6 +35,9 @@
         omit-xml-declaration="yes"
         standalone="yes"
         />
+
+    <xsl:param name="productName"></xsl:param>
+    <xsl:param name="productVersion"></xsl:param>
 
     <xsl:template match="/">
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -50,13 +54,16 @@
                         <td class="NavBar-Cell">
                             <a href="../../index.html">
                                 <b>
-                                    <xsl:value-of select="string(NAntUtil:GetApplicationName())" />
+                                    <xsl:value-of select="$productName" />
                                 </b>
                             </a>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
                             <img alt="->" src="../images/arrow.gif" />
                             Task Reference
+                        </td>
+                        <td class="NavBar-Cell" align="right">
+                            <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
                         </td>
                     </tr>
                 </table>
@@ -66,12 +73,10 @@
                         <colgroup>
                             <col />
                             <col />
-                            <col style="white-space: nowrap;" />
                         </colgroup>
                         <tr>
                             <th>Task</th>
                             <th>Summary</th>
-                            <th>Assembly</th>
                         </tr>
                         <xsl:apply-templates select="//class[attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']">
                             <xsl:sort select="attribute/property[@name = 'Name']/@value" />
@@ -107,7 +112,6 @@
                             <td>
                                 <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />
                             </td>
-                            <td><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)</td>
                         </xsl:element>
                     </xsl:if>
                 </xsl:when>
@@ -122,7 +126,6 @@
                         <td>
                             <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />
                         </td>
-                        <td><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)</td>
                     </xsl:element>
                 </xsl:otherwise>
             </xsl:choose>

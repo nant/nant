@@ -27,7 +27,9 @@
     <xsl:include href="nant-attributes.xslt" />
 
     <xsl:output method="html" indent="yes" />
-
+    
+    <xsl:param name="productName"></xsl:param>
+    <xsl:param name="productVersion"></xsl:param>
     <xsl:param name="method-id"></xsl:param>
     <xsl:param name="functionName"></xsl:param>
     <xsl:param name="refType">Function</xsl:param>
@@ -52,14 +54,17 @@
         <body>
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                 <tr>
-                    <td class="NavBar-Cell" width="100%">
-                        <a href="../../index.html"><b><xsl:value-of select="string(NAntUtil:GetApplicationName())" /></b></a>
+                    <td class="NavBar-Cell">
+                        <a href="../../index.html"><b><xsl:value-of select="$productName" /></b></a>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="index.html">Function Reference</a>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                         <xsl:value-of select="$name" />
+                    </td>
+                    <td class="NavBar-Cell" align="right">
+                        <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
                     </td>
                 </tr>
             </table>
@@ -115,6 +120,10 @@
                 <h3>Examples</h3>
                 <xsl:apply-templates select="documentation/example" mode="slashdoc" />
             </xsl:if>
+            <h3>Requirements</h3>
+            <div style="margin-left: 20px;">
+                <b>Assembly:</b><xsl:text> </xsl:text><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
+            </div>
         </body>
     </xsl:template>
 </xsl:stylesheet>

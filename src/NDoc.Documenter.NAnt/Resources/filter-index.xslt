@@ -22,16 +22,20 @@
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0"> 
     <xsl:include href="tags.xslt" />
     <xsl:include href="common.xslt" />
+
     <xsl:output 
         method="xml" 
         indent="yes" 
         encoding="utf-8" 
-        version="1.0"  
+        version="1.0" 
         doctype-public="-//w3c//dtd xhtml 1.1 strict//en" 
         doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
         omit-xml-declaration="yes"
         standalone="yes"
         />
+
+    <xsl:param name="productName"></xsl:param>
+    <xsl:param name="productVersion"></xsl:param>
 
     <xsl:template match="/">
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -46,11 +50,14 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
                     <tr>
                         <td class="NavBar-Cell">
-                            <a href="../../index.html"><b><xsl:value-of select="string(NAntUtil:GetApplicationName())" /></b></a>
+                            <a href="../../index.html"><b><xsl:value-of select="$productName" /></b></a>
                             <img alt="->" src="../images/arrow.gif" />
                             <a href="../index.html">Help</a>
                             <img alt="->" src="../images/arrow.gif" />
                             Filter Reference
+                        </td>
+                        <td class="NavBar-Cell" align="right">
+                            <xsl:value-of select="$productName" /><xsl:text> </xsl:text><xsl:value-of select="$productVersion" />
                         </td>
                     </tr>
                 </table>
