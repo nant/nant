@@ -82,14 +82,21 @@ namespace NAnt.SourceControl.Tasks {
         /// Name of the xml file that will contain the cvs log information.
         /// </summary>
         [TaskAttribute("xmlfile", Required=true)]
-        public string DestFile {
-            get {return ((Option)CommandOptions["destfile"]).Value;}
+        public FileInfo DestFile {
+            get {
+                if (!CommandOptions.ContainsKey("destfile")) {
+                    return null;
+                }
+                return new FileInfo(((Option) CommandOptions["destfile"]).Value);
+            }
             set {
                 if (null == this.DestinationDirectory) {
                     this.DestinationDirectory = 
-                        new DirectoryInfo(Path.GetDirectoryName(value));
+                        new DirectoryInfo(value.DirectoryName);
                 }
-                SetCommandOption("destfile", string.Format(CultureInfo.InvariantCulture, "\"-oxml\" \"{0}\"", value), true);}
+                SetCommandOption("destfile", string.Format(CultureInfo.InvariantCulture, 
+                    "\"-oxml\" \"{0}\"", value.FullName), true);
+            }
         }
 
         /// <summary>
@@ -113,10 +120,30 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Override the cvs root attribute to make it not required.  If the cvsroot
-        /// is not found then the directory specified by the Destinations
-        /// attribute is searched for CVS\Root.
+        /// <para>
+        /// The cvs root variable has the following components:
+        /// </para>
+        /// <para>
+        ///     <code>[protocol]:[username]@[servername]:[server path]</code>
+        ///     <ul>
+        ///         <li>protocol:       ext, pserver, ssh (sharpcvslib); if you are not using sharpcvslib consult your cvs documentation.</li>
+        ///         <li>username:       [username]</li>
+        ///         <li>servername:     cvs.sourceforge.net</li>
+        ///         <li>server path:    /cvsroot/nant</li>
+        ///     </ul>
+        /// </para>
+        /// <para>
+        /// If the cvsroot is not specified then the directory specified by the 
+        /// <see cref="AbstractSourceControlTask.DestinationDirectory" /> attribute 
+        /// is searched for CVS\Root.
+        /// </para>
         /// </summary>
+        /// <example>
+        ///   <para>NAnt anonymous cvsroot:</para>
+        ///   <code>
+        ///   :pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant
+        ///   </code>
+        /// </example>
         [TaskAttribute("cvsroot", Required=false)]
         public override string Root {
             get {
@@ -138,7 +165,6 @@ namespace NAnt.SourceControl.Tasks {
             }
         }
 
-
-        #endregion
+        #endregion Public Instance Properties
     }
 }
