@@ -87,8 +87,7 @@
                 <includes name="NAnt.cs"/>
             </sources>
             <references>
-                <includes name="${build.dir}/${project.FormalName}.Core.dll"/>
-                <includes name="${build.dir}/NDoc.Core.dll"/>
+                <includes name="${build.dir}/${project.FormalName}.Core.dll"/>                
             </references>
             <arg value="/resource:${src.dir}\${project.FormalName}\xslt\projecthelp.xslt,Nant.xslt.projecthelp.xslt" />
             <arg value="/nowarn:1591"/>
@@ -104,7 +103,7 @@
                 <includes name="System.Design.dll" />
                 <includes name="System.Windows.Forms.dll" />
                 <includes name="System.Xml.dll" />   
-				
+                
                 <includes name="${build.dir}\NDoc.Core.dll" />
             </references>
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\css\NAntDoc.css,Documenter.css.NAntDoc.css" />
@@ -132,9 +131,9 @@
     </target>
 
     <target name="buildextras" description="compiles projects in src\Extras">
-		<!-- compile extras folder (but only if we are not doing a debug build) -->
-		<nant buildfile="${src.dir}/Extras/BuildServer/BuildServer.build"/>
-		<nant buildfile="${src.dir}/Extras/SourceSafe/SourceSafe.build"/>
+        <!-- compile extras folder (but only if we are not doing a debug build) -->
+        <nant buildfile="${src.dir}/Extras/BuildServer/BuildServer.build"/>
+        <nant buildfile="${src.dir}/Extras/SourceSafe/SourceSafe.build"/>
     </target>
 
     <!--
