@@ -94,7 +94,14 @@ namespace NAnt.NUnit2.Tasks {
 
         public void Unload() {
             if (_domain != null) {
-                AppDomain.Unload(_domain);
+                try {
+                    AppDomain.Unload(_domain);
+                } catch (CannotUnloadAppDomainException) {
+                    // ignore exceptions during unload, this matches the 
+                    // behaviour of the NUnit TestDomain
+                } finally {
+                    _domain = null;
+                }
             }
         }
 
