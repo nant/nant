@@ -36,22 +36,23 @@ namespace Tests.NAnt.Core {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildException" /> class.
+        /// Initializes a new instance of the <see cref="TestBuildException" />
+        /// class.
         /// </summary>
         public TestBuildException() : base() {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildException" /> class 
-        /// with a descriptive message.
+        /// Initializes a new instance of the <see cref="TestBuildException" /> 
+        /// class with a descriptive message.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
         public TestBuildException(String message) : base(message) {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildException" /> class
-        /// with the specified descriptive message and inner exception.
+        /// Initializes a new instance of the <see cref="TestBuildException" /> 
+        /// class with the specified descriptive message and inner exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
         /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
@@ -59,9 +60,9 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildException" /> class
-        /// with a descriptive message and the location in the build file that 
-        /// caused the exception.
+        /// Initializes a new instance of the <see cref="TestBuildException" /> 
+        /// class with a descriptive message and the location in the build file 
+        /// that caused the exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
         public TestBuildException(String message, string buildResult) : base(message) {
@@ -84,8 +85,8 @@ namespace Tests.NAnt.Core {
         #region Protected Instance Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BuildException" /> class 
-        /// with serialized data.
+        /// Initializes a new instance of the <see cref="TestBuildException" /> 
+        /// class with serialized data.
         /// </summary>
         /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
@@ -94,7 +95,7 @@ namespace Tests.NAnt.Core {
 
         #endregion Protected Instance Constructors
 
-        #region Override implementation of ISerializable
+        #region Override implementation of ApplicationException
 
         /// <summary>
         /// Serializes this object into the <see cref="SerializationInfo" /> provided.
@@ -104,8 +105,6 @@ namespace Tests.NAnt.Core {
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {
             base.GetObjectData(info, context);
         }
-
-        #endregion Override implementation of ISerializable
 
         public override string Message {
             get {
@@ -119,6 +118,8 @@ namespace Tests.NAnt.Core {
                 }
             }
         }
+
+        #endregion Override implementation of ApplicationException
 
         #region Override implementation of Object
         /// <summary>

@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Tomas Restrepo (tomasr@mvps.org)
-
 
 using System;
 using System.IO;
@@ -31,25 +30,32 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
 namespace Tests.NAnt.Core {
-
-    /// <summary>A simple task with a null element to test failures.</summary>
+    /// <summary>
+    /// A simple task with a null element to test failures.
+    /// </summary>
     [TaskName("elementTest1")]
     class ElementTest1Task : Task {
+        #region Public Instance Properties
 
         [FileSet("fileset")]
         public FileSet FileSet {
             get { return null; } // we'll test for null later!
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         protected override void ExecuteTask() { 
         }
 
-
+        #endregion Override implementation of Task
     }
 
 	[TestFixture]
     public class ElementTest : BuildTestBase {
+        #region Public Instance Methods
 
-        
         /// <summary>
         /// Test that a read-only property with an element doesn't 
         /// return null when the getter is invoked
@@ -65,18 +71,16 @@ namespace Tests.NAnt.Core {
                      </target>
                   </project>";
 
-
             try {
-               string result = RunBuild(build);
-               Assertion.Fail("Null property value allowed.\n" + result);
-            } catch ( TestBuildException e ) {
+                string result = RunBuild(build);
+                Assertion.Fail("Null property value allowed.\n" + result);
+            } catch (TestBuildException e) {
                 if (!(e.InnerException is BuildException)) {
                     Assertion.Fail("Unexpected exception thrown.\n" + e.ToString());
                 }
-            } catch ( Exception e ) {
-               Assertion.Fail("Unexpected exception thrown.\n" + e.ToString());
             }
         }
 
+        #endregion Public Instance Methods
     }
 }

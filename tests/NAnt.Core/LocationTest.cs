@@ -27,22 +27,15 @@ using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core {
-
     [TestFixture]
     public class LocationTest {
+        #region Private Instance Fields
 
-        string _tempFileName = null;
+        private string _tempFileName = null;
 
-        [SetUp]
-        protected void SetUp() {
-            _tempFileName = TempFile.Create();
-        }
+        #endregion Private Instance Fields
 
-        [TearDown]
-        protected void TearDown() {
-            File.Delete(_tempFileName);
-            Assertion.Assert(_tempFileName + " exists.", !File.Exists(_tempFileName));
-        }
+        #region Public Instance Methods
 
         [Test]
         public void Test_Constructor_FileName() {
@@ -88,5 +81,22 @@ namespace Tests.NAnt.Core {
             string actual = match.Result("${fileName} ${line} ${column}");
             Assertion.AssertEquals(expected, actual);
         }
+
+        #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        [SetUp]
+        protected void SetUp() {
+            _tempFileName = TempFile.Create();
+        }
+
+        [TearDown]
+        protected void TearDown() {
+            File.Delete(_tempFileName);
+            Assertion.Assert(_tempFileName + " exists.", !File.Exists(_tempFileName));
+        }
+
+        #endregion Protected Instance Methods
     }
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
@@ -31,11 +31,18 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace Tests.NAnt.Core {
-
-    /// <summary>A simple task for testing Task class.</summary>
+    /// <summary>
+    /// A simple task for testing Task class.
+    /// </summary>
     [TaskName("test")]
-    class TestTask : Task {
-        bool _fail = false;
+    public class TestTask : Task {
+        #region Private Instance Methods
+
+        private bool _fail = false;
+
+        #endregion Private Instance Methods
+
+        #region Public Instance Properties
 
         [TaskAttribute("fail", Required=false)]
         [BooleanValidator()]
@@ -58,6 +65,10 @@ namespace Tests.NAnt.Core {
             set { }
         }
 
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
+
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "TestTask executed");
             Log(Level.Verbose, LogPrefix + "Verbose message");
@@ -65,12 +76,15 @@ namespace Tests.NAnt.Core {
                 throw new BuildException("TestTask failed");
             }
         }
+
+        #endregion Override implementation of Task
     }
 
 	[TestFixture]
     public class TaskTest : BuildTestBase {
+        #region Private Static Fields
 
-        const string _format = @"<?xml version='1.0' ?>
+        private const string _format = @"<?xml version='1.0' ?>
            <project name='testing' default='test'>
                 <!--<taskdef assembly='{0}'/>-->
                 <target name='test'>
@@ -78,10 +92,9 @@ namespace Tests.NAnt.Core {
                 </target>
             </project>";
 
-		[SetUp]
-        protected override void SetUp() {
-            base.SetUp();
-        }
+        #endregion Private Static Fields
+
+        #region Public Instance Methods
         
         [Test]
         public void Test_Simple() {
@@ -161,8 +174,24 @@ namespace Tests.NAnt.Core {
             }
         }
 */
+
+        #endregion Public Instance Methods
+
+        #region Protected Instance Methods
+
+        [SetUp]
+        protected override void SetUp() {
+            base.SetUp();
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
         private string FormatBuildFile(string attributes) {
             return string.Format(CultureInfo.InvariantCulture, _format, Assembly.GetExecutingAssembly().Location, attributes);
         }
+
+        #endregion Private Instance Methods
     }
 }

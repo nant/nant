@@ -32,8 +32,10 @@ using NUnit.Framework;
 using NAnt.Core;
 
 namespace Tests.NAnt.Core {
-
-    /// <summary>General purpose test that checks to see that all exceptions implement required methods.</summary>
+    /// <summary>
+    /// General purpose test that checks to see that all exceptions implement 
+    /// required methods.
+    /// </summary>
     /// <remarks>
     /// This class was inspired / stolen from the article "The Well-Tempered Exception",
     /// by Eric Gunnerson, Microsoft.
@@ -56,23 +58,34 @@ namespace Tests.NAnt.Core {
     /// </remarks>
     [TestFixture]
     public class ExceptionTest {
+        #region Public Instance Methods
 
-		[Test]
+        [Test]
         public void Test_AllExceptions() {
-            // For each assembly we want to check instantiate an object from that assembly
-            // and use the type to get the assembly.
+            // For each assembly we want to check instantiate an object from 
+            // that assembly and use the type to get the assembly.
 
             // NAnt.Core.dll
             ProcessAssembly(Assembly.GetAssembly(typeof(Project)));
 
-            // Check the test exceptions to make sure test is valid - see bottom of this file.
+            // Check the test exceptions to make sure test is valid - see bottom 
+            // of this file.
             ProcessAssembly(Assembly.GetAssembly(this.GetType()));
         }
-		
-        // --------------------------------------------------------------------
-        // Exception testing code follows
 
-        bool IsException(Type type) {
+        public void ProcessAssembly(Assembly a) {
+            foreach (Type t in a.GetTypes()) {
+                if (IsException(t)) {
+                    CheckException(a, t);
+                }
+            }
+        }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private bool IsException(Type type) {
             Type baseType = null;
             while ((baseType = type.BaseType) != null) {
                 if (baseType == typeof(System.Exception)) {
@@ -83,7 +96,7 @@ namespace Tests.NAnt.Core {
             return false;
         }
 
-        void CheckPublicConstructor(Type t, string description, params Type[] parameters) {
+        private void CheckPublicConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
@@ -100,7 +113,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(t.Name + description + " is not public, must be public.", ci.IsPublic);
         }
 
-        void CheckProtectedConstructor(Type t, string description, params Type[] parameters) {
+        private void CheckProtectedConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
@@ -117,7 +130,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(t.Name + description + " is not protected, must be protected.", ci.IsFamily);
         }
 
-        void CheckPublicOrProtectedConstructor(Type t, string description, params Type[] parameters) {
+        private void CheckPublicOrProtectedConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
@@ -132,7 +145,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(t.Name + description + " is not public or protected, must be public or protected.", ci.IsPublic || ci.IsFamily);
         }
 
-        void CheckPrivateConstructor(Type t, string description, params Type[] parameters) {
+        private void CheckPrivateConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
             // fail if constructor does not exist
@@ -149,8 +162,7 @@ namespace Tests.NAnt.Core {
             Assertion.Assert(t.Name + description + " is not private, must be private.", ci.IsPrivate);
         }
 
-
-        void CheckException(Assembly assembly, Type t) {
+        private void CheckException(Assembly assembly, Type t) {
             // check to see that the exception is correctly named, with "Exception" at the end
             bool validName = t.Name.EndsWith("Exception");
             Assertion.Assert(t.Name + " class name must end with Exception.", t.Name.EndsWith("Exception"));
@@ -165,7 +177,7 @@ namespace Tests.NAnt.Core {
 
             // Constructor with a string and an inner exception
             CheckPublicConstructor(t, "(string message, Exception inner)", 
-                    typeof(System.String), typeof(System.Exception));
+                typeof(System.String), typeof(System.Exception));
 
             // check to see if the serialization constructor is present
             // if exception is sealed, constructor should be private
@@ -206,23 +218,14 @@ namespace Tests.NAnt.Core {
             }
         }
 
-        public void ProcessAssembly(Assembly a) {
-            foreach (Type t in a.GetTypes()) {
-                if (IsException(t)) {
-                    CheckException(a, t);
-                }
-            }
-        }
+        #endregion Private Instance Methods
     }
-
-    // --------------------------------------------------------------------
-    // Test exceptions used to test the test.
 
     /// <summary>Do nothing exception to verify that the exception tester is working correctly.</summary>
     [Serializable]
-    public class SimpleTestException : ApplicationException
-    {
-        // Normal 3 constructors
+    public class SimpleTestException : ApplicationException {
+        #region Public Instance Constructors
+
         public SimpleTestException() {
         }
 
@@ -232,9 +235,15 @@ namespace Tests.NAnt.Core {
         public SimpleTestException(string message, Exception inner) : base(message, inner) {
         }
 
+        #endregion Public Instance Constructors
+
+        #region Protected Instance Constructors
+
         // deserialization constructor
         protected SimpleTestException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
+
+        #endregion Protected Instance Constructors
     }
 
     /// <summary>
@@ -242,9 +251,14 @@ namespace Tests.NAnt.Core {
     /// </summary>
     [Serializable]
     public class TestException : ApplicationException, ISerializable {
-        int _value;
+        #region Private Instance Fields
 
-        // Normal 3 constructors
+        private int _value;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
         public TestException() {
         }
 
@@ -259,14 +273,26 @@ namespace Tests.NAnt.Core {
             _value = value;
         }
 
+        #endregion Public Instance Constructors
+
+        #region Protected Instance Constructors
+
         // deserialization constructor
         protected TestException(SerializationInfo info, StreamingContext context) : base(info, context) {
             _value = info.GetInt32("Value");
         }
 
+        #endregion Protected Instance Constructors
+
+        #region Public Instance Properties
+
         public int Value {
             get { return _value; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ApplicationException
 
         // Called by the frameworks during serialization
         // to fetch the data from an object.
@@ -285,6 +311,8 @@ namespace Tests.NAnt.Core {
                 return base.Message + Environment.NewLine + s;
             }
         }
+
+        #endregion Override implementation of ApplicationException
     }
 
     /// <summary>
@@ -292,7 +320,8 @@ namespace Tests.NAnt.Core {
     /// </summary>
     [Serializable]
     public sealed class SealedTestException : TestException {
-        // Normal 3 constructors
+        #region Public Instance Constructors
+
         public SealedTestException() {
         }
 
@@ -306,8 +335,14 @@ namespace Tests.NAnt.Core {
         public SealedTestException(string message, int value) : base(message, value) {
         }
 
+        #endregion Public Instance Constructors
+
+        #region Private Instance Constructors
+
         // deserialization constructor
         private SealedTestException(SerializationInfo info, StreamingContext context) : base(info, context) {
         }
+
+        #endregion Private Instance Constructors
     }
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
@@ -28,23 +28,30 @@ using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core {
-
-    /// <summary>Base class for running build files and checking results.</summary>
+    /// <summary>
+    /// Base class for running build files and checking results.
+    /// </summary>
     /// <remarks>
     ///   <para>Provides support for quickly running a build and capturing the output.</para>
     /// </remarks>
     public abstract class BuildTestBase {
         #region Private Instance Fields
 
-        string _tempDirName = null;
+        private string _tempDirName = null;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
 
         /// <summary>
-        /// The Temp Directory name for this test case. Should be in the form %temp%\ClassName (ex. c:\temp\Tests.NAnt.Core.BuildTestBase).
+        /// Gets the temporary directory name for this test case.
         /// </summary>
+        /// <value>
+        /// The temporary directory name for this test case.
+        /// </value>
+        /// <remarks>
+        /// Should be in the form %temp%\ClassName (ex. c:\temp\Tests.NAnt.Core.BuildTestBase).
+        /// </remarks>
         public string TempDirName {
             get { return _tempDirName; }
         }
@@ -54,7 +61,7 @@ namespace Tests.NAnt.Core {
         #region Public Instance Methods
 
         /// <summary>
-        /// Runs the XML as NAnt project and returns the console output as a 
+        /// Runs the XML as a NAnt project and returns the console output as a 
         /// string.
         /// </summary>
         /// <param name="xml">XML representing the build file contents.</param>
@@ -66,10 +73,11 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Runs the XML as NAnt project and returns the console output as a 
+        /// Runs the XML as a NAnt project and returns the console output as a 
         /// string.
         /// </summary>
         /// <param name="xml">XML representing the build file contents.</param>
+        /// <param name="listener">A <see cref="IBuildListener" /> to which all build events will be dispatched.</param>
         /// <returns>
         /// The console output.
         /// </returns>
@@ -82,6 +90,7 @@ namespace Tests.NAnt.Core {
         /// string.
         /// </summary>
         /// <param name="xml">XML representing the build file contents.</param>
+        /// <param name="level">The build output threshold.</param>
         /// <returns>
         /// The console output.
         /// </returns>
@@ -95,6 +104,8 @@ namespace Tests.NAnt.Core {
         /// string.
         /// </summary>
         /// <param name="xml">XML representing the build file contents.</param>
+        /// <param name="level">The build output threshold.</param>
+        /// <param name="listener">A <see cref="IBuildListener" /> to which all build events will be dispatched.</param>
         /// <returns>
         /// The console output.
         /// </returns>
@@ -172,8 +183,8 @@ namespace Tests.NAnt.Core {
             return new Project(buildFileName, level);
         }
 
-        /// <summary>        /// Creates an empty project xmldocument and loads it with a new project.        /// </summary>        /// <returns>
-        /// The new project.
+        /// <summary>        /// Creates an empty project <see cref="XmlDocument" /> and loads it         /// with a new project.        /// </summary>        /// <returns>
+        /// The new <see cref="Project" />.
         /// </returns>
         protected Project CreateEmptyProject() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
@@ -182,12 +193,15 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Creates a tempfile in the test temp directory.
+        /// Creates a temporary file in the temporary directory of the test.
         /// </summary>
         /// <param name="name">The filename, should not be absolute.</param>
         /// <returns>
-        /// The full path to the temp file.
+        /// The full path to the temporary file.
         /// </returns>
+        /// <remarks>
+        /// The file is created and existance is checked.
+        /// </remarks>
         public string CreateTempFile(string name) {
             return CreateTempFile(name, null);
         }
@@ -205,24 +219,26 @@ namespace Tests.NAnt.Core {
         public string CreateTempFile(string name, string contents) {
             string filename = Path.Combine(TempDirName, name);
             
-            if(Path.IsPathRooted(name))
-                filename=name;
+            if (Path.IsPathRooted(name)) {
+                filename = name;
+            }
 
-            if(contents == null)
+            if (contents == null) {
                 return TempFile.Create(filename);
+            }
             
             return TempFile.CreateWithContents(contents, filename);
         }
 
         /// <summary>
-        /// Creates a temp directory.
+        /// Creates a temporary directory.
         /// </summary>
         /// <param name="name">The name of the directory to create (name only, no path info).</param>
         /// <returns>
         /// The full path to the temp directory.
         /// </returns>
         /// <remarks>
-        /// The dir is created and existance is checked.
+        /// The directory is created and existance is checked.
         /// </remarks>
         public string CreateTempDir(string name) {
             return TempDir.Create(Path.Combine(TempDirName, name));
@@ -247,7 +263,8 @@ namespace Tests.NAnt.Core {
         }
 
         /// <remarks>
-        /// Super classes that override must call the base class last.
+        /// Classes that derive from <see cref="BuildTestBase" /> and override 
+        /// <see cref="TearDown" /> must call this method on the base class last.
         /// </remarks>
         [TearDown]
         protected virtual void TearDown() {
