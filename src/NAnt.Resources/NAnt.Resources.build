@@ -6,20 +6,20 @@
             * build.debug           - (true|false) debug build?
             * current.build.defines - framework-specific build defines
             
-            * This is a resource-only assembly for sommon/shared resources. All other resources
+            * This is a resource-only assembly for common/shared resources. All other resources
             will be stored with the assembly that uses them.
     -->
     <target name="build">
-        <!-- build main assembly -->
-        <resgen todir=".">
+
+        <!-- build main assembly ( don't need defines or debug as this is a resource-only assembly ) -->
+        <csc target="library" output="${build.dir}/bin/${nant.project.name}.dll" >
+            <sources>
+                <!-- common assembly-level attributes (the only source we need ) -->
+                <include name="../CommonAssemblyInfo.cs" />
+            </sources>
             <resources>
                <include name="Resources/*.resx" />
             </resources>
-        </resgen>
-        <al target="library" output="${build.dir}/bin/${nant.project.name}.dll">
-            <sources>
-                <include name="*.resources"/>
-            </sources>
-        </al>
+        </csc>
     </target>
 </project>
