@@ -27,13 +27,12 @@
 // Copyright (C) Copyright (c) 2000,2002 The Apache Software Foundation.
 // All rights reserved.
 
-
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Globalization;
 
 namespace SourceForge.NAnt {
 

@@ -19,11 +19,11 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.IO;
-using System.Xml;
-using System.Reflection;
 using System.Collections;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Xml;
 
 namespace SourceForge.NAnt {
     /// <summary>

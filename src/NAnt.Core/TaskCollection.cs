@@ -17,10 +17,9 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System.Collections;
+
 namespace SourceForge.NAnt {
-
-    using System.Collections;
-
     public class TaskCollection : ArrayList {
     }
 }

@@ -19,16 +19,17 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
-using System.Collections;
-using System.Globalization;
 
 namespace SourceForge.NAnt {
-
-    /// <summary>Maps XML nodes to the text positions from their original source.</summary>
+    /// <summary>
+    /// Maps XML nodes to the text positions from their original source.
+    /// </summary>
     public class LocationMap {
 
         struct TextPosition {

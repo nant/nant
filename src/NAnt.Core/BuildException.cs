@@ -18,12 +18,11 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
 
+using System;
+using System.Globalization;
+using System.Runtime.Serialization;
+
 namespace SourceForge.NAnt {
-
-    using System;
-    using System.Globalization;
-    using System.Runtime.Serialization;
-
     /// <summary>
     /// Thrown whenever an error occurs during the build.
     /// </summary>

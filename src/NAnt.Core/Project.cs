@@ -20,17 +20,17 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
+using System;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
+using Microsoft.Win32;
+
 namespace SourceForge.NAnt {
-
-    using System;
-    using System.IO;
-    using System.Reflection;
-    using System.Xml;
-    using System.Collections.Specialized;
-    using System.Globalization;
-    using Microsoft.Win32;
-    using System.Configuration;
-
     /// <summary>Central representation of an NAnt project.</summary>
     /// <example>
     ///   <para>The <c>Run</c> method will initialize the project with the build file specified in the <c>BuildFile</c> property and execute the default target.</para>

@@ -19,6 +19,7 @@
 
 using System;
 using System.Reflection;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {

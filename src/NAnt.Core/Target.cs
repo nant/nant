@@ -22,8 +22,8 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Xml;
 using System.Globalization;
+using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 

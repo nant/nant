@@ -42,16 +42,17 @@ foreach (string filename in GetIncludedFiles()) {
 }
 */
 
+using System;
+using System.Collections;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+
 namespace SourceForge.NAnt {
-
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Collections;
-
-    /// <summary>Used for searching filesystem based on given include/exclude rules.</summary>
+    /// <summary>
+    /// Used for searching filesystem based on given include/exclude rules.
+    /// </summary>
     /// <example>
     ///     <para>Simple client code for testing the class.</para>
     ///     <code>

@@ -18,16 +18,15 @@
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.Collections;
+using System.Globalization;
+using System.Reflection;
+using System.Xml;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt {
-
-    using System;
-    using System.Collections;
-    using System.Globalization;
-    using System.Reflection;
-    using System.Xml;
-
-    using SourceForge.NAnt.Attributes;
-
     /// <summary>Models a NAnt XML element in the build file.</summary>
     /// <remarks>
     ///   <para>Automatically validates attributes in the element based on Attribute settings in the derived class.</para>

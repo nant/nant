@@ -20,14 +20,14 @@
 // Even stripped down, it still includes more than NAnt needs right now, but
 // the extra functionality was left in there in case it's needed in the future.
 
-namespace SourceForge.NAnt {
+using System;
+using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Text;
 
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
-    using System.Text;
+namespace SourceForge.NAnt {
 
     [Serializable]
     public class InvalidVolumeException : ApplicationException {

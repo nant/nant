@@ -19,18 +19,17 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
-namespace SourceForge.NAnt {
+using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Xsl;
 
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Xml;
-    using System.Text;
-    using System.Xml.Xsl;
-    using System.Reflection;
-    using System.Text.RegularExpressions;
-    using System.Globalization;
-   
+namespace SourceForge.NAnt {
     /// <summary>
     /// ConsoleDriver is used as the main entry point to NAnt. It is called by the ConsoleStub.
     /// </summary>

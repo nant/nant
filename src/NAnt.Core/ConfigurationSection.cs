@@ -1,4 +1,4 @@
-// $Id: ConfigurationSection.cs,v 1.1 2003/03/11 01:28:02 skot Exp $
+// $Id: ConfigurationSection.cs,v 1.2 2003/04/16 18:32:57 drieseng Exp $
 // NAnt - A .NET build tool
 // Copyright (C) 2003 Scott Hernandez
 //
@@ -18,19 +18,16 @@
 //
 // Scott Hernandez (ScottHernandez@hotmail.com
 
-
 using System;
 using System.Text;
 using System.Xml;
 using System.Configuration;
 
 namespace SourceForge.NAnt{
-
     /// <summary>
-    ///     Custom configuration section handler for the <nantsettings/> element
+    /// Custom configuration section handler for the <nantsettings/> element.
     /// </summary>
     public class ConfigurationSection : IConfigurationSectionHandler {
-
         /// <summary>
         /// This just passed things through. Return the node read from the config file.
         /// </summary>

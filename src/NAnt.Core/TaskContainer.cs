@@ -18,10 +18,10 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.Reflection;
-using System.Xml;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Reflection;
+using System.Xml;
 
 using SourceForge.NAnt.Attributes;
 

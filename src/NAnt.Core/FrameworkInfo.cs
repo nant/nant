@@ -18,8 +18,8 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
-using System.IO;
 using System.Globalization;
+using System.IO;
     
 namespace SourceForge.NAnt {
 

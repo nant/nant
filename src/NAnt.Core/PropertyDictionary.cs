@@ -21,8 +21,8 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace SourceForge.NAnt {
 

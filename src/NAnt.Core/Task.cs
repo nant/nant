@@ -20,16 +20,17 @@
 // Ian MacLean (ian_maclean@another.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
+using System;
+using System.Globalization;
+using System.Reflection;
+using System.Xml;
+
+using SourceForge.NAnt.Attributes;
+
 namespace SourceForge.NAnt {
-
-    using System;
-    using System.Globalization;
-    using System.Reflection;
-    using System.Xml;
-
-    using SourceForge.NAnt.Attributes;
-
-    /// <summary>Provides the abstract base class for tasks.</summary>
+    /// <summary>
+    /// Provides the abstract base class for tasks.
+    /// </summary>
     /// <remarks>A task is a piece of code that can be executed.</remarks>
     public abstract class Task : Element {
         #region Private Static Fields
