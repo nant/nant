@@ -89,7 +89,9 @@
             </sources>
             <references>
                 <includes name="${build.dir}/${project.FormalName}.Core.dll"/>
+                <includes name="${build.dir}/NDoc.Core.dll"/>
             </references>
+            <arg value="/resource:${src.dir}\${project.FormalName}\xslt\projecthelp.xslt,Nant.xslt.projecthelp.xslt" />
             <arg value="/nowarn:1591"/>
         </csc>
         
@@ -138,12 +140,17 @@
     -->
     <target name="test" depends="build" description="run unit tests">
         <nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltOnError="true" haltOnFailure="true">
-            <formatter type="xml"/>
-            <formatter type="plain"/>
+            <formatter type="Xml"/>
+            <formatter type="Plain"/>
             <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" outfile="${build.dir}\${project.FormalName}.Tests.Results" />
         </nunit>
     </target>
 
+    <!-- build Extra task libraries -->
+    <target name="extras" depends="clean" description="">
+        <nant buildfile="${src.dir}\Extras\Sourcesafe\Sourcesafe.build" basedir="" />       
+    </target>
+    
     <target name="doc" depends="build" description="build documenation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc>
