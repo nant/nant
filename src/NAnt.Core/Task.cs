@@ -160,7 +160,7 @@ namespace NAnt.Core {
         public void Execute() {
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
-                "Task.Execute() for '{0}'", 
+                ResourceUtils.GetString("String_TaskExecute"), 
                 Name));
                 
             if (IfDefined && !UnlessDefined) {
@@ -170,7 +170,7 @@ namespace NAnt.Core {
                 } catch (Exception ex) {
                     logger.Error(string.Format(
                         CultureInfo.InvariantCulture,
-                        "{0} Generated Exception", 
+                        ResourceUtils.GetString("NA1077"), 
                         Name), ex);
 
                     if (FailOnError) {
@@ -323,9 +323,7 @@ namespace NAnt.Core {
                                 // throw BuildException if required
                                 if (frameworkAttribute.Required) {
                                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "'{0}' is a required framework configuration setting for the" 
-                                        + " '{1}' build element that should be set in the NAnt configuration" 
-                                        + " file.", frameworkAttribute.Name, Name), Location, ex);
+                                        ResourceUtils.GetString("NA1075"), frameworkAttribute.Name, Name), Location, ex);
                                 }
 
                                 // set value to null
@@ -353,7 +351,7 @@ namespace NAnt.Core {
                                 foreach (ValidatorAttribute validator in validateAttributes) {
                                     logger.Info(string.Format(
                                         CultureInfo.InvariantCulture,
-                                        "Configuration value {0} for task {1} was not considered valid by {2}.", 
+                                        ResourceUtils.GetString("NA1074"), 
                                         attributeValue, Name, validator.GetType().Name));
 
                                     validator.Validate(attributeValue);

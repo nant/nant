@@ -476,7 +476,7 @@ namespace NAnt.Core {
                     return "unix";
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "NAnt currently does not support this platform ({0}, ID = {0}).", 
+                        ResourceUtils.GetString("NA1060"), 
                         Environment.OSVersion.Platform.ToString(CultureInfo.InvariantCulture),
                         (int) Environment.OSVersion.Platform));
                 }
@@ -1056,7 +1056,7 @@ namespace NAnt.Core {
                     path = uri.LocalPath;
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Invalid path '{0}'. The '{1}' scheme is not supported for paths.", 
+                        ResourceUtils.GetString("NA1061"), 
                         path, uri.Scheme), Location.UnknownLocation);
                 }
             } catch {
@@ -1233,7 +1233,7 @@ namespace NAnt.Core {
             // check to make sure that the root element in named correctly
             if (!doc.DocumentElement.LocalName.Equals(RootXml)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                    "Root element in '{0}' must be named '{1}'.", doc.BaseURI, RootXml));
+                    ResourceUtils.GetString("NA1059"), doc.BaseURI, RootXml));
             }
 
             // get project attributes
@@ -1342,7 +1342,7 @@ namespace NAnt.Core {
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
+                        ResourceUtils.GetString("NA1071"), childNode.Name), 
                         LocationMap.GetLocation(childNode));
                 }
             }
@@ -1396,7 +1396,7 @@ namespace NAnt.Core {
                     break;
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "NAnt currently does not support this platform ({0}, ID = {0}).", 
+                        ResourceUtils.GetString("NA1060"), 
                         Environment.OSVersion.Platform.ToString(CultureInfo.InvariantCulture),
                         (int) Environment.OSVersion.Platform));
             }

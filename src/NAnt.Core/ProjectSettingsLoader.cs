@@ -334,19 +334,15 @@ namespace NAnt.Core {
                         // current runtime framework is not correctly configured
                         // in NAnt configuration file
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "The current runtime framework '{0}' is not correctly" 
-                            + " configured in the NAnt configuration file.", 
+                            ResourceUtils.GetString("NA1063"), 
                             name), ex);
                     } else {
                         if (name != null && name == defaultTargetFramework) {
-                            Project.Log(Level.Warning, "The default targetframework" +
-                                " '{0}' is invalid and has not been loaded : {1}", 
-                                name, ex.Message);
+                            Project.Log(Level.Warning, ResourceUtils.GetString("NA1181"), name, ex.Message);
                             Project.Log(Level.Debug, ex.ToString());
                             Project.Log(Level.Warning, "");
                         } else {
-                            Project.Log(Level.Verbose, "Framework '{0}' is invalid" 
-                                + " and has not been loaded : {1}", name, ex.Message);
+                            Project.Log(Level.Verbose, ResourceUtils.GetString("NA1182"), name, ex.Message);
                             Project.Log(Level.Debug, ex.ToString());
                             Project.Log(Level.Verbose, "");
                         }
@@ -358,18 +354,14 @@ namespace NAnt.Core {
                 // information about the current runtime framework should
                 // be added to the NAnt configuration file
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "The NAnt configuration file does not contain a framework" 
-                    + " definition for the current runtime framework (family '{0}'" 
-                    + ", clrversion '{1}').", frameworkFamily, frameworkClrVersion));
+                    ResourceUtils.GetString("NA1062"), frameworkFamily, frameworkClrVersion));
             }
 
             if (defaultTargetFramework != null && defaultTargetFramework != "auto") {
                 if (Project.Frameworks.ContainsKey(defaultTargetFramework)) {
                     Project.TargetFramework = Project.Frameworks[defaultTargetFramework];
                 } else {
-                    Project.Log(Level.Warning, "The default targetframework" +
-                        " '{0}' is not valid. Defaulting to the runtime framework" 
-                        + " ({1}).", defaultTargetFramework, Project.RuntimeFramework.Name);
+                    Project.Log(Level.Warning, ResourceUtils.GetString("NA1178"), defaultTargetFramework, Project.RuntimeFramework.Name);
                     Project.Log(Level.Warning, "");
                 }
             }

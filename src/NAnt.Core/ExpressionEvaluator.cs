@@ -25,6 +25,7 @@ using System.Globalization;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     [FunctionSet("property", "NAnt")]
@@ -69,7 +70,7 @@ namespace NAnt.Core {
             MethodInfo methodInfo = TypeFactory.LookupFunction(functionName, Project);
             if (methodInfo == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unknown function '{0}'.", functionName));
+                                                       ResourceUtils.GetString("NA1052"), functionName));
             }
             return methodInfo.GetParameters();
         }
@@ -78,7 +79,7 @@ namespace NAnt.Core {
             MethodInfo methodInfo = TypeFactory.LookupFunction(functionName, Project);
             if (methodInfo == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Unknown function '{0}'.", functionName));
+                            ResourceUtils.GetString("NA1052"), functionName));
             }
 
             try {
@@ -131,7 +132,7 @@ namespace NAnt.Core {
                 string propertyValue = _properties.GetPropertyValue(propertyName);
                 if (propertyValue == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Property '{0}' has not been set.", propertyName));
+                        ResourceUtils.GetString("NA1053"), propertyName));
                 }
 
                 Location propertyLocation = Location.UnknownLocation;
@@ -148,7 +149,7 @@ namespace NAnt.Core {
                 string propertyValue = _properties.GetPropertyValue(propertyName);
                 if (propertyValue == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Property '{0}' has not been set.", propertyName));
+                        ResourceUtils.GetString("NA1053"), propertyName));
                 }
 
                 return propertyValue;

@@ -120,10 +120,7 @@ namespace NAnt.Core {
                 // named "System.dll" exists in that directory
                 if (!File.Exists(Path.Combine(_frameworkAssemblyDirectory.FullName, "System.dll"))) {
                     throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, "The 'System.dll' assembly" 
-                            + " does not exist in framework assembly directory" 
-                            + " '{0}'.", frameworkAssemblyDir));
-                }
+                        CultureInfo.InvariantCulture, ResourceUtils.GetString("NA1054"), frameworkAssemblyDir));                }
             } else {
                 throw new ArgumentException(string.Format(
                     CultureInfo.InvariantCulture, "Framework assembly directory '{0}' does not exist.", frameworkAssemblyDir));
@@ -219,8 +216,8 @@ namespace NAnt.Core {
                         return new Version(8, 0);
                     default:
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "There is no version of Visual Studio .NET that corresponds"
-                            + " with {0}.", Description), Location.UnknownLocation);
+                            ResourceUtils.GetString("NA1055"),
+                            Description), Location.UnknownLocation);
                 }
             }
         }

@@ -23,6 +23,7 @@ using System.Collections;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     public abstract class ExpressionEvalBase {
@@ -203,7 +204,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '==' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                                            ResourceUtils.GetString("NA1038"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.NE:
@@ -236,7 +237,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '!=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            ResourceUtils.GetString("NA1042"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.LT:
@@ -270,7 +271,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '<' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            ResourceUtils.GetString("NA1051"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.GT:
@@ -304,7 +305,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '>' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            ResourceUtils.GetString("NA1037"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.LE:
@@ -338,7 +339,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '<=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            ResourceUtils.GetString("NA1049"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.GE:
@@ -372,7 +373,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                            "Operator '>=' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                            ResourceUtils.GetString("NA1050"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                 }
@@ -417,7 +418,7 @@ namespace NAnt.Core {
                             o = (TimeSpan) o + (TimeSpan) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Operator '+' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                ResourceUtils.GetString("NA1041"), 
                                 GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                                 p0, p3);
                         }
@@ -455,7 +456,7 @@ namespace NAnt.Core {
                             o = (TimeSpan) o - (TimeSpan) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Operator '-' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                ResourceUtils.GetString("NA1048"), 
                                 GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                                 p0, p3);
                         }
@@ -499,7 +500,7 @@ namespace NAnt.Core {
                             o = (double) o * (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        "Operator '*' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                        ResourceUtils.GetString("NA1036"), 
                                         GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
@@ -514,69 +515,69 @@ namespace NAnt.Core {
                         if (o is int && o2 is int) {
                             if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (int) o / (int) o2;
                         } else if (o is int && o2 is long) {
                             if ((long) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (int) o / (long) o2;
                         } else if (o is int && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (int) o / (double) o2;
                         } else if (o is long && o2 is long) {
                             if ((long) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (long) o / (long) o2;
                         } else if (o is long && o2 is int) {
                             if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (long) o / (int) o2;
                         } else if (o is long && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (long) o / (double) o2;
                         } else if (o is double && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (double) o / (double) o2;
                         } else if (o is double && o2 is int) {
                             if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (double) o / (int) o2;
                         } else if (o is double && o2 is long) {
                             if ((long) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (double) o / (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Operator '/' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                ResourceUtils.GetString("NA1039"), 
                                 GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
@@ -591,69 +592,69 @@ namespace NAnt.Core {
                         if (o is int && o2 is int) {
                             if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (int) o % (int) o2;
                         } else if (o is int && o2 is long) {
                             if ((long) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (int) o % (long) o2;
                         } else if (o is int && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (int) o % (double) o2;
                         } else if (o is long && o2 is long) {
                             if ((long) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (long) o % (long) o2;
                         } else if (o is long && o2 is int) {
                             if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (long) o % (int) o2;
                         } else if (o is long && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (long) o % (double) o2;
                         } else if (o is double && o2 is double) {
                             if ((double) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (double) o % (double) o2;
                         } else if (o is double && o2 is int) {
                             if ((int) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (double) o % (int) o2;
                         } else if (o is double && o2 is long) {
                             if ((long) o2 == 0) {
                                 throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                    "Attempt to divide by zero."), p2, p3);
+                                    ResourceUtils.GetString("NA1043")), p2, p3);
                             }
 
                             o = (double) o % (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                "Operator '%' cannot be applied to arguments of type '{0}' and '{1}'.", 
+                                ResourceUtils.GetString("NA1047"), 
                                 GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
@@ -794,7 +795,7 @@ namespace NAnt.Core {
                         return -((double) v);
                     }
                     throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                        "Unary minus not supported for arguments of type '{0}'.", 
+                        ResourceUtils.GetString("NA1040"), 
                         GetSimpleTypeName(v.GetType())), p0, p1);
                 }
                 return null;
@@ -896,7 +897,7 @@ namespace NAnt.Core {
                             _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
                         if (currentArgument >= formalParameters.Length) {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture,
-                                        "Too many actual parameters for '{0}'.", functionOrPropertyName), p0, _tokenizer.CurrentPosition);
+                                        ResourceUtils.GetString("NA1046"), functionOrPropertyName), p0, _tokenizer.CurrentPosition);
                         }
 
                         ExpressionTokenizer.Position beforeArgument = _tokenizer.CurrentPosition;
@@ -921,7 +922,7 @@ namespace NAnt.Core {
                     }
                     if (currentArgument < formalParameters.Length) {
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture,
-                                    "Too few actual parameters for '{0}'.", functionOrPropertyName), p0, _tokenizer.CurrentPosition);
+                                    ResourceUtils.GetString("NA1044"), functionOrPropertyName), p0, _tokenizer.CurrentPosition);
                     }
 
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
@@ -978,7 +979,7 @@ namespace NAnt.Core {
                     }
 
                     throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot convert {0} to '{1}' (value was null).", 
+                        ResourceUtils.GetString("NA1045"), 
                         description, GetSimpleTypeName(returnType)), p0, p1);
                 }
 

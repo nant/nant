@@ -274,7 +274,7 @@ namespace NAnt.Core {
 
                 if (obsoleteAttribute != null) {
                     string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                        "Function {0} is deprecated.  {1}", methodName, 
+                        ResourceUtils.GetString("NA1087"), methodName, 
                         obsoleteAttribute.Message);
                     if (obsoleteAttribute.IsError) {
                         throw new BuildException(obsoleteMessage, Location.UnknownLocation);
@@ -309,7 +309,7 @@ namespace NAnt.Core {
             if (builder == null) {
                 Location location = proj.LocationMap.GetLocation(taskNode);
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unknown task <{0}>.", taskName), location);
+                    ResourceUtils.GetString("NA1083"), taskName), location);
             }
 
             Task task = builder.CreateTask();
@@ -324,7 +324,7 @@ namespace NAnt.Core {
             if (obsoleteAttribute != null) {
                 Location location = proj.LocationMap.GetLocation(taskNode);
                 string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                    "Task <{0}> is deprecated.  {1}", taskName, 
+                    ResourceUtils.GetString("NA1086"), taskName, 
                     obsoleteAttribute.Message);
                 if (obsoleteAttribute.IsError) {
                     throw new BuildException(obsoleteMessage, location);
@@ -350,7 +350,7 @@ namespace NAnt.Core {
             if (builder == null) {
                 Location location = parent.Project.LocationMap.GetLocation(elementNode);
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unknown filter <{0}>.", filterName), location);
+                    ResourceUtils.GetString("NA1082"), filterName), location);
             }
 
             Filter filter = (Filter) builder.CreateFilter();
@@ -367,7 +367,7 @@ namespace NAnt.Core {
             if (obsoleteAttribute != null) {
                 Location location = parent.Project.LocationMap.GetLocation(elementNode);
                 string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                    "Filter <{0}> is deprecated.  {1}", filterName, 
+                    ResourceUtils.GetString("NA1079"), filterName, 
                     obsoleteAttribute.Message);
                 if (obsoleteAttribute.IsError) {
                     throw new BuildException(obsoleteMessage, location);
@@ -393,7 +393,7 @@ namespace NAnt.Core {
             if (builder == null) {
                 Location location = proj.LocationMap.GetLocation(elementNode);
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unknown element <{0}>.", dataTypeName), location);
+                    ResourceUtils.GetString("NA1081"), dataTypeName), location);
             }
 
             DataTypeBase element = (DataTypeBase) builder.CreateDataTypeBase();
@@ -408,7 +408,7 @@ namespace NAnt.Core {
             if (obsoleteAttribute != null) {
                 Location location = proj.LocationMap.GetLocation(elementNode);
                 string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                    "Type <{0}> is deprecated.  {1}", dataTypeName, 
+                    ResourceUtils.GetString("NA1085"), dataTypeName, 
                     obsoleteAttribute.Message);
                 if (obsoleteAttribute.IsError) {
                     throw new BuildException(obsoleteMessage, location);
@@ -501,11 +501,11 @@ namespace NAnt.Core {
 
                 if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
                     logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                        "Creating DataTypeBaseBuilder for {0}", type.Name));
+                        ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), type.Name));
                     DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.FullName, type.Assembly.Location);
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                            "Adding '{0}' from {1}:{2}", dtb.DataTypeName, 
+                            ResourceUtils.GetString("String_AddingDataType"), dtb.DataTypeName, 
                             dtb.AssemblyFileName, dtb.ClassName));
 
                         DataTypeBuilders.Add(dtb);

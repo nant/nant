@@ -101,18 +101,18 @@ namespace NAnt.Core {
             if (Parent.GetType() == typeof(Project) || Parent.GetType() == typeof(Target)) {
                 if (StringUtils.IsNullOrEmpty(ID)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "'id' is a required attribute for a <{0}> datatype declaration.", 
+                        ResourceUtils.GetString("NA1010"), 
                         Name), Location);
                 }
                 if (!StringUtils.IsNullOrEmpty(RefID)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "'refid' attribute is invalid for a <{0}> datatype declaration.", 
+                        ResourceUtils.GetString("NA1009"), 
                         Name), Location);
                 }
             } else {
                   if (!StringUtils.IsNullOrEmpty(ID)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "'id' is an invalid attribute for a <{0}> tag. Datatypes" 
+                        ResourceUtils.GetString("NA1008") 
                         + " can only be declared at Project or Target level.", 
                         Name), Location);
                 }

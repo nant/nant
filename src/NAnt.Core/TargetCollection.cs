@@ -21,6 +21,7 @@
 using System;
 using System.Collections;
 using System.Globalization;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     [Serializable()]
@@ -34,7 +35,7 @@ namespace NAnt.Core {
 
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
-                "Adding Target '{0}'", 
+                ResourceUtils.GetString("String_AddingTarget"), 
                 t.Name));
             
             // check for existing target with same name.
@@ -42,7 +43,7 @@ namespace NAnt.Core {
                 return base.Add(t);
             } else {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Duplicate target named '{0}'!", t.Name));
+                    ResourceUtils.GetString("NA1073"), t.Name));
             }
         }
 

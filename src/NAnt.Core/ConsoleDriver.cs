@@ -369,7 +369,7 @@ namespace NAnt.Core {
                     buildFileName = files[0].FullName;
                 } else if (files.Length > 1) {
                     throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
-                        "More than one '{0}' file found in '{1}' and no default.build exists."
+                        ResourceUtils.GetString("NA1001")
                         + "  Use -buildfile:<file> to specify the build file to execute or "
                         + " create a default.build file.", searchPattern, directory));
                 } else if (files.Length == 0 && findInParent) { // recurse up the tree
@@ -378,11 +378,11 @@ namespace NAnt.Core {
                         buildFileName = GetBuildFileName(parentDirectoryInfo.FullName, searchPattern, findInParent);
                     } else {
                         throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
-                            "Could not find a '{0}' file in directory tree.", searchPattern));
+                            ResourceUtils.GetString("NA1007"), searchPattern));
                     }
                 } else {
                     throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not find a '{0}' file in '{1}'", searchPattern, directory));
+                        ResourceUtils.GetString("NA1004"), searchPattern, directory ));
                 }
             }
             return buildFileName;
@@ -427,7 +427,7 @@ namespace NAnt.Core {
             Type loggerType = ReflectionUtils.GetTypeFromString(typeName, false);
             if (loggerType == null) {
                 throw new TypeLoadException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not load type {0}.", typeName));
+                    ResourceUtils.GetString("NA1006"), typeName));
             }
 
             object buildLogger = Activator.CreateInstance(loggerType);
@@ -459,7 +459,7 @@ namespace NAnt.Core {
             Type listenerType = ReflectionUtils.GetTypeFromString(typeName, false);
             if (listenerType == null) {
                 throw new TypeLoadException(string.Format(CultureInfo.InvariantCulture,
-                    "Could not load type {0}.", typeName));
+                    ResourceUtils.GetString("NA1006"), typeName));
             }
 
             object buildListener = Activator.CreateInstance(listenerType);
@@ -493,7 +493,7 @@ namespace NAnt.Core {
                     outputWriter = new StreamWriter(new FileStream(cmdlineOptions.LogFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read));
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Error creating output log file '{0}'.", cmdlineOptions.LogFile.FullName),
+                        ResourceUtils.GetString("NA1005"), cmdlineOptions.LogFile.FullName),
                         Location.UnknownLocation, ex);
                 }
             }
@@ -503,7 +503,7 @@ namespace NAnt.Core {
                     buildLogger = ConsoleDriver.CreateLogger(cmdlineOptions.LoggerType);
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Error creating logger of type '{0}'.", cmdlineOptions.LoggerType),
+                        ResourceUtils.GetString("NA1003"), cmdlineOptions.LoggerType),
                         Location.UnknownLocation, ex);
                 }
             }
@@ -539,7 +539,7 @@ namespace NAnt.Core {
                     listeners.Add(listener);
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Error creating listener of type '{0}'.", listenerTypeName),
+                        ResourceUtils.GetString("NA1002"), listenerTypeName),
                         Location.UnknownLocation, ex);
                 }
             }

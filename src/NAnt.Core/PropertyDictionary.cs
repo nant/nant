@@ -25,6 +25,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     [Serializable()]
@@ -93,7 +94,7 @@ namespace NAnt.Core {
             // do not allow value of read-only property to be overwritten
             if (IsReadOnlyProperty(propertyName)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Read-only property \"{0}\" cannot be overwritten.", propertyName),
+                                                       ResourceUtils.GetString("NA1068"), propertyName),
                     Location.UnknownLocation);
             }
 
@@ -114,7 +115,7 @@ namespace NAnt.Core {
             // ensure property doesn't already exist
             if (Contains(propertyName)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Property '{0}' already exists.",
+                    ResourceUtils.GetString("NA1065"),
                     propertyName), Location.UnknownLocation);
             }
         }
@@ -167,7 +168,7 @@ namespace NAnt.Core {
                 // check if the property actually exists
                 if (!Contains(name)) {
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                        "Property '{0}' does not exist.", name), "name");
+                        ResourceUtils.GetString("NA1067"))) ;
                 }
 
                 _dynamicProperties.Add(name);
@@ -493,12 +494,12 @@ namespace NAnt.Core {
             //
             if (!Regex.IsMatch(propertyName, propertyNamePattern)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Property name '{0}' is invalid.", propertyName), location);
+                    ResourceUtils.GetString("NA1064"), propertyName), location);
             }
             if (propertyName.EndsWith("-") || propertyName.EndsWith(".")) {
                 // this additional rule helps simplify the regex pattern
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Property name '{0}' is invalid.", propertyName), location);
+                    ResourceUtils.GetString("NA1064"), propertyName), location);
             }
         }
 
@@ -506,7 +507,7 @@ namespace NAnt.Core {
             if (value != null) {
                 if (!(value is string)) {
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                        "Property value must be a string, was '{0}'.", value.GetType()), 
+                        ResourceUtils.GetString("NA1066"), value.GetType()), 
                         "value");
                 }
             } else {

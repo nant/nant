@@ -461,7 +461,7 @@ namespace NAnt.Core {
                     OutputMessage(Level.Info, "BUILD SUCCEEDED", indentationLevel);
                 } else {
                     OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
-                        "BUILD SUCCEEDED - {0} non-fatal error(s), {1} warning(s)", 
+                        ResourceUtils.GetString("String_BuildSucceeded"), 
                         report.Errors, report.Warnings), indentationLevel);
                 }
                 OutputMessage(Level.Info, string.Empty, indentationLevel);
@@ -471,7 +471,7 @@ namespace NAnt.Core {
                     OutputMessage(Level.Error, "BUILD FAILED", indentationLevel);
                 } else {
                     OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture,
-                        "BUILD FAILED - {0} non-fatal error(s), {1} warning(s)", 
+                        ResourceUtils.GetString("String_BuildFailed"), 
                         report.Errors, report.Warnings), indentationLevel);
                 }
                 OutputMessage(Level.Error, string.Empty, indentationLevel);
@@ -508,7 +508,7 @@ namespace NAnt.Core {
             // output total build time
             TimeSpan buildTime = DateTime.Now - report.StartTime;
             OutputMessage(Level.Info, string.Format(CultureInfo.InvariantCulture, 
-                "Total time: {0} seconds." + Environment.NewLine, 
+                ResourceUtils.GetString("String_TotalTime") + Environment.NewLine, 
                 Math.Round(buildTime.TotalSeconds, 1)), indentationLevel);
 
             // make sure all messages are written to the underlying storage
@@ -872,7 +872,7 @@ namespace NAnt.Core {
 
                 if (!notify) {
                     return;
-                }            
+                }
 
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.From = GetPropertyValue(properties, "from", null);

@@ -662,7 +662,7 @@ namespace NAnt.Core {
                     // check if there are unused attributes
                     if (UnprocessedAttributes.Count > 0) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Unexpected attribute \"{0}\" on element <{1}>.", 
+                            ResourceUtils.GetString("NA1027"), 
                             UnprocessedAttributes[0], Element.XmlNode.Name),
                             Location);
                     }
@@ -671,8 +671,7 @@ namespace NAnt.Core {
                         // check if there are unused nested build elements
                         if (UnprocessedChildNodes.Count > 0) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "The <{0}> type does not support the nested build"
-                                + " element \"{1}\".", Element.Name, UnprocessedChildNodes[0]), 
+                                ResourceUtils.GetString("NA1032"), Element.Name, UnprocessedChildNodes[0]), 
                                 Location);
                         }
                     }
@@ -708,7 +707,7 @@ namespace NAnt.Core {
                                 // throw BuildException if required
                                 if (frameworkAttribute.Required) {
                                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "'{0}' is a required framework configuration setting for <{1} ... />.", 
+                                        ResourceUtils.GetString("NA1015"), 
                                         frameworkAttribute.Name, Name), 
                                         Location, ex);
                                 }
@@ -721,7 +720,7 @@ namespace NAnt.Core {
                         // check if the attribute is required
                         if (frameworkAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "'{0}' is a required framework configuration setting for <{1} ... />.", 
+                                ResourceUtils.GetString("NA1015"), 
                                 frameworkAttribute.Name, Name), Location);
                         }
                     }
@@ -739,7 +738,7 @@ namespace NAnt.Core {
                 if (buildAttribute != null) {
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
-                        "Found {0} <attribute> for {1}", 
+                        ResourceUtils.GetString("String_FoundAttribute"), 
                         buildAttribute.Name, 
                         propertyInfo.DeclaringType.FullName));
 
@@ -756,7 +755,7 @@ namespace NAnt.Core {
                         if (!buildAttribute.ProcessXml) {
                             logger.Debug(string.Format(
                                 CultureInfo.InvariantCulture,
-                                "Skipping {0} <attribute> for {1}", 
+                                ResourceUtils.GetString("String_SkippingAttribute"), 
                                 buildAttribute.Name, 
                                 propertyInfo.DeclaringType.FullName));
 
@@ -778,7 +777,7 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "Attribute '{0}' for <{1} ... /> is deprecated.  {2}", 
+                                ResourceUtils.GetString("NA1014"), 
                                 buildAttribute.Name, Name, obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 throw new BuildException(obsoleteMessage, 
@@ -792,7 +791,7 @@ namespace NAnt.Core {
                         // check if attribute is required
                         if (buildAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "'{0}' is a required attribute of <{1} ... />.", 
+                                ResourceUtils.GetString("NA1033"), 
                                 buildAttribute.Name, Name), Location);
                         }
                     }
@@ -810,7 +809,7 @@ namespace NAnt.Core {
 
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
-                        "Setting value: {2}.{0} = {1}", 
+                        ResourceUtils.GetString("String_SettingValue"), 
                         propertyInfo.Name, 
                         attributeValue,
                         propertyInfo.DeclaringType.Name));
@@ -826,7 +825,7 @@ namespace NAnt.Core {
                             foreach (ValidatorAttribute validator in validateAttributes) {
                                 logger.Info(string.Format(
                                     CultureInfo.InvariantCulture,
-                                    "Validating <{1} {2}='...'> with {0}", 
+                                    ResourceUtils.GetString("String_ValidatingElement"), 
                                     validator.GetType().Name, ElementXml.Name, 
                                     attributeNode.Name));
 
@@ -834,7 +833,7 @@ namespace NAnt.Core {
                             }
                         } catch (ValidationException ve) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                ResourceUtils.GetString("NA1022"), 
                                 attributeValue, attributeNode.Name, ElementXml.Name), Location, ve);
                         }
 
@@ -875,9 +874,7 @@ namespace NAnt.Core {
 
                 if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "BuildElementArrayAttribute and BuildElementCollection attributes" +
-                        " must be applied to array or collection-based types '{0}' element" +
-                        "for <{1} .../>.", buildElementArrayAttribute.Name, 
+                        ResourceUtils.GetString("NA1031"), buildElementArrayAttribute.Name, 
                         Name), Location);
                 }
 
@@ -893,8 +890,7 @@ namespace NAnt.Core {
                 if (propertyInfo.PropertyType.IsArray) {
                     if (!propertyInfo.CanWrite) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "BuildElementArrayAttribute cannot be applied to read-only" +
-                            " array-based properties. '{0}' element for <{1} .../>.", 
+                            ResourceUtils.GetString("NA1016"), 
                             buildElementArrayAttribute.Name, Name), 
                             Location);
                     }
@@ -905,8 +901,7 @@ namespace NAnt.Core {
                 } else {
                     if (!propertyInfo.CanRead) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "BuildElementArrayAttribute cannot be applied to write-only" +
-                            " collection-based properties. '{0}' element for <{1} .../>.", 
+                            ResourceUtils.GetString("NA1019"), 
                             buildElementArrayAttribute.Name, Name), 
                             Location);
                     }
@@ -926,9 +921,8 @@ namespace NAnt.Core {
                 // make sure the element is strongly typed
                 if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
-                        " should have an element type assigned that derives from Element" +
-                        " for <{0} .../>.", Name), Location);
+                                    ResourceUtils.GetString("NA1140"), Name),
+                                    Location);
                 }
 
                 XmlNodeList collectionNodes = null;
@@ -940,7 +934,7 @@ namespace NAnt.Core {
                     
                     if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "There must be a least one '{0}' element for <{1} .../>.", 
+                            ResourceUtils.GetString("NA1021"), 
                             buildElementCollectionAttribute.Name, Name), 
                             Location);
                     }
@@ -952,7 +946,7 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "Element <{0}... /> for <{1}... /> is deprecated. {2}", 
+                                ResourceUtils.GetString("NA1034"), 
                                 buildElementCollectionAttribute.Name, Name, 
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
@@ -970,7 +964,7 @@ namespace NAnt.Core {
                         string elementName = buildElementCollectionAttribute.ChildElementName;
                         if (elementName == null) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "No name was assigned to the base element '{0}' for collection element {1} for <{2} .../>.", 
+                                ResourceUtils.GetString("NA1026"), 
                                 elementType.FullName, buildElementCollectionAttribute.Name, 
                                 Name), Location);
                         }
@@ -988,8 +982,7 @@ namespace NAnt.Core {
                         }
                     } else if (collectionNodes.Count > 1) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Use BuildElementArrayAttributes to have array like elements!" +
-                            " There must be at most one '{0}' element for <{1} ... />.", 
+                            ResourceUtils.GetString("NA1030"),
                             buildElementCollectionAttribute.Name, 
                             Name), Location);
                     }
@@ -1005,7 +998,7 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "Element <{0}... /> for <{1}... /> is deprecated. {2}", 
+                                ResourceUtils.GetString("NA1034"), 
                                 buildElementArrayAttribute.Name, Name, 
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
@@ -1021,7 +1014,7 @@ namespace NAnt.Core {
                         UnprocessedChildNodes.Remove(collectionNodes[0].Name);
                     } else if (buildElementArrayAttribute.Required) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Element Required! There must be a least one '{0}' element for <{1} ... />.", 
+                            ResourceUtils.GetString("NA1035"), 
                             buildElementArrayAttribute.Name, Name), 
                             Location);
                     }
@@ -1062,8 +1055,7 @@ namespace NAnt.Core {
                         propertyInfo.SetValue(Element, list, null);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Child element type {0} is not assignable to the type" +
-                            " of the underlying array ({1} for property {2} for <{3} ... />.", 
+                            ResourceUtils.GetString("NA1012"), 
                             elementType.FullName, propertyInfo.PropertyType.FullName, 
                             propertyInfo.Name, Name), Location, ex);
                     }
@@ -1087,8 +1079,8 @@ namespace NAnt.Core {
 
                     if (addMethod == null) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Child element type {0} cannot be added to collection" +
-                            " {1} for underlying property {2} for <{3} ... />.", elementType.FullName,
+                            ResourceUtils.GetString("NA1020"),
+                            elementType.FullName,
                             propertyInfo.PropertyType.FullName, propertyInfo.Name, Name),
                             Location);
                     }
@@ -1099,14 +1091,12 @@ namespace NAnt.Core {
                         if (!propertyInfo.CanWrite) {
                             if (buildElementArrayAttribute != null) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "BuildElementArrayAttribute cannot be applied to read-only property with" +
-                                    " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                                    ResourceUtils.GetString("NA1093"), 
                                     buildElementArrayAttribute.Name, Name), 
                                     Location);
                             } else {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "BuildElementCollectionAttribute cannot be applied to read-only property with" +
-                                    " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                                    ResourceUtils.GetString("NA1029"), 
                                     buildElementCollectionAttribute.Name, Name), 
                                     Location);
                             }
@@ -1152,7 +1142,7 @@ namespace NAnt.Core {
                 // check if its required
                 if (nestedElementNode == null && buildElementAttribute.Required) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "'{0}' is a required element of <{1} ... />.", 
+                        ResourceUtils.GetString("NA1013"), 
                         buildElementAttribute.Name, Name), Location);
                 }
 
@@ -1538,7 +1528,7 @@ namespace NAnt.Core {
                             BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                            ResourceUtils.GetString("NA1022"), 
                             value, attributeNode.Name, parent.Name), parent.Location, ex);
                     }
                 }
@@ -1554,7 +1544,7 @@ namespace NAnt.Core {
                             propertyValue = new FileInfo(parent.Project.GetFullPath(value));
                         } catch (Exception ex) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                ResourceUtils.GetString("NA1022"), 
                                 value, attributeNode.Name, parent.Name), parent.Location, ex);
                         }
 
@@ -1562,7 +1552,7 @@ namespace NAnt.Core {
                             property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                         } catch (Exception ex) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                ResourceUtils.GetString("NA1022"), 
                                 value, attributeNode.Name, parent.Name), parent.Location, ex);
                         }
                     } else {
@@ -1586,7 +1576,7 @@ namespace NAnt.Core {
                                 null, null, CultureInfo.InvariantCulture);
                         } catch (Exception ex) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                                ResourceUtils.GetString("NA1022"), 
                                 value, attributeNode.Name, parent.Name), parent.Location, ex);
                         }
                     } else {
@@ -1605,7 +1595,7 @@ namespace NAnt.Core {
                         property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                            ResourceUtils.GetString("NA1022"), 
                             value, attributeNode.Name, parent.Name), parent.Location, ex);
                     }
                 }
@@ -1618,7 +1608,7 @@ namespace NAnt.Core {
                         property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "'{0}' is not a valid value for attribute '{1}' of <{2} ... />.", 
+                            ResourceUtils.GetString("NA1022"), 
                             value, attributeNode.Name, parent.Name), parent.Location, ex);
                     }
                 }

@@ -111,8 +111,7 @@ namespace NAnt.Core {
                         return Convert.ToBoolean(expandedCondition, CultureInfo.InvariantCulture);
                     } catch (FormatException) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot resolve expanded value '{0}' of 'if' attribute" +
-                            " to a Boolean value.", expandedCondition), Location);
+                            ResourceUtils.GetString("NA1070"), expandedCondition), Location);
                     }
                 }
 
@@ -150,8 +149,7 @@ namespace NAnt.Core {
                         return Convert.ToBoolean(expandedCondition, CultureInfo.InvariantCulture);
                     } catch (FormatException) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot resolve expanded value '{0}' of 'unless'" +
-                            " attribute to a Boolean value.", expandedCondition), 
+                            ResourceUtils.GetString("NA1069"), expandedCondition), 
                             Location);
                     }
                 }
@@ -259,7 +257,7 @@ namespace NAnt.Core {
                             }
                         } else {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Invalid element <{0}>. Unknown task or datatype.", 
+                                ResourceUtils.GetString("NA1071"), 
                                 childNode.Name), Project.LocationMap.GetLocation(childNode));
                         }
                     }
