@@ -317,9 +317,6 @@ namespace NAnt.VisualCpp.Tasks {
                         writer.WriteLine("\"{0}\"", filename);
                     }
 
-                    // suppresses display of the sign-on banner                    
-                    writer.WriteLine("/nologo");
- 
                     writer.Close();
 
                     if (Verbose) {
@@ -329,6 +326,10 @@ namespace NAnt.VisualCpp.Tasks {
                         Log(Level.Info, reader.ReadToEnd());
                         reader.Close();
                     }
+
+                    // suppresses display of the sign-on banner
+                    // (this has no in response file)
+                    this.Arguments.Add(new Argument("/nologo "));
 
                     // call base class to do the actual work
                     base.ExecuteTask();
