@@ -22,6 +22,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -153,7 +154,7 @@ namespace NAnt.Core.Tasks {
                 _prop = value;
                 _props = _prop.Split(',');
                 foreach (string prop in _props) {
-                    if(Properties.IsReadOnlyProperty(prop)) {
+                    if (Properties.IsReadOnlyProperty(prop)) {
                         throw new BuildException("Property is readonly! :" + prop, Location); 
                     }
                 }
@@ -189,7 +190,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("in", Required=false)]
         public string Source {
             get { return _inAttribute;}
-            set { _inAttribute = value; }
+            set { _inAttribute = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -198,7 +199,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("delim")]
         public string Delimiter {
             get { return _delim; }
-            set { _delim = value; }
+            set { _delim = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -236,16 +237,16 @@ namespace NAnt.Core.Tasks {
                     case LoopItem.None:
                         throw new BuildException("Invalid itemtype", Location);
                     case LoopItem.File:
-                        if (_inAttribute == null && _inElement == null) {
+                        if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
                         }
 
-                        if(_inAttribute != null) {
-                            if(!Directory.Exists(Project.GetFullPath(_inAttribute))) {
-                                throw new BuildException("Invalid Source: " + _inAttribute, Location);
+                        if (!StringUtils.IsNullOrEmpty(Source)) {
+                            if (!Directory.Exists(Project.GetFullPath(Source))) {
+                                throw new BuildException("Invalid Source: " + Source, Location);
                             }
                         
-                            if(_props.Length != 1) {
+                            if (_props.Length != 1) {
                                 throw new BuildException(@"Only one property is valid for item=""File""");
                             }
                         
@@ -256,72 +257,86 @@ namespace NAnt.Core.Tasks {
                                 DoWork(file.FullName);
                             }
                         } else {
-                            if(_doStuff == null) {
-                                throw new BuildException("Must use <do> with <in>.",Location );
+                            if (StuffToDo == null) {
+                                throw new BuildException("Must use <do> with <in>.", Location);
                             }
 
-                            foreach (string file in _inElement.Items.FileNames) {
+                            foreach (string file in InElement.Items.FileNames) {
                                 DoWork(file);
                             }
                         }
                         break;
                     case LoopItem.Folder:
-                        if (_inAttribute == null && _inElement == null) {
-                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!","in"));
+                        if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
+                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
 
-                        if (_inAttribute != null) {
-                            if(!Directory.Exists(Project.GetFullPath(_inAttribute))) {
-                                throw new BuildException("Invalid Source: " + _inAttribute, Location);
+                        if (_props.Length != 1) {
+                            throw new BuildException(@"Only one property is valid for item=""Folder""");
+                        }
+
+                        if (!StringUtils.IsNullOrEmpty(Source)) {
+                            if (!Directory.Exists(Project.GetFullPath(Source))) {
+                                throw new BuildException("Invalid Source: " + Source, Location);
                             }
-                            if(_props.Length != 1) {
-                                throw new BuildException(@"Only one property is valid for item=""Folder""");
-                            }
-                            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(_inAttribute));
+
+                            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Source));
                             DirectoryInfo[] dirs = dirInfo.GetDirectories();
                             foreach (DirectoryInfo dir in dirs) {
                                 DoWork(dir.FullName);
                             } 
                         } else {
-                            if (_doStuff == null) {
+                            if (StuffToDo == null) {
                                 throw new BuildException("Must use <do> with <in>.", Location);
                             }
 
-                            foreach (string dir in _inElement.Items.DirectoryNames) {
+                            foreach (string dir in InElement.Items.DirectoryNames) {
                                 DoWork(dir);
                             }
                         }
                         break;
                     case LoopItem.Line:
-                        if(!File.Exists(Project.GetFullPath(_inAttribute))) {
-                            throw new BuildException("Invalid Source: " + _inAttribute, Location);
+                        if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
+                            throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
-                        if(_props.Length > 1 && ( Delimiter == null || Delimiter.Length == 0)) {
+
+                        if (_props.Length > 1 && StringUtils.IsNullOrEmpty(Delimiter)) {
                             throw new BuildException("Delimiter(s) must be specified if multiple properties are specified");
                         }
 
-                        StreamReader sr = File.OpenText(Project.GetFullPath(_inAttribute));
-                        while(true) {
-                            string line = sr.ReadLine();
-                            if (line ==null)
-                                break;
-                            if (Delimiter == null || Delimiter.Length == 0)
-                                DoWork(line);
-                            else
-                                DoWork(line.Split(Delimiter.ToCharArray()));
+                        if (!StringUtils.IsNullOrEmpty(Source)) {
+                            if (!StringUtils.IsNullOrEmpty(Source) && !File.Exists(Project.GetFullPath(Source))) {
+                                throw new BuildException("Source '" + Source + "' does not exist.", Location);
+                            }
+
+                            DoWorkOnFileLines(Source);
+                        } else {
+                            if (StuffToDo == null) {
+                                throw new BuildException("Must use <do> with <in>.", Location);
+                            }
+
+                            foreach (string file in InElement.Items.FileNames) {
+                                DoWorkOnFileLines(file);
+                            }
                         }
-                        sr.Close();
                         break;
                     case LoopItem.String:
-                        if(_props.Length > 1) {
+                        if (StringUtils.IsNullOrEmpty(Source)) {
+                            return;
+                        }
+
+                        if (_props.Length > 1) {
                             throw new BuildException(@"Only one property may be specified for item=""String""");
                         }
-                        if(Delimiter == null || Delimiter.Length == 0) {
+
+                        if (StringUtils.IsNullOrEmpty(Delimiter)) {
                             throw new BuildException(@"Delimiter must be specified for item=""String""");
                         }
-                        string[] items = _inAttribute.Split(Delimiter.ToCharArray());
-                        foreach (string s in items)
+
+                        string[] items = Source.Split(Delimiter.ToCharArray());
+                        foreach (string s in items) {
                             DoWork(s);
+                        }
                         break;
                 }
             } finally {
@@ -333,10 +348,10 @@ namespace NAnt.Core.Tasks {
         }
 
         protected override void ExecuteChildTasks() {
-            if (_doStuff == null) {
+            if (StuffToDo == null) {
                 base.ExecuteChildTasks();
             } else {
-                _doStuff.Execute();
+                StuffToDo.Execute();
             }
         }
 
@@ -367,6 +382,26 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        private void DoWorkOnFileLines(string filename) {
+            using (StreamReader sr = File.OpenText(filename)) {
+                while (true) {
+                    string line = sr.ReadLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (StringUtils.IsNullOrEmpty(Delimiter)) {
+                        DoWork(line);
+                    } else {
+                        DoWork(line.Split(Delimiter.ToCharArray()));
+                    }
+                }
+            }
+        }
+
+        #endregion Private Instance Methods
     }
 
     public class InElement : Element {
