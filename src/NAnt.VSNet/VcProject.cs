@@ -1080,6 +1080,11 @@ namespace NAnt.VSNet {
             } else {
                 linkTask.OutputFile = new FileInfo(Path.Combine(
                     ProjectDirectory.FullName, outFile));
+                // ensure directory exists
+                if (!linkTask.OutputFile.Directory.Exists) {
+                    linkTask.OutputFile.Directory.Create();
+                    linkTask.OutputFile.Directory.Refresh();
+                }
             }
 
             // generation of debug information
@@ -1096,6 +1101,12 @@ namespace NAnt.VSNet {
                     pdbFile = Path.Combine(ProjectDirectory.FullName, pdbFile);
                 }
                 linkTask.ProgramDatabaseFile = new FileInfo(pdbFile);
+
+                // ensure directory exists
+                if (!linkTask.ProgramDatabaseFile.Directory.Exists) {
+                    linkTask.ProgramDatabaseFile.Directory.Create();
+                    linkTask.ProgramDatabaseFile.Directory.Refresh();
+                }
             }
 
             // generation of import library
