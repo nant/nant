@@ -65,11 +65,11 @@ Compilation and Installation
       
     Windows (with Microsoft .NET)
         bin\NAnt.exe
-        bin\NAnt.exe install -D:install.prefix=c:\Program Files
+        bin\NAnt.exe install -D:install.prefix="c:\Program Files"
 
     Windows (with Mono)
         mono bin\NAnt.exe
-        mono bin\NAnt.exe install -D:install.prefix=c:\Program Files
+        mono bin\NAnt.exe install -D:install.prefix="c:\Program Files"
     
     Linux/Unix
         make
