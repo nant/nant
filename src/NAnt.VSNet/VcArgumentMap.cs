@@ -90,8 +90,14 @@ namespace NAnt.VSNet {
         public void AddBool(string propName, string argName) {
             AddBool(ArgGroup.Unassigned, propName, argName);
         }
+        public void AddBool(string propName, string argName, string match) {
+            AddBool(ArgGroup.Unassigned, propName, argName, match);
+        }
         public void AddBool(ArgGroup group, string propName, string argName) {
             _htArgs [propName] = new VcBoolArgument(group, argName);
+        }
+        public void AddBool(ArgGroup group, string propName, string argName, string match) {
+            _htArgs [propName] = new VcBoolArgument(group, argName, match);
         }
 
         public void AddEnum(string propName, string argName, params string[] values) {
@@ -438,6 +444,9 @@ namespace NAnt.VSNet {
 
         public static VcArgumentMap CreateMidlArgumentMap() {
             VcArgumentMap map = new VcArgumentMap();
+
+            // General
+
             map.AddBool("IgnoreStandardIncludePath", "/no_def_idir");
             map.AddBool("MkTypLibCompatible", "/mktyplib203");
             map.AddEnum("WarningLevel", null, "/W0", "/W1", "/W2", "/W3", "/W4");
@@ -445,6 +454,12 @@ namespace NAnt.VSNet {
             map.AddEnum("DefaultCharType", null, "unsigned", "signed", "ascii7");
             map.AddEnum("TargetEnvironment", null, null, "win32", "win64");
             map.AddBool("GenerateStublessProxies", "/Oicf");
+
+            // Output
+            map.AddBool("GenerateTypeLibrary", "/notlb", "false");
+
+            // Advanced
+
             map.AddEnum("EnableErrorChecks", "/error ", null, "none", "all");
             map.AddBool("ErrorCheckAllocations", "/error allocation");
             map.AddBool("ErrorCheckBounds", "/error bounds_check");
@@ -601,23 +616,57 @@ namespace NAnt.VSNet {
         }
 
         private class VcBoolArgument: VcArgument {
-            internal VcBoolArgument(ArgGroup group, string name): base(group, name) {
+            #region Internal Instance Constructors
+
+            internal VcBoolArgument(ArgGroup group, string name): this(group, name, "true") {
             }
 
+            internal VcBoolArgument(ArgGroup group, string name, string match): base(group, name) {
+                _match = match;
+            }
+
+            #endregion Internal Instance Constructors
+
+            #region Internal Instance Properties
+
+            /// <summary>
+            /// Gets the string that the configuration setting should match in 
+            /// order for the command line argument to be set.
+            /// </summary>
+            public string Match {
+                get { return _match; }
+            }
+
+            #endregion Internal Instance Properties
+
+            #region Override implementation of VcArgument
+
             internal override string MapValue(string propValue) {
-                if (string.Compare(propValue, "true", true, CultureInfo.InvariantCulture) == 0) {
+                if (string.Compare(propValue, Match, true, CultureInfo.InvariantCulture) == 0) {
                     return FormatOption("");
                 }
                 return null;
             }
+
+            #endregion Override implementation of VcArgument
+
+            #region Private Instance Methods
+
+            private string _match = "true";
+
+            #endregion Private Instance Methods
         }
 
         private class VcEnumArgument: VcArgument {
-            private string[] _values;
-            
+            #region Internal Instance Constructors
+
             internal VcEnumArgument(ArgGroup group, string name, string[] values): base(group, name) {
                 _values = values;
             }
+
+            #endregion Internal Instance Constructors
+
+            #region Override implementation of VcArgument
 
             internal override string MapValue(string propValue) {
                 int iValue = -1;
@@ -632,6 +681,14 @@ namespace NAnt.VSNet {
                 }
                 return FormatOption(_values [iValue]);
             }
+
+            #endregion Override implementation of VcArgument
+
+            #region Private Instance Methods
+
+            private string[] _values;
+
+            #endregion Private Instance Methods
         }
 
         /// <summary>
