@@ -189,10 +189,18 @@ namespace NAnt.Core {
                 Console.WriteLine();
                 // output message of exception
                 Console.WriteLine(ex.Message);
-                // output message of nested exception
+                // get first nested exception
                 Exception nestedException = ex.InnerException;
+                // set initial indentation level for the nested exceptions
+                int exceptionIndentationLevel = 0;
                 while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                    Console.WriteLine(" " + nestedException.Message);
+                    // indent exception message with 4 extra spaces 
+                    // (for each nesting level)
+                    exceptionIndentationLevel += 4;
+                    // output exception message
+                    Console.WriteLine(new string(' ', exceptionIndentationLevel) 
+                        + nestedException.Message);
+                    // move on to next inner exception
                     nestedException = nestedException.InnerException;
                 }
                 // insert empty line

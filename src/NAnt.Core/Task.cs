@@ -157,11 +157,21 @@ namespace NAnt.Core {
                             Log(Level.Error, LogPrefix + ex.ToString());
                         } else {
                             string msg = ex.Message;
-
+                            // get first nested exception
                             Exception nestedException = ex.InnerException;
+                            // set initial indentation level for the nested exceptions
+                            int exceptionIndentationLevel = 0;
+                            // output message of nested exceptions
                             while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                                msg = (msg != null) ? Environment.NewLine : string.Empty;
-                                msg += nestedException.Message;
+                                // indent exception message with 4 extra spaces 
+                                // (for each nesting level)
+                                exceptionIndentationLevel += 4;
+                                // start new line for each exception level
+                                msg = (msg != null) ? msg + Environment.NewLine : string.Empty;
+                                // output exception message
+                                msg += new string(' ', exceptionIndentationLevel) 
+                                    + nestedException.Message;
+                                // move on to next inner exception
                                 nestedException = nestedException.InnerException;
                             }
 
