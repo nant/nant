@@ -36,7 +36,7 @@ namespace NAnt.VSNet {
     public class Solution {
         #region Public Instance Constructors
 
-        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
+        public Solution(FileInfo solutionFile, ArrayList additionalProjects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, ReferenceGacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             _file = solutionFile;
 
             string fileContents;
@@ -124,14 +124,14 @@ namespace NAnt.VSNet {
 
             LoadProjectGuids(additionalProjects, false);
             LoadProjectGuids(referenceProjects, true);
-            LoadProjects();
+            LoadProjects(gacCache);
             GetDependenciesFromProjects();
         }
 
-        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
+        public Solution(ArrayList projects, ArrayList referenceProjects, TempFileCollection tfc, SolutionTask solutionTask, WebMapCollection webMaps, FileSet excludesProjects, DirectoryInfo outputDir, ReferenceGacCache gacCache) : this(tfc, solutionTask, webMaps, excludesProjects, outputDir) {
             LoadProjectGuids(projects, false);
             LoadProjectGuids(referenceProjects, true);
-            LoadProjects();
+            LoadProjects(gacCache);
             GetDependenciesFromProjects();
         }
 
@@ -384,11 +384,11 @@ namespace NAnt.VSNet {
         private void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
                 string projectGuid = ProjectFactory.LoadGuid(projectFileName, _tfc);
-                if(_htProjectFiles[projectGuid] != null)
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Error loading project {0}. " 
-                        + " Project GUID {1} already exists! Conflicting project is {2}."
-                        , projectFileName,projectGuid,_htProjectFiles[projectGuid]));
+				if (_htProjectFiles[projectGuid] != null)
+					throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+						"Error loading project {0}. " 
+						+ " Project GUID {1} already exists! Conflicting project is {2}.", 
+                        projectFileName, projectGuid, _htProjectFiles[projectGuid]));
                 _htProjectFiles[projectGuid] = projectFileName;
                 if (isReferenceProject) {
                     _htReferenceProjects[projectGuid] = null;
@@ -462,8 +462,9 @@ namespace NAnt.VSNet {
         /// Loads the projects from the file system and stores them in an 
         /// instance variable.
         /// </summary>
+        /// <param name="gacCache"><see cref="ReferenceGacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
         /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
-        private void LoadProjects() {
+        private void LoadProjects(ReferenceGacCache gacCache) {
             Log(Level.Verbose, LogPrefix + "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;
@@ -471,47 +472,45 @@ namespace NAnt.VSNet {
             // _htProjectFiles contains project GUIDs read from the sln file as 
             // keys and the corresponding full path to the project file as the 
             // value
-            using (ReferenceGACCache gacCache = new ReferenceGACCache()) {
-                foreach (DictionaryEntry de in _htProjectFiles) {
-                    string projectPath = (string) de.Value;
+            foreach (DictionaryEntry de in _htProjectFiles) {
+                string projectPath = (string) de.Value;
 
-                    // determine whether project is on case-sensitive filesystem,
-                    bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
+                // determine whether project is on case-sensitive filesystem,
+                bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
 
-                    // check whether project should be excluded from build
-                    foreach (string excludedProjectFile in excludes.FileNames) {
-                        if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
-                            Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
-                                projectPath);
-                            // do not load project
-                            return;
-                        }
+                // check whether project should be excluded from build
+                foreach (string excludedProjectFile in excludes.FileNames) {
+                    if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
+                        Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
+                            projectPath);
+                        // do not load project
+                        return;
                     }
-
-                    Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
-                    ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, _outputDir, projectPath);
-                    if (p.Guid == null || p.Guid == string.Empty) {
-                        p.Guid = FindGuidFromPath(projectPath);
-                    }
-
-                    // If the project GUID from the sln file doesn't match the project GUID
-                    // from the project file we will run into problems. Alert the user to fix this
-                    // as it is basically a corruption probably caused by user manipulation of the sln
-                    // included projects. I.e. copy and paste issue.
-                    if (!p.Guid.Equals(de.Key.ToString())) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "GUID corruption detected for project '{0}'. GUID values" 
-                            + " in project file and solution file do not match ('{1}'" 
-                            + " and '{2}'). Please correct this manually.", p.Name, 
-                            p.Guid, de.Key.ToString()), Location.UnknownLocation);
-                    }
-
-                    // set project build configuration
-                    SetProjectBuildConfiguration(p);
-
-                    // add project to hashtable
-                    _htProjects[de.Key] = p;
                 }
+
+                Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
+                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, _tfc, gacCache, _outputDir, projectPath);
+                if (p.Guid == null || p.Guid == string.Empty) {
+                    p.Guid = FindGuidFromPath(projectPath);
+                }
+
+                // If the project GUID from the sln file doesn't match the project GUID
+                // from the project file we will run into problems. Alert the user to fix this
+                // as it is basically a corruption probably caused by user manipulation of the sln
+                // included projects. I.e. copy and paste issue.
+                if (!p.Guid.Equals(de.Key.ToString())) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "GUID corruption detected for project '{0}'. GUID values" 
+                        + " in project file and solution file do not match ('{1}'" 
+                        + " and '{2}'). Please correct this manually.", p.Name, 
+                        p.Guid, de.Key.ToString()), Location.UnknownLocation);
+                }
+
+                // set project build configuration
+                SetProjectBuildConfiguration(p);
+
+                // add project to hashtable
+                _htProjects[de.Key] = p;
             }
         }
 
