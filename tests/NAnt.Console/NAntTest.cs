@@ -332,17 +332,17 @@ namespace SourceForge.NAnt.Tests {
         [Test]
         public void Test_CreateLogger() {
             string xmlLogger = "SourceForge.NAnt.XmlLogger";
-            string consoleLogger = "SourceForge.NAnt.ConsoleLogger";
+            string defaultLogger = "SourceForge.NAnt.DefaultLogger";
             string badLogger = "SourceForge.NAnt.LoggerThatDoesNotExistUnlessSomeJerkCreatedIt";
             string notLogger = "SourceForge.NAnt.Task";
 
-            LogListener logger;
+            IBuildLogger logger;
 
             logger = ConsoleDriver.CreateLogger(xmlLogger);
             Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
 
-            logger = ConsoleDriver.CreateLogger(consoleLogger);
-            Assertion.AssertEquals(typeof(ConsoleLogger), logger.GetType());
+            logger = ConsoleDriver.CreateLogger(defaultLogger);
+            Assertion.AssertEquals(typeof(DefaultLogger), logger.GetType());
 
             try {
                 logger = ConsoleDriver.CreateLogger(badLogger);
@@ -362,20 +362,20 @@ namespace SourceForge.NAnt.Tests {
         [Test]
         public void Test_CreateLoggerWithFile() {
             string xmlLogger = "SourceForge.NAnt.XmlLogger";
-            string consoleLogger = "SourceForge.NAnt.ConsoleLogger";
+            string consoleLogger = "SourceForge.NAnt.DefaultLogger";
 
-            LogListener logger;
+            IBuildLogger logger;
 
             string streamFileName = TempFile.Create();
             StreamWriter instanceFileStream = new StreamWriter(File.OpenWrite(streamFileName));
 
             try {
-                logger = ConsoleDriver.CreateLogger(xmlLogger, instanceFileStream);
+                logger = ConsoleDriver.CreateLogger(xmlLogger);
                 Assertion.AssertEquals(typeof(XmlLogger), logger.GetType());
 
                 try {
-                    logger = ConsoleDriver.CreateLogger(consoleLogger, instanceFileStream);
-                    Assertion.Fail("ConsoleLogger should have choked on stream, but didn't.");
+                    logger = ConsoleDriver.CreateLogger(consoleLogger);
+                    logger.OutputWriter = instanceFileStream;
                 } catch(Exception e) {
                     Assertion.AssertEquals(typeof(MissingMethodException), e.GetType());
                 }
