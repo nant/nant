@@ -92,22 +92,27 @@ namespace SourceForge.NAnt {
         /// <returns>The count of tasks found in the assembly.</returns>
         public static int AddTasks(Assembly assembly) {
             int taskCount = 0;
-            foreach(Type type in assembly.GetTypes()) {
-                if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract) {
-                    TaskBuilder tb = new TaskBuilder(type.FullName, assembly.Location);
-                    if (_builders.Add(tb)) {
-                        foreach(WeakReference wr in _projects) {
-                            if(!wr.IsAlive)
-                                continue;
-                            Project p = wr.Target as Project;
-                            if(p == null) 
-                                continue;
-                            UpdateProjectWithBuilder(p, tb);
+            try {
+                foreach(Type type in assembly.GetTypes()) {
+                    if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract) {
+                        TaskBuilder tb = new TaskBuilder(type.FullName, assembly.Location);
+                        if (_builders.Add(tb)) {
+                            foreach(WeakReference wr in _projects) {
+                                if(!wr.IsAlive)
+                                    continue;
+                                Project p = wr.Target as Project;
+                                if(p == null) 
+                                    continue;
+                                UpdateProjectWithBuilder(p, tb);
+                            }
+                            taskCount++;
                         }
-                        taskCount++;
                     }
                 }
             }
+                // For assemblies that don't have types
+            catch{};
+
             return taskCount;
         }
 

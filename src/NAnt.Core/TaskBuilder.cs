@@ -62,9 +62,16 @@ namespace SourceForge.NAnt {
                 assembly = Assembly.GetExecutingAssembly();
             } else {
                 //check to see if it is loaded already
-                foreach(Assembly ass in AppDomain.CurrentDomain.GetAssemblies()){
-                    if(ass.Location.Equals(AssemblyFileName))
-                        assembly = ass;
+                Assembly [] ass = AppDomain.CurrentDomain.GetAssemblies();
+                for (int i = 0; i < ass.Length; i++){
+                    try {
+                        if(ass[i].Location.Equals(AssemblyFileName)) { 
+                            assembly = ass[i];
+                            return assembly;
+                        }
+                    }
+                        // System.Reflection.Emit.Assembly have no location and will fail
+                    catch{}
                 }
                 //load if not loaded
                 if(assembly == null)
