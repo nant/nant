@@ -95,7 +95,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("target", Required=true)]
         public string OutputTarget {
             get { return _target; }
-            set { _target = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _target = value;
+                } else {
+                    _target = null;
+                }
+            }
         }
 
         /// <summary>
@@ -110,7 +116,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("culture", Required=false)]
         public string Culture {
             get { return _culture; }
-            set { _culture = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _culture = value;
+                } else {
+                    _culture = null;
+                }
+            }
         }
          
         /// <summary>
