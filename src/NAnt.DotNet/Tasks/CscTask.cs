@@ -296,6 +296,21 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Determines whether compilation is needed.
+        /// </summary>
+        protected override bool NeedsCompiling() {
+            if (DocFile != null) {
+                if (!DocFile.Exists) {
+                    Log(Level.Verbose, "Doc file '{0}' does not exist, recompiling.", 
+                        DocFile.FullName);
+                    return true;
+                }
+            }
+
+            return base.NeedsCompiling();
+        }
+
+        /// <summary>
         /// Gets the file extension required by the current compiler.
         /// </summary>
         /// <value>
