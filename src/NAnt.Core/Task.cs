@@ -214,6 +214,104 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Initializes the configuration of the task using configuration 
+        /// settings retrieved from the NAnt configuration file.
+        /// </summary>
+        /// <remarks>
+        /// TO-DO : Remove this temporary hack when a permanent solution is 
+        /// available for loading the default values from the configuration
+        /// file if a build element is constructed from code.
+        /// </remarks>
+        public void InitializeTaskConfiguration() {
+            PropertyInfo[] properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (PropertyInfo propertyInfo in properties) {
+                XmlNode attributeNode = null;
+                string attributeValue = null;
+
+                FrameworkConfigurableAttribute frameworkAttribute = (FrameworkConfigurableAttribute) 
+                    Attribute.GetCustomAttribute(propertyInfo, typeof(FrameworkConfigurableAttribute));
+
+                if (frameworkAttribute != null) {
+                    // locate XML configuration node for current attribute
+                    attributeNode = GetAttributeConfigurationNode(frameworkAttribute.Name);
+
+                    if (attributeNode != null) {
+                        // get the configured value
+                        attributeValue = attributeNode.InnerText;
+
+                        if (frameworkAttribute.ExpandProperties && Project.CurrentFramework != null) {
+                            // expand attribute properites
+                            try {
+                                attributeValue = Project.CurrentFramework.Properties.ExpandProperties(attributeValue, Location);
+                            } catch (Exception ex) {
+                                // throw BuildException if required
+                                if (frameworkAttribute.Required) {
+                                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name), Location, ex);
+                                }
+
+                                // set value to null
+                                attributeValue = null;
+                            }
+                        }
+                    } else {
+                        // check if its required
+                        if (frameworkAttribute.Required) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' is a required framework configuration setting for the '{1}' build element that should be set in the NAnt configuration file.", frameworkAttribute.Name, this.Name), Location);
+                        }
+                    }
+
+                    if (attributeValue != null) {
+                        if (propertyInfo.CanWrite) {
+                            Type propertyType = propertyInfo.PropertyType;
+
+                            //validate attribute value with custom ValidatorAttribute(ors)
+                            object[] validateAttributes = (ValidatorAttribute[]) 
+                                Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
+                            try {
+                                foreach (ValidatorAttribute validator in validateAttributes) {
+                                    logger.Info(string.Format(
+                                        CultureInfo.InvariantCulture,
+                                        "Configuration value {0} for task {1} was not considered valid by {2}.", 
+                                        attributeValue, Name, validator.GetType().Name));
+
+                                    validator.Validate(attributeValue);
+                                }
+                            } catch (ValidationException ve) {
+                                logger.Error("Validation Exception", ve);
+                                throw new ValidationException("Validation failed on" + propertyInfo.DeclaringType.FullName, Location, ve);
+                            }
+
+                            // holds the attribute value converted to the property type
+                            object propertyValue = null;
+
+                            // If the object is an emum
+                            if (propertyType.IsEnum) {
+                                try {
+                                    propertyValue = Enum.Parse(propertyType, attributeValue);
+                                } catch (Exception) {
+                                    // catch type conversion exceptions here
+                                    string message = "Invalid configuration value \"" + attributeValue + "\". Valid values for this attribute are: ";
+                                    foreach (object value in Enum.GetValues(propertyType)) {
+                                        message += value.ToString() + ", ";
+                                    }
+                                    // strip last ,
+                                    message = message.Substring(0, message.Length - 2);
+                                    throw new BuildException(message, Location);
+                                }
+                            } else {
+                                propertyValue = Convert.ChangeType(attributeValue, propertyInfo.PropertyType, CultureInfo.InvariantCulture);
+                            }
+
+                            //set property value
+                            propertyInfo.SetValue(this, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion Public Instance Methods
 
         #region Protected Instance Methods
