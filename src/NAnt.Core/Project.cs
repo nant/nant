@@ -125,9 +125,9 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private string _baseDirectory = null;
+        private string _baseDirectory;
         private string _projectName = "";
-        private string _defaultTargetName = null;
+        private string _defaultTargetName;
         private int _indentationSize = 4;
         private int _indentationLevel = 0;
         private BuildListenerCollection _buildListeners = new BuildListenerCollection();
@@ -146,7 +146,7 @@ namespace NAnt.Core {
         [NonSerialized()]
         private XmlNode _configurationNode;
         [NonSerialized()]
-        private XmlDocument _doc = null; // set in ctorHelper
+        private XmlDocument _doc; // set in ctorHelper
         [NonSerialized()]
         private XmlNamespaceManager _nsMgr = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         [NonSerialized()]
@@ -1391,14 +1391,14 @@ namespace NAnt.Core {
             if (TargetFramework.SdkDirectory != null) {
                 Properties["nant.settings.currentframework.sdkdirectory"] = TargetFramework.SdkDirectory.FullName;
             } else {
-                Properties["nant.settings.currentframework.sdkdirectory"] = null;
+                Properties["nant.settings.currentframework.sdkdirectory"] = "";
             }
 
             Properties["nant.settings.currentframework.frameworkassemblydirectory"] = TargetFramework.FrameworkAssemblyDirectory.FullName;
             if (TargetFramework.RuntimeEngine != null) {
                 Properties["nant.settings.currentframework.runtimeengine"] = TargetFramework.RuntimeEngine.Name;
             } else {
-                Properties["nant.settings.currentframework.runtimeengine"] = null;
+                Properties["nant.settings.currentframework.runtimeengine"] = "";
             }
         }
 
