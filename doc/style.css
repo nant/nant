@@ -125,8 +125,12 @@ div.nested-element table {
 }
 
 pre {
-    margin-top: .5em;
-    margin-bottom: .5em;
+    margin-top: 20px;
+    margin-bottom: 0px;
+}
+
+li {
+    margin-bottom: 20px;
 }
 
 code {
