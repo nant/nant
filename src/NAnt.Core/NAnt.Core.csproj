@@ -464,6 +464,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\XmlPeekTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\XmlPokeTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\Argument.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

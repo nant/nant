@@ -111,6 +111,45 @@ namespace NAnt.Core.Tasks {
         }
         #endregion Public Instance Properties
         
+        #region Override implementation of Task
+         
+        /// <summary>
+        /// Executes the XML poke task.
+        /// </summary>
+        protected override void ExecuteTask() {
+
+            try  {  
+                XmlDocument document = LoadDocument(FileName);
+                XmlNodeList nodes = SelectNodes(XPath, document);
+
+                // Don't bother trying to update any nodes or save the
+                // file if no nodes were found in the first place.
+                if (nodes.Count > 0) {
+                    UpdateNodes(nodes, Value);
+                    SaveDocument(document, FileName);
+                } 
+            }             
+            catch (BuildException ex) {
+                throw ex;
+            }
+            catch (Exception ex) {
+                
+                string unhandledExceptionMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Could not poke at XML file because an unhandled" +
+                    " exception was thrown. The underlying exception" +
+                    " message was '{0}'.",
+                    ex.Message
+                    );
+                throw new BuildException(
+                    unhandledExceptionMessage,
+                    Location,
+                    ex
+                    );
+            }
+        }
+        #endregion Override implementation of Task
+        
         #region Private Instance Methods
         /// <summary>
         /// Loads an XML document from a file on disk.
@@ -304,43 +343,6 @@ namespace NAnt.Core.Tasks {
         }
         #endregion Private Instance Methods
          
-        #region Override implementation of Task
-         
-        /// <summary>
-        /// Executes the XML poke task.
-        /// </summary>
-        protected override void ExecuteTask() {
 
-            try  {  
-                XmlDocument document = LoadDocument(FileName);
-                XmlNodeList nodes = SelectNodes(XPath, document);
-
-                // Don't bother trying to update any nodes or save the
-                // file if no nodes were found in the first place.
-                if (nodes.Count > 0) {
-                    UpdateNodes(nodes, Value);
-                    SaveDocument(document, FileName);
-                } 
-            }             
-            catch (BuildException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                
-                string unhandledExceptionMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Could not poke at XML file because an unhandled" +
-                    " exception was thrown. The underlying exception" +
-                    " message was '{0}'.",
-                    ex.Message
-                    );
-                throw new BuildException(
-                    unhandledExceptionMessage,
-                    Location,
-                    ex
-                    );
-            }
-        }
-        #endregion Override implementation of Task
     }
 }
