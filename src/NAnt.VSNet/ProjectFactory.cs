@@ -64,15 +64,15 @@ namespace NAnt.VSNet {
                 CultureInfo.InvariantCulture);
             
             // check if this a new project?
-            if (!_cachedProjects.Contains(projectFileName)) {
+            if (!_cachedProjects.Contains(path)) {
                 if (projectExt == ".vbproj" || projectExt == ".csproj") {
                     Project p = new Project(slnTask, tfc, outputDir);
                     p.Load(sln, path);
-                    _cachedProjects[projectFileName] = p;
+                    _cachedProjects[path] = p;
                 } else if (projectExt == ".vcproj") {
                     VcProject p = new VcProject(slnTask, tfc, outputDir);
                     p.Load(sln, path);
-                    _cachedProjects[projectFileName] = p;
+                    _cachedProjects[path] = p;
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Unknown project file extension '{0}'.", projectExt),
@@ -80,7 +80,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            return (ProjectBase) _cachedProjects[projectFileName];
+            return (ProjectBase) _cachedProjects[path];
         }
 
         public static bool IsUrl(string fileName) {
@@ -91,7 +91,48 @@ namespace NAnt.VSNet {
             return false;
         }
 
-        public static string GetProjectFileName(string fileName) {
+        public static bool IsSupportedProjectType(string path) {
+            string projectFileName = ProjectFactory.GetProjectFileName(path);
+            string projectExt = Path.GetExtension(projectFileName).ToLower(
+                CultureInfo.InvariantCulture);
+            return projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vcproj";
+        }
+
+        public static string LoadGuid(string fileName, TempFileCollection tfc) {
+            // check if a project with specified file is already cached
+            if (_cachedProjects.ContainsKey(fileName)) {
+                // return the guid of the cached project
+                return ((ProjectBase) _cachedProjects[fileName]).Guid;
+            }
+
+            string projectFileName = ProjectFactory.GetProjectFileName(fileName);
+            string projectExt = Path.GetExtension(projectFileName).ToLower(
+                CultureInfo.InvariantCulture);
+
+            // check if GUID of project is already cached
+            if (!_cachedProjectGuids.Contains(fileName)) {
+                if (projectExt == ".vbproj" || projectExt == ".csproj") {
+                    // add project GUID to cache
+                    _cachedProjectGuids[fileName] = Project.LoadGuid(fileName, tfc);
+                } else if (projectExt == ".vcproj") {
+                    // add project GUID to cache
+                    _cachedProjectGuids[fileName] = VcProject.LoadGuid(fileName);
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Unknown project file extension '{0}'.", projectExt,
+                        Location.UnknownLocation));
+                }
+            }
+
+            // return project GUID from cache
+            return (string) _cachedProjectGuids[fileName];
+        }
+
+        #endregion Public Static Methods
+
+        #region Private Static Methods
+
+        private static string GetProjectFileName(string fileName) {
             string projectPath = null;
 
             if (ProjectFactory.IsUrl(fileName)) {
@@ -109,36 +150,28 @@ namespace NAnt.VSNet {
             return Path.GetFileName(projectPath); 
         }
 
-        public static bool IsSupportedProjectType(string path) {
-            string projectFileName = ProjectFactory.GetProjectFileName(path);
-            string projectExt = Path.GetExtension(projectFileName).ToLower(
-                CultureInfo.InvariantCulture);
-            return projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vcproj";
-        }
-
-        public static string LoadGuid(string fileName, TempFileCollection tfc) {
-            string projectFileName = ProjectFactory.GetProjectFileName(fileName);
-            string projectExt = Path.GetExtension(projectFileName).ToLower(
-                CultureInfo.InvariantCulture);
-
-            // check if this a new project?
-            if (!_cachedProjectGuids.Contains(projectFileName)) {
-                if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                    _cachedProjectGuids[projectFileName] = Project.LoadGuid(fileName, tfc);
-                } else if (projectExt == ".vcproj") {
-                    _cachedProjectGuids[projectFileName] = VcProject.LoadGuid(fileName);
-                } else
-                    throw new BuildException("Unknown project file extension " + projectExt);
-            }
-
-            return (string) _cachedProjectGuids[projectFileName];
-        }
-
-        #endregion Public Static Methods
+        #endregion Private Static Methods
 
         #region Private Static Fields
 
+        /// <summary>
+        /// Holds a case-insensitive list of cached projects.
+        /// </summary>
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is the path of the project
+        /// file (for web projects this can be a URL) and the value is a 
+        /// <see cref="Project" /> instance.
+        /// </remarks>
         private static Hashtable _cachedProjects;
+
+        /// <summary>
+        /// Holds a case-insensitive list of cached project GUIDs.
+        /// </summary>
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is the path of the project
+        /// file (for web projects this can be a URL) and the value is the GUID
+        /// of the project.
+        /// </remarks>
         private static Hashtable _cachedProjectGuids;
 
         #endregion Private Static Fields
