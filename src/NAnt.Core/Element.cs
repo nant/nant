@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
@@ -338,8 +338,8 @@ namespace SourceForge.NAnt {
                 BuildElementArrayAttribute buildElementArrayAttribute = (BuildElementArrayAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
                 if (buildElementArrayAttribute != null) {
-                    if (!propertyInfo.PropertyType.IsArray) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute must be applied to array types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                    if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute must be applied to array or collection-based types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
                     
                     // get collection of nodes  (TODO - do this without using xpath)
@@ -354,10 +354,35 @@ namespace SourceForge.NAnt {
                         throw new BuildException(String.Format(CultureInfo.InvariantCulture, " Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
 
-                    // get the type of the array elements
-                    Type elementType = propertyInfo.PropertyType.GetElementType();
+                    Type elementType = buildElementArrayAttribute.ElementType;
+                    if (elementType == null) { 
+                        if (propertyInfo.PropertyType.IsArray) {
+                            elementType = propertyInfo.PropertyType.GetElementType();
+                        } else {
+                            // If value of property is null, create new instance of collection
+                            if (propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture) == null) {
+                                if (!propertyInfo.CanWrite) {
+                                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                                }
+                                object instance = Activator.CreateInstance(propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                                propertyInfo.SetValue(this, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                            }
+                
+                            object value = propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+
+                            // locate Add method with 1 parameter
+                            foreach (MethodInfo method in value.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                                if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                                    ParameterInfo parameter = method.GetParameters()[0];
+                                    elementType = parameter.ParameterType;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                     // create new array of the required size - even if size is 0
-                    System.Array list = Array.CreateInstance(elementType, nodes.Count);
+                    Array list = Array.CreateInstance(elementType, nodes.Count);
 
                     int arrayIndex = 0;
                     foreach (XmlNode childNode in nodes) {
@@ -370,8 +395,34 @@ namespace SourceForge.NAnt {
                         arrayIndex ++;
                     }
                     
-                    // set the memvber array to our newly created array
-                    propertyInfo.SetValue(this, list, null);
+                    if (propertyInfo.PropertyType.IsArray) {
+                        // set the member array to our newly created array
+                        propertyInfo.SetValue(this, list, null);
+                    } else {
+                        // find public instance method called 'Add' which accepts one parameter
+                        // corresponding with the underlying type of the collection
+                        MethodInfo addMethod = propertyInfo.PropertyType.GetMethod("Add", 
+                            BindingFlags.Public | BindingFlags.Instance,
+                            null,
+                            new Type[] {elementType},
+                            null);
+
+                        // If value of property is null, create new instance of collection
+                        object collection = propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                        if (collection == null) {
+                            if (!propertyInfo.CanWrite) {
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                            }
+                            object instance = Activator.CreateInstance(propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                            propertyInfo.SetValue(this, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                        }
+
+                        // add each element of the array to collection instance
+                        foreach (object childElement in list) {
+                            addMethod.Invoke(collection, BindingFlags.Default, null, new object[] {childElement}, CultureInfo.InvariantCulture);
+                        }
+                    }
+
                 }
 
                 #endregion Initiliaze the Nested BuildArrayElements (Child xmlnodes)
