@@ -870,7 +870,7 @@ namespace NAnt.Core {
                                 dataType.RefID = childNode.Attributes["refid"].Value;
                                 // we have a datatype reference 
                                 childElement = InitDataTypeBase(dataType);
-                                if (childElement.GetType() != elementType) {
+                                if (!elementType.IsAssignableFrom(childElement.GetType())) {
                                     ElementNameAttribute childElemAttr = (ElementNameAttribute) 
                                         Attribute.GetCustomAttribute(childElement.GetType(), typeof(ElementNameAttribute));
                                     ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
@@ -1082,7 +1082,7 @@ namespace NAnt.Core {
                     childElement = InitDataTypeBase(dataType);
                     Type elemType = setter.GetParameters()[0].ParameterType;
                 
-                    if (childElement.GetType() != elemType) {
+                    if (!elemType.IsAssignableFrom(childElement.GetType())) {
                         ElementNameAttribute childElemAttr = (ElementNameAttribute) 
                             Attribute.GetCustomAttribute(childElement.GetType(), typeof(ElementNameAttribute));
                         ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
