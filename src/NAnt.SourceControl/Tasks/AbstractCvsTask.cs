@@ -39,18 +39,9 @@ namespace NAnt.SourceControl.Tasks {
     /// A base class for creating tasks for executing CVS client commands on a 
     /// CVS repository.
     /// </summary>
-    public abstract class AbstractCvsTask : ExternalProgramBase {
+    public abstract class AbstractCvsTask : AbstractSourceControlTask {
 		#region Protected Static Fields
 
-		/// <summary>
-		/// Name of the environmental variable specifying a users' home
-		///		in a *nix environment.
-		/// </summary>
-		protected const String HOME = "HOME";
-		/// <summary>
-		/// The environment variable that holds path information.
-		/// </summary>
-		protected const String PATH = "PATH";
 		/// <summary>
 		/// An environment variable that holds path information about where
 		///		cvs is located.
@@ -85,30 +76,15 @@ namespace NAnt.SourceControl.Tasks {
 		///		used or not.
 		/// </summary>
 		protected const string USE_SHARPCVSLIB = "sourcecontrol.usesharpcvslib";
-		/// <summary>
-		/// Property name used to specify the source control executable.
-		/// </summary>
-		protected const string EXE_NAME = "sourcecontrol.exename";
 
 		#endregion
 
         #region Private Instance Fields
 
-        private string _cvsRoot;
         private string _module;
-        private DirectoryInfo _destinationDirectory;
-        private string _password;
-        private string _passFile;
         private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
 		private bool _isUseSharpCvsLibSet = false;
 
-		private string _commandName = null;
-		private string _commandLine = null;
-        private OptionCollection _commandOptions = new OptionCollection();
-		private string _commandLineArguments;
-        private OptionCollection _globalOptions = new OptionCollection();
-
-		private string _cvsRsh;
         private FileSet _fileset = new FileSet();
 
 		private string _sharpcvslibExeName;
@@ -145,13 +121,37 @@ namespace NAnt.SourceControl.Tasks {
 				if (this.UseSharpCvsLib) {
 					_exeNameTemp = this._sharpcvslibExeName;
 				} else {
-					_exeNameTemp = this.GetCvsFromEnvironment();
+					_exeNameTemp = this.DeriveVcsFromEnvironment().FullName;
 				}
 				Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
 				Logger.Debug("_exeNameTemp: " + _exeNameTemp);
 				Properties[EXE_NAME] = _exeNameTemp;
 				return _exeNameTemp;
 			}
+		}
+
+		/// <summary>
+		/// The name of the cvs binary, or <code>cvs.exe</code> at the time this 
+		///		was written.
+		/// </summary>
+		protected override string VcsExeName {
+			get {return CVS_EXE;}
+		}
+
+		/// <summary>
+		/// The name of the pass file, or <code>.cvspass</code> at the time
+		///		of this writing.
+		/// </summary>
+		protected override string PassFileName {
+			get {return CVS_PASSFILE;}
+		}
+
+		/// <summary>
+		/// The name of the version control system specific home environment 
+		///		variable.
+		/// </summary>
+		protected override string VcsHomeEnv {
+			get {return CVS_HOME;}
 		}
 
         /// <summary>
@@ -210,9 +210,9 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("cvsroot", Required=true)]
         [StringValidator(AllowEmpty=false)]
-        public string CvsRoot {
-            get { return this._cvsRoot; }
-            set { _cvsRoot = StringUtils.ConvertEmptyToNull(value); }
+        public override string Root {
+            get { return base.Root; }
+            set { base.Root = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -231,123 +231,6 @@ namespace NAnt.SourceControl.Tasks {
             get { return _module; }
             set { _module = StringUtils.ConvertEmptyToNull(value); }
         }
-
-        /// <summary>
-        /// Destination directory for the checked out / updated files.
-        /// </summary>
-        /// <value>
-        /// The destination directory for the checked out or updated files.
-        /// </value>
-        /// <remarks>
-        /// <para>
-        /// This is the current working directory that will be modifed.
-        /// </para>
-        /// </remarks>
-        [TaskAttribute("destination", Required=true)]
-        public DirectoryInfo DestinationDirectory {
-            get { return _destinationDirectory; }
-            set { _destinationDirectory = value; }
-        }
-
-        /// <summary>
-        /// The password for logging in to the CVS repository.
-        /// </summary>
-        /// <value>
-        /// The password for logging in to the CVS repository.
-        /// </value>
-        [TaskAttribute("password")]
-        public string Password {
-            get { return _password;}
-            set { _password = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
-        /// The full path to the .cvspass file (including the .cvspass file name).
-        ///     This overrides the environment variable CVS_PASSFILE.
-        /// </summary>
-        [TaskAttribute("passfile")]
-        public string PassFile {
-            get {return this._passFile;}
-            set {this._passFile = value;}
-        }
-
-        /// <summary>
-        /// A collection of options that can be used to modify cvs 
-        /// checkouts/updates.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Valid options include:
-        /// </para>
-        /// <list type="table">
-        ///     <listheader>
-        ///         <term>Name</term>
-        ///         <description>Description</description>
-        ///     </listheader>
-        ///     <item>
-        ///         <term>sticky-tag</term>
-        ///         <description>
-        ///         A revision tag or branch tag that has been placed on the 
-        ///         repository using the 'rtag' or 'tag' commands.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term>override-directory</term>
-        ///         <description>
-        ///         A directory to substitute for the module name as the top level 
-        ///         directory name.  For instance specifying 'nant-cvs' for this
-        ///         value while checking out NAnt would checkout the source files 
-        ///         into a top level directory named 'nant-cvs' instead of nant.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term>compression-level</term>
-        ///         <description>
-        ///         The compression level that files will be transported to and 
-        ///         from the server at.  Valid numbers include 1 to 9.
-        ///         </description>
-        ///     </item>
-        /// </list>
-        /// </remarks>
-        [BuildElementCollection("commandoptions", "option")]
-        public OptionCollection CommandOptions {
-            get { return _commandOptions;}
-			set { this._commandOptions = value; }
-        }
-
-        /// <summary>
-        /// Use commandOptions.
-        /// </summary>
-        [BuildElementCollection("options", "option")]
-        public OptionCollection Options {
-            get {return _commandOptions;}
-        }
-
-		/// <summary>
-		/// The command-line arguments for the program.
-		/// </summary>
-        [TaskAttribute("commandline")]
-		public string CommandLineArguments {
-			get {return this._commandLineArguments;}
-			set {this._commandLineArguments = StringUtils.ConvertEmptyToNull(value);}
-		}
-
-		/// <summary>
-		/// Get the command line arguments for the task.
-		/// </summary>
-		public override string ProgramArguments {
-			get {
-				return this._commandLine;
-			}
-		}
-
-		/// <summary>
-		/// Holds a collection of globally available cvs options.
-		/// </summary>
-		[BuildElementCollection("globaloptions", "option")]
-			public OptionCollection GlobalOptions {
-			get {return this._globalOptions;}
-		}
 
         /// <summary>
         /// <code>true</code> if the SharpCvsLib binaries that come bundled with 
@@ -386,46 +269,24 @@ namespace NAnt.SourceControl.Tasks {
         }
 
 		/// <summary>
-		/// The name of the cvs command that is going to be executed.
-		/// </summary>
-		public virtual string CommandName {
-			get {return this._commandName;}
-			set {this._commandName = value;}
-		}
-
-		/// <summary>
-		/// Used to select the files to copy. 
-		/// </summary>
-		[BuildElement("fileset")]
-		public virtual FileSet CvsFileSet {
-			get { return _fileset; }
-			set { _fileset = value; }
-		}
-
-		/// <summary>
 		/// The executable to use for ssh communication.
 		/// </summary>
 		[TaskAttribute("cvsrsh", Required=false)]
-		public string CvsRsh {
-			get {return this._cvsRsh;}
-			set {this._cvsRsh = StringUtils.ConvertEmptyToNull(value);}
+		public override FileInfo Ssh {
+			get {return base.Ssh;}
+			set {base.Ssh = value;}
+		}
+
+		/// <summary>
+		/// The environment name for the ssh variable.
+		/// </summary>
+		protected override string SshEnv {
+			get {return CVS_RSH;}
 		}
 
         #endregion Public Instance Properties
 
 		#region Override Task Implementation
-
-		/// <summary>
-		/// Wrapper to provide extra debugging layer.
-		/// </summary>
-		protected override void ExecuteTask () {
-			try {
-				base.ExecuteTask();	
-			} catch (Exception e) {
-				Logger.Error(e);
-				throw e;
-			}
-		}
 
 		/// <summary>
 		/// Build up the command line arguments, determine which executable is being
@@ -453,7 +314,7 @@ namespace NAnt.SourceControl.Tasks {
 			Logger.Debug("number of arguments: " + Arguments.Count);
 			if (null == this.Arguments || 0 == this.Arguments.Count) {
 				if (IsModuleNeeded) {
-					this.Arguments.Add(new Argument("-d" + this.CvsRoot));
+					this.Arguments.Add(new Argument("-d" + this.Root));
 				}
 				this.AppendGlobalOptions();
 				this.Arguments.Add(new Argument(this.CommandName));
@@ -476,14 +337,6 @@ namespace NAnt.SourceControl.Tasks {
 			base.PrepareProcess(process);
 			process.StartInfo.FileName = this.ExeName;
 
-			if (this.CvsRsh != null ) {
-				try {
-					process.StartInfo.EnvironmentVariables.Add(CVS_RSH, this.CvsRsh);
-				} catch (System.ArgumentException e) {
-					Logger.Warn("Possibility cvs_rsh key has already been added.", e);
-				}
-			}
-
 			process.StartInfo.WorkingDirectory = 
 				this.DestinationDirectory.FullName;
 			Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
@@ -502,50 +355,6 @@ namespace NAnt.SourceControl.Tasks {
 		#endregion
 
         #region Private Instance Methods
-
-        private void LogCvsMessage(string message) {
-            Log(Level.Debug, LogPrefix + message);
-        }
-
-		private String GetPassFile () {
-			if (this.PassFile == null) {
-				string userHome =
-					System.Environment.GetEnvironmentVariable(HOME);
-
-				// if the user home is null then try to get the rooted path,
-				//  this will be cvs' behavior as well
-				if (null == userHome) {
-					userHome = 
-						Path.GetPathRoot(System.Environment.CurrentDirectory);
-				}
-
-				this.PassFile = Path.Combine(userHome, CVS_PASSFILE);
-			}
-			return this.PassFile;
-		}
-
-		private String GetCvsVersion (String fileName) {
-			ProcessStartInfo versionStartInfo = 
-				new ProcessStartInfo(fileName, "--version");
-			versionStartInfo.UseShellExecute = false;
-			versionStartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
-			versionStartInfo.RedirectStandardOutput = true;
-			versionStartInfo.CreateNoWindow = true;
-
-			// Run the process
-			Process cvsProcess = new Process();
-			cvsProcess.StartInfo = versionStartInfo;
-			try {
-				cvsProcess.Start();
-			} catch (Exception e) {
-				Log(Level.Debug, LogPrefix + "Exception getting version.  Exception: " +
-					e);
-			}
-
-			string versionInfo = cvsProcess.StandardOutput.ReadToEnd();
-
-			return versionInfo;
-		}
 
 		private void AppendGlobalOptions () {
 			foreach (Option option in this.GlobalOptions) {
@@ -615,12 +424,6 @@ namespace NAnt.SourceControl.Tasks {
 			}
 		}
 
-		private void AppendFiles () {
-			foreach (string pathname in this.CvsFileSet.FileNames) {
-				Arguments.Add(new Argument(pathname));
-			}
-		}
-
 		private bool IsModuleNeeded {
 			get {
 				if ("checkout".Equals(this.CommandName)) {
@@ -629,53 +432,6 @@ namespace NAnt.SourceControl.Tasks {
 					return false;
 				}
 			}
-		}
-
-		private string GetCvsFromEnvironment () {
-			string cvsPath =
-				this.GetCvsFromPath(Environment.GetEnvironmentVariable(CVS_HOME));
-			if (null == cvsPath || String.Empty == cvsPath) {
-				cvsPath = this.GetCvsFromPath(Environment.GetEnvironmentVariable(PATH));
-			}
-			return cvsPath;
-		}
-
-		private string GetCvsFromPath (String path) {
-			String fileName = null;
-			String[] pathElements = path.Split(';');
-			foreach (String pathElement in pathElements) {
-				try {
-					DirectoryInfo dirInfo = new DirectoryInfo(pathElement);
-					// because we are getting this from the path we don't want
-					//	to pick up sharpcvslib.
-					Logger.Debug("dirInfo: " + dirInfo.FullName);
-					Logger.Debug("basedir: " + System.AppDomain.CurrentDomain.BaseDirectory);
-					if (!(System.AppDomain.CurrentDomain.BaseDirectory.IndexOf
-						(dirInfo.FullName) > -1)) {
-						FileInfo[] files = dirInfo.GetFiles("*.exe");
-						foreach (FileInfo file in files) {
-							if (file.FullName.ToLower().IndexOf("cvs") > -1) {
-								Log(Level.Debug, LogPrefix + "Using file " + file.FullName);
-								fileName = file.FullName;
-								break;
-							}
-						}
-					}
-				} catch (DirectoryNotFoundException) {
-					// expected, happens if the path contains an old directory.
-					Log(Level.Debug, LogPrefix + "Path does not exist: " + pathElement);
-				} catch (ArgumentException) {
-					Log(Level.Debug, LogPrefix + "Path does not exist: " + pathElement);
-				}
-				if (null != fileName) {
-					break;
-				}
-			}
-
-			if (null == fileName) {
-				throw new BuildException ("Cvs binary not specified.");
-			}
-			return fileName;
 		}
 
         #endregion Private Instance Methods

@@ -121,6 +121,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\AbstractSourceControlTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\AbstractSvnTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\CheckoutTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -132,6 +142,11 @@
                 />
                 <File
                     RelPath = "Tasks\RTagTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\SvnTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
