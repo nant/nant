@@ -97,7 +97,7 @@
         <!-- copy the gzipped tar help distribution to sourceforge -->
         <exec workingdir="${path::get-directory-name(project.gzip-path.help)}" program="scp">
             <arg value="${path::get-file-name(project.gzip-path.help)}" />
-            <arg value="${serverpart}/${sf.net.web.path}/release/${project.version.full}/help.tar.gz" />
+            <arg value="${serverpart}/release/${project.version.full}/help.tar.gz" />
         </exec>
         <!-- extract the help distribution on sourceforge -->
         <exec program="ssh">
