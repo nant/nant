@@ -89,7 +89,7 @@ namespace SourceForge.NAnt {
             }
         }
 
-        /// <summary>Executes the task unless it is skipped.</summary>
+        /// <summary>Executes the task unless it is skipped. <note>Do not ovveride/new this method. Use ExecuteTask instead.</note></summary>
         public void Execute() {
             if (IfDefined && !UnlessDefined) {
                 try {
