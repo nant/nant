@@ -156,8 +156,15 @@ namespace NAnt.VSNet {
 
         public override void Load(Solution sln, string projectPath) {
             _projectPath = Path.GetFullPath(projectPath);
-            
-            XmlDocument doc = LoadXmlDocument(_projectPath);
+            XmlDocument doc = null;
+
+            try {
+                doc = LoadXmlDocument(_projectPath);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading project '{0}'.", _projectPath), 
+                    Location.UnknownLocation, ex);
+            }
 
             XmlElement elem = doc.DocumentElement;
             _name = elem.GetAttribute("Name");
@@ -587,8 +594,14 @@ namespace NAnt.VSNet {
         #region Public Static Methods
 
         public static string LoadGuid(string fileName) {
-            XmlDocument doc = LoadXmlDocument(fileName);
-            return doc.DocumentElement.GetAttribute("ProjectGUID");
+            try {
+                XmlDocument doc = LoadXmlDocument(fileName);
+                return doc.DocumentElement.GetAttribute("ProjectGUID");
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading GUID of project '{0}'.", fileName), 
+                    Location.UnknownLocation, ex);
+            }
         }
 
         #endregion Public Static Methods
