@@ -148,8 +148,8 @@
         </copy>    
 
         <exec program="bash">
-            <arg value="-c -o onecmd"/>
-            <arg value="'tar -cvzf ${cygwin.rpm.base}/tmp/NAnt-tar/NAnt.tar.gz -C${cygwin.rpm.base}/tmp/NAnt-src bin'"/>
+            <arg line="-c -o onecmd"/>
+            <arg value="'tar -cvzf ${cygwin.rpm.base}/tmp/NAnt-tar/NAnt.tar.gz ${cygwin.rpm.base}/tmp/NAnt-src bin'"/>
         </exec>
         
         <copy file="${rpm.base}/tmp/NAnt-tar/NAnt.tar.gz" tofile="${rpm.base}/SOURCES/NAnt.tar.gz" overwrite="true"/>
@@ -161,7 +161,7 @@
         <echo file="${rpm.base}/build.bat">bash -c '${commandline}'</echo>
 
         <exec program="bash">
-            <arg value="-c -o onecmd '${commandline}'"/>
+            <arg line="-c -o onecmd '${commandline}'"/>
         </exec>
 
         <copy todir="${build.dir}" flatten="true">
