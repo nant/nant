@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
@@ -34,6 +35,8 @@ namespace NAnt.Core.Tasks {
     /// <fail />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Exits the current build and writes a message to the build log.</para>
     ///   <code>
     ///     <![CDATA[
@@ -41,11 +44,20 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>Functionally equivalent to the previous example.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <fail>Something wrong here.</fail>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("fail")]
     public class FailTask : Task {
         #region Private Instance Fields
 
-        private string _message = null;
+        private string _message;
+        private string _contents;
 
         #endregion Private Instance Fields
 
@@ -54,10 +66,48 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// A message giving further information on why the build exited.
         /// </summary>
+        /// <remarks>
+        /// Inline content and <see cref="Message" /> are mutually exclusive.
+        /// </remarks>
         [TaskAttribute("message")]
         public string Message {
             get { return _message; }
-            set { _message = StringUtils.ConvertEmptyToNull(value); }
+            set {
+                if (!StringUtils.IsNullOrEmpty(value)) {
+                    if (!StringUtils.IsNullOrEmpty(Contents)) {
+                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <fail> task.", Location);
+                    } else {
+                        _message = value;
+                    }
+                } else {
+                    _message = null; 
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the inline content that should be output in the build
+        /// log, giving further information on why the build exited.
+        /// </summary>
+        /// <value>
+        /// The inline content that should be output in the build log.
+        /// </value>
+        /// <remarks>
+        /// Inline content and <see cref="Message" /> are mutually exclusive.
+        /// </remarks>
+        public string Contents {
+            get { return _contents; }
+            set { 
+                if (!StringUtils.IsNullOrEmpty(value)) {
+                    if (!StringUtils.IsNullOrEmpty(Message)) {
+                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <fail> task.", Location);
+                    } else {
+                        _contents = value;
+                    }
+                } else {
+                    _contents = null;
+                }
+            }
         }
 
         #endregion Public Instance Properties
@@ -65,13 +115,22 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            string message = Message;
+            const string defaultMessage = "No message.";
+            string message;
 
-            if (message == null) {
-                message = "No message";
+            if (!StringUtils.IsNullOrEmpty(Message)) {
+                message = Message;
+            } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+                message = Contents;
+            } else {
+                message = defaultMessage;
             }
-            throw new BuildException(message);
+
+            throw new BuildException(message, Location);
         }
+
+        protected override void InitializeTask(XmlNode taskNode) {
+            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
 
         #endregion Override implementation of Task
     }
