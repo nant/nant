@@ -121,7 +121,9 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
+
+            System.Console.WriteLine(_log.ToString());
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
@@ -139,7 +141,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             string unformattedMessage = "message:";
@@ -147,21 +149,21 @@ namespace Tests.NAnt.Core.Util {
 
             args.Message = unformattedMessage;
             _log.MessageLogged(this, args);
-            expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
+            expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "message with no tag in front.";
             _log = CreateXmlLogger();
             args.Message = unformattedMessage;
             _log.MessageLogged(this, args);
-            expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
+            expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "BUILD SUCCESSFUL";
             _log = CreateXmlLogger();
             args.Message = unformattedMessage;
             _log.MessageLogged(this, args);
-            expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
+            expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
@@ -179,7 +181,7 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 		
@@ -197,14 +199,14 @@ namespace Tests.NAnt.Core.Util {
             args.MessageLevel = Level.Info;
             _log.MessageLogged(this, args);
 
-            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
         [Test]
         public void Test_WriteTextWithEmbeddedCDATATag() {
             string message = @"some stuff with <xml> <![CDATA[more stuff]]> and more <![CDATA[cdata]]>";
-            string expected = @"<message><![CDATA[some stuff with <xml> more stuff and more cdata]]></message>";
+            string expected = @"<message level=""Info""><![CDATA[some stuff with <xml> more stuff and more cdata]]></message>";
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
@@ -221,7 +223,7 @@ namespace Tests.NAnt.Core.Util {
         [Test]
         public void Test_WriteXmlWithDeclaration() {
             string message = @"<?xml version=""1.0"" encoding=""utf-16""?><test><a></a></test>";
-            string expected = @"<message><test><a></a></test></message>";
+            string expected = @"<message level=""Info""><test><a></a></test></message>";
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
@@ -238,7 +240,7 @@ namespace Tests.NAnt.Core.Util {
         [Test]
         public void Test_WriteXmlWithLeadingWhitespace() {
             string message = @"            <?xml version=""1.0"" encoding=""utf-16""?><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/>";
-            string expected = @"<message><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/></message>";
+            string expected = @"<message level=""Info""><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/></message>";
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
@@ -255,7 +257,7 @@ namespace Tests.NAnt.Core.Util {
         [Test]        
         public void Test_WriteEmbeddedXml() {
             string baseMessage = "<a><b><![CDATA[message]]></b></a>";
-            string expected = String.Format(CultureInfo.InvariantCulture, "<message>{0}</message>", baseMessage);
+            string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\">{0}</message>", baseMessage);
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
@@ -272,7 +274,7 @@ namespace Tests.NAnt.Core.Util {
         [Test]
         public void Test_WriteEmbeddedMalformedXml() {
             string baseMessage = "<a>malformed<b>";
-            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
