@@ -111,22 +111,15 @@ namespace Tests.NAnt.Core {
         /// </returns>
         public string RunBuild(string xml, Level level, IBuildListener listener) {
             Project project = CreateFilebasedProject(xml, level);
-
-            // attach listener to project events
-            project.BuildStarted += new BuildEventHandler(listener.BuildStarted);
-            project.BuildFinished += new BuildEventHandler(listener.BuildFinished);
-            project.TargetStarted += new BuildEventHandler(listener.TargetStarted);
-            project.TargetFinished += new BuildEventHandler(listener.TargetFinished);
-            project.TaskStarted += new BuildEventHandler(listener.TaskStarted);
-            project.TaskFinished += new BuildEventHandler(listener.TaskFinished);
-            project.MessageLogged += new BuildEventHandler(listener.MessageLogged);
-
-            // add listener to build listener collection
-            project.BuildListeners.Add(listener);
+            
+            //use Project.AttachBuildListeners to attach.
+            IBuildListener[] listners = {listener};
+            project.AttachBuildListeners(new BuildListenerCollection(listners));
 
             // execute the project
             return ExecuteProject(project);
         }
+
 
         /// <summary>
         /// Executes the project and returns the console output as a string.
