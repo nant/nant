@@ -61,7 +61,7 @@ namespace NAnt.VSNet {
                 string projectDirectory = projectPath.Replace(":", "_");
                 projectDirectory = projectDirectory.Replace("/", "_");
                 projectDirectory = projectDirectory.Replace("\\", "_");
-                _projectDirectory = new DirectoryInfo(Path.Combine(
+                _projectDirectory = new DirectoryInfo(FileUtils.CombinePaths(
                     TemporaryFiles.BasePath, projectDirectory));
 
                 // ensure project directory exists
@@ -94,10 +94,10 @@ namespace NAnt.VSNet {
                 string sourceFile;
 
                 if (!StringUtils.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
-                    sourceFile = Path.GetFullPath(Path.Combine(
+                    sourceFile = FileUtils.GetFullPath(FileUtils.CombinePaths(
                         ProjectDirectory.FullName, elemFile.GetAttribute("Link")));
                 } else {
-                    sourceFile = Path.GetFullPath(Path.Combine(
+                    sourceFile = FileUtils.GetFullPath(FileUtils.CombinePaths(
                         ProjectDirectory.FullName, elemFile.GetAttribute("RelPath")));
                 }
 
@@ -113,7 +113,7 @@ namespace NAnt.VSNet {
                             Log(Level.Verbose, "Skipping zero-byte embedded resource '{0}'.", 
                                 fi.FullName);
                         } else {
-                            string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
+                            string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? FileUtils.CombinePaths(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
                             Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
                             _resources.Add(r);
                         }
@@ -129,7 +129,7 @@ namespace NAnt.VSNet {
                                 Log(Level.Verbose, "Skipping zero-byte embedded resx '{0}'.", 
                                     resourceFile.FullName);
                             } else {
-                                string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
+                                string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? FileUtils.CombinePaths(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
                                 Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
                                 _resources.Add(r);
                             }
@@ -211,7 +211,7 @@ namespace NAnt.VSNet {
                 if (ProjectFactory.IsUrl(_projectPath)) {
                     return _projectPath;
                 } else {
-                    return Path.GetFullPath(_projectPath);
+                    return FileUtils.GetFullPath(_projectPath);
                 }
             }
         }
@@ -297,7 +297,7 @@ namespace NAnt.VSNet {
                         _sourceFiles[tempFile] = null;
                     }
 
-                    string tempResponseFile = Path.Combine(TemporaryFiles.BasePath, 
+                    string tempResponseFile = FileUtils.CombinePaths(TemporaryFiles.BasePath, 
                         CommandFile);
 
                     using (StreamWriter sw = File.CreateText(tempResponseFile)) {
@@ -376,7 +376,7 @@ namespace NAnt.VSNet {
                     al.BaseDirectory = cs.OutputDir;
                     al.InitializeTaskConfiguration();
 
-                    string satelliteBuildDir = Path.Combine(
+                    string satelliteBuildDir = FileUtils.CombinePaths(
                         cs.ObjectDir.FullName, culture);
 
                     // ensure satellite build directory exists
@@ -384,7 +384,7 @@ namespace NAnt.VSNet {
                         Directory.CreateDirectory(satelliteBuildDir);
                     }
 
-                    string satelliteBuildFile = Path.Combine(satelliteBuildDir,
+                    string satelliteBuildFile = FileUtils.CombinePaths(satelliteBuildDir,
                         string.Format(CultureInfo.InvariantCulture, "{0}.resources.dll", 
                         ProjectSettings.AssemblyName));
 
@@ -410,7 +410,7 @@ namespace NAnt.VSNet {
                         // run assembly linker
                         al.Execute();
                         // add satellite assembly to extra output files
-                        ExtraOutputFiles[al.OutputFile.FullName] = Path.Combine(
+                        ExtraOutputFiles[al.OutputFile.FullName] = FileUtils.CombinePaths(
                             al.Culture, al.OutputFile.Name);
                     } finally {
                         // restore indentation level
@@ -430,11 +430,11 @@ namespace NAnt.VSNet {
 
                     if (IsWebProject) {
                         WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                        wdc.UploadFile(srcPath, Path.Combine(cs.RelativeOutputDir,
+                        wdc.UploadFile(srcPath, FileUtils.CombinePaths(cs.RelativeOutputDir,
                             relativePath).Replace(@"\", "/"));
                     } else {
                         // determine destination file
-                        FileInfo destFile = new FileInfo(Path.Combine(cs.OutputDir.FullName, 
+                        FileInfo destFile = new FileInfo(FileUtils.CombinePaths(cs.OutputDir.FullName, 
                             relativePath));
                         // copy file using <copy> task
                         CopyFile(new FileInfo(srcPath), destFile, SolutionTask);
@@ -567,7 +567,7 @@ namespace NAnt.VSNet {
             string buildCommandLine = ProjectSettings.PreBuildEvent;
             // check if there are pre build commands to be run
             if (buildCommandLine != null) {
-                string batchFile = Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat");
+                string batchFile = FileUtils.CombinePaths(cs.OutputDir.FullName, "PreBuildEvent.bat");
                 string workingDirectory = cs.OutputDir.FullName;
                 return ExecuteBuildEvent("PreBuildEvent", buildCommandLine, 
                     batchFile, workingDirectory, cs);
@@ -582,7 +582,7 @@ namespace NAnt.VSNet {
             if (buildCommandLine != null) {
                 Log(Level.Debug, "PostBuild commandline: {0}", buildCommandLine);
 
-                string batchFile = Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat");
+                string batchFile = FileUtils.CombinePaths(cs.OutputDir.FullName, "PostBuildEvent.bat");
                 string workingDirectory = cs.OutputDir.FullName;
 
                 bool bBuildEventSuccess;

@@ -312,7 +312,7 @@ namespace NAnt.VSNet {
                     }
 
                     if (ProjectSettings.AssemblyOriginatorKeyFile != null) {
-                        tlbImp.KeyFile = new FileInfo(Path.Combine(Parent.ProjectDirectory.FullName, 
+                        tlbImp.KeyFile = new FileInfo(FileUtils.CombinePaths(Parent.ProjectDirectory.FullName, 
                             ProjectSettings.AssemblyOriginatorKeyFile));
                     }
 
@@ -348,7 +348,7 @@ namespace NAnt.VSNet {
                     axImp.OutputFile = new FileInfo(WrapperAssembly);
 
                     if (ProjectSettings.AssemblyOriginatorKeyFile != null) {
-                        axImp.KeyFile = new FileInfo(Path.Combine(Parent.ProjectDirectory.FullName, 
+                        axImp.KeyFile = new FileInfo(FileUtils.CombinePaths(Parent.ProjectDirectory.FullName, 
                             ProjectSettings.AssemblyOriginatorKeyFile));
                     }
 
@@ -357,7 +357,7 @@ namespace NAnt.VSNet {
                         // if no primary interop assembly is provided for ActiveX control,
                         // trust the fact that VS.NET uses Interop.<name of the tlbimp reference>.dll
                         // for the imported typelibrary
-                        rcw = Path.Combine(Parent.ObjectDir.FullName, 
+                        rcw = FileUtils.CombinePaths(Parent.ObjectDir.FullName, 
                             "Interop." + Name.Substring(2, Name.Length - 2) 
                             + ".dll");
                     }
@@ -412,7 +412,7 @@ namespace NAnt.VSNet {
             }
 
             // resolve to full path
-            return Path.Combine(Parent.ObjectDir.FullName,
+            return FileUtils.CombinePaths(Parent.ObjectDir.FullName,
                 wrapperAssembly);
         }
 
@@ -429,7 +429,7 @@ namespace NAnt.VSNet {
             }
 
             // determine path where wrapper assembly should be deployed to
-            string outputFile = Path.Combine(config.OutputDir.FullName,
+            string outputFile = FileUtils.CombinePaths(config.OutputDir.FullName,
                 Path.GetFileName(WrapperAssembly));
 
             // determine last modification date/time of built wrapper assembly

@@ -77,7 +77,7 @@ namespace NAnt.VSNet {
             AssemblyName[] referencedAssemblies = module.GetReferencedAssemblies();
 
             foreach (AssemblyName referencedAssemblyName in referencedAssemblies) {
-                string fullPathToReferencedAssembly = Path.Combine(moduleDirectory, referencedAssemblyName.Name + ".dll");
+                string fullPathToReferencedAssembly = FileUtils.CombinePaths(moduleDirectory, referencedAssemblyName.Name + ".dll");
 
                 // we only add referenced assemblies which are located in given directory
                 if (File.Exists(fullPathToReferencedAssembly) && !allReferences.ContainsKey(fullPathToReferencedAssembly)) {

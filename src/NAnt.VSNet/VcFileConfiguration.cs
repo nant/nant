@@ -110,12 +110,12 @@ namespace NAnt.VSNet {
             // perform case-insensitive expansion of macros 
             switch (macro.ToLower(CultureInfo.InvariantCulture)) {
                 case "inputdir":
-                    return Path.GetDirectoryName(Path.Combine(ProjectDir.FullName, 
+                    return Path.GetDirectoryName(FileUtils.CombinePaths(ProjectDir.FullName, 
                         _relativePath)) + Path.DirectorySeparatorChar;
                 case "inputname":
                     return Path.GetFileNameWithoutExtension(_relativePath);
                 case "inputpath":
-                    return Path.Combine(ProjectDir.FullName, _relativePath);
+                    return FileUtils.CombinePaths(ProjectDir.FullName, _relativePath);
                 case "inputfilename":
                     return Path.GetFileName(_relativePath);
                 case "inputext":

@@ -142,7 +142,7 @@ namespace NAnt.VSNet {
             get { 
                 if (_outputDir == null) {
                     if (RelativeOutputDir != null) {
-                        _outputDir = new DirectoryInfo(Path.Combine(ProjectDir.FullName, 
+                        _outputDir = new DirectoryInfo(FileUtils.CombinePaths(ProjectDir.FullName, 
                             RelativeOutputDir));
                     } else {
                         throw new BuildException("The output directory could not be"
@@ -168,17 +168,17 @@ namespace NAnt.VSNet {
             get { 
                 string linkOutput = GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
-                    return Path.Combine(ProjectDir.FullName, linkOutput);
+                    return FileUtils.CombinePaths(ProjectDir.FullName, linkOutput);
                 }
 
                 string librarianOutput = GetToolSetting("VCLibrarianTool", "OutputFile");
                 if (librarianOutput != null) {
-                    return Path.Combine(ProjectDir.FullName, librarianOutput);
+                    return FileUtils.CombinePaths(ProjectDir.FullName, librarianOutput);
                 }
 
                 string nmakeOutput = GetToolSetting("VCNMakeTool", "Output");
                 if (nmakeOutput != null) {
-                    return Path.Combine(ProjectDir.FullName, nmakeOutput);
+                    return FileUtils.CombinePaths(ProjectDir.FullName, nmakeOutput);
                 }
 
                 return null;

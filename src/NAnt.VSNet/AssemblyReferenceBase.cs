@@ -188,7 +188,7 @@ namespace NAnt.VSNet {
         protected string ResolveFromFolderList(StringCollection folderList, string fileName) {
             foreach (string path in folderList) {
                 try {
-                    string assemblyFile = Path.Combine(path, fileName);
+                    string assemblyFile = FileUtils.CombinePaths(path, fileName);
                     if (File.Exists(assemblyFile)) {
                         return assemblyFile;
                     }
@@ -212,7 +212,7 @@ namespace NAnt.VSNet {
         /// in the framework assembly directory; otherwise, <see langword="null" />.
         /// </returns>
         protected string ResolveFromFramework(string fileName) {
-            string systemAssembly = Path.Combine(SolutionTask.Project.TargetFramework.
+            string systemAssembly = FileUtils.CombinePaths(SolutionTask.Project.TargetFramework.
                 FrameworkAssemblyDirectory.FullName, fileName);
             if (File.Exists(systemAssembly)) {
                 return systemAssembly;
@@ -236,11 +236,11 @@ namespace NAnt.VSNet {
                 //
                 // eg. ../Assemblies/..Assemblies/../......
 
-                string combinedPath = Path.Combine(Parent.ProjectDirectory.FullName, 
+                string combinedPath = FileUtils.CombinePaths(Parent.ProjectDirectory.FullName, 
                     relativePath);
 
                 try {
-                    return Path.GetFullPath(combinedPath);
+                    return FileUtils.GetFullPath(combinedPath);
                 } catch (PathTooLongException ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Assembly \"{0}\", referenced by project \"{1}\", could not be"

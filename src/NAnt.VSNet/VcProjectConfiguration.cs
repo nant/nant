@@ -172,7 +172,7 @@ namespace NAnt.VSNet {
         /// </remarks>
         public override DirectoryInfo ObjectDir {
             get { 
-                return new DirectoryInfo(Path.Combine(Project.ProjectDirectory.FullName, 
+                return new DirectoryInfo(FileUtils.CombinePaths(Project.ProjectDirectory.FullName, 
                     IntermediateDir));
             }
         }

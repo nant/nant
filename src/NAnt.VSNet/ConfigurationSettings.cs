@@ -38,7 +38,7 @@ namespace NAnt.VSNet {
                 if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                     _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
                 }
-                _outputDir = new DirectoryInfo(Path.Combine(
+                _outputDir = new DirectoryInfo(FileUtils.CombinePaths(
                     project.ProjectDirectory.FullName, 
                     _relativeOutputDir));
             } else {
@@ -56,7 +56,7 @@ namespace NAnt.VSNet {
                 // to match VS.NET, the XML Documentation file will be output 
                 // in the project directory, and only later copied to the output
                 // directory
-                string xmlDocBuildFile = Path.Combine(project.ProjectDirectory.FullName,
+                string xmlDocBuildFile = FileUtils.CombinePaths(project.ProjectDirectory.FullName,
                     documentationFile);
 
                 // add compiler option to build XML Documentation file
@@ -164,7 +164,7 @@ namespace NAnt.VSNet {
 
         public override string OutputPath {
             get { 
-                return Path.Combine(OutputDir.FullName, 
+                return FileUtils.CombinePaths(OutputDir.FullName, 
                     ((ManagedProjectBase) Project).ProjectSettings.OutputFileName);
             }
         }
@@ -175,7 +175,7 @@ namespace NAnt.VSNet {
         /// </summary>
         public override string BuildPath {
             get { 
-                return Path.Combine(ObjectDir.FullName, 
+                return FileUtils.CombinePaths(ObjectDir.FullName, 
                     Path.GetFileName(OutputPath));
             }
         }

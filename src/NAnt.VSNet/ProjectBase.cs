@@ -135,7 +135,7 @@ namespace NAnt.VSNet {
         public virtual DirectoryInfo ObjectDir {
             get { 
                 return new DirectoryInfo(
-                    Path.Combine(ProjectDirectory.FullName, "obj"));
+                    FileUtils.CombinePaths(ProjectDirectory.FullName, "obj"));
             }
         }
         
@@ -244,7 +244,7 @@ namespace NAnt.VSNet {
                         "Value \"VS7CommonDir\" does not exist in registry key"
                         + " \"{0}\".", vs7CommonDirKeyName), Location.UnknownLocation);
                 }
-                return Path.Combine(vs7CommonDir, @"IDE\");
+                return FileUtils.CombinePaths(vs7CommonDir, @"IDE\");
             }
         }
 
@@ -531,7 +531,7 @@ namespace NAnt.VSNet {
 
             // add all output files to the <attrib> fileset
             foreach (DictionaryEntry de in outputFiles) {
-                attribTask.AttribFileSet.Includes.Add(Path.Combine(
+                attribTask.AttribFileSet.Includes.Add(FileUtils.CombinePaths(
                     config.OutputDir.FullName, (string) de.Value));
             }
 

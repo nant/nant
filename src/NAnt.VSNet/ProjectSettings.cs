@@ -105,7 +105,7 @@ namespace NAnt.VSNet {
                 string value = StringUtils.ConvertEmptyToNull(
                     elemSettings.Attributes["ApplicationIcon"].Value);
                 if (value != null) {
-                    _applicationIcon = new FileInfo(Path.Combine(
+                    _applicationIcon = new FileInfo(FileUtils.CombinePaths(
                         Project.ProjectDirectory.FullName, value));
                 }
             }
@@ -328,7 +328,7 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public string GetTemporaryFilename(string fileName) {
-            return Path.Combine(TemporaryFiles.BasePath, fileName);
+            return FileUtils.CombinePaths(TemporaryFiles.BasePath, fileName);
         }
 
         #endregion Public Instance Methods

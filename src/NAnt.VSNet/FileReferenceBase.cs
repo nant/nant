@@ -113,7 +113,7 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         private string[] GetAllReferencedModules(string module) {
-            string fullPathToModule = Path.GetFullPath(module);
+            string fullPathToModule = FileUtils.GetFullPath(module);
             string moduleDirectory = Path.GetDirectoryName(fullPathToModule);
 
             Hashtable allReferences = new Hashtable();

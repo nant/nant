@@ -133,7 +133,7 @@ namespace NAnt.VSNet {
         /// this project.
         /// </returns>
         protected override ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile) {
-            ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(SolutionTask.
+            ProcessStartInfo psi = new ProcessStartInfo(FileUtils.CombinePaths(SolutionTask.
                 Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), 
                 "@\"" + responseFile + "\"");
 

@@ -58,7 +58,7 @@ namespace NAnt.VSNet {
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
             _midlArgMap = VcArgumentMap.CreateMidlArgumentMap();
             _objFiles = new ArrayList();
-            _projectPath = Path.GetFullPath(projectPath);
+            _projectPath = FileUtils.GetFullPath(projectPath);
 
             _name = xmlDefinition.GetAttribute("Name");
             _guid = xmlDefinition.GetAttribute("ProjectGUID");
@@ -190,7 +190,7 @@ namespace NAnt.VSNet {
         public override DirectoryInfo ObjectDir {
             get {
                 return new DirectoryInfo(
-                    Path.Combine(ProjectDirectory.FullName, "temp"));
+                    FileUtils.CombinePaths(ProjectDirectory.FullName, "temp"));
             }
         }
 
@@ -398,7 +398,7 @@ namespace NAnt.VSNet {
                         // determine file to copy
                         FileInfo srcFile = new FileInfo((string) de.Key);
                         // determine destination file
-                        FileInfo destFile = new FileInfo(Path.Combine(
+                        FileInfo destFile = new FileInfo(FileUtils.CombinePaths(
                             config.OutputDir.FullName, (string) de.Value));
                         // perform actual copy
                         CopyFile(srcFile, destFile, SolutionTask);
@@ -509,7 +509,7 @@ namespace NAnt.VSNet {
         private void BuildCPPFiles(ArrayList fileNames, VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCCLCompilerTool";
 
-            string intermediateDir = Path.Combine(ProjectDirectory.FullName, 
+            string intermediateDir = FileUtils.CombinePaths(ProjectDirectory.FullName, 
                 projectConfig.IntermediateDir);
 
             // create instance of Cl task
@@ -570,7 +570,7 @@ namespace NAnt.VSNet {
                 // we must set an absolute path for the PCH location file, 
                 // otherwise <cl> assumes a location relative to the output 
                 // directory - not the project directory.
-                clTask.PchFile = Path.Combine(ProjectDirectory.FullName, pchFile);
+                clTask.PchFile = FileUtils.CombinePaths(ProjectDirectory.FullName, pchFile);
 
                 // check if a header file is specified for the precompiled header 
                 // file, use "StdAfx.h" as default value
@@ -651,7 +651,7 @@ namespace NAnt.VSNet {
             // directory - not the project directory.
             string pdbFile = fileConfig.GetToolSetting(compilerTool, "ProgramDataBaseFileName",
                 "$(IntDir)/vc70.pdb");
-            clTask.ProgramDatabaseFile = Path.Combine(ProjectDirectory.FullName, 
+            clTask.ProgramDatabaseFile = FileUtils.CombinePaths(ProjectDirectory.FullName, 
                 pdbFile);
 
 
@@ -662,7 +662,7 @@ namespace NAnt.VSNet {
             // project directory.
             string objectFile = fileConfig.GetToolSetting(compilerTool, "ObjectFile",
                 "$(IntDir)/");
-            clTask.ObjectFile = Path.Combine(ProjectDirectory.FullName, objectFile);
+            clTask.ObjectFile = FileUtils.CombinePaths(ProjectDirectory.FullName, objectFile);
 
             string asmOutput = fileConfig.GetToolSetting(compilerTool, "AssemblerOutput");
             string asmListingLocation = fileConfig.GetToolSetting(compilerTool, "AssemblerListingLocation");
@@ -673,7 +673,7 @@ namespace NAnt.VSNet {
 
             foreach (string fileName in fileNames) {
                 clTask.Sources.FileNames.Add(fileName);
-                _objFiles.Add(Path.Combine(intermediateDir, 
+                _objFiles.Add(FileUtils.CombinePaths(intermediateDir, 
                     Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
@@ -889,7 +889,7 @@ namespace NAnt.VSNet {
 
             // Compile each resource file
             foreach (string rcFile in fileNames) {
-                string resourceOutputFileName = Path.Combine(ProjectDirectory.FullName,
+                string resourceOutputFileName = FileUtils.CombinePaths(ProjectDirectory.FullName,
                     fileConfig.GetToolSetting(compilerTool, "ResourceOutputFileName",
                     "$(IntDir)/$(InputName).res"));
 
@@ -897,7 +897,7 @@ namespace NAnt.VSNet {
                 _objFiles.Add(resourceOutputFileName);
 
                 rcTask.OutputFile = new FileInfo(resourceOutputFileName);
-                rcTask.RcFile = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, rcFile));
+                rcTask.RcFile = new FileInfo(FileUtils.CombinePaths(fileConfig.ProjectDir.FullName, rcFile));
                 
                 // execute the task
                 ExecuteInProjectDirectory(rcTask);
@@ -957,7 +957,7 @@ namespace NAnt.VSNet {
             if (outputDirectory == null) {
                 outputDirectory = fileConfig.ProjectDir.FullName;
             } else {
-                outputDirectory = Path.Combine(fileConfig.ProjectDir.FullName, 
+                outputDirectory = FileUtils.CombinePaths(fileConfig.ProjectDir.FullName, 
                     outputDirectory);
             }
 
@@ -966,30 +966,30 @@ namespace NAnt.VSNet {
 
             string typeLibraryName = fileConfig.GetToolSetting(compilerTool, 
                 "TypeLibraryName", "$(IntDir)/$(ProjectName).tlb");
-            midlTask.Tlb = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
+            midlTask.Tlb = new FileInfo(FileUtils.CombinePaths(fileConfig.ProjectDir.FullName, 
                 typeLibraryName));
 
             string proxyFileName = fileConfig.GetToolSetting(compilerTool, "ProxyFileName");
             if (proxyFileName != null) {
-                midlTask.Proxy = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.Proxy = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     proxyFileName));
             }
 
             string interfaceIdentifierFileName = fileConfig.GetToolSetting(compilerTool, "InterfaceIdentifierFileName");
             if (interfaceIdentifierFileName != null) {
-                midlTask.Iid = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.Iid = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     interfaceIdentifierFileName));
             }
 
             string dllDataFileName = fileConfig.GetToolSetting(compilerTool, "DLLDataFileName");
             if (dllDataFileName != null) {
-                midlTask.DllData = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.DllData = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     dllDataFileName));
             }
 
             string headerFileName = fileConfig.GetToolSetting(compilerTool, "HeaderFileName");
             if (headerFileName != null) {
-                midlTask.Header = new FileInfo(Path.Combine(outputDirectory, 
+                midlTask.Header = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     headerFileName));
             }
 
@@ -1056,7 +1056,7 @@ namespace NAnt.VSNet {
 
             // Compile each idl file
             foreach (string idlFile in fileNames) {
-                midlTask.Filename = new FileInfo(Path.Combine(
+                midlTask.Filename = new FileInfo(FileUtils.CombinePaths(
                     fileConfig.ProjectDir.FullName, idlFile));
                 
                 // execute the task
@@ -1094,7 +1094,7 @@ namespace NAnt.VSNet {
 
             // set task properties
             string outFile = projectConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
-            libTask.OutputFile = new FileInfo(Path.Combine(
+            libTask.OutputFile = new FileInfo(FileUtils.CombinePaths(
                 ProjectDirectory.FullName, outFile));
 
             foreach (string objFile in _objFiles) {
@@ -1153,10 +1153,10 @@ namespace NAnt.VSNet {
             // output file name
             string outFile = projectConfig.GetToolSetting(linkerTool, "OutputFile");
             if (OutputDir != null) {
-                linkTask.OutputFile = new FileInfo(Path.Combine(OutputDir.FullName, 
+                linkTask.OutputFile = new FileInfo(FileUtils.CombinePaths(OutputDir.FullName, 
                     Path.GetFileName(outFile)));
             } else {
-                linkTask.OutputFile = new FileInfo(Path.Combine(
+                linkTask.OutputFile = new FileInfo(FileUtils.CombinePaths(
                     ProjectDirectory.FullName, outFile));
                 // ensure directory exists
                 if (!linkTask.OutputFile.Directory.Exists) {
@@ -1174,9 +1174,9 @@ namespace NAnt.VSNet {
             }
             if (pdbFile != null) {
                 if (OutputDir != null) {
-                    pdbFile = Path.Combine(OutputDir.FullName, Path.GetFileName(pdbFile));
+                    pdbFile = FileUtils.CombinePaths(OutputDir.FullName, Path.GetFileName(pdbFile));
                 } else {
-                    pdbFile = Path.Combine(ProjectDirectory.FullName, pdbFile);
+                    pdbFile = FileUtils.CombinePaths(ProjectDirectory.FullName, pdbFile);
                 }
                 linkTask.ProgramDatabaseFile = new FileInfo(pdbFile);
 
@@ -1191,9 +1191,9 @@ namespace NAnt.VSNet {
             string importLibrary = projectConfig.GetToolSetting(linkerTool, "ImportLibrary");
             if (importLibrary != null) {
                 if (OutputDir != null) {
-                    importLibrary = Path.Combine(OutputDir.FullName, Path.GetFileName(importLibrary));
+                    importLibrary = FileUtils.CombinePaths(OutputDir.FullName, Path.GetFileName(importLibrary));
                 } else {
-                    importLibrary = Path.Combine(ProjectDirectory.FullName, importLibrary);
+                    importLibrary = FileUtils.CombinePaths(ProjectDirectory.FullName, importLibrary);
                 }
 
                 Argument importLibraryArg = new Argument();

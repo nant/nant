@@ -89,7 +89,7 @@ namespace NAnt.VSNet {
         /// </remarks>
         public FileInfo LogicalFile {
             get {
-                return new FileInfo(Path.Combine(Path.GetDirectoryName(
+                return new FileInfo(FileUtils.CombinePaths(Path.GetDirectoryName(
                     Project.ProjectPath), _resourceSourceFileRelativePath));
             }
         }
@@ -142,11 +142,11 @@ namespace NAnt.VSNet {
 
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
-                    compiledResourceFile = Path.Combine(config.ObjectDir.FullName, 
+                    compiledResourceFile = FileUtils.CombinePaths(config.ObjectDir.FullName, 
                         GetManifestResourceName(config));
                     break;
                 case ".licx":
-                    compiledResourceFile = Path.Combine(config.ObjectDir.FullName, 
+                    compiledResourceFile = FileUtils.CombinePaths(config.ObjectDir.FullName, 
                         Project.ProjectSettings.OutputFileName + ".licenses");
                     break;
                 default:
@@ -180,7 +180,7 @@ namespace NAnt.VSNet {
             CscTask csc = new CscTask();
             csc.Project = _solutionTask.Project;
             csc.NamespaceManager = _solutionTask.NamespaceManager;
-            csc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
+            csc.OutputFile = new FileInfo(FileUtils.CombinePaths(configSetting.OutputDir.FullName, 
                 Project.ProjectSettings.OutputFileName));
 
             // set-up resource fileset
@@ -203,7 +203,7 @@ namespace NAnt.VSNet {
             VbcTask vbc = new VbcTask();
             vbc.Project = _solutionTask.Project;
             vbc.NamespaceManager = _solutionTask.NamespaceManager;
-            vbc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
+            vbc.OutputFile = new FileInfo(FileUtils.CombinePaths(configSetting.OutputDir.FullName, 
                 Project.ProjectSettings.OutputFileName));
             vbc.RootNamespace = Project.ProjectSettings.RootNamespace;
             
@@ -227,7 +227,7 @@ namespace NAnt.VSNet {
             VjcTask vjc = new VjcTask();
             vjc.Project = _solutionTask.Project;
             vjc.NamespaceManager = _solutionTask.NamespaceManager;
-            vjc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName,
+            vjc.OutputFile = new FileInfo(FileUtils.CombinePaths(configSetting.OutputDir.FullName,
                 Project.ProjectSettings.OutputFileName));
 
             // set-up resource fileset

@@ -126,7 +126,7 @@ namespace NAnt.VSNet {
                     try {
                         Uri uri = new Uri(subProjectFilename);
                         if (uri.Scheme == Uri.UriSchemeFile) {
-                            fullPath = Path.Combine(Path.GetDirectoryName(fileName), uri.LocalPath);
+                            fullPath = FileUtils.CombinePaths(Path.GetDirectoryName(fileName), uri.LocalPath);
                         } else {
                             fullPath = subProjectFilename;
 
@@ -139,7 +139,7 @@ namespace NAnt.VSNet {
                             }
                         }
                     } catch (UriFormatException) {
-                        fullPath = Path.Combine(Path.GetDirectoryName(fileName), subProjectFilename);
+                        fullPath = FileUtils.CombinePaths(Path.GetDirectoryName(fileName), subProjectFilename);
                     }
 
                     if (ManagedProjectBase.IsEnterpriseTemplateProject(fullPath)) {
@@ -481,7 +481,7 @@ namespace NAnt.VSNet {
             try {
                 Uri uri = new Uri(translatedPath);
                 if (uri.Scheme == Uri.UriSchemeFile) {
-                    translatedPath = Path.Combine(solutionDir, uri.LocalPath);
+                    translatedPath = FileUtils.CombinePaths(solutionDir, uri.LocalPath);
                 } else {
                     if (!_solutionTask.EnableWebDav) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
@@ -492,7 +492,7 @@ namespace NAnt.VSNet {
                     }
                 }
             } catch (UriFormatException) {
-                translatedPath = Path.Combine(solutionDir, translatedPath);
+                translatedPath = FileUtils.CombinePaths(solutionDir, translatedPath);
             }
 
             return translatedPath;
@@ -575,7 +575,7 @@ namespace NAnt.VSNet {
                     // only, so its really tricky (VS.NET does
                     // not support this)
 
-                    string projectOutput = Path.Combine(
+                    string projectOutput = FileUtils.CombinePaths(
                         _outputDir.FullName, Path.GetFileName(
                         outputFile));
                     if (_htOutputFiles.Contains(projectOutput)) {

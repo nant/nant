@@ -25,6 +25,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 using NAnt.Core;
+using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;
 
@@ -77,7 +78,7 @@ namespace NAnt.VSNet {
         /// </remarks>
         public virtual DirectoryInfo ObjectDir {
             get { 
-                return new DirectoryInfo(Path.Combine(Project.ObjectDir.FullName, 
+                return new DirectoryInfo(FileUtils.CombinePaths(Project.ObjectDir.FullName, 
                     Name));
             }
         }
