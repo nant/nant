@@ -115,8 +115,8 @@ namespace NAnt.Core.Functions {
         /// <paramref name="s2" />; otherwise, <see langword="false" />.
         /// </returns>
         /// <remarks>
-        /// This function performs a word (case-sensitive and culture-sensitive) 
-        /// search using the current culture.
+        /// This function performs a case-sensitive word search using the 
+        /// invariant culture.
         /// </remarks>
         /// <example>
         /// <code>string::starts-with('testing string', 'test') ==> true</code>
@@ -132,7 +132,7 @@ namespace NAnt.Core.Functions {
         /// </example>
         [Function("starts-with")]
         public static bool StartsWith(string s1, string s2) {
-            return s1.StartsWith(s2);
+            return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(s1, s2);
         }
 
         /// <summary>
@@ -148,8 +148,8 @@ namespace NAnt.Core.Functions {
         /// <paramref name="s2" />; otherwise, <see langword="false" />.
         /// </returns>
         /// <remarks>
-        /// This function performs a word (case-sensitive and culture-sensitive) 
-        /// search using the current culture.
+        /// This function performs a case-sensitive word search using the 
+        /// invariant culture.
         /// </remarks>
         /// <example>
         /// <code>string::ends-with('testing string', 'string') ==> true</code>
@@ -165,7 +165,7 @@ namespace NAnt.Core.Functions {
         /// </example>
         [Function("ends-with")]
         public static bool EndsWith(string s1, string s2) {
-            return s1.EndsWith(s2);
+            return CultureInfo.InvariantCulture.CompareInfo.IsSuffix(s1, s2);
         }
 
         /// <summary>
@@ -254,15 +254,15 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Tests whether the specified string contains the given search string.
         /// </summary>
-        /// <param name="str">input string</param>
-        /// <param name="substr">search string</param>
+        /// <param name="source">The string to search.</param>
+        /// <param name="value">The string to locate within <paramref name="source" />.</param>
         /// <returns>
-        /// <see langword="true" /> if <paramref name="substr" /> is found in 
-        /// <paramref name="str" />; otherwise, <see langword="false" />.
+        /// <see langword="true" /> if <paramref name="value" /> is found in 
+        /// <paramref name="source" />; otherwise, <see langword="false" />.
         /// </returns>
         /// <remarks>
-        /// This function performs a word (case-sensitive and culture-sensitive) 
-        /// search using the current culture.
+        /// This function performs a case-sensitive word search using the 
+        /// invariant culture.
         /// </remarks>
         /// <example>
         /// <code>string::contains('testing string', 'test') ==> true</code>
@@ -277,30 +277,31 @@ namespace NAnt.Core.Functions {
         /// <code>string::contains('testing string', 'foo') ==> false</code>
         /// </example>
         [Function("contains")]
-        public static bool Contains(string str, string substr) {
-            return str.IndexOf(substr) >= 0;
+        public static bool Contains(string source, string value) {
+            return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source, 
+                value, CompareOptions.None) >= 0;
         }
 
         /// <summary>
         /// Returns the position of the first occurrence in the specified string
         /// of the given search string.
         /// </summary>
-        /// <param name="str">input string</param>
-        /// <param name="substr">search string</param>
+        /// <param name="source">The string to search.</param>
+        /// <param name="value">The string to locate within <paramref name="source" />.</param>
         /// <returns>
         /// <para>
-        /// The lowest-index position of <paramref name="substr" /> in
-        /// <paramref name="str" /> if it is found, or -1 if <paramref name="str" /> 
-        /// does not contain <paramref name="substr" />.
+        /// The lowest-index position of <paramref name="value" /> in
+        /// <paramref name="source" /> if it is found, or -1 if <paramref name="source" /> 
+        /// does not contain <paramref name="value" />.
         /// </para>
         /// <para>
-        /// If <paramref name="substr" /> is an empty string, the return value
+        /// If <paramref name="value" /> is an empty string, the return value
         /// will always be <c>0</c>.
         /// </para>
         /// </returns>
         /// <remarks>
-        /// This function performs a word (case-sensitive and culture-sensitive) 
-        /// search using the current culture.
+        /// This function performs a case-sensitive word search using the 
+        /// invariant culture.
         /// </remarks>
         /// <example>
         /// <code>string::index-of('testing string', 'test') ==> 0</code>
@@ -315,30 +316,31 @@ namespace NAnt.Core.Functions {
         /// <code>string::index-of('testing string', 'ing') ==> 4</code>
         /// </example>
         [Function("index-of")]
-        public static int IndexOf(string str, string substr) {
-            return str.IndexOf(substr);
+        public static int IndexOf(string source, string value) {
+            return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source, 
+                value, CompareOptions.None);
         }
 
         /// <summary>
         /// Returns the position of the last occurrence in the specified string
         /// of the given search string.
         /// </summary>
-        /// <param name="str">input string</param>
-        /// <param name="substr">search string</param>
+        /// <param name="source">The string to search.</param>
+        /// <param name="value">The string to locate within <paramref name="source" />.</param>
         /// <returns>
         /// <para>
-        /// The highest-index position of <paramref name="substr" /> in
-        /// <paramref name="str" /> if it is found, or -1 if <paramref name="str" /> 
-        /// does not contain <paramref name="substr" />.
+        /// The highest-index position of <paramref name="value" /> in
+        /// <paramref name="source" /> if it is found, or -1 if <paramref name="source" /> 
+        /// does not contain <paramref name="value" />.
         /// </para>
         /// <para>
-        /// If <paramref name="substr" /> is an empty string, the return value
-        /// is the last index position in <paramref name="str" />.
+        /// If <paramref name="value" /> is an empty string, the return value
+        /// is the last index position in <paramref name="source" />.
         /// </para>
         /// </returns>
         /// <remarks>
-        /// This function performs a word (case-sensitive and culture-sensitive) 
-        /// search using the current culture.
+        /// This function performs a case-sensitive word search using the 
+        /// invariant culture.
         /// </remarks>
         /// <example>
         /// <code>string::last-index-of('testing string', 'test') ==> 0</code>
@@ -353,8 +355,9 @@ namespace NAnt.Core.Functions {
         /// <code>string::last-index-of('testing string', 'ing') ==> 4</code>
         /// </example>
         [Function("last-index-of")]
-        public static int LastIndexOf(string str, string substr) {
-            return str.LastIndexOf(substr);
+        public static int LastIndexOf(string source, string value) {
+            return CultureInfo.InvariantCulture.CompareInfo.LastIndexOf(source, 
+                value, CompareOptions.None);
         }
 
         /// <summary>
