@@ -929,7 +929,7 @@ namespace NAnt.Core {
 
                 if (Project.CurrentFramework != null) {
                     // locate framework node for current framework
-                        XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
+                     XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:platform[@name=\"" + Project.PlatformName + "\"]/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
 
                     if (frameworkNode != null) {
                         // locate framework-specific configuration node
