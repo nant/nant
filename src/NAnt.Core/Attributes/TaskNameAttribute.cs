@@ -17,11 +17,12 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-
-    /// <summary>Indicates that class should be treated as a task.</summary>
+    /// <summary>
+    /// Indicates that class should be treated as a task.
+    /// </summary>
     /// <remarks>
     /// Attach this attribute to a subclass of Task to have NAnt be able
     /// to recognize it.  The name should be short but must not confict

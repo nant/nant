@@ -17,13 +17,14 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.Reflection;
+using System.Globalization;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-    using System.Reflection;
-    using System.Globalization;
-
-    /// <summary>Indicates that field should be able to be converted into a Int32 within the given range.</summary>
+    /// <summary>
+    /// Indicates that property should be able to be converted into a Int32 within the given range.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class Int32ValidatorAttribute : ValidatorAttribute {
         #region Private Instance Fields

@@ -17,13 +17,14 @@
 //
 // Tomas Restrepo (tomasr@mvps.org)
 
+using System;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-
-    /// <summary>Indicates that field should be treated as a xml option set for the task.</summary>
+    /// <summary>
+    /// Indicates that property should be treated as a xml option set for the task.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public sealed class OptionSetAttribute : BuildElementAttribute {     
+    public sealed class OptionSetAttribute : BuildElementAttribute {
         #region Public Instance Constructors
 
         /// <summary>

@@ -17,13 +17,12 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+using System.Globalization;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-    using System.Globalization;
-
     /// <summary>
-    /// Used to indicate that a field should be able to be converted into a <see cref="bool" />.
+    /// Used to indicate that a property should be able to be converted into a <see cref="bool" />.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class BooleanValidatorAttribute : ValidatorAttribute {

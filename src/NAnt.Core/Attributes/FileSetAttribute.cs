@@ -18,12 +18,11 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean ( ian@maclean.ms )
 
+using System;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-
     /// <summary>
-    /// Indicates that a field should be treated as a xml file set for the task.
+    /// Indicates that a property should be treated as a xml file set for the task.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class FileSetAttribute : BuildElementAttribute {     

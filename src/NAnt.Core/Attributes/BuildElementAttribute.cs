@@ -17,11 +17,12 @@
 //
 // Ian MacLean ( ian@maclean.ms )
 
+using System;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-
-    /// <summary>Indicates that field should be treated as a xml file set for the task.</summary>
+    /// <summary>
+    /// Indicates that property should be treated as a xml file set for the task.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public abstract class BuildElementAttribute : Attribute {
         #region Private Instance Fields

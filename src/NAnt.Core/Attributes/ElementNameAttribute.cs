@@ -17,12 +17,13 @@
 //
 // Ian MacLean (ian_maclean@another.com)
 
+using System;
+using System.Reflection;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-    using System.Reflection;
-
-    /// <summary>Indicates that class should be treated as a NAnt element.</summary>
+    /// <summary>
+    /// Indicates that class should be treated as a NAnt element.
+    /// </summary>
     /// <remarks>
     /// Attach this attribute to a subclass of Element to have NAnt be able
     /// to recognize it.  The name should be short but must not confict

@@ -17,11 +17,12 @@
 //
 // Ian MacLean ( ian@maclean.ms )
 
-namespace SourceForge.NAnt.Attributes 
-{
-    using System;
+using System;
 
-    /// <summary>Indicates that property should be treated as a xml arrayList for the task.</summary>
+namespace SourceForge.NAnt.Attributes {
+    /// <summary>
+    /// Indicates that property should be treated as a xml arrayList for the task.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class BuildElementArrayAttribute : BuildElementAttribute {
         #region Public Instance Constructors

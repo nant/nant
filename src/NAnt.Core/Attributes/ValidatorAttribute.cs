@@ -17,10 +17,9 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
+using System;
+
 namespace SourceForge.NAnt.Attributes {
-
-    using System;
-
     /// <summary>
     /// Base class for all validator attributes.
     /// </summary>
