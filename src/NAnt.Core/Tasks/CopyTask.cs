@@ -75,6 +75,8 @@ namespace NAnt.Core.Tasks {
         private FileSet _fileset = new FileSet();
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
+        private string _encodingName = null;
+        private FilterSetCollection _filtersets = new FilterSetCollection();
 
         #endregion Private Instance Fields
 
@@ -139,9 +141,40 @@ namespace NAnt.Core.Tasks {
             set { _fileset = value; }
         }
 
+        /// <summary>
+        /// The encoding to assume when filter-copying the files.
+        /// </summary>
+        [TaskAttribute("encoding")]
+        public string EncodingName {
+            get { return _encodingName; }
+            set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// The filtersets being applied to this operation.
+        /// </summary>
+        [BuildElementCollection("filtersets", "filterset")]
+        public FilterSetCollection FilterSets {
+            get { return _filtersets; }
+            set { _filtersets = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets the encoding that will be used when filter-copying the files.
+        /// </summary>
+        protected Encoding Encoding {
+            get { 
+                if (EncodingName != null) {
+                    return System.Text.Encoding.GetEncoding(EncodingName);
+                }
+
+                return null;
+            }
+        }
 
         protected Hashtable FileCopyMap {
             get { return _fileCopyMap; }
@@ -150,6 +183,23 @@ namespace NAnt.Core.Tasks {
         #endregion Protected Instance Properties
 
         #region Override implementation of Task
+
+        /// <summary>
+        /// Checks whether the given encoding is supported on the current 
+        /// platform.
+        /// </summary>
+        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
+        protected override void InitializeTask(XmlNode taskNode) {
+            if (EncodingName != null) {
+                try {
+                    System.Text.Encoding.GetEncoding(EncodingName);
+                } catch (NotSupportedException) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "{0} encoding is not supported on the current platform.",
+                        EncodingName), Location);
+                }
+            }
+        }
 
         /// <summary>
         /// Executes the Copy task.
@@ -283,7 +333,7 @@ namespace NAnt.Core.Tasks {
                             Log(Level.Verbose, LogPrefix + "Created directory {0}.", destinationDirectory);
                         }
 
-                        File.Copy(sourceFile, destinationFile, true);
+                        FileUtils.CopyFile(sourceFile, destinationFile, Encoding, FilterSets);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Cannot copy {0} to {1}.", sourceFile, destinationFile), 

@@ -24,6 +24,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -105,10 +106,9 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void DoFileOperations() {
             if (FileCopyMap.Count > 0) {
-
                 // loop thru our file list
                 foreach (string sourcePath in FileCopyMap.Keys) {
-                    string destinationPath = (string)FileCopyMap[sourcePath];
+                    string destinationPath = (string) FileCopyMap[sourcePath];
                     if (sourcePath == destinationPath) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
                         continue;
@@ -121,17 +121,16 @@ namespace NAnt.Core.Tasks {
                             Directory.Move(sourcePath, destinationPath);
                         }
                         else {
-
                             DirectoryInfo todir = new DirectoryInfo(destinationPath);
-                            if ( !todir.Exists ) {
-                                Directory.CreateDirectory( Path.GetDirectoryName(destinationPath) );
+                            if (!todir.Exists) {
+                                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
                             }
 
                             Log(Level.Verbose, LogPrefix + "Moving {0} to {1}.", sourcePath, destinationPath);
                             // IM look into how Ant does this for directories
-                            File.Move(sourcePath, destinationPath);
-                        }
 
+                            FileUtils.MoveFile(sourcePath, destinationPath, Encoding, FilterSets);
+                        }
                     } catch (IOException ioe) {
                         string msg = String.Format(CultureInfo.InvariantCulture, "Failed to move {0} to {1}\n{2}", sourcePath, destinationPath, ioe.ToString());
                         throw new BuildException(msg, Location);
