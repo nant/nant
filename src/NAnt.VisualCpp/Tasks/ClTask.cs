@@ -61,7 +61,9 @@ namespace NAnt.VisualCpp.Tasks {
         private string _responseFileName;
         private DirectoryInfo _outputDir;
         private string _pchFile;
-        private FileSet _sources = new FileSet();
+		private PrecompiledHeaderMode _precompileHeaderMode = PrecompiledHeaderMode.Use;
+		private string _pchThroughFile;
+		private FileSet _sources = new FileSet();
         private FileSet _includeDirs = new FileSet();
         private FileSet _metaDataIncludeDirs = new FileSet();
         private FileSet _forcedUsingFiles = new FileSet();
@@ -92,6 +94,37 @@ namespace NAnt.VisualCpp.Tasks {
             get { return (_pchFile != null) ? Path.Combine(OutputDir.FullName, _pchFile) : null; }
             set { _pchFile = StringUtils.ConvertEmptyToNull(value); }
         }
+
+		
+		/// <summary>
+		/// The path of the boundary file when generating/using the 
+		/// specified <see cref="PchFile" />.  If a precompiled header file is
+		/// not specified then this attribute is ignored.
+		/// </summary>
+		[TaskAttribute("pchthroughfile")]
+		public string PchThroughFile {
+			get { return _pchThroughFile; }
+			set { _pchThroughFile = StringUtils.ConvertEmptyToNull(value); }
+		}
+
+		/// <summary>
+		/// The mode in which the specified <see cref="PchFile" /> (if any) is
+		/// used. The default is <see cref="PrecompiledHeaderMode.Use" />.
+		/// </summary>
+		[TaskAttribute("pchmode")]
+		public PrecompiledHeaderMode PchMode {
+			get { return _precompileHeaderMode; }
+			set { 
+				if (!Enum.IsDefined(typeof(PrecompiledHeaderMode), value)) {
+					throw new ArgumentException(string.Format(
+						CultureInfo.InvariantCulture, 
+						"An invalid type {0} was specified.", value)); 
+				} else {
+					_precompileHeaderMode = value;
+				}
+			}
+		}
+
 
         /// <summary>
         /// Specifies whether Managed Extensions for C++ should be enabled.
@@ -348,7 +381,23 @@ namespace NAnt.VisualCpp.Tasks {
 
                     // specify pch file, if user specified one
                     if (PchFile != null) {
-                        writer.WriteLine("/Fp\"{0}\"", PchFile);
+						writer.WriteLine("/Fp\"{0}\"", PchFile);
+
+						switch (PchMode) {
+							case PrecompiledHeaderMode.Use:
+								writer.Write("/Yu");
+								break;
+							case PrecompiledHeaderMode.Create:
+								writer.Write("/Yc");
+								break;
+							case PrecompiledHeaderMode.AutoCreate:
+								writer.Write("/YX");
+								break;
+						}
+
+						if (PchThroughFile != null) {
+							writer.WriteLine("\"{0}\"", PchThroughFile);
+						}
                     }
 
                     // write each of the filenames
@@ -393,6 +442,33 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         #endregion Override implementation of Task
+
+		/// <summary>
+		/// Defines the supported modes for the use of precompiled header files.
+		/// </summary>
+		public enum PrecompiledHeaderMode : int {
+
+			/// <summary>
+			/// Create a precompiled header file.
+			/// For further information on the use of this option
+			/// see the Microsoft documentation on the C++ compiler flag /Yc.
+			/// </summary>
+			Create = 1,
+
+			/// <summary>
+			/// Automatically create a precompiled header file if necessary.
+			/// For further information on the use of this option
+			/// see the Microsoft documentation on the C++ compiler flag /YX.
+			/// </summary>
+			AutoCreate = 2,
+
+			/// <summary>
+			/// Use a (previously generated) precompiled header file.
+			/// For further information on the use of this option
+			/// see the Microsoft documentation on the C++ compiler flag /Yu.
+			/// </summary>
+			Use = 0,
+		}
     }
 }
 #if unused
