@@ -160,16 +160,6 @@
                 has already been executed before.
             </li>
         </ul>
-        <h5>&lt;csc&gt;</h5>
-        <ul>
-            <li>
-                Improved localization support.
-            </li>
-            <li>
-                Added support for additional search directories to resolve assembly references through
-                a nested <code>&lt;lib&gt;</code> element.
-            </li>
-        </ul>
         <h5>&lt;cl&gt;</h5>
         <ul>
             <li>
@@ -185,6 +175,34 @@
             <li>
                 Added&nbsp;<code>flatten</code> attribute to allow all matching files to be copied
                 to a single directory.
+            </li>
+        </ul>
+        <h5>&lt;csc&gt;</h5>
+        <ul>
+            <li>
+                Improved localization support.
+            </li>
+            <li>
+                Added support for additional search directories to resolve assembly references through
+                a nested <code>&lt;lib&gt;</code> element.
+            </li>
+        </ul>
+        <h5>&lt;cvs-checkout&gt;</h5>
+        <ul>
+            <li>
+                Added option to checkout a revision based on sticky tag, -r on the command line client.
+            </li>
+            <li>
+                Added option to checkout a module to an alternate directory, -d on the command line client.
+            </li>
+            <li>
+                Fixed bug in parsing cvsnt date format.
+            </li>
+        </ul>
+        <h5>&lt;cvs-update&gt;</h5>
+        <ul>
+            <li>
+                Fixed bug in parsing cvsnt date format.
             </li>
         </ul>
         <h5>&lt;echo&gt;</h5>
@@ -207,7 +225,7 @@
                 use the new <code>&lt;proxy&gt;</code> child element instead.
             </li>
             <li>
-                Added <code>&lt;credentials<&gt;</code> child element used for authenticating the
+                Added <code>&lt;credentials&gt;</code> child element used for authenticating the
                 request with the Internet resource.
             </li>
             <li>
