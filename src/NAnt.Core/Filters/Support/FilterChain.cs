@@ -27,28 +27,73 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Filters;
 using NAnt.Core.Util;
 
+
 namespace NAnt.Core.Filters {
-    /// <summary>
-    /// Represents a chain of NAnt filters that are used to
-    /// filter a stream.
-    /// </summary>
-    /// <remarks>
-    /// An element that represents a chain of stream based filters that are used to filter
-    /// an input stream as it is read.
-    /// </remarks>
-    /// <example>
-    ///  <code>
-    ///  <![CDATA[
-    ///  <filterchain>
-    ///   <replacetokens>
-    ///    <token key="DATE" value="${TODAY}" />
-    ///   </replacetokens>
-    ///   <tabstospaces />
-    ///  </filterchain>
-    ///  ]]>
-    ///  </code>
-    /// </example>
-    ///
+	/// <summary>
+	/// Represent a chain of NAnt filters that can be applied to a <see cref="Task"/>.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// A FilterChain represents a collection of one or more filters that can be appled to 
+	/// a <see cref="Task"/> such as the <see cref="NAnt.Core.Tasks.CopyTask"/>. In the case of the copy task 
+	/// the contents of the copied files are filtered through each filter specified in the
+	/// filter chain. Filtering occurs in the order the filters are specified with filtered
+	/// output of one filter feeding into another.
+	/// </para>
+	/// <para>
+	///	:--------:--->:----------:--->:----------: ... :----------:--->:--------:<br/>
+	///	:.Source.:--->:.Filter 1.:--->:.Filter 2.: ... :.Filter n.:--->:.target.:<br/>
+	///	:--------:--->:----------:--->:----------: ... :----------:--->:--------:<br/>	
+	///	</para>
+	/// <para>
+	/// The following built in filters are currently available: 
+	/// <list type="bullet">
+	///   <item>
+	///     <description><see cref="ReplaceTokens"/></description>
+	///   </item>
+	///   <item>
+	///     <description><see cref="ReplaceString"/></description>
+	///   </item>
+	///   <item>
+	///     <description><see cref="ExpandProperties"/></description>
+	///   </item>
+	///   <item>
+	///     <description><see cref="TabsToSpaces"/></description>
+	///   </item>
+	/// </list>
+	/// </para>
+	/// <para>
+	/// The following tasks support filtering with a FilterChain:
+	/// <list type="bullet">
+	///   <item>
+	///     <description><see cref="NAnt.Core.Tasks.CopyTask"/></description>
+	///   </item>
+	///   <item>
+	///     <description><see cref="NAnt.Core.Tasks.MoveTask"/></description>
+	///   </item>
+	/// </list>
+	/// </para>
+	/// <parah>
+	/// The example below illustrates using a FilterChain within the CopyTask.
+	/// The result of applying this chain of filters is a copied file that
+	/// has all @DATE@ tokens replaced with the current date. The tab to spaces filter
+	/// also removes all tabs from the file and replaces them with spaces.
+	/// </parah>
+	/// </remarks>
+	/// <example>
+	///  <code>
+	///  <![CDATA[
+	///  <filterchain>
+	///   <replacetokens>
+	///    <token key="DATE" value="${TODAY}" />
+	///   </replacetokens>
+	///   <tabstospaces />
+	///  </filterchain>
+	///  ]]>
+	///  </code>
+	/// </example>
+	///
+
     [Serializable]
     [ElementName("filterchain")]
     public class FilterChain : DataTypeBase {
