@@ -22,8 +22,9 @@ using System.Collections.Specialized;
 using System.IO;
 
 using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.VSNet.Types {
     /// <summary>
@@ -52,13 +53,7 @@ namespace NAnt.VSNet.Types {
         [TaskAttribute("url", Required=true)]
         public string Url {
             get { return _url; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _url = value;
-                } else {
-                    _url = null;
-                }
-            }
+            set { _url = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -70,20 +65,15 @@ namespace NAnt.VSNet.Types {
         [TaskAttribute("path", Required=true)]
         public string Path {
             get { return _path; } 
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _path = value;
-                } else {
-                    _path = null;
-                }
-            }
+            set { _path = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
         /// Indicates if the URL of the project file should be mapped.
         /// </summary>
-        /// <value><c>true</c> if the URL of the project file should be mapped; 
-        /// otherwise, <c>false</c>.
+        /// <value>
+        /// <see langword="true" /> if the URL of the project file should be 
+        /// mapped; otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("if")]
         [BooleanValidator()]
@@ -95,8 +85,9 @@ namespace NAnt.VSNet.Types {
         /// <summary>
         /// Indicates if the URL of the project file should not be mapped.
         /// </summary>
-        /// <value><c>true</c> if the URL of the project file should not be 
-        /// mapped; otherwise, <c>false</c>.
+        /// <value>
+        /// <see langword="true" /> if the URL of the project file should not 
+        /// be mapped; otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("unless")]
         [BooleanValidator()]
