@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Joe Jones (joejo@microsoft.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
@@ -45,7 +45,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("al")]
-    public class AlTask : ExternalProgramBase {
+    public class AssemblyLinkerTask : ExternalProgramBase {
         #region Private Instance Fields
 
         string _arguments;
@@ -134,9 +134,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </summary>
         /// <value>The complete output path.</value>
         protected string OutputPath {
-            get {
-                return Path.GetFullPath(Path.Combine(BaseDirectory, Output));
-            }
+            get { return Path.GetFullPath(Path.Combine(BaseDirectory, Output)); }
         }
 
         #endregion Protected Instance Properties
@@ -151,7 +149,7 @@ namespace SourceForge.NAnt.Tasks {
             get { 
                 if (Project.CurrentFramework != null) {
                     string FrameworkDir = Project.CurrentFramework.FrameworkDirectory.FullName;
-                    return Path.Combine(FrameworkDir, ExeName + ".exe");      
+                    return Path.Combine(FrameworkDir, ExeName + ".exe");
                 } else {
                     return ExeName;
                 }
