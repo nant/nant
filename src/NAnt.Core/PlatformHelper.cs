@@ -28,7 +28,7 @@ namespace NAnt.Core {
     [Serializable()]
     public class PlatformHelper {
         public static readonly bool IsMono;
-        public static readonly bool IsWindows;
+        public static readonly bool IsWin32;
         public static readonly bool IsUnix;
         public static readonly bool PInvokeOK;
         
@@ -44,16 +44,16 @@ namespace NAnt.Core {
             PlatformID platformID = System.Environment.OSVersion.Platform;
 
             if (platformID == PlatformID.Win32NT || platformID == PlatformID.Win32Windows) {
-                IsWindows = true;
+                IsWin32 = true;
             } else {
-                IsWindows = false;
+                IsWin32 = false;
             }
 
-            if (IsMono && (int) platformID == 128) {
+            if ((int) platformID == 128) {
                 IsUnix = true;
             }
 
-            if (IsWindows && !IsMono) {
+            if (IsWin32 && !IsMono) {
                 PInvokeOK = true;
             } else {
                 PInvokeOK = false;
