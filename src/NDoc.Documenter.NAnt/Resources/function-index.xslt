@@ -46,44 +46,72 @@
                     </tr>
                 </table>
                 <h1>Function Reference</h1>
-                <div class="table">
-                    <table>
-                        <tr>
-                            <th>Name</th>
-                            <th>Summary</th>
-                        </tr>
-                        <xsl:apply-templates select="//method[attribute/@name='NAnt.Core.Attributes.CustomFunctionAttribute']">
-                        </xsl:apply-templates>
-                    </table>
-                </div>
+
+                <!-- table of contents -->
+                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']">
+                    <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
+                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
+
+                    <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+                    <xsl:variable name="preceding_cat" select="preceding-sibling::class[1]/attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+
+                    <xsl:if test="position() = 1 or $this_cat != $preceding_cat">
+                        <a><xsl:attribute name="href">#<xsl:value-of select="$this_cat" /></xsl:attribute>
+                            <xsl:value-of select="$this_cat" /> Functions</a>
+                        <br/>
+                    </xsl:if>
+                </xsl:for-each>
+                
+                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']">
+                    <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
+                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
+
+                    <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+                    <xsl:variable name="preceding_cat" select="preceding-sibling::class[1]/attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+
+                    <xsl:if test="position() = 1 or $this_cat != $preceding_cat">
+                        <a><xsl:attribute name="name"><xsl:value-of select="$this_cat" /></xsl:attribute></a>
+                        <h3><xsl:value-of select="$this_cat" /> Functions</h3>
+                        <div class="table">
+                            <table>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Summary</th>
+                                </tr>
+                                
+                                <!-- for each class having CustomFunctionSet attribute with this category, then for each method having CustomFunction attribute -->
+                                
+                                <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value=$this_cat]/method[attribute/@name='NAnt.Core.Attributes.CustomFunctionAttribute']">
+                                    <xsl:sort select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" order="ascending" />
+                                    <xsl:sort select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" order="ascending" />
+
+                                    <xsl:apply-templates select="." />
+                                </xsl:for-each>
+                            </table>
+                        </div>
+                    </xsl:if>
+                </xsl:for-each>
             </body>
         </html>
     </xsl:template>
-    
+
     <xsl:template match="interface|enumeration" />
 
     <!-- match class tag -->
     <xsl:template match="method">
         <xsl:variable name="ObsoleteAttribute" select="attribute[@name='System.ObsoleteAttribute']" />
-        <xsl:choose>
-            <!-- check if the task is deprecated -->
-            <xsl:when test="count($ObsoleteAttribute) > 0">
-                <xsl:variable name="IsErrorValue" select="$ObsoleteAttribute/property[@name='IsError']/@value" />
-                <!-- only list task in index if IsError property of ObsoleteAttribute is not set to 'True' -->
-                <xsl:if test="$IsErrorValue != 'True'">
-                    <tr>
-                        <!-- output task name in italics to indicate that its deprecated -->
-                        <td><a><xsl:attribute name="href">functions/<xsl:value-of select="@name" />.html</xsl:attribute><i><xsl:value-of select="@name" /></i></a></td>
-                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
-                    </tr>
-                </xsl:if>
-            </xsl:when>
-            <xsl:otherwise>
-                <tr>
-                        <td><a><xsl:attribute name="href">functions/<xsl:value-of select="@name" />.html</xsl:attribute><xsl:value-of select="@name" /></a></td>
-                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
-                </tr>
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:variable name="Prefix" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value" />
+        <xsl:variable name="Name" select="attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value" />
+        <xsl:variable name="Category" select="../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Category']/@value" />
+
+        <tr>
+            <td>
+                <a><xsl:attribute name="href">functions/<xsl:if test="$Prefix != ''"><xsl:value-of select="$Prefix" />.</xsl:if><xsl:value-of select="$Name" />.html</xsl:attribute>
+                <xsl:if test="$Prefix != ''"><xsl:value-of select="$Prefix" />.</xsl:if>
+                <xsl:value-of select="$Name" />
+                </a>
+            </td>
+            <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
+        </tr>
     </xsl:template>
 </xsl:stylesheet>

@@ -35,7 +35,7 @@ namespace NAnt.Core.Attributes {
         public CustomFunctionSetAttribute( )  {            
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="TaskNameAttribute" /> class
+        /// Initializes a new instance of the <see cref="CustomFunctionSetAttribute" /> class
         /// with the specified name.
         /// </summary>
         /// <param name="prefix">The name of the task.</param>
@@ -58,10 +58,21 @@ namespace NAnt.Core.Attributes {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the name of the task.
+        /// Gets or sets the category of the function set. This will be displayed in userdoc.
         /// </summary>
         /// <value>
-        /// The name of the task.
+        /// The name of the category
+        /// </value>
+        public string Category {
+            get { return _category; }
+            set { _category = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets the prefix of all functions in this function set.
+        /// </summary>
+        /// <value>
+        /// The prefix.
         /// </value>
         public string Prefix {
             get { return _prefix; }
@@ -69,10 +80,10 @@ namespace NAnt.Core.Attributes {
         }
         
         /// <summary>
-        /// Gets or sets the name of the task.
+        /// Gets or sets the namespace URI of the functon set.
         /// </summary>
         /// <value>
-        /// The name of the task.
+        /// The namespace URI.
         /// </value>
         public string NamespaceUri 
         {
@@ -85,6 +96,7 @@ namespace NAnt.Core.Attributes {
         #region Private Instance Fields
 
         private string _prefix;
+        private string _category;
         private string _namespaceUri;        
 
         #endregion Private Instance Fields
