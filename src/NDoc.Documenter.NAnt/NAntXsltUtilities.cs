@@ -453,11 +453,11 @@ namespace NDoc.Documenter.NAnt {
         internal static string GetFileNameForFunction(XmlElement functionElement) {
             string name = "";
             XmlNode n = functionElement.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value");
-            if (n != null) {
+            if (n != null && n.InnerText != "") {
                 name += n.InnerText + ".";
             }
             n = functionElement.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value");
-            if (n != null) {
+            if (n != null && n.InnerText != "") {
                 name += n.InnerText;
             } else {
                 name += functionElement.GetAttribute("name");
