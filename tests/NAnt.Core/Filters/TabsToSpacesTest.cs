@@ -26,10 +26,10 @@ using NAnt.Core.Filters;
 
 namespace Tests.NAnt.Core.Filters {
     /// <summary>
-    /// Tests the TabsToSpaces classes.
+    /// Tests the <see cref="TabsToSpaces" /> filter.
     /// </summary>
     [TestFixture]
-    public class TabsToSpaces : FilterTestBase {
+    public class TabsToSpacesTest : FilterTestBase {
         const string _tagName = "tabstospaces";
 
         /// <summary>
