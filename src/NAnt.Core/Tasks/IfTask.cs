@@ -121,9 +121,9 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <if>
-    ///     <updatefiles>
+    ///     <uptodatefiles>
     ///         <includes name="myfile.dll" />
-    ///     </updatefiles>
+    ///     </uptodatefiles>
     ///     <comparefiles>
     ///         <includes name="*.cs" />
     ///     </comparefiles>
