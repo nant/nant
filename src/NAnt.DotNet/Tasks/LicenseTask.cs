@@ -199,11 +199,11 @@ namespace NAnt.DotNet.Tasks {
                 return;
             }
 
-            Log(Level.Verbose, LogPrefix + "Compiling license file '{0}' to '{1}'" 
-                + " using target '{2}'.", InputFile.FullName, licensesFile.FullName, 
-                Target);
-
 			if (SeparateDomain) {
+				Log(Level.Verbose, LogPrefix + "Compiling license file '{0}' to '{1}'" 
+					+ " using target '{2}' in isolated appdomain.", InputFile.FullName, 
+					licensesFile.FullName, Target);
+
 				// create new domain
 				AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
 					AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
@@ -220,6 +220,10 @@ namespace NAnt.DotNet.Tasks {
 					AppDomain.Unload(newDomain);
 				}
 			} else {
+				Log(Level.Verbose, LogPrefix + "Compiling license file '{0}' to '{1}'" 
+					+ " using target '{2}' in current appdomain.", InputFile.FullName, 
+					licensesFile.FullName, Target);
+
 				try {
 					LicenseGatherer.GenerateLicenses(this, licensesFile.FullName);
 				} catch (BuildException) {
