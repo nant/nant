@@ -191,6 +191,10 @@
                     <documenter name="NAntTask">
                         <property name="OutputDirectory" value="${build.dir}/doc/help" />
                         <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                        <!-- set base uri used for linking to other NAnt docs -->
+                        <property name="NAntBaseUri" value="../" />
+                        <!-- do not filter on namespace -->
+                        <property name="NamespaceFilter" value="" />
                         <property name="DocumentAttributes" value="True" />
                         <property name="IncludeAssemblyVersion" value="True" />
                         <property name="ShowMissingParams" value="True" />
