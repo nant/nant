@@ -13,7 +13,7 @@
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
     <property name="build.defines" value="" />
-    <property name="build.number" value="${math::abs(math::floor(timespan::get-total-days(datetime::now() - convert::to-datetime('01/01/2000'))))}" />
+    <property name="build.number" value="${math::abs(math::floor(timespan::get-total-days(datetime::now() - datetime::parse('01/01/2000'))))}" />
     <!-- platform specific properties. These are the defaults -->
     <property name="current.build.defines" value="${build.defines}" />
 
@@ -363,11 +363,21 @@
         </if>
     </target>
     
-    <target name="schema" depends="init">
+    <target name="self-schema" depends="init">
         <property name="schema.output" value="${build.dir}/schema/${project.name}-${project.version}.xsd"/>
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
         <nantschema output="${schema.output}" target-ns="http://nant.sf.net/schemas/${project.name}-${project.version}.${platform::get-name()}.${framework::get-target-framework()}.xsd"/>
+    </target>
+
+    <target name="schema" depends="build">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="${project.config}" />
+            <arg value="self-schema" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+        </exec>
     </target>
     
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
@@ -385,15 +395,8 @@
             <copy file="${schema.output}" todir="${vs2003.xml.schemas}..\\Packages\schemas\xml" />        
         </if>
     </target>
-    
-    <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
-            <arg value="-buildfile:NAnt.build" />
-            <arg value="${project.config}" />
-            <arg value="schema" />
-            <arg value="-D:project.version=${project.version}" />
-            <arg value="-targetframework:${framework::get-target-framework()}" />
-        </exec>
+
+    <target name="package-common" depends="test, userdoc, sdkdoc, schema">
         <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
         <!-- remove non-release files -->
@@ -449,20 +452,66 @@
                 />
             </filterchain>
         </copy>
+        <!-- determine the zip file prefix directory -->
+        <if test="${not(project.release.type == 'release')}">
+            <property name="project.zip.prefix" value="${project.name}-${project.version}" />
+        </if>    
+        <if test="${not(project.release.type == 'release')}">
+            <property name="project.zip.prefix" value="${project.name}-${project.version}-${project.release.type}" />
+        </if>
+    </target>
+
+    <target name="package-src" depends="package-common">
         <!-- determine name of package zip file -->
-        <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
+        <property name="project.zip-path.src" value="${nant.project.basedir}/build/${project.name}-${project.version}-src.zip" />
         <!-- remove package zip file if it already exists -->
-        <delete file="${project.zip-path}" if="${file::exists(project.zip-path)}" />
+        <delete file="${project.zip-path.src}" if="${file::exists(project.zip-path.src)}" />
         <!-- create package zip file -->
-        <zip zipfile="${project.zip-path}">
-            <fileset basedir="${build.dir}">
-                <include name="**/*" />
-                <exclude name="**/cache/**" />
-                <exclude name="**/_*/**" />
+        <zip zipfile="${project.zip-path.src}">
+            <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
+                <include name="Makefile" />
+                <include name="NAnt.build" />
+                <include name="COPYING.txt" />
+                <include name="README.txt" />
+                
+                <include name="bin/NAnt.exe" />
+                <include name="bin/NAnt.exe.config" />
+                <include name="bin/NAnt.Core.dll" />
+                <include name="bin/NAnt.DotNetTasks.dll" />
+                <include name="bin/NAnt.Win32Tasks.dll" />
+                <include name="bin/NAnt.ZipTasks.dll" />
+                <include name="bin/log4net.dll" />
+                <include name="bin/lib/**/*" />
+                <include name="doc/**/*" />
+                <include name="examples/**/*" />
+                <include name="src/**/*" />
+                <include name="tests/**/*" />
             </fileset>
         </zip>
-        <echo message="Created a '${project.config}' package at file://${project.zip-path}" />
+        <echo message="Created a '${project.config}' source package at file://${project.zip-path.src}" />
     </target>
+
+    <target name="package-bin" depends="package-common">
+        <!-- determine name of package zip file -->
+        <property name="project.zip-path.bin" value="${nant.project.basedir}/build/${project.name}-${project.version}-bin.zip" />
+        <!-- remove package zip file if it already exists -->
+        <delete file="${project.zip-path.bin}" if="${file::exists(project.zip-path.bin)}" />
+        <!-- create package zip file -->
+        <zip zipfile="${project.zip-path.bin}">
+            <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
+                <include name="COPYING.txt" />
+                <include name="README.txt" />
+                <include name="bin/**/*" />
+                <include name="doc/**/*" />
+                <include name="examples/**/*" />
+                <include name="schema/**/*" />
+            </fileset>
+        </zip>
+        <echo message="Created a '${project.config}' binary package at file://${project.zip-path.bin}" />
+    </target>
+
+    <target name="package" depends="package-src, package-bin" description="Creates a binary and source distribution package." />
+    
     <!-- Copies files to the bin folder. -->
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
         <delete if="false">
