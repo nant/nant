@@ -179,6 +179,33 @@
                 </tbody>
             </table>
         </div>
+        <h3>Global Properties</h3>
+        <p>Properties that should be accessible to all build files on a system can be defined in the <code>&lt;properties&gt;</code> node of the NAnt configuration file (<code>NAnt.exe.config</code>):</p>
+        <pre class="code">
+    &lt;?xml version="1.0"?&gt;
+    &lt;configuration&gt;
+        ...
+        &lt;nant&gt;
+            ...
+            &lt;properties&gt;
+                &lt;!-- properties defined here are accessible to all build files --&gt;
+                &lt;property name="company.name" value="Foo Ltd." readonly="true" /&gt;
+            &lt;/properties&gt;
+        &lt;/nant&gt;
+    &lt;/configuration&gt;
+        </pre>
+        <p>Individual build files can then use this property:</p>
+        <pre class="code">
+    &lt;?xml version="1.0"?&gt;
+    &lt;project name="test"&gt;
+        &lt;echo message="Company: ${company.name}" /&gt;
+    &lt;/project&gt;
+        </pre>
+        <p>The output of this build is:</p>
+        <pre>
+    [echo] Company: Foo Ltd.
+        </pre>
+        <p>By changing the value of the property in the NAnt configuration file, the updated value will be accessible to all build files on the system.</p>
         <h3>Example</h3>
         <p>The following build file demonstrates the use of property expansion:</p>
         <pre class="code">
