@@ -10,105 +10,192 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
-                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a>
-                    <img src="arrow.gif" alt="-&gt;" width="13" height="9" />Change Log
+                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="-&gt;" width="13" height="9" />Change 
+                    Log
                 </td>
             </tr>
         </table>
         <table width="100%">
             <tr>
                 <td>
-                    <h1><span class="N">N</span><span class="Ant">Ant</span> Change Log</h1>
+                    <h1><span class="N">N</span><span class="Ant">Ant</span>
+                        Change Log</h1>
                 </td>
                 <td style="text-align: right">
-                    <a href="index.html"><img style="border-width: 0px;" alt="NAnt logo (link to home page)" src="logo.gif" width="270" height="118" /></a>
+                    <a href="index.html"><img style="border-width: 0px;" alt="NAnt logo (link to home page)" src="logo.gif" width="270"
+                            height="118" /></a>
                 </td>
             </tr>
         </table>
-        <h3>0.8.3 final September 28, 2003</h3>
-        <h4>USER-VISIBLE CHANGES</h4>
+        <h3>0.8.4-nightly builds</h3>
+        <h4>Breaking changes</h4>
         <ul>
             <li>
-                Included NAntContrib binaries are from a release build. In rc3 
-                they were debug versions.
-             </li>
+                The <code>&lt;call&gt;</code> task now executes the given target and all its 
+                dependencies. In previous versions of NAnt only the target itself would be 
+                executed.
+            </li>
+            <li>
+                The <code>force</code> attribute of the <code>&lt;call&gt;</code> task has been 
+                deprecated and has no longer any effect. The <code>&lt;call&gt;</code> tak will 
+                now always execute the specified target, regardless of the fact that this 
+                target has already been executed before.
+            </li>
+            <li>
+                The string-based <code>files</code> and <code>attachments</code> attributes of 
+                the <code>&lt;mail&gt;</code> task have been replaced by fileset support.
+            </li>
+        </ul>
+        <h4>Fixed bugs</h4>
+        <ul>
+            <li>
+                <b>TO-DO</b>
+            </li>
+        </ul>
+        <h4>Other changes</h4>
+        <ul>
+            <li>
+                <b>TO-DO</b> solution task improvements.
+            </li>
+            <li>
+                <b>TO-DO</b> cvs tasks improvements.
+            </li>
+            <li>
+                <b>TO-DO</b> Added <code>&lt;delay-sign&gt;</code></li>
+            task. </li>
+            <li>
+                <b>TO-DO</b> Task documentation improvements
+            </li>
+            <li>
+                <b>TO-DO</b> <code>&lt;mc&gt;</code></li>, <code>&lt;rc&gt;</code></li> and <code>
+                &lt;midl&gt;</code></li> tasks were moved into NAnt core. </li>
+            <li>
+                Updated log4net to version 1.2.0 beta 8.
+            </li>
+            <li>
+                Updated NDoc to version 1.2.
+            </li>
+            <li>
+                Added support for framework-specific third party libraries.
+            </li>
+            <li>
+                Improved bootstrapping NAnt on linux.
+            </li>
+            <li>
+                Added <code>overwrite</code> attribute to the <code>&lt;property&gt;</code> task 
+                to control whether the value of the specified property should be overwritten 
+                when the property already exists.
+            </li>
+            <li>
+                On systems with both the .NET Framework 1.0 and .NET Framework 1.1 installed, 
+                NAnt will now execute on the .NET Framework 1.1 by default. Note, the default 
+                target framework has remained unchanged, and is still .NET Framework 1.0.
+            </li>
+            <li>
+                <code>&lt;asminfo&gt;</code></li>
+            task was moved from <a href="http://nantcontrib.sourceforge.net">NAntContrib</a>
+            to NAnt, and was rewritten to support multiple code languages and attribute 
+            types.
+            <li>
+                <code>&lt;servicecontroller&gt;</code> task was added that allows a Windows 
+                service to be controlled.
+            </li>
+            <li>
+                Added <code>ProgramLocationAttribute</code> that can be assigned to a task to 
+                indicate that it wraps an executable that is part of either the .NET Framework 
+                or the .NET Framework SDK, and have NAnt figure out the full path to the 
+                executable using the framework settings in the NAnt configuration file.
+            </li>
+            <li>
+                Added <code>FrameworkConfigurableAttribute</code> that can be assigned to a 
+                task attribute to allow the default values of that attribute to be configured 
+                from the framework configuration section in the NAnt configuration file for the 
+                currently active framework.
+            </li>
+        </ul>
+        <h3>0.8.3 final September 28, 2003</h3>
+        <h4>User-visible changes</h4>
+        <ul>
+            <li>
+                Included NAntContrib binaries are from a release build. In rc3 they were debug 
+                versions.
+            </li>
         </ul>
         <h3>0.8.3-rc August 29, 2003</h3>
-        <h4>USER-VISIBLE CHANGES</h4>
+        <h4>User-visible changes</h4>
         <ul>
             <li>
-                Added test directory to distribution fixing the build failure in 
-                0.8.3.
+                Added test directory to distribution fixing the build failure in 0.8.3.
             </li>
         </ul>
         <h3>0.8.3-rc2 July 28, 2003</h3>
-        <h4>USER-VISIBLE CHANGES</h4>
+        <h4>User-visible changes</h4>
         <ul>
             <li>
                 Built with .NET 1.0.
                 <div style="margin-left: 20px;">
-                    This release candidate is built with version 1.0 of the .NET 
-                    Framework.  The binaries for RC1 had been built with version 
-                    1.1, which had backwards compatibility issues.
+                    This release candidate is built with version 1.0 of the .NET Framework. The 
+                    binaries for RC1 had been built with version 1.1, which had backwards 
+                    compatibility issues.
                 </div>
             </li>
             <li>
                 Fixed defect: temp directory leak in &lt;solution&gt; task.
                 <div style="margin-left: 20px;">
-                    Matthew Mastracci fixed a major temp directory leak.  It was 
-                    leaking approx. one temp directory per project!  You should 
-                    clear your Local Settings\Temp directory for the user you use 
-                    to build your solutions.
+                    Matthew Mastracci fixed a major temp directory leak. It was leaking approx. one 
+                    temp directory per project! You should clear your Local Settings\Temp directory 
+                    for the user you use to build your solutions.
                 </div>
             </li>
             <li>
                 &lt;solution&gt; VB.NET support.
                 <div style="margin-left: 20px;">
-                    The &lt;solution&gt; task now supports VB.NET projects.  This 
-                    was meant to be part of the RC1 release.
+                    The &lt;solution&gt; task now supports VB.NET projects. This was meant to be 
+                    part of the RC1 release.
                 </div>
             </li>
             <li>
-                Matthew Mastracci has also checked in support for reading resources 
-                of VB projects and generating the appropriate dependent resource name.
+                Matthew Mastracci has also checked in support for reading resources of VB 
+                projects and generating the appropriate dependent resource name.
             </li>
             <li>
                 Documentation for NAntContrib.
                 <div style="margin-left: 20px;">
-                    This release candidate includes the binaries and documentation 
-                    for the NAntContrib extensions. Note that the source is still 
-                    distributed seperately during this release cycle.
+                    This release candidate includes the binaries and documentation for the 
+                    NAntContrib extensions. Note that the source is still distributed seperately 
+                    during this release cycle.
                 </div>
             </li>
         </ul>
         <h3>0.8.3-rc1 July 10, 2003</h3>
-        <h4>USER-VISIBLE CHANGES</h4>
+        <h4>User-visible changes</h4>
         <ul>
             <li>
                 NAntContrib is now distributed with NAnt.
                 <div style="margin-left: 20px;">
-                    To better support the frequently-used NAntContrib extensions, 
-                    the library is now distributed as part of the NAnt release.
+                    To better support the frequently-used NAntContrib extensions, the library is 
+                    now distributed as part of the NAnt release.
                 </div>
             </li>
             <li>
                 Preliminary Linux support.
                 <div style="margin-left: 20px;">
-                    This is the first release with Linux support, so please report 
-                    any issues you encounter. The next release will be fully tested 
-                    and documented on both Linux and Windows.
+                    This is the first release with Linux support, so please report any issues you 
+                    encounter. The next release will be fully tested and documented on both Linux 
+                    and Windows.
                 </div>
             </li>
             <li>
                 New Tasks.
                 <ul>
-                    <li>&lt;cvs-checkout&gt; task : Checkout source from CVS.</li>
-                    <li>&lt;cvs-update:&gt; task : Update source from CVS.</li>
                     <li>
-                        &lt;solution&gt; task : compile .sln directly.  In most 
-                        cases, this means you no longer have to preprocess a 
-                        solution with the slingshot tool. Supports both Visual 
-                        Studio .NET and Visual Studio 2003.
+                        &lt;cvs-checkout&gt; task : Checkout source from CVS.</li>
+                    <li>
+                        &lt;cvs-update:&gt; task : Update source from CVS.</li>
+                    <li>
+                        &lt;solution&gt; task : compile .sln directly. In most cases, this means you no 
+                        longer have to preprocess a solution with the slingshot tool. Supports both 
+                        Visual Studio .NET and Visual Studio 2003.
                     </li>
                 </ul>
             </li>
@@ -121,139 +208,138 @@
             <li>
                 FileSet references.
                 <div style="margin-left: 20px;">
-                    You can now define a named FileSet and refer to it anywhere 
-                    a FileSet is used.
+                    You can now define a named FileSet and refer to it anywhere a FileSet is used.
                 </div>
             </li>
         </ul>
-        <h4>DEVELOPER-VISIBLE CHANGES</h4>
+        <h4>API changes</h4>
         <ul>
             <li>
                 Namespace changes
                 <ul>
-                    <li>"SourceForge" is no longer part of the NAnt namespaces.</li>
-                    <li>Split classes up into Tasks and Types.</li>
-                    <li>Task assemblies now have their own namespaces.</li>
-                    <li>Removed Msft prefix from base classes.</li>
+                    <li>
+                        "SourceForge" is no longer part of the NAnt namespaces.</li>
+                    <li>
+                        Split classes up into Tasks and Types.</li>
+                    <li>
+                        Task assemblies now have their own namespaces.</li>
+                    <li>
+                        Removed Msft prefix from base classes.</li>
                 </ul>
             </li>
             <li>
                 Logging framework changed
                 <ul>
                     <li>
-                        Refactored NAnt (build) logging system : moved to an event 
-                        driven logging system, and allow thresholds to be set. 
-                        The build outcome is now completely handled by the loggers.
+                        Refactored NAnt (build) logging system : moved to an event driven logging 
+                        system, and allow thresholds to be set. The build outcome is now completely 
+                        handled by the loggers.
                     </li>
                     <li>
-                        Replaced the LogListener with an IBuildLogger interface 
-                        for loggers and an IBuildListener interface for build 
-                        listeners.
+                        Replaced the LogListener with an IBuildLogger interface for loggers and an 
+                        IBuildListener interface for build listeners.
                     </li>
                     <li>
-                        The ConsoleLogger is replaced by a DefaultLogger, which 
-                        always logs to the console, and which can also be configured 
-                        to log to a file (using the -logfile option).
+                        The ConsoleLogger is replaced by a DefaultLogger, which always logs to the 
+                        console, and which can also be configured to log to a file (using the -logfile 
+                        option).
                     </li>
                     <li>
-                        The static Log class is removed and replaced by instance 
-                        methods on the Project and Task classes. These instance 
-                        methods actually fire events that get handled by the build 
-                        logger and buid listeners.
+                        The static Log class is removed and replaced by instance methods on the Project 
+                        and Task classes. These instance methods actually fire events that get handled 
+                        by the build logger and buid listeners.
                     </li>
                     <li>
-                        Added a Level enum that is used to assign a priority 
-                        (level) to a message.  This allows messages to be filtered 
-                        on their priority.
+                        Added a Level enum that is used to assign a priority (level) to a message. This 
+                        allows messages to be filtered on their priority.
                     </li>
                     <li>
                         Added a strongly typed collection for the build listeners.
                     </li>
                     <li>
-                        Updated all existing logging statements to use the new 
-                        logging system instead of the static Log class.  Assigned 
-                        levels to the existing logging statements.
+                        Updated all existing logging statements to use the new logging system instead 
+                        of the static Log class. Assigned levels to the existing logging statements.
                     </li>
                     <li>
-                        Added MailLogger that can be used to send the build results 
-                        as an email, see xml docs for how its to be configured.
+                        Added MailLogger that can be used to send the build results as an email, see 
+                        xml docs for how its to be configured.
                     </li>
                 </ul>
             </li>
             <li>
-                Many, many style/structure/documentation fixes.  More that are 
-                worth listing here.
+                Many, many style/structure/documentation fixes. More that are worth listing 
+                here.
             </li>
             <li>
                 Fixed NUnit2 support for FileSets.
             </li>
             <li>
-                Prevent warnings for using obsolete methods to allow NDoc Documenter.Nant
-                to build on .NET 1.1 runtime.
+                Prevent warnings for using obsolete methods to allow NDoc Documenter.Nant to 
+                build on .NET 1.1 runtime.
             </li>
             <li>
                 Nightly.xml no longer depends on NAntContrib tasks.
             </li>
             <li>
-                Moved &lt;mail&gt; task and test back into core as its working fine on 
-                Linux now.
+                Moved &lt;mail&gt; task and test back into core as its working fine on Linux 
+                now.
             </li>
             <li>
                 New attribute-driven command-line parser.
             </li>
         </ul>
-        <h4>SLINGSHOT CHANGES</h4>
+        <h4>Slingshot changes</h4>
         <ul>
             <li>
-                Fixed defect: slingshot now handles the fact that sln/proj files 
-                might have a disparate list of configurations.
+                Fixed defect: slingshot now handles the fact that sln/proj files might have a 
+                disparate list of configurations.
             </li>
             <li>
-                Fixed defect: if a configuration name contains whitespace, it is
-                referenced in the slingshot output .build file w/ hyphens replacing
-                whitespace, as NAnt can't deal w/ blanks in target names.
+                Fixed defect: if a configuration name contains whitespace, it is referenced in 
+                the slingshot output .build file w/ hyphens replacing whitespace, as NAnt can't 
+                deal w/ blanks in target names.
             </li>
             <li>
-                Added flexibility: the Clean.* targets are generated from the existing
-                list of configurations, in addition to the only hardcoded DebugClean and
-                ReleaseClean targets.
+                Added flexibility: the Clean.* targets are generated from the existing list of 
+                configurations, in addition to the only hardcoded DebugClean and ReleaseClean 
+                targets.
             </li>
             <li>
-                Fixed limitation around references: references that are set to "Copy
-                Local=true" get copied to the build directory before compilation. Otherwise,
+                Fixed limitation around references: references that are set to "Copy 
+                Local=true" get copied to the build directory before compilation. Otherwise, 
                 the reference paths are explicitly listed in &lt;references>&lt;includes>.
             </li>
             <li>
-                New parameter: (per a suggestion from a user who replied to my notice of
-                impending changes) starting slingshot with the parameter replacerefs=...
-                triggers the reference paths to be replaced with the name of the build
-                configuration. For example, if projB references
-                d:\proj\projA\bin\Debug\projA.dll, when you slingshot projB with parameter
-                "replacerefs=Debug", the reference to projA will look like
-                d:\proj\projA\bin\${slingshot.config}\projA.dll. when you then build
-                projB.build for config Release, the projA reference will look like this:
+                New parameter: (per a suggestion from a user who replied to my notice of 
+                impending changes) starting slingshot with the parameter replacerefs=... 
+                triggers the reference paths to be replaced with the name of the build 
+                configuration. For example, if projB references 
+                d:\proj\projA\bin\Debug\projA.dll, when you slingshot projB with parameter 
+                "replacerefs=Debug", the reference to projA will look like 
+                d:\proj\projA\bin\${slingshot.config}\projA.dll. when you then build 
+                projB.build for config Release, the projA reference will look like this: 
                 d:\proj\projA\bin\Release\projA.dll.
             </li>
             <li>
                 Added support for WarningLevel (now that it's available in NAnt)
             </li>
         </ul>
-        <h4>COMMAND-LINE CLIENT CHANGES</h4>
+        <h4>Command-line client changes</h4>
         <ul>
             <li>
                 Changed target back to the default argument.
             </li>
             <li>
-                Moved company information (http://nant.sourceforge.net) from help 
-                text to logo banner.
+                Moved company information (http://nant.sourceforge.net) from help text to logo 
+                banner.
             </li>
             <li>
-                Added support for running default.build if there are multiple build
-                files in a directory.
+                Added support for running default.build if there are multiple build files in a 
+                directory.
             </li>
             <li>
-                Added support for collection-based command-line options, with the
-                following restrictions :
+                Added support for collection-based command-line options, with the following 
+                restrictions :
                 <ul>
                     <li>
                         property type should implement ICollection
@@ -268,13 +354,13 @@
                         collection should have a default public constructor
                     </li>
                     <li>
-                        the property should have a setter if the collection is not
-                        initialized (null reference)
+                        the property should have a setter if the collection is not initialized (null 
+                        reference)
                     </li>
                 </ul>
             </li>
             <li>
-                Fixed "bug" where ApplicationException would no longer be throw when no
+                Fixed "bug" where ApplicationException would no longer be throw when no 
                 matching buildfile is found after searching the directory tree upwards.
             </li>
             <li>
@@ -293,31 +379,29 @@
                 Updated xml documentation.
             </li>
             <li>
-                Added command-line options for filtering build output (-debug and
-                -quiet).
+                Added command-line options for filtering build output (-debug and -quiet).
             </li>
             <li>
-                Jarek's patch to allow setting of the default framework from the command
-                line, fixes bug 729778.
+                Jarek's patch to allow setting of the default framework from the command line, 
+                fixes bug 729778.
             </li>
             <li>
-                Always use identifier mono-1.0 for Mono framework, no use in always
-                creating new framework configurations for every Mono release.
+                Always use identifier mono-1.0 for Mono framework, no use in always creating 
+                new framework configurations for every Mono release.
             </li>
         </ul>
-        <h4>CHANGED TASKS</h4>
+        <h4>Task changes</h4>
         <h5>&lt;exec&gt;</h5>
         <ul>
             <li>
-                Added support for an environment optionset to the &lt;exec&gt;
-                task.
+                Added support for an environment optionset to the &lt;exec&gt; task.
             </li>
             <li>
                 Fixed optionset so that it correctly returns optionvalues.
             </li>
             <li>
-                Remove Timeout from ExecTask, make Timeout in ExternalProgramBase 
-                a task attribute and make it writable.
+                Remove Timeout from ExecTask, make Timeout in ExternalProgramBase a task 
+                attribute and make it writable.
             </li>
             <li>
                 Throw BuildException if process has not exited after timeout.
@@ -329,8 +413,8 @@
                 Added attribute for setting the warninglevel (0-4).
             </li>
             <li>
-                Added attribute for specifiying list of warnings that should be
-                suppressed by the compiler.
+                Added attribute for specifiying list of warnings that should be suppressed by 
+                the compiler.
             </li>
         </ul>
         <h5>&lt;jsc&gt;</h5>
@@ -354,8 +438,8 @@
                 Added attribute for setting the warninglevel (0-4).
             </li>
             <li>
-                Added attribute for specifiying list of warnings that should be 
-                suppressed by the compiler.
+                Added attribute for specifiying list of warnings that should be suppressed by 
+                the compiler.
             </li>
             <li>
                 Patch from Justin Santa Barbara to add optimize flag to csc.
@@ -367,36 +451,35 @@
         <h5>&lt;nantschema&gt;</h5>
         <ul>
             <li>
-                Added makefile for building on Linux. Also a new bin directory 
-                for Linux specific binaries.
+                Added makefile for building on Linux. Also a new bin directory for Linux 
+                specific binaries.
             </li>
         </ul>
         <h5>&lt;mcs&gt;</h5>
         <ul>
             <li>
-                Removed &lt;mcs&gt; task. the &lt;csc&gt; task in combination 
-                with the framework support should be used instead.
+                Removed &lt;mcs&gt; task. the &lt;csc&gt; task in combination with the 
+                framework support should be used instead.
             </li>
         </ul>
         <h5>&lt;nant&gt;</h5>
         <ul>
             <li>
-                Fixed problem with basedir in nested &lt;nant&gt; build being 
-                incorrect if basedir=&quot;.&quot; is used.
+                Fixed problem with basedir in nested &lt;nant&gt; build being incorrect if 
+                basedir=&quot;.&quot; is used.
             </li>
             <li>
-                Have new project inherit the default framework from the current
-                project.
+                Have new project inherit the default framework from the current project.
             </li>
         </ul>
         <h5>&lt;msi&gt;</h5>
         <ul>
             <li>
-                Only creates msm com class if needed. Patch by Justin Santa 
-                Barbara (justinsb@consonica.com).
+                Only creates msm com class if needed. Patch by Justin Santa Barbara 
+                (justinsb@consonica.com).
             </li>
             <li>
-                Commit to the database more often, to help narrow failure points. 
+                Commit to the database more often, to help narrow failure points.
             </li>
             <li>
                 Removed re-initializing the database object after commits.
@@ -408,15 +491,14 @@
                 Fix for &lt;copy&gt; task breakage on Linux.
             </li>
             <li>
-                Reenabled File.SetAttributes on Mono build as bug #41999 has 
-                been fixed.
+                Reenabled File.SetAttributes on Mono build as bug #41999 has been fixed.
             </li>
         </ul>
         <h5>&lt;if&gt;</h5>
         <ul>
             <li>
-                Fixed logging bug with parenthesis instead of brace. Caused 
-                &lt;if uptodate...&gt; to fail erroneously.
+                Fixed logging bug with parenthesis instead of brace. Caused &lt;if 
+                uptodate...&gt; to fail erroneously.
             </li>
         </ul>
         <h5>&lt;gac&gt;</h5>
@@ -434,30 +516,29 @@
                 Added unit tests for the &lt;cl&gt; and &lt;link&gt; tasks.
             </li>
             <li>
-                Moved Visual C++ related tasks into Win32Assemblies so it doesn't 
-                get built in a Mono/Linux build.
+                Moved Visual C++ related tasks into Win32Assemblies so it doesn't get built in 
+                a Mono/Linux build.
             </li>
         </ul>
         <h5>&lt;fileset&gt;</h5>
-         <ul>
+        <ul>
             <li>
-                Added support for FileSet references. Framework for making all 
-                types referencable but only implemented for FileSets right now.
+                Added support for FileSet references. Framework for making all types 
+                referencable but only implemented for FileSets right now.
             </li>
         </ul>
         <h5>&lt;mail&gt;</h5>
         <ul>
             <li>
-                Reenabled usage of StringWriter constructor with CultureInfo 
-                as this bug in Mono is fixed.
+                Reenabled usage of StringWriter constructor with CultureInfo as this bug in 
+                Mono is fixed.
             </li>
             <li>
                 No longer have empty strings as default.
             </li>
             <li>
-                Bcc and cc are no longer set to an empty string when not 
-                specified in buildfile, thereby preventing problems with 
-                Mono bug #45746.
+                Bcc and cc are no longer set to an empty string when not specified in 
+                buildfile, thereby preventing problems with Mono bug #45746.
             </li>
         </ul>
         <hr />
@@ -476,8 +557,8 @@
                 Changes for task item element initialization.
             </li>
             <li>
-                Read output of &lt;exec&gt;'d (and other external program)
-                processes and insert into logfile.
+                Read output of &lt;exec&gt;'d (and other external program) processes and insert 
+                into logfile.
             </li>
             <li>
                 Fixed logging for &lt;regex&gt; task.
@@ -489,19 +570,18 @@
                 NAnt now works without Framework SDK installed.
             </li>
             <li>
-                Fixed bugs in &lt;Copy&gt; and &lt;Move&gt; tasks which caused 
-                exceptions when using todir and a FileSet, in certain cases.
+                Fixed bugs in &lt;Copy&gt; and &lt;Move&gt; tasks which caused exceptions when 
+                using todir and a FileSet, in certain cases.
             </li>
             <li>
                 New &lt;unzip&gt; task.
             </li>
             <li>
-                New &lt;loadtasks&gt; task which replaces the functionality of 
-                taskdef (from NAntContrib).
+                New &lt;loadtasks&gt; task which replaces the functionality of taskdef (from 
+                NAntContrib).
             </li>
             <li>
-                &lt;foreach&gt; supports &lt;in&gt;&lt;items&gt; FileSet to work
-                on files.
+                &lt;foreach&gt; supports &lt;in&gt;&lt;items&gt; FileSet to work on files.
             </li>
         </ul>
         <h3>0.8.2-rc2 April 12, 2003</h3>
@@ -531,8 +611,8 @@
                 Updated SharpZipLib library.
             </li>
             <li>
-                Makes error reporting more accurate - give line numbers for
-                property expansion errors.
+                Makes error reporting more accurate - give line numbers for property expansion 
+                errors.
             </li>
             <li>
                 Multiple test assembly support for &lt;nunit2&gt; task.
@@ -544,8 +624,8 @@
                 &lt;resgen&gt; task file generation correctness fixes.
             </li>
             <li>
-                Added support multiple delimiters and string trimming to
-                LoopTask's file line mode.
+                Added support multiple delimiters and string trimming to LoopTask's file line 
+                mode.
             </li>
             <li>
                 More support for csc/vbc command-line options.
@@ -572,43 +652,40 @@
         <h3>0.7.9 June 11, 2002</h3>
         <ul>
             <li>
-                If more than one build file matches the criteria, e.g. two
-                files ending in .build than NAnt will report an error.
+                If more than one build file matches the criteria, e.g. two files ending in 
+                .build than NAnt will report an error.
             </li>
             <li>
-                Added -find option, causes NAnt to search up the directory
-                tree looking for the buildfile. Use in conjunction with
-                -buildfile:foo.* to find the first foo.* file up the directory 
-                tree.
+                Added -find option, causes NAnt to search up the directory tree looking for the 
+                buildfile. Use in conjunction with -buildfile:foo.* to find the first foo.* 
+                file up the directory tree.
             </li>
             <li>
-                Added -projecthelp option, callable targets should now include
-                a description attribute to describe briefly what they do.
+                Added -projecthelp option, callable targets should now include a description 
+                attribute to describe briefly what they do.
             </li>
             <li>
-                CompilerBase tasks now check for changed resources and recompiles 
-                if out of date.
+                CompilerBase tasks now check for changed resources and recompiles if out of 
+                date.
             </li>
             <li>
-                Compiler tasks reportq what caused the rebuild when verbose is
-                on, try 'NAnt -verbose'.
+                Compiler tasks reportq what caused the rebuild when verbose is on, try 'NAnt 
+                -verbose'.
             </li>
             <li>
                 Improved Log class.
             </li>
             <li>
-                Added PlainText NUnit formatter, see NAnt's build file for an 
-                example.
+                Added PlainText NUnit formatter, see NAnt's build file for an example.
             </li>
             <li>
-                nant.onsuccess and nant.onfailure properties can now name a
-                target to get executed at the end of a build.
+                nant.onsuccess and nant.onfailure properties can now name a target to get 
+                executed at the end of a build.
             </li>
             <li>
-                FileSets now have an absolute element. Items inside an absolute 
-                element will always be included in the file set. This is useful 
-                for references that are in the system path. See the 
-                HelloWindowsForms build file for an example.
+                FileSets now have an absolute element. Items inside an absolute element will 
+                always be included in the file set. This is useful for references that are in 
+                the system path. See the HelloWindowsForms build file for an example.
             </li>
             <li>
                 -set option changed to -D to be more like Ant.
@@ -620,8 +697,8 @@
                 FileSets now support absolute paths and parent directories.
             </li>
             <li>
-                *Tasks.dll assemblies that are in the same folder as NAnt are
-                automatically loaded and scanned for tasks.
+                *Tasks.dll assemblies that are in the same folder as NAnt are automatically 
+                loaded and scanned for tasks.
             </li>
             <li>
                 User manual available.
@@ -639,41 +716,48 @@
                 &lt;sysinfo&gt; task added.
             </li>
             <li>
-                Added failonerror, verbose, if and unless attributes to all
-                tasks.
+                Added failonerror, verbose, if and unless attributes to all tasks.
             </li>
             <li>
                 DESIGN DECISION: all elements and attributes will be lowercase
             </li>
             <li>
-                Major reworking of FileSet class (removed absolutes element,
-                added asis attribute).
+                Major reworking of FileSet class (removed absolutes element, added asis 
+                attribute).
             </li>
             <li>
-                Tasks/Targets/FileSet includes/excludes now have if/unless
-                attributes.
+                Tasks/Targets/FileSet includes/excludes now have if/unless attributes.
             </li>
             <li>
-                SLiNgshoT - a Visual Studio.NET solution,&nbsp;and make,
-                converter&nbsp;- was donated to the NAnt Extras by Jason Diamond.
+                SLiNgshoT - a Visual Studio.NET solution,&nbsp;and make, converter&nbsp;- was 
+                donated to the NAnt Extras by Jason Diamond.
             </li>
             <li>
                 New Unit Tests added.
                 <ul>
-                    <li>CallTest.cs</li>
-                    <li>DeleteTest.cs</li>
-                    <li>EchoTest.cs</li>
-                    <li>FailTest.cs</li>
-                    <li>MkdirTest.cs</li>
-                    <li>MoveTest.cs</li>
-                    <li>PropertyTest.cs</li>
+                    <li>
+                        CallTest.cs</li>
+                    <li>
+                        DeleteTest.cs</li>
+                    <li>
+                        EchoTest.cs</li>
+                    <li>
+                        FailTest.cs</li>
+                    <li>
+                        MkdirTest.cs</li>
+                    <li>
+                        MoveTest.cs</li>
+                    <li>
+                        PropertyTest.cs</li>
                 </ul>
             </li>
             <li>
                 New Properties added during project initilization.
                 <ul>
-                    <li>nant.location points to nant.exe directory</li>
-                    <li>nant.tasks.[TaskName].location points to [TaskName] host assembly</li>
+                    <li>
+                        nant.location points to nant.exe directory</li>
+                    <li>
+                        nant.tasks.[TaskName].location points to [TaskName] host assembly</li>
                 </ul>
             </li>
             <li>
@@ -682,13 +766,20 @@
             <li>
                 Tasks moved to NAntContrib Project
                 <ul>
-                    <li>GacTask.cs</li>
-                    <li>RcTask.cs</li>
-                    <li>ResGenTask.cs</li>
-                    <li>TlbExpTask.cs</li>
-                    <li>TlbImpTask.cs</li>
-                    <li>TypedCollectionTask.cs</li>
-                    <li>Vb6Task.cs</li>
+                    <li>
+                        GacTask.cs</li>
+                    <li>
+                        RcTask.cs</li>
+                    <li>
+                        ResGenTask.cs</li>
+                    <li>
+                        TlbExpTask.cs</li>
+                    <li>
+                        TlbImpTask.cs</li>
+                    <li>
+                        TypedCollectionTask.cs</li>
+                    <li>
+                        Vb6Task.cs</li>
                 </ul>
             </li>
             <li>
@@ -701,12 +792,10 @@
         <h3>0.7.749 January 19, 2002</h3>
         <ul>
             <li>
-                SourceSafe task added to src\Extras folder - thanks to
-                Jason Reimer.
+                SourceSafe task added to src\Extras folder - thanks to Jason Reimer.
             </li>
             <li>
-                &lt;docnet&gt; task added, try 'NAnt doc' to build NAnt's 
-                documentation.
+                &lt;docnet&gt; task added, try 'NAnt doc' to build NAnt's documentation.
             </li>
             <li>
                 NUnitCore.dll added to project.
@@ -718,19 +807,19 @@
                 &lt;script&gt; task and example added - thanks to Sergey Chaban.
             </li>
             <li>
-                Build file now extracts version number from AssemblyInfo.cs -
-                thanks to Sergey Chaban.
+                Build file now extracts version number from AssemblyInfo.cs - thanks to Sergey 
+                Chaban.
             </li>
             <li>
-                CompilerBase now adds quotations to all referenced files -
-                thanks to Mike Krueger.
+                CompilerBase now adds quotations to all referenced files - thanks to Mike 
+                Krueger.
             </li>
             <li>
                 BuildException is now serializable.
             </li>
             <li>
-                ExternalProgramBase reports differentiates between Process
-                exceptions and program return codes now.
+                ExternalProgramBase reports differentiates between Process exceptions and 
+                program return codes now.
             </li>
             <li>
                 Unit tests are now run as part of the buid process.
@@ -741,10 +830,14 @@
             <li>
                 NUnit overhaul.
                 <ul>
-                    <li>camelCase'ed attributes, haltOnFailure, haltOnError</li>
-                    <li>renamed printsummary to verbose</li>
-                    <li>replaced SummaryResultFormatter with improved SummaryFormatter</li>
-                    <li>added VerboseFormatter</li>
+                    <li>
+                        camelCase'ed attributes, haltOnFailure, haltOnError</li>
+                    <li>
+                        renamed printsummary to verbose</li>
+                    <li>
+                        replaced SummaryResultFormatter with improved SummaryFormatter</li>
+                    <li>
+                        added VerboseFormatter</li>
                 </ul>
             </li>
             <li>
@@ -781,18 +874,17 @@
                 Report build file xml errors in a useful way.
             </li>
             <li>
-                Report error location when tasks are missing required
-                attributes.
+                Report error location when tasks are missing required attributes.
             </li>
             <li>
                 &lt;copy&gt; task updated - thanks to Ian MacLean.
             </li>
             <li>
-                **/*.cs type pattern matching now available in FileSets via
-                DirectoryScanner class.
+                **/*.cs type pattern matching now available in FileSets via DirectoryScanner 
+                class.
             </li>
             <li>
-                Added all the environment variables to properites,
+                Added all the environment variables to properites, 
                 ie,&lt;echomessage="path=${nant.env.PATH}"/&gt;.
             </li>
             <li>
@@ -802,26 +894,25 @@
                 &lt;sleep&gt; task added - thanks to Ian MacLean.
             </li>
             <li>
-                DirectoryScanner and FileSet's scan for files AND directories
-                now 
+                DirectoryScanner and FileSet's scan for files AND directories now
             </li>
             <li>
                 FileSet's cache scan results, use Scan() to rescan.
             </li>
             <li>
-                FileSet's auto initialize to their containing task, this helps
-                clean up the code.
+                FileSet's auto initialize to their containing task, this helps clean up the 
+                code.
             </li>
             <li>
                 &lt;copy&gt; task can now copy full directory trees.
             </li>
             <li>
-                Added verbose attribute to &lt;copy&gt; task, default off, message
-                gives number of files processed.
+                Added verbose attribute to &lt;copy&gt; task, default off, message gives number 
+                of files processed.
             </li>
             <li>
-                Fixed bug with any ExternalBase tasks hanging - thanks to
-                Sergey Chaban for reporting.
+                Fixed bug with any ExternalBase tasks hanging - thanks to Sergey Chaban for 
+                reporting.
             </li>
             <li>
                 &lt;include&gt; task added.
@@ -842,8 +933,8 @@
                 Complete overhaul of the web site and doc folder (all html files).
             </li>
             <li>
-                Made src a parent folder to be able to hold multiple assemblies 
-                in anticipation of the NAnt.Tests.dll assembly.
+                Made src a parent folder to be able to hold multiple assemblies in anticipation 
+                of the NAnt.Tests.dll assembly.
             </li>
             <li>
                 License changed to GNU General Public License.
@@ -852,16 +943,14 @@
                 Source code placed under CVS.
             </li>
             <li>
-                Tasks can now have attributes in base classes, see CompilerBase 
-                as an example - thanks to Mike Krueger.
+                Tasks can now have attributes in base classes, see CompilerBase as an example - 
+                thanks to Mike Krueger.
             </li>
             <li>
-                Coding conventions posted on SourceForge in the document
-                manager.
+                Coding conventions posted on SourceForge in the document manager.
             </li>
             <li>
-                Task manager in SourceForge is now being used to track
-                currently active tasks.
+                Task manager in SourceForge is now being used to track currently active tasks.
             </li>
             <li>
                 Namespace changed to SourceForge.NAnt.
@@ -876,8 +965,8 @@
                 Support for multiple build targets (try 'NAnt clean test').
             </li>
             <li>
-                BuildException added to report text position in the build file
-                where errors occur - thanks to Ian MacLean.
+                BuildException added to report text position in the build file where errors 
+                occur - thanks to Ian MacLean.
             </li>
             <li>
                 &lt;style&gt; task (xslt processing) added - thanks to Serge.
@@ -895,44 +984,39 @@
                 Added -set option (try 'NAnt -set:debug=true clean build').
             </li>
             <li>
-                Changed verions number to 0.5 to reflect the number of changes 
-                in the code base.
+                Changed verions number to 0.5 to reflect the number of changes in the code 
+                base.
             </li>
         </ul>
         <h3>0.1.5 July 22, 2001</h3>
         <ul>
             <li>
-                Only compiles program if source file last write time &gt;
-                output last write time.
+                Only compiles program if source file last write time &gt; output last write 
+                time.
             </li>
             <li>
                 Refactored compiler code into common CompilerBase class.
             </li>
             <li>
-                Refactored compiler and exec task into common ExternalProgramBase 
-                class.
+                Refactored compiler and exec task into common ExternalProgramBase class.
             </li>
             <li>
-                Added &lt;arg value="/win32res:filename"/&gt; element to all
-                external program tasks.
+                Added &lt;arg value="/win32res:filename"/&gt; element to all external program 
+                tasks.
             </li>
             <li>
-                Added Int32ValidatorAttribute and BooleanValidatorAttribute
-                classes to perform error checking on task attributes after macro
-                expansion but before task execution. Search for BooleanValidator 
-                or Int32Validator in tasks for examples.
+                Added Int32ValidatorAttribute and BooleanValidatorAttribute classes to perform 
+                error checking on task attributes after macro expansion but before task 
+                execution. Search for BooleanValidator or Int32Validator in tasks for examples.
             </li>
             <li>
-                Changed Task attribute names to TaskAttributeAttribute and
-                FileSetAttribute.
+                Changed Task attribute names to TaskAttributeAttribute and FileSetAttribute.
             </li>
             <li>
-                Removed default value for task attributes (set with initial
-                value).
+                Removed default value for task attributes (set with initial value).
             </li>
             <li>
-                Changes to Project class on how to initialize a project and
-                run it.
+                Changes to Project class on how to initialize a project and run it.
             </li>
             <li>
                 Right aligned task prefixes to clean up output.
@@ -940,12 +1024,18 @@
             <li>
                 Added or enhanced these tasks
                 <ul>
-                    <li>vbc, jsc, csc</li>
-                    <li>move</li>
-                    <li>nant</li>
-                    <li>taskdef</li>
-                    <li>tstamp</li>
-                    <li>exec (failonerror attribute)</li>
+                    <li>
+                        vbc, jsc, csc</li>
+                    <li>
+                        move</li>
+                    <li>
+                        nant</li>
+                    <li>
+                        taskdef</li>
+                    <li>
+                        tstamp</li>
+                    <li>
+                        exec (failonerror attribute)</li>
                 </ul>
             </li>
         </ul>
@@ -954,13 +1044,20 @@
             <li>
                 Added or enhanced these tasks
                 <ul>
-                    <li>echo</li>
-                    <li>fail</li>
-                    <li>property</li>
-                    <li>copy (respects basedir)</li>
-                    <li>delete (respects basedir)</li>
-                    <li>mkdir (respects basedir)</li>
-                    <li>exec</li>
+                    <li>
+                        echo</li>
+                    <li>
+                        fail</li>
+                    <li>
+                        property</li>
+                    <li>
+                        copy (respects basedir)</li>
+                    <li>
+                        delete (respects basedir)</li>
+                    <li>
+                        mkdir (respects basedir)</li>
+                    <li>
+                        exec</li>
                 </ul>
             </li>
         </ul>
@@ -973,12 +1070,11 @@
                 Changed name from NBuild to NAnt.
             </li>
             <li>
-                Using the name &quot;Parameter&quot; to refer to the xml attributes 
-                in tasks because it was conflicting badly with .NET Attributes.
+                Using the name &quot;Parameter&quot; to refer to the xml attributes in tasks 
+                because it was conflicting badly with .NET Attributes.
             </li>
             <li>
-                Added FileSetParameterAttribute so that FileSet parameters
-                would autoinit.
+                Added FileSetParameterAttribute so that FileSet parameters would autoinit.
             </li>
             <li>
                 Renamed TaskAttributeAttribute to StringParameterAttribute.
@@ -987,8 +1083,8 @@
                 Broke into seperate source files (one per class).
             </li>
             <li>
-                Changed default build file from Project.xml to the first file
-                with a .build extension.
+                Changed default build file from Project.xml to the first file with a .build 
+                extension.
             </li>
         </ul>
         <h3>0.1.2 July 16, 2001</h3>
