@@ -240,6 +240,10 @@ namespace NAnt.VSNet {
                     tlbImp.OutputFile = new FileInfo(outFile);
                     tlbImp.Namespace = Name;
 
+                    // according to "COM Programming with Microsoft .NET" (page 59)
+                    // the /sysarray option should be set
+                    tlbImp.SysArray = true;
+
                     if (ProjectSettings.AssemblyOriginatorKeyFile != null) {
                         tlbImp.KeyFile = new FileInfo(Path.Combine(Parent.ProjectDirectory.FullName, 
                             ProjectSettings.AssemblyOriginatorKeyFile));
