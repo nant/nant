@@ -51,8 +51,6 @@
         <includes name="NAnt.SourceControl/NAnt.SourceControl.build" />
         -->
     </fileset>
-    
-    <!-- exclude the nunit and sourcecontrol assemblies -->
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
