@@ -414,18 +414,17 @@ namespace NAnt.VSNet {
         }
 
         private void HandleWrapperImport(XmlElement elemReference) {
+            string majorVersion = (int.Parse(elemReference.Attributes["VersionMajor"].Value, 
+                CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
+            string minorVersion = (int.Parse(elemReference.Attributes["VersionMinor"].Value, 
+                CultureInfo.InvariantCulture)).ToString("x", CultureInfo.InvariantCulture);
+
             string tlbVersionKey = string.Format(@"TYPELIB\{0}\{1}.{2}", 
-                elemReference.Attributes["Guid"].Value,
-                elemReference.Attributes["VersionMajor"].Value,
-                elemReference.Attributes["VersionMinor"].Value
-                );
+                elemReference.Attributes["Guid"].Value, majorVersion, minorVersion);
 
             string tlbRegistryKey = string.Format(@"TYPELIB\{0}\{1}.{2}\{3}\win32", 
-                elemReference.Attributes["Guid"].Value,
-                elemReference.Attributes["VersionMajor"].Value,
-                elemReference.Attributes["VersionMinor"].Value,
-                elemReference.Attributes["Lcid"].Value
-                );
+                elemReference.Attributes["Guid"].Value, majorVersion, minorVersion,
+                elemReference.Attributes["Lcid"].Value);
 
             // look for a primary interop assembly
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
@@ -443,15 +442,17 @@ namespace NAnt.VSNet {
 
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbRegistryKey)) {
                 if (registryKey == null)
-                    throw new ApplicationException(string.Format(CultureInfo.InvariantCulture, 
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Couldn't find reference to type library '{0}' ({1}).", 
-                        elemReference.Attributes["Name"].Value, tlbRegistryKey));
+                        elemReference.Attributes["Name"].Value, tlbRegistryKey), 
+                        Location.UnknownLocation);
 
                 // check if the typelib actually exists
                 _typelibFile = (string) registryKey.GetValue(null);
                 if (!File.Exists(_typelibFile)) {
-                    throw new Exception(string.Format(CultureInfo.InvariantCulture, 
-                        "Couldn't find referenced type library '{0}'.", _typelibFile));
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Couldn't find referenced type library '{0}'.", _typelibFile),
+                        Location.UnknownLocation);
                 }
 
                 _referenceTimeStamp = GetTimestamp(_typelibFile);
