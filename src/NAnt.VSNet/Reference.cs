@@ -53,6 +53,14 @@ namespace NAnt.VSNet {
             _gacCache = gacCache;
             _refResolver = refResolver;
 
+            // Read the private flag
+            _privateSpecified = (elemReference.Attributes["Private"] != null);
+            if (_privateSpecified) {
+                _isPrivate = (elemReference.Attributes["Private"].Value == "True");
+            } else {
+                _isPrivate = false;
+            }
+
             if (elemReference.Attributes["Project"] != null) {
                 if (solution == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
@@ -108,14 +116,6 @@ namespace NAnt.VSNet {
                 _project = project;
                 _copyLocal = _privateSpecified ? _isPrivate : true;
                 return;
-            }
-
-            // Read the private flag
-            _privateSpecified = (elemReference.Attributes["Private"] != null);
-            if (_privateSpecified) {
-                _isPrivate = (elemReference.Attributes["Private"].Value == "True");
-            } else {
-                _isPrivate = false;
             }
 
             if (elemReference.Attributes["WrapperTool"] != null) {
