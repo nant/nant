@@ -451,7 +451,18 @@ namespace NDoc.Documenter.NAnt {
         ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
         /// </returns>
         internal static string GetFileNameForFunction(XmlElement functionElement) {
-            return "functions\\" + functionElement.GetAttribute("name") + ".html";
+            string name = "";
+            XmlNode n = functionElement.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.CustomFunctionSetAttribute']/property[@name='Prefix']/@value");
+            if (n != null) {
+                name += n.InnerText + ".";
+            }
+            n = functionElement.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.CustomFunctionAttribute']/property[@name='Name']/@value");
+            if (n != null) {
+                name += n.InnerText;
+            } else {
+                name += functionElement.GetAttribute("name");
+            }
+            return "functions\\" + name + ".html";
         }
         
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, SdkDocVersion linkToSdkDocVersion){
