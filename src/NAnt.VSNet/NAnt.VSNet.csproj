@@ -103,6 +103,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "AssemblyReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "CommonAssemblyInfo.cs"
                     Link = "..\CommonAssemblyInfo.cs"
                     SubType = "Code"
@@ -115,6 +120,11 @@
                 />
                 <File
                     RelPath = "ConfigurationSettings.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "FileReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -143,12 +153,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ProjectReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ProjectSettings.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Reference.cs"
+                    RelPath = "ReferenceBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ReferenceFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -189,6 +209,11 @@
                 />
                 <File
                     RelPath = "WebDavClient.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "WrapperReference.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
