@@ -38,6 +38,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -79,11 +80,6 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Instance Fields
 
-        #region Public Instance Constructors
-
-
-        #endregion Public Instance Constructors
-
         #region Public Instance Properties
 
         /// <summary>
@@ -116,7 +112,24 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Specifies the executable for which the .licenses file is generated.
         /// </summary>
-        [TaskAttribute("licensetarget", Required=true)]
+        [TaskAttribute("licensetarget", Required=false)]
+        [StringValidator(AllowEmpty=false)]
+        [Obsolete("Use \"target\" attribute instead.", false)]
+        public string LicenseTarget {
+            get { return Target; }
+            set { Target = value; }
+        }
+
+        // TODO: we need to mark "target" as required after the release of
+        // NAnt 0.85
+        //
+        // We can't do this right now, as it would be a major breaking change
+        // (build authors still use "licensetarget" right now).
+
+        /// <summary>
+        /// Specifies the executable for which the .licenses file is generated.
+        /// </summary>
+        [TaskAttribute("target", Required=false)]
         [StringValidator(AllowEmpty=false)]
         public string Target {
             get { return _target; }
@@ -157,6 +170,16 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
         protected override void InitializeTask(XmlNode taskNode) {
+            // check if target was specified
+            // TODO: remove this check after NAnt 0.85 as this should be handled 
+            //       by setting Required to "true"
+            if (Target == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "'target' is a required attribute of <{0} ... />.", 
+                    Name), Location);
+            }
+
+            // check if input file exists
             if (!InputFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Input file '{0}' does not exist.", InputFile.FullName), 
@@ -297,6 +320,14 @@ namespace NAnt.DotNet.Tasks {
                 // using assemblies stored in the same directory
                 _programFileName = Path.Combine(BaseDirectory.FullName, 
                     Path.GetFileName(base.ProgramFileName));
+
+                // determine target directory
+                string targetDir = Path.GetDirectoryName(Path.Combine(
+                    BaseDirectory.FullName, Target));
+                // ensure target directory exists
+                if (!StringUtils.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
+                    Directory.CreateDirectory(targetDir);
+                }
             } else {
                 foreach (string assembly in Assemblies.FileNames) {
                     Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
