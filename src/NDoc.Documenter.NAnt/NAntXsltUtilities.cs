@@ -442,7 +442,17 @@ namespace NDoc.Documenter.NAnt {
             return "elements\\" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
                 
-
+        /// <summary>
+        /// Returns the filename to use for the given function XmlElement
+        /// </summary>
+        /// <param name="typeNode">The "method" element to find the filename for.</param>
+        /// <returns>
+        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
+        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
+        /// </returns>
+        internal static string GetFileNameForFunction(XmlElement functionElement) {
+            return "functions\\" + functionElement.GetAttribute("name") + ".html";
+        }
         
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, SdkDocVersion linkToSdkDocVersion){
             //just in case... but we should never see this happen.
