@@ -449,8 +449,6 @@ namespace NAnt.VSNet {
         }
 
         private string GetTypeLibrary() {
-            string typeLib = null;
-
             // determine typelib key
             string typeLibKey = GetTypeLibKey(XmlDefinition, 
                 GetTypeLibVersionKey(XmlDefinition));
@@ -462,17 +460,24 @@ namespace NAnt.VSNet {
                         Name, typeLibKey), Location.UnknownLocation);
                 }
 
+                string typeLibValue = (string) registryKey.GetValue(null);
+                if (StringUtils.IsNullOrEmpty(typeLibValue)) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Couldn't find path of referenced type library '{0}' ({1})."
+                        + " Ensure the type library is registered correctly.", 
+                        Name, typeLibKey), Location.UnknownLocation);
+                }
+
                 // extract path to type library from reg value
-                typeLib = ExtractTypeLibPath((string) registryKey.GetValue(null));
+                string typeLib = ExtractTypeLibPath((string) registryKey.GetValue(null));
                 // check if the typelib actually exists
                 if (!File.Exists(typeLib)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Couldn't find referenced type library '{0}'.", typeLib),
-                        Location.UnknownLocation);
+                        "Type library '{0}' no longer exists at registered path"
+                        + " '{1}'.", Name, typeLib), Location.UnknownLocation);
                 }
+                return typeLib;
             }
-
-            return typeLib;
         }
 
         /// <summary>
