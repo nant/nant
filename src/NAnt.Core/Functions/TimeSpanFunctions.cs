@@ -269,7 +269,6 @@ namespace NAnt.Core.Functions {
             return TimeSpan.FromTicks(value);
         }
 
-        /*
         /// <summary>
         /// Constructs a <see cref="TimeSpan" /> from a time indicated by a 
         /// specified string.
@@ -296,7 +295,6 @@ namespace NAnt.Core.Functions {
         public static string ToString(TimeSpan value) {
             return value.ToString();
         }
-        */
 
         #endregion Public Static Methods
     }
