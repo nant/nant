@@ -81,11 +81,13 @@ namespace NAnt.DotNet.Tasks {
     ///   <para>Run C# code that writes a message to the build log.</para>
     ///   <code>
     ///         &lt;script language=&quot;C#&quot;&gt;
-    ///             &lt;code&gt;&lt;![CDATA[
+    ///             &lt;code&gt;
+    ///               &lt;![CDATA[
     ///                 public static void ScriptMain(Project project) {
-    ///                     project.Log(Level.Info, &quot;Hello World from a script task using C#&quot;); 
+    ///                     project.Log(Level.Info, &quot;Hello World from a script task using C#&quot;);
     ///                 }
-    ///             ]]&gt;&lt;/code&gt;
+    ///               ]]&gt;
+    ///             &lt;/code&gt;
     ///         &lt;/script&gt;
     ///   </code>
     /// </example>
@@ -93,27 +95,29 @@ namespace NAnt.DotNet.Tasks {
     ///   <para>Define a custom function and call it using C#.</para>
     ///   <code>
     ///         &lt;script language=&quot;C#&quot; prefix=&quot;test&quot; &gt;
-    ///             &lt;code&gt;&lt;![CDATA[                 
-    ///
+    ///             &lt;code&gt;
+    ///               &lt;![CDATA[
     ///                 [Function("test-func")]
     ///                 public static string Testfunc(  ) {
     ///                         return "some result !!!!!!!!";
     ///                 }
-    ///         ]]&gt;&lt;/code&gt;
+    ///               ]]&gt;
+    ///             &lt;/code&gt;
     ///         &lt;/script&gt;
     ///         &lt;echo message='${test::test-func()}'/&gt;
-    ///
     ///   </code>
     /// </example>
     /// <example>
     ///   <para>Run Visual Basic.NET code that writes a message to the build log.</para>
     ///   <code>
     ///         &lt;script language=&quot;VB&quot;&gt;
-    ///             &lt;code&gt;&lt;![CDATA[
+    ///             &lt;code&gt;
+    ///               &lt;![CDATA[
     ///                 Public Shared Sub ScriptMain(project As Project)
     ///                     project.Log(Level.Info, &quot;Hello World from a script task using Visual Basic.NET&quot;)
     ///                 End Sub
-    ///             ]]&gt;&lt;/code&gt;
+    ///               ]]&gt;
+    ///             &lt;/code&gt;
     ///         &lt;/script&gt;
     ///   </code>
     /// </example>
