@@ -51,7 +51,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <echo message='Third target executed'/>
                 </target>
                 <target name='prop'>
-                    <if propertyexits='test'>
+                    <if propertyexists='test'>
                         <echo message='testprop=${test}'/>
                     </if>
                     <property name='test' value='2nd'/>

@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<projects default="test" xmlns="http://blah" xmlns:other="http://blah">
+	<!-- I am not a target; see my namespace-->
+	<blah:target name="test"></blah:target>
+</projects>

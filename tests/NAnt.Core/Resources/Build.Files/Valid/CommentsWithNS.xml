@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<nant:project name="foo" default="blah" xmlns:nant="http://nant.sf.net/schema/nant.xsd">
+<!-- hello -->
+	<nant:target name="blah">
+		<!-- yeah -->
+	</nant:target>
+</nant:project>

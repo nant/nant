@@ -26,6 +26,10 @@
                 <includes name="nunit.framework.dll" />
                 <includes name="log4net.dll"/>
             </references>
+            <resources failonempty="true" basedir="Resources" dynamicprefix="true" prefix="XML:">
+				<includes name="**/*.xml"/>
+				<includes name="**/*.build"/>
+            </resources>
         </csc>
     </target>
     <target name="test" depends="build">

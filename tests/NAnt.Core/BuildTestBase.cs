@@ -139,7 +139,7 @@ namespace Tests.NAnt.Core {
         /// Any exception that is thrown as part of the execution of the 
         /// <see cref="Project" /> is wrapped in a <see cref="TestBuildException" />.
         /// </remarks>
-        public string ExecuteProject(Project p) {
+        public static string ExecuteProject(Project p) {
             using (ConsoleCapture c = new ConsoleCapture()) {
                 string output = null;
                 try {
