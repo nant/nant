@@ -226,6 +226,8 @@ namespace NAnt.VSNet.Tasks {
             rt.Output = strOutFile;
             rt.Verbose = false;
             rt.Project = _nanttask.Project;
+            rt.BaseDirectory = Path.GetDirectoryName(strInFile);
+            rt.ToDirectory = Path.GetDirectoryName(strInFile);
 
             rt.Project.Indent();
             rt.Execute();

@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Reflection;
 using System.Resources;
@@ -38,11 +39,11 @@ namespace NAnt.VSNet.Tasks {
         private const string COMMAND_FILE = "compile-commands.txt";
 
         public Project(Task nanttask, TempFileCollection tfc) {
-            _htConfigurations = new Hashtable();
-            _htReferences = new Hashtable();
-            _htFiles = new Hashtable();
-            _htResources = new Hashtable();
-            _htAssemblies = new Hashtable();
+            _htConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htAssemblies = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _nanttask = nanttask;
             _tfc = tfc;
         }
@@ -122,7 +123,7 @@ namespace NAnt.VSNet.Tasks {
             nlConfigurations = doc.SelectNodes( "//Config" );
             foreach ( XmlElement elemConfig in nlConfigurations ) {
                 ConfigurationSettings cs = new ConfigurationSettings( _ps, elemConfig );
-                _htConfigurations[ elemConfig.Attributes[ "Name" ].Value.ToLower() ] = cs;
+                _htConfigurations[ elemConfig.Attributes[ "Name" ].Value ] = cs;
             }
 
             nlReferences = doc.SelectNodes( "//References/Reference" );
@@ -222,7 +223,7 @@ namespace NAnt.VSNet.Tasks {
         public bool Compile(string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
             bool bSuccess = true;
 
-            ConfigurationSettings cs = ( ConfigurationSettings )_htConfigurations[ strConfiguration.ToLower() ];
+            ConfigurationSettings cs = ( ConfigurationSettings )_htConfigurations[ strConfiguration ];
             if ( cs == null ) {
                 Console.WriteLine( "Configuration {0} does not exist, skipping.", strConfiguration );
                 return true;

@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -31,12 +32,12 @@ namespace NAnt.VSNet.Tasks {
     public class Solution {
         public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, TempFileCollection tfc, Task nanttask ) {
             _strFilename = strSolutionFilename;
-            _htProjects = new Hashtable();
-            _htProjectDirectories = new Hashtable();
-            _htOutputFiles = new Hashtable();
-            _htProjectFiles = new Hashtable();
-            _htProjectDependencies = new Hashtable();
-            _htReferenceProjects = new Hashtable();
+            _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _tfc = tfc;
             _nanttask = nanttask;
 
@@ -110,12 +111,12 @@ namespace NAnt.VSNet.Tasks {
         }
 
         public Solution( ArrayList alProjects, ArrayList alReferenceProjects, TempFileCollection tfc, Task nanttask ) {
-            _htProjects = new Hashtable();
-            _htProjectDirectories = new Hashtable();
-            _htOutputFiles = new Hashtable();
-            _htProjectFiles = new Hashtable();
-            _htProjectDependencies = new Hashtable();
-            _htReferenceProjects = new Hashtable();
+            _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _tfc = tfc;
             _nanttask = nanttask;
 
@@ -141,7 +142,7 @@ namespace NAnt.VSNet.Tasks {
         private void AddProjectDependency( string strProjectGUID, string strDependencyGUID ) {
             //Console.WriteLine( "{0}->{1}", strProjectGUID, strDependencyGUID );
             if ( !_htProjectDependencies.Contains( strProjectGUID ) )
-                _htProjectDependencies[ strProjectGUID ] = new Hashtable();
+                _htProjectDependencies[ strProjectGUID ] = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
             ( ( Hashtable )_htProjectDependencies[ strProjectGUID ] )[ strDependencyGUID ] = null;
         }
@@ -184,7 +185,7 @@ namespace NAnt.VSNet.Tasks {
 
                 foreach ( string strConfiguration in p.Configurations ) {
                     //Console.WriteLine( "{0} [{1}] -> {2}", p.Name, strConfiguration, p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() );
-                    _htOutputFiles[ p.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower() ] = strGUID;
+                    _htOutputFiles[ p.GetConfigurationSettings( strConfiguration ).FullOutputFile ] = strGUID;
                 }
             }
 
@@ -196,8 +197,8 @@ namespace NAnt.VSNet.Tasks {
                 foreach ( Reference r in p.References ) {
                     if ( r.IsProjectReference )
                         AddProjectDependency( strGUID, r.ProjectReferenceGUID );
-                    else if ( _htOutputFiles.Contains( r.Filename.ToLower() ) )
-                        AddProjectDependency( strGUID, ( string )_htOutputFiles[ r.Filename.ToLower() ] );
+                    else if ( _htOutputFiles.Contains( r.Filename ) )
+                        AddProjectDependency( strGUID, ( string )_htOutputFiles[ r.Filename ] );
                 }
             }
         }
@@ -212,8 +213,8 @@ namespace NAnt.VSNet.Tasks {
 
         public bool Compile( string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands ) {
             Hashtable htDeps = ( Hashtable )_htProjectDependencies.Clone();
-            Hashtable htProjectsDone = new Hashtable();
-            Hashtable htFailedProjects = new Hashtable();
+            Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
             bool bSuccess = true;
             while ( true ) {
@@ -235,18 +236,18 @@ namespace NAnt.VSNet.Tasks {
                             foreach ( Reference r in p.References ) {
                                 //Console.WriteLine( "Original: {0}", r.Filename );
                                 if ( r.IsProjectReference ) {
-                                    Project pRef = ( Project )_htProjects[ r.ProjectReferenceGUID ];
+                                    Project pRef = GetProjectFromGUID(r.ProjectReferenceGUID);
                                     if ( pRef == null )
                                         throw new Exception( "Unable to locate referenced project while loading " + p.Name );
                                     if ( pRef.GetConfigurationSettings( strConfiguration ) == null )
-                                        throw new Exception( "Unable to find appropriate configuration for project reference" );
+                                        throw new Exception( "Unable to find appropriate configuration " + strConfiguration + " for project reference " + p.Name);
                                     if ( pRef != null )
-                                        r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower();
+                                        r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile;
                                 } 
-                                else if ( _htOutputFiles.Contains( r.Filename.ToLower() ) ) {
-                                    Project pRef = ( Project )_htProjects[ ( string )_htOutputFiles[ r.Filename.ToLower() ] ];
+                                else if ( _htOutputFiles.Contains( r.Filename ) ) {
+                                    Project pRef = ( Project )_htProjects[ ( string )_htOutputFiles[ r.Filename ] ];
                                     if ( pRef != null && pRef.GetConfigurationSettings( strConfiguration ) != null )
-                                        r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile.ToLower();
+                                        r.Filename = pRef.GetConfigurationSettings( strConfiguration ).FullOutputFile;
                                 }
                                 
                                 //Console.WriteLine( "   Now: {0}", r.Filename );
