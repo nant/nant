@@ -52,6 +52,11 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         protected const String PathVariable = "PATH";
         /// <summary>
+        /// The environment variable that holds the location of the
+        /// .cvspass file.
+        /// </summary>
+        protected const string CvsPassFileVariable = "CVS_PASSFILE";
+        /// <summary>
         /// Property name used to specify the source control executable.  This is 
         ///     used as a readonly property.
         /// </summary>
@@ -204,11 +209,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("passfile")]
         public FileInfo PassFile {
-            get {
-                if (null == _passFile) {
-                    _passFile = DerivePassFile();
-                }
-                return _passFile;}
+            get {return _passFile;}
             set {_passFile = value;}
         }
 
@@ -379,6 +380,15 @@ namespace NAnt.SourceControl.Tasks {
                     Logger.Warn("Possibility cvs_rsh key has already been added.", e);
                 }
             }
+            if (null != this.PassFile) {
+                if (process.StartInfo.EnvironmentVariables.ContainsKey(CvsPassFileVariable)) {
+                    process.StartInfo.EnvironmentVariables[CvsPassFileVariable] = this.PassFile.FullName;
+                } else {
+                    process.StartInfo.EnvironmentVariables.Add(CvsPassFileVariable, PassFile.FullName);
+                }
+            }
+            Log(Level.Verbose, "Using ssh binary: {0}", process.StartInfo.EnvironmentVariables[SshEnv]);
+            Log(Level.Verbose, "Using .cvspass file: {0}", process.StartInfo.EnvironmentVariables[CvsPassFileVariable]);
         }
 
         #endregion
@@ -388,50 +398,6 @@ namespace NAnt.SourceControl.Tasks {
         #endregion
 
         #region Private Instance Methods
-
-        /// <summary>
-        /// Get the password file location derived by looking for the file name/ 
-        ///     path specified by the virtual property <code>PassFileName</code>.  
-        ///     The following search algorithm is applied:
-        ///     <list type="list">
-        ///         <item>Search in the <code>Home</code> path of the user.</item>
-        ///         <item>Search in the <code>APPDATA</code> path of the user.</item>
-        ///         <item>Search in the root directory of the current executing process</item>
-        ///         <item>Fail with an 'E' for effort.</item>
-        ///     </list>
-        /// </summary>
-        /// <returns>A <code>FileInfo</code> object that specifies the location
-        ///     of the passfile or <code>null</code> if this cannot be found.</returns>
-        protected FileInfo DerivePassFile () {
-            if (_passFile == null) {
-                FileInfo passFile = DerivePassFile(EnvHome);
-
-                // only valid on a windows machine, but should not hurt to look
-                //  for this on a linux machine
-                if (null == passFile) {
-                    passFile = DerivePassFile(AppData);
-                }
-
-                // finally search in the root directory of the current process
-                if (null == passFile) {
-                    string rootDir = 
-                        Path.GetPathRoot(System.AppDomain.CurrentDomain.BaseDirectory);
-                    string passFileFullName =
-                        Path.Combine(rootDir, PassFileName);
-                    if (File.Exists(passFileFullName)) {
-                        passFile = new FileInfo(passFileFullName);
-                    } else {
-                        passFile = null;
-                    }
-                }
-                return passFile;
-            }
-            return _passFile;
-        }
-
-        private FileInfo DerivePassFile(String environmentVar) {
-            return DeriveFullPathFromEnv(environmentVar, PassFileName);
-        }
 
         private FileInfo DeriveFullPathFromEnv(string environmentVar, string fileName) {
             string environmentValue = StringUtils.ConvertEmptyToNull(
