@@ -47,6 +47,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace SourceForge.NAnt {
     /// <summary>Used for searching file system based on given include/exclude rules.</summary>
@@ -163,18 +164,18 @@ namespace SourceForge.NAnt {
             _fileNames = new StringCollection();
             _directoryNames = new StringCollection();
             _searchDirectories = new StringCollection();
+            _searchDirIsRecursive = new ArrayList();
             _pathsAlreadySearched = new StringCollection();
 
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
-            convertPatterns(_includes, _includePatterns);
-            convertPatterns(_excludes, _excludePatterns);
+            convertPatterns(_includes, _includePatterns, true);
+            convertPatterns(_excludes, _excludePatterns, false);
             
-            foreach (string path in _searchDirectories) {
-                ScanDirectory(path);
+            for (int index = 0; index < _searchDirectories.Count; index++) {
+                ScanDirectory(_searchDirectories[index], (bool)_searchDirIsRecursive[index]);
             }
         }
-
 
 
         /// <summary>
@@ -185,13 +186,25 @@ namespace SourceForge.NAnt {
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>
-        public void convertPatterns(StringCollection nantPatterns, StringCollection regexPatterns) {
+        public void convertPatterns(StringCollection nantPatterns, StringCollection regexPatterns, bool isInclude) {
             string searchDirectory;
             string regexPattern;
+            bool isRecursive;
             foreach (string nantPattern in nantPatterns) {
-                parseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out regexPattern);
-                if (!_searchDirectories.Contains(searchDirectory)) {
+                parseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out isRecursive, out regexPattern);
+                if (!isInclude)
+                    continue;
+                int index = _searchDirectories.IndexOf(searchDirectory);
+                // If the directory was found before, but wasn't recursive and is now, mark it as so
+                if (index > -1) {
+                    if (!(bool)_searchDirIsRecursive[index] && isRecursive) {
+                        _searchDirIsRecursive[index] = isRecursive;
+                    }
+                }
+                // If the directory has not been added, add it
+                if (index == -1) {
                     _searchDirectories.Add(searchDirectory);
+                    _searchDirIsRecursive.Add(isRecursive);
                 }
                 if (!regexPatterns.Contains(regexPattern))
                     regexPatterns.Add(regexPattern);
@@ -205,6 +218,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="originalNAntPattern">NAnt searh pattern (relative to the Basedirectory OR absolute, relative paths refering to parent directories ( ../ ) also supported)</param>
         /// <param name="searchDirectory">Out. Absolute canonical path to the directory to be searched</param>
+        /// <param name="recursive">Out. Whether the pattern is potentially recursive or not</param>
         /// <param name="regexPattern">Out. Regex search pattern (absolute canonical path)</param>
         /// <history>
         ///     <change date="20020220" author="Ari Hännikäinen">Created</change>
@@ -215,8 +229,15 @@ namespace SourceForge.NAnt {
         ///     "/foo/bar/fudge/nugget".  (pattern = "fudge/nugget" would still be treated as relative to basedir)
         ///     </change>
         /// </history>
-        public void parseSearchDirectoryAndPattern(string originalNAntPattern, out string searchDirectory, out string regexPattern) {
+        public void parseSearchDirectoryAndPattern(string originalNAntPattern, out string searchDirectory, out bool recursive, out string regexPattern) {
             string s = originalNAntPattern;
+            s = s.Replace('\\', Path.DirectorySeparatorChar);
+            s = s.Replace('/', Path.DirectorySeparatorChar);
+
+            // Get indices of pieces used for recursive check only
+            int indexOfFirstDirectoryWildcard = s.IndexOf("**");
+            int indexOfLastOriginalDirectorySeparator = s.LastIndexOf(Path.DirectorySeparatorChar);
+
             // search for the first wildcard character (if any) and exclude the rest of the string beginnning from the character
             char[] wildcards = {'?', '*'};
             int indexOfFirstWildcard = s.IndexOfAny(wildcards);
@@ -224,10 +245,19 @@ namespace SourceForge.NAnt {
                 s = s.Substring(0, indexOfFirstWildcard);
             }
 
-            s = s.Replace('\\', Path.DirectorySeparatorChar);
-            s= s.Replace('/', Path.DirectorySeparatorChar);
             // find the last DirectorySeparatorChar (if any) and exclude the rest of the string
             int indexOfLastDirectorySeparator = s.LastIndexOf(Path.DirectorySeparatorChar);
+
+            // The pattern is potentially recursive if and only if more than one base directory could be matched.
+            // ie: 
+            //    **
+            //    **/*.txt
+            //    foo*/xxx
+            //    x/y/z?/www
+            // This condition is true if and only if:
+            //  - The first wildcard is before the last directory separator, or
+            //  - The pattern contains a directory wildcard ("**")
+            recursive = ( indexOfFirstWildcard < indexOfLastOriginalDirectorySeparator ) || indexOfFirstDirectoryWildcard != -1;
 
             // substring preceding the separator represents our search directory and the part following it represents nant search pattern relative to it            
             if (indexOfLastDirectorySeparator != -1) {
@@ -265,11 +295,11 @@ namespace SourceForge.NAnt {
         ///     Searches a directory recursively for files and directories matching the search criteria
         /// </summary>
         /// <param name="path">Directory in which to search (absolute canonical path)</param>
+        /// <param name="recursive">Whether to scan recursively or not</param>
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Checking if the directory has already been scanned</change>
         /// </history>
-        void ScanDirectory(string path) {
-
+        void ScanDirectory(string path, bool recursive) {
             // scan each directory only once
             if (_pathsAlreadySearched.Contains(path)) {
                 return;
@@ -286,9 +316,16 @@ namespace SourceForge.NAnt {
             
             bool caseSensitive = VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetDirectoryName(path) + Path.DirectorySeparatorChar));
 
-            // scan subfolders
             foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
-                ScanDirectory(directoryInfo.FullName);
+                if (recursive) {
+                    // scan subfolders if we are running recursively
+                    ScanDirectory(directoryInfo.FullName, true);
+                } else {
+                    // otherwise just test to see if the subdirectories are included
+                    if (IsPathIncluded(directoryInfo.FullName, caseSensitive)) {
+                        _directoryNames.Add(directoryInfo.FullName);
+                    }
+                }
             }
 
             // scan files
