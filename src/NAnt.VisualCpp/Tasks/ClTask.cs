@@ -132,7 +132,6 @@ namespace SourceForge.NAnt.Tasks {
             StreamWriter writer = new StreamWriter(_responseFileName);
 
             try {
-
                 // write basic switches
                 writer.WriteLine("/c");     // compile only
 
@@ -157,7 +156,7 @@ namespace SourceForge.NAnt.Tasks {
 
                 // write each of the filenames
                 foreach(string filename in Sources.FileNames) {
-                    writer.WriteLine( "\"{0}\"", filename);                  
+                    writer.WriteLine( "\"{0}\"", filename);
                 }
 
                 writer.Close();

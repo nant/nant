@@ -26,8 +26,8 @@ using System.Runtime.InteropServices;
 // Mark NAnt.VisualCppTasks CLS compliant
 [assembly: CLSCompliant(true)]
 
-// Make NAnt.VisualCppTasks visible to COM
-[assembly: ComVisible(true)]
+// Make NAnt.VisualCppTasks as NOT visible to COM
+[assembly: ComVisible(false)]
 
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
