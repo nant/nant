@@ -88,7 +88,7 @@ namespace NAnt.VSNet {
             return (XmlDocument) _cachedProjectXml[path];
         }    
 
-        public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir, string path) {
+        public static ProjectBase LoadProject(SolutionBase sln, SolutionTask slnTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir, string path) {
             string projectFileName = ProjectFactory.GetProjectFileName(path);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);

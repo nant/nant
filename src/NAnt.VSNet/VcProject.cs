@@ -154,7 +154,7 @@ namespace NAnt.VSNet {
 
         #region Public Instance Methods
 
-        public override void Load(Solution sln, string projectPath) {
+        public override void Load(SolutionBase sln, string projectPath) {
             _projectPath = Path.GetFullPath(projectPath);
             XmlDocument doc = null;
 

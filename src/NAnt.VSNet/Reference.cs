@@ -56,7 +56,7 @@ namespace NAnt.VSNet {
         ///   <para>-or-</para>
         ///   <para><paramref name="parent" /> is <see langword="null" />.</para>
         /// </exception>
-        public Reference(Solution solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, ReferencesResolver refResolver, ProjectBase parent, DirectoryInfo outputDir) {
+        public Reference(SolutionBase solution, ProjectSettings ps, XmlElement elemReference, GacCache gacCache, ReferencesResolver refResolver, ProjectBase parent, DirectoryInfo outputDir) {
             if (elemReference == null) {
                 throw new ArgumentNullException("elemReference");
             }

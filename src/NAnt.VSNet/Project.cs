@@ -134,7 +134,7 @@ namespace NAnt.VSNet {
             get { return (Reference[]) new ArrayList(_htReferences.Values).ToArray(typeof(Reference)); }
         }
 
-        public override void Load(Solution sln, string projectPath) {
+        public override void Load(SolutionBase sln, string projectPath) {
             XmlDocument doc = null;
 
             try {

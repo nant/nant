@@ -197,7 +197,7 @@ namespace NAnt.VSNet {
             return config.OutputPath;
         }
 
-        public abstract void Load(Solution sln, string fileName);
+        public abstract void Load(SolutionBase sln, string fileName);
 
         public ConfigurationBase GetConfiguration(string configuration) {
             return (ConfigurationBase) ProjectConfigurations[configuration];

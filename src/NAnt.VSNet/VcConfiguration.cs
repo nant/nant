@@ -39,10 +39,10 @@ namespace NAnt.VSNet {
     public class VcConfiguration : ConfigurationBase {
         #region Internal Instance Constructors
 
-        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, DirectoryInfo outputDir) : this(elem, parentProject, parentSln, null, outputDir) {
+        internal VcConfiguration(XmlElement elem, VcProject parentProject, SolutionBase parentSln, DirectoryInfo outputDir) : this(elem, parentProject, parentSln, null, outputDir) {
         }
 
-        internal VcConfiguration(XmlElement elem, VcProject parentProject, Solution parentSln, VcConfiguration parentConfig, DirectoryInfo outputDir) : base(parentProject) {
+        internal VcConfiguration(XmlElement elem, VcProject parentProject, SolutionBase parentSln, VcConfiguration parentConfig, DirectoryInfo outputDir) : base(parentProject) {
             _parentConfig = parentConfig;
 
             // get name of configuration (also contains the targeted platform)
