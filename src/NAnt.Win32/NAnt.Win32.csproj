@@ -56,6 +56,10 @@
                     AssemblyName = "System.Web"
                 />
                 <Reference
+                    Name = "System.ServiceProcess"
+                    AssemblyName = "System.ServiceProcess"
+		/>
+                <Reference
                     Name = "Microsoft.JScript"
                     AssemblyName = "Microsoft.JScript"
                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\Microsoft.JScript.dll"
@@ -92,6 +96,11 @@
                 />
                 <File
                     RelPath = "Tasks\ScriptTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\ServiceControllerTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
