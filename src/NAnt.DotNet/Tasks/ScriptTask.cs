@@ -258,19 +258,32 @@ namespace NAnt.Core.Tasks {
             options.GenerateInMemory = true;
             options.MainClass = MainClass;
 
-            // Add all available assemblies.
+            // add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
                 try {
                     if (!StringUtils.IsNullOrEmpty(asm.Location)) {
                         options.ReferencedAssemblies.Add(asm.Location);
                     }
                 } catch (NotSupportedException) {
-                    // Ignore - this error is sometimes thrown by asm.Location for certain dynamic assemblies
+                    // Ignore - this error is sometimes thrown by asm.Location 
+                    // for certain dynamic assemblies
                 }
             }
 
-            foreach (string assemblyName in References.FileNames) {
-                options.ReferencedAssemblies.Add(assemblyName);
+            // add (and load) assemblies specified by user
+            foreach (string assemblyFile in References.FileNames) {
+                try {
+                    // load assemblies into current AppDomain to ensure assemblies
+                    // are available when executing the emitted assembly
+                    Assembly.LoadFrom(assemblyFile);
+
+                    // make assembly available to compiler
+                    options.ReferencedAssemblies.Add(assemblyFile);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Error loading assembly '{0}'.", assemblyFile), Location,
+                        ex);
+                }
             }
 
             StringCollection imports = new StringCollection();
@@ -339,17 +352,23 @@ namespace NAnt.Core.Tasks {
                 throw new BuildException("Invalid entry point declaration (wrong number of parameters).", Location);
             }
 
-            if (entryParams[0].ParameterType.FullName != "NAnt.Core.Project") {
-                throw new BuildException("Invalid entry point declaration (invalid parameter type, Project expected).", Location);
+            if (entryParams[0].ParameterType.FullName != typeof(Project).FullName) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Invalid entry point declaration (invalid parameter type '{0}'"
+                    + ", '{1}' expected).", entryParams[0].ParameterType.FullName,
+                    typeof(Project).FullName), Location);
             }
               
-            // invoke Main method
-            entry.Invoke(null, new object[] {Project});
-//            } catch (Exception ex) {
+            try {
+                // invoke Main method
+                entry.Invoke(null, new object[] {Project});
+            } catch (Exception ex) {
                 // this exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception
                 // thrown by the executed script code.
-//                throw new BuildException("Failure executing script.", Location, ex.InnerException);
+                throw new BuildException("Failure executing script.", Location, 
+                    ex.InnerException);
+            }
         }
 
         #endregion Override implementation of Task
