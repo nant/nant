@@ -27,12 +27,15 @@ using System.Reflection;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>
     /// Provides the abstract base class for tasks.
     /// </summary>
-    /// <remarks>A task is a piece of code that can be executed.</remarks>
+    /// <remarks>
+    /// A task is a piece of code that can be executed.
+    /// </remarks>
     public abstract class Task : Element {
         #region Private Static Fields
 
@@ -148,11 +151,16 @@ namespace NAnt.Core {
                         if (this.Verbose) {
                             Log(Level.Error, LogPrefix + ex.ToString());
                         } else {
-                            if (ex.InnerException != null && ex.InnerException.Message != null) {
-                                Log(Level.Error, ex.Message + "\n " + ex.InnerException.Message);
-                            } else {
-                                Log(Level.Error, ex.Message);
+                            string msg = ex.Message;
+
+                            Exception nestedException = ex.InnerException;
+                            while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
+                                msg = (msg != null) ? "\n " : string.Empty;
+                                msg += nestedException.Message;
+                                nestedException = nestedException.InnerException;
                             }
+
+                            Log(Level.Error, msg);
                         }
                     }
                 } finally {
