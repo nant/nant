@@ -32,22 +32,38 @@ namespace NAnt.Core.Tasks {
     ///   <para>Macros in the message will be expanded.</para>
     /// </remarks>
     /// <example>
-    ///   <para>Writes message to build log.</para>
-    ///   <code>&lt;echo message="Hello, World!"/&gt;</code>
-    ///   <para>Writes message with expanded macro to build log.</para>
-    ///   <code>&lt;echo message="Base build directory = ${nant.project.basedir}"/&gt;</code>
+    ///   <para>Writes a message with level <see cref="F:Level.Debug" /> to the build log.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo message="Hello, World!" level="Debug" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>Writes a message with expanded macro to the build log.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo message="Base build directory = ${nant.project.basedir}"/>
+    ///     ]]>
+    ///   </code>
     ///   <para>Functionally equivalent to the previous example.</para>
-    ///   <code>&lt;echo&gt;Base build directory = ${nant.project.basedir}&lt;/echo&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo>Base build directory = ${nant.project.basedir}</echo>
+    ///     ]]>
+    ///   </code>
     ///   <para>Triggers a ValidationException</para>
-    ///   <code>&lt;echo message="Hello, World!"&gt;Hello, World&lt;/echo&gt;</code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo message="Hello, World!">Hello, World</echo>
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("echo")]
     public class EchoTask : Task {
         #region Private Instance Fields
 
-        string _message = null;
-        string _contents = null;
-        Level _level = Level.Info;
+        private string _message = null;
+        private string _contents = null;
+        private Level _level = Level.Info;
 
         #endregion Private Instance Fields
 
@@ -95,8 +111,10 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The logging level with which the message should be output. The default 
-        /// is <see cref="P:Level.Info" />.
+        /// The logging level with which the message should be output - either 
+        /// <see cref="F:Level.Debug" />, <see cref="F:Level.Verbose" />,
+        /// <see cref="F:Level.Info" />, <see cref="F:Level.Warning" /> or 
+        /// <see cref="F:Level.Error" />. Default is <see cref="F:Level.Info" />.
         /// </summary>
         [TaskAttribute("level")]
         public Level Level {

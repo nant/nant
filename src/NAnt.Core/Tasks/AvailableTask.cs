@@ -108,12 +108,13 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("resource", Required=true)]
         public string Resource {
             get { return _resource; }
-            set { _resource = value; }
+            set { _resource = SetStringValue(value); }
         }
 
         /// <summary>
-        /// The type of resource which must be present - either <c>File</c>, 
-        /// <c>Directory</c>, <c>Framework</c> or <c>FrameworkSDK</c>.
+        /// The type of resource which must be present - either <see cref="ResourceType.File" />, 
+        /// <see cref="ResourceType.Directory" />, <see cref="ResourceType.Framework" /> 
+        /// or <see cref="ResourceType.FrameworkSDK" />.
         /// </summary>
         [TaskAttribute("type", Required=true)]
         public ResourceType Type { 
@@ -133,7 +134,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("property", Required=true)]
         public string PropertyName {
             get { return _propertyName; }
-            set { _propertyName = value; }
+            set { _propertyName = SetStringValue(value); }
         }
 
         #endregion Public Instance Properties

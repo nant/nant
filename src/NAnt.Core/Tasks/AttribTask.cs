@@ -55,13 +55,13 @@ namespace NAnt.Core.Tasks {
     public class AttribTask : Task {
         #region Private Instance Fields
 
-        string _fileName = null;
-        FileSet _fileset = new FileSet();
-        bool _archiveAttrib = false;
-        bool _hiddenAttrib = false;
-        bool _normalAttrib = false;
-        bool _readOnlyAttrib = false;
-        bool _systemAttrib = false;
+        private string _fileName = null;
+        private FileSet _fileset = new FileSet();
+        private bool _archiveAttrib = false;
+        private bool _hiddenAttrib = false;
+        private bool _normalAttrib = false;
+        private bool _readOnlyAttrib = false;
+        private bool _systemAttrib = false;
 
         #endregion Private Instance Fields
 
@@ -74,7 +74,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("file")]
         public string FileName {
             get { return _fileName; }
-            set { _fileName = value; }
+            set { _fileName = SetStringValue(value); }
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the archive attribute. Default is "false".
+        /// Set the archive attribute. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("archive")]
         [BooleanValidator()]
@@ -97,7 +97,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the hidden attribute. Default is "false".
+        /// Set the hidden attribute. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("hidden")]
         [BooleanValidator()]
@@ -108,7 +108,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Set the normal file attributes. This attribute is valid only if used 
-        /// alone. Default is "false".
+        /// alone. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("normal")]
         [BooleanValidator()]
@@ -118,7 +118,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the read-only attribute. Default is "false".
+        /// Set the read-only attribute. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("readonly")]
         [BooleanValidator()]
@@ -128,7 +128,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Set the system attribute. Default is "false".
+        /// Set the system attribute. Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("system")]
         [BooleanValidator()]

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using NAnt.Core.Attributes;
@@ -47,8 +47,8 @@ namespace NAnt.Core.Tasks {
     public class CallTask : Task {
         #region Private Instance Fields
 
-        string _target = null;
-        bool _force = false;
+        private string _target = null;
+        private bool _force = false;
 
         #endregion Private Instance Fields
 
@@ -60,16 +60,17 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("target", Required=true)]
         public string TargetName {
             get { return _target; }
-            set { _target = value; }
+            set { _target = SetStringValue(value); }
         }
 
         /// <summary>
         /// Force a execute even if the target has already been executed.
+        /// Default is <c>false</c>.
         /// </summary>
         [TaskAttribute("force")]
         public bool ForceExecute {
             get { return _force; }
-            set { _force= value; }
+            set { _force = value; }
         }
 
         #endregion Public Instance Properties
