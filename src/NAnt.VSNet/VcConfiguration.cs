@@ -101,10 +101,8 @@ namespace NAnt.VSNet {
                 _referencesPath = _parentConfig.ReferencesPath;
             }
 
-            _htTools = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
             XmlNodeList tools = elem.GetElementsByTagName("Tool");
-            foreach(XmlElement toolElem in tools) {
+            foreach (XmlElement toolElem in tools) {
                 string toolName = toolElem.GetAttribute("Name");
                 Hashtable htToolSettings = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
@@ -262,7 +260,18 @@ namespace NAnt.VSNet {
                             Location.UnknownLocation);
                     }
                 default:
-                    return base.ExpandMacro(macro);
+                    try {
+                        return base.ExpandMacro(macro);
+                    } catch (BuildException) {
+                        // Visual C++ also supports environment variables
+                        string envvar = Environment.GetEnvironmentVariable(macro);
+                        if (envvar != null) {
+                            return envvar;
+                        } else {
+                            // re-throw build exception
+                            throw;
+                        }
+                    }
             }
         }
 
@@ -415,7 +424,7 @@ namespace NAnt.VSNet {
 
         private readonly string _name;
         private readonly VcConfiguration _parentConfig;
-        private readonly Hashtable _htTools;
+        private readonly Hashtable _htTools = CollectionsUtil.CreateCaseInsensitiveHashtable();
         private DirectoryInfo _outputDir;
         private readonly string _relativeOutputDir;
         private readonly string _intermediateDir;
