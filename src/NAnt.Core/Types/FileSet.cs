@@ -36,7 +36,8 @@ namespace NAnt.Core.Types {
     /// <history>
     /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
     /// </history>
-    [ElementName("fileset")]
+    /// 
+	[ElementName("fileset")]
     public class FileSet : DataTypeBase {
         #region Private Instance Fields
 
@@ -114,7 +115,7 @@ namespace NAnt.Core.Types {
         [TaskAttribute("basedir")]
         public string BaseDirectory {
             get { return _scanner.BaseDirectory; }
-            set { _scanner.BaseDirectory = value; }
+            set { _scanner.BaseDirectory = (Project == null ? value : Project.GetFullPath(value)); }
         }
 
         public StringCollection Includes {
@@ -165,7 +166,7 @@ namespace NAnt.Core.Types {
             }
         }
 
-        [BuildElementArray("includes")]
+        [BuildElementArray("includes", typeof(IncludesElement))]
         public IncludesElement[] SetIncludes {
             set {                foreach(IncludesElement include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
@@ -180,7 +181,7 @@ namespace NAnt.Core.Types {
                         }
                     }                }            }        }
 
-        [BuildElementArray("excludes")]
+        [BuildElementArray("excludes", typeof(ExcludesElement))]
         public ExcludesElement[] SetExcludes {
             set {
                 foreach(ExcludesElement exclude in value) {
@@ -191,7 +192,7 @@ namespace NAnt.Core.Types {
                 }
             }        }
 
-        [BuildElementArray("includesList")]
+        [BuildElementArray("includesList",typeof(IncludesElement))]
         public IncludesListElement[] SetIncludesList {
             set {
                 foreach (IncludesListElement include in value){
