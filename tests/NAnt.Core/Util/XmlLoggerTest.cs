@@ -122,8 +122,6 @@ namespace Tests.NAnt.Core.Util {
             _log.MessageLogged(this, args);
 
             string expected = string.Format(CultureInfo.InvariantCulture, "<message level=\"Info\"><![CDATA[{0}]]></message>", baseMessage);
-
-            System.Console.WriteLine(_log.ToString());
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
