@@ -102,14 +102,19 @@ namespace NAnt.VSNet {
             foreach (DictionaryEntry de in htStringSettings) {
                 string value = elemConfig.GetAttribute(de.Key.ToString());
                 if (!StringUtils.IsNullOrEmpty(value)) {
-                    if (de.Key.ToString() == "BaseAddress") {
-                        // vbc expects the base address to be specified as a
-                        // hexadecimal number, csc supports decimal, hexadecimal, 
-                        // or octal number
-                        int intvalue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
-                        value = intvalue.ToString("x", CultureInfo.InvariantCulture);
+                    switch (de.Key.ToString()) {
+                        case "BaseAddress":
+                            // vbc expects the base address to be specified as a
+                            // hexadecimal number, csc supports decimal, hexadecimal, 
+                            // or octal number
+                            int intvalue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                            value = intvalue.ToString("x", CultureInfo.InvariantCulture);
+                            break;
+                        case "DefineConstants":
+                            // vbc fails when the symbol contains spaces
+                            value = value.Replace(" ", string.Empty);
+                            break;
                     }
-
                     _settings.Add(string.Format(CultureInfo.InvariantCulture, de.Value.ToString(), value));
                 }
             }
