@@ -19,6 +19,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
+using System.Collections;
 using System.Globalization;
 
 using NAnt.Core.Attributes;
@@ -40,45 +41,102 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("property")]
     public class PropertyTask : Task {
-        
-        string _name = null;        
-        string _value = String.Empty;
-        bool _ro = false;
+        #region Private Instance Fields
 
-        /// <summary>the name of the property to set.</summary>        
+        private string _name = null;
+        private string _value = string.Empty;
+        private bool _readOnly = false;
+        private bool _overwrite = true;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The name of the property to set.
+        /// </summary>
         [TaskAttribute("name", Required=true)]
-        public string PropName { get { return _name; } set { _name = value; } }
+        public string PropertyName {
+            get { return _name; }
+            set { _name = value; }
+        }
 
-        /// <summary>the value of the property.</summary>        
+        /// <summary>
+        /// The value to assign to the property.
+        /// </summary>
         [TaskAttribute("value", Required=true)]
-        public string Value { get { return _value; } set { _value = value; } }
+        public string Value {
+            get { return _value; }
+            set { _value = value; }
+        }
 
-        /// <summary>the value of the property.</summary>        
+        /// <summary>
+        /// Specifies whether the property is read-only or not. Default is "false".
+        /// </summary>
         [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
-        public bool ReadOnly { get { return _ro; } set { _ro = value; } }
+        public bool ReadOnly {
+            get { return _readOnly; }
+            set { _readOnly = value; }
+        }
 
+        /// <summary>
+        /// Specifies whether the value of a property should be overwritten if
+        /// the property already exists (unless the property is readonly). 
+        /// Default is "true".
+        /// </summary>
+        [TaskAttribute("overwrite", Required=false)]
+        [BooleanValidator()]
+        public bool Overwrite {
+            get { return _overwrite; }
+            set { _overwrite = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             // Special check for framework setting.
             // TODO design framework for handling special properties
-            if (_name == "nant.settings.currentframework"){               
-                if (  Project.FrameworkInfoDictionary.Contains(_value)) {
-                    Project.CurrentFramework  = Project.FrameworkInfoDictionary[_value];
+            if (_name == "nant.settings.currentframework") {
+                if (Project.FrameworkInfoDictionary.Contains(_value)) {
+                    Project.CurrentFramework = Project.FrameworkInfoDictionary[_value];
                 } else {
-					System.Collections.ArrayList validvalues = new System.Collections.ArrayList();
-					foreach (FrameworkInfo fi in Project.FrameworkInfoDictionary)
-						validvalues.Add(fi.Name);
-					string validvaluesare = String.Empty;
-					if (validvalues.Count > 0)
-						validvaluesare = String.Format(CultureInfo.InvariantCulture, "Valid values are: {0}.", String.Join(", ", (string[])validvalues.ToArray(typeof(string))));
-                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Error setting current Framework. {0} is not a valid framework identifier. {1}", _value, validvaluesare ), Location );
-                }          
-            }        
-            if(_ro)
-                Properties.AddReadOnly(_name, _value);
-            else
-                Properties[_name] = _value;
+                    ArrayList validvalues = new ArrayList();
+                    foreach (FrameworkInfo framework in Project.FrameworkInfoDictionary) {
+                        validvalues.Add(framework.Name);
+                    }
+                    string validvaluesare = string.Empty;
+                    if (validvalues.Count > 0) {
+                        validvaluesare = string.Format(CultureInfo.InvariantCulture, 
+                            "Valid values are: {0}.", string.Join(", ", (string[]) validvalues.ToArray(typeof(string))));
+                    }
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Error setting current Framework. '{0}' is not a valid framework identifier. {1}", 
+                        _value, validvaluesare), Location);
+                }
+            }
+
+            if (!Project.Properties.Contains(PropertyName)) {
+                if(ReadOnly) {
+                    Properties.AddReadOnly(PropertyName, Value);
+                } else {
+                    Properties[PropertyName] = Value;
+                }
+            } else {
+                if (Overwrite) {
+                    if (Project.Properties.IsReadOnlyProperty(PropertyName)) {
+                        Log(Level.Verbose, LogPrefix + "Read-only property '{0}' cannot be overwritten.", PropertyName);
+                    } else {
+                        Properties[PropertyName] = Value;
+                    }
+                } else {
+                    Log(Level.Verbose, LogPrefix + "Property '{0}' already exists, and overwrite is set to false.", PropertyName);
+                }
+            }
         }
+
+        #endregion Override implementation of Task
     }
 }
