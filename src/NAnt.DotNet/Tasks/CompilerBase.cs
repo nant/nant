@@ -68,9 +68,13 @@ namespace NAnt.DotNet.Tasks {
         protected static string[] CodebehindExtensions = {".aspx", ".asax", ".ascx", ".asmx"};
         
         /// <summary>
-        /// List of valid culture names for this platform
+        /// Case-insensitive list of valid culture names for this platform.
         /// </summary>
-        protected static StringCollection CultureNames = new StringCollection();
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is the culture name and 
+        /// the value is <see langword="null" />.
+        /// </remarks>
+        protected readonly static Hashtable CultureNames;
 
         #endregion Protected Static Fields
 
@@ -80,9 +84,15 @@ namespace NAnt.DotNet.Tasks {
         /// Class constructor for <see cref="CompilerBase" />.
         /// </summary>
         static CompilerBase() {
+            CultureInfo[] allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+
+            // initialize hashtable to necessary size
+            CultureNames = CollectionsUtil.CreateCaseInsensitiveHashtable(
+                allCultures.Length);
+
             // fill the culture list
-            foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.AllCultures)) {
-                CultureNames.Add(ci.Name);
+            foreach (CultureInfo ci in allCultures) {
+                CultureNames[ci.Name] = null;
             }
         }
         
@@ -325,7 +335,9 @@ namespace NAnt.DotNet.Tasks {
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
                 StreamWriter writer = new StreamWriter(_responseFileName);
-                Hashtable cultureResources = new Hashtable();
+                // culture names are not case-sensitive
+                Hashtable cultureResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                // will hold temporary compiled resources 
                 StringCollection compiledResourceFiles = new StringCollection();
                 
                 try {
@@ -1056,7 +1068,7 @@ namespace NAnt.DotNet.Tasks {
             if (index >= 0 && index <= noextpath.Length) {
                 string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));
                 // check that its in our list of culture names
-                if (CultureNames.Contains(possibleculture)) {
+                if (CultureNames.ContainsKey(possibleculture)) {
                     return new CultureInfo(possibleculture);
                 }
             }
