@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Globalization;
 
 using NUnit.Framework;
 
@@ -31,32 +32,30 @@ namespace Tests.NAnt.Core.Tasks {
 	[TestFixture]
     public class TouchTaskTest : BuildTestBase {
 
-		[Test]
-        public void Test_Foobar() {
-            TouchTask touch = new TouchTask();
-        }
+        const string _format = @"<?xml version='1.0' ?>
+            <project>
+                <touch {0}>{1}</touch>
+            </project>";
 
         StringCollection _fileList = new StringCollection();
-        string _baseDirectory = null;
 
         /// <summary>Create the text fixture.</summary>
         [SetUp]
-        protected void SetUp() {
-            // create test directory structure
-            _baseDirectory = TempDir.Create("NAnt.Tests.TouchTest");
+        protected override void SetUp() {
+            base.SetUp();
 
             // add 3 directories
-            Directory.CreateDirectory(Path.Combine(_baseDirectory, "dir1"));
-            Directory.CreateDirectory(Path.Combine(_baseDirectory, "dir2"));
-            Directory.CreateDirectory(Path.Combine(_baseDirectory, "dir3"));
+            Directory.CreateDirectory(Path.Combine(TempDirName, "dir1"));
+            Directory.CreateDirectory(Path.Combine(TempDirName, "dir2"));
+            Directory.CreateDirectory(Path.Combine(TempDirName, "dir3"));
 
             // add file names
-            _fileList.Add(Path.Combine(_baseDirectory, "file1.txt"));
-            _fileList.Add(Path.Combine(_baseDirectory, "file2.txt"));
-            _fileList.Add(Path.Combine(_baseDirectory, Path.Combine("dir1" ,"file3.tab")));
-            _fileList.Add(Path.Combine(_baseDirectory, Path.Combine("dir1" ,"file4.txt")));
-            _fileList.Add(Path.Combine(_baseDirectory, Path.Combine("dir2" ,"file5.tab")));
-            _fileList.Add(Path.Combine(_baseDirectory, Path.Combine("dir2" ,"file6.txt")));
+            _fileList.Add(Path.Combine(TempDirName, "file1.txt"));
+            _fileList.Add(Path.Combine(TempDirName, "file2.txt"));
+            _fileList.Add(Path.Combine(TempDirName, Path.Combine("dir1" ,"file3.tab")));
+            _fileList.Add(Path.Combine(TempDirName, Path.Combine("dir1" ,"file4.txt")));
+            _fileList.Add(Path.Combine(TempDirName, Path.Combine("dir2" ,"file5.tab")));
+            _fileList.Add(Path.Combine(TempDirName, Path.Combine("dir2" ,"file6.txt")));
 
 
             // add some text to each file, just for fun ;)
@@ -65,117 +64,80 @@ namespace Tests.NAnt.Core.Tasks {
             }
         }
 
-        /// <summary>Destroy the text fixture.</summary>
-        [TearDown]
-        protected void TearDown() {
-            TempDir.Delete(_baseDirectory);
-        }
-
 		[Test]
         public void Test_File_DateTime() {
 
-            TouchTask touch = new TouchTask();
-            touch.Project = CreateEmptyProject();
-
-            // <touch file='myfile' datetime='06/28/2000 2:02 pm'/>
-
             DateTime newTouchDate = DateTime.Parse("01/01/1980");
             string fileName = _fileList[0];
-            string xmlString = "<touch file='" + fileName + "' datetime='" + newTouchDate.ToString() + "'/>";
-
-            touch.FileName = fileName;
-            touch.Datetime = newTouchDate.ToString();
-            touch.Execute();
+            RunBuild(FormatBuildFile("file='" + fileName + "' datetime='" + newTouchDate.ToString() + "'"));
 
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert(xmlString, newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert("File not touched", newTouchDate.Equals(lastTouchDate));
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert("Wrong file was touched", !newTouchDate.Equals(lastTouchDate));
         }
 
 		[Test]
         public void Test_File_Millis() {
-            TouchTask touch = new TouchTask();
-            touch.Project = CreateEmptyProject();
-
             // <touch file='myfile' millis='100000'/>
 
             string fileName = _fileList[0];
             int milliSeconds = 100000;
-            string xmlString = "<touch file='" + fileName + "' millis='" + milliSeconds.ToString() + "'/>";
-
-            touch.FileName = fileName;
-            touch.Millis = milliSeconds.ToString();
-            touch.Execute();
-
+            RunBuild(FormatBuildFile("file='" + fileName + "' millis='" + milliSeconds.ToString() + "'"));
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
             DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
 
-            Assertion.Assert(xmlString, newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert("Wrong touch date", newTouchDate.Equals(lastTouchDate));
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert("Wrong file touched", !newTouchDate.Equals(lastTouchDate));
         }
 
 		[Test]
        public void Test_File_Default() {
             // sleep for a bit or this test will intermittently fail on fast machines
             System.Threading.Thread.Sleep(2000);
-
-            TouchTask touch = new TouchTask();
-            touch.Project =  CreateEmptyProject();
-
             // <touch file='myfile' />
 
             string fileName = _fileList[0];
             DateTime newTouchDate = DateTime.Now;
-            string xmlString = "<touch file='" + fileName + "'/>";
+            RunBuild(FormatBuildFile("file='" + fileName + "'"));
 
-            touch.FileName = fileName;
-            touch.Execute();
 
             FileInfo file = new FileInfo(fileName);
             DateTime lastTouchDate = file.LastWriteTime;
 
             // Can only ensure that Now() is greater or equal to the file date
-            Assertion.Assert(xmlString, lastTouchDate.CompareTo(newTouchDate) >= 0);
+            Assertion.Assert("Touch date incorrect", lastTouchDate.CompareTo(newTouchDate) >= 0);
 
             // Make sure another file is NOT touched
             fileName = _fileList[1];
             file = new FileInfo(fileName);
             lastTouchDate = file.LastWriteTime;
 
-            Assertion.Assert(xmlString, !newTouchDate.Equals(lastTouchDate));
+            Assertion.Assert("Wrong file touched", !newTouchDate.Equals(lastTouchDate));
         }
 
 		[Test]
         public void Test_FileSet_DateTime() {
-            TouchTask touch = new TouchTask();
-            touch.Project = CreateEmptyProject();
-
             // <touch datetime="01/01/1980 00:00">
             //   <fileset dir="src_dir"/>
             // </touch>
 
             DateTime newTouchDate = DateTime.Parse("01/01/1980");          
-            touch.TouchFileSet.BaseDirectory = _baseDirectory;
-            touch.TouchFileSet.Includes.Add("**");
-            touch.TouchFileSet.Excludes.Add("");
-
-            touch.Datetime = newTouchDate.ToString();
-            touch.Execute();
+            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><includes name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
                 FileInfo file = new FileInfo(_fileList[i]);
@@ -187,10 +149,6 @@ namespace Tests.NAnt.Core.Tasks {
 
 		[Test]
         public void Test_FileSet_Millis() {
-
-            TouchTask touch = new TouchTask();
-            touch.Project = CreateEmptyProject();
-
             // <touch millis="100000">
             //   <fileset dir="src_dir"/>
             //</touch>
@@ -198,12 +156,7 @@ namespace Tests.NAnt.Core.Tasks {
             int milliSeconds = 100000;
             DateTime newTouchDate = DateTime.Parse("01/01/1970").AddMilliseconds(milliSeconds);
           
-            touch.TouchFileSet.BaseDirectory = _baseDirectory;
-            touch.TouchFileSet.Includes.Add("**");
-            touch.TouchFileSet.Excludes.Add("");
-
-            touch.Millis = milliSeconds.ToString();
-            touch.Execute();
+            RunBuild(FormatBuildFile("datetime='" + newTouchDate.ToString() + "'","<fileset basedir='" + TempDirName + "'><includes name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
 
@@ -217,19 +170,12 @@ namespace Tests.NAnt.Core.Tasks {
 
 		[Test]
         public void Test_FileSet_Default() {
-            TouchTask touch = new TouchTask();
-            touch.Project = CreateEmptyProject();
-
             // <touch>
             //  <fileset dir="src_dir"/>
             // </touch>
             DateTime newTouchDate = DateTime.Now;
           
-            touch.TouchFileSet.BaseDirectory = _baseDirectory;
-            touch.TouchFileSet.Includes.Add("**");
-            touch.TouchFileSet.Excludes.Add("");
-
-            touch.Execute();
+            RunBuild(FormatBuildFile("","<fileset basedir='" + TempDirName + "'><includes name='**' /></fileset>"));
 
             for (int i = 0; i < _fileList.Count; i++) {
                 FileInfo file = new FileInfo(_fileList[i]);
@@ -237,6 +183,14 @@ namespace Tests.NAnt.Core.Tasks {
 
                 Assertion.Assert("Touch: fileset ONLY, " + _fileList[i], lastTouchDate.CompareTo(newTouchDate) >= 0);
             }
+        }
+
+        private string FormatBuildFile(string options) {
+            return FormatBuildFile(options, "");
+        }
+
+        private string FormatBuildFile(string options, string nestedElements) {
+            return String.Format(CultureInfo.InvariantCulture, _format, options, nestedElements);
         }
     }
 }

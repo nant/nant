@@ -47,8 +47,8 @@ namespace Tests.NAnt.Core.Tasks {
 
             // create a temporary directory
             _notExistingTempDir = CreateTempDir("test");
-            // delete it to make sure it definitely not exists
-            if (notExistingTempDir != null && Directory.Exists(_notExistingTempDir)) {
+            // delete it to make sure it definitely does not exist
+            if (_notExistingTempDir != null && Directory.Exists(_notExistingTempDir)) {
                 Directory.Delete(_notExistingTempDir);
             }
         }
