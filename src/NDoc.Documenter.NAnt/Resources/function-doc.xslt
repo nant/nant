@@ -150,6 +150,7 @@
             <div style="margin-left: 20px;">
                 <b>Assembly:</b><xsl:text> </xsl:text><xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
             </div>
+            <xsl:call-template name="seealso-section" />
         </body>
     </xsl:template>
     <xsl:template name="exceptions-section">

@@ -89,7 +89,7 @@
                     <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
                     <!-- 'unique' - see above -->
                     <xsl:if test="generate-id()=generate-id(key('classCategory',attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value)[1])">
-                        <a><xsl:attribute name="href">#<xsl:value-of select="$this_cat" /></xsl:attribute>
+                        <a><xsl:attribute name="href">#<xsl:value-of select="NAntUtil:UrlEncode($this_cat)" /></xsl:attribute>
                             <xsl:value-of select="$this_cat" /> Functions</a>
                         <br />
                     </xsl:if>
@@ -101,13 +101,13 @@
                     <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value"
                         order="ascending" />
                     <xsl:variable name="this_cat" select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" />
-                    <a>
-                        <xsl:attribute name="name">
-                            <xsl:value-of select="$this_cat" />
-                        </xsl:attribute>
-                    </a>
                     <!-- 'unique' - see above -->
                     <xsl:if test="generate-id()=generate-id(key('classCategory',attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value)[1])">
+                        <a>
+                            <xsl:attribute name="id">
+                                <xsl:value-of select="NAntUtil:UrlEncode($this_cat)" />
+                            </xsl:attribute>
+                        </a>
                         <h3><xsl:value-of select="$this_cat" /> Functions</h3>
                         <div class="table">
                             <table>
@@ -153,7 +153,7 @@
                         <!-- output function name in italics to indicate that its deprecated -->
                         <td>
                             <a>
-                                <xsl:attribute name="href"><xsl:value-of select="$Prefix" />.<xsl:value-of select="$Name" />.html</xsl:attribute>
+                                <xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode($Prefix)" />.<xsl:value-of select="NAntUtil:UrlEncode($Name)" />.html</xsl:attribute>
                                 <i><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></i>
                             </a>
                         </td>
@@ -166,7 +166,7 @@
             <xsl:otherwise>
                 <tr>
                     <td>
-                        <a><xsl:attribute name="href"><xsl:value-of select="$Prefix" />.<xsl:value-of select="$Name" />.html</xsl:attribute><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></a>
+                        <a><xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode($Prefix)" />.<xsl:value-of select="NAntUtil:UrlEncode($Name)" />.html</xsl:attribute><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></a>
                     </td>
                     <td>
                         <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />

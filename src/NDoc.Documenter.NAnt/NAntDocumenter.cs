@@ -465,6 +465,7 @@ namespace NDoc.Documenter.NAnt {
         DataTypeElement = 2,
         Element = 3,
         Enum = 4,
-        Filter = 5
+        Filter = 5,
+        FunctionSet = 6
     }
 }

@@ -106,7 +106,7 @@
                             <!-- output task name in italics to indicate that its deprecated -->
                             <td>
                                 <a>
-                                    <xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value" />.html</xsl:attribute>
+                                    <xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode(attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name='Name']/@value)" />.html</xsl:attribute>
                                     <i><xsl:value-of select="attribute/property[@name = 'Name']/@value" /></i>
                                 </a>
                             </td>
@@ -120,7 +120,7 @@
                     <xsl:element name="tr">
                         <td>
                             <a>
-                                <xsl:attribute name="href"><xsl:value-of select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value" />.html</xsl:attribute>
+                                <xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode(attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/property[@name = 'Name']/@value)" />.html</xsl:attribute>
                                 <xsl:value-of select="attribute/property[@name='Name']/@value" />
                             </a>
                         </td>

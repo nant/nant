@@ -20,8 +20,10 @@
 
 using System.Collections;
 using System.Collections.Specialized;
+using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+using System.Web;
 
 using NDoc.Core;
 using NDoc.Core.Reflection;
@@ -105,7 +107,7 @@ namespace NDoc.Documenter.NAnt {
                             _elementNames[id] = GetElementNameForProperty(memberNode);
                             break;
                         case "method":
-                            _elementNames[id] = memberNode.Attributes["name"].Value;
+                            _elementNames[id] = GetElementNameForMethod(memberNode);
                             break;
                         case "operator":
                             _elementNames[id] = memberNode.Attributes["name"].Value;
@@ -206,11 +208,18 @@ namespace NDoc.Documenter.NAnt {
             // check if the ref is for a system namespaced element or not
             if (cref.Length < 9 || (!cref.Substring(2).StartsWith(SystemPrefix) && !cref.Substring(2).StartsWith(MicrosoftWin32Prefix))) {
                 // not a system one.
-                if (!cref.StartsWith("T:")){
-                    return string.Empty;
-                }
 
-                string fileName = GetFileNameForType(cref);
+                // will hold the filename to link to
+                string fileName = null;
+
+                switch (cref.Substring(0, 2)) {
+                    case "T:":
+                        fileName = GetFileNameForType(cref);
+                        break;
+                    case "M:":
+                        fileName = GetFileNameForFunction(cref);
+                        break;
+                }
 
                 if (fileName == null) {
                     return string.Empty;
@@ -316,6 +325,18 @@ namespace NDoc.Documenter.NAnt {
             return typeNode;
         }
 
+        public XmlNode GetMethodNodeByID(string cref) {
+            if (cref[1] == ':' && !cref.StartsWith("M:")) {
+                return null;
+            }
+
+            if (!cref.StartsWith("M:")) {
+                cref = "M:" + cref;
+            }
+            
+            return Document.SelectSingleNode("//method[@id='" + cref + "']");
+        }
+
         /// <summary>
         /// Determines the <see cref="ElementDocType" /> of the given type node.
         /// </summary>
@@ -359,6 +380,11 @@ namespace NDoc.Documenter.NAnt {
             // check if type is an element
             if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) { 
                 return ElementDocType.Element;
+            }
+
+            // check if type is a functionset
+            if (typeNode.SelectSingleNode("attribute[@name='" + typeof(FunctionSetAttribute).FullName + "']/property[@name='Prefix']/@value") != null) {
+                return ElementDocType.FunctionSet;
             }
 
             return ElementDocType.None;
@@ -413,6 +439,30 @@ namespace NDoc.Documenter.NAnt {
             return GetElementDocTypeByID(cref) == ElementDocType.Task;
         }
 
+        /// <summary>
+        /// Determines whether the given cref points to a <c>functionset</c>.
+        /// </summary>
+        /// <param name="cref">The cref to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the given cref points to a <c>functionset</c>;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        public bool IsFunctionSet(string cref) {
+            return GetElementDocTypeByID(cref) == ElementDocType.FunctionSet;
+        }
+
+        /// <summary>
+        /// Encodes a URL string using <see cref="Encoding.UTF8" /> for reliable
+        /// HTTP transmission from the Web server to a client.
+        /// </summary>
+        /// <param name="value">The text to encode.</param>
+        /// <returns>
+        /// The encoded string.
+        /// </returns>
+        public string UrlEncode(string value) {
+            return HttpUtility.UrlEncode(value, Encoding.UTF8);
+        }
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
@@ -446,6 +496,21 @@ namespace NDoc.Documenter.NAnt {
                 }
             }
 
+            // if we're dealing with a FunctionSet, use category as name instead
+            // of prefix
+            XmlAttribute categoryNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(FunctionSetAttribute).FullName + "']/property[@name='Category']/@value") as XmlAttribute;
+            if (categoryNameAttribute != null) {
+                return categoryNameAttribute.Value;
+            }
+
+            return null;
+        }
+
+        private string GetFileNameForFunction(string type) {
+            XmlNode functionNode = GetMethodNodeByID(type);
+            if (functionNode != null) {
+                return GetFileNameForFunction(functionNode);
+            }
             return null;
         }
 
@@ -499,7 +564,7 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets the BuildElementAttrbute name for the "class/property" XmlNode
+        /// Gets the BuildElementAttribute name for the "class/property" XmlNode
         /// </summary>
         /// <param name="propertyNode">The XmlNode to look for a name.</param>
         /// <returns>The BuildElementAttrbute.Name if the attribute exists for the node.</returns>
@@ -544,6 +609,28 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
+        /// Gets the function name for methods that represent a NAtn function.
+        /// </summary>
+        /// <param name="methodNode">The XmlNode to look for a name.</param>
+        /// <returns>
+        /// The function name if <paramref name="methodNode" /> represent a
+        /// NAnt function.
+        /// </returns>
+        internal static string GetElementNameForMethod(XmlNode methodNode) {
+            XmlNode functionNameAttribute = methodNode.SelectSingleNode("attribute[@name='" + typeof(FunctionAttribute).FullName + "']/property[@name='Name']/@value");
+            if (functionNameAttribute == null) {
+                return methodNode.Attributes["name"].Value;
+            }
+
+            XmlNode prefixAttribute = methodNode.SelectSingleNode("../attribute[@name='" + typeof(FunctionSetAttribute).FullName + "']/property[@name='Prefix']/@value");
+            if (prefixAttribute == null) {
+                return methodNode.Attributes["name"].Value;
+            }
+
+            return prefixAttribute.InnerText + "::" + functionNameAttribute.InnerText + "()";
+        }
+
+        /// <summary>
         /// Returns the filename to use for the given class XmlNode
         /// </summary>
         /// <param name="typeNode">The "Class" element to find the filename for.</param>
@@ -556,15 +643,17 @@ namespace NDoc.Documenter.NAnt {
                 return null;
             }
 
+            string partialURL = null;
+
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {
-                return "tasks/" + taskName + ".html";
+                return "tasks/" + UrlEncode(taskName) + ".html";
             }
 
             // check if type is an enum
             if (typeNode.LocalName == "enumeration") {
-                return "enums/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
+                return "enums/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
             }
 
             // check if type derives from NAnt.Core.DataTypeBase
@@ -572,7 +661,7 @@ namespace NDoc.Documenter.NAnt {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
-                    return "types/" + elementNameAttribute.Value + ".html";
+                    return "types/" + UrlEncode(elementNameAttribute.Value) + ".html";
                 }
             }
 
@@ -581,34 +670,49 @@ namespace NDoc.Documenter.NAnt {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
-                    return "filters/" + elementNameAttribute.Value + ".html";
+                    return "filters/" + UrlEncode(elementNameAttribute.Value) + ".html";
                 }
             }
 
-            return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
+            // check if type is a functionset
+            partialURL = GetFileNameForFunctionSet(typeNode);
+            if (partialURL != null) {
+                return partialURL;
+            }
+
+            return "elements/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+        }
+
+        /// <summary>
+        /// Returns a partial URL to link to the functionset in the function index.
+        /// </summary>
+        /// <param name="typeNode">The "Class" element to find the filename for.</param>
+        internal static string GetFileNameForFunctionSet(XmlNode functionNode) {
+            XmlAttribute categoryValueAttribute = functionNode.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value") as XmlAttribute;
+            if (categoryValueAttribute != null && categoryValueAttribute.Value != "") {
+                return "functions/index.html#" + UrlEncode(categoryValueAttribute.Value);
+            }
+
+            return null;           
         }
 
         /// <summary>
         /// Returns the filename to use for the given function XmlElement
         /// </summary>
         /// <param name="typeNode">The "method" element to find the filename for.</param>
-        /// <returns>
-        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
-        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
-        /// </returns>
-        internal static string GetFileNameForFunction(XmlElement functionElement) {
+        internal static string GetFileNameForFunction(XmlNode functionNode) {
             string name = "";
-            XmlNode n = functionElement.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value");
+            XmlNode n = functionNode.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value");
             if (n != null && n.InnerText != "") {
                 name += n.InnerText + ".";
             }
-            n = functionElement.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value");
+            n = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value");
             if (n != null && n.InnerText != "") {
                 name += n.InnerText;
             } else {
-                name += functionElement.GetAttribute("name");
+                name += functionNode.Attributes["name"].Value;
             }
-            return "functions/" + name + ".html";
+            return "functions/" + UrlEncode(name) + ".html";
         }
         
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, NAntDocumenterConfig config){

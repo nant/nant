@@ -99,14 +99,14 @@
                     <xsl:if test="$IsErrorValue != 'True'">
                         <tr>
                             <!-- output type name in italics to indicate that its deprecated -->
-                            <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
+                            <td><a><xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode(attribute/property[@name='Name']/@value)" />.html</xsl:attribute><i><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></i></a></td>
                             <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                         </tr>
                     </xsl:if>
                 </xsl:when>
                 <xsl:otherwise>
                     <tr>
-                        <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
+                        <td><a><xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode(attribute/property[@name='Name']/@value)" />.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
                         <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                     </tr>
                 </xsl:otherwise>

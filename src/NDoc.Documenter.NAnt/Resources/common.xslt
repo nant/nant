@@ -122,6 +122,29 @@
         </li>           
     </xsl:template>
 
+	<xsl:template name="seealso-section">
+	    <xsl:if test="documentation//seealso">
+	        <h3>See Also</h3>
+		    <xsl:for-each select="documentation//seealso">
+			    <xsl:choose>
+				    <xsl:when test="@cref">
+					    <xsl:call-template name="get-a-href">
+						    <xsl:with-param name="cref" select="@cref" />
+					    </xsl:call-template>
+				    </xsl:when>
+				    <xsl:when test="@href">
+					    <a href="{@href}">
+						    <xsl:value-of select="." />
+					    </a>
+				    </xsl:when>
+			    </xsl:choose>
+				<xsl:if test="position()!= last()">
+			        <xsl:text> | </xsl:text>
+				</xsl:if>
+		    </xsl:for-each>
+	    </xsl:if>
+	</xsl:template>
+
     <xsl:template name="preliminary-section">
         <p class="topicstatus">
             <xsl:choose>

@@ -230,6 +230,7 @@
         <xsl:call-template name="get-a-href">
             <xsl:with-param name="cref" select="@cref" />
         </xsl:call-template>
+        <
     </xsl:template>
 
     <!-- get-a-href -->
@@ -239,12 +240,17 @@
         <xsl:choose>
             <xsl:when test="$href = ''">
                 <xsl:choose>
-                    <!-- if this is a task add the href-->
-                    <xsl:when test="boolean(NAntUtil:GetTaskName($cref))">
-                        <xsl:variable name="taskName" select="string(NAntUtil:GetTaskName($cref))" />
+                    <!-- if this is a task add suffix task-->
+                    <xsl:when test="boolean(NAntUtil:IsTask($cref))">
                         <code>
-                            <xsl:value-of select="$taskName" />
+                            <xsl:value-of select="string(NAntUtil:GetTaskName($cref))" />
                         </code><xsl:text> task</xsl:text>
+                    </xsl:when>
+                    <!-- if this is a functionset add suffix functions -->
+                    <xsl:when test="boolean(NAntUtil:IsFunctionSet($cref))">
+                        <code>
+                            <xsl:value-of select="string(NAntUtil:GetName($cref))" />
+                        </code><xsl:text> functions</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
                         <code>
@@ -268,8 +274,12 @@
                     </xsl:choose>
                 </xsl:element>
                 <!-- if this is a task add suffix task-->
-                <xsl:if test="boolean(NAntUtil:GetTaskName($cref))">
+                <xsl:if test="boolean(NAntUtil:IsTask($cref))">
                     <xsl:text> task</xsl:text>
+                </xsl:if>
+                <!-- if this is a funcionset add suffix functions -->
+                <xsl:if test="boolean(NAntUtil:IsFunctionSet($cref))">
+                    <xsl:text> functions</xsl:text>
                 </xsl:if>
             </xsl:otherwise>
         </xsl:choose>
