@@ -611,8 +611,8 @@ namespace NAnt.Core {
                 string msg = string.Format(CultureInfo.InvariantCulture, "datatype references cannot contain an id attribute");
                 throw new BuildException(msg, reference.Location);
             }
-            if (Project.DataTypeReferences.ContainsKey(reference.RefID)) {
-                refType = (DataTypeBase) Project.DataTypeReferences[reference.RefID];
+            if (Project.DataTypeReferences.Contains(reference.RefID)) {
+                refType = Project.DataTypeReferences[reference.RefID];
                 // clear any instance specific state
                 refType.Reset();
             } else {

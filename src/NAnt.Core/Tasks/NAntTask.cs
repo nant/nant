@@ -106,7 +106,9 @@ namespace NAnt.Core.Tasks {
                 excludes.Add(Project.NAntPropertyVersion);
                 project.Properties.Inherit(Properties, excludes);
             }
-
+            // pass datatypes thru to the child project
+            project.DataTypeReferences.Inherit( Project.DataTypeReferences );
+            
             // handle multiple targets
             if (DefaultTarget != null) {
                 foreach (string t in DefaultTarget.Split(' ')) {

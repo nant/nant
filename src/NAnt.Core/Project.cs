@@ -111,7 +111,7 @@ namespace NAnt.Core {
         FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
         FrameworkInfo _defaultFramework;
         FrameworkInfo _currentFramework;
-        Hashtable _dataTypeReferences = new Hashtable();
+        DataTypeBaseDictionary _dataTypeReferences = new DataTypeBaseDictionary();
 
         /// <summary>
         /// Holds the default threshold for build loggers.
@@ -358,6 +358,18 @@ namespace NAnt.Core {
             get { return _properties; }
         }
 
+        
+        /// <summary>
+        /// Gets the DataTypes defined in this project.
+        /// </summary>
+        /// <value>The DataTypes defined in this project.</value>
+        /// <remarks>
+        ///   <para>This is the collection of DataTypes that are defined by datatype ( eg fileset ) declarations.</para>        
+        /// </remarks>
+        public DataTypeBaseDictionary DataTypeReferences {
+            get {return _dataTypeReferences; }
+        }
+        
         /// <summary>
         /// Gets the targets defined in this project.
         /// </summary>
@@ -512,10 +524,7 @@ namespace NAnt.Core {
 
             OnMessageLogged(eventArgs);
         }
-
-        public Hashtable DataTypeReferences {
-            get {return _dataTypeReferences; }
-        }
+        
         
         /// <summary>
         /// Writes a <see cref="Target" /> level message to the build log with 
