@@ -55,7 +55,11 @@ namespace NAnt.SourceControl.Tasks {
     ///     password="" 
     ///     module="nant"
     ///     revision="your_favorite_revision_here"
-    ///     overridedir="replacement_for_module_directory_name">
+    ///     overridedir="replacement_for_module_directory_name"
+    ///     usesharpcvslib="false">
+    ///     <fileset>
+    ///         <includes name="build.number"/>
+    ///     </fileset>
     /// </cvs-update>
     ///     ]]>
     ///   </code>

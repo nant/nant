@@ -58,7 +58,10 @@ namespace NAnt.SourceControl.Tasks {
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     module="nant"
     ///     revision="your_favorite_revision_here"
-    ///     overridedir="replacement_for_module_directory_name">
+    ///     overridedir="replacement_for_module_directory_name"
+    ///     recursive="false">
+    ///     <exportfile value="dir/file1.cs"/>
+    ///     <exportfile value="dir/file2.cs"/>
     /// </cvs-export>
     ///     ]]>
     ///   </code>
