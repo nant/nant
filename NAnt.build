@@ -34,16 +34,13 @@
         <call target="${project.config}" />
         <call target="set-runtime-configuration" />
     </target>
-
     <target name="clean" depends="init" description="Deletes current build configuration">
         <delete dir="${build.dir}" failonerror="false" />
     </target>
-
     <target name="cleanall" description="Deletes every build configuration">
         <echo message="Deleting all builds from all configurations" />
         <delete dir="build" failonerror="false" />
     </target>
-
     <target name="build" depends="init" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
         <!-- prepare build directory -->
@@ -100,7 +97,6 @@
             <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>
-
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
         <echo message="Running unit tests with just built version of NAnt." />
@@ -112,7 +108,6 @@
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
     </target>
-
     <target name="self-test" depends="init">
         <echo message="testing with config '${nant.location}nant.exe.config'"/>
 
@@ -132,7 +127,6 @@
             <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${current.runtime.config.mono}"/>
         </foreach>
     </target>
-
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
@@ -159,7 +153,6 @@
             <arg value="-k:${nant.settings.currentframework}" />
         </exec>
     </target>
-
     <target name="self-userdoc" depends="init">
         <!-- use ndoc and NAnt.Documenter to build user doc -->
         <ndoc>
@@ -170,6 +163,7 @@
             <documenters>
                 <documenter name="NAntTask">
                     <property name="OutputDirectory" value="${build.dir}/doc/help/tasks" />
+                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
                     <property name="DocumentAttributes" value="True" />
                 </documenter>
             </documenters>
@@ -179,7 +173,6 @@
         <copy file="doc/arrow.gif" todir="${build.dir}/doc" />
         <echo message="Preview task references: file://${build.dir}/doc/help/tasks/index.html" />
     </target>
-
     <target name="sdkdoc" depends="build" description="Builds SDK documentation">
         <echo message="Documenting NAnt with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
@@ -198,7 +191,6 @@
             </fileset>
         </delete>
     </target>
-
     <target name="self-sdkdoc" depends="init">
         <ndoc>
             <assemblies basedir="${build.dir}/bin">
@@ -236,16 +228,11 @@
             </documenters>
         </ndoc>
     </target>
-
     <target name="schema">
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
         <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
     </target>
-    <!--
-        use the following command line to create a debug package:
-        nant debug package
-    -->
     <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
         <exec program="${build.dir}/bin/${nant.console.name}.exe">
             <arg value="-buildfile:NAnt.build" />
@@ -261,11 +248,12 @@
         <!-- remove non-release files -->
         <delete>
             <fileset basedir="${build.dir}/bin">
-                <includes name="*.Tests.*" />
                 <includes name="NAnt.Console.*" />
-
+                <!-- remove test assemblies -->
+                <includes name="*.Tests.*" />
+                
                 <!-- do not remove this test assembly as its needed by NAntContrib -->
-                <excludes name="NAnt.Core.Tests.dll" />                
+                <excludes name="NAnt.Core.Tests.dll" />
             </fileset>
         </delete>
 
@@ -279,12 +267,15 @@
                 <includes name="schema/**" />
                 <includes name="*" />
 
-                <!--Start "Exclude VS.Net stuff" -->
+                <!-- exclude nighlty build file -->
+                <excludes name="nightly.xml" />
+                <!-- exclude release build file -->
+                <excludes name="release.xml" />
+                <!--exclude VS.Net stuff -->
                 <excludes name="**/*.suo" />
                 <excludes name="**/*j.user" />
                 <excludes name="**/bin/**" />
                 <excludes name="**/obj/**" />
-                <!--End "Exclude VS.Net stuff"-->
             </fileset>
         </copy>
 
@@ -337,7 +328,6 @@
             </fileset>
         </copy>
     </target>
-
     <!-- Framework support targets -->
     <target name="set-runtime-configuration-flags">
         <property name="current.runtime.config.net" value="false" />
