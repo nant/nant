@@ -432,12 +432,12 @@ namespace NAnt.Core {
                         TaskBuilders.Add(tb);
                         foreach(WeakReference wr in _projects) {
                             if (!wr.IsAlive) {
-                                task.Log(Level.Warning, "WeakReference for project is dead.");
+                                task.Log(Level.Debug, "WeakReference for project is dead.");
                                 continue;
                             }
                             Project p = wr.Target as Project;
                             if (p == null) {
-                                task.Log(Level.Warning, "WeakReference is not a"
+                                task.Log(Level.Debug, "WeakReference is not a"
                                     + " project! This should not be possible.");
                                 continue;
                             }
