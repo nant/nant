@@ -153,7 +153,7 @@ namespace NAnt.VSNet.Tasks {
         /// </remarks>
         [TaskAttribute("solutionfile", Required=false)]
         public string SolutionFile {
-            set { _strSolutionFile = value; }
+            set { _strSolutionFile = value.ToLower(); }
         }
 
         /// <summary>
