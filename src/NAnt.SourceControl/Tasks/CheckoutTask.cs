@@ -78,7 +78,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string CvsCommandName = "update";
+        public const string CvsCommandName = "checkout";
         #endregion
 
         #region Public Instance Constructors
