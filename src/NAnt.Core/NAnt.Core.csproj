@@ -26,15 +26,16 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = ""
+                    DocumentationFile = "NAnt.Core.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
+                    NoWarn = "0618;1591"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
+                    TreatWarningsAsErrors = "true"
                     WarningLevel = "1"
                 />
                 <Config
@@ -44,16 +45,17 @@
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
                     DefineConstants = ""
-                    DocumentationFile = ""
+                    DocumentationFile = "NAnt.Core.xml"
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
+                    NoWarn = "0618;1591"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
             </Settings>
             <References>
@@ -64,6 +66,10 @@
                 <Reference
                     Name = "System"
                     AssemblyName = "System"
+                />
+                <Reference
+                    Name = "System.Web"
+                    AssemblyName = "System.Web"
                 />
                 <Reference
                     Name = "System.XML"
