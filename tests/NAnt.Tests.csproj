@@ -57,7 +57,7 @@
                 <Reference
                     Name = "nunit.framework"
                     AssemblyName = "nunit.framework"
-                    HintPath = "..\bin\lib\net\1.0\nunit.framework.dll"
+                    HintPath = "..\lib\net\1.0\nunit.framework.dll"
                 />
                 <Reference
                     Name = "NAnt.Core"
