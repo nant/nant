@@ -177,14 +177,14 @@
     
     <target name="self-userdoc" depends="init">
         <!-- use ndoc and NAnt.Documenter to build user doc if they need it -->
-		<ifnot uptodatefile="${build.dir}/doc/help/*.html">
-		    <comparefiles basedir="${build.dir}/bin">
+        <ifnot uptodatefile="${build.dir}/doc/help/*.html">
+            <comparefiles basedir="${build.dir}/bin">
                 <!-- make sure the tasks/types are not new -->
                 <includes name="NAnt.Core.dll" />
                 <includes name="*Tasks.dll" />
                 <!-- make sure the documenter is not new -->
                 <includes name="NDoc.Documenter.*.dll"/>
-		    </comparefiles>
+            </comparefiles>
             <!--
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
@@ -200,7 +200,7 @@
                 </documenters>
             </ndoc>
             -->
-		    <ndoc>
+            <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
                     <includes name="*Tasks.dll" />
@@ -213,8 +213,8 @@
                         <property name="IncludeAssemblyVersion" value="True" />
                     </documenter>
                 </documenters>
-            </ndoc>		    
-		</ifnot>
+            </ndoc>
+        </ifnot>
 
         <!-- copy doc files from source-->
         <copy todir="${build.dir}" failonerror="false">
@@ -251,12 +251,12 @@
 
     <target name="self-sdkdoc" depends="init">
         <!-- use ndoc to build sdk doc if they are not uptodate-->
-	    <ifnot uptodatefile="${build.dir}/doc/sdk/*.chm">
-		    <comparefiles basedir="${build.dir}/bin">
+        <ifnot uptodatefile="${build.dir}/doc/sdk/*.chm">
+            <comparefiles basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="*Tasks.dll" />
                 <includes name="NAnt.NUnit.dll" />
-		    </comparefiles>
+            </comparefiles>
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -303,20 +303,19 @@
     </target>
     
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
+        <!-- retrieve location of VS.NET 2002 schema store -->
+        <readregistry property="vs2002.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.0\InstallDir" hive="LocalMachine" failonerror="false" />
+        <if propertyexists="vs2002.xml.schemas">
+            <!-- deploy schema to VS.NET 2002 schema store -->
+            <copy file="${schema.output}" todir="${vs2002.xml.schemas}..\\Packages\schemas\xml" />
+        </if>
         
-        <property name="schema.dests" value=""/>
-        
-        <readregistry property="vs7.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.0\InstallDir" hive="LocalMachine" failonerror="false"/>
-        <property name="schema.dests" value="${schema.dests};${vs7.xml.schemas}..\\Packages\schemas\xml" failonerror="false"/>
-        
-        <readregistry property="vs7.1.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir" hive="LocalMachine" failonerror="false"/>
-        <property name="schema.dests" value="${schema.dests};${vs7.1.xml.schemas}..\\Packages\schemas\xml" failonerror="false"/>
-        
-        <!-- copy the file to each dest. -->
-        <foreach item="String" in="${schema.dests}" delim=";" property="schema.dest">
-            <copy file="${schema.output}" todir="${schema.dest}"/>
-        </foreach>
-        
+        <!-- retrieve location of VS.NET 2003 schema store -->
+        <readregistry property="vs2003.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir" hive="LocalMachine" failonerror="false" />
+        <if propertyexists="vs2003.xml.schemas">
+            <!-- deploy schema to VS.NET 2002 schema store -->
+            <copy file="${schema.output}" todir="${vs2003.xml.schemas}..\\Packages\schemas\xml" />        
+        </if>
     </target>
     
     <target name="package" depends="test userdoc sdkdoc" description="Creates a package zip file.">
