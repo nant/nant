@@ -114,7 +114,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("todir", Required=false)]
         public string ToDirectory {
-            get { return Project.GetFullPath(_toDir); }
+            get { return (_toDir != null) ? Project.GetFullPath(_toDir) : null; }
             set { _toDir = SetStringValue(value); }
         }
        
@@ -264,10 +264,9 @@ namespace NAnt.DotNet.Tasks {
                 }
                 outputFile = Path.ChangeExtension(outputFile, TargetExt);
             } else {
-                if ( ToDirectory == null ) {
-                    outputFile = Path.Combine( Project.BaseDirectory, Output);
-                }
-                else {
+                if (ToDirectory == null) {
+                    outputFile = Path.Combine(Project.BaseDirectory, Output);
+                } else {
                     outputFile = Path.Combine(ToDirectory, Output);
                 }
             }
