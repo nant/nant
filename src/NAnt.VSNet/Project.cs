@@ -240,6 +240,8 @@ namespace NAnt.VSNet {
             bool haveCultureSpecificResources = false;
             string tempFile = null;
 
+            GacCache.RecreateDomain();
+ 
             try {
                 ConfigurationSettings cs = (ConfigurationSettings) configurationSettings;
 
