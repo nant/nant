@@ -88,6 +88,11 @@
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                     Private = "False"
                 />
+                <Reference
+                    Name = "NAnt.VisualCpp"
+                    Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
             </References>
         </Build>
         <Files>
@@ -116,6 +121,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ProjectBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ProjectFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ProjectSettings.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -132,6 +147,21 @@
                 />
                 <File
                     RelPath = "Solution.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VcArgumentMap.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VcConfiguration.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VcProject.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
