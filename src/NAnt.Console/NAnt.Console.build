@@ -13,6 +13,8 @@
             <warnaserror>
                 <!-- do not consider deprecation warnings as errors on .NET 2.0 -->
                 <exclude number="618" if="${framework::get-target-framework() == 'net-2.0'}" />
+                <!-- do not consider deprecation warnings as errors on Mono 2.0 profile -->
+                <exclude number="618" if="${framework::get-target-framework() == 'mono-2.0'}" />
             </warnaserror>
             <sources failonempty="true">
                 <include name="**/*.cs" />
