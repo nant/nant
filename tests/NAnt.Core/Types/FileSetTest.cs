@@ -90,7 +90,7 @@ reefer.maddness",
             // Expect 6 - not including directory
             Assert.AreEqual(6, _fileSet.FileNames.Count);
             // Two directories, including one empty one
-            Assert.AreEqual(3, _fileSet.DirectoryNames.Count);
+            Assert.AreEqual(2, _fileSet.DirectoryNames.Count);
         }
 
         [Test]
@@ -104,7 +104,7 @@ reefer.maddness",
             // Expect 4 - not including directory
             Assert.AreEqual(4, _fileSet.FileNames.Count);
             // Two directories, including one empty one
-            Assert.AreEqual(3, _fileSet.DirectoryNames.Count);
+            Assert.AreEqual(2, _fileSet.DirectoryNames.Count);
         }
 
         [Test]
