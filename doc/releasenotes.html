@@ -190,10 +190,12 @@
         <h5>&lt;cvs-checkout&gt;</h5>
         <ul>
             <li>
-                Added option to checkout a revision based on sticky tag, -r on the command line client.
+                Added option to checkout a revision based on sticky tag, -r on the command line
+                client.
             </li>
             <li>
-                Added option to checkout a module to an alternate directory, -d on the command line client.
+                Added option to checkout a module to an alternate directory, -d on the command line
+                client.
             </li>
             <li>
                 Fixed bug in parsing cvsnt date format.
@@ -291,12 +293,17 @@
                 Properties can now be added or overridden when calling a nested build using the
                 new <code>&lt;properties&gt;</code> child element.
             </li>
+            <li>
+                <code>buildfile</code> is now a required attribute, which makes it harder to accidently
+                write an infinitely looping build.
+            </li>
         </ul>
         <h5>&lt;nantschema&gt;</h5>
         <ul>
             <li>
-				This task does not generate the correct XML Schema Def. for collections and arrays. 
-				This tasks needs to be updated. Please use with caution.
+                Currently the <code>&lt;nantschema&gt;</code> task does not generate the correct
+                XML Schema definition for collections and arrays. This tasks needs to be updated.
+                Please use with caution.
             </li>
         </ul>
         <h5>&lt;ndoc&gt;</h5>
