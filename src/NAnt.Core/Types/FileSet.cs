@@ -384,8 +384,9 @@ namespace NAnt.Core.Types {
             }
 
             /// <summary>
-            /// Opposite of if. If <see langword="false" /> then the pattern will 
-            /// be included; otherwise, skipped. Default is <see langword="false" />.
+            /// Opposite of <see cref="IfDefined" />. If <see langword="false" /> 
+            /// then the pattern will be included; otherwise, skipped. Default is 
+            /// <see langword="false" />.
             /// </summary>
             [TaskAttribute("unless")]
             [BooleanValidator()]
@@ -409,8 +410,8 @@ namespace NAnt.Core.Types {
 
             /// <summary>
             /// If <see langword="true" /> then the file name will be added to 
-            /// the fileset without pattern matching or checking if the file 
-            /// exists.
+            /// the <see cref="FileSet" /> without pattern matching or checking 
+            /// if the file exists.  Default is <see langword="false" />.
             /// </summary>
             [TaskAttribute("asis")]
             [BooleanValidator()]
@@ -421,7 +422,7 @@ namespace NAnt.Core.Types {
 
             /// <summary>
             /// If <see langword="true" /> then the file will be searched for 
-            /// on the path.
+            /// on the path. Default is <see langword="false" />.
             /// </summary>
             [TaskAttribute("frompath")]
             [BooleanValidator()]
@@ -453,7 +454,8 @@ namespace NAnt.Core.Types {
             protected override void InitializeElement(XmlNode elementNode) {
                 using (Stream file = File.OpenRead(Pattern)) {
                     if (file == null) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "'{0}' list could not be opened.", Pattern));
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "'{0}' list could not be opened.", Pattern));
                     }
                     StreamReader rd = new StreamReader(file);
                     while (rd.Peek() > -1) {
