@@ -19,7 +19,7 @@
     <nant taskpath=".\optional">
         <frameworks default="mono-1.0">
             <framework name="mono-1.0" description="GNOME projects port of the .NET Framework" version="${version}"
-                runtimeengine="mono.exe" sdkdirectory="/usr/local/bin" frameworkdirectory="/usr/local/bin"
+                runtimeengine="mono" sdkdirectory="/usr/local/bin" frameworkdirectory="/usr/local/bin"
                 frameworkassemblydirectory="/usr/local/lib">
                 <properties>
                     <property name="version" value="0.25" />
