@@ -25,6 +25,8 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
+using NAnt.DotNet.Types;
+
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Tasks;
 
