@@ -361,7 +361,7 @@ namespace NAnt.Core {
                 return output.ToString();
             } catch (ExpressionParseException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Error evaluating '{0}'", input), location, ex);
+                    "Error evaluating '{0}'.", input), location, ex);
             }
         }
 
