@@ -159,7 +159,7 @@ namespace Tests.NAnt.Console {
             // using a regular expression look for a plausible version number and valid copyright date
             string expression = @"^NAnt (?<infoMajor>[0-9]+).(?<infoMinor>[0-9]+) " 
                 + @"\(Build (?<buildMajor>[0-9]+).(?<buildMinor>[0-9]+).(?<buildBuild>[0-9]+).(?<buildRevision>[0-9]+); " 
-                + @"(?<framework>.*); (?<configuration>.*); (?<releasedate>.*)\)"
+                + @"(?<configuration>.*); (?<releasedate>.*)\)"
                 + ".*\n" + @"Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
 
             Match match = Regex.Match(result, expression);
