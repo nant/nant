@@ -423,21 +423,24 @@ namespace NAnt.VSNet {
                 string projectGuid = (string) de.Key;
                 ProjectBase project = (ProjectBase) de.Value;
 
+                // check if project actually supports the build configuration
+                ConfigurationBase projectConfig = (ConfigurationBase) 
+                    project.ProjectConfigurations[buildConfig];
+                if (projectConfig == null) {
+                    continue;
+                }
+
                 foreach (ReferenceBase reference in project.References) {
                     if (reference is ProjectReferenceBase) {
                         AddProjectDependency(projectGuid, ((ProjectReferenceBase) reference).Project.Guid);
                     } else {
-                        // check if project actually support the build configuration
-                        ConfigurationBase projectConfig = (ConfigurationBase) 
-                            project.ProjectConfigurations[buildConfig];
-                        if (projectConfig != null) {
-                            string outputFile = reference.GetPrimaryOutputFile(
-                                projectConfig);
-                            if (_htOutputFiles.Contains(outputFile)) {
-                                AddProjectDependency(projectGuid, (string) _htOutputFiles[outputFile]);
-                            } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
-                                AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
-                            }
+                        string outputFile = reference.GetPrimaryOutputFile(
+                            projectConfig);
+                        // if we reference an assembly in an AssemblyFolder
+                        // that is an output directory of another project, 
+                        // then add dependency on that project
+                        if (outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
+                            AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
                         }
                     }
                 }
@@ -515,7 +518,6 @@ namespace NAnt.VSNet {
                 return;
             }
 
-            // Fixup references
             Log(Level.Verbose, "Fixing up references...");
 
             ArrayList projectReferences = (ArrayList) 
@@ -577,6 +579,24 @@ namespace NAnt.VSNet {
                     if (_htOutputFiles.Contains(projectOutput)) {
                         projectRef = (ProjectBase) _htProjects[
                             (string) _htOutputFiles[projectOutput]];
+                    }
+                }
+
+                // try matching assembly reference and project on assembly name
+                // if the assembly file does not exist
+                if (projectRef == null && !System.IO.File.Exists(outputFile)) {
+                    foreach (ProjectBase aProject in _htProjects.Values) {
+                        // we can only do this for managed projects, as we only have
+                        // an assembly name for these
+                        ManagedProjectBase managedProject = aProject as ManagedProjectBase;
+                        if (managedProject == null) {
+                            continue;
+                        }
+                        // check if the assembly names match
+                        if (assemblyReference.Name == managedProject.ProjectSettings.AssemblyName) {
+                            projectRef = managedProject;
+                            break;
+                        }
                     }
                 }
 
