@@ -70,7 +70,15 @@ namespace NAnt.Core {
         /// <summary>
         /// The <see cref="Error" /> level designates error events.
         /// </summary>
-        Error = 5000
+        Error = 5000,
+
+        /// <summary>
+        /// The <see cref="None" /> level could be used to suppress all messages.
+        /// </summary>
+        /// <remarks>
+        /// No events should be logged with this <see cref="Level" />.
+        /// </remarks>
+        None = 9999
     }
 
     /// <summary>

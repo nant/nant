@@ -50,6 +50,7 @@ namespace NAnt.Core {
         private bool _verbose = false;
         private bool _ifDefined = true;
         private bool _unlessDefined = false;
+        private Level _threshold;
 
         #endregion Private Instance Fields
 
@@ -122,6 +123,30 @@ namespace NAnt.Core {
                 string prefix = "[" + Name + "] ";
                 return prefix.PadLeft(Project.IndentationSize);
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the log threshold for this <see cref="Task" />. By
+        /// default the threshold of a task matches the threshold of the project.
+        /// </summary>
+        /// <value>
+        /// The log threshold level for this <see cref="Task" />.
+        /// </value>
+        /// <remarks>
+        /// Setting the threshold of a <see cref="Task" /> higher than the
+        /// threshold of the its <see cref="Project" /> does not have any
+        /// effect.
+        /// </remarks>
+        public Level Threshold {
+            get { 
+                if ((int) _threshold == 0) {
+                    // if the threshold has not been explictly set, return the
+                    // threshold of the project
+                    return Project.Threshold;
+                }
+                return _threshold; 
+            }
+            set { _threshold = value; }
         }
 
         #endregion Public Instance Properties
@@ -209,6 +234,10 @@ namespace NAnt.Core {
         /// </para>
         /// </remarks>
         public override void Log(Level messageLevel, string message) {
+            if (!IsLogEnabledFor(messageLevel)) {
+                return;
+            }
+
             if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
                 Project.Log(this, Level.Info, message);
             } else {
@@ -240,12 +269,24 @@ namespace NAnt.Core {
         /// </remarks>
         public override void Log(Level messageLevel, string message, params object[] args) {
             string logMessage = string.Format(CultureInfo.InvariantCulture, message, args);
+            Log(messageLevel, logMessage);
+        }
 
+        /// <summary>
+        /// Determines whether build output is enabled for the given 
+        /// <see cref="Level" />.
+        /// </summary>
+        /// <param name="messageLevel">The <see cref="Level" /> to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if messages with the given <see cref="Level" />
+        /// will be output in the build log; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool IsLogEnabledFor(Level messageLevel) {
             if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
-                Project.Log(this, Level.Info, logMessage);
-            } else {
-                Project.Log(this, messageLevel, logMessage);
+                return Level.Info >= Threshold;
             }
+
+            return (messageLevel >= Threshold) && (messageLevel >= Project.Threshold);
         }
 
         /// <summary>
@@ -277,9 +318,10 @@ namespace NAnt.Core {
                         attributeValue = attributeNode.InnerText;
 
                         if (frameworkAttribute.ExpandProperties && Project.TargetFramework != null) {
-                            // expand attribute properites
                             try {
-                                attributeValue = Project.TargetFramework.Properties.ExpandProperties(attributeValue, Location);
+                                // expand attribute properites
+                                attributeValue = Project.TargetFramework.Project.Properties.ExpandProperties(
+                                    attributeValue, Location);
                             } catch (Exception ex) {
                                 // throw BuildException if required
                                 if (frameworkAttribute.Required) {
