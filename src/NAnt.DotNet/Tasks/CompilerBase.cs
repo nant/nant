@@ -1234,6 +1234,13 @@ namespace NAnt.DotNet.Tasks {
             resgen.InputFile = inputFile;
             resgen.OutputFile = outputFile;
 
+            // if resource compiler for current target framework supports external
+            // file references, then use source file's directory as current
+            // directory for resolving relative file paths
+            if (resgen.SupportsExternalFileReferences) {
+                resgen.UseSourcePath = true;
+            }
+
             // inherit assembly references from current task
             foreach (string assemblyFile in References.FileNames) {
                 resgen.Assemblies.Includes.Add(assemblyFile);
