@@ -128,6 +128,21 @@ namespace NAnt.Core.Util {
             return string.Join(separator, elements);
         }
 
+        /// <summary>
+        /// Creates a shallow copy of the specified <see cref="StringCollection" />.
+        /// </summary>
+        /// <param name="stringCollection">The <see cref="StringCollection" /> that should be copied.</param>
+        /// <returns>
+        /// A shallow copy of the specified <see cref="StringCollection" />.
+        /// </returns>
+        public static StringCollection Clone(StringCollection stringCollection) {
+            string[] strings = new string[stringCollection.Count];
+            stringCollection.CopyTo(strings, 0);
+            StringCollection clone = new StringCollection();
+            clone.AddRange(strings);
+            return clone;
+        }
+
         #endregion Public Static Methods
     }
 }

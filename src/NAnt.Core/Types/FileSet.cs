@@ -432,14 +432,17 @@ namespace NAnt.Core.Types {
         [BuildElementArray("includes")]
         [Obsolete("Use <include> element instead.", false)]
         public Include[] SetIncludes {
-            set { IncludeElements = value; }        }
+            set { IncludeElements = value; }
+        }
 
         /// <summary>
         /// The items to include in the fileset.
         /// </summary>
         [BuildElementArray("include")]
         public Include[] IncludeElements {
-            set {                foreach (Include include in value) {                    if (include.IfDefined && !include.UnlessDefined) {
+            set {
+                foreach (Include include in value) {
+                    if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
                             logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", include.Pattern));
                             AsIs.Add(include.Pattern);
@@ -450,7 +453,10 @@ namespace NAnt.Core.Types {
                             logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including pattern", include.Pattern));
                             Includes.Add(include.Pattern);
                         }
-                    }                }            }        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// The items to exclude from the fileset.
@@ -473,7 +479,8 @@ namespace NAnt.Core.Types {
                         Excludes.Add(exclude.Pattern);
                     }
                 }
-            }        }
+            }
+        }
 
         /// <summary>
         /// The files from which a list of patterns or files to include should 
@@ -704,7 +711,7 @@ namespace NAnt.Core.Types {
         protected void CopyTo(FileSet clone) {
             base.CopyTo(clone);
 
-            clone._asis = Clone(_asis);
+            clone._asis = StringUtils.Clone(_asis);
             if (_baseDirectory != null) {
                 clone._baseDirectory = new DirectoryInfo(_baseDirectory.FullName);
             }
@@ -764,25 +771,6 @@ namespace NAnt.Core.Types {
         }
         
         #endregion Public Static Methods
-
-        #region Private Static Methods
-
-        /// <summary>
-        /// Creates a shallow copy of the specified <see cref="StringCollection" />.
-        /// </summary>
-        /// <param name="stringCollection">The <see cref="StringCollection" /> that should be copied.</param>
-        /// <returns>
-        /// A shallow copy of the specified <see cref="StringCollection" />.
-        /// </returns>
-        private static StringCollection Clone(StringCollection stringCollection) {
-            string[] strings = new string[stringCollection.Count];
-            stringCollection.CopyTo(strings, 0);
-            StringCollection clone = new StringCollection();
-            clone.AddRange(strings);
-            return clone;
-        }
-
-        #endregion Private Static Methods
 
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.
