@@ -87,8 +87,9 @@ namespace Tests.NAnt.Core.Tasks {
                 </script>
                 <echo message='${script::test-func()}'/>
             </project>";
-            string result = RunBuild(_xml);
-            Assert.IsNotNull(TypeFactory.LookupFunction("script::test-func"),
+            Project project = CreateFilebasedProject(_xml);
+            string result = ExecuteProject(project);
+            Assert.IsNotNull(TypeFactory.LookupFunction("script::test-func", project),
                 "Function script should have defined a new custom function." + Environment.NewLine + result);
             Assert.IsTrue(result.IndexOf("some result") != -1,
                 "Function script should written something." + Environment.NewLine + result);
