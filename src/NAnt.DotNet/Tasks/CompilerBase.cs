@@ -802,21 +802,21 @@ namespace NAnt.DotNet.Tasks {
             //Sources Updated?
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
             //References Updated?
             fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
             //Modules Updated?
             fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
@@ -824,7 +824,7 @@ namespace NAnt.DotNet.Tasks {
             foreach (ResourceFileSet resources in ResourcesList) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                     return true;
                 }
             }
@@ -847,7 +847,7 @@ namespace NAnt.DotNet.Tasks {
 
             fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
                 return true;
             }
 
@@ -934,7 +934,7 @@ namespace NAnt.DotNet.Tasks {
                 string resourcefile = (string) resourceFiles[manifestname];
                 // add resources to embed 
                 Argument arg = new Argument();
-                arg.Value = string.Format(CultureInfo.InvariantCulture, " /embed:\"{0}\",{1}", resourcefile, manifestname);
+                arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",{1}", resourcefile, manifestname);
                 alink.Arguments.Add(arg);
             }
             
