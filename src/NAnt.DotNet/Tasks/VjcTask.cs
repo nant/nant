@@ -224,17 +224,6 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of CompilerBase
 
         /// <summary>
-        /// Writes additional directories to search in for assembly references
-        /// to the specified <see cref="TextWriter" />.
-        /// </summary>
-        /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
-        protected override void WriteLibOptions(TextWriter writer) {
-            foreach (string libPath in Lib.DirectoryNames) {
-                WriteOption(writer, "libpath", libPath);
-            }
-        }
-
-        /// <summary>
         /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>

@@ -346,46 +346,24 @@ namespace NAnt.DotNet.Tasks {
                         WriteOption(writer, "win32icon", Win32Icon);
                     }
 
-                    // Writes the option that specifies the class containing the Main method that should
-                    // be called when the program starts.
+                    // writes the option that specifies the class containing 
+                    // the Main method that should be called when the program 
+                    // starts.
                     if (this.MainType != null) {
                         WriteOption(writer, "main", this.MainType);
                     }
 
-                    // Writes the option that specifies whether the compiler should consider warnings
-                    // as errors.
+                    // writes the option that specifies whether the compiler 
+                    // should consider warnings as errors.
                     if (this.WarnAsError) {
                         WriteOption(writer, "warnaserror");
                     }
 
-                    // fix references to system assemblies
-                    if (Project.CurrentFramework != null) {
-                        foreach (string pattern in References.Includes) {
-                            if (Path.GetFileName(pattern) == pattern) {
-                                string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
-                                string localPath = Path.Combine(References.BaseDirectory, pattern);
-                                string fullPath = Path.Combine(frameworkDir, pattern);
+                    // writes assembly references to the response file
+                    WriteAssemblyReferences(writer);
 
-                                if (!File.Exists(localPath) && File.Exists(fullPath)) {
-                                    // found a system reference
-                                    References.FileNames.Add(fullPath);
-                                }
-                            }
-                        }
-                    }
-
-                    // pass control to compiler implementation to output list
-                    // of additional diretories to search in for assembly
-                    // references
-                    WriteLibOptions(writer);
-
-                    foreach (string fileName in References.FileNames) {
-                        WriteOption(writer, "reference", fileName);
-                    }
-
-                    foreach (string fileName in Modules.FileNames) {
-                        WriteOption(writer, "addmodule", fileName);
-                    }
+                    // writes module references to the response file
+                    WriteModuleReferences(writer);
 
                     // compile resources
                     foreach (ResourceFileSet resources in ResourcesList) {
@@ -498,11 +476,88 @@ namespace NAnt.DotNet.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Writes additional directories to search in for assembly references
-        /// to the specified <see cref="TextWriter" />.
+        /// Writes assembly references to the specified <see cref="TextWriter" />.
         /// </summary>
-        /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
-        protected abstract void WriteLibOptions(TextWriter writer);
+        /// <param name="writer">The <see cref="TextWriter" /> to which the assembly references should be written.</param>
+        protected void WriteAssemblyReferences(TextWriter writer) {
+            // fix references to system assemblies and assemblies that
+            // can be resolved using directories specified with the
+            // <lib> element
+            ResolveReferences(References);
+
+            // write references to the TextWriter
+            foreach (string fileName in References.FileNames) {
+                WriteOption(writer, "reference", fileName);
+            }
+        }
+
+        /// <summary>
+        /// Writes module references to the specified <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
+        protected void WriteModuleReferences(TextWriter writer) {
+            // fix references to system modules and modules that
+            // can be resolved using directories specified with the
+            // <lib> element
+            ResolveReferences(Modules);
+
+            // write references to the TextWriter
+            foreach (string fileName in Modules.FileNames) {
+                WriteOption(writer, "addmodule", fileName);
+            }
+        }
+
+        /// <summary>
+        /// Resolves references to system assemblies and assemblies that can be 
+        /// resolved using directories specified in <see cref="Lib" />.
+        /// </summary>
+        /// <param name="fileSet">The <see cref="FileSet" /> in which references should be resolved.</param>
+        protected void ResolveReferences(FileSet fileSet) {
+            foreach (string pattern in fileSet.Includes) {
+                if (Path.GetFileName(pattern) == pattern) {
+                    string localPath = Path.Combine(fileSet.BaseDirectory, pattern);
+
+                    // check if a file match the pattern exists in the 
+                    // base directory of the references fileset
+                    if (File.Exists(localPath)) {
+                        // the file will already be included as part of
+                        // the fileset scan process
+                        continue;
+                    }
+
+                    foreach (string libPath in Lib.DirectoryNames) {
+                        string fullPath = Path.Combine(libPath, pattern);
+
+                        // check whether an assembly matching the pattern
+                        // exists in the assembly directory of the current
+                        // framework
+                        if (File.Exists(fullPath)) {
+                            // found a system reference
+                            fileSet.FileNames.Add(fullPath);
+
+                            // continue with the next pattern
+                            continue;
+                        }
+                    }
+
+                    if (Project.CurrentFramework != null) {
+                        string frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.FullName;
+                        string fullPath = Path.Combine(frameworkDir, pattern);
+
+                        // check whether an assembly matching the pattern
+                        // exists in the assembly directory of the current
+                        // framework
+                        if (File.Exists(fullPath)) {
+                            // found a system reference
+                            fileSet.FileNames.Add(fullPath);
+
+                            // continue with the next pattern
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Allows derived classes to provide compiler-specific options.
@@ -713,7 +768,7 @@ namespace NAnt.DotNet.Tasks {
 
             return resourceLinkage;
         }
-        
+
         /// <summary>
         /// Link a list of files into a resource assembly.
         /// </summary>
