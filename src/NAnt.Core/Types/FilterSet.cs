@@ -93,7 +93,7 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The filters to apply.
         /// </summary>
-        [BuildElementArray("filter", ElementType=typeof(Filter))]
+        [BuildElementArray("filter")]
         public FilterCollection Filters {
             get { return _filters; }
         }
@@ -127,7 +127,7 @@ namespace NAnt.Core.Types {
                         }
 
                         token = line.Substring(index + BeginToken.Length, endIndex - (index + BeginToken.Length));
-                        b.Append(line.Substring(i, index));
+                        b.Append(line.Substring(i, index - 1));
 
                         if (Filters.Contains(token)) {
                             value = Filters[token].Value;
