@@ -185,7 +185,7 @@ namespace NAnt.DotNet.Tasks {
             string projectFileName = Path.GetTempFileName(); //@"c:\work\nant\nant.xdp";
             Log(Level.Verbose, LogPrefix + "Writing project settings to '{0}'.", projectFileName);
 
-            XmlTextWriter writer = new XmlTextWriter(projectFileName, Encoding.ASCII);
+            XmlTextWriter writer = new XmlTextWriter(projectFileName, Encoding.UTF8);
             writer.Formatting = Formatting.Indented;
             writer.WriteStartDocument();
             writer.WriteStartElement("project");

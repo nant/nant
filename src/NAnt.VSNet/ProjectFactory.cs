@@ -20,6 +20,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 
@@ -31,7 +32,7 @@ namespace NAnt.VSNet {
     /// Factory class for VS.NET projects.
     /// </summary>
     public sealed class ProjectFactory {
-        #region Public Static Methods
+        #region Private Instance Constructor
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectFactory" />
@@ -40,33 +41,38 @@ namespace NAnt.VSNet {
         private ProjectFactory() {
         }
 
+        #endregion Private Instance Constructor
+
+        #region Static Constructor
+
         static ProjectFactory() {
             ClearCache();
         }
 
-        #endregion Public Static Methods
+        #endregion Static Constructor
 
         #region Public Static Methods
 
         public static void ClearCache() {
-            _cachedProjects = new Hashtable();
-            _cachedProjectGuids = new Hashtable();
+            _cachedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
 
         public static ProjectBase LoadProject(Solution sln, SolutionTask slnTask, TempFileCollection tfc, string outputDir, string path) {
-            string projectName = Path.GetFullPath(path).ToLower(CultureInfo.InvariantCulture);
-            string projectExt = Path.GetExtension(projectName);
+            string projectFileName = ProjectFactory.GetProjectFileName(path);
+            string projectExt = Path.GetExtension(projectFileName).ToLower(
+                CultureInfo.InvariantCulture);
             
-            // Is this a new project?
-            if (!_cachedProjects.Contains(projectName)) {
+            // check if this a new project?
+            if (!_cachedProjects.Contains(projectFileName)) {
                 if (projectExt == ".vbproj" || projectExt == ".csproj") {
                     Project p = new Project(slnTask, tfc, outputDir);
                     p.Load(sln, path);
-                    _cachedProjects[projectName] = p;
+                    _cachedProjects[projectFileName] = p;
                 } else if (projectExt == ".vcproj") {
                     VcProject p = new VcProject(slnTask, tfc, outputDir);
                     p.Load(sln, path);
-                    _cachedProjects[projectName] = p;
+                    _cachedProjects[projectFileName] = p;
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Unknown project file extension {0}.", projectExt),
@@ -74,36 +80,67 @@ namespace NAnt.VSNet {
                 }
             }
 
-            return (ProjectBase)_cachedProjects[projectName];
+            return (ProjectBase) _cachedProjects[projectFileName];
+        }
+
+        public static bool IsUrl(string fileName) {
+            if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static string GetProjectFileName(string fileName) {
+            string projectPath = null;
+
+            if (ProjectFactory.IsUrl(fileName)) {
+                // construct uri for project path
+                Uri projectUri = new Uri(fileName);
+
+                // get last segment of the uri (which should be the 
+                // project file itself)
+                projectPath = projectUri.LocalPath;
+            } else {
+                projectPath = fileName;
+            }
+
+            // return filename part
+            return Path.GetFileName(projectPath); 
         }
 
         public static bool IsSupportedProjectType(string path) {
-            string projectExt = Path.GetExtension(path).ToLower(CultureInfo.InvariantCulture);
+            string projectFileName = ProjectFactory.GetProjectFileName(path);
+            string projectExt = Path.GetExtension(projectFileName).ToLower(
+                CultureInfo.InvariantCulture);
             return projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vcproj";
         }
 
         public static string LoadGuid(string fileName, TempFileCollection tfc) {
-            string projectName = Path.GetFullPath(fileName).ToLower(CultureInfo.InvariantCulture);
-            string projectExt = Path.GetExtension(projectName);
+            string projectFileName = ProjectFactory.GetProjectFileName(fileName);
+            string projectExt = Path.GetExtension(projectFileName).ToLower(
+                CultureInfo.InvariantCulture);
 
-            // Is this a new project?
-            if (!_cachedProjectGuids.Contains(projectName)) {
+            // check if this a new project?
+            if (!_cachedProjectGuids.Contains(projectFileName)) {
                 if (projectExt == ".vbproj" || projectExt == ".csproj") {
-                    _cachedProjectGuids[projectName] = Project.LoadGuid(fileName, tfc);
+                    _cachedProjectGuids[projectFileName] = Project.LoadGuid(fileName, tfc);
                 } else if (projectExt == ".vcproj") {
-                    _cachedProjectGuids[projectName] = VcProject.LoadGuid(fileName);
+                    _cachedProjectGuids[projectFileName] = VcProject.LoadGuid(fileName);
                 } else
                     throw new BuildException("Unknown project file extension " + projectExt);
             }
 
-            return (string)_cachedProjectGuids[projectName];
+            return (string) _cachedProjectGuids[projectFileName];
         }
 
         #endregion Public Static Methods
 
         #region Private Static Fields
+
         private static Hashtable _cachedProjects;
         private static Hashtable _cachedProjectGuids;
+
         #endregion Private Static Fields
     }
 }
