@@ -31,7 +31,7 @@ namespace NAnt.Core {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets or sets the default framework to use (overrides 
+        /// Gets or sets the target framework to use (overrides 
         /// NAnt.exe.config settings)
         /// </summary>
         /// <value>
@@ -41,10 +41,28 @@ namespace NAnt.Core {
         /// For a list of possible frameworks, see NAnt.exe.config, possible
         /// values include "net-1.0", "net-1.1", etc.
         /// </remarks>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="defaultframework", ShortName="k",  Description="use given framework as default")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="targetframework", ShortName="t",  Description="Specifies the framework to target")]
+        public string TargetFramework {
+            get { return _targetFramework; }
+            set { _targetFramework = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the target framework to use (overrides 
+        /// NAnt.exe.config settings)
+        /// </summary>
+        /// <value>
+        /// The framework that should be used.
+        /// </value>
+        /// <remarks>
+        /// For a list of possible frameworks, see NAnt.exe.config, possible
+        /// values include "net-1.0", "net-1.1", etc.
+        /// </remarks>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="defaultframework", ShortName="k",  Description="Specifies the framework to target")]
+        [Obsolete("Use the -[t]argetframework option instead.", false)]
         public string DefaultFramework {
-            get { return _defaultFramework; }
-            set { _defaultFramework = value; }
+            get { return _targetFramework; }
+            set { _targetFramework = value; }
         }
 
         /// <summary>
@@ -56,7 +74,7 @@ namespace NAnt.Core {
         /// <remarks>
         /// Can be both a file or an URI.
         /// </remarks>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="buildfile", ShortName="f",  Description="use given buildfile")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="buildfile", ShortName="f",  Description="Use given buildfile")]
         public string BuildFile {
             get { return _buildFile; }
             set { _buildFile = value; }
@@ -70,7 +88,7 @@ namespace NAnt.Core {
         /// <see langword="true" /> if more information should be displayed; 
         /// otherwise, <see langword="false" />. The default is <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "verbose", ShortName="v", Description = "displays more information during build process")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "verbose", ShortName="v", Description = "Displays more information during build process")]
         public bool Verbose {
             get { return _verbose; }
             set { _verbose = value; }
@@ -84,7 +102,7 @@ namespace NAnt.Core {
         /// <see langword="true" /> if debug information should be displayed; 
         /// otherwise, <see langword="false" />. The default is <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "debug", Description = "displays debug information during build process")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "debug", Description = "Displays debug information during build process")]
         public bool Debug {
             get { return _debug; }
             set { _debug = value; }
@@ -99,7 +117,7 @@ namespace NAnt.Core {
         /// displayed; otherwise, <see langword="false" />. The default is
         /// <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "quiet", ShortName="q", Description = "displays only error or warning messages during build process")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "quiet", ShortName="q", Description = "Displays only error or warning messages during build process")]
         public bool Quiet {
             get { return _quiet; }
             set { _quiet = value; }
@@ -114,7 +132,7 @@ namespace NAnt.Core {
         /// a build file; otherwise, <see langword="false" />. The default is
         /// <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "find", Description = "search parent directories for buildfile")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "find", Description = "Search parent directories for build file")]
         public bool FindInParent {
             get { return _findInParent; }
             set { _findInParent = value; }
@@ -126,7 +144,7 @@ namespace NAnt.Core {
         /// <value>
         /// The indentation level of the build output. The default is <c>0</c>.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "indentation level of build output")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "Indentation level of build output")]
         public int IndentationLevel {
             get { return _indentationLevel; }
             set { _indentationLevel = value; }
@@ -138,7 +156,7 @@ namespace NAnt.Core {
         /// <value>
         /// The list of properties that should be set.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name = "D", Description = "use value for given property")]
+        [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name = "D", Description = "Use value for given property")]
         public StringCollection Properties {
             get { return _properties; }
         }
@@ -154,7 +172,7 @@ namespace NAnt.Core {
         /// <remarks>
         /// The <see cref="LoggerType" /> should derive from <see cref="IBuildLogger" />.
         /// </remarks>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logger", Description="use given type as logger")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logger", Description="Use given type as logger")]
         public string LoggerType {
             get { return _loggerType; }
             set { _loggerType = value; }
@@ -166,7 +184,7 @@ namespace NAnt.Core {
         /// <value>
         /// The name of the file to log output to.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logfile", ShortName="l", Description="use value as name of log output file")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="logfile", ShortName="l", Description="Use value as name of log output file")]
         public FileInfo LogFile {
             get { return _logFile; }
             set { _logFile = value; }
@@ -181,9 +199,20 @@ namespace NAnt.Core {
         /// A collection of fully qualified type names that should be added as 
         /// listeners to the <see cref="Project" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="listener", Description="add an instance of class as a project listener")]
+        [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="listener", Description="Add an instance of class as a project listener")]
         public StringCollection Listeners {
             get { return _listeners; }
+        }
+
+        /// <summary>
+        /// Gets a collection of assemblies to load extensions from.
+        /// </summary>
+        /// <value>
+        /// A collection of assemblies to load extensions from.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="extension", ShortName="ext", Description="Load NAnt extensions from the specified assembly")]
+        public StringCollection ExtensionAssemblies {
+            get { return _extensionAssemblies; }
         }
 
         /// <summary>
@@ -195,7 +224,7 @@ namespace NAnt.Core {
         /// printed; otherwise, <see langword="false" />. The default is
         /// <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "projecthelp", Description = "prints project help information")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "projecthelp", Description = "Prints project help information")]
         public bool ShowProjectHelp {
             get { return _showProjectHelp; }
             set { _showProjectHelp = value; }
@@ -209,7 +238,7 @@ namespace NAnt.Core {
         /// <see langword="true" /> if the logo banner should be printed; otherwise, 
         /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "nologo", Description = "surpresses display of the logo banner")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "nologo", Description = "Suppresses display of the logo banner")]
         public bool NoLogo {
             get { return _noLogo; }
             set { _noLogo = value; }
@@ -223,7 +252,7 @@ namespace NAnt.Core {
         /// <see langword="true" /> if NAnt help should be printed; otherwise, 
         /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.Exclusive, Name = "help", ShortName = "h", Description = "prints this message")]
+        [CommandLineArgument(CommandLineArgumentTypes.Exclusive, Name = "help", ShortName = "h", Description = "Prints this message")]
         public bool ShowHelp {
             get { return _showHelp; }
             set { _showHelp = value; }
@@ -244,7 +273,7 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private string _defaultFramework;
+        private string _targetFramework;
         private string _buildFile;
         private bool _noLogo;
         private bool _showHelp;
@@ -257,6 +286,7 @@ namespace NAnt.Core {
         private string _loggerType;
         private FileInfo _logFile;
         private StringCollection _listeners = new StringCollection();
+        private StringCollection _extensionAssemblies = new StringCollection();
         private StringCollection _targets = new StringCollection();
         private bool _showProjectHelp;
 
