@@ -18,7 +18,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System.Collections;
-
+using System.Xml;
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt {
@@ -62,6 +62,7 @@ namespace SourceForge.NAnt {
         #region Private Instance Fields
 
         private ArrayList _options;
+        private OptionElement[] _optionElements;
 
         #endregion Private Instance Fields
 
@@ -94,11 +95,18 @@ namespace SourceForge.NAnt {
 
         /// <summary>        /// The options.        /// </summary>
         [BuildElementArray("option")]
-        public OptionElement[] SetOptions{
-            get { return (OptionElement[]) _options.ToArray(typeof(OptionElement)); }
-            set { _options = ArrayList.Adapter(value); }
+        public OptionElement[] SetOptions {
+            get { return _optionElements; }
+            set { _optionElements = value; }
         }
-
+        
+        /// <param name="elementNode"></param>
+        protected override void InitializeElement(XmlNode elementNode) {
+            // Convert everything to optionValues
+            foreach (OptionElement element in _optionElements) {
+                _options.Add(new OptionValue(element.OptionName, element.Value));
+            }
+        }
         #endregion Public Instance Properties
 
         #region Implementation of IEnumerable

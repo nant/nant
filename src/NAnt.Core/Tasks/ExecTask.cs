@@ -40,13 +40,21 @@ namespace SourceForge.NAnt.Tasks {
         int _timeout = Int32.MaxValue;
         string _outputFile = null;
         bool _outputAppend = false;
-      
+        private OptionSet _environment = new OptionSet();
+        
         /// <summary>The program to execute without command arguments.</summary>
         [TaskAttribute("program", Required=true)]public string FileName  { set { _program = value; } }                
                 
         /// <summary>The command line arguments for the program.</summary>
         [TaskAttribute("commandline")]public string Arguments { set { _commandline = value; } }
 
+        /// <summary>
+        /// environment variables to pass to the program
+        /// </summary>
+        [OptionSetAttribute("environment")]
+        public OptionSet Environment {
+            get { return _environment; }
+        }
         /// <summary>The file to which the standard output will be redirected.</summary>
         /// <remarks>By default, the standard output is redirected to the console.</remarks>
         [TaskAttribute("output", Required=false)]public string Output { set { _outputFile = value; } }
@@ -98,6 +106,13 @@ namespace SourceForge.NAnt.Tasks {
             base.PrepareProcess(ref process);
             if(_workingDirectory != null) {
                 process.StartInfo.WorkingDirectory = WorkingDirectory;
+            }
+
+            foreach ( OptionValue option in Environment ) {
+                if ( option.Value == null )
+                   process.StartInfo.EnvironmentVariables[option.Name] = "";
+                else
+                   process.StartInfo.EnvironmentVariables[option.Name] = option.Value;
             }
         }
     }
