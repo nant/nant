@@ -46,7 +46,7 @@ namespace SourceForge.NAnt {
         /// Initializes a new instance of the <see cref="BuildException" /> class 
         /// with a descriptive message.
         /// </summary>
-		/// <param name="message">A descriptive message to include with the exception.</param>
+        /// <param name="message">A descriptive message to include with the exception.</param>
         public BuildException(String message) : base(message) {
         }
 
@@ -124,15 +124,16 @@ namespace SourceForge.NAnt {
         public override string Message {
             get {
                 string message = base.Message;
-
                 // only include location string if not empty
                 string locationString = _location.ToString();
                 if (locationString.Length != 0) {
                     message = locationString + "\n " + message;
                 }
-                return message;
+                return message; 
             }
-        }        #endregion Override implementation of ApplicationException        #region Override implementation of Object
+        }       
+        
+        #endregion Override implementation of ApplicationException        #region Override implementation of Object
         /// <summary>
         /// Creates and returns a string representation of the current exception.
         /// </summary>
