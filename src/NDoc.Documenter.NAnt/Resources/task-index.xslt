@@ -40,7 +40,7 @@
             <head>
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-                <meta name="description" content="Introduction" />
+                <meta name="description" content="Task Reference" />
                 <link rel="stylesheet" type="text/css" href="../../style.css" />
                 <title>Task Reference</title>
             </head>

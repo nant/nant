@@ -33,13 +33,12 @@
         standalone="yes"
         />
 
-        
     <xsl:template match="/">
         <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
                 <meta http-equiv="Content-Language" content="en-ca" />
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <meta name="description" content="Introduction" />
+                <meta name="description" content="Data Type Reference" />
                 <link rel="stylesheet" type="text/css" href="../../style.css" />
                 <title>Data Type Reference</title>
             </head>
@@ -94,7 +93,7 @@
                 <xsl:otherwise>
                     <tr>
                         <td><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />.html</xsl:attribute><xsl:value-of select="attribute[@name='NAnt.Core.Attributes.ElementNameAttribute']/property[@name='Name']/@value" /></a></td>
-                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
+                        <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                     </tr>
                 </xsl:otherwise>
             </xsl:choose>

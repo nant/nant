@@ -34,8 +34,8 @@
 
     <xsl:template match="/">
         <html>
-            <xsl:comment> Documenting <xsl:value-of select="$functionName"/> </xsl:comment>
-            <xsl:apply-templates select="//method[@id=$method-id]" mode="FunctionDoc"/>
+            <xsl:comment> Documenting <xsl:value-of select="$functionName" /> </xsl:comment>
+            <xsl:apply-templates select="//method[@id=$method-id]" mode="FunctionDoc" />
         </html>
     </xsl:template>
 
@@ -66,14 +66,14 @@
 
             <h1><xsl:value-of select="$name" /></h1>
             <!-- output whether type is deprecated -->
-            <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+            <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
             <xsl:if test="count($ObsoleteAttribute) > 0">
                 <p>
                     <i>(Deprecated)</i>
                 </p>
             </xsl:if>
 
-            <p><xsl:apply-templates select="documentation/summary" mode="slashdoc"/></p>
+            <p><xsl:apply-templates select="documentation/summary" mode="slashdoc" /></p>
 
             <h3>Usage</h3>
             <code>
@@ -106,14 +106,14 @@
                 </div>
             </xsl:if>
             <h3>Return Value</h3>
-            <xsl:apply-templates select="documentation/returns" mode="slashdoc"/>
+            <xsl:apply-templates select="documentation/returns" mode="slashdoc" />
             <xsl:if test="count(documentation/remarks) != 0">
                 <h3>Remarks</h3>
-                <xsl:apply-templates select="documentation/remarks" mode="slashdoc"/>
+                <xsl:apply-templates select="documentation/remarks" mode="slashdoc" />
             </xsl:if>
             <xsl:if test="count(documentation/example) != 0">
                 <h3>Examples</h3>
-                <xsl:apply-templates select="documentation/example" mode="slashdoc"/>
+                <xsl:apply-templates select="documentation/example" mode="slashdoc" />
             </xsl:if>
         </body>
     </xsl:template>

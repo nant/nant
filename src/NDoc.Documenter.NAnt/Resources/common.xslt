@@ -109,14 +109,14 @@
 
     <!-- strip these elements, leave the text... -->
     <xsl:template match="summary" mode="slashdoc">
-        <xsl:apply-templates mode="slashdoc"/>
+        <xsl:apply-templates mode="slashdoc" />
     </xsl:template>
 
     <xsl:template match="remarks" mode="slashdoc">
-        <xsl:apply-templates mode="slashdoc"/>
+        <xsl:apply-templates mode="slashdoc" />
     </xsl:template>
 
     <xsl:template match="example" mode="slashdoc">
-        <xsl:apply-templates mode="slashdoc"/>
+        <xsl:apply-templates mode="slashdoc" />
     </xsl:template>
 </xsl:stylesheet>

@@ -45,7 +45,7 @@
 
     <xsl:template match="/">
         <html xmlns="http://www.w3.org/1999/xhtml">
-            <xsl:comment> Documenting <xsl:value-of select="$class-id"/> </xsl:comment>
+            <xsl:comment> Documenting <xsl:value-of select="$class-id" /> </xsl:comment>
             <xsl:choose>
                 <xsl:when test="$refType = 'Enum'"><xsl:apply-templates select="//enumeration[@id = $class-id]" mode="EnumDoc" /></xsl:when>
                 <xsl:otherwise><xsl:apply-templates select="//class[@id = $class-id]" mode="TypeDoc" /></xsl:otherwise>
@@ -64,6 +64,7 @@
             <xsl:choose>
                 <xsl:when test="$refType = 'Task'">../tasks/index.html</xsl:when>
                 <xsl:when test="$refType = 'Type'">../types/index.html</xsl:when>
+                <xsl:when test="$refType = 'Filter'">../filters/index.html</xsl:when>
                 <xsl:when test="$refType = 'Element'"></xsl:when>
             </xsl:choose>
         </xsl:variable>
@@ -71,7 +72,7 @@
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
             <link rel="stylesheet" type="text/css" href="../../style.css" />
-            <title><xsl:value-of select="$name" /> <xsl:value-of select="$refType"/></title>
+            <title><xsl:value-of select="$name" /><xsl:text> </xsl:text><xsl:value-of select="$refType" /></title>
         </head>
         <body>
             <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
@@ -83,10 +84,10 @@
                         <img alt="->" src="../images/arrow.gif" />
                         <xsl:choose>
                             <xsl:when test="string-length($parentPage) > 0">
-                                <a href="{$parentPage}"><xsl:value-of select="$refType"/> Reference</a>
+                                <a href="{$parentPage}"><xsl:value-of select="$refType" /> Reference</a>
                             </xsl:when>
                             <xsl:otherwise>
-                                <span><xsl:value-of select="$refType"/> Reference</span>
+                                <span><xsl:value-of select="$refType" /> Reference</span>
                             </xsl:otherwise>
                         </xsl:choose>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
@@ -105,18 +106,18 @@
     <!-- match class tag for info about a type -->
     <xsl:template match="class">
         <!-- output whether type is deprecated -->
-        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
         <xsl:if test="count($ObsoleteAttribute) > 0">
             <p>
                 <i>(Deprecated)</i>
             </p>
         </xsl:if>
         
-        <p><xsl:apply-templates select="documentation/summary" mode="slashdoc"/></p>
+        <p><xsl:apply-templates select="documentation/summary" mode="slashdoc" /></p>
         <!-- Remarks -->
-        <xsl:apply-templates select="documentation/remarks" mode="slashdoc"/>
+        <xsl:apply-templates select="documentation/remarks" mode="slashdoc" />
 
-        <xsl:variable name="properties" select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']"/>
+        <xsl:variable name="properties" select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']" />
         <xsl:if test="count($properties) != 0">
             <h3>Parameters</h3>
             <div class="table">
@@ -129,7 +130,7 @@
                     </tr>
                     <xsl:apply-templates select="$properties" mode="TypeDoc">
                         <!-- sort order: any property declared from the documented class, then by required, last by name-->
-                        <xsl:sort select="boolean(@declaringType)"/>
+                        <xsl:sort select="boolean(@declaringType)" />
                         <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Required']/@value" order="descending" />
                         <xsl:sort select="attribute[@name = 'NAnt.Core.Attributes.TaskAttributeAttribute']/property[@name = 'Name']/@value" />
                     </xsl:apply-templates>
@@ -137,7 +138,7 @@
             </div>
         </xsl:if>
 
-        <xsl:variable name="FrameworkProperties" select="property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']"/>
+        <xsl:variable name="FrameworkProperties" select="property[attribute/@name = 'NAnt.Core.Attributes.FrameworkConfigurableAttribute']" />
         <xsl:if test="count($FrameworkProperties) != 0">
             <h3>Framework-configurable parameters</h3>
             <div class="table">
@@ -163,14 +164,14 @@
         <xsl:if test="count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
             <h3>Nested Elements:</h3>
             <xsl:apply-templates select="property/attribute" mode="NestedElements">
-                <xsl:sort select="property[@name='Required' and @value='True']"/>
+                <xsl:sort select="property[@name='Required' and @value='True']" />
             </xsl:apply-templates>
         </xsl:if>
 
         <!-- Example -->
         <xsl:if test="count(documentation/example) != 0">
             <h3>Examples</h3>
-            <xsl:apply-templates select="documentation/example" mode="slashdoc"/>
+            <xsl:apply-templates select="documentation/example" mode="slashdoc" />
         </xsl:if>
     </xsl:template>
 
@@ -213,7 +214,7 @@
                         <img alt="->" src="../images/arrow.gif" />
                         <a href="../index.html">Help</a>
                         <img alt="->" src="../images/arrow.gif" />
-                        <span><xsl:value-of select="$refType"/> Reference</span>
+                        <span><xsl:value-of select="$refType" /> Reference</span>
                         <img alt="->" src="../images/arrow.gif" /><xsl:text> </xsl:text>
                         <xsl:value-of select="$name" />
                     </td>
@@ -230,16 +231,16 @@
     <!-- match enumeration tag for info about an enum type -->
     <xsl:template match="enumeration">
         <!-- output whether type is deprecated -->
-        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
+        <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
         <xsl:if test="count($ObsoleteAttribute) > 0">
             <p>
                 <i>(Deprecated)</i>
             </p>
         </xsl:if>
         
-        <p><xsl:apply-templates select="documentation/summary" mode="slashdoc"/></p>
+        <p><xsl:apply-templates select="documentation/summary" mode="slashdoc" /></p>
         <!-- Remarks -->
-        <xsl:apply-templates select="documentation/remarks" mode="slashdoc"/>
+        <xsl:apply-templates select="documentation/remarks" mode="slashdoc" />
 
         <xsl:variable name="fields" select="field" />
         <xsl:if test="count($fields) != 0">
@@ -251,7 +252,7 @@
                         <th>Description</th>
                     </tr>
                     <xsl:apply-templates select="$fields" mode="EnumDoc">
-                        <xsl:sort select="@name"/>
+                        <xsl:sort select="@name" />
                     </xsl:apply-templates>
                 </table>
             </div>
