@@ -28,6 +28,7 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -213,13 +214,21 @@ namespace NAnt.VSNet {
                         _htResources[r.InputFile] = r;
                     }
                 } else {
+                    string sourceFile;
+
+                    if (!StringUtils.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
+                        sourceFile = elemFile.GetAttribute("Link");
+                    } else {
+                        sourceFile = elemFile.GetAttribute("RelPath");
+                    }
+
                     if (buildAction == "Compile") {
-                        _htFiles[elemFile.Attributes["RelPath"].Value] = null;
+                        _htFiles[sourceFile] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        string resourceFilename = Path.Combine(_projectSettings.RootDirectory, elemFile.GetAttribute("RelPath"));
+                        string resourceFilename = Path.Combine(_projectSettings.RootDirectory, sourceFile);
                         string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(new FileInfo(resourceFilename).DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
                         Resource r = new Resource(this, resourceFilename, elemFile.Attributes["RelPath"].Value, dependentOn, _solutionTask);
-                        _htResources[r.InputFile ] = r;
+                        _htResources[r.InputFile] = r;
                     }
                 }
             }
