@@ -261,7 +261,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             /// Gets the <see cref="Encoding" /> in which the output is written.
             /// </summary>
             /// <value>
-            /// The <see cref="LogWriter" /> always writes output in <see cref="Encoding.UTF8" />
+            /// The <see cref="LogWriter" /> always writes output in UTF8 
             /// encoding.
             /// </value>
             public override Encoding Encoding {
