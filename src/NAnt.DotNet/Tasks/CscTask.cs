@@ -264,8 +264,8 @@ namespace SourceForge.NAnt.Tasks {
                 WriteOption(writer, "codepage", Codepage);
             }
 
-            if (NoConfig && !Args.Contains("/noconfig")) {
-                Args.Add("/noconfig");
+            if (NoConfig && !Arguments.Contains("/noconfig")) {
+                Arguments.Add(new ProgramArgument("/noconfig"));
             }
         }
 

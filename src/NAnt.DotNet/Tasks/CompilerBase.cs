@@ -258,8 +258,9 @@ namespace SourceForge.NAnt.Tasks {
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames) {
                             string prefix = GetFormNamespace(fileName); // try and get it from matching form
-                            if (prefix == null || prefix.Length == 0)
-                                prefix = resources.Prefix;                        
+                            if (prefix == null || prefix.Length == 0) {
+                                prefix = resources.Prefix;
+                            }
                             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                             string tmpResourcePath = Path.ChangeExtension(fileName, "resources");
                             string manifestResourceName = Path.GetFileName(tmpResourcePath);
@@ -268,22 +269,20 @@ namespace SourceForge.NAnt.Tasks {
                             if (manifestResourceName.IndexOf(".aspx") > -1){
                                 manifestResourceName = manifestResourceName.Replace(".aspx", "");
                                 actualFileName = actualFileName.Replace(".aspx", "");
-                            }
-                            else if (manifestResourceName.IndexOf(".asax") > -1){
+                            } else if (manifestResourceName.IndexOf(".asax") > -1){
                                 manifestResourceName = manifestResourceName.Replace(".asax", "");
                                 actualFileName = actualFileName.Replace(".asax", "");
-                            }
-                            else if (manifestResourceName.IndexOf(".ascx") > -1) {
+                            } else if (manifestResourceName.IndexOf(".ascx") > -1) {
                                 manifestResourceName = manifestResourceName.Replace(".ascx", "");
                                 actualFileName = actualFileName.Replace(".ascx", "");
-                            }                        
+                            }
                             if(prefix != null && prefix.Length != 0) {
                                 manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName);
                             }
                             string resourceoption = tmpResourcePath + "," + manifestResourceName;
                             WriteOption(writer, "resource", resourceoption);
                         }
-                        
+
                         // other resources
                         foreach (string fileName in resources.NonResxFiles.FileNames) {
                             string resourceoption = fileName + "," + resources.GetManifestResourceName(fileName);
@@ -380,7 +379,6 @@ namespace SourceForge.NAnt.Tasks {
 
             //Resources Updated?
             foreach (ResourceFileSet resources in ResourcesList) {
-                
                 fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, outputFileInfo.LastWriteTime);
                 if (fileName != null) {
                     Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
@@ -390,17 +388,20 @@ namespace SourceForge.NAnt.Tasks {
  
             // check the args for /res or /resource options.
             StringCollection resourceFileNames = new StringCollection();
-            foreach (string arg in Args) {
-                if (arg.StartsWith("/res:") || arg.StartsWith("/resource:")) {
-                    string path = arg.Substring(arg.IndexOf(':') + 1);
-
-                    int indexOfComma = path.IndexOf(',');
-                    if (indexOfComma != -1) {
-                        path = path.Substring(0, indexOfComma);
+            foreach (ProgramArgument argument in Arguments) {
+                if (argument.IfDefined && !argument.UnlessDefined) {
+                    string argumentValue = argument.Value;
+                    if (argumentValue != null && (argumentValue.StartsWith("/res:") || argumentValue.StartsWith("/resource:"))) {
+                        string path = argumentValue.Substring(argumentValue.IndexOf(':') + 1);
+                        int indexOfComma = path.IndexOf(',');
+                        if (indexOfComma != -1) {
+                            path = path.Substring(0, indexOfComma);
+                        }
+                        resourceFileNames.Add(path);
                     }
-                    resourceFileNames.Add(path);
                 }
             }
+
             fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, outputFileInfo.LastWriteTime);
             if (fileName != null) {
                 Log.WriteLineIf(Verbose, LogPrefix + "{0} is out of date, recompiling.", fileName);
