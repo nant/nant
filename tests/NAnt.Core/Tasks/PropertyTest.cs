@@ -55,6 +55,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// <summary>
         /// Overwriting a read-only property should result in build error.
         /// </summary>
+        [Ignore("For now, we only output a warning message when read-only properties are overwritten.")]
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_ROSet() {
@@ -93,6 +94,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// <summary>
         /// Overwriting a read-only property should result in build error.
         /// </summary>
+        [Ignore("For now, we only output a warning message when read-only properties are overwritten.")]
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_OverwriteReadOnlyProperty() {
