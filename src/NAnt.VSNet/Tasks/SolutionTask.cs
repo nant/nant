@@ -171,6 +171,8 @@ namespace NAnt.VSNet.Tasks {
         /// </summary>
         static SolutionTask() {
             _assemblyFolderRootKeys = new StringCollection();
+            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\.NETFramework\AssemblyFolders");
+            _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\8.0\AssemblyFolders");
             _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders");
             _assemblyFolderRootKeys.Add(@"SOFTWARE\Microsoft\VisualStudio\7.0\AssemblyFolders");
         }
