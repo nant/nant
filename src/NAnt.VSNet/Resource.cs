@@ -260,10 +260,6 @@ namespace NAnt.VSNet {
             }
             outFile = Project.ProjectSettings.GetTemporaryFilename(outFile);
 
-            _solutionTask.Project.Indent();
-            _solutionTask.Log(Level.Verbose, _solutionTask.LogPrefix + "ResGenTask Input: {0} Output: {1}", inFile, outFile);
-            _solutionTask.Project.Unindent();
-
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
 
