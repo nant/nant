@@ -312,11 +312,17 @@ namespace NAnt.Core.Tasks {
                 // name attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("name", true));
 
-                // default attribute
+                // depends attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("depends", false));
 
                 // description attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("description", false));
+
+                // if attribute
+                _targetCT.Attributes.Add(CreateXsdAttribute("if", false));
+
+                // unless attribute
+                _targetCT.Attributes.Add(CreateXsdAttribute("unless", false));
 
                 _nantSchema.Items.Add(_targetCT);
 

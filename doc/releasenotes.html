@@ -50,6 +50,16 @@
         </div>
         <h3>
             Bug fixes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5>XML Schema</h5>
+            <ul>
+                <li>
+                    &quot;if&quot; and &quot;unless&quot; attributes of &lt;target&gt; element
+                    are not documented (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1168170&amp;group_id=31650&amp;atid=402868">#1168170</a>).
+                </li>
+            </ul>
+        </div>            
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
@@ -208,19 +218,19 @@
         <h3>Changes</h3>
         <h4>Core</h4>
         <div style="margin-left: 20px;">
+            <h5>MailLogger</h5>
+            <ul>
+                <li>
+                    Added &quot;MailLogger.body.encoding&quot; property to allow the encoding of the body
+                    of the message to be set.
+                </li>
+            </ul>
             <h5>Response File</h5>
             <ul>
                 <li>
                     NAnt now supports the use of a response file. Passing @&lt;file&gt; on the 
                     command line will cause the contents of &lt;file&gt; to be read as part of the 
                     command line. Multiple @&lt;file&gt; arguments may be used.
-                </li>
-            </ul>
-            <h5>MailLogger</h5>
-            <ul>
-                <li>
-                    Added &quot;MailLogger.body.encoding&quot; property to allow the encoding of the body
-                    of the message to be set.
                 </li>
             </ul>
         </div>
