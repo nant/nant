@@ -16,7 +16,6 @@
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
-                <includes name="NDoc.Core.dll" />
                 <includes name="Microsoft.JScript.dll" />
                 <includes name="System.ServiceProcess.dll" />
             </references>

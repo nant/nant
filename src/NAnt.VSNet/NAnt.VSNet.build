@@ -19,7 +19,6 @@
                 <includes name="NAnt.DotNetTasks.dll" />
                 <includes name="NAnt.VisualCppTasks.dll"/>
                 <includes name="NAnt.Win32Tasks.dll"/>
-                <includes name="NDoc.Core.dll"/>
             </references>
         </csc>
     </target>
