@@ -441,11 +441,6 @@ namespace NAnt.Core {
         public FrameworkInfo TargetFramework {
             get { return _targetFramework; }
             set {
-                // output message in build log if target framework is changed
-                if (_targetFramework != null && _targetFramework != value) {
-                    Log(Level.Info, "Target framework changed to \"{0}\".", TargetFramework != null 
-                        ? TargetFramework.Description : "None");
-                }
                 _targetFramework = value;
                 UpdateTargetFrameworkProperties();
             }
