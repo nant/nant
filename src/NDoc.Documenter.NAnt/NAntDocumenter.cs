@@ -175,6 +175,7 @@ namespace NDoc.Documenter.NAnt {
             // create the html output directories
             try {
                 Directory.CreateDirectory(OutputDirectory);
+                Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "functions"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
                 Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
@@ -279,7 +280,7 @@ namespace NDoc.Documenter.NAnt {
                 throw new ArgumentNullException("typeNode");
             }
 
-            if (docType == ElementDocType.None || docType == ElementDocType.FunctionSet || docType == ElementDocType.Element) {
+            if (docType == ElementDocType.None || docType == ElementDocType.FunctionSet) {
                 // we don't need to document this type
                 return;
             }
