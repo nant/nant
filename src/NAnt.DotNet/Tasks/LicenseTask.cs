@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -34,6 +35,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -59,13 +61,20 @@ namespace NAnt.DotNet.Tasks {
     /// </example>
     [Serializable()]
     [TaskName("license")]
-    public class LicenseTask : Task {
+    [ProgramLocation(LocationType.FrameworkSdkDir)]
+    public class LicenseTask : ExternalProgramBase {
         #region Private Instance Fields
 
         private FileSet _assemblies = new FileSet();
         private FileInfo _inputFile;
         private FileInfo _outputFile;
         private string _target;
+        private string _programFileName;
+        private DirectoryInfo _workingDirectory;
+
+        // framework configuration settings
+        private bool _supportsAssemblyReferences;
+        private bool _hasCommandLineCompiler;
 
         #endregion Private Instance Fields
 
@@ -119,6 +128,30 @@ namespace NAnt.DotNet.Tasks {
             set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// Indicates whether assembly references are supported by the current
+        /// target framework. The default is <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        /// Applies only to frameworks having a command line tool for compiling
+        /// licenses files.
+        /// </remarks>
+        [FrameworkConfigurable("supportsassemblyreferences")]
+        public bool SupportsAssemblyReferences {
+            get { return _supportsAssemblyReferences; }
+            set { _supportsAssemblyReferences = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether the current target framework has a command line
+        /// tool for compiling licenses files. The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("hascommandlinecompiler")]
+        public bool HasCommandLineCompiler {
+            get { return _hasCommandLineCompiler; }
+            set { _hasCommandLineCompiler = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -135,10 +168,140 @@ namespace NAnt.DotNet.Tasks {
             }
         }
 
+        #endregion Override implementation of Task
+
+        #region Override implementation of ExternalProgramBase
+
+        /// <summary>
+        /// Gets the working directory for the application.
+        /// </summary>
+        /// <value>
+        /// The working directory for the application.
+        /// </value>
+        public override DirectoryInfo BaseDirectory {
+            get { 
+                if (_workingDirectory == null) {
+                    return base.BaseDirectory; 
+                }
+                return _workingDirectory;
+            }
+            set {
+                _workingDirectory = value;
+            }
+        }
+
+        /// <summary>
+        /// The command-line arguments for the external program.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing these elements in build file.
+        /// </remarks>
+        public override ArgumentCollection Arguments {
+            get { return base.Arguments; }
+        }
+
+        /// <summary>
+        /// Gets the command-line arguments for the external program.
+        /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
+        public override string ProgramArguments { 
+            get { return string.Empty; }
+        }
+
+        /// <summary>
+        /// Gets the filename of the external program to start.
+        /// </summary>
+        /// <value>
+        /// The filename of the external program.
+        /// </value>
+        /// <remarks>
+        /// Override in derived classes to explicitly set the location of the 
+        /// external tool.
+        /// </remarks>
+        public override string ProgramFileName { 
+            get { 
+                if (_programFileName == null) {
+                    _programFileName = base.ProgramFileName;
+                }
+                return _programFileName;
+            }
+        }
+
+        /// <summary>
+        /// Updates the <see cref="ProcessStartInfo" /> of the specified 
+        /// <see cref="Process"/>.
+        /// </summary>
+        /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
+        protected override void PrepareProcess(Process process) {
+            if (!SupportsAssemblyReferences) {
+                // create instance of Copy task
+                CopyTask ct = new CopyTask();
+
+                // inherit project from current task
+                ct.Project = Project;
+
+                // inherit namespace manager from current task
+                ct.NamespaceManager = NamespaceManager;
+
+                // parent is current task
+                ct.Parent = this;
+
+                // only output warning messages or higher
+                ct.Threshold = Level.Warning;
+
+                // make sure framework specific information is set
+                ct.InitializeTaskConfiguration();
+
+                // set parent of child elements
+                ct.CopyFileSet.Parent = ct;
+
+                // inherit project from solution task for child elements
+                ct.CopyFileSet.Project = ct.Project;
+
+                // inherit namespace manager from solution task
+                ct.CopyFileSet.NamespaceManager = ct.NamespaceManager;
+
+                // set base directory of fileset
+                ct.CopyFileSet.BaseDirectory = Assemblies.BaseDirectory;
+
+                // copy referenced assemblies
+                foreach (string file in Assemblies.FileNames) {
+                    ct.CopyFileSet.Includes.Add(file);
+                }
+
+                // copy command line tool to working directory
+                ct.CopyFileSet.Includes.Add(base.ProgramFileName);
+
+                // set destination directory
+                ct.ToDirectory = BaseDirectory;
+
+                // increment indentation level
+                ct.Project.Indent();
+                try {
+                    // execute task
+                    ct.Execute();
+                } finally {
+                    // restore indentation level
+                    ct.Project.Unindent();
+                }
+
+                // change program to execute the tool in working directory as
+                // that will allow this tool to resolve assembly references
+                // using assemblies stored in the same directory
+                _programFileName = Path.Combine(BaseDirectory.FullName, 
+                    Path.GetFileName(base.ProgramFileName));
+            }
+
+            // further delegate preparation to base class
+            base.PrepareProcess(process);
+        }
+
         /// <summary>
         /// Generates the license file.
         /// </summary>
-        protected override void ExecuteTask(){
+        protected override void ExecuteTask() {
             FileInfo licensesFile = null;
 
             // ensure base directory is set, even if fileset was not initialized
@@ -190,22 +353,59 @@ namespace NAnt.DotNet.Tasks {
                 + " using target '{2}'.", InputFile.FullName, licensesFile.FullName, 
                 Target);
 
-            // create new domain
-            AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
-                AppDomain.CurrentDomain.Evidence);
+            if (HasCommandLineCompiler) {
+                try {
+                    // determine working directory
+                    BaseDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), 
+                        Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture)));
+                    // create working directory if it doesn't exist
+                    if (!BaseDirectory.Exists) {
+                        BaseDirectory.Create();
+                    }
+                    // set target assembly for generated licenses file (in
+                    // uppercase, to match VS.NET)
+                    Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                        "/target:\"{0}\"", Path.GetFileName(Target.ToUpper(CultureInfo.InvariantCulture)))));
+                    // set input filename
+                    Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                        "/complist:\"{0}\"", InputFile.FullName)));
+                    // set output directory
+                    Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                        "/outdir:\"{0}\"", BaseDirectory.FullName)));
+                    // suppress display of startup banner
+                    Arguments.Add(new Argument("/nologo"));
+                    // adjust verbosity of tool if necessary
+                    if (Verbose) {
+                        Arguments.Add(new Argument("/v"));
+                    }
+                    // use command line tool to compile licenses file
+                    base.ExecuteTask();
+                    // copy licenses file to output file
+                    File.Copy(Path.Combine(BaseDirectory.FullName, Target + ".licenses"), 
+                        licensesFile.FullName);
+                } finally {
+                    if (BaseDirectory.Exists) {
+                        BaseDirectory.Delete(true);
+                    }
+                }
+            } else {
+                // create new domain
+                AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
+                    AppDomain.CurrentDomain.Evidence);
 
-            LicenseGatherer licenseGatherer = (LicenseGatherer)
-                newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
-                typeof(LicenseGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance,
-                null, new object[0], CultureInfo.InvariantCulture, new object[0],
-                AppDomain.CurrentDomain.Evidence);
-            licenseGatherer.CreateLicenseFile(this, licensesFile.FullName);
+                LicenseGatherer licenseGatherer = (LicenseGatherer)
+                    newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
+                    typeof(LicenseGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance,
+                    null, new object[0], CultureInfo.InvariantCulture, new object[0],
+                    AppDomain.CurrentDomain.Evidence);
+                licenseGatherer.CreateLicenseFile(this, licensesFile.FullName);
 
-            // unload newly created domain
-            AppDomain.Unload(newDomain);
+                // unload newly created domain
+                AppDomain.Unload(newDomain);
+            }
         }
 
-        #endregion Override implementation of Task
+        #endregion Override implementation of ExternalProgramBase
 
         #region Private Instance Methods
 
