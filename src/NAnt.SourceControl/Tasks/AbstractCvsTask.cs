@@ -39,13 +39,16 @@ namespace NAnt.SourceControl.Tasks {
         #region Protected Static Fields
 
         /// <summary>
-        /// Default value for the recursive directive.  Default is <code>false</code>.
+        /// Default value for the recursive directive.  The default is 
+        /// <see langword="false" />.
         /// </summary>
         protected const bool DefaultRecursive = false;
+
         /// <summary>
         /// Default value for the quiet command.
         /// </summary>
         protected const bool DefaultQuiet = false;
+
         /// <summary>
         /// Default value for the really quiet command.
         /// </summary>
@@ -56,18 +59,20 @@ namespace NAnt.SourceControl.Tasks {
         ///     cvs is located.
         /// </summary>
         protected const string CvsHome = "CVS_HOME";
+
         /// <summary>
         /// Name of the password file that cvs stores pserver 
         ///     cvsroot/ password pairings.
         /// </summary>
         protected const String CvsPassfile = ".cvspass";
+
         /// <summary>
         /// The default compression level to use for cvs commands.
         /// </summary>
         protected const int DefaultCompressionLevel = 3;
+
         /// <summary>
-        /// The default use of binaries, defaults to use sharpcvs
-        ///     <code>true</code>.
+        /// The default use of binaries, defaults to use sharpcvs.
         /// </summary>
         protected const bool DefaultUseSharpCvsLib = true;
 
@@ -75,19 +80,22 @@ namespace NAnt.SourceControl.Tasks {
         /// The name of the cvs executable.
         /// </summary>
         protected const string CvsExe = "cvs.exe";
+
         /// <summary>
         /// The temporary name of the sharpcvslib binary file, to avoid 
-        ///     conflicts in the path variable.
+        /// conflicts in the path variable.
         /// </summary>
         protected const string SharpCvsExe = "scvs.exe";
+
         /// <summary>
         /// Environment variable that holds the executable name that is used for
-        ///     ssh communication.
+        /// ssh communication.
         /// </summary>
         protected const string CvsRsh = "CVS_RSH";
+
         /// <summary>
         /// Property name used to specify on a project level whether sharpcvs is
-        ///     used or not.
+        /// used or not.
         /// </summary>
         protected const string UseSharpCvsLibProp = "sourcecontrol.usesharpcvslib";
 
@@ -99,7 +107,6 @@ namespace NAnt.SourceControl.Tasks {
         private bool _useSharpCvsLib = DefaultUseSharpCvsLib;
         private bool _isUseSharpCvsLibSet = false;
         private FileInfo _cvsFullPath;
-
         private string _sharpcvslibExeName;
 
         #endregion Private Instance Fields
@@ -133,16 +140,16 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// The name of the cvs binary, or <code>cvs.exe</code> at the time this 
-        ///     was written.
+        /// The name of the cvs binary, or <c>cvs.exe</c> at the time this 
+        /// was written.
         /// </summary>
         protected override string VcsExeName {
             get {return CvsExe;}
         }
 
         /// <summary>
-        /// The name of the pass file, or <code>.cvspass</code> at the time
-        ///     of this writing.
+        /// The name of the pass file, or <c>.cvspass</c> at the time
+        /// of this writing.
         /// </summary>
         protected override string PassFileName {
             get {return CvsPassfile;}
@@ -150,7 +157,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// The name of the version control system specific home environment 
-        ///     variable.
+        /// variable.
         /// </summary>
         protected override string VcsHomeEnv {
             get {return CvsHome;}
@@ -162,7 +169,7 @@ namespace NAnt.SourceControl.Tasks {
         /// system.
         /// </summary>
         protected virtual bool IsModuleNeeded {
-            get {return true;}
+            get { return true; }
         }
 
         /// <summary>
@@ -171,7 +178,7 @@ namespace NAnt.SourceControl.Tasks {
         /// system, there fore is not needed for a cvs update.
         /// </summary>
         protected virtual bool IsCvsRootNeeded {
-            get {return true;}
+            get { return true; }
         }
 
         #endregion
@@ -221,7 +228,6 @@ namespace NAnt.SourceControl.Tasks {
         /// The cvs root variable has the following components uses the following format:
         ///     <para>
         ///         <code>[protocol]:[username]@[servername]:[server path]</code>
-        ///         <br />
         ///         <ul>
         ///             <li>protocol:       ext, pserver, ssh (sharpcvslib); if you are not using sharpcvslib consult your cvs documentation.</li>
         ///             <li>username:       [username]</li>
@@ -248,11 +254,11 @@ namespace NAnt.SourceControl.Tasks {
         /// The module to perform an operation on.
         /// </summary>
         /// <value>
-        /// The module to perform an operation on.  This is a normal file/ folder
-        ///     name without path information.
+        /// The module to perform an operation on.  This is a normal file/folder
+        /// name without path information.
         /// </value>
         /// <example>
-        ///   <para>In Nant the module name would be:</para>
+        ///   <para>In NAnt the module name would be:</para>
         ///   <code>nant</code>
         /// </example>
         [TaskAttribute("module", Required=true)]
@@ -263,17 +269,20 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// <code>true</code> if the SharpCvsLib binaries that come bundled with 
-        ///     NAnt should be used to perform the cvs commands, <code>false</code>
-        ///     otherwise.
-        ///     
-        ///     You may also specify an override value for all cvs tasks instead
-        ///     of specifying a value for each.  To do this set the property
-        ///     <code>sourcecontrol.usesharpcvslib</code> to <code>false</code>.
-        ///     
-        ///     <warn>If you choose not to use SharpCvsLib to checkout from 
-        ///         cvs you will need to include a cvs.exe binary in your
-        ///         path.</warn>
+        /// <para>
+        /// <see langword="true" /> if the SharpCvsLib binaries that come bundled 
+        /// with NAnt should be used to perform the cvs commands, <see langword="false" />
+        /// otherwise.
+        /// </para>
+        /// <para>
+        /// You may also specify an override value for all cvs tasks instead
+        /// of specifying a value for each.  To do this set the property
+        /// <c>sourcecontrol.usesharpcvslib</c> to <see langword="false" />.
+        /// </para>
+        /// <warn>
+        /// If you choose not to use SharpCvsLib to checkout from cvs you will 
+        /// need to include a cvs.exe binary in your path.
+        /// </warn>
         /// </summary>
         /// <example>
         ///     To use a cvs client in your path instead of sharpcvslib specify
@@ -308,8 +317,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Indicates if the output from the cvs command should be supressed.  Defaults to 
-        ///     <code>false</code>.
+        /// Indicates if the output from the cvs command should be supressed.  
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("quiet", Required=false)]
         [BooleanValidator()]
@@ -322,8 +331,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Indicates if the output from the cvs command should be stopped.  Default to 
-        ///     <code>false</code>.
+        /// Indicates if the output from the cvs command should be stopped.  
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("reallyquiet", Required=false)]
         [BooleanValidator()]
@@ -336,8 +345,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// <code>true</code> if the sandbox files should be checked out in
-        ///     read only mode.
+        /// <see langword="true" /> if the sandbox files should be checked out in
+        /// read only mode. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("readonly", Required=false)]
         [BooleanValidator()]
@@ -350,10 +359,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// <code>true</code> if the sandbox files should be checked out in 
-        ///     read/ write mode.
-        ///     
-        ///     Defaults to <code>true</code>.
+        /// <see langword="true" /> if the sandbox files should be checked out in 
+        /// read/write mode. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("readwrite", Required=false)]
         [BooleanValidator()]

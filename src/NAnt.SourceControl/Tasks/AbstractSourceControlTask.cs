@@ -193,7 +193,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// The full path to the cached password file.  If not specified then the
-        ///     environment variables are used to try and locate the file.
+        /// environment variables are used to try and locate the file.
         /// </summary>
         [TaskAttribute("passfile")]
         public FileInfo PassFile {
@@ -215,8 +215,8 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// A collection of options that can be used to modify the default behavoir
-        ///     of the version control commands.  See the sub-tasks for implementation
-        ///     specifics.
+        /// of the version control commands.  See the sub-tasks for implementation
+        /// specifics.
         /// </summary>
         public Hashtable CommandOptions {
             get { return _commandOptions;}
@@ -265,7 +265,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Used to specify the version control system (VCS) files that are going
-        ///     to be acted on.
+        /// to be acted on.
         /// </summary>
         [BuildElement("fileset")]
         public virtual FileSet VcsFileSet {
@@ -289,7 +289,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Adds a new global option if none exists.  If one does exist then
-        ///     the use switch is toggled on or of.
+        /// the use switch is toggled on or of.
         /// </summary>
         /// <param name="name">The common name of the option.</param>
         /// <param name="value">The option value or command line switch
@@ -341,8 +341,8 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Build up the command line arguments, determine which executable is being
-        ///     used and find the path to that executable and set the working 
-        ///     directory.
+        /// used and find the path to that executable and set the working 
+        /// directory.
         /// </summary>
         /// <param name="process">The process to prepare.</param>
         protected override void PrepareProcess (Process process) {

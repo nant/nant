@@ -74,20 +74,25 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-export")]
     public class ExportTask : AbstractCvsTask {
-
         #region Private Instance Fields
+
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private ArgumentCollection _exportFiles = new ArgumentCollection();
+
         #endregion
 
         #region Public Constants
+
         /// <summary>
         /// The command being executed.
         /// </summary>
         public const string CvsCommandName = "export";
+
         #endregion
+
         #region Public Instance Constructors
+
         /// <summary>
         /// Create a new instance of the <see cref="ExportTask"/>.
         /// </summary>
@@ -124,7 +129,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Indicates whether the head revision should be used if the revison specified by
         /// <see cref="Revision"/> or the <see cref="Date"/> tags are not
-        /// found. 
+        /// found. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the specified tag should be moved; 

@@ -73,12 +73,12 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
-
         #region Public Constants
         /// <summary>
         /// The command being executed.
         /// </summary>
         public const string CvsCommandName = "checkout";
+
         #endregion
 
         #region Public Instance Constructors
@@ -102,7 +102,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Specify the revision to checkout.  This corresponds to the "sticky-tag"
-        ///     of the file.
+        /// of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
@@ -122,8 +122,8 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Specify the revision date to checkout.  The date specified is validated
-        ///     and then passed to the cvs binary in a standard format recognized by
-        ///     cvs.
+        /// and then passed to the cvs binary in a standard format recognized by
+        /// cvs.
         /// </summary>
         [TaskAttribute("date", Required=false)]
         [DateTimeValidator()]
@@ -134,7 +134,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Specify a directory name to replace the module name.  Valid names
-        ///     include any valid filename, excluding path information.
+        /// include any valid filename, excluding path information.
         /// </summary>
         [TaskAttribute("overridedir", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
@@ -145,7 +145,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Specify a directory name to replace the module name.  Valid names
-        ///     include any valid filename, excluding path information.
+        /// include any valid filename, excluding path information.
         /// </summary>
         [TaskAttribute("override-directory", Required=false)]
         public string OverrideDirectory {

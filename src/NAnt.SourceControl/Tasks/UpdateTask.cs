@@ -103,6 +103,7 @@ namespace NAnt.SourceControl.Tasks {
         #endregion "Protected Instance Properties"
 
         #region Public Instance Properties
+
         /// <summary>
         /// The name of the cvs command that is going to be executed.
         /// </summary>
@@ -111,10 +112,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// If <code>true</code> new directories will be created on the local
-        ///     sandbox.
-        ///     
-        /// Defaults to <code>true</code>.
+        /// If <see langword="true" />. new directories will be created on the local
+        /// sandbox. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("builddirs", Required=false)]
         [BooleanValidator()]
@@ -124,10 +123,9 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// If <code>true</code> empty directories copied down from the remote
-        ///     repository will be removed from the local sandbox.
-        ///     
-        /// Defaults to <code>true</code>.
+        /// If <see langword="true" /> empty directories copied down from the 
+        /// remote repository will be removed from the local sandbox.
+        /// The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("pruneempty", Required=false)]
         [BooleanValidator()]
@@ -137,10 +135,9 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// If <code>true</code> the local copy of the file will be overwritten
-        ///     with the copy from the remote repository.  
-        ///     
-        /// Defaults to <code>false</code>.
+        /// If <see langword="true" /> the local copy of the file will be 
+        /// overwritten with the copy from the remote repository. The default
+        /// is <see langword="false" />.
         /// </summary>
         [TaskAttribute("overwritelocal", Required=false)]
         [BooleanValidator()]
@@ -150,7 +147,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// <code>true</code> if the command should be executed recursively.
+        /// <see langword="true" /> if the command should be executed recursively.
         /// </summary>
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
@@ -160,8 +157,8 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Specify the revision to update the file to.  This corresponds to the "sticky-tag"
-        ///     of the file.
+        /// Specify the revision to update the file to.  This corresponds to the 
+        /// "sticky-tag" of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
@@ -207,20 +204,24 @@ namespace NAnt.SourceControl.Tasks {
         #endregion Private Static Fields
 
         #region Public Constants
+
         /// <summary>
         /// The command being executed.
         /// </summary>
         public const string CvsCommandName = "update";
+
         #endregion
+
         #region Public Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateTask" /> 
         /// class.
-        /// 
-        /// Sets the build directory and prune empty directory properties to
-        ///     true.
         /// </summary>
+        /// <remarks>
+        /// Sets the build directory and prune empty directory properties to
+        /// <see langword="true" />.
+        /// </remarks>
         public UpdateTask() {
             BuildDirs = true;
             PruneEmpty = true;

@@ -56,6 +56,7 @@ namespace NAnt.SourceControl.Tasks {
         #endregion
 
         #region Public Instance Properties
+
         /// <summary>
         /// The cvs command to execute.
         /// </summary>
