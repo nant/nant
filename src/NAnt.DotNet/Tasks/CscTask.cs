@@ -38,7 +38,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("csc")]
-    public class CscTask : CompilerBase {
+    public class CscTask : MsftFXCompilerBase {
        
         string _doc = null;
         

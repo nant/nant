@@ -61,7 +61,9 @@ namespace Sourceforge.NAnt.Documenter {
 		[
 			Category("Output"),
 			Description("The path to the Output Directory where the generated doc will be placed."),
-			Editor(typeof(FileNameEditor), typeof(UITypeEditor))
+#if (!BuildWithVSNet)
+         Editor(typeof(FileNameEditor), typeof(UITypeEditor))
+#endif
 		]
 		/// <summary>Gets or sets the OutputDirectory property.</summary>
 		public string OutputDirectory {

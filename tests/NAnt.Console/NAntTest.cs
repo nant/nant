@@ -1,3 +1,4 @@
+#if (!BuildWithVSNet)
 // NAnt - A .NET build tool
 // Copyright (C) 2001-2002 Gerry Shaw
 //
@@ -375,3 +376,4 @@ namespace SourceForge.NAnt.Tests {
         }
     }
 }
+#endif

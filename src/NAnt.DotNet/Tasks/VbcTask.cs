@@ -54,7 +54,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("vbc")]
-    public class VbcTask : CompilerBase {
+    public class VbcTask : MsftFXCompilerBase {
 
         string _baseAddress     = null;
         string _imports         = null;

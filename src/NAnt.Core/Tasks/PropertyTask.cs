@@ -16,6 +16,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Scott Hernandez (ScottHernandez@hotmail.com)
+
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -31,23 +33,35 @@ namespace SourceForge.NAnt.Tasks {
     ///   <code><![CDATA[<property name="debug" value="true"/>]]></code>
     ///   <para>Use the user-defined <c>debug</c> property.</para>
     ///   <code><![CDATA[<property name="trace" value="${debug}"/>]]></code>
+    ///   <para>Define a Read-Only property.</para><para>This is just like passing in the param on the command line.</para>
+    ///   <code><![CDATA[<property name="do_not_touch_ME" value="hammer" readonly="true"/>]]></code>
     /// </example>
     [TaskName("property")]
     public class PropertyTask : Task {
         
         string _name = null;        
         string _value = String.Empty;
+        bool _ro = false;
 
-         /// <summary>the name of the property to set.</summary>        
-       [TaskAttribute("name", Required=true)]
-       public string PropName { get { return _name; } set { _name = value; } }
+        /// <summary>the name of the property to set.</summary>        
+        [TaskAttribute("name", Required=true)]
+        public string PropName { get { return _name; } set { _name = value; } }
 
-         /// <summary>the value of the property.</summary>        
+        /// <summary>the value of the property.</summary>        
         [TaskAttribute("value", Required=true)]
         public string Value { get { return _value; } set { _value = value; } }
-       
+
+        /// <summary>the value of the property.</summary>        
+        [TaskAttribute("readonly", Required=false)]
+        [BooleanValidator()]
+        public bool ReadOnly { get { return _ro; } set { _ro = value; } }
+
+
         protected override void ExecuteTask() {
-            Properties[_name] = _value;
+            if(_ro)
+                Properties.AddReadOnly(_name, _value);
+            else
+                Properties[_name] = _value;
         }
     }
 }

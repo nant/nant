@@ -79,8 +79,8 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("sources")]
         public FileSet Sources { get { return _sources; } }
 
-        public override string ProgramFileName { get { return Name; } /*set { Name = value; }*/ }
-        public override string ProgramArguments { get { return _arguments; }  /*set { _arguments = value; }*/ }
+        public override string ProgramFileName { get { return MsftFXCompilerBase.ProgramFilepath(this); } }
+        public override string ProgramArguments { get { return _arguments; } }
 
         protected virtual void WriteOptions(TextWriter writer) {}
 

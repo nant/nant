@@ -38,7 +38,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("jsc")]
-    public class JscTask : CompilerBase {
+    public class JscTask : MsftFXCompilerBase {
 
         // add JScript.NET specific compiler options here (see CscTask)
         protected override void WriteOptions(TextWriter writer) {

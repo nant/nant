@@ -76,10 +76,27 @@ namespace SourceForge.NAnt.Tests {
         /// <returns>The console output</returns>
         public string ExecuteProject(Project p) {
             using (ConsoleCapture c = new ConsoleCapture()) {
-                // Most tests won't have a target but it doesn't hurt to call it.
-                p.Execute();
-
-                return c.Close();
+                string output = null;
+                try{
+                    p.Execute();
+                }
+                catch {
+                    output = c.Close();
+                    if(!(output == null || output.Equals(string.Empty) || output.Equals(""))){
+                        Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
+                        Console.WriteLine("+++++     Output From Test      +++++");
+                        Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
+                        Console.Write (output);
+                        Console.WriteLine("+++++++++++++++++++++++++++++++++++++");
+                    }
+                    throw;
+                }
+                finally {
+                    if(output == null)
+                        output = c.Close();
+                }
+                
+                return output;
             }
         }
 
