@@ -4,38 +4,64 @@
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.3" />
     <property name="project.html-help.dir" value="C:\Program Files\HTML Help Workshop" />
-    
+
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
-    
+
+    <!-- platform specific properties. These are the defaults ( run the linux target for a linux build )-->
+    <property name="log4netdll" value="log4net-net-1.0.dll" />
+    <property name="linux" value="false"/>
+    <property name="mono" value="false"/>
+    <property name="sourceconfig" value="NAnt.Console.exe.config"/>
+
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
         <property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}-${project.config}" />
     </target>
-    
+
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
         <property name="build.debug" value="false" />
         <property name="build.dir" value="${nant.project.basedir}/build/${project.name}-${project.version}" />
     </target>
-    
+
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
         <call target="${project.config}" />
+        <if propertytrue="linux">
+            <property name="mono" value="true" />
+            <property name="sourceconfig" value="NAnt.Console.exe.config.linux"/>
+            <property name="build.dir" value="${build.dir}/linux"/>
+        </if>
+        <if propertytrue="mono">
+            <property name="log4netdll" value="log4net-mono-0.23.dll" />
+        </if>
     </target>
-    
+
     <target name="clean" depends="init" description="Deletes current build configuration">
         <delete dir="${build.dir}" failonerror="false" />
     </target>
-    
+
     <target name="cleanall" description="Deletes every build configuration">
         <echo message="Deleting all builds from all configurations" />
         <delete dir="build" failonerror="false" />
     </target>
-    
+
+    <!--run this target to create a linux build  -->
+    <target name = "linux" description="sets paramaters for a linux build">
+        <property name="linux" value="true"/>
+        <call target = "test"/>
+    </target>
+
+    <!--run this target to create a linux build without running tests -->
+    <target name = "linux-build" description="sets paramaters for a linux build">
+        <property name="linux" value="true"/>
+        <call target = "build"/>
+    </target>
+
     <target name="build" depends="init" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
         <!-- prepare build directory -->
@@ -47,7 +73,7 @@
                 <includes name="nunit.framework.dll" />
                 <includes name="NUnitCore.dll" />
                 <includes name="ICSharpCode.SharpZipLib.dll" />
-                <includes name="log4net-net-1.0.dll"/>
+                <includes name="${log4netdll}"/>
             </fileset>
         </copy>
         <!-- build NAnt.Core -->
@@ -61,9 +87,10 @@
                 <includes name="**/*" />
             </resources>
             <references basedir="${build.dir}/bin">
-                <includes name="log4net-net-1.0.dll"/>
+                <includes name="${log4netdll}"/>
             </references>
             <arg value="/nowarn:1591" />
+            <arg value="/d:mono" if="${mono}" />
         </csc>
         <!-- build NAnt.Core.Tests -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
@@ -80,9 +107,10 @@
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="nunit.framework.dll" />
-                <includes name="log4net-net-1.0.dll"/>
+                <includes name="${log4netdll}"/>
             </references>
             <arg value="/nowarn:1591" />
+            <arg value="/d:mono" if="${mono}" />
         </csc>
         <!-- build NAnt.Console -->
         <csc target="exe" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
@@ -92,11 +120,12 @@
                 <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
-                <includes name="log4net-net-1.0.dll"/>
+                <includes name="${log4netdll}"/>
             </references>
             <arg value="/nowarn:1591" />
+            <arg value="/d:mono" if="${mono}" />
         </csc>
-        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/NAnt.Console.exe.config" />
+        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/${sourceconfig}" />
         <!-- compile NAnt.Console.Tests -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
             <sources failonempty="true">
@@ -108,12 +137,17 @@
                 <includes name="NAnt.Core.dll" />
                 <includes name="NAnt.Core.Tests.dll" />
                 <includes name="nunit.framework.dll" />
-                <includes name="log4net-net-1.0.dll"/>
+                <includes name="${log4netdll}"/>
             </references>
             <arg value="/nowarn:1591" />
         </csc>
         <foreach item="Line" property="filename" in="src/TaskAssemblies.txt">
             <nant buildfile="src/${filename}.build" target="build" />
+        </foreach>
+
+        <!-- build win32 specific assemblies is we are on win32 -->
+        <foreach item="Line" property="filename" in="src/Win32TaskAssemblies.txt">
+            <nant buildfile="src/${filename}.build" target="build" unless="${mono}"/>
         </foreach>
     </target>
 
@@ -252,7 +286,7 @@
 
         <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
-        
+
         <!-- remove non-release files -->
         <delete>
             <fileset basedir="${build.dir}/bin">
@@ -261,7 +295,7 @@
                 <includes name="NAnt.Console.*" />
             </fileset>
         </delete>
-        
+
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
@@ -270,7 +304,7 @@
                 <includes name="examples/**" />
                 <includes name="schema/**" />
                 <includes name="*" />
-        
+
                 <!--Start "Exclude VS.Net stuff" -->
                 <excludes name="**/*.suo" />
                 <excludes name="**/*j.user" />
@@ -279,35 +313,35 @@
                 <!--End "Exclude VS.Net stuff"-->
             </fileset>
         </copy>
-        
+
         <!-- create zip file -->
         <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
         <zip zipfile="${project.zip-path}">
             <fileset basedir="${build.dir}">
                 <includes name="**/*" />
-                
+
                 <excludes name="**/cache/**"/>
                 <excludes name="**/_*/**"/>
             </fileset>
         </zip>
         <echo message="Created a '${project.config}' package at file://${project.zip-path}" />
     </target>
-    
+
     <!-- Copies files to the bin folder. -->
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
         <delete if="false">
             <fileset basedir="bin">
                 <includes name="NAnt*" />
-                
+
                 <excludes name="NAnt.exe" />
             </fileset>
         </delete>
         <copy todir="bin" overwrite="true">
             <fileset basedir="${build.dir}/bin/">
                 <includes name="NAnt*" />
-                
+
                 <excludes name="*Test*" />
-                <excludes name="${nant.console.name}.xml" /> 
+                <excludes name="${nant.console.name}.xml" />
                 <excludes name="NAnt.exe" />
             </fileset>
         </copy>

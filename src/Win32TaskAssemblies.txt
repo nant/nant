@@ -1,0 +1,2 @@
+NAnt.Win32Tasks
+NAnt.VSNetTasks
