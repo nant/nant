@@ -20,6 +20,7 @@
                 <excludes name="/**/TouchTaskTest.cs" />
                 <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
                 <excludes name="/**/ScriptTest.cs" />
+                <excludes name="/**/AvailableTest.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
@@ -36,7 +37,7 @@
     <target name="test" depends="build">
          <nunit2>
             <formatter type="Plain" />
-            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${nant.location}nant.exe.config" />
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${nant.location}nant.tests.config" />
          </nunit2>
     </target>
 </project>

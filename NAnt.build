@@ -91,7 +91,7 @@
         <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" />
         </foreach>
-        
+
         <!-- build tests for win32 specific task assemblies if we are on win32 -->
         <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
             <nant buildfile="tests/${filename}/${filename}.build" target="build" unless="${current.runtime.config.mono}"/>
@@ -109,7 +109,12 @@
         </exec>
     </target>
     <target name="self-test" depends="init">
-        <echo message="testing with config '${nant.location}nant.exe.config'"/>
+        <copy file="${nant.location}nant.exe.config" tofile="${nant.location}nant.tests.config" />        
+        <xmlpoke filename="${nant.location}nant.tests.config"
+                 xpath="//configuration/nant/frameworks/@default"
+                 value="${nant.settings.currentframework}"/>
+
+        <echo message="testing with config '${nant.location}nant.tests.config'"/>
 
         <!-- test NAnt.Console assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="test" />
@@ -121,7 +126,7 @@
         <foreach item="Line" property="filename" in="tests/TaskAssemblies.txt">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" />
         </foreach>
-        
+
         <!-- test win32 specific task assemblies -->
         <foreach item="Line" property="filename" in="tests/Win32TaskAssemblies.txt">
             <nant buildfile="tests/${filename}/${filename}.build" target="test" unless="${current.runtime.config.mono}"/>
