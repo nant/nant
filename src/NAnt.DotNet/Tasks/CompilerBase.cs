@@ -577,7 +577,7 @@ namespace NAnt.DotNet.Tasks {
             CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile, dependentFile);
 
             // determine the resource type
-            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InstalledUICulture)) {
+            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
                     // try and get manifest resource name from dependent file
                     ResourceLinkage resourceLinkage = GetResourceLinkage(
@@ -679,7 +679,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             // determine the resource type
-            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InstalledUICulture)) {
+            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
                     // open matching source file if it exists
                     string dependentFile = Path.ChangeExtension(resourceFile, Extension);

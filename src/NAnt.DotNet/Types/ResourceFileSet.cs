@@ -81,7 +81,7 @@ namespace NAnt.DotNet.Types {
                 retFileSet.DirectoryNames.Clear();
 				retFileSet.AsIs.Clear();
                 foreach (string file in FileNames) {
-                    if (Path.GetExtension(file).ToLower(CultureInfo.InstalledUICulture) == ".resx" ) {
+                    if (Path.GetExtension(file).ToLower(CultureInfo.InvariantCulture) == ".resx" ) {
                         retFileSet.Includes.Add(file);
                     }
                 }
@@ -105,7 +105,7 @@ namespace NAnt.DotNet.Types {
 				retFileSet.DirectoryNames.Clear();
 				retFileSet.AsIs.Clear();
 				foreach (string file in FileNames) {
-                    if (Path.GetExtension(file).ToLower(CultureInfo.InstalledUICulture) != ".resx" ) {
+                    if (Path.GetExtension(file).ToLower(CultureInfo.InvariantCulture) != ".resx" ) {
                         retFileSet.Includes.Add(file);
                     }
                 }
