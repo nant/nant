@@ -149,26 +149,26 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets a collection containing fully qualified type names of
-        /// classes implementating <see cref="IBuildListener" /> that should be
-        /// to the project as listener.
+        /// Gets a collection containing fully qualified type names of classes 
+        /// implementating <see cref="IBuildListener" /> that should be added 
+        /// to the project as listeners.
         /// </summary>
         /// <value>
         /// A collection of fully qualified type names that should be added as 
-        /// listeners to the project.
+        /// listeners to the <see cref="Project" />.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="listener", Description="add an instance of class as a project listener")]
         public StringCollection Listeners {
             get { return _listeners; }
-            set { _listeners = value; }
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether project help should be
-        /// printed.
+        /// Gets or sets a value indicating whether <see cref="Project" /> help 
+        /// should be printed.
         /// </summary>
         /// <value>
-        /// <c>true</c> if project help should be printed; otherwise, <c>false</c>.
+        /// <c>true</c> if <see cref="Project" /> help should be printed; 
+        /// otherwise, <c>false</c>.
         /// </value>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "projecthelp", Description = "prints project help information")]
         public bool ShowProjectHelp {
@@ -203,8 +203,7 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets a collection containing the targets that should be 
-        /// executed.
+        /// Gets a collection containing the targets that should be executed.
         /// </summary>
         /// <value>
         /// A collection that contains the targets that should be executed.
