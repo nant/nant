@@ -308,6 +308,9 @@ namespace NAnt.VSNet {
                                     }
                                 }
                             }
+                        } catch ( BuildException ) {
+                            // Re-throw build exceptions
+                            throw;
                         } catch ( Exception e ) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Unexpected error while compiling project '{0}'", p.Name), Location.UnknownLocation, e);
                         }
