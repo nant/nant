@@ -62,6 +62,12 @@
                     Private = "False"
                 />
                 <Reference
+                    Name = "NAnt.DotNetTasks"
+                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Private = "False"
+                />
+                <Reference
                     Name = "NAnt.NUnit"
                     Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
