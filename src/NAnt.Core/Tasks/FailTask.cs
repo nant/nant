@@ -28,6 +28,15 @@ namespace NAnt.Core.Tasks {
     /// Exits the current build by throwing a <see cref="BuildException" />, 
     /// optionally printing additional information.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   The cause of the build failure can be specified using the <see cref="Message" /> 
+    ///   attribute or as inline content.
+    ///   </para>
+    ///   <para>
+    ///   Macros in the message will be expanded.
+    ///   </para>
+    /// </remarks>
     /// <example>
     ///   <para>Exits the current build without giving further information.</para>
     ///   <code>
