@@ -373,6 +373,11 @@ namespace NAnt.DotNet.Tasks {
                     }
                     // use command line tool to compile licenses file
                     base.ExecuteTask();
+
+                    // delete any existing output file
+                    if ( File.Exists( licensesFile.FullName ) )
+                        File.Delete( licensesFile.FullName );
+
                     // copy licenses file to output file
                     File.Copy(Path.Combine(BaseDirectory.FullName, Target + ".licenses"), 
                         licensesFile.FullName);
