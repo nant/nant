@@ -146,7 +146,7 @@ namespace NAnt.VSNet {
             resources.Parent = vbc;
             resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
             resources.Prefix = Project.ProjectSettings.RootNamespace;
-            resources.DynamicPrefix = true;
+            resources.DynamicPrefix = false;
 
             return vbc.GetManifestResourceName(resources, InputFile.FullName, 
                 dependentFile);
