@@ -156,8 +156,12 @@ namespace NAnt.DotNet.Tasks {
                 + " using target {2}.", Input, resourceFilename, Target);
 
             // create new domain
+
+            AppDomainSetup setup = new AppDomainSetup();
+            setup.ConfigurationFile = @"D:\" + Project.CurrentFramework.Name + ".exe.config";
+
             AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
-                AppDomain.CurrentDomain.Evidence, new AppDomainSetup());
+                AppDomain.CurrentDomain.Evidence, setup);
 
             LicenseGatherer licenseGatherer = (LicenseGatherer)
                 newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
@@ -186,7 +190,7 @@ namespace NAnt.DotNet.Tasks {
                 ArrayList assemblies = new ArrayList();
 
                 licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
-                    + "Loading assemblies:");
+                    + "Loading assemblies ...");
 
                 // first, load all the assemblies so that we can search for the 
                 // licensed component
@@ -196,8 +200,12 @@ namespace NAnt.DotNet.Tasks {
                         licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
                             + "{0}", assemblyFileName);
 
-                        // load assembly
-                        Assembly assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                        Assembly assembly = null;
+
+                        // do not load the System assembly again
+                        if (Path.GetFileName(assemblyFileName).ToLower() != "system.dll") {
+                            assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                        }
 
                         if (assembly != null) {
                             assemblies.Add(assembly);
@@ -215,6 +223,9 @@ namespace NAnt.DotNet.Tasks {
                 // read the input file
                 using (StreamReader sr = new StreamReader(licenseTask.Input)) {
                     Hashtable htLicenses = new Hashtable();
+
+                    licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + 
+                        "Creating licenses ...");
 
                     while (true) {
                         string line = sr.ReadLine();
@@ -244,12 +255,14 @@ namespace NAnt.DotNet.Tasks {
 
                         // try to locate the type in each assembly
                         foreach (Assembly assembly in assemblies) {
-                            tp = assembly.GetType(typeName, false, true);
                             if (tp == null) {
-                                continue;
+                                tp = assembly.GetType(typeName, false, true);
+                                htLicenses[line] = tp;
                             }
-                            htLicenses[line] = tp;
-                            break;
+
+                            if (tp != null) {
+                                break;
+                            }
                         }
 
                         if (tp == null) {
@@ -259,22 +272,7 @@ namespace NAnt.DotNet.Tasks {
                             licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + ((Type) htLicenses[line]).Assembly.CodeBase);
                         }
 
-                        object[] attributes = (object[]) tp.GetCustomAttributes(true);
-
-                        foreach (object attribute in attributes) {
-                            if (typeof(LicenseProviderAttribute).AssemblyQualifiedName == attribute.GetType().AssemblyQualifiedName) {
-                                Console.WriteLine("ASSEMBLY QUALIFIED NAMES ARE EQUAL");
-
-                                if (typeof(LicenseProviderAttribute) == attribute.GetType()) {
-                                    Console.WriteLine("TYPES ARE EQUAL");
-                                } else {
-                                    Console.WriteLine("BUT TYPES DIFFER");
-                                }
-                                break;
-                            }
-                        }
-
-                        // Ensure that we've got a licensed component
+                        // ensure that we've got a licensed component
                         if (tp.GetCustomAttributes(typeof(LicenseProviderAttribute), true).Length == 0) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,  
                                 "Type {0} is not a licensed component.", tp.FullName), 
@@ -299,9 +297,9 @@ namespace NAnt.DotNet.Tasks {
 
                 // write out the license file, keyed to the appropriate output 
                 // target filename
-                // This .license file will only be valid for this exe/dll
+                // this .license file will only be valid for this exe/dll
                 using (FileStream fs = new FileStream(licenseFile, FileMode.Create)) {
-                    // Note the ToUpper() - this is the behaviour of VisualStudio
+                    // note the ToUpper() - this is the behaviour of VisualStudio
                     DesigntimeLicenseContextSerializer.Serialize(fs, licenseTask.Target.ToUpper(CultureInfo.InvariantCulture), dlc);
                     licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + "Created new license file {0}.", licenseFile);
                 }
