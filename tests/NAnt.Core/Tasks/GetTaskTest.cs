@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Jay Turpin (JayTurpin@Hotmail.Com)
 
@@ -25,9 +25,11 @@ using System.Net;
 using NUnit.Framework;
 
 using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 
 namespace Tests.NAnt.Core.Tasks {
     [TestFixture]
+    [Category("InetAccess")]
     public class GetTaskTest : BuildTestBase {
         string _proxy = null;
 
@@ -58,7 +60,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
 
             getTask.Source = source;
-            getTask.Destination = destination;
+            getTask.DestinationFile = new FileInfo(destination);
             getTask.UseTimeStamp = false;
             getTask.IgnoreErrors = true;
             getTask.Verbose = true;;
@@ -101,7 +103,7 @@ namespace Tests.NAnt.Core.Tasks {
                 Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't");
 
                 getTask.Source = source;
-                getTask.Destination = destination;
+                getTask.DestinationFile = new FileInfo(destination);
                 getTask.UseTimeStamp = true;
                 getTask.IgnoreErrors = true;
                 getTask.Verbose = true;;
@@ -121,7 +123,7 @@ namespace Tests.NAnt.Core.Tasks {
                 DateTime fileDateTime = File.GetLastWriteTime(destination);
 
                 getTask.Source = source;
-                getTask.Destination = destination;
+                getTask.DestinationFile = new FileInfo(destination);
                 getTask.UseTimeStamp = true;
                 getTask.IgnoreErrors = true;
                 getTask.Verbose = true;;
@@ -142,7 +144,7 @@ namespace Tests.NAnt.Core.Tasks {
                 DateTime fileDateTime = File.GetLastWriteTime(destination);
 
                 getTask.Source = source;
-                getTask.Destination = destination;
+                getTask.DestinationFile = new FileInfo(destination);
                 getTask.UseTimeStamp = true;
                 getTask.IgnoreErrors = true;
                 getTask.Verbose = true;;
@@ -170,13 +172,10 @@ namespace Tests.NAnt.Core.Tasks {
         ///    verbose="true"
         ///    usetimestamp="true"/></c>
         /// </remarks>
-        #if false
-        // This is a really slow test.
         [Test]
         public void Test_GetBigFile() {
             GetTask getTask = new GetTask();
             getTask.Project = CreateEmptyProject();
-            getTask.Proxy = _proxy;
 
             string source = "http://www.tolvanen.com/eraser/eraser52.zip";
             string destination = Path.GetTempFileName() + ".zip";
@@ -188,10 +187,9 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert(destination + " exists, but shouldn't", !File.Exists(destination));
 
             getTask.Source = source;
-            getTask.Destination = destination;
-            getTask.useTimeStamp = true;
-            getTask.ignoreErrors = true;
-            getTask.Verbose = true;;
+            getTask.DestinationFile = new FileInfo(destination);
+            getTask.UseTimeStamp = true;
+            getTask.Verbose = true;
             getTask.Execute();
 
             Assertion.Assert(destination + " doesn't exist.", File.Exists(destination));
@@ -202,7 +200,6 @@ namespace Tests.NAnt.Core.Tasks {
             }
             Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
         }
-        #endif
 
         /// <summary>
         /// Fetch a HTML page from a web site.
@@ -232,7 +229,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
 
             getTask.Source = source;
-            getTask.Destination = destination;
+            getTask.DestinationFile = new FileInfo(destination);
             getTask.UseTimeStamp = false;
             getTask.IgnoreErrors = true;
             getTask.Verbose = true;;
@@ -265,8 +262,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(getTask.Source == source, "Source accessor bug");
 
             string destination = Path.GetTempFileName();
-            getTask.Destination = destination;
-            Assert.IsTrue(getTask.Destination == destination, "Destination accessor bug");
+            getTask.DestinationFile = new FileInfo(destination);
 
             bool ignoreErrors = true;
             getTask.IgnoreErrors = ignoreErrors;
