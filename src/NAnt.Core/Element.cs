@@ -346,8 +346,8 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                "Attribute '{0}' for <{1} ... /> is deprecated.  {2}", 
-                                buildAttribute.Name, Name, obsoleteAttribute.Message);
+                                "{0} Attribute '{1}' for <{2} ... /> is deprecated.  {3}", 
+                                Location, buildAttribute.Name, Name, obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 Log(Level.Error, obsoleteMessage);
                             } else {
@@ -555,8 +555,8 @@ namespace NAnt.Core {
                     // emit warning or error if attribute is deprecated
                     if (obsoleteAttribute != null) {
                         string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                            "Attribute {0} for {1} is deprecated : {2}", 
-                            buildAttribute.Name, Name, obsoleteAttribute.Message);
+                            "{0} Attribute '{1}' for <{2}... /> is deprecated. {3}", 
+                            Location, buildAttribute.Name, Name, obsoleteAttribute.Message);
                         if (obsoleteAttribute.IsError) {
                             Log(Level.Error, obsoleteMessage);
                         } else {
