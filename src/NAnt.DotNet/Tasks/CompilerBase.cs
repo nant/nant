@@ -413,7 +413,6 @@ namespace SourceForge.NAnt.Tasks {
             resgen.Verbose = false; 
             resgen.Parent = this.Parent;
             resgen.Project = this.Project;     
-            resgen.ToDirectory = this.BaseDirectory;
                       
             _resgenTask = resgen;
             

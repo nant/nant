@@ -62,7 +62,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>The directory to which outputs will be stored.</summary>
         [TaskAttribute("todir", Required=false)]
-        public string ToDirectory { get { return (_toDir == null) ? BaseDirectory : _toDir; } set {_toDir = value;} }
+        public string ToDirectory { get { return (_toDir == null) ? String.Empty : _toDir; } set {_toDir = value;} }
        
         /// <summary>Takes a list of .resX or .txt files to convert to .resources files.</summary>
         [FileSet("resources")]
@@ -146,7 +146,12 @@ namespace SourceForge.NAnt.Tasks {
             
             // If output is empty just change the extension 
             if (Output == null ||  Output.Length == 0) {
-                outputFile = Path.Combine (ToDirectory, fileInfo.Name);
+                if (ToDirectory == null || ToDirectory.Length == 0) {
+                    outputFile = filename;
+                } 
+                else {
+                    outputFile = Path.Combine (ToDirectory, fileInfo.Name);
+                }
                 outputFile = Path.ChangeExtension( outputFile, TargetExt );
             } 
             else {
