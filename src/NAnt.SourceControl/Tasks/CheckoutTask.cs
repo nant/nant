@@ -44,21 +44,25 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Checkout NAnt revision named <c>your_favorite_revision_here</c> to the 
-    ///   folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
+    ///   Checkout NAnt revision named <c>0_85</c> to the 
+    ///   folder <c>c:\src\nant\v0.85</c>.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <cvs-checkout 
-    ///     destination="c:\src\nant\" 
+    ///     destination="c:\src\nant" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     password="" 
     ///     module="nant"
-    ///     revision="your_favorite_revision_here"
-    ///     overridedir="replacement_for_module_directory_name">
+    ///     revision="0_85"
+    ///     overridedir="v0.85">
     /// </cvs-checkout>
     ///     ]]>
     ///   </code>
+    ///   <para>So the nant module tagged with revision 0_85 will be checked 
+    ///   out in the folder v0.85 under the working/ destination directory.
+    ///   <br/>This could be used to work on different 
+    ///   branches of a repository at the same time.</para>
     /// </example>
     /// <example>
     /// <cvs-checkout 
