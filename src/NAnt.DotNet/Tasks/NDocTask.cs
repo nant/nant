@@ -185,7 +185,7 @@ namespace NAnt.DotNet.Tasks {
                     sb.Append(tr.ReadOuterXml());
                     tr.Close();
                 } catch (IOException e) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}.", summaryPath);
+                    string msg = string.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}.", summaryPath);
                     throw new BuildException(msg, Location, e);
                 }
             }
@@ -198,6 +198,7 @@ namespace NAnt.DotNet.Tasks {
             }
             writer.WriteEndElement();
 
+            // end project element
             writer.WriteEndElement();
             writer.Close();
 
@@ -207,8 +208,8 @@ namespace NAnt.DotNet.Tasks {
             NDoc.Core.Project project = null;
             try {
                 project = new NDoc.Core.Project();
-            } catch (Exception e) {
-                throw new ApplicationException("Could not create NDoc Project.", e);
+            } catch (Exception ex) {
+                throw new BuildException("Could not create NDoc Project.", Location, ex);
             }
             project.Read(projectFileName);
 
@@ -289,6 +290,15 @@ namespace NAnt.DotNet.Tasks {
                     ExpandPropertiesInNodes(node.ChildNodes);
                     foreach (XmlAttribute attr in node.Attributes) {
                         attr.Value = Project.ExpandProperties(attr.Value, Location);
+                    }
+
+                    // convert output directory to full path relative to project base directory
+                    XmlNode outputDirProperty = (XmlNode) node.SelectSingleNode("property[@name='OutputDirectory']");
+                    if (outputDirProperty != null) {
+                        XmlAttribute valueAttribute = (XmlAttribute) outputDirProperty.Attributes.GetNamedItem("value");
+                        if (valueAttribute != null) {
+                            valueAttribute.Value = Project.GetFullPath(valueAttribute.Value);
+                        }
                     }
                 }
             }
