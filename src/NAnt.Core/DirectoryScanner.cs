@@ -537,36 +537,70 @@ namespace NAnt.Core {
     public class DirScannerStringCollection : StringCollectionWithGoodToString  {
         #region Override implementation of StringCollection        
 
-        //provides for a case insensitive match based on the file system.
-        public new virtual bool Contains (string dir ) {
-            return (IndexOf(dir) > -1);
+        /// <summary>
+        /// Determines whether the specified string is in the 
+        /// <see cref="DirScannerStringCollection" />.
+        /// </summary>
+        /// <param name="value">The string to locate in the <see cref="DirScannerStringCollection" />. The value can be <see langword="null" />.</param>
+        /// <returns>
+        /// <seee langword="true" /> if value is found in the <see cref="DirScannerStringCollection" />; otherwise, <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// String comparisons within the <see cref="DirScannerStringCollection" />
+        /// are only case-sensitive if the filesystem on which <paramref name="value" />
+        /// is located, is case-sensitive.
+        /// </remarks>
+        public new virtual bool Contains(string value) {
+            return (IndexOf(value) > -1);
+
         }
 
-        //provides support for filesystem case sensitivity based comparisons
-        public new virtual int IndexOf(string dir) {
-            if(!IsCaseSensitiveFileSystem(dir)) {
-                foreach(string s in this)
-                    if(s.ToLower(CultureInfo.InvariantCulture).Equals(dir.ToLower(CultureInfo.InvariantCulture))){
+        /// <summary>
+        /// Searches for the specified string and returns the zero-based index 
+        /// of the first occurrence within the <see cref="DirScannerStringCollection" />.
+        /// </summary>
+        /// <param name="value">The string to locate. The value can be <see langword="null" />.</param>
+        /// <returns>
+        /// The zero-based index of the first occurrence of <paramref name="value" /> 
+        /// in the <see cref="DirScannerStringCollection" />, if found; otherwise, -1.
+        /// </returns>
+        /// <remarks>
+        /// String comparisons within the <see cref="DirScannerStringCollection" />
+        /// are only case-sensitive if the filesystem on which <paramref name="value" />
+        /// is located, is case-sensitive.
+        /// </remarks>
+        public new virtual int IndexOf(string value) {
+            if (value == null || IsCaseSensitiveFileSystem(value)) {
+                return base.IndexOf(value);
+            } else {
+                string lowercaseValue = value.ToLower(CultureInfo.InvariantCulture);
+                foreach (string s in this) {
+                    if (s.ToLower(CultureInfo.InvariantCulture) == lowercaseValue) {
                         return base.IndexOf(s);
                     }
+                }
                 return -1;
             }
-            else {
-                return base.IndexOf(dir);
-            }
-            
-                 
         }
 
         #endregion Override implementation of StringCollection
 
-        #region Override implementation of Object
+        #region Private Instance Fields
 
+        /// <summary>
+        /// Determines whether the filesystem on which the specified path is 
+        /// located is case-sensitive.
+        /// </summary>
+        /// <param name="path">The path of which should be determined whether its on a case-sensitive filesystem.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="path" /> is located on a 
+        /// case-sensitive filesystem; otherwise, <see langword="false" />.
+        /// </returns>
         private bool IsCaseSensitiveFileSystem(string path) {
-            // Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
-            return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar))); 
+            return PlatformHelper.IsVolumeCaseSensitive(Path.GetFullPath(path) 
+                + Path.DirectorySeparatorChar); 
         }
 
-        #endregion Override implementation of Object
+        #endregion Private Instance Fields
     }
 }
