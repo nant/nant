@@ -38,7 +38,8 @@ namespace NAnt.Core.Attributes {
     ///     <elementName ... />
     ///     <elementName ... />
     ///     <elementName ... />
-    /// </task>]]>
+    /// </task>
+    ///     ]]>
     /// </code>
     /// </para>
     /// </remarks>
