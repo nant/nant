@@ -81,8 +81,8 @@ namespace NAnt.Core.Tasks {
     public class RegexTask : Task {
         #region Private Instance Fields
 
-        private string _pattern = null;
-        private string _input = null;
+        private string _pattern;
+        private string _input;
 
         #endregion Private Instance Fields
 
@@ -126,13 +126,13 @@ namespace NAnt.Core.Tasks {
         /// Executes the task.
         /// </summary>
         protected override void ExecuteTask() {
-            Regex regex = new Regex(_pattern);
-            Match match = regex.Match(_input);
+            Regex regex = new Regex(Pattern);
+            Match match = regex.Match(Input);
 
             if (match.Groups.Count == 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "No match found for expression '{0}' in '{1}'.", _pattern, 
-                    _input), Location);
+                    "No match found for expression '{0}' in '{1}'.", Pattern, 
+                    Input), Location);
             }
 
             // we start the iteration at 1, since the collection of groups 
@@ -141,7 +141,8 @@ namespace NAnt.Core.Tasks {
             for (int i = 1; i < match.Groups.Count; i++) {
                 string groupName = regex.GroupNameFromNumber(i);
 
-                Log(Level.Verbose, LogPrefix + "Setting property {0} to {1}.", groupName, match.Groups[groupName].Value);
+                Log(Level.Verbose, LogPrefix + "Setting property '{0}' to '{1}'.", 
+                    groupName, match.Groups[groupName].Value);
                 Properties[groupName] = match.Groups[groupName].Value;
             }
         }
