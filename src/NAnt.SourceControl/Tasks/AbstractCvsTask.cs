@@ -28,6 +28,7 @@ using ICSharpCode.SharpCvsLib.Misc;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -72,14 +73,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("cvsroot", Required=true)]
         public string CvsRoot {
-            get {return this._cvsRoot;}
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _cvsRoot = value;
-                } else {
-                    _cvsRoot = null;
-                }
-            }
+            get { return this._cvsRoot; }
+            set { _cvsRoot = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -88,14 +83,8 @@ namespace NAnt.SourceControl.Tasks {
         /// <value>The module to perform an operation on.</value>
         [TaskAttribute("module", Required=true)]
         public string Module {
-            get {return _module;}
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _module = value;
-                } else {
-                    _module = null;
-                }
-            }
+            get { return _module; }
+            set { _module = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -107,13 +96,7 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute ("destination", Required=true)]
         public string Destination {
             get { return (_destination != null) ? Project.GetFullPath(_destination) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _destination = value;
-                } else {
-                    _destination = null;
-                }
-            }
+            set { _destination = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -125,13 +108,7 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute ("password")]
         public string Password {
             get { return _password;}
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _password = value;
-                } else {
-                    _password = null;
-                }
-            }
+            set { _password = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
