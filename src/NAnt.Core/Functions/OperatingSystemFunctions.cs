@@ -78,6 +78,20 @@ namespace NAnt.Core.Functions {
         /// The <see cref="string" /> representation of 
         /// <paramref name="operatingSystem" />.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Output string representation of the current operating system.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="OS=${operating-system::to-string(environment::get-operating-system())}" />
+        ///     ]]>
+        ///   </code>
+        ///   <para>If the operating system is Windows 2000, the output is:</para>
+        ///   <code>
+        /// Microsoft Windows NT 5.0.2195.0
+        ///   </code>
+        /// </example>
         /// <seealso cref="EnvironmentFunctions.GetOperatingSystem()" />
         [Function("to-string")]
         public static string ToString(OperatingSystem operatingSystem) {
