@@ -277,7 +277,7 @@ namespace NAnt.Core {
         /// If there's a valid current framework, the configuration section for
         /// that framework will first be searched.  If no corresponding 
         /// configuration node can be located in that section, the framework-neutral
-        /// section of <see Project.ConfigurationNode" />will be searched.
+        /// section of the project configuration node will be searched.
         /// </remarks>
         protected XmlNode GetAttributeConfigurationNode(FrameworkInfo framework, string attributeName) {
             XmlNode attributeNode = null;
