@@ -138,7 +138,8 @@ namespace NAnt.VSNet {
             string assemblyFile = ResolveAssemblyReference();
             if (!File.Exists(assemblyFile)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Couldn't find referenced assembly '{0}'.", assemblyFile), 
+                    "Couldn't find assembly \"{0}\", referenced by project"
+                    + " \"{1}\".", assemblyFile, Parent.Name), 
                     Location.UnknownLocation);
             }
 

@@ -56,7 +56,9 @@ namespace NAnt.VSNet {
             // determine wrapper tool
             XmlAttribute toolAttribute = XmlDefinition.Attributes["WrapperTool"];
             if (toolAttribute == null) {
-                throw new BuildException("Wrapper tool could not be determined.",
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Wrapper tool for reference \"{0}\" in project \"{1}\" could"
+                    + " not be determined.", Name, Parent.Name), 
                     Location.UnknownLocation);
             }
             _wrapperTool = toolAttribute.Value;
@@ -150,8 +152,8 @@ namespace NAnt.VSNet {
             string assemblyFile = CreateWrapper(config);
             if (!File.Exists(assemblyFile)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Couldn't find referenced assembly '{0}'.", assemblyFile), 
-                    Location.UnknownLocation);
+                    "Couldn't find assembly \"{0}\", referenced by project \"{1}\".", 
+                    assemblyFile, Parent.Name), Location.UnknownLocation);
             }
 
             // add referenced assembly to list of reference assemblies
@@ -240,9 +242,9 @@ namespace NAnt.VSNet {
                         // if tlbimp is defined as import tool, but a primary
                         // interop assembly is available, then output a 
                         // warning
-                        Log(Level.Warning, "The reference component"
-                            + " '{0}' has an updated custom wrapper available.", 
-                            Name);
+                        Log(Level.Warning, "The component \"{0}\", referenced by"
+                            + " project \"{1}\" has an updated custom wrapper"
+                            + " available.", Name, Parent.Name);
                     }
 
                     TlbImpTask tlbImp = new TlbImpTask();
@@ -337,8 +339,9 @@ namespace NAnt.VSNet {
                     break;
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Wrapper tool '{0}' is not supported.", WrapperTool),
-                        Location.UnknownLocation);
+                        "Wrapper tool \"{0}\" for reference \"{1}\" in project"
+                        + " \"{2}\" is not supported.", WrapperTool, Name, 
+                        Parent.Name), Location.UnknownLocation);
             }
 
             // mark wrapper as completed
@@ -355,8 +358,9 @@ namespace NAnt.VSNet {
                     wrapperAssembly = PrimaryInteropAssembly;
                     if (wrapperAssembly == null) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Couldn't find Primary Interop Assembly '{0}'.", 
-                            Name), Location.UnknownLocation);
+                            "Couldn't find Primary Interop Assembly \"{0}\","
+                            + " referenced by project \"{1}\".", Name, Parent.Name), 
+                            Location.UnknownLocation);
                     }
 
                     return wrapperAssembly;
@@ -438,8 +442,9 @@ namespace NAnt.VSNet {
                             primaryInteropAssemblyName);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Primary Interop Assembly '{0}' could not be loaded.", 
-                            primaryInteropAssemblyName), Location.UnknownLocation, 
+                            "Primary Interop Assembly \"{0}\", referenced by project"
+                            + " \"{1}\", could not be loaded.", primaryInteropAssemblyName,
+                            Parent.Name), Location.UnknownLocation, 
                             ex);
                     }
                 }
@@ -456,16 +461,18 @@ namespace NAnt.VSNet {
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(typeLibKey)) {
                 if (registryKey == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Couldn't find reference to type library '{0}' ({1}).", 
-                        Name, typeLibKey), Location.UnknownLocation);
+                        "Couldn't find type library \"{0}\" ({1}), referenced by"
+                        + " project \"{2}\".", Name, typeLibKey, Parent.Name), 
+                        Location.UnknownLocation);
                 }
 
                 string typeLibValue = (string) registryKey.GetValue(null);
                 if (StringUtils.IsNullOrEmpty(typeLibValue)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Couldn't find path of referenced type library '{0}' ({1})."
-                        + " Ensure the type library is registered correctly.", 
-                        Name, typeLibKey), Location.UnknownLocation);
+                        "Couldn't find path of type library \"{0}\" ({1}), referenced"
+                        + " by project \"{2}\". Ensure the type library is registered"
+                        + " correctly.", Name, typeLibKey, Parent.Name), 
+                        Location.UnknownLocation);
                 }
 
                 // extract path to type library from reg value
@@ -473,8 +480,9 @@ namespace NAnt.VSNet {
 				// check if the typelib actually exists
                 if (!File.Exists(typeLib)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Type library '{0}' no longer exists at registered path"
-                        + " '{1}'.", Name, typeLib), Location.UnknownLocation);
+                        "Type library \"{0}\", referenced by project \"{1}\", no"
+                        + " longer exists at registered path \"{2}\".", Name, 
+                        Parent.Name, typeLib), Location.UnknownLocation);
                 }
                 return typeLib;
             }

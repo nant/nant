@@ -124,8 +124,8 @@ namespace NAnt.VSNet {
             }
 
             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                "Reference to assembly '{0}' could not be resolved.",
-                Name), Location.UnknownLocation);
+                "Assembly \"{0}\", referenced by project \"{1}\", could not be"
+                + " resolved.", Name), Location.UnknownLocation);
         }
 
         #endregion Override implementation of AssemblyReferenceBase
@@ -214,8 +214,9 @@ namespace NAnt.VSNet {
             }
 
             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                "Macro \"{0}\" is not supported in assembly references.", macro), 
-                Location.UnknownLocation);
+                "Macro \"{0}\", used by assembly reference \"{1}\" in project"
+                + " \"{2}\" is not supported in assembly references.", macro, 
+                Name, Parent.Name), Location.UnknownLocation);
         }
 
         #endregion Private Instance Methods
