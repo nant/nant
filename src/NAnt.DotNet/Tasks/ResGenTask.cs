@@ -291,6 +291,15 @@ namespace NAnt.DotNet.Tasks {
         /// Converts a single file or group of files.
         /// </summary>
         protected override void ExecuteTask() {
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Assemblies.BaseDirectory == null) {
+                Assemblies.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+            if (Resources.BaseDirectory == null) {
+                Resources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
+
             _arguments = "";
             if (Resources.FileNames.Count > 0 ) {
                 if (OutputFile != null) {
