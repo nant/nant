@@ -55,6 +55,7 @@
     </fileset>
     
     <fileset id="tas.core" basedir="src">
+        <include name="NAnt.Resources/NAnt.Resources.build" />
         <include name="NAnt.DotNet/NAnt.DotNet.build" />
         <include name="NAnt.Compression/NAnt.Compression.build" />
         <include name="NAnt.NUnit/NAnt.NUnit.build" />
@@ -734,7 +735,8 @@
     
     <target name="install" depends="install-windows, install-linux" />
     
-    <target name="install-windows" depends="userdoc" if="${platform::is-win32()}">
+<!--depends="userdoc" -->
+    <target name="install-windows"  if="${platform::is-win32()}">
         <!-- install to program files directory by default -->
         <property name="install.realprefix" value="${environment::get-folder-path('ProgramFiles')}" />
         <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
