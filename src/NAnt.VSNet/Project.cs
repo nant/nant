@@ -226,7 +226,7 @@ namespace NAnt.VSNet {
                             break;
                         case "EmbeddedResource":
                             FileInfo resourceFile = new FileInfo(sourceFile);
-                            if (resourceFile.Exists && resourceFile.Extension == ".resx" && resourceFile.Length == 0) {
+                            if (resourceFile.Exists && resourceFile.Extension.ToLower(CultureInfo.InstalledUICulture) == ".resx" && resourceFile.Length == 0) {
                                 Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resx '{0}'.", 
                                     resourceFile.FullName);
                             } else {
