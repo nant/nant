@@ -118,13 +118,35 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Gets the filename of the external program to start.
         /// </summary>
-        /// <value>The filename of the external program.</value>
+        /// <value>
+        /// The filename of the external program.
+        /// </value>
         public override string ProgramFileName {
             get {
-                if (_baseDirectory == null || Path.IsPathRooted(FileName)) {
+                if (Path.IsPathRooted(FileName)) {
                     return FileName;
+                } else if (_baseDirectory == null) {
+                    // resolve program to full path relative to project's base
+                    // directory
+                    string filePath = Path.GetFullPath(Path.Combine(Path.GetFullPath(
+                        BaseDirectory), FileName));
+                    // check whether the specified program contains a directory name
+                    if (!StringUtils.IsNullOrEmpty(Path.GetDirectoryName(FileName))) {
+                        // no need to scan the PATH, as the specified progrram
+                        // contains directory information
+                        return filePath;
+                    } else if (File.Exists(filePath)) {
+                        // the specified program is located in the current project's
+                        // base directory
+                        return filePath;
+                    } else {
+                        // just use the filename to scan the directories on the 
+                        // PATH
+                        return FileName;
+                    }
                 } else {
-                    return Path.Combine(Path.GetFullPath(BaseDirectory), FileName);
+                    return Path.GetFullPath(Path.Combine(Path.GetFullPath(
+                        BaseDirectory), FileName));
                 }
             }
         }
