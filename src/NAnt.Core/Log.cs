@@ -1159,7 +1159,8 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogWriter" /> class 
-        /// with the specified prefix and format provider.
+        /// for the specified <see cref="Task" /> with the specified output 
+        /// level and format provider.
         /// </summary>
         /// <param name="task">Determines the indentation level.</param>
         /// <param name="outputLevel">The <see cref="Level" /> with which messages will be output to the build log.</param>
@@ -1185,8 +1186,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Writes a character array to the text stream, while adding a 
-        /// prefix if its the first output on the current line.
+        /// Writes a character array to the text stream.
         /// </summary>
         /// <param name="chars">The character array to write to the text stream.</param>
         public override void Write(char[] chars) {
@@ -1212,13 +1212,14 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Writes out a formatted string with prefix and a new line, using the same 
-        /// semantics as <see cref="string.Format(string, object[])" />.
+        /// Writes out a formatted string using the same semantics as 
+        /// <see cref="string.Format(string, object[])" />.
         /// </summary>
         /// <param name="line">The formatting string.</param>
         /// <param name="args">The object array to write into format string.</param>
         public override void WriteLine(string line, params object[] args) {
-            _task.Log(OutputLevel, _message + line, args);
+            _task.Log(OutputLevel, _message + string.Format(
+                CultureInfo.InvariantCulture, line, args));
             _message = string.Empty;
         }   
 
