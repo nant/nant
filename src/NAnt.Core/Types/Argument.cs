@@ -68,15 +68,20 @@ namespace NAnt.Core.Types {
         public override string ToString() {
             if (Value != null || File != null) {
                 string argument = File == null ? Value : File.FullName;
-                if (argument.IndexOf("\"") > -1) {
-                    // argument is already quoted
-                    return argument;
-                } else if (argument.IndexOf("'") > -1 || argument.IndexOf(" ") > -1) {
-                    // argument contains space and is not quoted, so quote it
-                    return '\"' + argument + '\"';
-                } else {
-                    return argument;
+                // only auto-quote file arguments
+                if (File != null) {
+                    if (argument.IndexOf("\"") > -1) {
+                        // argument is already quoted
+                        return argument;
+                    } else if (argument.IndexOf("'") > -1 || argument.IndexOf(" ") > -1) {
+                        // argument contains space and is not quoted, so quote it
+                        return '\"' + argument + '\"';
+                    } else {
+                        return argument;
+                    }
                 }
+                return argument;
+                
             } else {
                 return string.Empty;
             }
