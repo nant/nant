@@ -53,6 +53,17 @@ namespace NAnt.Core.Functions {
         /// physically exists on your computer; otherwise, the empty string ("").
         /// </returns>
         /// <exception cref="ArgumentException"><paramref name="folder" /> is not a member of <see cref="Environment.SpecialFolder" />.</exception>
+        /// <example>
+        ///   <para>
+        ///   Copy &quot;out.log&quot; from the project base directory to the
+        ///   program files directory.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <copy file="out.log" todir="${environment::get-folder-path('ProgramFiles')}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-folder-path")]
         public static string GetFolderPath(Environment.SpecialFolder folder) {
             return Environment.GetFolderPath(folder);
