@@ -74,11 +74,11 @@ namespace SourceForge.NAnt.Tasks {
         FileSet _fileset = new FileSet();        
         
         #region Public Attribute Properties
-        /// <summary>The file to copy.</summary>
+        /// <summary>An assembly to load tasks from.</summary>
         [TaskAttribute("assembly")]
         public string AssemblyPath        { get { return _assembly; } set {_assembly = value; } }
 
-        /// <summary>The file to copy to.</summary>
+        /// <summary>A directory to scan for task assemblies.</summary>
         [TaskAttribute("path")]
         public string Path            { get { return _path; } set {_path = value; } }
         
@@ -111,14 +111,14 @@ namespace SourceForge.NAnt.Tasks {
                     string msg = String.Format(CultureInfo.InvariantCulture,"assembly {0} does not exist. Can't scan for tasks", AssemblyPath );
                     throw new BuildException( msg, Location );
                 }  
-                TaskFileSet.FileNames.Add(  AssemblyPath );
+                TaskFileSet.FileNames.Add(  Project.GetFullPath( AssemblyPath ) );
             }
             else if (Path != null){
                 if ( ! Directory.Exists( Project.GetFullPath( Path )) ){
                     string msg = String.Format(CultureInfo.InvariantCulture,"path {0} does not exist. Can't scan for tasks", Path );
                     throw new BuildException( msg, Location );
                 }
-                TaskFileSet.DirectoryNames.Add( Path );
+                TaskFileSet.DirectoryNames.Add( Project.GetFullPath( Path ) );
             }
             // process the fileset
             foreach ( string assemblyPath in TaskFileSet.FileNames){
