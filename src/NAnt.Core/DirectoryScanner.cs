@@ -99,27 +99,27 @@ namespace SourceForge.NAnt {
         string _baseDirectory = null; 
 
         // holds the nant patterns (absolute or relative paths)
-        StringCollection _includes = new StringCollection();
-        StringCollection _excludes = new StringCollection();
+        DirScannerStringCollection _includes = new DirScannerStringCollection();
+        DirScannerStringCollection _excludes = new DirScannerStringCollection();
 
         // holds the nant patterns converted to regular expression patterns (absolute canonized paths)
-        StringCollection _includePatterns = null;
-        StringCollection _excludePatterns = null;
+        DirScannerStringCollection _includePatterns = null;
+        DirScannerStringCollection _excludePatterns = null;
 
         // holds the result from a scan
-        StringCollection _fileNames = null;
-        StringCollection _directoryNames = null;
+        DirScannerStringCollection _fileNames = null;
+        DirScannerStringCollection _directoryNames = null;
 
         // directories that should be scanned and directories scanned so far
-        StringCollection _searchDirectories = null;
-        StringCollection _pathsAlreadySearched = null;
+        DirScannerStringCollection _searchDirectories = null;
+        DirScannerStringCollection _pathsAlreadySearched = null;
         ArrayList	 _searchDirIsRecursive = null;
 
-        public StringCollection Includes {
+        public DirScannerStringCollection Includes {
             get { return _includes; }
         }
 
-        public StringCollection Excludes {
+        public DirScannerStringCollection Excludes {
             get { return _excludes; }
         }
 
@@ -128,7 +128,7 @@ namespace SourceForge.NAnt {
             set { _baseDirectory = value; }
         }
 
-        public StringCollection FileNames {
+        public DirScannerStringCollection FileNames {
             get {
                 if (_fileNames == null) {
                     Scan();
@@ -137,7 +137,7 @@ namespace SourceForge.NAnt {
             }
         }
 
-        public StringCollection DirectoryNames {
+        public DirScannerStringCollection DirectoryNames {
             get {
                 if (_directoryNames == null) {
                     Scan();
@@ -160,13 +160,13 @@ namespace SourceForge.NAnt {
                 BaseDirectory = Environment.CurrentDirectory;
             }
     
-            _includePatterns = new StringCollection();
-            _excludePatterns = new StringCollection();
-            _fileNames = new StringCollection();
-            _directoryNames = new StringCollection();
-            _searchDirectories = new StringCollection();
+            _includePatterns = new DirScannerStringCollection();
+            _excludePatterns = new DirScannerStringCollection();
+            _fileNames = new DirScannerStringCollection();
+            _directoryNames = new DirScannerStringCollection();
+            _searchDirectories = new DirScannerStringCollection();
             _searchDirIsRecursive = new ArrayList();
-            _pathsAlreadySearched = new StringCollection();
+            _pathsAlreadySearched = new DirScannerStringCollection();
 
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
@@ -188,7 +188,7 @@ namespace SourceForge.NAnt {
         /// <history>
         ///     <change date="20020221" author="Ari Hännikäinen">Created</change>
         /// </history>
-        public void convertPatterns(StringCollection nantPatterns, StringCollection regexPatterns, bool addSearchDirectories) {
+        public void convertPatterns(DirScannerStringCollection nantPatterns, DirScannerStringCollection regexPatterns, bool addSearchDirectories) {
             string searchDirectory;
             string regexPattern;
             bool isRecursive;
@@ -450,7 +450,7 @@ namespace SourceForge.NAnt {
             return pattern.ToString();
         }
     }
-    public class StringCollection : System.Collections.Specialized.StringCollection{
+    public class DirScannerStringCollection : System.Collections.Specialized.StringCollection{
         /// <summary>
         /// Creates a string representing a list of the strings in the collection.
         /// </summary>
