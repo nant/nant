@@ -81,8 +81,14 @@ namespace SourceForge.NAnt.Tasks {
     ///   ]]></code>
     /// </example>
     /// 
+    /// 
+    /// <para>
+    ///     Note: For dates you probably want to use <ifnot/>. 
+    ///     That way you can say, if these files aren't uptodate, then do this. 
+    ///     Because if they are uptodate, you probably don't want to do anything.
+    /// </para>
     /// <example>
-    ///   <para>Checks file dates</para>
+    ///   <para>Checks file dates. If myfile.dll is uptodate, then do stuff.</para>
     ///   <code>
     ///   <![CDATA[
     ///   <if uptodatefile="myfile.dll" comparefile="myfile.cs">
@@ -92,7 +98,10 @@ namespace SourceForge.NAnt.Tasks {
     ///   or
     ///   <code>
     ///   <![CDATA[
-    ///   <if uptodatefile="myfile.dll" comparefile="myfile.cs">
+    ///   <if uptodatefile="myfile.dll">
+    ///     <comparefiles>
+    ///         <includes name="*.cs"/>
+    ///     </comparefiles>
     ///     <echo message="myfile.dll is newer/same-date as myfile.cs"/>
     ///   </if>
     ///   ]]></code>
