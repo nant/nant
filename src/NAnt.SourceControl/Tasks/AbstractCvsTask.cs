@@ -289,9 +289,7 @@ namespace NAnt.SourceControl.Tasks {
         ///   <code>nant</code>
         /// </example>
         [TaskAttribute("module", Required=false)]
-        [StringValidator(AllowEmpty=true, 
-             Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$", 
-             ExpressionErrorMessage=@"Module must be a directory name.")]
+        [StringValidator(AllowEmpty=true)]
         public string Module {
             get { 
                 if (null == _module) {
