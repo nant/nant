@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div style="margin-left: 20px;">
-                4.3 <a href="#numeric-operators">Operators on Boolean Values</a>
+                4.3 <a href="#boolean-operators">Operators on Boolean Values</a>
                 <div style="margin-left: 20px;">
                     4.3.1 <a href="#op-boolean-equal">Equal</a><br />
                     4.3.2 <a href="#op-boolean-inequal">Inequal</a><br />
@@ -57,10 +57,12 @@
                     4.3.4 <a href="#op-boolean-greater-than-or-equal">Greater than or equal</a><br />
                     4.3.5 <a href="#op-boolean-less-than">Less than</a><br />
                     4.3.6 <a href="#op-boolean-less-than-or-equal">Less than or equal</a><br />
+                    4.3.7 <a href="#op-boolean-logical-and">Logical and</a><br />
+                    4.3.8 <a href="#op-boolean-logical-or">Logical or</a><br />
                 </div>
             </div>
             <div style="margin-left: 20px;">
-                4.4 <a href="#numeric-operators">Operators on String Values</a>
+                4.4 <a href="#string-operators">Operators on String Values</a>
                 <div style="margin-left: 20px;">
                     4.4.1 <a href="#op-string-concat">Concat</a><br />
                     4.4.2 <a href="#op-string-equal">Equal</a><br />
@@ -72,7 +74,7 @@
                 </div>
             </div>
             <div style="margin-left: 20px;">
-                4.5 <a href="#numeric-operators">Operators on TimeSpan and DateTime Values</a>
+                4.5 <a href="#datetime-operators">Operators on TimeSpan and DateTime Values</a>
                 <div style="margin-left: 20px;">
                     4.5.1 <a href="#op-datetime-add">Add</a><br />
                     4.5.2 <a href="#op-datetime-subtract">Subtract</a><br />
@@ -1365,6 +1367,12 @@
             </li>
             <li>
                 <= operator
+            </li>          
+            <li>
+            	and operator
+            </li>
+            <li>
+            	or operator
             </li>
         </ul>
         <h4><a id="op-boolean-equal" />4.3.1 Equal</h4>
@@ -1412,6 +1420,27 @@
             or <b>false</b>.
         </p>
         <h5>Examples</h5>
+        <h4><a id="op-boolean-logical-and" />4.3.7 Logical and</h4>
+        <h5>Summary</h5>
+        <p>
+        	Returns <b>true</b> if both operands are <b>true</b>,
+        	otherwise returns <b>false</b>.
+        </p>                                                                       
+        <h5>Examples</h5>
+        <p>
+        	<code>&lt;if test=&quot;${A and B}&quot;&gt;</code> 
+        	
+        </p>                                     
+        <h4><a id="op-boolean-logical-or" />4.3.8 Logical or</h4>
+        <h5>Summary</h5>
+        <p>
+        	Returns <b>true</b> if either operand is <b>true</b>, 
+        	otherwise returns <b>false</b>.
+        </p>                                                                       
+        <h5>Examples</h5>
+        <p>
+        	<code>&lt;if test=&quot;${A or B}&quot;&gt;</code>        	
+        </p>
         <h3><a id="string-operators" />4.4 Operators on String Values</h3>
         <p>The following operators are supported on string values:</p>
         <ul>
@@ -1436,7 +1465,7 @@
             <li>
                 <= operator
             </li>
-        </ul>
+        </ul>                
         <h4><a id="op-string-concat" />4.4.1 Concat</h4>
         <h5>Summary</h5>
         <p>
