@@ -49,7 +49,15 @@ namespace NAnt.Core {
                 IsWin32 = false;
             }
 
-            if ((int) platformID == 128) {
+            if (Environment.Version.Major == 1) {
+                // on the Mono 1.0 profile, the value for unix is 128
+                // (MS.NET 1.x does not have an enum field for unix)
+                if ((int) platformID == 128) {
+                    IsUnix = true;
+                }
+            } else if ((int) platformID == 4) {
+                // on the Mono 2.0 profile, and MS.NET 2.0 the value for
+                // unix is 4
                 IsUnix = true;
             }
 
