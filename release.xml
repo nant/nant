@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="nant" default="release">
+<project name="nant" default="1">
     
     <script language="C#">
         <code>
@@ -16,7 +16,7 @@
     
     <include buildfile="nant.build"/>
     
-    <target name="release" depends="release package" description="Perform a 'release' package and uploads to sf.net">
+    <target name="1" depends="release package" description="Perform a 'release' package and uploads to sf.net">
     	<move file="${project.zip-path}" tofile="${project.zip-path}.${date}.zip"/>
 	<!-- copy the build up to sourceforge -->
 	<scp file="${project.zip-path}.${date}.zip" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
