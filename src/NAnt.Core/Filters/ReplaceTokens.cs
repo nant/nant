@@ -16,86 +16,59 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-
 using System;
-using System.IO;
-using System.Text;
-using System.Globalization;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Xml;
+
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
 namespace NAnt.Core.Filters {
-
     /// <summary>
     /// Replaces tokens in the original input with user-supplied values.
     /// </summary>
-    ///
     /// <remarks>
-    ///  Replaces all tokens between the beginning and ending
-    ///  token; begintoken and endtoken.
-    ///  <para>
-    ///  Tokens are specified using the &lt;token&gt; element implemented in the <see cref="ReplaceTokensToken"/> class.
-    ///  </para>
-    ///  <para>
-    ///  The beginning and ending token defualts to @.
-    ///  </para>
-    ///
-    /// <para>Parameters:</para>
-    /// <list type="table">
-    ///    <listheader>
-    ///   <term>Parameter</term>
-    ///   <description>Description</description>
-    ///  </listheader>
-    ///  <item>
-    ///   <term><code>&lt;order&gt;</code></term>
-    ///   <description>The order this filter will be in the <see cref="FilterChain"></see></description>
-    ///  </item>
-    ///  <item>
-    ///   <term><code>&lt;begintoken&gt;</code></term>
-    ///   <description>(Optional) Marks the beginning of a token.  Default = @</description>
-    ///  </item>
-    ///  <item>
-    ///   <term><code>&lt;endtoken&gt;</code></term>
-    ///   <description>(Optional) Marks the end of a token.  Default = @</description>
-    ///  </item>
-    /// </list>
+    /// <para>
+    /// Replaces all tokens between the beginning and ending
+    /// token.
+    /// </para>
+    /// <para>
+    /// Tokens are specified using <see cref="Token" /> elements.
+    /// </para>
     /// </remarks>
-    ///
     /// <example>
     ///  <para>Standard Syntax</para>
     ///  <code>
     ///  <![CDATA[
-    ///  <replacetokens begintoken="@" endtoken="@" order="1">
-    ///   <token key="DATE" value="${TODAY}"/>
+    ///  <replacetokens begintoken="@" endtoken="@">
+    ///   <token key="DATE" value="${TODAY}" />
     ///  </replacetokens>
     ///  ]]>
     ///  </code>
-    ///  <para>Generic Syntax</para>
-    ///  <code>
-    ///  <![CDATA[
-    ///  <filter assembly="NAnt.Core" class="NAnt.Core.Filters.ReplaceTokens" order="1">
-    ///    <parameter name="begintoken" value="@"/>
-    ///    <parameter name="endtoken" value="@"/>
-    ///  </filter>
-    ///  ]]>
-    ///  </code>
     /// </example>
-    ///
+	[ElementName("replacetokens")] 
     public class ReplaceTokens : Filter {
-        //Delegate for Read and Peek. Allows the same implementation
-        //to be used for both methods.
+        /// <summary>
+        /// Delegate for Read and Peek. Allows the same implementation
+        /// to be used for both methods.
+        /// </summary>
         delegate int AcquireCharDelegate();
 
-        #region Private Instance Members
+        #region Private Instance Fields
 
         private char _beginToken = '@';
         private char _endToken = '@';
+        private Token[] _tokens;
         private StringDictionary _tokenValues = new StringDictionary();
-
-        private StringBuilder _tokenString = null;
+        private StringBuilder _tokenString;
         private int _maxTokenLength;
-        private string _outputBuffer = null;
-        private bool _endStreamAfterBuffer = false;
+        private string _outputBuffer;
+        private bool _endStreamAfterBuffer;
         private int _bufferPosition = 0;
         private bool _unknownToken = true;
         private bool _tokenNotFound = true;
@@ -104,75 +77,107 @@ namespace NAnt.Core.Filters {
         private AcquireCharDelegate ReadChar = null;
         private AcquireCharDelegate PeekChar = null;
 
-        #endregion Private Instance Members
+        #endregion Private Instance Fields
 
-        #region Public Instance Methods
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Marks the beginning of a token. The default is "@".
+        /// </summary>
+        [TaskAttribute("begintoken")]
+        [StringValidator(AllowEmpty=false)]
+        public char BeginToken {
+            get { return _beginToken; }
+            set { _beginToken = value; }
+        }
+
+        /// <summary>
+        /// Marks the end of a token. The default is "@".
+        /// </summary>
+        [TaskAttribute("endtoken")]
+        [StringValidator(AllowEmpty=false)]
+        public char EndToken {
+            get { return _endToken; }
+            set { _endToken = value; }
+        }
+
+        /// <summary>
+        /// Tokens and replacement values.
+        /// </summary>
+        [BuildElementArray("token")]
+        public Token[] Tokens {
+            get { return _tokens; }
+            set { _tokens = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ChainableReader
 
         /// <summary>
         /// Construct that allows this filter to be chained to the one
         /// in the parameter chainedReader.
         /// </summary>
         /// <param name="chainedReader">Filter that the filter will be chained to</param>
-        public ReplaceTokens(ChainableReader chainedReader) : base(chainedReader) {
+        public override void Chain(ChainableReader chainedReader) {
+            base.Chain(chainedReader);
             ReadChar = new AcquireCharDelegate(base.Read);
             PeekChar = new AcquireCharDelegate(base.Peek);
         }
 
         /// <summary>
+        /// Reads the next character applying the filter logic.
+        /// </summary>
+        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        public override int Read() {
+            return GetNextCharacter(ReadChar);
+        }
+
+        /// <summary>
+        /// Reads the next character applying the filter logic without
+        /// advancing the current position in the stream.
+        ///
+        /// Peek currently is not supported.
+        /// </summary>
+        /// <returns>
+        /// Char as an int or -1 if at the end of the stream.
+        /// </returns>
+        public override int Peek() {
+            //Need to maintain seperate state for Read and Peek for this to work
+            throw new ApplicationException("Peek currently is not supported.");
+            //return GetNextCharacter(PeekChar);
+        }
+
+        #endregion Override implementation of ChainableReader
+
+        #region Override implementation of Element
+
+        /// <summary>
         /// Initialize the filter by setting its parameters.
         /// </summary>
-        public override void Initialize() {
+        protected override void InitializeElement(XmlNode elementNode) {
+            foreach (Token token in Tokens) {
+                if (token.IfDefined && !token.UnlessDefined) {
+                    _tokenValues.Add(token.Key, token.Value);
 
-            //Process each parameter
-            for (int index = 0 ; index < base.Parameters.Count ; index++) {
-                if (Parameters.GetValues(index).Length > 1) {
-                    base.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "More than one value was specified for {0}. Only the first one will be used.", Parameters.Keys[index]));
-                }
-
-                switch (Parameters.Keys[index]) {
-                case "begintoken" : {
-                        if (null == Parameters.GetValues(index)[0]) {
-                            throw new BuildException("The parameter 'begintoken' can not be empty.");
-                        } else if (Parameters.GetValues(index)[0].Length != 1) {
-                            Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "The parameter 'begintoken' is greater than 1 character. Only the first character will be used. begintoken = {0}", Parameters.GetValues(index)[0][0]));
-                        }
-                        _beginToken = Parameters.GetValues(index)[0][0];
-
-                        break;
-                    }
-
-                case "endtoken" : {
-                        if (null == Parameters.GetValues(index)[0]) {
-                            throw new BuildException("The parameter 'begintoken' can not be empty.");
-                        } else if (Parameters.GetValues(index)[0].Length != 1) {
-                            Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "The parameter 'endtoken' is greater than 1 character. Only the first character will be used. begintoken = {0}", Parameters.GetValues(index)[0][0]));
-                        }
-
-                        _endToken = Parameters.GetValues(index)[0][0];
-
-                        break;
-                    }
-
-                default : {
-                        //Add new token pair
-                        _tokenValues.Add(Parameters.Keys[index], Parameters.GetValues(index)[0]);
-
-                        //Track max character length
-                        if (Parameters.Keys[index].Length > _maxTokenLength) {
-                            _maxTokenLength = Parameters.Keys[index].Length;
-                        }
-                        break;
+                    // track max character length
+                    if (token.Key.Length > _maxTokenLength) {
+                        _maxTokenLength = token.Key.Length;
                     }
                 }
             }
 
-            if (_tokenValues.Count < 1) {
-                throw new ApplicationException("One or more tokens and replacement values should be specified.");
+            if (_tokenValues.Count == 0) {
+                throw new BuildException("One or more tokens and replacement values should be specified.", Location);
             }
 
-            //Create a string builder to use for a buffer while searching for tokens.
+            // create a string builder to use for a buffer while searching for tokens.
             _tokenString = new StringBuilder(_maxTokenLength + 1, _maxTokenLength + 1);
         }
+
+        #endregion Override implementation of Element
+
+        #region Private Instance Methods
 
         /// <summary>
         /// Finds a token give that we are positioned at a beginning token character.  Either a
@@ -272,31 +277,6 @@ namespace NAnt.Core.Filters {
         }
 
         /// <summary>
-        /// Reads the next character applying the filter logic.
-        /// </summary>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
-        public override int Read() {
-            return GetNextCharacter(ReadChar);
-        }
-
-        /// <summary>
-        /// Reads the next character applying the filter logic without
-        /// advancing the current position in the stream.
-        ///
-        /// Peek currently is not supported.
-        /// </summary>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
-        public override int Peek() {
-            //Need to maintain seperate state for Read and Peek for this to work
-            throw new ApplicationException("Peek currently is not supported.");
-            //return GetNextCharacter(PeekChar);
-        }
-
-        #endregion Public Instance Methods
-
-        #region Private Instance Methods
-
-        /// <summary>
         /// Returns the next character in the stream replacing the specified character. Using the
         /// <see cref="AcquireCharDelegate"/> allows for the same implementation for Read and Peek
         /// </summary>
@@ -358,6 +338,7 @@ namespace NAnt.Core.Filters {
                 return ch;
             }
         }
+
         #endregion Private Instance Methods
     }
 }

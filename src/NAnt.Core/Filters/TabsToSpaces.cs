@@ -16,83 +16,71 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-
 using System;
 using System.IO;
 using System.Globalization;
 
-namespace NAnt.Core.Filters {
+using NAnt.Core.Attributes;
 
+namespace NAnt.Core.Filters {
     /// <summary>
-    /// Converts tabs to spaces
+    /// Converts tabs to spaces.
     /// </summary>
-    ///
     /// <remarks>
-    /// The TabsToSpaces filter replaces tabs in a text file with spaces.
-    ///
-    /// <para>Parameters:</para>
-    /// <list type="table">
-    ///    <listheader>
-    ///   <term>Parameter</term>
-    ///   <description>Description</description>
-    ///  </listheader>
-    ///  <item>
-    ///   <term><code>&lt;order&gt;</code></term>
-    ///   <description>The order this filter will be in the <see cref="FilterChain"></see></description>
-    ///  </item>
-    ///  <item>
-    ///   <term><code>&lt;replacementchar&gt;</code></term>
-    ///   <description>(Optional) Character to replace tabs with.  Default = " "</description>
-    ///  </item>
-    ///  <item>
-    ///   <term><code>&lt;replacementspaces&gt;</code></term>
-    ///   <description>(Optional) Number of characters each tab should be replaced with.  Default = 4</description>
-    ///  </item>
-    /// </list>
+    /// The <see cref="TabsToSpaces" /> filter replaces tabs in a text file 
+    /// with spaces.
     /// </remarks>
-    ///
     /// <example>
-    ///  <para>Standard Syntax</para>
+    ///  <para>Replace all tabs with four spaces.</para>
     ///  <code>
     ///  <![CDATA[
-    ///  <tabtospaces replacementchar=" " tablength="4" order="1"/>
-    ///  ]]>
-    ///  </code>
-    ///  <para>Generic Syntax</para>
-    ///  <code>
-    ///  <![CDATA[
-    ///  <filter>
-    ///   <assembly="NAnt.Core" class="NAnt.Core.Filters.TabsToSpaces"/>;
-    ///    <param name="replacementchar" value=" "/>
-    ///    <param name="tablength"  value="4"/>
-    ///    <param name="order" value="1"/>
-    ///  </filter>
+    ///  <tabtospaces tablength="4" />
     ///  ]]>
     ///  </code>
     /// </example>
-    ///
-    ///
-    ///
+    [ElementName("tabstospaces")]
     public class TabsToSpaces : Filter {
-        //Delegate for Read and Peek. Allows the same implementation
-        //to be used for both methods.
+        /// <summary>
+        /// Delegate for Read and Peek. Allows the same implementation
+        /// to be used for both methods.
+        /// </summary>
         delegate int AcquireCharDelegate();
 
-        private int _replacementSpaces = 4;
-        private char _replacementChar = ' ';
-        int _spacesRemaining = 0;
+        #region Private Instance Fields
+
+        private int _tabLength = 8;
+        private int _spacesRemaining = 0;
 
         //Methods used for Read and Peek
         private AcquireCharDelegate ReadChar = null;
         private AcquireCharDelegate PeekChar = null;
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// The number of spaces used when converting a tab. The default is 
+        /// "8".
+        /// </summary>
+        [TaskAttribute("tablength")]
+        [Int32Validator(MinValue=1, MaxValue=100)]
+        public int TabLength {
+            get { return _tabLength; }
+            set { _tabLength = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ChainableReader
 
         /// <summary>
         /// Construct that allows this filter to be chained to the one
         /// in the parameter chainedReader.
         /// </summary>
         /// <param name="chainedReader">Filter that the filter will be chained to</param>
-        public TabsToSpaces(ChainableReader chainedReader) : base(chainedReader) {
+        public override void Chain(ChainableReader chainedReader) {
+            base.Chain(chainedReader);
             ReadChar = new AcquireCharDelegate(base.Read);
             PeekChar = new AcquireCharDelegate(base.Peek);
         }
@@ -116,6 +104,10 @@ namespace NAnt.Core.Filters {
             return GetNextCharacter(ReadChar);
         }
 
+        #endregion Override implementation of ChainableReader
+
+        #region Private Instance Methods
+
         /// <summary>
         /// Returns the next character in the stream replacing the specified character. Using the
         /// <see cref="AcquireCharDelegate"/> allows for the same implementation for Read and Peek
@@ -126,48 +118,17 @@ namespace NAnt.Core.Filters {
             if (_spacesRemaining == 0) {
                 int nextChar = AcquireChar();
                 if (nextChar == '\t') {
-                    _spacesRemaining = _replacementSpaces - 1;
-                    return _replacementChar;
+                    _spacesRemaining = TabLength - 1;
+                    return ' ';
                 } else {
                     return nextChar;
                 }
             } else {
                 _spacesRemaining--;
-                return _replacementChar;
+                return ' ';
             }
         }
 
-        /// <summary>
-        /// Initialize the filter by setting its parameters.
-        /// </summary>
-        public override void Initialize() {
-            string temp = Parameters["replacementchar"];
-            if (temp != null) {
-                if (temp.Length != 1) {
-                    if (temp.Length == 0) {
-                        throw new BuildException("The parameter 'replacementchar' is empty.");
-                    } else {
-                        Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "The parameter 'replacementchar' is greater than 1 character. Only the first character will be used . replacementchar = {0}", temp));
-                    }
-                }
-
-                _replacementChar = temp[0];
-            }
-
-            temp = Parameters["replacementspaces"];
-            if (temp != null) {
-                try {
-                    _replacementSpaces = Int32.Parse(temp);
-
-                    if ((_replacementSpaces < 1) || (_replacementSpaces > 100)) {
-                        throw new BuildException("The parameter 'replacementspaces' must be between 1 and 100.");
-                    }
-                } catch (FormatException e) {
-                    throw new BuildException("The parameter 'replacementspaces' must be a numeric value.", e);
-                }
-            }
-        }
+        #endregion Private Instance Methods
     }
 }
-
-
