@@ -60,7 +60,7 @@
             <fileset basedir="bin">
                 <includes name="NDoc.Core.dll"/>
                 <includes name="NDoc.Documenter.Msdn.dll"/>
-                <includes name="NUnit.Core.dll"/>
+                <includes name="NUnitCore.dll"/>
                 <includes name="NZipLib.dll"/>
             </fileset>
         </copy>
@@ -74,7 +74,7 @@
             <references>
                 <includes name="${build.dir}/NDoc.Core.dll"/>
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
-                <includes name="${build.dir}/NUnit.Core.dll"/>
+                <includes name="${build.dir}/NUnitCore.dll"/>
                 <includes name="${build.dir}/NZipLib.dll"/>
                 <absolute file="Microsoft.JScript.dll"/>
             </references>
@@ -123,7 +123,7 @@
                 <excludes name="**/MailTaskTest.cs"/>
             </sources>
             <references>
-                <includes name="${build.dir}/NUnit.Core.dll"/>
+                <includes name="${build.dir}/NUnitCore.dll"/>
                 <includes name="${build.dir}/${project.FormalName}.Core.dll"/>
                 <includes name="${build.dir}/${project.FormalName}.exe"/>
             </references>
