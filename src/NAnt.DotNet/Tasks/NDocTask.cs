@@ -142,8 +142,9 @@ namespace NAnt.DotNet.Tasks {
                 if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                     continue;
                 }
-
+                
                 string documenterName = node.Attributes["name"].Value;
+                IDocumenter documenter = CheckAndGetDocumenter(null, documenterName);
             }
         }
 
@@ -244,11 +245,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             
                 string documenterName = node.Attributes["name"].Value;
-                IDocumenter documenter = GetDocumenter(project, documenterName);
-                if (documenter == null) {
-                    string msg = String.Format(CultureInfo.InvariantCulture, "Error loading documenter {0}.", documenterName);
-                    throw new BuildException(msg, Location);
-                }
+                IDocumenter documenter =  CheckAndGetDocumenter(project, documenterName);
 
                 // hook up events for feedback during the build
                 documenter.DocBuildingStep += new DocBuildingEventHandler(OnDocBuildingStep);
@@ -288,16 +285,18 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Returns the documenter instance to use for this task.
+        /// Returns the documenter for the given project. If the documenter is not found it will throw a new BuildException.
         /// </summary>
-        private IDocumenter GetDocumenter(NDoc.Core.Project project, string documenterName) {
+        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
             IDocumenter documenter = null;
 
             if (project == null) {
                 project = new NDoc.Core.Project();
             }
-
+            StringBuilder documenters = new StringBuilder();
             foreach (IDocumenter d in project.Documenters) {
+                documenters.Append(d.Name);
+                documenters.Append(" ");
                 // ignore case when comparing documenter names
                 if (string.Compare(d.Name, documenterName, true, CultureInfo.InvariantCulture) == 0) {
                     documenter = (IDocumenter) d;
@@ -305,9 +304,17 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
+            //throw an exception if the documenter could not be found.
+            if (documenter == null) {
+                if(documenters.Length == 0) {
+                    documenters.Append("No Documenters Found!");
+                }
+                string msg = String.Format(CultureInfo.InvariantCulture, "Error loading documenter '{0}' from available documenters ({1}). Is the documenter assembly available?", documenterName, documenters.ToString());
+                throw new BuildException(msg, Location);
+            }
             return documenter;
         }
-
+ 
         /// <summary>
         /// Performs macro expansion for the given nodes.
         /// </summary>
