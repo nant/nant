@@ -49,13 +49,13 @@ namespace NAnt.SourceControl.Tasks {
     [TaskName("cvs")]
     public class CvsTask : AbstractCvsTask {
 
-		#region Private Instance Fields
+        #region Private Instance Fields
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private string _commandName;
-		#endregion
+        #endregion
 
-		#region Public Instance Properties
+        #region Public Instance Properties
         /// <summary>
         /// The cvs command to execute.
         /// </summary>
@@ -75,6 +75,6 @@ namespace NAnt.SourceControl.Tasks {
             set {this.SetCommandOption("command-line", value, true);}
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

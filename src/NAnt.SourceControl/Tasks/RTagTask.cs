@@ -73,13 +73,13 @@ namespace NAnt.SourceControl.Tasks
     /// </example>
     [TaskName("cvs-rtag")]
     public class RTagTask : AbstractCvsTask {
-		private const string COMMAND_NAME = "rtag";
-		/// <summary>
-		/// The name of the cvs command that is going to be executed.
-		/// </summary>
-		public override string CommandName {
-			get {return COMMAND_NAME;}
-		}
+        private const string COMMAND_NAME = "rtag";
+        /// <summary>
+        /// The name of the cvs command that is going to be executed.
+        /// </summary>
+        public override string CommandName {
+            get {return COMMAND_NAME;}
+        }
 
 
         #region Private Static Fields

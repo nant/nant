@@ -74,11 +74,11 @@ namespace NAnt.SourceControl.Tasks {
     [TaskName("cvs-export")]
     public class ExportTask : AbstractCvsTask {
 
-		#region Private Instance Fields
+        #region Private Instance Fields
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private ArgumentCollection _exportFiles = new ArgumentCollection();
-		#endregion
+        #endregion
 
         #region Public Constants
         /// <summary>
@@ -199,6 +199,6 @@ namespace NAnt.SourceControl.Tasks {
             set {this.SetCommandOption("overridedir", String.Format("-d{0}", value), true);}
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

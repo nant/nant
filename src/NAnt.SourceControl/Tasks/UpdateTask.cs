@@ -66,84 +66,84 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-update")]
     public class UpdateTask : AbstractCvsTask {
-		#region Protected Constant Properties
-		/// <summary>
-		/// Default value for the overwrite local directive.
-		/// </summary>
-		protected const bool DEFAULT_OVERWRITE_LOCAL = false;
-		/// <summary>
-		/// Default value for build directory directive.
-		/// </summary>
-		protected const bool DEFAULT_BUILD_DIRS = true;
-		/// <summary>
-		/// Default value for prune empty directories directive.
-		/// </summary>
-		protected const bool DEFAULT_PRUNE_EMPTY = true;
-		#endregion
+        #region Protected Constant Properties
+        /// <summary>
+        /// Default value for the overwrite local directive.
+        /// </summary>
+        protected const bool DEFAULT_OVERWRITE_LOCAL = false;
+        /// <summary>
+        /// Default value for build directory directive.
+        /// </summary>
+        protected const bool DEFAULT_BUILD_DIRS = true;
+        /// <summary>
+        /// Default value for prune empty directories directive.
+        /// </summary>
+        protected const bool DEFAULT_PRUNE_EMPTY = true;
+        #endregion
 
-		#region Public Instance Properties
-		/// <summary>
-		/// The name of the cvs command that is going to be executed.
-		/// </summary>
-		public override string CommandName {
-			get {return COMMAND_NAME;}
-		}
+        #region Public Instance Properties
+        /// <summary>
+        /// The name of the cvs command that is going to be executed.
+        /// </summary>
+        public override string CommandName {
+            get {return COMMAND_NAME;}
+        }
 
-		/// <summary>
-		/// If <code>true</code> new directories will be created on the local
-		///		sandbox.
-		///		
-		///	Defaults to <code>true</code>.
-		/// </summary>
+        /// <summary>
+        /// If <code>true</code> new directories will be created on the local
+        ///     sandbox.
+        ///     
+        /// Defaults to <code>true</code>.
+        /// </summary>
         [TaskAttribute("builddirs", Required=false)]
-		[BooleanValidator()]
-		public bool BuildDirs {
-			get {return ((Option)this.CommandOptions["builddirs"]).IfDefined;}
-			set {this.SetCommandOption("builddirs", "-d", value);}
-		}
+        [BooleanValidator()]
+        public bool BuildDirs {
+            get {return ((Option)this.CommandOptions["builddirs"]).IfDefined;}
+            set {this.SetCommandOption("builddirs", "-d", value);}
+        }
 
-		/// <summary>
-		/// If <code>true</code> empty directories copied down from the remote
-		///		repository will be removed from the local sandbox.
-		///		
-		///	Defaults to <code>true</code>.
-		/// </summary>
-		[TaskAttribute("pruneempty", Required=false)]
-		[BooleanValidator()]
-		public bool PruneEmpty {
-			get {return ((Option)this.CommandOptions["pruneempty"]).IfDefined;}
-			set {this.SetCommandOption("pruneempty", "-P", value);}
-		}
+        /// <summary>
+        /// If <code>true</code> empty directories copied down from the remote
+        ///     repository will be removed from the local sandbox.
+        ///     
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        [TaskAttribute("pruneempty", Required=false)]
+        [BooleanValidator()]
+        public bool PruneEmpty {
+            get {return ((Option)this.CommandOptions["pruneempty"]).IfDefined;}
+            set {this.SetCommandOption("pruneempty", "-P", value);}
+        }
 
-		/// <summary>
-		/// If <code>true</code> the local copy of the file will be overwritten
-		///		with the copy from the remote repository.  
-		///		
-		///	Defaults to <code>false</code>.
-		/// </summary>
-		[TaskAttribute("overwritelocal", Required=false)]
-		[BooleanValidator()]
-		public bool OverwriteLocal {
-			get {return ((Option)this.CommandOptions["overwritelocal"]).IfDefined;}
-			set {this.SetCommandOption("overwritelocal", "-C", value);}
-		}
+        /// <summary>
+        /// If <code>true</code> the local copy of the file will be overwritten
+        ///     with the copy from the remote repository.  
+        ///     
+        /// Defaults to <code>false</code>.
+        /// </summary>
+        [TaskAttribute("overwritelocal", Required=false)]
+        [BooleanValidator()]
+        public bool OverwriteLocal {
+            get {return ((Option)this.CommandOptions["overwritelocal"]).IfDefined;}
+            set {this.SetCommandOption("overwritelocal", "-C", value);}
+        }
 
-		/// <summary>
-		/// <code>true</code> if the command should be executed recursively.
-		/// </summary>
-		[TaskAttribute("recursive", Required=false)]
-		[BooleanValidator()]
-		public bool Recursive {
-			get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
-			set {this.SetCommandOption("recursive", "-R", value);}
-		}
+        /// <summary>
+        /// <code>true</code> if the command should be executed recursively.
+        /// </summary>
+        [TaskAttribute("recursive", Required=false)]
+        [BooleanValidator()]
+        public bool Recursive {
+            get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
+            set {this.SetCommandOption("recursive", "-R", value);}
+        }
 
         /// <summary>
         /// Specify the revision to update the file to.  This corresponds to the "sticky-tag"
         ///     of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
-		[StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
             get {return ((Option)this.CommandOptions["revision"]).Value;}
             set {this.SetCommandOption("revision", String.Format("-r {0}", value), true);}
@@ -176,12 +176,12 @@ namespace NAnt.SourceControl.Tasks {
             set {this.SetCommandOption("date", String.Format("-D {0}", DateParser.GetCvsDateString(value)), true);}
         }
 
-		#endregion
+        #endregion
 
         #region Private Static Fields
 
         private static readonly log4net.ILog Logger = 
-			log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #endregion Private Static Fields
 
@@ -198,11 +198,11 @@ namespace NAnt.SourceControl.Tasks {
         /// class.
         /// 
         /// Sets the build directory and prune empty directory properties to
-        ///		true.
+        ///     true.
         /// </summary>
         public UpdateTask() {
-			this.BuildDirs = true;
-			this.PruneEmpty = true;
+            this.BuildDirs = true;
+            this.PruneEmpty = true;
         }
 
         #endregion Public Instance Constructors

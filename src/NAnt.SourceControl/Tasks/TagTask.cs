@@ -70,13 +70,13 @@ namespace NAnt.SourceControl.Tasks
     /// </example>
     [TaskName("cvs-tag")]
     public class TagTask : AbstractCvsTask {
-		private const string COMMAND_NAME = "tag";
-		/// <summary>
-		/// The name of the cvs command that is going to be executed.
-		/// </summary>
-		public override string CommandName {
-			get {return COMMAND_NAME;}
-		}
+        private const string COMMAND_NAME = "tag";
+        /// <summary>
+        /// The name of the cvs command that is going to be executed.
+        /// </summary>
+        public override string CommandName {
+            get {return COMMAND_NAME;}
+        }
 
 
         #region Private Static Fields
@@ -109,7 +109,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("remove", Required=false)]
-		[BooleanValidator()]
+        [BooleanValidator()]
         public bool Remove {
             get {return ((Option)this.CommandOptions["remove"]).IfDefined;}
             set {this.SetCommandOption("remove", "-d", value);}
@@ -125,7 +125,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("move-if-exists", Required=false)]
-		[BooleanValidator()]
+        [BooleanValidator()]
         public bool MoveIfExists {
             get {return ((Option)this.CommandOptions["move-if-exists"]).IfDefined;}
             set {this.SetCommandOption("move-if-exists", "-F", value);}
@@ -140,7 +140,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="true" />.
         /// </value>
         [TaskAttribute("recursive", Required=false)]
-		[BooleanValidator()]
+        [BooleanValidator()]
         public bool Recursive {
             get {return ((Option)this.CommandOptions["recursive"]).IfDefined;}
             set {
@@ -190,7 +190,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("force-head", Required=false)]
-		[BooleanValidator()]
+        [BooleanValidator()]
         public bool ForceHead {
             get {return ((Option)this.CommandOptions["force-head"]).IfDefined;}
             set {this.SetCommandOption("force-head", "-f", value);}
@@ -206,7 +206,7 @@ namespace NAnt.SourceControl.Tasks
         /// otherwise, <see langword="false" />.  The default is <see langword="false" />.
         /// </value>
         [TaskAttribute("fail-if-modified", Required=false)]
-		[BooleanValidator()]
+        [BooleanValidator()]
         public bool FailIfModified {
             get {return ((Option)this.CommandOptions["fail-if-modified"]).IfDefined;}
             set {this.SetCommandOption("fail-if-modified", "-c", value);}
