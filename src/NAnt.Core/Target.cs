@@ -28,9 +28,7 @@ using System.Xml;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core {
-
-    public class Target : Element, ICloneable {
-
+    public sealed class Target : Element, ICloneable {
         string _name = null;
         string _desc = null;
         bool _hasExecuted = false;
@@ -42,8 +40,7 @@ namespace NAnt.Core {
         public Target() {
              }
 
-        //Copy ctor
-        protected Target(Target t) : base((Element)t) {
+        private Target(Target t) : base((Element)t) {
             this._name = t._name;
             this._desc = t._desc;
             this._dependencies = t._dependencies;
@@ -100,7 +97,6 @@ namespace NAnt.Core {
             }
         }
 
-
         /// <summary>Indicates if the target has been executed.</summary>
         /// <remarks>
         ///   <para>Targets that have been executed will not execute a second time.</para>
@@ -113,11 +109,6 @@ namespace NAnt.Core {
         public StringCollection Dependencies {
             get { return _dependencies; }
         }
-
-        /// <summary>
-        /// The xml used to initialize this Target.
-        /// </summary>
-        protected XmlNode TargetNode { get {return XmlNode;} }
 
         /// <summary>Executes dependent targets first, then the target.</summary>
         public void Execute() {
