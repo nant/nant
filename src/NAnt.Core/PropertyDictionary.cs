@@ -379,7 +379,6 @@ namespace NAnt.Core {
                 reformattedInput = reformattedInput.Replace('\r', ' ');
                 reformattedInput = reformattedInput.Replace('\t', ' ');
 
-                Exception innerException = null;
                 errorMessage.Append(ex.Message);
                 errorMessage.Append(Environment.NewLine);
                 //errorMessage.Append("Error: ");
@@ -405,11 +404,7 @@ namespace NAnt.Core {
 
                 // don't append the trailing newline
 
-                if (ex.InnerException is BuildException) {
-                    innerException = ex.InnerException;
-                }
-
-                throw new BuildException(errorMessage.ToString(), location, innerException);
+                throw new BuildException(errorMessage.ToString(), location, ex.InnerException);
             }
         }
 
