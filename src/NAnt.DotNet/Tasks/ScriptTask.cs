@@ -156,7 +156,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Define a custom task and call it using Boo (http://boo.codehaus.org/).</para>
+    ///   <para>Define a custom function and call it using Boo (http://boo.codehaus.org/).</para>
     ///   <code>
     ///         &lt;script language=&quot;Boo.CodeDom.BooCodeProvider, Boo.CodeDom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67&quot;
     ///             failonerror=&quot;true&quot;&gt;
