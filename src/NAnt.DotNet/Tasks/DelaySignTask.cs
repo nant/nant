@@ -56,9 +56,9 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private FileSet _targets = new FileSet();
-        private string _keyFilename = null;
-        private string _keyContainer = null;
-        private StringBuilder _argumentBuilder = null;
+        private FileInfo _keyFile;
+        private string _keyContainer;
+        private StringBuilder _argumentBuilder;
         
         #endregion Private Instance Fields
 
@@ -77,9 +77,9 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies the filesystem path to the signing key.
         /// </summary>
         [TaskAttribute("keyfile")]
-        public string KeyFile {
-            get { return (_keyFilename != null) ? Project.GetFullPath(_keyFilename) : null; }
-            set { _keyFilename = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo KeyFile {
+            get { return _keyFile; }
+            set { _keyFile = value; }
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace NAnt.DotNet.Tasks {
         protected override void ExecuteTask() {
             bool keyAvail = KeyFile != null;
             bool containerAvail = KeyContainer != null;
-            string keyname = containerAvail ? KeyContainer : KeyFile;
+            string keyname = containerAvail ? KeyContainer : KeyFile.FullName;
 
             // ensure base directory is set, even if fileset was not initialized
             // from XML

@@ -28,6 +28,7 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -70,7 +71,7 @@ namespace NAnt.DotNet.Tasks {
     public class ResGenTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private string _arguments = null;
+        private string _arguments;
         private FileInfo _inputFile; 
         private FileInfo _outputFile;
         private ResourceFileSet _resources = new ResourceFileSet();
@@ -103,7 +104,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// The target type (usually <c>resources</c>).
+        /// The target type. The default is <c>resources</c>.
         /// </summary>
         [TaskAttribute("target", Required=false)]
         public string TargetExt {

@@ -19,6 +19,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Text;
 
 using NAnt.Core;
@@ -120,9 +121,9 @@ namespace NAnt.DotNet.Tasks {
 
         private StringBuilder _argumentBuilder = null;
         private ActionType _action = ActionType.FindOrCreate;
-        private string _assemblyName = null;
-        private string _applicationName = null;
-        private string _tlb = null;
+        private FileInfo _assemblyFile;
+        private string _applicationName;
+        private FileInfo _typeLibrary;
         private bool _existingTlb = false;
         private bool _existingApplication = false;
         private bool _noreconfig = false;
@@ -160,18 +161,18 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("assembly", Required=true)]
         [StringValidator(AllowEmpty=false)]
-        public string AssemblyName {
-            get { return (_assemblyName != null) ? Project.GetFullPath(_assemblyName) : null; }
-            set { _assemblyName = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo AssemblyFile {
+            get { return _assemblyFile; }
+            set { _assemblyFile = value; }
         }
 
         /// <summary>
         /// Specifies the type library file to install.
         /// </summary>
         [TaskAttribute("tlb")]
-        public string TypeLibrary {
-            get { return (_tlb != null) ? Project.GetFullPath(_tlb) : null; }
-            set { _tlb = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo TypeLibrary {
+            get { return _typeLibrary; }
+            set { _typeLibrary = value; }
         }
 
         /// <summary>
@@ -264,20 +265,20 @@ namespace NAnt.DotNet.Tasks {
             switch (Action) {
                 case ActionType.Create:
                     _argumentBuilder.Append("/c ");
-                    Log(Level.Info, "Creating COM+ application '{0}'.", AssemblyName);
+                    Log(Level.Info, "Creating COM+ application '{0}'.", AssemblyFile.FullName);
                     break;
                 case ActionType.FindOrCreate:
                     _argumentBuilder.Append("/fc ");
-                    Log(Level.Info, "Finding or creating COM+ application '{0}'.", AssemblyName);
+                    Log(Level.Info, "Finding or creating COM+ application '{0}'.", AssemblyFile.FullName);
                     break;
                 case ActionType.Uninstall:
                     _argumentBuilder.Append("/u ");
-                    Log(Level.Info,"Uninstalling COM+ application '{0}'.", AssemblyName);
+                    Log(Level.Info,"Uninstalling COM+ application '{0}'.", AssemblyFile.FullName);
                     break;
             }
 
             if (TypeLibrary != null) {
-                _argumentBuilder.AppendFormat("/tlb:\"{0}\" ", TypeLibrary);
+                _argumentBuilder.AppendFormat("/tlb:\"{0}\" ", TypeLibrary.FullName);
             }
 
             if (ExistingTypeLibrary) {
@@ -312,7 +313,7 @@ namespace NAnt.DotNet.Tasks {
             _argumentBuilder.Append("/nologo ");
 
             // output the assembly name enclosed with quotes
-            _argumentBuilder.Append("\"" + AssemblyName + "\"");
+            _argumentBuilder.Append("\"" + AssemblyFile.FullName + "\"");
 
             // call base class to do perform the actual call
             base.ExecuteTask();
