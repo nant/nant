@@ -77,5 +77,22 @@ namespace NAnt.Core.Util {
                 File.Delete(sourceFileName);
             }
         }
+
+        /// <summary>
+        /// Returns a uniquely named empty temporary directory on disk.
+        /// </summary>
+        /// <value>
+        /// A <see cref="DirectoryInfo" /> representing the temporary directory.
+        /// </value>
+        public static DirectoryInfo GetTempDirectory() {
+            // create a uniquely named zero-byte file
+            string tempFile = Path.GetTempFileName();
+            // remove the temporary file
+            File.Delete(tempFile);
+            // create a directory named after the unique temporary file
+            Directory.CreateDirectory(tempFile);
+            // return the 
+            return new DirectoryInfo(tempFile);
+        }
     }
 }

@@ -342,18 +342,10 @@ namespace NAnt.DotNet.Tasks {
                 Target);
 
             if (HasCommandLineCompiler) {
-                // determine working directory
-                BaseDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), 
-                    Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture)));
+                // use a newly created temporary directory as working directory
+                BaseDirectory = FileUtils.GetTempDirectory();
 
                 try {
-                    // check if working directory exists
-                    if (!BaseDirectory.Exists) {
-                        // create working directory
-                        BaseDirectory.Create();
-                        // refresh filesystem info
-                        BaseDirectory.Refresh();
-                    }
                     // set target assembly for generated licenses file (in
                     // uppercase, to match VS.NET)
                     Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
@@ -382,15 +374,14 @@ namespace NAnt.DotNet.Tasks {
                     File.Copy(Path.Combine(BaseDirectory.FullName, Target + ".licenses"), 
                         licensesFile.FullName);
                 } finally {
-                    if (BaseDirectory.Exists) {
-                        DeleteTask deleteTask = new DeleteTask();
-                        deleteTask.Project = Project;
-                        deleteTask.Parent = this;
-                        deleteTask.InitializeTaskConfiguration();
-                        deleteTask.Directory = BaseDirectory;
-                        deleteTask.Threshold = Level.None; // no output in build log
-                        deleteTask.Execute();
-                    }
+                    // delete temporary directory and all files in it
+                    DeleteTask deleteTask = new DeleteTask();
+                    deleteTask.Project = Project;
+                    deleteTask.Parent = this;
+                    deleteTask.InitializeTaskConfiguration();
+                    deleteTask.Directory = BaseDirectory;
+                    deleteTask.Threshold = Level.None; // no output in build log
+                    deleteTask.Execute();
                 }
             } else {
                 // create new domain

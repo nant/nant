@@ -343,31 +343,21 @@ namespace NAnt.DotNet.Tasks {
             }
 
             if (!StringUtils.IsNullOrEmpty(_arguments)) {
-                // determine working directory
-                BaseDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), 
-                    Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture)));
+                // use a newly created temporary directory as working directory
+                BaseDirectory = FileUtils.GetTempDirectory();
 
                 try {
-                    // check if working directory exists
-                    if (!BaseDirectory.Exists) {
-                        // create working directory
-                        BaseDirectory.Create();
-                        // refresh filesystem info
-                        BaseDirectory.Refresh();
-                    }
-
                     // call base class to do the work
                     base.ExecuteTask();
                 } finally {
-                    if (BaseDirectory.Exists) {
-                        DeleteTask deleteTask = new DeleteTask();
-                        deleteTask.Project = Project;
-                        deleteTask.Parent = this;
-                        deleteTask.InitializeTaskConfiguration();
-                        deleteTask.Directory = BaseDirectory;
-                        deleteTask.Threshold = Level.None; // no output in build log
-                        deleteTask.Execute();
-                    }
+                    // delete temporary directory and all files in it
+                    DeleteTask deleteTask = new DeleteTask();
+                    deleteTask.Project = Project;
+                    deleteTask.Parent = this;
+                    deleteTask.InitializeTaskConfiguration();
+                    deleteTask.Directory = BaseDirectory;
+                    deleteTask.Threshold = Level.None; // no output in build log
+                    deleteTask.Execute();
                 }
             }
         }
