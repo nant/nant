@@ -48,6 +48,10 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected const String HOME = "HOME";
 		/// <summary>
+		/// The environment variable that holds path information.
+		/// </summary>
+		protected const String PATH = "PATH";
+		/// <summary>
 		/// Name of the password file that cvs stores pserver 
 		///		cvsroot/ password pairings.
 		/// </summary>
@@ -72,10 +76,14 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected const string CVS_RSH = "CVS_RSH";
 		/// <summary>
-		/// Property value used to specify on a project level whether sharpcvs is
+		/// Property name used to specify on a project level whether sharpcvs is
 		///		used or not.
 		/// </summary>
 		protected const string USE_SHARPCVSLIB = "sourcecontrol.usesharpcvslib";
+		/// <summary>
+		/// Property name used to specify the source control executable.
+		/// </summary>
+		protected const string EXE_NAME = "sourcecontrol.exename";
 
 		#endregion
 
@@ -94,9 +102,10 @@ namespace NAnt.SourceControl.Tasks {
 		private string _commandLineArguments;
         private OptionCollection _globalOptions = new OptionCollection();
 
-		private string _exeName = CVS_EXE;
 		private string _cvsRsh;
         private FileSet _fileset = new FileSet();
+
+		private string _sharpcvslibExeName;
 
         #endregion Private Instance Fields
 
@@ -113,6 +122,8 @@ namespace NAnt.SourceControl.Tasks {
         /// class.
         /// </summary>
         protected AbstractCvsTask () {
+			this._sharpcvslibExeName = 
+				Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
         }
 
         #endregion Protected Instance Constructors
@@ -123,8 +134,18 @@ namespace NAnt.SourceControl.Tasks {
 		/// The name of the cvs executable.
 		/// </summary>
 		public override string ExeName {
-			get {return _exeName;}
-			set {this._exeName = value;}
+			get {
+				string _exeNameTemp;
+				if (this.UseSharpCvsLib) {
+					_exeNameTemp = this._sharpcvslibExeName;
+				} else {
+					_exeNameTemp = this.GetCvsFromPath();
+				}
+				Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
+				Logger.Debug("_exeNameTemp: " + _exeNameTemp);
+				Properties[EXE_NAME] = _exeNameTemp;
+				return _exeNameTemp;
+			}
 		}
 
         /// <summary>
@@ -343,18 +364,21 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public bool UseSharpCvsLib {
-			get {
+			get {return this._useSharpCvsLib;}
+            set {
 				if (null == Properties[USE_SHARPCVSLIB]) {
-					return this._useSharpCvsLib;
+					Logger.Debug(String.Format("{0} was null.", 
+						USE_SHARPCVSLIB));
+					this._useSharpCvsLib = value;
 				} else {
 					try {
-						return System.Convert.ToBoolean(Properties[USE_SHARPCVSLIB]);
+						this._useSharpCvsLib =
+							System.Convert.ToBoolean(Properties[USE_SHARPCVSLIB]);
 					} catch (Exception) {
 						throw new BuildException (USE_SHARPCVSLIB + " must be convertable to a boolean.");
 					}
 				}
 			}
-            set {this._useSharpCvsLib = value;}
         }
 
 		/// <summary>
@@ -386,13 +410,13 @@ namespace NAnt.SourceControl.Tasks {
         #endregion Public Instance Properties
 
 		#region Override Task Implementation
+
 		/// <summary>
-		/// 
+		/// Wrapper to provide extra debugging layer.
 		/// </summary>
 		protected override void ExecuteTask () {
 			try {
-				base.ExecuteTask();
-				
+				base.ExecuteTask();	
 			} catch (Exception e) {
 				Logger.Error(e);
 				throw e;
@@ -400,11 +424,12 @@ namespace NAnt.SourceControl.Tasks {
 		}
 
 		/// <summary>
-		/// 
+		/// Build up the command line arguments, determine which executable is being
+		///		used and find the path to that executable and set the working 
+		///		directory.
 		/// </summary>
-		/// <param name="process"></param>
+		/// <param name="process">The process to prepare.</param>
 		protected override void PrepareProcess (Process process) {
-			
 			Logger.Debug("number of arguments: " + Arguments.Count);
 			if (null == this.Arguments || 0 == this.Arguments.Count) {
 				if (IsModuleNeeded) {
@@ -424,17 +449,12 @@ namespace NAnt.SourceControl.Tasks {
 				}
 			}
 			Logger.Debug("Using sharpcvs" + this.UseSharpCvsLib);
-			if (this.UseSharpCvsLib) {
-				this.ExeName = 
-					Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, CVS_EXE);
-			} else {
-				this.ExeName = GetCvsFromPath();
-			}
+
 			if (!Directory.Exists(this.DestinationDirectory.FullName)) {
 				Directory.CreateDirectory(this.DestinationDirectory.FullName);
 			}
 			base.PrepareProcess(process);
-			Logger.Debug("exe name: " + process.StartInfo.FileName);
+			process.StartInfo.FileName = this.ExeName;
 
 			if (this.CvsRsh != null ) {
 				try {
@@ -444,7 +464,8 @@ namespace NAnt.SourceControl.Tasks {
 				}
 			}
 
-			process.StartInfo.WorkingDirectory = this.DestinationDirectory.FullName;
+			process.StartInfo.WorkingDirectory = 
+				this.DestinationDirectory.FullName;
 			Logger.Debug("working directory: " + process.StartInfo.WorkingDirectory);
 			Logger.Debug("executable: " + process.StartInfo.FileName);
 			Logger.Debug("arguments: " + process.StartInfo.Arguments);
@@ -458,7 +479,6 @@ namespace NAnt.SourceControl.Tasks {
             Log(Level.Debug, LogPrefix + message);
         }
 
-		/*********************** Moved from the Cvs.cs file ********/
 		private String GetPassFile () {
 			if (this.PassFile == null) {
 				string userHome =
@@ -586,17 +606,24 @@ namespace NAnt.SourceControl.Tasks {
 		private String GetCvsFromPath () {
 			String fileName = null;
 
-			String path = Environment.GetEnvironmentVariable("PATH");
+			String path = Environment.GetEnvironmentVariable(PATH);
 			String[] pathElements = path.Split(';');
 			foreach (String pathElement in pathElements) {
 				try {
-					String[] files = Directory.GetFiles(pathElement, "*.exe");
-					foreach (String file in files) {
-						if (Path.GetFileName(file).ToLower().IndexOf("cvs") >= 0) {
-							Log(Level.Debug, LogPrefix + "Using file " + file + 
-								"; file.ToLower().IndexOf(\"cvs\") >=0: " + file.ToLower().IndexOf("cvs"));
-							fileName = file;
-							break;
+					DirectoryInfo dirInfo = new DirectoryInfo(pathElement);
+					// because we are getting this from the path we don't want
+					//	to pick up sharpcvslib.
+					Logger.Debug("dirInfo: " + dirInfo.FullName);
+					Logger.Debug("basedir: " + System.AppDomain.CurrentDomain.BaseDirectory);
+					if (!(System.AppDomain.CurrentDomain.BaseDirectory.IndexOf
+						(dirInfo.FullName) > -1)) {
+						FileInfo[] files = dirInfo.GetFiles("*.exe");
+						foreach (FileInfo file in files) {
+							if (file.FullName.ToLower().IndexOf("cvs") > -1) {
+								Log(Level.Debug, LogPrefix + "Using file " + file.FullName);
+								fileName = file.FullName;
+								break;
+							}
 						}
 					}
 				} catch (DirectoryNotFoundException) {
