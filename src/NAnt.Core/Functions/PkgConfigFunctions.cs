@@ -43,105 +43,133 @@ namespace NAnt.Core.Functions {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the value of a variable for the specified module.
+        /// Gets the value of a variable for the specified package.
         /// </summary>
-        /// <param name="module">The module for which the variable should be retrieved.</param>
+        /// <param name="package">The package for which the variable should be retrieved.</param>
         /// <param name="name">The name of the variable.</param>
         /// <returns>
         /// The value of variable <paramref name="name" /> for the specified 
-        /// module.
+        /// package.
         /// </returns>
         [Function("get-variable")]
-        public string GetVariable(string module, string name) {
-            return RunPkgConfigString( new Argument[]{ new Argument("--variable=\"" + name + "\""),
-                                                       new Argument(module)});
+        public string GetVariable(string package, string name) {
+            return RunPkgConfigString(new Argument[] {  new Argument("--variable=\"" + name + "\""),
+                                                        new Argument(package) });
         }
 
         /// <summary>
-        /// Determines the version of the given module.
+        /// Gets the link flags required to compile the package, including all
+        /// its dependencies.
         /// </summary>
-        /// <param name="module">The module to get the version of.</param>
+        /// <param name="package">The package for which the link flags should be retrieved.</param>
         /// <returns>
-        /// The version of the given module.
+        /// The link flags required to compile the package.
+        /// </returns>
+        [Function("get-link-flags")]
+        public string GetLinkFlags(string package) {
+            return RunPkgConfigString(new Argument[] { new Argument("--libs"),
+                                                       new Argument(package) });
+        }
+
+        /// <summary>
+        /// Gets the compile flags required to compile the package, including all
+        /// its dependencies.
+        /// </summary>
+        /// <param name="package">The package for which the compile flags should be retrieved.</param>
+        /// <returns>
+        /// The pre-processor and compile flags required to compile the package.
+        /// </returns>
+        [Function("get-compile-flags")]
+        public string GetCompileFlags(string package) {
+            return RunPkgConfigString(new Argument[] { new Argument("--cflags"),
+                                                       new Argument(package) });
+        }
+
+        /// <summary>
+        /// Determines the version of the given package.
+        /// </summary>
+        /// <param name="package">The package to get the version of.</param>
+        /// <returns>
+        /// The version of the given package.
         /// </returns>
         [Function("get-mod-version")]
-        public string GetModVersion(string module) {
+        public string GetModVersion(string package) {
             return RunPkgConfigString( new Argument[]{ new Argument("--modversion"),
-                                                       new Argument(module) });
+                                                       new Argument(package) });
         }
 
         /// <summary>
-        /// Determines whether the given module is at least version 
+        /// Determines whether the given package is at least version 
         /// <paramref name="version" />.
         /// </summary>
-        /// <param name="module">The module to check.</param>
-        /// <param name="version">The version the module should at least have.</param>
+        /// <param name="package">The package to check.</param>
+        /// <param name="version">The version the package should at least have.</param>
         /// <returns>
-        /// <see langword="true" /> if the given module is at least version
+        /// <see langword="true" /> if the given package is at least version
         /// <paramref name="version" />; otherwise, <see langword="false" />.
         /// </returns>
         [Function("is-atleast-version")]
-        public bool IsAtLeastVersion(string module, string version) {
+        public bool IsAtLeastVersion(string package, string version) {
             return RunPkgConfigBool( new Argument[]{ new Argument("--atleast-version=\"" + version + "\""),
-                                                     new Argument(module) });
+                                                     new Argument(package) });
         }
 
         /// <summary>
-        /// Determines whether the given module is exactly version 
+        /// Determines whether the given package is exactly version 
         /// <paramref name="version" />.
         /// </summary>
-        /// <param name="module">The module to check.</param>
-        /// <param name="version">The version the module should have.</param>
+        /// <param name="package">The package to check.</param>
+        /// <param name="version">The version the package should have.</param>
         /// <returns>
-        /// <see langword="true" /> if the given module is exactly version
+        /// <see langword="true" /> if the given package is exactly version
         /// <paramref name="version" />; otherwise, <see langword="false" />.
         /// </returns>
         [Function("is-exact-version")]
-        public bool IsExactVersion(string module, string version) {
+        public bool IsExactVersion(string package, string version) {
             return RunPkgConfigBool( new Argument[]{ new Argument("--exact-version=\"" + version + "\""),
-                                                     new Argument(module)});
+                                                     new Argument(package)});
         }
 
         /// <summary>
-        /// Determines whether the given module is at no newer than version
+        /// Determines whether the given package is at no newer than version
         /// <paramref name="version" />.
         /// </summary>
-        /// <param name="module">The module to check.</param>
-        /// <param name="version">The version the module should maximum have.</param>
+        /// <param name="package">The package to check.</param>
+        /// <param name="version">The version the package should maximum have.</param>
         /// <returns>
-        /// <see langword="true" /> if the given module is at no newer than 
+        /// <see langword="true" /> if the given package is at no newer than 
         /// version <paramref name="version" />; otherwise, <see langword="false" />.
         /// </returns>
         [Function("is-max-version")]
-        public bool IsMaxVersion(string module, string version) {
+        public bool IsMaxVersion(string package, string version) {
             return RunPkgConfigBool( new Argument[]{ new Argument("--max-version=\"" + version + "\""),
-                                                    new Argument(module) });
+                                                    new Argument(package) });
         }
 
         /// <summary>
-        /// Determines whether the given module is between two versions.
+        /// Determines whether the given package is between two versions.
         /// </summary>
-        /// <param name="module">The module to check.</param>
-        /// <param name="minVersion">The version the module should at least have.</param>
-        /// <param name="maxVersion">The version the module should maximum have.</param>
+        /// <param name="package">The package to check.</param>
+        /// <param name="minVersion">The version the package should at least have.</param>
+        /// <param name="maxVersion">The version the package should maximum have.</param>
         /// <returns>
-        /// <see langword="true" /> if the given module is between <paramref name="minVersion" />
+        /// <see langword="true" /> if the given package is between <paramref name="minVersion" />
         /// and <paramref name="maxVersion" />; otherwise, <see langword="false" />.
         /// </returns>
         [Function("is-between-version")]
-        public bool IsBetweenVersion(string module, string minVersion, string maxVersion) {
+        public bool IsBetweenVersion(string package, string minVersion, string maxVersion) {
             return RunPkgConfigBool( new Argument[]{ new Argument("--atleast-version=\"" + minVersion + "\""),
                                                      new Argument("--max-version=\"" + maxVersion + "\""),
-                                                     new Argument(module)
+                                                     new Argument(package)
                                                      } );
         }
 
         /// <summary>
-        /// Determines whether the given module exists.
+        /// Determines whether the given package exists.
         /// </summary>
-        /// <param name="package">The module to check.</param>
+        /// <param name="package">The package to check.</param>
         /// <returns>
-        /// <see langword="true" /> if the module exists; otherwise, 
+        /// <see langword="true" /> if the package exists; otherwise, 
         /// <see langword="false" />.
         /// </returns>
         [Function("exists")]
@@ -168,8 +196,8 @@ namespace NAnt.Core.Functions {
                 execTask.Execute();
                 return true;
             } catch (Exception) {
-                if (execTask.ExitCode == -1) {
-                    // process could not be started
+                if (execTask.ExitCode == ExternalProgramBase.UnknownExitCode) {
+                    // process could not be started or did not exit in time
                     throw;
                 }
                 return false;
