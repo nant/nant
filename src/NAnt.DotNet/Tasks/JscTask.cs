@@ -24,7 +24,7 @@ namespace SourceForge.NAnt.Tasks {
     using System.IO;
     using SourceForge.NAnt.Attributes;
 
-    /// <summary>Compiles Microsoft JScript.NET programs using jsc.</summary>
+    /// <summary>Compiles JScript.NET programs.</summary>
     /// <example>
     ///   <para>Compile helloworld.js to helloworld.exe.</para>
     ///   <code>
@@ -39,15 +39,32 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("jsc")]
     public class JscTask : MsftFXCompilerBase {
+        #region Override implementation of ExternalProgramBase
+           
+        public override string ExeName {           
+            get { return Project.CurrentFramework.JScriptCompilerName; }
+        }
 
-        // add JScript.NET specific compiler options here (see CscTask)
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Override implementation of CompilerBase
+
+        /// <summary>
+        /// Writes the compiler options to the specified TextWriter.
+        /// </summary>
+        /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
             if (Debug) {
-                writer.WriteLine("/debug");
-                writer.WriteLine("/define:DEBUG;TRACE");
+                WriteOption(writer, "debug");
+                WriteOption(writer, "define", "DEBUG");
+                WriteOption(writer, "define", "TRACE");
             }
         }
 
-        protected override string GetExtension(){ return "js";}
+        protected override string GetExtension() { 
+            return "js";
+        }
+
+        #endregion Override implementation of CompilerBase
     }
 }

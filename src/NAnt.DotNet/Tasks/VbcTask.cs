@@ -25,7 +25,7 @@ using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
 
-    /// <summary>Compiles Microsoft Visual Basic.NET programs using vbc.exe.</summary>
+    /// <summary>Compiles Visual Basic.NET programs.</summary>
     /// <example>
     ///   <para>Example build file using this task.</para>
     ///   <code><![CDATA[
@@ -55,6 +55,7 @@ namespace SourceForge.NAnt.Tasks {
     /// </example>
     [TaskName("vbc")]
     public class VbcTask : MsftFXCompilerBase {
+        #region Private Instance Fields
 
         string _baseAddress     = null;
         string _imports         = null;
@@ -64,6 +65,10 @@ namespace SourceForge.NAnt.Tasks {
         bool   _optionOptimize  = false;
         bool   _removeintchecks = false;
         string _rootNamespace   = null;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
 
         /// <summary>Specifies whether <c>/baseaddress</c> option gets passed to the compiler.</summary>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfbaseaddressspecifybaseaddressofdll.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
@@ -90,34 +95,56 @@ namespace SourceForge.NAnt.Tasks {
         /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
         [TaskAttribute("optionexplicit")]
         [BooleanValidator()]
-        public bool   OptionExplicit  { get { return Convert.ToBoolean(_optionExplicit); } set {_optionExplicit = value;}}
+        public bool   OptionExplicit  { get { return _optionExplicit; } set {_optionExplicit = value;}}
         
         /// <summary>Specifies whether the <c>/optimize</c> option gets passed to the compiler.</summary>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfoptimizeenabledisableoptimizations.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
         [TaskAttribute("optionoptimize")]
         [BooleanValidator()]
-        public bool   OptionOptimize{ get { return Convert.ToBoolean(_optionOptimize); } set {_optionOptimize = value;}}
+        public bool   OptionOptimize{ get { return _optionOptimize; } set {_optionOptimize = value;}}
 
         /// <summary>Specifies whether the <c>/optionstrict</c> option gets passed to the compiler.</summary>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfOptionstrictEnforceStrictTypeSemantics.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
         [TaskAttribute("optionstrict")]
         [BooleanValidator()]
-        public bool   OptionStrict    { get { return Convert.ToBoolean(_optionStrict); } set {_optionStrict = value;}}
+        public bool   OptionStrict    { get { return _optionStrict; } set {_optionStrict = value;}}
 
         /// <summary>Specifies whether the <c>/removeintchecks</c> option gets passed to the compiler.</summary>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfRemoveintchecksRemoveInteger-OverflowChecks.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         /// <value>The value of this attribute must be either <c>true</c> or <c>false</c>.  If <c>false</c>, the switch is omitted.</value>
         [TaskAttribute("removeintchecks")]
         [BooleanValidator()]
-        public bool   RemoveIntChecks { get { return Convert.ToBoolean(_removeintchecks); } set {_removeintchecks = value;}}
+        public bool   RemoveIntChecks { get { return _removeintchecks; } set {_removeintchecks = value;}}
 
         /// <summary>Specifies whether the <c>/rootnamespace</c> option gets passed to the compiler.</summary>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfRootnamespace.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         /// <value>The value of this attribute is a string that contains the root namespace of the project.</value>
         [TaskAttribute("rootnamespace")]
         public string RootNamespace   { get { return _rootNamespace; } set {_rootNamespace = value;}}
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+           
+        public override string ExeName {
+            get { return Project.CurrentFramework.BasicCompilerName; }
+        }
+
+        protected override bool UsesRuntimeEngine { 
+            get {
+                // find better way of doing this
+                if ( Project.CurrentFramework.Name.IndexOf( "mono", 0 ) != -1 ) {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Override implementation of CompilerBase
 
         /// <summary>
         /// Local override to ensure the Rootnamespace is prefixed
@@ -138,43 +165,55 @@ namespace SourceForge.NAnt.Tasks {
                 return baseNamespace;
             }            
         }
+
         /// <summary>
         /// Writes the compiler options to the specified TextWriter.
         /// </summary>
-        /// <param name="writer"></param>
-        /// <remarks></remarks>
+        /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
-            if (_baseAddress != null) {
-                writer.WriteLine("/baseaddress:{0}", _baseAddress);
+            if (BaseAddress != null) {
+                WriteOption(writer, "baseaddress", BaseAddress);
             }
-            if (Debug) {
-                writer.WriteLine("/debug");
-                writer.WriteLine("/define:DEBUG=True,TRACE=True");
-            }
-            if (_imports != null) {
-                writer.WriteLine("/imports:{0}", _imports);
-            }
-            System.Console.WriteLine("/imports:{0}", _imports);
 
-            if (_optionCompare != null) {
-                writer.WriteLine("/optioncompare:{0}", _optionCompare);
+            if (Debug) {
+                WriteOption(writer, "debug");
+                WriteOption(writer, "define", "DEBUG=True");
+                WriteOption(writer, "define", "TRACE=True");
             }
+
+            if (Imports != null) {
+                WriteOption(writer, "imports", Imports); 
+            }
+
+            if (OptionCompare != null) {
+                WriteOption(writer, "optioncompare", OptionCompare);
+            }
+
             if (OptionExplicit) {
-                writer.WriteLine("/optionexplicit");
+                WriteOption(writer, "optionexplicit");
             }
+
             if (OptionStrict) {
-                writer.WriteLine("/optionstrict");
+                WriteOption(writer, "optionstrict");
             }
+
             if (RemoveIntChecks) {
-                writer.WriteLine("/removeintchecks");
+                WriteOption(writer, "removeintchecks");
             }	
+
             if (OptionOptimize) {
-                writer.WriteLine("/optimize");
+                WriteOption(writer, "optimize");
             }	
-            if (_rootNamespace != null) {
-                writer.WriteLine("/rootnamespace:{0}", _rootNamespace);
+
+            if (RootNamespace != null) {
+                WriteOption(writer, "rootnamespace", RootNamespace);
             }
-        }        
-        protected override string GetExtension(){ return "vb";}
+        }    
+    
+        protected override string GetExtension() { 
+            return "vb";
+        }
+
+        #endregion Override implementation of CompilerBase
     }
 }

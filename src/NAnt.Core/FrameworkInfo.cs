@@ -22,23 +22,31 @@ using System.IO;
 using System.Globalization;
     
 namespace SourceForge.NAnt {
-   
 
     /// <summary>
-    /// Encalsulates information about installed frameworks incuding version information and directory locations for finding tools
+    /// Encalsulates information about installed frameworks incuding version information 
+    /// and directory locations for finding tools.
     /// </summary>
-    public class FrameworkInfo  {
-        // privte members
+    public class FrameworkInfo {
+        #region Private Instance Fields
+
         string          _name;
         string          _description;
         string          _version;
         string          _csharpCompilerName; // move this to task specific section..
+        string          _basicCompilerName;
+        string          _jsharpCompilerName;
+        string          _jscriptCompilerName;
         string          _resgenToolName;         
         DirectoryInfo   _frameworkDirectory;
         DirectoryInfo   _sdkDirectory;
         DirectoryInfo   _frameworkAssemblyDirectory;
         FileInfo        _runtimEngine;
-        
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
         public FrameworkInfo( string name, 
                                 string description, 
                                 string version, 
@@ -46,6 +54,9 @@ namespace SourceForge.NAnt {
                                 string sdkDir, 
                                 string frameworkAssemblyDir,
                                 string csharpCompilerName,
+                                string basicCompilerName,
+                                string jsharpCompilerName,
+                                string jscriptCompilerName,
                                 string resgenToolName,
                                 string runtimeEngine ) {
             _name = name;
@@ -70,7 +81,7 @@ namespace SourceForge.NAnt {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "sdkDirectory {0} does not exist", sdkDir)  );
             }           
             // if runtime engine is blank assume we aren't using one
-            if ( runtimeEngine != "" ) {
+            if (runtimeEngine != null && runtimeEngine.Length != 0) {
                 string runtimeEnginePath = _frameworkDirectory.FullName + Path.DirectorySeparatorChar + runtimeEngine;
                 if ( File.Exists(runtimeEnginePath ) ){
                     _runtimEngine = new FileInfo( runtimeEnginePath );
@@ -80,74 +91,98 @@ namespace SourceForge.NAnt {
             }
             // Validate that these tools exist ..
             _csharpCompilerName = csharpCompilerName;
+            _basicCompilerName = basicCompilerName;
+            _jsharpCompilerName = jsharpCompilerName;
+            _jscriptCompilerName = jscriptCompilerName;
             _resgenToolName = resgenToolName;
         }
+
+        #endregion Public Instance Constructors
               
-        // public properties
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets the name of this framework.
+        /// </summary>
         public string Name {
-            get { return _name; }           
+            get { return _name; }
         }
         /// <summary>
-        /// 
+        /// Gets the description of this framework.
         /// </summary>
         public string Description {
-            get { return _description; }          
+            get { return _description; }
         }
         
         /// <summary>
-        /// 
+        /// Gets the version of this framework.
         /// </summary>
         public string Version {
             get { return _version; }
         }
         
         /// <summary>
-        /// 
+        /// Gets the name of the C# compiler for this framework.
         /// </summary>
         public string CSharpCompilerName {
-            get { return _csharpCompilerName; } 
+            get { return _csharpCompilerName; }
+        }
+
+        /// <summary>
+        /// Gets the name of the Basic compiler for this framework.
+        /// </summary>
+        public string BasicCompilerName {
+            get { return _basicCompilerName; }
+        }
+
+        /// <summary>
+        /// Gets the name of the J# compiler for this framework.
+        /// </summary>
+        public string JSharpCompilerName {
+            get { return _jsharpCompilerName; }
+        }
+
+        /// <summary>
+        /// Gets the name of the JScript compiler for this framework.
+        /// </summary>
+        public string JScriptCompilerName {
+            get { return _jscriptCompilerName; }
         }
         
         /// <summary>
-        /// name of the resgen tool for this framework
+        /// Gets the name of the resgen tool for this framework.
         /// </summary>
         public string ResGenToolName {
-            get { return _resgenToolName; } 
+            get { return _resgenToolName; }
         }
                 
         /// <summary>
-        /// Base directory of the framework tools
+        /// Gets the base directory of the framework tools for this framework.
         /// </summary>
         public DirectoryInfo FrameworkDirectory {
-            get {            
-                return _frameworkDirectory; 
-            }           
+            get { return _frameworkDirectory; }
         }
         /// <summary>
-        /// Path to the runtime engine for this framework. ( not required for many frameworks )
+        /// Gets the path to the runtime engine for this framework. ( not required for many frameworks )
         /// </summary>
         public FileInfo RuntimeEngine {
-            get {            
-                return _runtimEngine; 
-            }           
+            get { return _runtimEngine; }
         }
        
         /// <summary>
         /// Directory where the System assemblies are located
         /// </summary>
         public DirectoryInfo FrameworkAssemblyDirectory {
-            get {            
-                return _frameworkAssemblyDirectory; 
-            }           
+            get { return _frameworkAssemblyDirectory; }
         }
         
         /// <summary>
         /// Director containing the framework SDK tools
         /// </summary>
         public DirectoryInfo SdkDirectory {
-            get {                
-                return _sdkDirectory; 
-            }           
-        }             
+            get { return _sdkDirectory; }
+        }
+
+        #endregion Public Instance Properties
     }
 }

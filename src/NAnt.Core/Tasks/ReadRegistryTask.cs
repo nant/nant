@@ -32,11 +32,25 @@ namespace SourceForge.NAnt.Tasks {
     /// <summary>
     /// A task that reads a value or set of values from the Windows Registry into one or more NAnt properties.
     /// </summary>
+    /// <remarks>
+    ///     <p>
+    ///         Do not use a leading slash on the key value.
+    ///     </p>
+    ///     <p>
+    ///         Hive values can be one of the following values from the RegistryHive enum<see cref="Microsoft.Win32.RegistryHive"/>
+    ///         <table>
+    ///             <tr><td>LocalMachine</td><td></td></tr>
+    ///             <tr><td>CurrentUser</td><td></td></tr>
+    ///             <tr><td>Users</td><td></td></tr>
+    ///             <tr><td>ClassesRoot</td><td></td></tr>
+    ///         </table>
+    ///     </p>
+    /// </remarks>
     /// <example>
     ///     <para>Reads a single value from the registry</para>
-    ///     <code><![CDATA[<readregistry property="sdkRoot" key="\SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />]]></code>
+    ///     <code><![CDATA[<readregistry property="sdkRoot" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />]]></code>
     ///     <para>Reads all the registry values in a key</para>
-    ///     <code><![CDATA[<readregistry prefix="dotNetFX" key="\SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />]]></code>
+    ///     <code><![CDATA[<readregistry prefix="dotNetFX" key="SOFTWARE\Microsoft\.NETFramework\sdkInstallRoot" hive="LocalMachine" />]]></code>
     /// </example>
     [TaskName("readregistry")]
     public class ReadRegistryTask : Task {
@@ -60,7 +74,9 @@ namespace SourceForge.NAnt.Tasks {
             set { _propPrefix = value; }
         }
 
-        /// <summary>The registry key to read.</summary>
+        /// <summary>
+        /// <p>The registry key to read.</p>
+        /// </summary>
         [TaskAttribute("key", Required=true)]
         public virtual string RegistryKey {
             set {
@@ -71,6 +87,12 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         /// <summary>The registry hive to use.</summary>
+        /// <remarks>
+        ///     <seealso cref="Microsoft.Win32.RegistryHive"/>
+        /// </remarks>
+        /// <value>
+        ///     The enum of type <see cref="Microsoft.Win32.RegistryHive"/> values including LocalMachine, Users, CurrentUser and ClassesRoot.
+        /// </value>
         [TaskAttribute("hive")]
         public virtual string RegistryHiveName {
             set {

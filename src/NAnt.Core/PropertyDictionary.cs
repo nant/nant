@@ -119,9 +119,9 @@ namespace SourceForge.NAnt {
         /// Expands a string from known properties
         /// </summary>
         /// <param name="input">The string with replacement tokens</param>
+        /// <param name="location">The <seealso cref="Location"/>Location to pass through for any exceptions.</param>
         /// <returns>The expanded and replaced string</returns>
         public string ExpandProperties(string input, Location location) {
-            // Moved from Project.cs by Tomas Restrepo
             string output = input;
             if (input != null) {
                 const string pattern = @"\$\{([^\}]*)\}";

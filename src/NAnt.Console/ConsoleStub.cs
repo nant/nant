@@ -88,7 +88,7 @@ namespace SourceForge.NAnt {
                    cachePathInfo = Directory.CreateDirectory(cachePath);
                 }
                 catch(Exception e){
-                    Console.WriteLine("Failed to create: {0}. Using default CachePath.", cachePath);
+                    Console.WriteLine("Failed to create: {0}. Using default CachePath." + e.ToString(), cachePath);
                 }
                 finally{
                     if(cachePathInfo != null)

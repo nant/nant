@@ -50,7 +50,6 @@ namespace SourceForge.NAnt {
     /// </example>
     public class Project {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         //xml element and attribute names that are not defined in metadata
         protected const string ROOT_XML = "project";
         protected const string PROJECT_NAME_ATTRIBUTE = "name";
@@ -69,7 +68,6 @@ namespace SourceForge.NAnt {
 
         public const string NANT_PROPERTY_ONSUCCESS = "nant.onsuccess";
         public const string NANT_PROPERTY_ONFAILURE = "nant.failure";
-
 
         string _projectName = "";
         string _defaultTargetName = null;
@@ -640,6 +638,9 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
             Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
             Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName; 
+            Properties["nant.settings.defaultframework.basiccompiler"] = DefaultFramework.BasicCompilerName; 
+            Properties["nant.settings.defaultframework.jsharpcompiler"] = DefaultFramework.JSharpCompilerName; 
+            Properties["nant.settings.defaultframework.jscriptcompiler"] = DefaultFramework.JScriptCompilerName; 
             Properties["nant.settings.defaultframework.csharpcompiler"] = DefaultFramework.CSharpCompilerName; 
             Properties["nant.settings.defaultframework.resgentool"] = DefaultFramework.ResGenToolName;         
             Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;     
@@ -657,9 +658,11 @@ namespace SourceForge.NAnt {
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
             Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName; 
             Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
-           
             Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName; 
             Properties["nant.settings.currentframework.csharpcompiler"] = CurrentFramework.CSharpCompilerName; 
+            Properties["nant.settings.currentframework.basiccompiler"] = CurrentFramework.BasicCompilerName; 
+            Properties["nant.settings.currentframework.jsharpcompiler"] = CurrentFramework.JSharpCompilerName; 
+            Properties["nant.settings.currentframework.jscriptcompiler"] = CurrentFramework.JScriptCompilerName; 
             Properties["nant.settings.currentframework.resgentool"] = CurrentFramework.ResGenToolName;             
             Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
             if (CurrentFramework.RuntimeEngine != null) {
@@ -675,7 +678,7 @@ namespace SourceForge.NAnt {
         
         #region Settings file Load routines
         
-        // Addional routines to write      
+        // Addional routines to write
         // ProcessTaskInfo
         // ValidateSettingsFile
         
@@ -684,18 +687,18 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="propertyNodes"></param>
         void ProcessGlobalProperties( XmlNodeList propertyNodes ) {
-            foreach( XmlNode propertyNode in propertyNodes ){               
+            foreach( XmlNode propertyNode in propertyNodes ){
                  string propName = propertyNode.Attributes["name"].Value;
                  string propValue= propertyNode.Attributes["value"].Value;
-                                  
-                 XmlNode readonlyNode = propertyNode.Attributes["readonly"];               
+
+                 XmlNode readonlyNode = propertyNode.Attributes["readonly"];
                  if (readonlyNode != null && readonlyNode.Value == "true" ) {
                     Properties.AddReadOnly(propName, propValue);
                  }     
                  else {
                     Properties[propName] =  propValue;
-                 }                                                       
-            }        
+                 }
+            }
         }
         /// <summary>
         /// Process the Framework Info
@@ -703,61 +706,62 @@ namespace SourceForge.NAnt {
         /// <param name="frameworkInfoNodes"></param>
         void ProcessFrameworkInfo( XmlNodeList frameworkInfoNodes ) {
             foreach ( XmlNode frameworkNode in frameworkInfoNodes ) {
-            
                 // load the runtimInfo stuff
-                XmlNode SdkDirectoryNode = frameworkNode.SelectSingleNode("sdkdirectory");
+                XmlNode sdkDirectoryNode = frameworkNode.SelectSingleNode("sdkdirectory");
                 XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkdirectory");
                 XmlNode frameworkAssemDirectoryNode = frameworkNode.SelectSingleNode("frameworkassemblydirectory");
-                
-                string name = frameworkNode.Attributes["name"].Value;
-                string description =  frameworkNode.Attributes["description"].Value;
-                string version = frameworkNode.Attributes["version"].Value;
-                string csharpCompilerName = frameworkNode.Attributes["csharpcompilername"].Value;
-                string resgenToolName = frameworkNode.Attributes["resgenname"].Value;
-                string runtimeEngine = ( frameworkNode.Attributes["runtimeengine"] != null ) ? frameworkNode.Attributes["runtimeengine"].Value : "";
-                
-                                            
+
+                string name = GetXmlAttributeValue(frameworkNode, "name");
+                string description =  GetXmlAttributeValue(frameworkNode, "description");
+                string version = GetXmlAttributeValue(frameworkNode, "version");
+                string csharpCompilerName = GetXmlAttributeValue(frameworkNode, "csharpcompilername");
+                string basicCompilerName = GetXmlAttributeValue(frameworkNode, "basiccompilername");
+                string jsharpCompilerName = GetXmlAttributeValue(frameworkNode, "jsharpcompilername");
+                string jscriptCompilerName = GetXmlAttributeValue(frameworkNode, "jscriptcompilername");
+                string resgenToolName = GetXmlAttributeValue(frameworkNode, "resgenname");
+                string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
+
                 string sdkDirectory = "";
                 string frameworkDirectory = "";
                 string frameworkAssemblyDirectory = "";
-                
+
                 // Do some validation here on null or not null fields
-                if ( SdkDirectoryNode.Attributes["useregistry"] != null &&  SdkDirectoryNode.Attributes["useregistry"].Value == "true") {
-                    string regKey = SdkDirectoryNode.Attributes["regkey"].Value;                    
-                    string regValue = SdkDirectoryNode.Attributes["regvalue"].Value;
+                if (GetXmlAttributeValue(sdkDirectoryNode, "useregistry") == "true") {
+                    string regKey = GetXmlAttributeValue(sdkDirectoryNode, "regkey");
+                    string regValue = GetXmlAttributeValue(sdkDirectoryNode, "regvalue");
                     RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
-                    
+
                     if ( sdkKey != null && sdkKey.GetValue(regValue) != null ) {
                         sdkDirectory  = sdkKey.GetValue(regValue).ToString() + Path.DirectorySeparatorChar + "bin";
                     }
                 } else {
-                    sdkDirectory =  SdkDirectoryNode.Attributes["dir"].Value;
+                    sdkDirectory =  GetXmlAttributeValue(sdkDirectoryNode, "dir");
                 }
-                
-                if ( frameworkDirectoryNode.Attributes["useregistry"] != null &&  frameworkDirectoryNode.Attributes["useregistry"].Value == "true" ) {
-                    string regKey = frameworkDirectoryNode.Attributes["regkey"].Value;
-                    string regValue = frameworkDirectoryNode.Attributes["regvalue"].Value;
+
+                if (GetXmlAttributeValue(frameworkDirectoryNode, "useregistry") == "true" ) {
+                    string regKey = GetXmlAttributeValue(frameworkDirectoryNode, "regkey");
+                    string regValue = GetXmlAttributeValue(frameworkDirectoryNode, "regvalue");
                     RegistryKey frameworkKey = Registry.LocalMachine.OpenSubKey(regKey);
                     
-                    if ( frameworkKey  != null && frameworkKey.GetValue(regValue) != null ) {                    
+                    if ( frameworkKey  != null && frameworkKey.GetValue(regValue) != null ) {
                         frameworkDirectory  = frameworkKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
                     }
                 } else {
-                    frameworkDirectory =  frameworkDirectoryNode.Attributes["dir"].Value;
+                    frameworkDirectory =  GetXmlAttributeValue(frameworkDirectoryNode, "dir");
                 }
                 
-                if ( frameworkAssemDirectoryNode.Attributes["useregistry"] != null &&  frameworkAssemDirectoryNode.Attributes["useregistry"].Value == "true"){
-                    string regKey = frameworkAssemDirectoryNode.Attributes["regkey"].Value;
-                    string regValue = frameworkAssemDirectoryNode.Attributes["regvalue"].Value;
+                if (GetXmlAttributeValue(frameworkAssemDirectoryNode, "useregistry") == "true") {
+                    string regKey = GetXmlAttributeValue(frameworkAssemDirectoryNode, "regkey");
+                    string regValue = GetXmlAttributeValue(frameworkAssemDirectoryNode, "regvalue");
                     RegistryKey frameworkAssemKey = Registry.LocalMachine.OpenSubKey(regKey);
                     
-                    if ( frameworkAssemKey  != null && frameworkAssemKey.GetValue(regValue) != null ) {                    
+                    if ( frameworkAssemKey  != null && frameworkAssemKey.GetValue(regValue) != null ) {
                         frameworkAssemblyDirectory  = frameworkAssemKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
                     }
                 } else {
-                    frameworkAssemblyDirectory =  frameworkAssemDirectoryNode.Attributes["dir"].Value;
+                    frameworkAssemblyDirectory =  GetXmlAttributeValue(frameworkAssemDirectoryNode, "dir");
                 }
-                
+
                 FrameworkInfo info = null;
                 try {
                     info = new FrameworkInfo( name, 
@@ -767,16 +771,44 @@ namespace SourceForge.NAnt {
                                             sdkDirectory, 
                                             frameworkAssemblyDirectory, 
                                             csharpCompilerName, 
+                                            basicCompilerName,
+                                            jsharpCompilerName,
+                                            jscriptCompilerName,
                                             resgenToolName,
-                                            runtimeEngine );                
+                                            runtimeEngine );
                 }
                 catch (Exception e ) {
                     Log.WriteLineIf(Verbose, string.Format(CultureInfo.InvariantCulture, "settings warning: frameworkinfo {0} is invalid and has not been loaded: ", name ) + e.Message );
                 } // just ignore frameworks that don't validate
-                if ( info != null ) {                    
-                    _frameworkInfoTable.Add( info.Name, info );   
-                }                                                            
+                if ( info != null ) {
+                    _frameworkInfoTable.Add( info.Name, info );
+                }
             }
+        }
+
+        /// <summary>
+        /// Gets the value of the specified attribute from the specified node.
+        /// </summary>
+        /// <param name="xmlNode">The node of which the attribute value should be retrieved.</param>
+        /// <param name="attributeName">The attribute of which the value should be returned.</param>
+        /// <returns>
+        /// The value of the attribute with the specified name or <c>null</c> if the attribute
+        /// does not exist or has no value.
+        /// </returns>
+        private static string GetXmlAttributeValue(XmlNode xmlNode, string attributeName) {
+            string attributeValue = null;
+
+            if (xmlNode != null) {
+                XmlAttribute xmlAttribute = (XmlAttribute) xmlNode.Attributes.GetNamedItem(attributeName);
+                if (xmlAttribute != null) {
+                    attributeValue = xmlAttribute.Value.Trim();
+                    if (attributeValue.Length == 0) {
+                        attributeValue = null;
+                    }
+                }
+            }
+
+            return attributeValue;
         }
                 
         /// <summary>
@@ -807,18 +839,18 @@ namespace SourceForge.NAnt {
             XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
             ProcessFrameworkInfo(frameworkInfoNodes);
             
-            string defaultFramework = node.Attributes["defaultframework"].Value;
+            string defaultFramework = GetXmlAttributeValue(node, "defaultframework");
             if ( _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
                 
-                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );                                                   
+                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );
                 Properties.Add("nant.settings.currentframework", defaultFramework );
                 
                 DefaultFramework = _frameworkInfoTable[defaultFramework];
-                CurrentFramework = _defaultFramework;                                                                              
+                CurrentFramework = _defaultFramework;
             }   
             else {        
                 throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
-            }                              
+            }
 
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             // now load the default property set
