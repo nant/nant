@@ -23,11 +23,11 @@
 
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
-        <call target="${project.config}"/>
+		<call target="${project.config}"/>
     </target>
 
     <target name="clean" depends="init" description="Deletes current build configuration">
-        <delete verbose="true" dir="${build-dir}" failonerror="false"/>
+		<delete verbose="true" dir="${build.dir}" failonerror="false"/>
     </target>
 
     <target name="cleanall" description="Deletes every build configuration">
@@ -36,6 +36,7 @@
     </target>
 
     <target name="build" depends="init" description="Builds current configuration">
+		<echo message="Build Directory is ${build.dir}"/>
 		<!-- prepare build directory -->
         <mkdir dir="${build.dir}/bin"/>
         <copy todir="${build.dir}/bin">
