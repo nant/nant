@@ -43,7 +43,7 @@ namespace NAnt.VSNet {
 
         public Project(SolutionTask solutionTask, TempFileCollection tfc, ReferenceGacCache gacCache, DirectoryInfo outputDir) : base(solutionTask, tfc, gacCache, outputDir) {
             _htReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _sourceFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htResources = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htAssemblies = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
@@ -123,12 +123,10 @@ namespace NAnt.VSNet {
             }
         }
 
-        public static string LoadGuid(string fileName, TempFileCollection tfc) {
+        public static string LoadGuid(string fileName) {
             try {
                 XmlDocument doc = LoadXmlDocument(fileName);
-
-                ProjectSettings ps = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), tfc);
-                return ps.Guid;
+                return ProjectSettings.GetProjectGuid(doc.DocumentElement);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Error loading GUID of project '{0}'.", fileName), 
@@ -143,19 +141,14 @@ namespace NAnt.VSNet {
         public override void Load(Solution sln, string projectPath) {
             XmlDocument doc = LoadXmlDocument(projectPath);
 
-            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), TempFiles);
             _projectPath = projectPath;
-
-            _isWebProject = ProjectFactory.IsUrl(projectPath);
-            _webProjectBaseUrl = string.Empty;
-
             if (!_isWebProject) {
                 _projectDirectory = new FileInfo(projectPath).DirectoryName;
             } else {
                 _projectDirectory = projectPath.Replace(":", "_");
                 _projectDirectory = _projectDirectory.Replace("/", "_");
                 _projectDirectory = _projectDirectory.Replace("\\", "_");
-                _projectDirectory = Path.Combine(_projectSettings.TemporaryFiles.BasePath, _projectDirectory);
+                _projectDirectory = Path.Combine(TempFiles.BasePath, _projectDirectory);
 
                 // ensure project directory exists
                 Directory.CreateDirectory(_projectDirectory);
@@ -163,7 +156,10 @@ namespace NAnt.VSNet {
                 _webProjectBaseUrl = projectPath.Substring(0, projectPath.LastIndexOf("/"));
             }
 
-            _projectSettings.ProjectDirectory = new DirectoryInfo(_projectDirectory);
+            _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), new DirectoryInfo(_projectDirectory), TempFiles);
+
+            _isWebProject = ProjectFactory.IsUrl(projectPath);
+            _webProjectBaseUrl = string.Empty;
 
             XmlNodeList nlConfigurations, nlReferences, nlFiles, nlImports;
 
@@ -195,20 +191,21 @@ namespace NAnt.VSNet {
                 string sourceFile;
 
                 if (!StringUtils.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
-                    sourceFile = elemFile.GetAttribute("Link");
+                    sourceFile = Path.GetFullPath(Path.Combine(_projectDirectory, 
+                        elemFile.GetAttribute("Link")));
                 } else {
-                    sourceFile = elemFile.GetAttribute("RelPath");
+                    sourceFile = Path.GetFullPath(Path.Combine(_projectDirectory, 
+                        elemFile.GetAttribute("RelPath")));
                 }
 
                 if (_isWebProject) {
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                    string outputFile = Path.Combine(_projectDirectory, elemFile.Attributes["RelPath"].Value);
-                    wdc.DownloadFile(outputFile, elemFile.Attributes["RelPath"].Value);
+                    wdc.DownloadFile(sourceFile, elemFile.Attributes["RelPath"].Value);
 
                     if (buildAction == "Compile") {
-                        _htFiles[sourceFile] = null;
+                        _sourceFiles[sourceFile] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        FileInfo fi = new FileInfo(outputFile);
+                        FileInfo fi = new FileInfo(sourceFile);
                         if (fi.Exists && fi.Length == 0) {
                             Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resource '{0}'.", 
                                 fi.FullName);
@@ -220,9 +217,9 @@ namespace NAnt.VSNet {
                     }
                 } else {
                     if (buildAction == "Compile") {
-                        _htFiles[sourceFile] = null;
+                        _sourceFiles[sourceFile] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        FileInfo resourceFile = new FileInfo(Path.Combine(_projectDirectory, sourceFile));
+                        FileInfo resourceFile = new FileInfo(sourceFile);
                         if (resourceFile.Exists && resourceFile.Length == 0) {
                             Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resource '{0}'.", 
                                 resourceFile.FullName);
@@ -238,7 +235,7 @@ namespace NAnt.VSNet {
 
         protected override bool Build(ConfigurationBase configurationSettings) {
             bool bSuccess = true;
-             bool haveCultureSpecificResources = false;
+            bool haveCultureSpecificResources = false;
             string tempFile = null;
 
             try {
@@ -269,6 +266,11 @@ namespace NAnt.VSNet {
 
                     foreach (string setting in cs.Settings) {
                         sw.WriteLine(setting);
+                    }
+
+                    if (ProjectSettings.ApplicationIcon != null) {
+                        sw.WriteLine(@"/win32icon:""{0}""",
+                            ProjectSettings.ApplicationIcon.FullName);
                     }
 
                     if (_projectSettings.Type == ProjectType.VBNet) {
@@ -369,7 +371,7 @@ namespace NAnt.VSNet {
                     }
 
                     // check if project does not contain any sources
-                    if (_htFiles.Count == 0) {
+                    if (_sourceFiles.Count == 0) {
                         // create temp file
                         tempFile = Path.GetTempFileName();
 
@@ -377,11 +379,11 @@ namespace NAnt.VSNet {
                         // as command line compilers require a least one source
                         // file to be specified, but VS.NET supports empty
                         // projects
-                        _htFiles[tempFile] = null;
+                        _sourceFiles[tempFile] = null;
                     }
 
                     // add the files to compile
-                    foreach (string file in _htFiles.Keys) {
+                    foreach (string file in _sourceFiles.Keys) {
                         sw.WriteLine(@"""" + file + @"""");
                     }
                 }
@@ -422,7 +424,16 @@ namespace NAnt.VSNet {
 
                 psi.UseShellExecute = false;
                 psi.RedirectStandardOutput = true;
-                psi.WorkingDirectory = _projectDirectory;
+
+                // VS.NET (probably) uses the <project dir>\obj\<configuration>
+                // as working directory, so we should do the same to make sure
+                // relative paths are resovled correctly (eg. AssemblyKeyFile)
+                DirectoryInfo objConfigDir = new DirectoryInfo(Path.Combine(_projectDirectory, 
+                    Path.Combine("obj", cs.Name)));
+                if (!objConfigDir.Exists) {
+                    objConfigDir.Create();
+                }
+                psi.WorkingDirectory = objConfigDir.FullName;
 
                 Process p = Process.Start(psi);
 
@@ -833,13 +844,13 @@ namespace NAnt.VSNet {
                 return false;
             }
 
-            // Check all of the input files
-            foreach (string file in _htFiles.Keys)
-                if (dtOutputTimeStamp < File.GetLastWriteTime(Path.Combine(_projectDirectory, file))) {
+            // check all of the input files
+            foreach (string file in _sourceFiles.Keys)
+                if (dtOutputTimeStamp < File.GetLastWriteTime(file)) {
                     return false;
                 }
 
-            // Check all of the input references
+            // check all of the input references
             foreach (Reference reference in _htReferences.Values) {
                 reference.ConfigurationSettings = cs;
                 if (dtOutputTimeStamp < reference.Timestamp) {
@@ -855,7 +866,16 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private Hashtable _htReferences;
-        private Hashtable _htFiles;
+
+        /// <summary>
+        /// Holds a case-insensitive list of source files.
+        /// </summary>
+        /// <remarks>
+        /// The key of the <see cref="Hashtable" /> is the full path of the 
+        /// source file and the value is <see langword="null" />.
+        /// </remarks>
+        private Hashtable _sourceFiles;
+
         private Hashtable _htResources;
         private Hashtable _htAssemblies;
         private string _imports;
