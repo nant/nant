@@ -367,6 +367,59 @@ namespace NAnt.Core.Functions {
         #endregion Private Instance Methods
     }
 
+    [FunctionSet("platform", "NAnt")]
+    public class PlatformFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public PlatformFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Gets the name of the platform on which NAnt is running.
+        /// </summary>
+        /// <returns>
+        /// The name of the platform on which NAnt is running.
+        /// </returns>
+        [Function("get-name")]
+        public string GetName() {
+            return Project.PlatformName;
+        }
+
+        #endregion Public Instance Methods
+
+        #region Public Static Methods
+
+        /// <summary>
+        /// Checks whether NAnt is running on the win32 platform.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if NAnt is running on the win32 platform;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-win32")]
+        public static bool IsWin32() {
+            return PlatformHelper.IsWin32;
+        }
+
+        /// <summary>
+        /// Checks whether NAnt is running on unix.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if NAnt is running on unix;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-unix")]
+        public static bool IsUnix() {
+            return PlatformHelper.IsUnix;
+        }
+
+        #endregion Public Static Methods
+    }
+
     [FunctionSet("environment", "NAnt")]
     public class EnvironmentFunctions : FunctionSetBase {
         #region Public Instance Constructors
