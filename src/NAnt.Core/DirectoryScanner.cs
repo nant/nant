@@ -788,6 +788,11 @@ namespace NAnt.Core {
 
             // Start with ? - it's used below            
             pattern.Replace("?", "[^" + seperator + "]?");
+
+            // SPECIAL CASE: any *'s directory between slashes or at the end of the
+            // path are replaced with a 1..n pattern instead of 0..n: (?<=\\)\*(?=($|\\))
+            // This ensures that C:\*foo* matches C:\foo and C:\* won't match C:.
+            pattern = new StringBuilder(Regex.Replace(pattern.ToString(), "(?<=" + seperator + ")\\*(?=($|" + seperator + "))", "[^" + seperator + "]+"));
             
             // SPECIAL CASE: to match subdirectory OR current directory.  If
             // we don't do this then we can write something like 'src/**/*.cs'
