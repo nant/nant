@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "Nant.NUnit1"
+                RootNamespace = "NAnt.NUnit1"
                 StartupObject = ""
             >
                 <Config
