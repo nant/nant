@@ -5,7 +5,9 @@
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" overwrite="false" />
     <!-- global build settings -->
-    <property name="lib.dir" value="lib/${framework::get-family(framework::get-target-framework())}/${framework::get-version(framework::get-target-framework())}" dynamic="true" />    
+    <property name="lib.dir" value="${path::combine(build.dir, 'bin/lib')}" dynamic="true" />
+    <property name="lib.family.dir" value="${path::combine(lib.dir, framework::get-family(framework::get-target-framework()))}" dynamic="true" />
+    <property name="lib.framework.dir" value="${path::combine(lib.family.dir, framework::get-version(framework::get-target-framework()))}" dynamic="true" />
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
@@ -83,7 +85,11 @@
                 <attribute type="AssemblyTitleAttribute" value="NAnt" />
                 <attribute type="AssemblyDescriptionAttribute" value="A .NET Build Tool" />
                 <attribute type="AssemblyConfigurationAttribute" value="${framework::get-target-framework()}.${platform::get-name()}; nightly" />
+                <!-- temporary change to fix issue with VS.NET 2005 CP -->
+                <!--
                 <attribute type="AssemblyCompanyAttribute" value="http://nant.sourceforge.net" />
+                -->
+                <attribute type="AssemblyCompanyAttribute" value="NAnt Team" />
                 <attribute type="AssemblyProductAttribute" value="NAnt" />
                 <attribute type="AssemblyCopyrightAttribute" value="Copyright (C) 2001-${datetime::get-year(datetime::now())} Gerry Shaw" />
                 <attribute type="AssemblyTrademarkAttribute" value="" />
@@ -102,28 +108,20 @@
     </target>
     <target name="build" depends="init, create-common-assemblyinfo" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
-        <!-- prepare build directory -->
+        <!-- ensure bin directory exists -->
         <mkdir dir="${build.dir}/bin" />
-        <!-- copy framework-neutral libraries -->
-        <copy todir="${build.dir}/bin">
-            <fileset basedir="lib">
-                <includes name="NUnitCore.dll" />
-                <includes name="ICSharpCode.SharpZipLib.dll" />
-                <includes name="ICSharpCode.SharpCvsLib.dll" />
-            </fileset>
-        </copy>
+        <!-- ensure lib directory exists -->
+        <mkdir dir="${build.dir}/bin/lib" />
+        <!-- copy third party executables -->
         <copy todir="${build.dir}/bin">
             <fileset basedir="bin">
                 <includes name="scvs.exe" />
             </fileset>
         </copy>
-        <!-- copy framework-specific libraries -->
-        <copy todir="${build.dir}/bin">
-            <fileset basedir="${lib.dir}">
-                <includes name="NDoc.Core.dll" />
-                <includes name="NDoc.Documenter.*.dll" />
-                <includes name="nunit.framework.dll" />
-                <includes name="log4net.dll" />
+        <!-- copy third party assemblies -->
+        <copy todir="${build.dir}/bin/lib">
+            <fileset basedir="bin/lib">
+                <includes name="**/*" />
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
@@ -206,7 +204,7 @@
             </sources>
             <references failonempty="true">
                 <includes name="${build.dir}/bin/NAnt.Core.dll" />
-                <includes name="${build.dir}/bin/NDoc.Core.dll" />
+                <includes name="${lib.framework.dir}/NDoc.Core.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
                 <includes name="**/*.xslt" />
@@ -238,21 +236,6 @@
             </sourcefiles>
         </uptodate>
         <if test="${not(help.uptodate)}">
-            <!-- don't build this for now. Just for testing.
-            <ndoc>
-                <assemblies basedir="${build.dir}/bin">
-                    <includes name="NAnt.Core.dll" />
-                </assemblies>
-                <documenters>
-                    <documenter name="XML">
-                        <property name="OutputFile" value="${build.dir}/doc/nantdoc.raw.xml" />
-                        <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
-                        <property name="DocumentAttributes" value="True" />
-                        <property name="IncludeAssemblyVersion" value="True" />
-                    </documenter>
-                </documenters>
-            </ndoc>
-            -->
             <ndoc>
                 <assemblies basedir="${build.dir}/bin">
                     <includes name="NAnt.Core.dll" />
@@ -262,7 +245,8 @@
                 <documenters>
                     <documenter name="NAnt">
                         <property name="OutputDirectory" value="${build.dir}/doc/help" />
-                        <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="SdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="SdkLinksOnWeb" value="${link.sdkdoc.web}" />
                         <!-- set base uri used for linking to other NAnt docs -->
                         <property name="NAntBaseUri" value="../" />
                         <!-- do not filter on namespace -->
@@ -331,7 +315,8 @@
                     <documenter name="MSDN">
                         <property name="OutputDirectory" value="${build.dir}/doc/sdk" />
                         <property name="OutputTarget" value="HtmlHelp" />
-                        <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="SdkDocVersion" value="${link.sdkdoc.version}" />
+                        <property name="SdkLinksOnWeb" value="${link.sdkdoc.web}" />
                         <property name="HtmlHelpName" value="NAnt-SDK" />
                         <property name="IncludeFavorites" value="False" />
                         <property name="Title" value="NAnt SDK Documentation - v.${project.version}" />
@@ -420,23 +405,6 @@
                 <excludes name="**/obj/**" />
             </fileset>
         </copy>
-        <!-- ensure lib directory exists -->
-        <mkdir dir="${build.dir}/lib" />        
-        <!-- copy third-party libraries -->
-        <copy todir="${build.dir}/lib">
-            <fileset basedir="lib">
-                <includes name="**/NDoc.Core.dll" />
-                <includes name="**/NDoc.Core.xml" />
-                <includes name="**/NDoc.Documenter.*.dll" />
-                <includes name="**/NDoc.Documenter.*.xml" />
-                <includes name="**/nunit.framework.dll" />
-                <includes name="**/NUnitCore.dll" />
-                <includes name="**/ICSharpCode.SharpZipLib.dll" />
-                <includes name="**/ICSharpCode.SharpCvsLib.dll" />
-                <includes name="**/log4net.dll" />
-                <includes name="**/log4net.xml" />
-            </fileset>
-        </copy>
         <!-- determine name of package zip file -->
         <property name="project.zip-path" value="${nant.project.basedir}/build/${project.name}-${project.version}.zip" />
         <!-- remove package zip file if it already exists -->
@@ -479,30 +447,36 @@
         <property name="nant.settings.currentframework" value="net-1.0" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
+        <property name="link.sdkdoc.web" value="false" />
     </target>
     <target name="set-net-1.1-framework-configuration">
         <property name="nant.settings.currentframework" value="net-1.1" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_1" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="link.sdkdoc.web" value="false" />
     </target>
-    <target name="set-net-1.2-framework-configuration">
-        <property name="nant.settings.currentframework" value="net-1.2" />
-        <property name="current.build.defines" value="${build.defines}NET,NET_1_2" dynamic="true" />
-        <property name="link.sdkdoc.version" value="MsdnOnline" />
+    <target name="set-net-2.0-framework-configuration">
+        <property name="nant.settings.currentframework" value="net-2.0" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_2_0" dynamic="true" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />        
+        <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-netcf-1.0-framework-configuration">
         <property name="nant.settings.currentframework" value="netcf-1.0" />
         <property name="current.build.defines" value="${build.defines}NETCF,NETCF_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="link.sdkdoc.web" value="false" />
     </target>
     <target name="set-mono-1.0-framework-configuration">
         <property name="nant.settings.currentframework" value="mono-1.0" />
         <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" dynamic="true" />
-        <property name="link.sdkdoc.version" value="MsdnOnline" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-sscli-1.0-framework-configuration">
         <property name="nant.settings.currentframework" value="sscli-1.0" />
         <property name="current.build.defines" value="${build.defines}SSCLI,SSCLI_1_0" dynamic="true" />
-        <property name="link.sdkdoc.version" value="MsdnOnline" />
+        <property name="link.sdkdoc.version" value="SDK_v1_0" />
+        <property name="link.sdkdoc.web" value="true" />
     </target>
 </project>
