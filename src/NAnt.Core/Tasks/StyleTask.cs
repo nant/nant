@@ -384,24 +384,16 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Methods
 
         protected virtual XmlReader CreateXmlReader(string file) {
-            XmlTextReader xmlReader = new XmlTextReader(new FileStream(file, FileMode.Open, FileAccess.Read));
-            return xmlReader;
+            return new XmlTextReader(file, new FileStream(file, FileMode.Open,
+                FileAccess.Read));
         }
 
         protected virtual TextWriter CreateWriter(string filepath) {
-            string xmlPath = filepath;
-            TextWriter writer = null;
-
-            string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
+            string targetDir = Path.GetDirectoryName(Path.GetFullPath(filepath));
             if (!StringUtils.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
                 Directory.CreateDirectory(targetDir);
             }
-            // UTF-8 encoding will be used
-            //xmlWriter = new XmlTextWriter(xmlPath, null);
-            // Create text writer first
-            writer = new StreamWriter(xmlPath);
-
-            return writer;
+            return new StreamWriter(filepath);
         }
 
         #endregion Protected Instance Methods
