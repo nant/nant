@@ -222,7 +222,7 @@ namespace NAnt.VSNet {
                 new ExpansionHandler(ExpandMacros));
         }
 
-        private string GetToolSetting(string toolName, string settingName, string defaultValue, ExpansionHandler expander) {
+        internal string GetToolSetting(string toolName, string settingName, string defaultValue, ExpansionHandler expander) {
             string setting = null;
 
             Hashtable toolSettings = (Hashtable) Tools[toolName];
